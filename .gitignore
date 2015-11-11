@@ -1,0 +1,3 @@
+# Ignore IDE/text editor files
+*.sublime-project
+*.sublime-workspace
