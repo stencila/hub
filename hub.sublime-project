@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"SublimeLinter":
+	{
+		"linters": {
+			"flake8": {
+				"@disable": false,
+				"max-line-length": 120
+			},
+		}
+	}
+}
