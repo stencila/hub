@@ -1,0 +1,7 @@
+sh==1.11
+werkzeug==0.10.1
+flanker==0.3.36
+glob2==0.4.1
+requests==2.5.1
+
+http://get.stenci.la/py/stencila-0.19_g5d29f92-cp27-none-linux_x86_64.whl

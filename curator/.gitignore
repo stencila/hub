@@ -1,0 +1,5 @@
+# Ignore virtual environment
+/env
+
+# Ignore log files
+/logs
