@@ -10,6 +10,15 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 
 
+def front(request):
+    '''
+    Front page at /
+    '''
+    return render(request, 'front.html')
+
+
+# API documentation
+
 def api_ui(request):
     '''
     Render API documentation template based on Swagger UI but with

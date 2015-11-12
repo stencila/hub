@@ -33,6 +33,10 @@ import general.views
 import components.views
 
 urlpatterns = [
+
+    # Front page
+    url(r'^$',                                                       general.views.front),
+
     # API endpoints
     url(r'^api/v1/',                                                 include('api_v1')),
 

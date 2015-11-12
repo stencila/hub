@@ -1,3 +1,14 @@
 {% load static %}
 <header id="header">
+	<div class="logo">
+		<a href="/"><img src="{% static 'logo-name-400x88.png' %}"></a>
+		<span class="beta">beta</span>
+	</div>
+	<div class="links">
+		{% if user.is_anonymous %}
+		{% else %}
+			<span class="username">{{ user.username }}</span>
+			<a id="intercom">Help</a>
+		{% endif %}
+	</div>
 </header>

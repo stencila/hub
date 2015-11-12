@@ -1,0 +1,59 @@
+#header {
+	z-index: 100;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 3em;
+	width: 100%;
+	background:white;
+	opacity: 0.97;
+	border: 0 solid #EDEBEB;
+	color: #777
+
+	top: 0;
+	border-bottom-width:1px
+}
+
+.logo {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	padding: 0.5em 0 0.5em 1em;
+}
+.logo img {
+	height: 2em;
+}
+.logo .beta {
+	font-weight: bold;
+	font-size: 0.65em;
+	color: #888;
+}
+
+.links {
+	float: right;
+	padding: 1em;
+}
+
+.links a,
+.links a:visited {
+	color: #777;
+}
+.links a:hover,
+.links a.active {
+	color: #444;
+}
+
+/**
+ * Need to make links and menu responsive.
+ * This is just a temporary hiding of them.
+ */
+@media only screen and (max-width: 45em) {
+	.links {
+		display:none;
+	}
+}
+
+#main {
+	margin-top: 3em;
+}
