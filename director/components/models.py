@@ -180,10 +180,8 @@ class Component(models.Model):
 
     def save(self, *args, **kwargs):
         '''
-        Override `save()` to ensure repository is initialised for this component
+        Override `save()` for things that need to be initialised
         '''
-        if not self.initialised:
-            self.initialise()
         super(Component, self).save(*args, **kwargs)
 
     ##########################################################################
@@ -259,7 +257,7 @@ class Component(models.Model):
     # CRUD
 
     @staticmethod
-    def create_one(user, address, type, public=True, init=True):
+    def create(user, address, type, public=True, init=True):
         '''
         Create a new component
         '''

@@ -39,7 +39,6 @@ urlpatterns = [
 
     # API endpoints
     url(r'^api/v1/',                                                 include('api_v1')),
-
     # API documentation
     url(r'^api/api.yml',                                             general.views.api_yml),
     url(r'^api/?$',                                                  general.views.api_ui),
@@ -58,6 +57,10 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+
+    # Create a new components
+    url(r'^new/(?P<type>\w+)$',                                      components.views.new),
+
     # Slugified URL
     url(r'^(?P<address>.+)/(?P<slug>.*)-$',                          components.views.slugified),
 

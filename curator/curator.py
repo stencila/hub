@@ -144,7 +144,7 @@ class Curator:
             self.git(path, 'add', 'stencil.cila')
         self.git(path, 'commit', '-m', 'Initial commit')
 
-        # Compile the component so page.html is availabe
+        # Compile the component so index.html is availabe
         com = self.component(address)
         com.compile()
 

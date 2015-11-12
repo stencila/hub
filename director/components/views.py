@@ -261,8 +261,12 @@ def new(request, type):
     if request.user_agent.is_bot:
         return redirect('/', permanent=True)
     else:
-        component = Component.create(request.user, address=None, type=type)
-        return redirect(component.url)
+        component = Component.create(
+            user=request.user,
+            address=None,
+            type=type
+        )
+        return redirect(component.url())
 
 
 def page(request, address, component=None):
