@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% comment %}
+See env/lib/python2.7/site-packages/django/contrib/admin/templates/admin/base.html
+for blocks that  can be overidden
+{% endcomment %}
+
+{% block title %}{{ title }} | Stencila hub{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="{% static 'admin.css' %}" />
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+	<a href="{% url 'admin:index' %}"><img class="logo" src="{% static 'logo-name-reversed-267x58.png' %}"></a>
+</h1>
+{% endblock %}
+
+{% block welcome-msg %}
+    <strong>{% firstof user.get_short_name user.get_username %}</strong>:
+{% endblock %}
+
+{% block userlinks %}
+    {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+    {% endif %}
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+{% endblock %}

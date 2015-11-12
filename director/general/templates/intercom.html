@@ -1,0 +1,24 @@
+{% if request.user.is_authenticated %}
+<script>
+	var intercomSettings = {
+		{# Different app ids for development and production #}
+		app_id: {% ifequal MODE 'local' %}'le4r8a73'{% else %}'y554dhej'{% endifequal %},
+		email: '{{ request.user.email }}',
+		user_id: '{{ request.user.id }}',
+		name: '{{ request.user.username }}',
+		created_at: {{ request.user.date_joined|date:"U" }},
+		widget: {
+			activator: '#intercom',
+		},
+		custom_data: {},
+		company: {},
+	};
+	(function() {
+		var s = document.createElement('script');
+		s.type = 'text/javascript'; s.async = true;
+		s.src = 'https://static.intercomcdn.com/intercom.v1.js';
+		var x = document.getElementsByTagName('script')[0];
+		x.parentNode.insertBefore(s, x);
+	})();
+</script>
+{% endif %}

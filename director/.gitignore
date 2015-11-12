@@ -1,0 +1,11 @@
+# Ignore virtual environment
+/env
+
+# Ignore any development database
+/db.sqlite3
+
+# Ignore static file directory
+/static
+
+# Ignore local settings
+/local_settings.py

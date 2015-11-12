@@ -1,0 +1,24 @@
+{% load static %}
+
+<!DOCTYPE html>
+	<head>
+		<title>{% block title %}Home{% endblock %} : Stencila</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
+		{% block styles %}
+			<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+		{% endblock %}
+		{% block scripts %}
+		{% endblock %}
+		{% include "pingdom.html" %}
+	</head>
+	<body>
+		{% include "header.html" %}
+		<main id="main">
+			{% block main %}
+			{% endblock %}
+		</main>
+		{% include "footer.html" %}
+	</body>
+</html>

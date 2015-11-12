@@ -1,2 +1,5 @@
+# Ignore compiled Python files
+*.pyc
+
 # Ignore IDE/text editor files
 *.sublime-workspace

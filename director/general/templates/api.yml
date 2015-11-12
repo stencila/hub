@@ -1,0 +1,225 @@
+swagger: '2.0'
+
+info:
+  title: Stencila API
+  version: 1.0
+  description: |
+    The Stencila API is under rapid development. So,
+
+      - not all of the endpoints that are documented here are implemented!
+      - not all of the endpoint that are implemented are documented here!
+      - much of the documentation here may not match what is currently implemented!
+
+    Please bear with us, we are working hard to get the API settled down and to version 1.0.
+
+
+{% if MODE != 'local' %}
+host: stenci.la
+{% endif %}
+basePath: /api/v1
+schemes:
+{% if MODE != 'local' %}
+  - https
+{% else %}
+  - http
+{% endif %}
+consumes:
+  - application/json
+produces:
+  - application/json
+  - text/html
+
+paths:
+
+  ###########################################################################
+  # Me
+  ###########################################################################
+
+  /me:
+
+    get:
+      summary: Read the current user.
+      tags:
+        - Me
+      responses:
+        200:
+          description: Data on the user
+          schema:
+            $ref: '#/definitions/Me'
+
+
+  ###########################################################################
+  # Tokens
+  ###########################################################################
+
+  /tokens:
+
+    get:
+      summary: List user tokens.
+      tags:
+        - Tokens
+      responses:
+        200:
+          description: List of user tokens
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Token'
+
+    post:
+      summary: Create a user token.
+      description: |
+        User tokens
+      tags:
+        - Tokens
+      parameters:
+        - name: data
+          in: body
+          required: false
+          schema:
+            $ref: '#/definitions/Token'
+          description: |
+            Data on the user token; only `name` and `notes` can be input.
+      responses:
+        200:
+          description: Data on the new user token
+          schema:
+            $ref: '#/definitions/Token'
+
+  /tokens/{id}:
+
+    get:
+      summary: Read a user token.
+      tags:
+        - Tokens
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the token
+      responses:
+        200:
+          description: Data on the user token
+          schema:
+            $ref: '#/definitions/Token'
+
+    patch:
+      summary: Update a user token.
+      tags:
+        - Tokens
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the token
+        - name: data
+          in: body
+          required: false
+          schema:
+            $ref: '#/definitions/Token'
+          description: |
+            Data on the user token; only `name` and `notes` can be updated.
+      responses:
+        200:
+          description: Data on the user token
+          schema:
+            $ref: '#/definitions/Token'
+
+    delete:
+      summary: Delete a user token.
+      tags:
+        - Tokens
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the token
+      responses:
+        200:
+          description: Successfully deleted
+
+
+  ###########################################################################
+  # Users
+  ###########################################################################
+
+  /users:
+
+    get:
+      summary: List users.
+      tags:
+        - Users
+      responses:
+        200:
+          description: A list of users.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+
+  /users/{username}:
+
+    get:
+      summary: Read a user.
+      description: |
+        Not all data on the user is available. Use `/me` to get more detailed data on the
+        user that is currently authenticated.
+      tags:
+        - Users
+      parameters:
+        - name: username
+          type: string
+          in: path
+          required: true
+          description: Username of the user
+      responses:
+        200:
+          description: Data on the user
+          schema:
+            $ref: '#/definitions/User'
+
+
+definitions:
+
+  Me:
+    properties:
+      username:
+        type: string
+      date_joined:
+        type: string
+        format: date-time
+      last_login:
+        type: string
+        format: date-time
+
+
+  Token:
+    properties:
+      id:
+        type: integer
+        format: int32
+      name:
+        type: string
+      version:
+        type: string
+        description: Version number of the token coding
+      string:
+        type: string
+        description: Encoded token string
+      issued:
+        type: string
+        format: date-time
+      expires:
+        type: string
+        format: date-time
+      notes:
+        type: string
+
+
+  User:
+    properties:
+      username:
+        type: string

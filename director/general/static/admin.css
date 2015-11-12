@@ -1,0 +1,57 @@
+/* Overrides CSS in `env/lib/python2.7/site-packages/django/contrib/admin/static/admin/css` */
+
+#container {
+	min-width: 40em;
+}
+
+#header {
+	background: #333;
+	color: #DDD;
+	padding: 10px 20px;
+}
+
+#header .logo {
+	height: 36px;
+}
+
+#user-tools {
+	font-size: 12px;
+	text-transform: none;
+}
+
+#user-tools a {
+	border: none;
+}
+
+div.breadcrumbs {
+	background: #666;
+	color: #DDD;
+	padding: 10px 20px;
+}
+
+#content {
+	max-width: 100em;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#content-related {
+	background: none;
+}
+
+.module h2, .module caption, .inline-group h2 {
+	background: #888;
+}
+
+.module {
+	border: 1px solid #BBB;
+}
+
+a:link, a:visited {
+	color: #5ECA16;
+}
+
+a:hover {
+	color: #65ED0B;
+}
+
