@@ -134,3 +134,19 @@ curator-test:
 	cd curator ;\
 		. env/bin/activate ;\
 			python tests.py
+
+
+##########################################################################
+# Worker
+
+# Run worker.py during development
+# For testing with requests the Chrome app "Postman" (or similar) is recommended as it
+# shows the friendly HTML debugger
+worker-py-develop:
+	cd worker ;\
+		if [ ! -e env ] ;\
+			then virtualenv env ;\
+		fi ;\
+		. env/bin/activate ;\
+			pip install -r pip-requirements.txt ;\
+			python worker.py 'dev'
