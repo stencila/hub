@@ -47,7 +47,7 @@ def secret(name):
     '''
     Get a secret from the filesystem
     '''
-    return file(os.path.join(BASE_DIR, '..', 'secrets')).read()
+    return file(os.path.join(BASE_DIR, '..', '..', 'secrets')).read()
 
 
 # Django's secret key
