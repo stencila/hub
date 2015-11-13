@@ -315,11 +315,11 @@ def request(request, address, method):
         component=component,
         user=request.user,
     )
-    return session.request(
+    return JsonResponse(session.request(
         verb=request.method,
         method=method,
         data=request.body
-    )
+    ))
 
 
 def page(request, address, component=None):
