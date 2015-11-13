@@ -635,14 +635,14 @@ class Session(models.Model):
             self.updated = timezone.now()
             self.save()
 
-    def request(self, verb, method, json):
+    def request(self, verb, method, data):
         '''
         Pass an HTTP request on to the session
         '''
         if self.active and self.ready:
             endpoint = '/' + self.component.address.id + '@' + method
             connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
-            connection.request(verb, endpoint, json, {
+            connection.request(verb, endpoint, data, {
                 "Content-type": "application/json",
                 "Accept": "application/json"
             })
