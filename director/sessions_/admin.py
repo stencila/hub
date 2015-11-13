@@ -6,7 +6,7 @@ from sessions_.models import Worker, WorkerStats, Session, SessionStats, Session
 class WorkerAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'provider_id', 'ip', 'active', 'started', 'updated', 'stopped')
-    readonly_fields = ['active', 'started', 'updated', 'stopped']
+    readonly_fields = ['started', 'updated', 'stopped']
     actions = ['launch', 'update', 'terminate']
 
     def launch(self, request, queryset):
@@ -46,7 +46,7 @@ class SessionAdmin(admin.ModelAdmin):
         'status', 'active', 'ready', 'started', 'updated', 'stopped'
     )
     list_filter = ('worker', 'image', 'active')
-    readonly_fields = ['active', 'started', 'updated', 'stopped']
+    readonly_fields = ['started', 'updated', 'stopped']
     actions = ['start', 'update', 'monitor', 'stop']
 
     def start(self, request, queryset):

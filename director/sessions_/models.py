@@ -131,7 +131,7 @@ class Worker(models.Model):
         '''
         Get information on this worker
         '''
-        stats = self.request('/stats', 'GET')
+        stats = self.request('/info', 'GET')
         worker_stats = WorkerStats()
         worker_stats.record(self, stats)
 
