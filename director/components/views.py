@@ -318,7 +318,7 @@ def request(request, address, method):
     return session.request(
         verb=request.method,
         method=method,
-        json=request.body
+        data=request.body
     )
 
 
