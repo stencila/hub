@@ -2,6 +2,7 @@ import sys
 import subprocess
 import datetime
 import json
+import socket
 from collections import OrderedDict
 
 import requests.exceptions
@@ -24,6 +25,19 @@ docker = dockerapi.Client(base_url='unix://var/run/docker.sock')
 
 # For info on the machine
 import psutil
+
+# Determine deployment MODE
+try:
+    HOSTNAME = socket.gethostname()
+except:
+    HOSTNAME = None
+
+if HOSTNAME == 'stencila-worker-vagrant':
+    MODE = 'vagrant'
+elif HOSTNAME == 'stencila-worker-prod':
+    MODE = 'prod'
+else:
+    MODE = 'local'
 
 
 class Worker:
@@ -51,7 +65,19 @@ class Worker:
             else:
                 pars[par] = value
 
-        # Start the session
+        # When running in a Vagrant environment, containers need to get
+        # components from the director also running in vagrant
+        if MODE == 'vagrant':
+            extra_hosts = {'stenci.la': '10.0.1.25'}
+        else:
+            extra_hosts = {}
+
+        host_config = docker.create_host_config(
+            # See http://docker-py.readthedocs.org/en/latest/hostconfig/ for all options
+            publish_all_ports=True,
+            mem_limit=pars['memory'],
+            extra_hosts=extra_hosts
+        )
         session = docker.create_container(
             image=pars['image'],           # image (str): The image to run
             command=pars['command'],       # command (str or list): The command to be run in the container
@@ -60,7 +86,6 @@ class Worker:
             detach=True,                   # detach (bool): Detached mode: run container in the background and print new container Id
                                            # stdin_open (bool): Keep STDIN open even if not attached
                                            # tty (bool): Allocate a pseudo-TTY
-            mem_limit=pars['memory'],      # mem_limit (float or str): Memory limit (format: [number][optional unit], where unit=b, k, m, or g)
             ports=[7373],                  # ports (list of ints): A list of port numbers
             environment={                  # environment (dict or list): A dictionary or a list of strings in the following format ["PASSWORD=xxx"] or {"PASSWORD": "xxx"}.
                 'STENCILA_TOKEN': pars['token']
@@ -75,27 +100,12 @@ class Worker:
                                             # working_dir (str): Path to the working directory
                                             # domainname (str or list): Set custom DNS search domains
                                             # memswap_limit (int):
-                                            # host_config (dict): A HostConfig dictionary
+            host_config=host_config         # host_config (dict): A HostConfig dictionary
                                             # mac_address (str): The Mac Address to assign the container
                                             # labels (dict or list): A dictionary of name-value labels (e.g. {"label1": "value1", "label2": "value2"}) or a list of names of labels to set with empty values (e.g. ["label1", "label2"])
         )
         docker.start(
             session.get('Id'),              # container (str): The container to start
-                                            # binds: Volumes to bind
-                                            # port_bindings (dict): Port bindings. See note above
-                                            # lxc_conf (dict): LXC config
-            publish_all_ports=True,         # publish_all_ports (bool): Whether to publish all ports to the host
-                                            # links (dict or list of tuples): See note above
-                                            # privileged (bool): Give extended privileges to this container
-                                            # dns (list): Set custom DNS servers
-                                            # dns_search (list): DNS search domains
-                                            # volumes_from (str or list): List of container names or Ids to get volumes from. Optionally a single string joining container id's with commas
-                                            # network_mode (str): One of ['bridge', None, 'container:<name|id>','host']
-                                            # restart_policy (dict): See note above. "Name" param must be one of ['on-failure', 'always']
-                                            # cap_add (list of str): See note above
-                                            # cap_drop (list of str): See note above
-                                            # extra_hosts (dict): custom host-to-IP mappings (host:ip)
-                                            # pid_mode (str): if set to "host", use the host PID namespace inside the container
         )
         return self.response(OrderedDict(
             uuid=session.get('Id'),
@@ -201,7 +211,10 @@ class Worker:
 
         Bytes are converted to megabytes (1MB = 1048576 bytes)
         '''
-        info = OrderedDict()
+        info = OrderedDict([
+            ('hostname', HOSTNAME),
+            ('mode', MODE)
+        ])
         # Timestamp
         info['time'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
         # Number of sessions
