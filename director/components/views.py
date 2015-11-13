@@ -270,6 +270,7 @@ def new(request, type):
         return redirect(component.url())
 
 
+@csrf_exempt
 @login_required
 def activate(request, address):
     component = Component.get(
@@ -285,6 +286,7 @@ def activate(request, address):
     session.start()
     return JsonResponse(session.serialize(request.user))
 
+@csrf_exempt
 @login_required
 def deactivate(request, address):
     component = Component.get(
@@ -300,6 +302,7 @@ def deactivate(request, address):
     session.stop()
     return JsonResponse(session.serialize(request.user))
 
+@csrf_exempt
 @login_required
 def request(request, address, method):
     component = Component.get(
