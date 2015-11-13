@@ -57,8 +57,17 @@ director-test:
 director-build: director-env-build director-pyc-clean director-migrate director-collectstatic
 
 # Run development server
-director-runserver:
-	$(DJ) runserver
+director-rundev:
+	$(DJ) runserver_plus
+
+# Run development server on port 80
+director-rundev-80:
+	sudo director/env/bin/python director/manage.py runserver_plus 0.0.0.0:80
+
+# Run development server with SSL on port 443
+director-rundev-ssl:
+	sudo director/env/bin/python director/manage.py runserver_plus --cert /tmp/cert 0.0.0.0:443
+
 
 
 # Sym link nginx configuration file
@@ -115,7 +124,7 @@ curator-build:
 # Run curator.py during development
 # For testing with requests the Chrome app "Postman" (or similar) is recommended as it
 # shows the friendly HTML debugger
-curator-py-develop:
+curator-py-rundev:
 	cd curator ;\
 		if [ ! -e env ] ;\
 			then virtualenv env ;\
@@ -125,7 +134,7 @@ curator-py-develop:
 			python curator.py 'dev'
 
 # Run curator.go during development
-curator-go-develop:
+curator-go-rundev:
 	cd curator ;\
 		go run curator.go
 
@@ -142,7 +151,7 @@ curator-test:
 # Run worker.py during development
 # For testing with requests the Chrome app "Postman" (or similar) is recommended as it
 # shows the friendly HTML debugger
-worker-py-develop:
+worker-rundev:
 	cd worker ;\
 		if [ ! -e env ] ;\
 			then virtualenv env ;\

@@ -122,6 +122,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_user_agents',
     'reversion',
+    'django_extensions',
 
     # Stencila apps
     'accounts',
@@ -130,6 +131,12 @@ INSTALLED_APPS = [
     'users',
     'visits'
 ]
+if MODE == 'local':
+    # Apps for making Django development server act more like
+    # the production server
+    INSTALLED_APPS += (
+        'corsheaders',
+    )
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
