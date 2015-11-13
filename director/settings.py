@@ -346,6 +346,9 @@ SOCIALACCOUNT_PROVIDERS = {
 # without a running curator
 CURATOR_STUB = False
 
+# During development should /get serve local development build
+GET_LOCAL = False
+
 try:
     from local_settings import *
 except ImportError:

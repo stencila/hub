@@ -19,6 +19,7 @@ from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidd
 
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
+from sessions_.models import Session
 from visits.models import Visit
 from components.models import Component, Address, Key, READ, ANNOTATE, UPDATE, DELETE, CREATE
 
@@ -267,6 +268,55 @@ def new(request, type):
             type=type
         )
         return redirect(component.url())
+
+
+@login_required
+def activate(request, address):
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    session = Session.get_or_launch(
+        component=component,
+        user=request.user,
+    )
+    session.start()
+    return JsonResponse(session.serialize(request.user))
+
+@login_required
+def deactivate(request, address):
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    session = Session.get(
+        component=component,
+        user=request.user,
+    )
+    session.stop()
+    return JsonResponse(session.serialize(request.user))
+
+@login_required
+def request(request, address, method):
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    session = Session.get(
+        component=component,
+        user=request.user,
+    )
+    return session.request(
+        verb=request.method,
+        method=method,
+        json=request.body
+    )
 
 
 def page(request, address, component=None):

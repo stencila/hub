@@ -28,6 +28,9 @@ because they are used as general delimiters in the URI generic syntax
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+from django.http import HttpResponseRedirect
 
 import general.views
 import components.views
@@ -56,9 +59,20 @@ urlpatterns = [
     url(r'^test/500',                                                general.views.test500),
 ]
 
+# In development, serve static files that are handled by `nginx.conf` when in production
+if settings.MODE == 'local':
+    # Javascript (and potentially other resources) on get.stenci.la when in production
+    # cal be obtained from a local build via a symlink
+    if settings.GET_LOCAL:
+        urlpatterns += static(r'/get/', document_root='/srv/stencila/store/get')
+    else:
+        urlpatterns += [
+            url(r'^get/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('https://s3-us-west-2.amazonaws.com/get.stenci.la/'+path))
+        ]
+
 urlpatterns += [
 
-    # Create a new components
+    # Create a new component
     url(r'^new/(?P<type>\w+)$',                                      components.views.new),
 
     # Slugified URL
@@ -70,6 +84,11 @@ urlpatterns += [
     # The tilde prevents potential (although low probability)
     # clashes between shortened URLs and other URLs
     url(r'^(?P<tiny>\w+)~$',                                         components.views.tiny),
+
+    # Activate a component session and call component methods in the session
+    url(r'^(?P<address>.+)@activate$',                               components.views.activate),
+    url(r'^(?P<address>.+)@deactivate$',                             components.views.deactivate),
+    url(r'^(?P<address>.+)@(?P<method>.+)$',                         components.views.request),
 
     # Component Git repo access: distinguished by `.git` followed by query
     url(r'^(?P<address>.+)\.git.*$',                                 components.views.git),

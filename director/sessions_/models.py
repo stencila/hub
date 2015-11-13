@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 
 import pytz
 
+from general.errors import Error
 from components.models import Component
 from users.models import User, UserToken
 from accounts.models import Account
@@ -204,14 +205,14 @@ class Worker(models.Model):
             return None
         return desc
 
-    def stats(self, session):
+    def stats_for(self, session):
         '''
         Get detailed stats on a session on this worker
         '''
         assert session.uuid is not None
         return self.request('/stats/%s' % session.uuid, 'GET')
 
-    def logs(self, session):
+    def logs_for(self, session):
         '''
         Get logs for a session on this worker
         '''
@@ -488,6 +489,18 @@ class Session(models.Model):
         ])
 
     @staticmethod
+    def get(component, user):
+        '''
+        Get an active session for the componet/user pair,
+        or else launch one
+        '''
+        return Session.objects.get(
+            component=component,
+            user=user,
+            active=True
+        ).authorize_or_raise(user)
+
+    @staticmethod
     def get_or_launch(component, user):
         '''
         Get an active session for the componet/user pair,
@@ -512,14 +525,14 @@ class Session(models.Model):
         '''
         # If account not supplied then get user's
         # current one
-        if account is None:
-            account = user.details.account()
+        #if account is None:
+        #    account = user.details.account()
         # Check that the user has rights to
         # create a session for that account
-        Account.authorize_or_raise(user, account, CREATE, 'session')
+        #Account.authorize_or_raise(user, account, CREATE, 'session')
         # Check the account has enough credit to create the session
         memory = 512  # For now just used a fixed memory size in megabytes
-        account.enough_or_raise(memory=memory)
+        #account.enough_or_raise(memory=memory)
         # Create the session
         session = Session.objects.create(
             account=account,
@@ -547,8 +560,8 @@ class Session(models.Model):
             # but this will be customised later
             self.image = 'stencila/ubuntu-14.04-r-3.2'
             # Generate the run command for the image
-            self.command = 'stencila-r "%s" serve:Inf' % (
-                self.component.address
+            self.command = 'stencila-r "%s" serve ...' % (
+                self.component.address.id
             )
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active
@@ -602,7 +615,7 @@ class Session(models.Model):
         Get detailed statistics and logs for this session
         '''
         if self.worker:
-            result = self.worker.stats(self)
+            result = self.worker.stats_for(self)
             if result.get('error'):
                 logger.error(result['error'])
                 self.active = False
@@ -615,12 +628,31 @@ class Session(models.Model):
 
             SessionLogs.objects.create(
                 session=self,
-                logs=self.worker.logs(self)['logs']
+                logs=self.worker.logs_for(self)['logs']
             )
 
             self.active = True
             self.updated = timezone.now()
             self.save()
+
+    def request(self, verb, method, json):
+        '''
+        Pass an HTTP request on to the session
+        '''
+        if self.ready:
+            endpoint = '/' + self.component.address.id + '@' + method
+            connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
+            connection.request(verb, endpoint, json, {
+                "Content-type": "application/json",
+                "Accept": "application/json"
+            })
+            response = connection.getresponse()
+            if response.status == 200:
+                return json.loads(response.read())
+            else:
+                raise Exception(response.read())
+        else:
+            raise Session.NotReadyError(self.id)
 
     def stop(self):
         '''
@@ -677,9 +709,38 @@ class Session(models.Model):
 
     def authorize_or_raise(self, user):
         if not self.authorize(user):
-            raise PermissionDenied()
+            raise Session.UnauthorizedError(session=self.id)
         else:
-            return True
+            return self
+
+    ##########################################################################
+    # Errors
+
+    class UnauthorizedError(Error):
+        code = 403
+
+        def __init__(self, session):
+            self.session = session
+
+        def serialize(self):
+            return dict(
+                error='session:unauthorized',
+                message='Not authorized to access this session',
+                session=self.session
+            )
+
+    class NotReadyError(Error):
+        code = 400
+
+        def __init__(self, session):
+            self.session = session
+
+        def serialize(self):
+            return dict(
+                error="session:not-ready",
+                message='Session is not yet ready',
+                session=self.session
+            )
 
 
 class Invitation(models.Model):
