@@ -113,8 +113,8 @@ class Worker:
             # Convert created timestamp to a datetime called 'started'
             started = container.get('Created')
             started = datetime.datetime.utcfromtimestamp(int(started)).strftime('%Y-%m-%dT%H:%M:%SZ')
-            # Get the port that the session is pubished on the host
-            port = docker.port(uuid, 7373)[0].get('HostPort')
+            # Get the port that the session is published on the host
+            port = docker.port(id, 7373)[0].get('HostPort')
             # Check if session is ready on that port. It is not enough to
             # just use netstat to see if a process is listening on that
             # port. Have to actually get a HTTP OK response indicating that
@@ -143,7 +143,7 @@ class Worker:
                 data.append(desc)
         # If specified a uuid and we get to here it means that
         # the uuid was not matched, so return an error
-        if uuid is None:
+        if uuid is not None:
             return self.response({'error': 'no session found with uuid %s' % uuid})
         # Otherwise return the list
         return self.response(data)
