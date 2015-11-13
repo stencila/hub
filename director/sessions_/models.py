@@ -639,7 +639,7 @@ class Session(models.Model):
         '''
         Pass an HTTP request on to the session
         '''
-        if self.ready:
+        if self.active and self.ready:
             endpoint = '/' + self.component.address.id + '@' + method
             connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
             connection.request(verb, endpoint, json, {
