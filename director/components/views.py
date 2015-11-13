@@ -451,8 +451,6 @@ def git(request, address):
     It is (should be?) faster and (for me) required less configuration to get working
     than the C CGI backend.
     '''
-    # Get component
-    component = Component.one_or_raise(address=address)
     # Authorize action
     service = request.GET.get('service')
     if request.method == 'GET':
@@ -472,8 +470,13 @@ def git(request, address):
     # If action requires UPDATE then the user must be authenticated first
     if action == UPDATE and not request.user.is_authenticated():
         return unauthenticated_response()
-    else:
-        component.authorize_or_raise(request.user, action)
+    # Get component thereby checking access rights
+    Component.get(
+        id=None,
+        user=request.user,
+        action=action,
+        address=address
+    )
     # Respond
     # Ask Nginx to do a proxy pass.
     # Replace '<address>.git' with '<address>/.git'
