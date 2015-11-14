@@ -91,6 +91,13 @@ ADMINS = (
     ('Nokome Bentley', 'nokome@stenci.la'),
 )
 
+# Email addresses
+# The email address that error messages come from, such as those sent to ADMINS
+SERVER_EMAIL = 'hub@stenci.la'
+# Default email address to use for various automated correspondence from the
+# site manager (i.e. using `send_mail`)
+DEFAULT_FROM_EMAIL = 'hub@stenci.la'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -379,6 +386,29 @@ SOCIALACCOUNT_PROVIDERS = {
         # Manage the app at https://dev.twitter.com/apps/5640979/show logged in as user `stencila`
     },
 }
+
+# raven (for getsentry.com)
+# See http://raven.readthedocs.org/en/latest/integrations/django.html
+if MODE in ('prod',):
+    # Configure
+    INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
+    import raven
+    RAVEN_CONFIG = {
+        'dsn': secret('sentry-dsn'),
+        'release': raven.fetch_git_sha(os.path.dirname(__file__))
+    }
+
+    # 404 reporting currently turned off
+    # It is recommended that this goes at top of middleware
+    # http://raven.readthedocs.org/en/latest/integrations/django.html#logging
+    # MIDDLEWARE_CLASSES = ('raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',) + MIDDLEWARE_CLASSES
+
+    # Add Sentry to logging configuration
+    LOGGING['handlers']['sentry'] = {
+        'level': 'WARNING',
+        'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+    }
+    LOGGING['root']['handlers'].append('sentry')
 
 ###########################################################################################
 # Localizable settings
