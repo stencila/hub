@@ -15,7 +15,7 @@ from django.views.decorators.csrf import (
     csrf_exempt
 )
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
@@ -481,13 +481,20 @@ def git(request, address):
         address=address
     )
     # Respond
-    # Ask Nginx to do a proxy pass.
-    # Replace '<address>.git' with '<address>/.git'
-    url = '/internal-component-git' + request.get_full_path().replace('.git', '/.git')
-    # For debugging purposes show the redirect header in the response content
-    response = django.http.HttpResponse('Internal redirect to : %s' % url)
-    response['X-Accel-Redirect'] = url
-    return response
+    if settings.MODE == 'local':
+        # Redirect to `curator.go` operating on this same machine
+        # It is not possible to redirect to `http://10.0.1.50:7311` (i.e. using
+        # the standard Ip for the curator) because libgit2 complains with "Cross host redirect not allowed"
+        url = 'http://10.0.1.25:7311' + request.get_full_path().replace('.git', '/.git')
+        return HttpResponseRedirect(url)
+    else:
+        # Ask Nginx to do a proxy pass.
+        # Replace '<address>.git' with '<address>/.git'
+        url = '/internal-component-git' + request.get_full_path().replace('.git', '/.git')
+        # For debugging purposes show the redirect header in the response content
+        response = django.http.HttpResponse('Internal redirect to : %s' % url)
+        response['X-Accel-Redirect'] = url
+        return response
 
 
 @require_GET
@@ -516,7 +523,7 @@ def raw(request, path):
         raise Http404()
     # Respond
     response = django.http.HttpResponse()
-    if django.conf.settings.MODE == 'local':
+    if settings.MODE == 'local':
         return django.views.static.serve(request, path, document_root='/srv/stencila/store')
     else:
         # Tell Nginx what to serve
