@@ -494,11 +494,17 @@ class Session(models.Model):
         Get an active session for the componet/user pair,
         or else launch one
         '''
-        return Session.objects.get(
-            component=component,
-            user=user,
-            active=True
-        ).authorize_or_raise(user)
+        try:
+            return Session.objects.get(
+                component=component,
+                user=user,
+                active=True
+            ).authorize_or_raise(user)
+        except Session.DoesNotExist:
+            raise Session.NotFoundError(
+                component=component.address.id,
+                user=user.username
+            )
 
     @staticmethod
     def get_or_launch(component, user):
@@ -639,20 +645,26 @@ class Session(models.Model):
         '''
         Pass an HTTP request on to the session
         '''
-        if self.active and self.ready:
-            endpoint = '/' + self.component.address.id + '@' + method
-            connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
-            connection.request(verb, endpoint, data, {
-                "Content-type": "application/json",
-                "Accept": "application/json"
-            })
-            response = connection.getresponse()
-            if response.status == 200:
-                return json.loads(response.read())
+        if self.active:
+            # Make one attempt to check for ready-ness
+            if not self.ready:
+                self.update()
+            if self.ready:
+                endpoint = '/' + self.component.address.id + '@' + method
+                connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
+                connection.request(verb, endpoint, data, {
+                    "Content-type": "application/json",
+                    "Accept": "application/json"
+                })
+                response = connection.getresponse()
+                if response.status == 200:
+                    return json.loads(response.read())
+                else:
+                    raise Exception(response.read())
             else:
-                raise Exception(response.read())
+                raise Session.NotReadyError(self.id)
         else:
-            raise Session.NotReadyError(self.id)
+            raise Session.NotActiveError(self.id)
 
     def stop(self):
         '''
@@ -726,6 +738,34 @@ class Session(models.Model):
             return dict(
                 error='session:unauthorized',
                 message='Not authorized to access this session',
+                session=self.session
+            )
+
+    class NotFoundError(Error):
+        code = 400
+
+        def __init__(self, component, user):
+            self.component = component
+            self.user = user
+
+        def serialize(self):
+            return dict(
+                error="session:not-found",
+                message='No active session for this component/user',
+                component=self.component,
+                user=self.user
+            )
+
+    class NotActiveError(Error):
+        code = 400
+
+        def __init__(self, session):
+            self.session = session
+
+        def serialize(self):
+            return dict(
+                error="session:not-active",
+                message='Session is no longer active',
                 session=self.session
             )
 
