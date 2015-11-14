@@ -390,7 +390,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # raven (for getsentry.com)
 # See http://raven.readthedocs.org/en/latest/integrations/django.html
-if MODE in ('prod',):
+if MODE in ('vagrant', 'prod'):
     # Configure
     INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
     import raven
