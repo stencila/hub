@@ -30,6 +30,9 @@ django-ipware==1.1.2
 # Use master due to incompatability with Django==1.9. See https://github.com/etianen/django-reversion/issues/454
 https://github.com/etianen/django-reversion/archive/master.zip
 
+# https://github.com/django-ses/django-ses a Django email backend for Amazon's Simple Email Service 
+django-ses==0.7.0
+
 # https://github.com/selwin/django-user_agents for User Agent parsing and dependencies
 pyyaml
 ua-parser

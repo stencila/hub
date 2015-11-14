@@ -51,26 +51,26 @@ def secret(name):
 
 
 # Django's secret key
-if MODE in ('local', 'vagrant'):
+if MODE in ('local',):
     SECRET_KEY = 'an-insecure-key-only-used-in-development'
 else:
     SECRET_KEY = secret('director-secret-key')
 
 # Keys for UserTokens
-if MODE in ('local', 'vagrant'):
+if MODE in ('local',):
     # Use an insecure version during development
     USER_TOKEN_01_PASSWORD, USER_TOKEN_01_SECRET = ''.join(['P']*32), ''.join(['S']*32)
 else:
     USER_TOKEN_01_PASSWORD, USER_TOKEN_01_SECRET = secret('director-usertoken').split()
 
 # Token for communication between roles
-if MODE in ('local', 'vagrant'):
+if MODE in ('local',):
     COMMS_TOKEN = 'an-insecure-token-only-used-in-development'
 else:
     COMMS_TOKEN = secret('comms-token')
 
 # AWS keys for launching session hosts and for email
-if MODE in ('prod',):
+if MODE in ('vagrant', 'prod'):
     AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = secret('aws-access-key').split()
 
 
@@ -319,6 +319,12 @@ AUTHENTICATION_BACKENDS = (
 )
 LOGIN_URL = '/me/login'
 LOGIN_REDIRECT_URL = '/'
+
+# django-ses
+if MODE in ('vagrant', 'prod'):
+    EMAIL_BACKEND = 'django_ses.SESBackend'
+    AWS_SES_REGION_NAME = 'us-west-2'
+    AWS_SES_REGION_ENDPOINT = 'email.us-west-2.amazonaws.com'
 
 # django-allauth
 #
