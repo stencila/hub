@@ -35,8 +35,7 @@ else:
     MODE = 'local'  # Fallback for when running "./manage.py makemigrations" etc
 
 # Set Django settings accordingly
-DEBUG = MODE != 'prod'
-
+DEBUG = MODE == 'local'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
