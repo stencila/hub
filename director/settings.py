@@ -47,7 +47,7 @@ def secret(name):
     '''
     Get a secret from the filesystem
     '''
-    return file(os.path.join(BASE_DIR, '..', '..', 'secrets')).read()
+    return file(os.path.join(BASE_DIR, '..', '..', 'secrets', name+'.txt')).read()
 
 
 # Django's secret key
@@ -67,7 +67,7 @@ else:
 if MODE in ('local',):
     COMMS_TOKEN = 'an-insecure-token-only-used-in-development'
 else:
-    COMMS_TOKEN = secret('comms-token')
+    COMMS_TOKEN = secret('stencila-comms-token')
 
 # AWS keys for launching session hosts and for email
 if MODE in ('vagrant', 'prod'):
@@ -200,15 +200,13 @@ if MODE in ('local', 'vagrant'):
         }
     }
 elif MODE in ('prod',):
-    user, password = secret('director-postgres').split()
+    host, port, name, user, password = secret('director-postgres').split()
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            # This AWS RDS instance is not publically accessible.
-            # It is in a private subnet of the `stencila-vpc` AWS VPC.
-            'HOST': 'stencila-hub-db.cjmf4xvritk9.us-west-2.rds.amazonaws.com',
-            'PORT': '5432',
-            'NAME': 'stencilahubdb',
+            'HOST': host,
+            'PORT': port,
+            'NAME': name,
             'USER': user,
             'PASSWORD': password,
         }
