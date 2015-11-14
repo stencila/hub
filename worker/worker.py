@@ -65,18 +65,20 @@ class Worker:
             else:
                 pars[par] = value
 
-        # When running in a Vagrant environment, containers need to get
-        # components from the director also running in vagrant
-        if MODE == 'vagrant':
-            extra_hosts = {'stenci.la': '10.0.1.25'}
-        else:
-            extra_hosts = {}
+        # Environment variables
+        environment = {
+            'STENCILA_HUB_TOKEN': pars['token']
+        }
+
+        # When running in a local or Vagrant environment, containers need to get
+        # components from the director running in the private network on HTTP
+        if MODE in ('local', 'vagrant'):
+            environment['STENCILA_HUB_ROOT'] = 'http://10.0.1.25'
 
         host_config = docker.create_host_config(
             # See http://docker-py.readthedocs.org/en/latest/hostconfig/ for all options
             publish_all_ports=True,
-            mem_limit=pars['memory'],
-            extra_hosts=extra_hosts
+            mem_limit=pars['memory']
         )
         session = docker.create_container(
             image=pars['image'],           # image (str): The image to run
@@ -87,9 +89,7 @@ class Worker:
                                            # stdin_open (bool): Keep STDIN open even if not attached
                                            # tty (bool): Allocate a pseudo-TTY
             ports=[7373],                  # ports (list of ints): A list of port numbers
-            environment={                  # environment (dict or list): A dictionary or a list of strings in the following format ["PASSWORD=xxx"] or {"PASSWORD": "xxx"}.
-                'STENCILA_TOKEN': pars['token']
-            },
+            environment=environment,        # environment (dict or list): A dictionary or a list of strings in the following format ["PASSWORD=xxx"] or {"PASSWORD": "xxx"}.
                                             # dns (list): DNS name servers
                                             # volumes (str or list):
                                             # volumes_from (str or list): List of container names or Ids to get volumes from. Optionally a single string joining container id's with commas
