@@ -55,6 +55,7 @@ director-test:
 
 # Build director
 director-build: director-env-build director-pyc-clean director-migrate director-collectstatic
+	mkdir -p director/logs
 
 # Run development server
 director-rundev:

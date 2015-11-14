@@ -1,6 +1,9 @@
 # Ignore virtual environment
 /env
 
+# Ignore logs
+/logs
+
 # Ignore any development database
 /db.sqlite3
 

@@ -269,6 +269,36 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'general', 'static'),
 )
 
+# Looging
+# Log entries of WARNING and ERROR to go to console and to file
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': 'WARNING'
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(pathname)s %(lineno)d %(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'formatter': 'verbose'
+        },
+    },
+}
+
 ###############################################################################
 # Installed apps settings
 
