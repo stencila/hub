@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load account %}
+{% load socialaccount %}
+
+{% comment %}
+	This template is an expedient wrapper around allauth supplied templates.
+	Gives a consistent style wthout having to rewrite them all. Rewrite them as needed.
+{% endcomment %}
+
+{% block styles %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'users.css' %}">
+{% endblock %}
+
+{% block main %}
+<div class="centered user-allauth">
+	<h1>{% block head_title %}{% endblock %}</h1>
+	{% block content %}
+	{% endblock %}
+</div>
+{% endblock %}

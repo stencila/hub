@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block styles %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'users.css' %}">
+{% endblock %}
+
+{% block main %}
+<div class="centered user-signout">
+	<form method="post" action="{% url 'users:signout' %}">
+	  {% csrf_token %}
+	  <p>Please confirm that you want to sign out</p>
+	  <button class="primary" type="submit">OK</button>
+	</form>
+</div>
+{% endblock %}

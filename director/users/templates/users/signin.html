@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load account %}
+{% load socialaccount %}
+
+{% block styles %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'users.css' %}">
+{% endblock %}
+
+{% block main %}
+<div class="centered grid user-signin">
+	<div class="cell cell-1-1-s cell-1-2-l user-signin-block">
+		<h3> Sign in using...</h3>
+		<div class="user-signin-buttons grid">
+			<a class="cell-1-1 button primary" title="Github" href="{% provider_login_url 'github' process='login' %}"><i class="icon-github"></i>Github</a>
+			<a class="cell-1-1 button primary" title="Twitter" href="{% provider_login_url 'twitter' process='login' %}"><i class="icon-twitter"></i>Twitter</a>
+			<a class="cell-1-1 button primary" title="Facebook" href="{% provider_login_url 'facebook' process='login' %}"><i class="icon-facebook"></i>Facebook</a>
+			<a class="cell-1-1 button primary" title="Google" href="{% provider_login_url 'google' process='login' %}"><i class="icon-google"></i>Google</a>
+			<a class="cell-1-1 button primary" title="LinkedIn" href="{% provider_login_url 'linkedin' process='login' %}"><i class="icon-linkedin"></i>LinkedIn</a>
+		</div>
+		<p class="user-signin-notes">
+			If you have signed in with one of these third party accounts before please use the same account, or an account which you have connected to your Stencila user account.
+		</p>
+	</div>
+	<div class="cell cell-1-1-s cell-1-2-l user-signin-block">
+		<h3>Sign in with your Stencila username</h3>
+		<form method="post" action="{% url 'users:signin' %}">
+			{% csrf_token %}
+			{{ form.as_p }}
+			{% if redirect_field_value %}
+			<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+			{% endif %}
+			<button class="ok" type="submit">Sign In</button>
+			<p class="user-signin-notes">
+				<a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+				<br/>
+				<a href="{{ signup_url }}">Don't have a user account yet?</a>
+			</p>
+		</form>
+	</div>
+</div>
+{% endblock %}
