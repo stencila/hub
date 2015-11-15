@@ -162,6 +162,14 @@ class Worker:
         '''
         Get detailed stats on a session
         '''
+        # Check session is still alive
+        active = False
+        for container in docker.containers():
+            if container.get('Id') == uuid:
+                active = True
+                break
+        if not active:
+            return self.response({'error': 'session appears to have stopped'})
         # The stats() method returns a generator (for
         # iterating over time). The generator creates Json Strings
         # so no conversion is needed. Just return the
@@ -169,8 +177,7 @@ class Worker:
         try:
             generator = docker.stats(uuid)
         except requests.exceptions.ReadTimeout:
-            # This error means that the
-            return self.response({'error': 'session appears to have crashed'})
+            return self.response({'error': 'session appears to have stopped'})
         else:
             for stats in generator:
                 return self.response(stats, convert=False)
