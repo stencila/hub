@@ -7,8 +7,17 @@
 # Ignore any development database
 /db.sqlite3
 
-# Ignore static file directory
+# Ignore top level static file directory which
+# is a compilation of app level static files
 /static
 
 # Ignore local settings
 /local_settings.py
+
+# Ignore node modules
+/general/node_modules
+
+# Ignore semantic source
+# Some of these files may be customised later and so will need to be
+# checkind in
+/general/semantic
