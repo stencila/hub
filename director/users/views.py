@@ -1,9 +1,33 @@
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 
+import allauth.account.views
+
 from users.models import User, UserToken
 from general.api import API
 from general.authentication import require_authenticated
+
+# Overrides of allauth templates
+
+class SignupView(allauth.account.views.SignupView):
+
+    template_name = "users/signup.html"
+
+signup = SignupView.as_view()
+
+
+class SigninView(allauth.account.views.LoginView):
+
+    template_name = "users/signin.html"
+
+signin = SigninView.as_view()
+
+
+class SignoutView(allauth.account.views.LogoutView):
+
+    template_name = "users/signout.html"
+
+signout = SignoutView.as_view()
 
 
 @require_GET

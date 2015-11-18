@@ -34,6 +34,7 @@ from django.http import HttpResponseRedirect
 
 import general.views
 import components.views
+import users.views
 
 urlpatterns = [
 
@@ -48,6 +49,10 @@ urlpatterns = [
 
     # User management (login, logout etc)
     url(r'^me/',                                                     include('allauth.urls')),
+    url(r'^me/signup/?$',                                            users.views.signup),
+    url(r'^me/signin/?$',                                            users.views.signin),
+    url(r'^me/signout/?$',                                           users.views.signout),
+
 
     # Administration interface
     url(r'^admin/',                                                  admin.site.urls),
