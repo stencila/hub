@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     'django_user_agents',
     'reversion',
     'django_extensions',
+    'semanticuiform',
 
     # Stencila apps
     'accounts',
@@ -272,6 +273,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     # General static files, not tied to a particular app
     os.path.join(BASE_DIR, 'general', 'static'),
+    os.path.join(BASE_DIR, 'general', 'semantic', 'dist'),
 )
 
 # Looging

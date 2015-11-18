@@ -7,15 +7,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
 		{% block styles %}
+			<link rel="stylesheet" type="text/css" href="{% static 'semantic.min.css' %}">
 			<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
 		{% endblock %}
 		{% block scripts %}
+			<script src="{% static 'semantic.min.js' %}"></script>
 		{% endblock %}
 		{% include "pingdom.html" %}
 	</head>
 	<body>
 		{% include "header.html" %}
-		<main id="main">
+		<main id="main" class="ui main container">
 			{% block main %}
 			{% endblock %}
 		</main>
