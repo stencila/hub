@@ -3,6 +3,7 @@
 
 # Ignore logs
 /logs
+/npm-debug.log
 
 # Ignore any development database
 /db.sqlite3

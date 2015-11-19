@@ -36,6 +36,13 @@ director-migrate:
 	$(DJ) migrate
 	if [ -e director/db.sqlite3 ]; then chmod 775 director/db.sqlite3 ; fi
 
+# Build client side files
+director-client-build:
+	cd director/general; \
+		npm install; \
+		cd semantic; \
+			gulp build; \
+
 # Collect static files
 director-collectstatic:
 	$(DJ) collectstatic --noinput
@@ -54,7 +61,7 @@ director-test:
 	$(DJ) test
 
 # Build director
-director-build: director-env-build director-pyc-clean director-migrate director-collectstatic
+director-build: director-env-build director-pyc-clean director-migrate director-client-build director-collectstatic
 
 # Run development server
 director-rundev:
