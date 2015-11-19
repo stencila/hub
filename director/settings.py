@@ -273,7 +273,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     # General static files, not tied to a particular app
     os.path.join(BASE_DIR, 'general', 'static'),
-    os.path.join(BASE_DIR, 'general', 'semantic', 'dist'),
+    os.path.join(BASE_DIR, 'general', 'node_modules'),
 )
 
 # Looging

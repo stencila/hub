@@ -39,9 +39,7 @@ director-migrate:
 # Build client side files
 director-client-build:
 	cd director/general; \
-		npm install; \
-		cd semantic; \
-			gulp build; \
+		npm install;
 
 # Collect static files
 director-collectstatic:
