@@ -328,7 +328,7 @@ AUTHENTICATION_BACKENDS = (
     'general.authentication.BasicAuthBackend',
     'general.authentication.TokenAuthBackend',
 )
-LOGIN_URL = '/me/login'
+LOGIN_URL = '/me/signin'
 LOGIN_REDIRECT_URL = '/'
 
 # django-ses

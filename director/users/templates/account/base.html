@@ -9,15 +9,11 @@
 	Gives a consistent style wthout having to rewrite them all. Rewrite them as needed.
 {% endcomment %}
 
-{% block styles %}
-	{{ block.super }}
-	<link rel="stylesheet" type="text/css" href="{% static 'users.css' %}">
-{% endblock %}
-
 {% block main %}
-<div class="centered user-allauth">
-	<h1>{% block head_title %}{% endblock %}</h1>
+<div class="ui padded raised compact centered segment">
+	<div class="ui content">
 	{% block content %}
 	{% endblock %}
+	</div>
 </div>
 {% endblock %}

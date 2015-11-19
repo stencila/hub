@@ -1,4 +1,28 @@
+/* Customisation of the main header menu */
+.ui.main.menu {
+	box-shadow: 0 1px 3px 0 rgba(34,36,38,.05);
+}
+.ui.main.menu>.ui.container>.ui.item:first-child {
+	padding: 0;
+}
+.ui.main.menu .ui.logo {
+	height: 34px;
+}
+.ui.right.menu {
+	border: none;
+	box-shadow: none;
+}
+.ui.menu .ui.item:before{
+	display: none;
+}
+
+/* Allow for fixed main header menu */
 .main.container {
-	/* Allow for fixed header */
-	margin-top: 5em;
+	margin-top: 6em;
+}
+
+/* Adjective for segment which seems to be missing */
+.centered.segment {
+	margin-left: auto;
+	margin-right: auto;
 }

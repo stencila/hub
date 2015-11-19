@@ -1,19 +1,26 @@
 {% load static %}
 <header class="ui fixed main menu">
 	<div class="ui container">
-		<a href="/" class="ui header item">
+		<a href="/" class="ui borderless item">
 			<img src="{% static 'logo-name-400x88.png' %}" class="ui logo">
 		</a>
-		<div class="ui secondary right menu">
+		<div class="ui right menu">
 			{% if user.is_anonymous %}
-				<a class="ui item" href="/me/signup">Signup</a>
-				<a class="ui item" href="/me/signin">Signin</a>
+				<div class="ui item">
+					<a class="ui positive button" href="/me/signup">Signup</a>
+				</div>
+				<div class="ui item">
+					<a class="ui grey button" href="/me/signin">Signin</a>
+				</div>
 			{% else %}
 				<div class="ui simple dropdown item">
 					{{ user.username }}
 					<i class="ui dropdown icon"></i>
 					<div class="ui menu">
 						<a class="ui item" href="/me/signout">Signout</a>
+						<a class="ui item" href="/me/email/">Email addresses</a>
+						<a class="ui item" href="/me/password/change/">Change password</a>
+						<a class="ui item" href="/me/social/connections/">Connected accounts</a>
 					</div>
 				</div>
 				<a id="intercom" class="ui item" title="Get help">

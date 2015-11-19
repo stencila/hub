@@ -7,7 +7,7 @@ from users.models import User, UserToken
 from general.api import API
 from general.authentication import require_authenticated
 
-# Overrides of allauth templates
+# Overrides of allauth urls and templates
 
 class SignupView(allauth.account.views.SignupView):
 

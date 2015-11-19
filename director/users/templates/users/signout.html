@@ -1,18 +1,11 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
-{% block styles %}
-	{{ block.super }}
-	<link rel="stylesheet" type="text/css" href="{% static 'users.css' %}">
-{% endblock %}
-
 {% block main %}
-<div class="centered user-signout">
-	<form method="post" action="{% url 'users:signout' %}">
-	  {% csrf_token %}
-	  <p>Please confirm that you want to sign out</p>
-	  <button class="primary" type="submit">OK</button>
+<div id="panel" class="ui raised padded center aligned compact centered segment">
+	<form class="ui form" method="post" action="/me/signout">
+		{% csrf_token %}
+		<p>Are you sure you want to sign out?</p>
+		<button class="ui positive button" type="submit">Yes, sign me out!</button>
 	</form>
 </div>
 {% endblock %}
