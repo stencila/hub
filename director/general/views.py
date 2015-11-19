@@ -9,12 +9,19 @@ from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 
+from components.models import Component
 
 def front(request):
     '''
     Front page at /
     '''
-    return render(request, 'front.html')
+    components = Component.list(
+        user=request.user,
+        sort='-id'
+    )
+    return render(request, 'front.html', {
+        'components': components
+    })
 
 
 # API documentation

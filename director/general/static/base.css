@@ -3,7 +3,7 @@
 	box-shadow: 0 1px 3px 0 rgba(34,36,38,.05);
 }
 .ui.main.menu>.ui.container>.ui.item:first-child {
-	padding: 0;
+	padding: 0.5em 0;
 }
 .ui.main.menu .ui.logo {
 	height: 34px;

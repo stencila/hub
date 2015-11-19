@@ -1,12 +1,61 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block styles %}
+	{{ block.super }}
+	<style>
+		#components .ui.card {
+			width: 100%;
+		}
+		#components .ui.card .ui.extra.content span.ui.right.floated {
+			margin-left: 1.5em;
+		}
+		#components img.account {
+			width: 24px;
+			margin-right: 0.2em;
+		}
+	</style>
+{% endblock %}
+
 {% block main %}
-<div></div>
-<div>
-  <a href="https://github.com/stencila/stencila">Core</a>
-</div>
-<div>
-  <a href="/api">API</a>
+<div id="components" class="ui centered cards">
+	{% for component in components %}
+		<div class="ui card">
+			<div class="ui content">
+				<div class="ui header">
+					<a class="ui link" href="{{ component.url }}" target="_blank">
+					 	{% if component.title %}{{ component.title }}{% else %}{{ component.address.id }}{% endif %}
+					</a>
+				</div>
+				<div class="ui meta">
+				</div>
+				{% if component.summary %}
+				<div class="ui description">
+					{{ component.summary }}
+				</div>
+				{% endif %}
+			</div>
+			<div class="ui extra content">
+				<span class="ui left floated">
+					<a href="{{ component.address.account.url }}">
+						<img class="ui rounded account image" src="{{ component.address.account.logo_url }}">
+						{{ component.address.account.name }}
+					</a>
+				</span>
+				<span class="ui right floated">
+					<i class="ui eye icon"></i>
+					{{ component.views }}
+				</span>
+				<span class="ui right floated">
+					<i class="ui star icon"></i>
+					{{ component.stars }}
+				</span>
+				<span class="ui right floated">
+					<i class="ui fork icon"></i>
+					{{ component.forks }}
+				</span>
+			</div>
+		</div>
+	{% endfor %}
 </div>
 {% endblock %}

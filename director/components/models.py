@@ -233,10 +233,10 @@ class Component(models.Model):
         READ access to optionally filtered with arguments.
         '''
         # Get all components that have an address that is public...
-        query = Q(address__public=True) | (
-            # or the user has a READ key for
-            Q(address__keys__users=user) & Q(address__keys__action__gte=READ)
-        )
+        query = Q(address__public=True)
+        # or the user has a READ key for...
+        if not user.is_anonymous:
+            query |= Q(address__keys__users=user) & Q(address__keys__action__gte=READ)
         # Add additional filters
         if address is not None:
             if address.endswith('/*'):

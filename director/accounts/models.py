@@ -127,7 +127,6 @@ class Account(models.Model):
                 account=self
             )
 
-    @property
     def logo_url(self, size=64, absolute=False):
         '''
         Returns a URL for this account's logo.

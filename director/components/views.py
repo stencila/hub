@@ -405,13 +405,18 @@ def slugified(request, address, slug):
     '''
     View a component's page with a slugified URL. Checks the slug is correct.
     '''
-    component = Component.one_if_authorized_or_raise(request.user, READ, address=address)
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
     # If the slug is correct return the page
-    if slug == component.slug:
+    if slug == component.slug():
         return page(request, address, component)
     # otherwise redirect to canonical URL with the correct slug
     else:
-        return redirect(component.url, permanent=True)
+        return redirect(component.url(), permanent=True)
 
 
 @require_GET
@@ -420,8 +425,12 @@ def tiny(request, tiny):
     Redirect a tiny URL to the component's canonical URL
     '''
     id = Component.tiny_convert(tiny)
-    component = Component.one_if_authorized_or_raise(request.user, READ, id=id)
-    return redirect(component.url, permanent=True)
+    component = Component.get(
+        id=id,
+        user=request.user,
+        action=READ,
+    )
+    return redirect(component.url(), permanent=True)
 
 
 @csrf_exempt  # Required because git does not send CSRF tokens. Must be first decorator!

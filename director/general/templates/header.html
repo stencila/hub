@@ -21,6 +21,10 @@
 						<a class="ui item" href="/me/email/">Email addresses</a>
 						<a class="ui item" href="/me/password/change/">Change password</a>
 						<a class="ui item" href="/me/social/connections/">Connected accounts</a>
+						{% if user.is_staff %}
+							<div class="ui divider"></div>
+							<a class="ui item" href="/admin/" target="_blank">Admin</a>
+						{% endif %}
 					</div>
 				</div>
 				<a id="intercom" class="ui item" title="Get help">
