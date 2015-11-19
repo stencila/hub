@@ -26,6 +26,8 @@ But probably best to avoid these:
 because they are used as general delimiters in the URI generic syntax
 
 """
+import os
+
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
@@ -79,6 +81,8 @@ urlpatterns = [
 
 # In development, serve static files that are handled by `nginx.conf` when in production
 if settings.MODE == 'local':
+    # Dynamically generated content
+    urlpatterns += static(r'/dynamic/', document_root=os.path.join(settings.BASE_DIR, 'dynamic'))
     # Javascript (and potentially other resources) on get.stenci.la when in production
     # cal be obtained from a local build via a symlink
     if settings.GET_LOCAL:

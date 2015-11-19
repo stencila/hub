@@ -128,7 +128,7 @@ class Account(models.Model):
             )
 
     @property
-    def logo_url(self, size=64):
+    def logo_url(self, size=64, absolute=False):
         '''
         Returns a URL for this account's logo.
 
@@ -153,9 +153,8 @@ class Account(models.Model):
             return url
         else:
             # Generate a logo and return its URL
-            path = 'generated/accounts/%i/logo.png' % self.id
+            path = 'dynamic/accounts/%i/logo.png' % self.id
             filename = os.path.join(settings.BASE_DIR, path)
-            url = 'https://stenci.la/'+path
             if not os.path.exists(filename):
                 dirname = os.path.dirname(filename)
                 if not os.path.exists(dirname):
@@ -165,7 +164,10 @@ class Account(models.Model):
                 draw = ImageDraw.Draw(logo)
                 draw.text((25, 5), letters, fill=(255, 255, 255), font=account_logo_font)
                 logo.save(filename)
-            return url
+            if absolute:
+                return 'https://stenci.la/'+path
+            else:
+                return path
 
     def address_add(self, id, public=False):
         '''

@@ -11,6 +11,9 @@
 # is a compilation of app level static files
 /static
 
+# Ignore dynamically generated files
+/dynamic
+
 # Ignore local settings
 /local_settings.py
 
