@@ -353,6 +353,7 @@ SOCIALACCOUNT_PROVIDERS = {
     'facebook': {
         # See https://github.com/pennersr/django-allauth#facebook
         # Manage the app at http://developers.facebook.com logged in as user `stencila`
+        # Callback URL must be HTTP
         'SCOPE': ['email'],
         'METHOD': 'oauth2',
     },
@@ -361,6 +362,7 @@ SOCIALACCOUNT_PROVIDERS = {
         # At the time of writing it was not clear if scopes are implemented in allauth for Github
         # see https://github.com/pennersr/django-allauth/issues/369
         # Manage the app at https://github.com/organizations/stencila/settings/applications/74505
+        # Callback URL must be HTTP
         'SCOPE': ['user:email']
     },
     'google': {
@@ -373,7 +375,7 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     'linkedin': {
         # Manage the app at
-        #  https://www.linkedin.com/secure/developer?showinfo=&app_id=3129843&acc_id=1654593&compnay_name=Stencila&app_name=Stencila
+        #  https://www.linkedin.com/developer/apps/3129843/auth
         # logged in as a user with access rights to the app
         # The scopes are listed on the above page
         'SCOPE': ['r_fullprofile', 'r_emailaddress'],
