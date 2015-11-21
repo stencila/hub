@@ -67,7 +67,7 @@ class EC2:
             time.sleep(1)
 
         if status == 'running':
-            worker.platform_id = instance.id
+            worker.provider_id = instance.id
             worker.ip = instance.private_ip_address
             instance.add_tag("Name", "stencila-worker")
         else:
@@ -75,4 +75,6 @@ class EC2:
 
     def terminate(self, worker):
         connection = self.connection()
-        connection.terminate_instances(instance_ids=[worker.platform_id])
+        connection.terminate_instances(
+            instance_ids=[worker.provider_id]
+        )
