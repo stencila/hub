@@ -513,7 +513,7 @@ def raw(request, path):
 
     Does authorization and then gets Nginx to serve the file using X-Accel-Redirect
     '''
-    # Get component and authorise READ
+    # Get component address
     component = None
     address = os.path.dirname(path)
     while len(address) > 0:
@@ -525,10 +525,12 @@ def raw(request, path):
             break
     if component is None:
             raise Http404()
+    # Authorize a READ
     component.get(
         id=None,
         user=request.user,
-        action=READ
+        action=READ,
+        address=address
     )
     # Check it exists
     full_path = os.path.join('/srv/stencila/store', path)
