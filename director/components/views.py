@@ -525,7 +525,11 @@ def raw(request, path):
             break
     if component is None:
             raise Http404()
-    component.authorize_or_raise(request.user, READ)
+    component.get(
+        id=None,
+        user=request.user,
+        action=READ
+    )
     # Check it exists
     full_path = os.path.join('/srv/stencila/store', path)
     if not os.path.exists(full_path):
