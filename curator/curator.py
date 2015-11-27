@@ -21,6 +21,20 @@ import requests
 os.environ['STENCILA_STORES'] = '/srv/stencila/store'
 import stencila
 
+DEV_MODE = len(sys.argv) > 1 and sys.argv[1] == 'dev'
+
+# Token for communication between roles
+if DEV_MODE:
+    COMMS_TOKEN = 'an-insecure-token-only-used-in-development'
+else:
+    COMMS_TOKEN = file(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..', '..',
+            'secrets', 'stencila-comms-token.txt'
+        )
+    ).read()
+
 
 class Curator:
     '''
@@ -291,9 +305,8 @@ class Curator:
         # Compile it
         com.compile()
         # Ping director
-        requests.post('https://stenci.la/api/components/received', json={
-            'token': 'uPynEL8AVxsRujgo8aLHkunw',
-            'address': address
+        requests.post('https://stenci.la/api/v1/components/%s.received' % address, json={
+            'token': COMMS_TOKEN
         })
 
     ###########################################################################
@@ -366,8 +379,7 @@ class Curator:
         risks should be dramatically reduced
         '''
 
-        dev = len(sys.argv) > 1 and sys.argv[1] == 'dev'
-        if dev:
+        if DEV_MODE:
             print 'Running in development mode. File will reload on changes.'
 
         # Run the server
@@ -376,8 +388,8 @@ class Curator:
             '0.0.0.0',
             7310,
             curator,
-            use_debugger=dev,
-            use_reloader=dev,
+            use_debugger=DEV_MODE,
+            use_reloader=DEV_MODE,
             threaded=True
         )
 

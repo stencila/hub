@@ -32,6 +32,37 @@ produces:
 paths:
 
   ###########################################################################
+  # Components
+  ###########################################################################
+
+  /components/{address}.received:
+
+    post:
+      summary: Notify that a component repository has received updates.
+      description: |
+        This endpoint is intended for the `curator` role only. 
+        It is called when the repository is updated (e.g. by a `git push`).
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+      responses:
+        200:
+          description: Successfully notified.
+
+
+  ###########################################################################
   # Me
   ###########################################################################
 

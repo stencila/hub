@@ -2,10 +2,12 @@ import json
 
 from django.conf.urls import url
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.core import urlresolvers
 
 import users.views
+import components.views
+
 
 urlpatterns = [
     url(r'^me/?$',                                    users.views.me_read),
@@ -15,6 +17,13 @@ urlpatterns = [
 
     url(r'^users/?$',                                 users.views.users_list),
     url(r'^users/(?P<username>[\w-]+)/?$',            users.views.users_read),
+
+    # Notifcations by `curator` that a component repository has been updated
+    # (e.g. by a `git push`)
+    url(r'^components/(?P<address>.+)\.received$',    components.views.api_received),
+
+    # Catch-all to prevent continued search for a URL match under the `api/` root
+    url(r'.*', lambda request: HttpResponseNotFound()),
 ]
 
 if settings.MODE == 'local':

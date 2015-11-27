@@ -228,9 +228,9 @@ def component_extras(request, address):
     })
 
 
-@csrf_exempt  # Must come first!
+@csrf_exempt
 @require_POST
-def received(request):
+def api_received(request, address):
     '''
     Endpoint for the `curator` to ping when a component has
     received an update e.g. from `git push`. A token is used to protect access.
@@ -239,16 +239,20 @@ def received(request):
     '''
     api = API(request)
     # Check access token
-    try:
-        token = api.required('token')
-    except RuntimeError:
-        return HttpResponseForbidden()
+    token = api.required('token')
     if token != settings.COMMS_TOKEN:
-        return HttpResponseForbidden()
+        return JsonResponse({
+                'error': 'invalid token'
+            },
+            status=403
+        )
     # Update the component
-    component = Component.one_or_raise(address=api.required('address'))
+    component = Component.objects.get(
+        address=address
+    )
     component.update()
     return api.respond()
+
 
 # Component HTML and Redirecting views
 
