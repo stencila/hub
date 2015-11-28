@@ -88,7 +88,7 @@ def connect(request, id):
         url = '/internal-session-websocket/%s:%s/%s' % (
             session.worker.ip,
             session.port,
-            session.component.address
+            session.component.address.id
         )
         response = HttpResponse('X-Accel-Redirect : %s' % url)
         response['X-Accel-Redirect'] = url

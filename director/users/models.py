@@ -68,12 +68,12 @@ models.signals.post_save.connect(
 # allow for consistent usage of `serialize()` interface in
 # API related views
 
-def user_serialize(self, user):
+def user_serialize(self, request, details=0):
     data = {
         "username":    self.username,
         "date_joined": self.date_joined
     }
-    if user == self:
+    if details > 0 and request.user == self:
         data["last_login"] = self.last_login
     return data
 
@@ -84,6 +84,7 @@ def anon_user_serialize(self, request):
     return {
         "username":    None
     }
+
 AnonymousUser.serialize = anon_user_serialize
 
 

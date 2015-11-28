@@ -462,17 +462,15 @@ class Session(models.Model):
     def __unicode__(self):
         return 'Session#%s' % (self.id)
 
-    @property
     def url(self):
-        return 'https://api.stenci.la/session/%i' % self.id
+        return 'https://stenci.la/sessions/%i' % self.id
 
-    @property
     def websocket(self):
         if self.ready:
             if settings.MODE == 'local':
-                return 'ws://%s:%s/%s' % (self.worker.ip, self.port, self.component.address)
+                return 'ws://%s:%s/%s' % (self.worker.ip, self.port, self.component.address.id)
             else:
-                return'wss://api.stenci.la/session/%s/connect' % (self.id)
+                return'wss://stenci.la/sessions/%s.connect' % (self.id)
         else:
             return None
 
@@ -482,10 +480,12 @@ class Session(models.Model):
         '''
         return OrderedDict([
             ('id', self.id),
-            ('url', self.url),
-            ('websocket', self.websocket),
-            ('ready', self.ready),
-            ('status', self.status)
+            ('user', self.user.serialize(request)),
+            ('component', self.component.serialize(request)),
+            ('url', self.url()),
+            ('websocket', self.websocket()),
+            ('status', self.status),
+            ('ready', self.ready)
         ])
 
     @staticmethod

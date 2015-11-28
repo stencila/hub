@@ -106,10 +106,10 @@ class Account(models.Model):
     def __unicode__(self):
         return 'Account#%s(%s)' % (self.id, self.name)
 
-    def serialize(self, user):
+    def serialize(self, request):
         return OrderedDict([
             ('name', self.name),
-            ('logo', self.logo_url),
+            ('logo', self.logo_url()),
             ('hue', self.hue),
         ])
 

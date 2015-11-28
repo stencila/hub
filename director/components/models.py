@@ -156,10 +156,10 @@ class Component(models.Model):
             self.address.id
         )
 
-    def serialize(self, user, detail=0):
+    def serialize(self, request, detail=0):
         data = OrderedDict([
             ('id', self.id),
-            ('address', self.address.serialize(user)),
+            ('address', self.address.serialize(request)),
             ('forkee', self.forkee.id if self.forkee else None),
             ('type', self.type),
             ('title', self.title),
@@ -844,7 +844,7 @@ class Key(models.Model):
             action_string(self.action)
         )
 
-    def serialize(self, user):
+    def serialize(self, request):
         return OrderedDict([
             ('id', self.id),
             ('name', self.name),
@@ -852,8 +852,8 @@ class Key(models.Model):
             ('address', self.address),
             ('type', self.type),
             ('action', self.action),
-            ('users', [grantee.serialize(user) for grantee in self.users.all()]),
-            ('account', self.account.serialize(user)),
+            ('users', [grantee.serialize(request) for grantee in self.users.all()]),
+            ('account', self.account.serialize(request)),
         ])
 
     ##########################################################################
