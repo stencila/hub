@@ -29,11 +29,12 @@ class API:
         self.data = {}
         if self.get:
             self.data = request.GET
-        elif self.post or self.patch:
-            try:
-                self.data = json.loads(request.body)
-            except ValueError:
-                raise API.JsonInvalidError(json=request.body)
+        elif self.post or self.put or self.patch:
+            if len(request.body) > 0:
+                try:
+                    self.data = json.loads(request.body)
+                except ValueError:
+                    raise API.JsonInvalidError(json=request.body)
 
     def required(self, name, converter=lambda x: x):
         '''

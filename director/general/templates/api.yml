@@ -12,11 +12,13 @@ info:
 
     Please bear with us, we are working hard to get the API settled down and to version 1.0.
 
+    The API uses the ampersand `@` to denote calls to methods of components. We use `address/of/component@method` instead of `address/of/component/method` so that it is possible to resolve where a component address ends and the method name starts. We use `@` instead of `.` to easily differentiate method URL endpoints from raw file endpoints. The ampersand is a valid charater for a HTTP URL (see page 17 of http://tools.ietf.org/html/rfc1738).
+
 
 {% if MODE != 'local' %}
 host: stenci.la
 {% endif %}
-basePath: /api/v1
+basePath: /
 schemes:
 {% if MODE != 'local' %}
   - https
@@ -35,9 +37,111 @@ paths:
   # Components
   ###########################################################################
 
-  /components/{address}.received:
 
-    post:
+  /{address}@activate:
+
+    put:
+      summary: Activate a component by starting a session for it.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully activated.
+          schema:
+            $ref: '#/definitions/Session'
+
+
+  /{address}@deactivate:
+
+    put:
+      summary: Deactivate a component by stopping the current session for it.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully deactivated.
+          schema:
+            $ref: '#/definitions/Session'
+
+  /{address}@save:
+
+    put:
+      summary: Save a component.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully saved.
+
+  /{address}@commit:
+
+    put:
+      summary: Commit changes to a component.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully committed.
+
+  /{address}@commits:
+
+    get:
+      summary: Get the commits for a component.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                foo:
+                  type: string
+
+  /{address}@sync:
+
+    put:
+      summary: Synchronise a component with the master repository.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully synchronised.
+
+  /{address}@received:
+
+    put:
       summary: Notify that a component repository has received updates.
       description: |
         This endpoint is intended for the `curator` role only. 
@@ -60,6 +164,72 @@ paths:
       responses:
         200:
           description: Successfully notified.
+
+
+  /{address}@content:
+
+    get:
+      summary: Get the content of a stencil.
+      tags:
+        - Stencils
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: format
+          in: query
+          type: string
+          default: 'html'
+      responses:
+        200:
+          schema:
+            properties:
+              revision:
+                type: string
+                required: true
+              format:
+                type: string
+                required: true
+              content:
+                type: string
+                required: true
+
+    put:
+      summary: Set the content of a stencil.
+      tags:
+        - Stencils
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              revision:
+                type: string
+                required: true
+              format:
+                type: string
+                required: true
+              content:
+                type: string
+                required: true
+      responses:
+        200:
+          schema:
+            properties:
+              revision:
+                type: string
+                required: true
+              status:
+                type: integer
+                required: true
+
 
 
   ###########################################################################
@@ -215,6 +385,53 @@ paths:
 
 definitions:
 
+  Account:
+    type: object
+    required:
+      - name
+      - type
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+
+  Component:
+    properties:
+      address:
+        type: string
+        description: Address of this component
+      type:
+        type: string
+        description: Type of this component (e.g. stencil, theme)
+      url:
+        type: string
+        description: URL for this component
+      tiny:
+        type: string
+        description: Tiny URL for this component
+      account:
+        $ref: '#/definitions/Account'
+        description: |
+          Account which owns this component. Determined as the account which owns the component's address, or a it's parent address.
+      public:
+        type: boolean
+        description: |
+          Is this component public? Determined by whether the component's address, or a it's parent address, is public.
+      rights:
+        type: string
+        description: Access rights for the current user for this component ('READ','UPDATE',etc)
+      favourites:
+        type: int
+        description: Number of times this component has been favourited
+      favourited:
+        type: boolean
+        description: Has this component been favourtied by the current user?
+      forks:
+        type: int
+        description: Number of times this component has been forked
+
+
   Me:
     properties:
       username:
@@ -226,6 +443,23 @@ definitions:
         type: string
         format: date-time
 
+  Session:
+    type: object
+    properties:
+      id:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      component:
+        $ref: '#/definitions/Component'
+      url:
+        type: string
+      websocket:
+        type: string
+      ready:
+        type: boolean
+      status:
+        type: string
 
   Token:
     properties:

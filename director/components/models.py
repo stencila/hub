@@ -442,6 +442,15 @@ class Component(models.Model):
         self.updated = timezone.now()
         self.save()
 
+    def commits(self):
+        '''
+        Get a list of commits for this component
+        '''
+        return curator(
+            'commits',
+            address=self.address.id
+        )
+
     ##########################################################################
     # Starring
 
@@ -503,22 +512,22 @@ class Component(models.Model):
     ##########################################################################
     # Content getting and saving
 
-    def content(self, user, format):
+    def content_get(self, format):
         '''
-        Get the latest content
+        Get the content of this stencil
         '''
         assert self.type == 'stencil'
         assert format in ['html', 'cila']
-        content = Component.curator(
+        content = curator(
             'content',
-            address=self.address,
+            address=self.address.id,
             format=format
         )
         return content
 
-    def save_do(self, user, format, content, revision):
+    def content_set(self, user, format, content, revision):
         '''
-        Save content
+        Set the content of this stencil
         '''
         assert self.type == 'stencil'
         assert format in ['html', 'cila']
@@ -526,9 +535,9 @@ class Component(models.Model):
         name = user.get_full_name()
         if not name or name.strip() == '':
             name = user.username
-        result = Component.curator(
+        result = curator(
             'save',
-            address=self.address,
+            address=self.address.id,
             format=format,
             content=content,
             revision=revision,

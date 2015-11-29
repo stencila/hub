@@ -18,10 +18,6 @@ urlpatterns = [
     url(r'^users/?$',                                 users.views.users_list),
     url(r'^users/(?P<username>[\w-]+)/?$',            users.views.users_read),
 
-    # Notifcations by `curator` that a component repository has been updated
-    # (e.g. by a `git push`)
-    url(r'^components/(?P<address>.+)\.received$',    components.views.api_received),
-
     # Catch-all to prevent continued search for a URL match under the `api/` root
     url(r'.*', lambda request: HttpResponseNotFound()),
 ]

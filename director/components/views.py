@@ -8,7 +8,7 @@ import django
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.views.decorators.http import (
-    require_http_methods, require_GET, require_POST,
+    require_http_methods, require_GET, require_POST
 )
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import (
@@ -170,37 +170,6 @@ def component_forks(request, id):
         api.raise_method_not_allowed()
 
 
-@require_authenticated
-@require_GET
-def content(request, address):
-    '''
-    Get the current content of a component
-    '''
-    component = Component.one_if_authorized_or_raise(request.user, READ, address=address)
-    api = API(request)
-    format = request.GET.get('format')
-    result = component.content(
-        request.user,
-        format,
-    )
-    return api.respond(result)
-
-@csrf_exempt  # Must come first!
-@require_authenticated
-@require_POST
-def save(request, address):
-    '''
-    Save the content of a component
-    '''
-    component = Component.one_if_authorized_or_raise(request.user, UPDATE, address=address)
-    api = API(request)
-    result = component.save_do(
-        request.user,
-        api.required('format'),
-        api.required('content'),
-        api.required('revision'),
-    )
-    return api.respond(result)
 
 
 @require_GET
@@ -227,33 +196,6 @@ def component_extras(request, address):
         'path': path,
     })
 
-
-@csrf_exempt
-@require_POST
-def api_received(request, address):
-    '''
-    Endpoint for the `curator` to ping when a component has
-    received an update e.g. from `git push`. A token is used to protect access.
-    But this endpoint only accepts the address of the component and then fetches an
-    update from the `curator`, so a malicious user can not read or write data anyway.
-    '''
-    api = API(request)
-    # Check access token
-    token = api.required('token')
-    if token != settings.COMMS_TOKEN:
-        return JsonResponse({
-                'error': 'invalid token'
-            },
-            status=403
-        )
-    # Update the component
-    component = Component.objects.get(
-        address=address
-    )
-    component.update()
-    return api.respond()
-
-
 # Component HTML and Redirecting views
 
 
@@ -274,9 +216,46 @@ def new(request, type):
         return redirect(component.url())
 
 
+###############################################################################
+# Component methods
+###############################################################################
+
 @csrf_exempt
 @login_required
+@require_http_methods(['PUT'])
+def method(request, address, method):
+    '''
+    A general view for calling methods on components that are hosted
+    in a session. Not all component methods need an active session so views
+    should be explicitly provided for those below.
+    '''
+    api = API(request)
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    session = Session.get(
+        component=component,
+        user=request.user,
+    )
+    result = session.request(
+        verb=request.method,
+        method=method,
+        data=request.body
+    )
+    return api.respond(result)
+
+
+@csrf_exempt
+@login_required
+@require_http_methods(['PUT'])
 def activate(request, address):
+    '''
+    Activate a component by starting a session for it
+    '''
+    api = API(request)
     component = Component.get(
         id=None,
         user=request.user,
@@ -288,11 +267,19 @@ def activate(request, address):
         user=request.user,
     )
     session.start()
-    return JsonResponse(session.serialize(request.user))
+    return api.respond(
+        session.serialize(request)
+    )
+
 
 @csrf_exempt
 @login_required
+@require_http_methods(['PUT'])
 def deactivate(request, address):
+    '''
+    Dectivate a component by stopping the currently active session for it
+    '''
+    api = API(request)
     component = Component.get(
         id=None,
         user=request.user,
@@ -304,26 +291,91 @@ def deactivate(request, address):
         user=request.user,
     )
     session.stop()
-    return JsonResponse(session.serialize(request.user))
+    return api.respond(
+        session.serialize(request)
+    )
 
-@csrf_exempt
-@login_required
-def request(request, address, method):
+
+@require_GET
+def commits(request, address):
+    '''
+    Get a list of commits for a component
+    '''
+    api = API(request)
     component = Component.get(
         id=None,
         user=request.user,
         action=READ,
         address=address
     )
-    session = Session.get(
-        component=component,
-        user=request.user,
+    result = component.commits()
+    return api.respond(result)
+
+
+@csrf_exempt
+@require_http_methods(['PUT'])
+def received(request, address):
+    '''
+    Endpoint for the `curator` to ping when a component has
+    received an update e.g. from `git push`. A token is used to protect access.
+    But this endpoint only accepts the address of the component and then fetches an
+    update from the `curator`, so a malicious user can not read or write data anyway.
+    '''
+    api = API(request)
+    # Check access token
+    token = api.required('token')
+    if token != settings.COMMS_TOKEN:
+        return JsonResponse(
+            {'error': 'invalid token'},
+            status=403
+        )
+    # Update the component
+    component = Component.objects.get(
+        address=address
     )
-    return JsonResponse(session.request(
-        verb=request.method,
-        method=method,
-        data=request.body
-    ))
+    component.update()
+    return api.respond()
+
+
+###############################################################################
+# Stencil methods
+###############################################################################
+
+
+@csrf_exempt
+@require_authenticated
+@require_http_methods(['GET', 'PUT'])
+def content(request, address):
+    '''
+    Get or set the content of a stencil
+    '''
+    api = API(request)
+    if api.get:
+        component = Component.get(
+            id=None,
+            user=request.user,
+            action=READ,
+            address=address
+        )
+        result = component.content_get(
+            format=api.optional('format', 'html'),
+        )
+    elif api.put:
+        component = Component.get(
+            id=None,
+            user=request.user,
+            action=UPDATE,
+            address=address
+        )
+        result = component.content_set(
+            user=request.user,
+            format=api.required('format'),
+            content=api.required('content'),
+            revision=api.required('revision')
+        )
+    return api.respond(result)
+
+###############################################################################
 
 
 def page(request, address, component=None):

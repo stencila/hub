@@ -13,18 +13,6 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Import the include() function: from django.conf.urls import url, include
     3. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
-
-Some of the URLs below include non-alphanumeric characters (e.g. !, &).
-Note that http://www.ietf.org/rfc/rfc3986.txt (section 2.2) says that 'reserved' characters
-"may (or may not) be defined as delimiters by the generic syntax, by each
-scheme-specific syntax, or by the implementation-specific syntax of a URI's dereferencing algorithm"
-So, it seems fine to use these characters
-  unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~"
-  reserved sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
-But probably best to avoid these:
-  reserved gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
-because they are used as general delimiters in the URI generic syntax
-
 """
 import os
 
@@ -95,30 +83,38 @@ if settings.MODE == 'local':
 urlpatterns += [
 
     # Create a new component
-    url(r'^new/(?P<type>\w+)$',                                      components.views.new),
+    url(r'^new/(?P<type>\w+)$',                                 components.views.new),
 
     # Slugified URL
-    url(r'^(?P<address>.+)/(?P<slug>.*)-$',                          components.views.slugified),
+    url(r'^(?P<address>[\w/]+)/(?P<slug>.*)-$',                 components.views.slugified),
 
     # Tiny URL e.g.
     #   /gdf3Nd~
     # Gets redirected to the canonical URL for the component
     # The tilde prevents potential (although low probability)
     # clashes between shortened URLs and other URLs
-    url(r'^(?P<tiny>\w+)~$',                                         components.views.tiny),
+    url(r'^(?P<tiny>\w+)~$',                                    components.views.tiny),
 
-    # Activate a component session and call component methods in the session
-    url(r'^(?P<address>.+)@activate$',                               components.views.activate),
-    url(r'^(?P<address>.+)@deactivate$',                             components.views.deactivate),
-    url(r'^(?P<address>.+)@(?P<method>.+)$',                         components.views.request),
+    # Component methods
+    url(r'^(?P<address>[\w/]+)@activate$',                     components.views.activate),
+    url(r'^(?P<address>[\w/]+)@deactivate$',                   components.views.deactivate),
+    url(r'^(?P<address>[\w/]+)@save$',                         components.views.method, {'method': 'save'}),
+    url(r'^(?P<address>[\w/]+)@commit$',                       components.views.method, {'method': 'commit'}),
+    url(r'^(?P<address>[\w/]+)@commits$',                      components.views.commits),
+    url(r'^(?P<address>[\w/]+)@sync$',                         components.views.method, {'method': 'sync'}),
+    url(r'^(?P<address>[\w/]+)@received$',                     components.views.received),
+
+    # Stencil methods
+    url(r'^(?P<address>[\w/]+)@content$',                      components.views.content),
+    url(r'^(?P<address>[\w/]+)@render$',                       components.views.method, {'method': 'render'}),
 
     # Component Git repo access: distinguished by `.git` followed by query
-    url(r'^(?P<address>.+)\.git.*$',                                 components.views.git),
+    url(r'^(?P<address>[\w/]+)\.git.*$',                        components.views.git),
 
     # Component raw file access: any other url with a dot in it (resolved in view)
-    url(r'^(?P<path>(.+)\.(.+))$',                                   components.views.raw),
+    url(r'^(?P<path>(.+)\.(.+))$',                              components.views.raw),
 
     # Any other URL needs to be routed to the a canonical URL, index page, or
     # listing of components at the address
-    url(r'^(?P<address>.*)$',                                        components.views.route),
+    url(r'^(?P<address>.*)$',                                   components.views.route),
 ]
