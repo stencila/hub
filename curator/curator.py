@@ -199,6 +199,7 @@ class Curator:
             raise Exception("Unknown format when getting stencil content")
         return dict(
             revision=self.revision(path),
+            format=format,
             content=current_content,
         )
 
@@ -305,7 +306,7 @@ class Curator:
         # Compile it
         com.compile()
         # Ping director
-        requests.post('https://stenci.la/api/v1/components/%s.received' % address, json={
+        requests.put('https://stenci.la/%s@received' % address, json={
             'token': COMMS_TOKEN
         })
 
@@ -341,6 +342,7 @@ class Curator:
         Rule('/content', endpoint='content', methods=['POST']),
         Rule('/save', endpoint='save', methods=['POST']),
         Rule('/meta', endpoint='meta', methods=['POST']),
+        Rule('/commits', endpoint='commits', methods=['POST']),
         Rule('/received', endpoint='received', methods=['POST']),
 
         Rule('/resetup', endpoint='resetup', methods=['POST']),
