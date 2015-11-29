@@ -86,7 +86,7 @@ urlpatterns += [
     url(r'^new/(?P<type>\w+)$',                                 components.views.new),
 
     # Slugified URL
-    url(r'^(?P<address>[\w/]+)/(?P<slug>.*)-$',                 components.views.slugified),
+    url(r'^(?P<address>.+)/(?P<slug>.*)-$',                 components.views.slugified),
 
     # Tiny URL e.g.
     #   /gdf3Nd~
@@ -96,20 +96,20 @@ urlpatterns += [
     url(r'^(?P<tiny>\w+)~$',                                    components.views.tiny),
 
     # Component methods
-    url(r'^(?P<address>[\w/]+)@activate$',                     components.views.activate),
-    url(r'^(?P<address>[\w/]+)@deactivate$',                   components.views.deactivate),
-    url(r'^(?P<address>[\w/]+)@save$',                         components.views.method, {'method': 'save'}),
-    url(r'^(?P<address>[\w/]+)@commit$',                       components.views.method, {'method': 'commit'}),
-    url(r'^(?P<address>[\w/]+)@commits$',                      components.views.commits),
-    url(r'^(?P<address>[\w/]+)@sync$',                         components.views.method, {'method': 'sync'}),
-    url(r'^(?P<address>[\w/]+)@received$',                     components.views.received),
+    url(r'^(?P<address>.+)@activate$',                     components.views.activate),
+    url(r'^(?P<address>.+)@deactivate$',                   components.views.deactivate),
+    url(r'^(?P<address>.+)@save$',                         components.views.method, {'method': 'save'}),
+    url(r'^(?P<address>.+)@commit$',                       components.views.method, {'method': 'commit'}),
+    url(r'^(?P<address>.+)@commits$',                      components.views.commits),
+    url(r'^(?P<address>.+)@sync$',                         components.views.method, {'method': 'sync'}),
+    url(r'^(?P<address>.+)@received$',                     components.views.received),
 
     # Stencil methods
-    url(r'^(?P<address>[\w/]+)@content$',                      components.views.content),
-    url(r'^(?P<address>[\w/]+)@render$',                       components.views.method, {'method': 'render'}),
+    url(r'^(?P<address>.+)@content$',                      components.views.content),
+    url(r'^(?P<address>.+)@render$',                       components.views.method, {'method': 'render'}),
 
     # Component Git repo access: distinguished by `.git` followed by query
-    url(r'^(?P<address>[\w/]+)\.git.*$',                        components.views.git),
+    url(r'^(?P<address>.+)\.git.*$',                        components.views.git),
 
     # Component raw file access: any other url with a dot in it (resolved in view)
     url(r'^(?P<path>(.+)\.(.+))$',                              components.views.raw),
