@@ -33,8 +33,6 @@ urlpatterns = [
     # Front page
     url(r'^$',                                                       general.views.front),
 
-    # API endpoints
-    url(r'^api/v1/',                                                 include('api_v1')),
     # API documentation
     url(r'^api/api.yml',                                             general.views.api_yml),
     url(r'^api/?$',                                                  general.views.api_ui),
