@@ -38,10 +38,11 @@ urlpatterns = [
     url(r'^api/?$',                                                  general.views.api_ui),
 
     # User management (login, logout etc)
+    url(r'^me/?$',                                                   users.views.me_read),
     url(r'^me/signup/?$',                                            users.views.signup),
     url(r'^me/signin/?$',                                            users.views.signin),
     url(r'^me/signout/?$',                                           users.views.signout),
-    url(r'^me/?$',                                                   users.views.me_read),
+    url(r'^me/',                                                     include('allauth.urls')),
     # The allauth URLs not overidden above are:
         # password/change/                    account_change_password         change password
         # password/set/                       account_set_password            confirmation that password is changed?
