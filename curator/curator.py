@@ -30,8 +30,7 @@ else:
     COMMS_TOKEN = file(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            '..', '..',
-            'secrets', 'stencila-comms-token.txt'
+            '..', 'secrets', 'stencila-comms-token.txt'
         )
     ).read()
 
