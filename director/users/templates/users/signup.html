@@ -4,51 +4,11 @@
 {% load i18n %}
 {% load semanticui %}
 
-{% block styles %}
-	{{ block.super }}
-	<style>
-		#social .button {
-			width: 75%;
-		}
-	</style>
-{% endblock %}
-
 {% block main %}
 <div class="ui ten column centered stackable grid">
-	<div id="social" class="ui five wide center aligned column">
+	<div class="ui five wide center aligned column">
 		<h3>Sign up using...</h3>
-		<div class="ui list">
-			<div class="ui item">
-				<a class="ui github button" title="Github" href="{% provider_login_url 'github' process='login' %}">
-					<i class="ui github icon"></i>
-					Github
-				</a>
-			</div>
-			<div class="ui item">
-				<a class="ui twitter button" title="Twitter" href="{% provider_login_url 'twitter' process='login' %}">
-					<i class="ui twitter icon"></i>
-					Twitter
-				</a>
-			</div>
-			<div class="ui item">
-				<a class="ui facebook button" title="Facebook" href="{% provider_login_url 'facebook' process='login' %}">
-					<i class="ui facebook icon"></i>
-					Facebook
-				</a>
-			</div>
-			<div class="ui item">
-				<a class="ui google plus button" title="Google" href="{% provider_login_url 'google' process='login' %}">
-					<i class="ui google icon"></i>
-					Google
-				</a>
-			</div>
-			<div class="ui item">
-				<a class="ui linkedin button" title="LinkedIn" href="{% provider_login_url 'linkedin' process='login' %}">
-					<i class="ui linkedin icon"></i>
-					LinkedIn
-				</a>
-			</div>
-		</div>
+		{% include 'users/_allauth_providers.html' %}
 	</div>
 	<div class="ui five wide center aligned column">
 		<h3>Sign up with a new username</h3>
