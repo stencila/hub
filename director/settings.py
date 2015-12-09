@@ -389,6 +389,9 @@ SOCIALACCOUNT_PROVIDERS = {
             'public-profile-url'
         ]
     },
+    'orcid': {
+        # Manage the app at https://orcid.org/developer-tools logged in as 0000-0003-1608-7967 (Nokome Bentley)
+    },
     'twitter': {
         # Manage the app at https://dev.twitter.com/apps/5640979/show logged in as user `stencila`
     },

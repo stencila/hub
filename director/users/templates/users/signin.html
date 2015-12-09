@@ -10,6 +10,9 @@
 		.social .button {
 			width: 75%;
 		}
+		.orcid.button {
+			background: #a6ce39;
+		}
 	</style>
 {% endblock %}
 
@@ -18,6 +21,12 @@
 	<div class="ui five wide center aligned column">
 		<h3> Sign in using...</h3>
 		<div class="social ui list">
+			<div class="ui item">
+				<a class="ui orcid button" title="ORCID" href="{% provider_login_url 'orcid' process='login' %}">
+					<i class="ui user icon"></i>
+					ORCID
+				</a>
+			</div>
 			<div class="ui item">
 				<a class="ui github button" title="Github" href="{% provider_login_url 'github' process='login' %}">
 					<i class="ui github icon"></i>
