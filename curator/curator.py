@@ -151,10 +151,16 @@ class Curator:
         git.init(path)
         self.setup(path)
 
-        # Add necessary files and create a first commit
+        # Add necessary files and create a first commit. If there are no
+        # files added then commit will fail
         if type == 'stencil':
             file(os.path.join(path, 'stencil.cila'), 'w').write('')
             self.git(path, 'add', 'stencil.cila')
+        elif type == 'sheet':
+            file(os.path.join(path, 'sheet.tsv'), 'w').write('')
+            self.git(path, 'add', 'sheet.tsv')
+        else:
+            raise Exception('No file added for initial commit')
         self.git(path, 'commit', '-m', 'Initial commit')
 
         # Compile the component so index.html is availabe
