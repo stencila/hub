@@ -453,6 +453,12 @@ class Session(models.Model):
         help_text='Time that this session had its information last updated'
     )
 
+    pinged = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Time that this session was last pinged by a client'
+    )
+
     stopped = models.DateTimeField(
         null=True,
         blank=True,
@@ -489,21 +495,18 @@ class Session(models.Model):
         ])
 
     @staticmethod
-    def get(component, user):
+    def get(id, user):
         '''
-        Get an active session for the componet/user pair,
-        or else launch one
+        Get a session, checking that the user is authorized
+        to access it
         '''
         try:
             return Session.objects.get(
-                component=component,
-                user=user,
-                active=True
+                id=id
             ).authorize_or_raise(user)
         except Session.DoesNotExist:
             raise Session.NotFoundError(
-                component=component.address.id,
-                user=user.username
+                id=id
             )
 
     @staticmethod
@@ -666,6 +669,22 @@ class Session(models.Model):
         else:
             raise Session.NotActiveError(self.id)
 
+    def ping(self):
+        '''
+        Receive a ping from the client
+        '''
+        self.pinged = timezone.now()
+        self.save()
+
+    @staticmethod
+    def vacuum(period=datetime.timedelta(minutes=10)):
+        '''
+        Stop all sessions which are stale (i.e. not pinged in within `period`)
+        '''
+        for session in Session.objects.filter(active=True):
+            if (timezone.now()-session.pinged) > period:
+                session.stop()
+
     def stop(self):
         '''
         Stop this session
@@ -742,18 +761,16 @@ class Session(models.Model):
             )
 
     class NotFoundError(Error):
-        code = 400
+        code = 404
 
-        def __init__(self, component, user):
-            self.component = component
-            self.user = user
+        def __init__(self, id):
+            self.id = id
 
         def serialize(self):
             return dict(
                 error="session:not-found",
-                message='No active session for this component/user',
-                component=self.component,
-                user=self.user
+                message='Session with this id does not exist or you do not have permission to access it',
+                id=self.id
             )
 
     class NotActiveError(Error):

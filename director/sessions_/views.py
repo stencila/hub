@@ -1,67 +1,47 @@
-from django.shortcuts import render
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 
 from general.authentication import require_authenticated
-from general.api import api, API
+from general.api import API
 from components.models import Component, READ
-from sessions_.models import Session_
+from sessions_.models import Session
 
 
-@csrf_exempt  # Must come first!
+@csrf_exempt
 @require_authenticated
-@require_http_methods(["GET", "POST"])
-def list_or_create(request):
-    if(request.method == 'GET'):
-        return list(request)
-    else:
-        return create(request)
-
-
-def list(request):
-    '''
-    Get a list of sessions.
-
-    Currently restricted to sessions for the current user. But account owners
-    may want to get sessions for all users in account. Should be filterable.
-    '''
-    sessions = Session_.objects.filter(user=request.user)
-    return api(request, sessions)
-
-
-def create(request):
-    '''
-    Create a session for the component/user.
-
-    Starts a new session, if there is not already an active
-    one for the component/user pair, and returns it's details so that
-    the client can connect to that session via websockets
-    '''
+def sessions(request, id=None):
     api = API(request)
-    component = Component.one_if_authorized_or_raise(
-        request.user,
-        READ,
-        address=api.required('address')
-    )
-    session = Session_.get_or_launch(
-        component=component,
-        user=request.user,
-    )
-    return api.respond(session)
+    if id is None:
+        if api.get:
+            # Get a list of sessions
+            sessions = Session.objects.filter(user=request.user)
+            return api.respond(sessions)
+        elif api.post:
+            # Create a session for the component/user.
+            # Starts a new session, if there is not already an active
+            # one for the component/user pair, and returns it's details so that
+            # the client can connect to that session via websockets
+            component = Component.one_if_authorized_or_raise(
+                request.user,
+                READ,
+                address=api.required('address')
+            )
+            session = Session.get_or_launch(
+                component=component,
+                user=request.user,
+            )
+            return api.respond(session)
+    else:
+        if api.get:
+            session = Session.get(
+                id=id,
+                user=request.user
+            )
+            if session.active:
+                session.update()
+            return api.respond(session)
 
-
-@require_authenticated
-@require_GET
-def read(request, id):
-    '''
-    Read a session
-
-    Checks that the user is authorized to read the session.
-    '''
-    session = Session_.objects.get(id=id)
-    session.authorize_or_raise(request.user)
-    session.update()
-    return api(request, session)
+    raise API.MethodNotAllowedError(method=request.method)
 
 
 @require_authenticated
@@ -74,9 +54,10 @@ def connect(request, id):
     Get Nginx to proxy websocket connections to the session.
     For debugging purposes show the redirect header in the response content.
     '''
-    session = Session_.objects.get(id=id)
-    session.authorize_or_raise(request.user)
-
+    session = Session.get(
+        id=id,
+        user=request.user
+    )
     # If no port (i.e only just started) then update
     if not session.port:
         # Currently updating the task first but we could
@@ -94,10 +75,34 @@ def connect(request, id):
         response['X-Accel-Redirect'] = url
         return response
     else:
-        return api({
+        return API(request).respond({
             'message': 'Not ready, please try again later.'
         })
 
+@csrf_exempt
+@require_authenticated
+def ping(request, id):
+    '''
+    Ping a session to keep it open
+
+    Sessions that have not been pinged for sometime will be automatically
+    stopped.
+    '''
+    api = API(request)
+    if api.put:
+        session = Session.get(
+            id=id,
+            user=request.user
+        )
+        if session.active:
+            session.ping()
+            return api.respond()
+        else:
+            return api.respond({
+                'message': 'Session is no longer active'
+            })
+    else:
+        raise API.MethodNotAllowedError(method=request.method)
 
 @csrf_exempt  # Must come first!
 @require_authenticated
@@ -108,7 +113,6 @@ def stop(request, id):
 
     Checks that the user is authorized to stop the session.
     '''
-    session = Session_.objects.get(id=id)
-    session.authorize_or_raise(request.user)
+    session = Session.get(id=id)
     session.stop()
-    return api(request, session)
+    return API(request).respond(session)

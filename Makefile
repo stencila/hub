@@ -10,7 +10,7 @@ SHELL := /bin/bash
 # Shortcut to activate the virtual environment; used below
 VE := . director/env/bin/activate ;
 # Shortcut to run a Django manage.py task in the virtual environment; used below
-DJ := $(VE) director/manage.py 
+DJ := $(VE) director/manage.py
 
 # Install server side Python libraries into virtual environment
 director-env-build: director/pip-requirements.txt
@@ -35,6 +35,10 @@ director-makemigrations:
 director-migrate:
 	$(DJ) migrate
 	if [ -e director/db.sqlite3 ]; then chmod 775 director/db.sqlite3 ; fi
+
+# Sync cron jobs from django-crontab to the macine user's cron table
+director-crons:
+	$(DJ) crontab add
 
 # Build client side files
 director-client-build:

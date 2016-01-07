@@ -127,6 +127,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.twitter',
 
     'debug_toolbar',
+    'django_crontab',
     'django_user_agents',
     'reversion',
     'django_extensions',
@@ -420,6 +421,13 @@ if MODE in ('vagrant', 'prod'):
         'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
     }
     LOGGING['root']['handlers'].append('sentry')
+
+# django-crontab
+# Run `python manage.py crontab add` whenever CRONJOBS is modified!
+CRONJOBS = [
+    # Every minute, stop stale sessions
+    ('*/1 * * * *', 'sessions_.models.Session.vacuum')
+]
 
 ###########################################################################################
 # Localizable settings

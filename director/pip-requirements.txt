@@ -17,6 +17,9 @@ django-allauth==0.24.1
 # https://github.com/ottoyiu/django-cors-headers for CORS headers? :)
 django-cors-headers==1.1.0
 
+# https://github.com/kraiz/django-crontab for running management tasks on a periodic basis
+django-crontab==0.7.0
+
 # http://django-debug-toolbar.readthedocs.org/ for a debugging toolbar
 django-debug-toolbar==1.4
 

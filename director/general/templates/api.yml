@@ -231,6 +231,59 @@ paths:
                 required: true
 
 
+  ###########################################################################
+  # Sessions
+  ###########################################################################
+
+
+  /sessions:
+
+    get:
+      summary: List sessions.
+      tags:
+        - Sessions
+      responses:
+        200:
+          description: List of sessions
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Session'
+
+  /sessions/{id}:
+
+    get:
+      summary: Read a session.
+      tags:
+        - Sessions
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the session
+      responses:
+        200:
+          description: Data on the session
+          schema:
+            $ref: '#/definitions/Session'
+
+  /sessions/{id}@ping:
+
+    put:
+      summary: Ping a session.
+      tags:
+        - Sessions
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the session
+      responses:
+        200:
+          description: OK
+
 
   ###########################################################################
   # Me

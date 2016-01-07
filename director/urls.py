@@ -27,6 +27,7 @@ from django.core import urlresolvers
 import general.views
 import components.views
 import users.views
+import sessions_.views
 
 urlpatterns = [
 
@@ -36,6 +37,10 @@ urlpatterns = [
     # API documentation
     url(r'^api/api.yml',                                             general.views.api_yml),
     url(r'^api/?$',                                                  general.views.api_ui),
+
+    url(r'^sessions/?$',                                             sessions_.views.sessions),
+    url(r'^sessions/(?P<id>\d+)/?$',                                 sessions_.views.sessions),
+    url(r'^sessions/(?P<id>\d+)@ping/?$',                            sessions_.views.ping),
 
     # User management (login, logout etc)
     url(r'^me/?$',                                                   users.views.me_read),
