@@ -41,8 +41,7 @@ admin.site.register(WorkerStats, WorkerStatsAdmin)
 class SessionAdmin(admin.ModelAdmin):
 
     list_display = (
-        'id', 'created', 'account', 'user',
-        'component', 'image', 'command', 'worker',
+        'id', 'created', 'account', 'user', 'image', 'command', 'worker',
         'status', 'active', 'ready', 'started', 'updated', 'stopped'
     )
     list_filter = ('worker', 'image', 'active')

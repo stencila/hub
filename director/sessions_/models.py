@@ -341,14 +341,8 @@ class Session(models.Model):
     account = models.ForeignKey(
         Account,
         null=True,
+        blank=True,
         help_text='Account that this session is linked to. Usually not null.',
-        related_name='sessions'
-    )
-
-    component = models.ForeignKey(
-        Component,
-        null=True,
-        help_text='Component for this session. Usually not null.',
         related_name='sessions'
     )
 
@@ -367,8 +361,6 @@ class Session(models.Model):
 
     image = models.CharField(
         max_length=64,
-        null=True,
-        blank=True,
         help_text='Image for this session',
     )
 
@@ -376,18 +368,21 @@ class Session(models.Model):
         max_length=64,
         null=True,
         blank=True,
+        default='stencila-session',
         help_text='Image for this session',
     )
 
     memory = models.CharField(
         max_length=8,
         null=True,
+        blank=True,
         default='1g',
         help_text='Memory limit for this session. Format: <number><optional unit>, where unit = b, k, m or g',
     )
 
     cpu = models.IntegerField(
         null=True,
+        blank=True,
         default=1024,
         help_text='CPU share for this session. Share out of 1024',
     )
@@ -474,9 +469,9 @@ class Session(models.Model):
     def websocket(self):
         if self.ready:
             if settings.MODE == 'local':
-                return 'ws://%s:%s/%s' % (self.worker.ip, self.port, self.component.address.id)
+                return 'ws://%s:%s' % (self.worker.ip, self.port)
             else:
-                return'wss://stenci.la/sessions/%s.connect' % (self.id)
+                return'wss://stenci.la/sessions/%s@connect' % (self.id)
         else:
             return None
 
@@ -487,7 +482,7 @@ class Session(models.Model):
         return OrderedDict([
             ('id', self.id),
             ('user', self.user.serialize(request)),
-            ('component', self.component.serialize(request)),
+            ('image', self.image),
             ('url', self.url()),
             ('websocket', self.websocket()),
             ('status', self.status),
@@ -510,25 +505,25 @@ class Session(models.Model):
             )
 
     @staticmethod
-    def get_or_launch(component, user):
+    def get_or_launch(user, image):
         '''
         Get an active session for the componet/user pair,
         or else launch one
         '''
         try:
             return Session.objects.get(
-                component=component,
                 user=user,
+                image=image,
                 active=True
             )
         except Session.DoesNotExist:
             return Session.launch(
-                component=component,
                 user=user,
+                image=image
             )
 
     @staticmethod
-    def launch(component, user, account=None):
+    def launch(user, image, account=None):
         '''
         Create and start a session
         '''
@@ -545,8 +540,8 @@ class Session(models.Model):
         # Create the session
         session = Session.objects.create(
             account=account,
-            component=component,
             user=user,
+            image=image,
             memory='%sm' % memory
         )
         # Start the session
@@ -560,18 +555,13 @@ class Session(models.Model):
         session in the admin and start it from there
         '''
         if self.started is None:
+            # Just-in-time initalization of attributes required for running
+            # a session (to save having to enter these in the admin)
+            #
             # Get the sessions token for the user, creating
             # one if necessary
             self.token = UserToken.get_sessions_token(self.user).string
-            # Determine the image to use, based on the component
-            # `envir` field.
-            # Currently, all components use the r environment by default
-            # but this will be customised later
-            self.image = 'stencila/ubuntu-14.04-r-3.2'
-            # Generate the run command for the image
-            self.command = 'stencila-r "%s" serve ...' % (
-                self.component.address.id
-            )
+
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active
             self.worker = Worker.choose(
@@ -679,7 +669,7 @@ class Session(models.Model):
     @staticmethod
     def vacuum(period=datetime.timedelta(minutes=10)):
         '''
-        Stop all sessions which are stale (i.e. not pinged in within `period`)
+        Stop all sessions which are stale (i.e. have not been pinged in within `period`)
         '''
         for session in Session.objects.filter(active=True):
             if (timezone.now()-session.pinged) > period:

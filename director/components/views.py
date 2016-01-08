@@ -237,10 +237,11 @@ def method(request, address, method):
         address=address
     )
     session = Session.get(
-        component=component,
         user=request.user,
+        image=component.image()
     )
     result = session.request(
+        path=component.address,
         verb=request.method,
         method=method,
         data=request.body
@@ -263,8 +264,8 @@ def activate(request, address):
         address=address
     )
     session = Session.get_or_launch(
-        component=component,
         user=request.user,
+        image=component.image()
     )
     session.start()
     return api.respond(
@@ -287,8 +288,8 @@ def deactivate(request, address):
         address=address
     )
     session = Session.get(
-        component=component,
         user=request.user,
+        image=component.image()
     )
     session.stop()
     return api.respond(

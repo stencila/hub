@@ -510,6 +510,17 @@ class Component(models.Model):
         return fork
 
     ##########################################################################
+    # Sessions : active, deactivate etc
+
+    def image(self):
+        '''
+        Get and image name that can be used to run this component
+        '''
+        #TODO : determine type of image to run in
+        return 'stencila/ubuntu-14.04-r-3.2'
+
+
+    ##########################################################################
     # Content getting and saving
 
     def content_get(self, format):
