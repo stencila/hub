@@ -55,7 +55,6 @@ paths:
           schema:
             $ref: '#/definitions/Session'
 
-
   /{address}@deactivate:
 
     put:
@@ -70,6 +69,23 @@ paths:
       responses:
         200:
           description: Successfully deactivated.
+          schema:
+            $ref: '#/definitions/Session'
+
+  /{address}@session:
+
+    put:
+      summary: Get the active session, if any, for the component.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Active session for the component.
           schema:
             $ref: '#/definitions/Session'
 

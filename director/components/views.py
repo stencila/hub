@@ -19,7 +19,6 @@ from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidd
 
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
-from sessions_.models import Session
 from visits.models import Visit
 from components.models import Component, Address, Key, READ, ANNOTATE, UPDATE, DELETE, CREATE
 
@@ -236,12 +235,11 @@ def method(request, address, method):
         action=READ,
         address=address
     )
-    session = Session.get(
-        user=request.user,
-        image=component.image()
+    session = component.session(
+        user=request.user
     )
     result = session.request(
-        path=component.address,
+        resource=address,
         verb=request.method,
         method=method,
         data=request.body
@@ -263,14 +261,10 @@ def activate(request, address):
         action=READ,
         address=address
     )
-    session = Session.get_or_launch(
-        user=request.user,
-        image=component.image()
+    session = component.activate(
+        user=request.user
     )
-    session.start()
-    return api.respond(
-        session.serialize(request)
-    )
+    return api.respond(session)
 
 
 @csrf_exempt
@@ -287,14 +281,29 @@ def deactivate(request, address):
         action=READ,
         address=address
     )
-    session = Session.get(
+    session = component.deactivate(
+        user=request.user
+    )
+    return api.respond(session)
+
+
+@csrf_exempt
+@login_required
+def session(request, address):
+    '''
+    Get the session, if any, for a component
+    '''
+    api = API(request)
+    component = Component.get(
+        id=None,
         user=request.user,
-        image=component.image()
+        action=READ,
+        address=address
     )
-    session.stop()
-    return api.respond(
-        session.serialize(request)
+    session = component.session(
+        user=request.user
     )
+    return api.respond(session)
 
 
 @require_GET
@@ -309,8 +318,7 @@ def commits(request, address):
         action=READ,
         address=address
     )
-    result = component.commits()
-    return api.respond(result)
+    return api.respond(component.commits())
 
 
 @csrf_exempt
@@ -490,6 +498,63 @@ def tiny(request, tiny):
     return redirect(component.url(), permanent=True)
 
 
+@require_GET
+def file(request, path):
+    '''
+    Serve a component file
+
+    Does authorization and then gets Nginx to serve the file using X-Accel-Redirect
+    '''
+    # Get component address
+    component = None
+    address = os.path.dirname(path)
+    while len(address) > 0:
+        try:
+            component = Component.objects.get(address=address)
+        except ObjectDoesNotExist:
+            address = os.path.dirname(address)
+        else:
+            break
+    if component is None:
+            raise Http404()
+    # Authorize a READ
+    component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    # Check if there is a user session for this component
+    session = component.session(
+        user=request.user
+    )
+    if session:
+        # Redirect to session
+        location = '%s:%s/%s' % (session.worker.ip, session.port, path)
+        if settings.MODE == 'local':
+            return HttpResponseRedirect('http://%s' % location)
+        else:
+            # Get Nginx to proxy from session
+            response = django.http.HttpResponse()
+            response['X-Accel-Redirect'] = '/internal-component-file-session/%s' % location
+            return response
+    else:
+        # Check file exists locally
+        full_path = os.path.join('/srv/stencila/store', path)
+        if os.path.exists(full_path):
+            if settings.MODE == 'local':
+                return django.views.static.serve(request, path, document_root='/srv/stencila/store')
+            else:
+                # Get Ngnix to serve file
+                response = django.http.HttpResponse()
+                response['X-Accel-Redirect'] = '/internal-component-file-local%s' % path
+                # Delete the default text/html content type so Nginx decides what it should be
+                response.__delitem__('Content-Type')
+            return response
+        else:
+            raise Http404()
+
+
 @csrf_exempt  # Required because git does not send CSRF tokens. Must be first decorator!
 @require_http_methods(['GET', 'POST'])
 def git(request, address):
@@ -550,7 +615,9 @@ def git(request, address):
     if settings.MODE == 'local':
         # Redirect to `curator.go` operating on this same machine
         # It is not possible to redirect to `http://10.0.1.50:7311` (i.e. using
-        # the standard Ip for the curator) because libgit2 complains with "Cross host redirect not allowed"
+        # the standard IP for the curator) because libgit2 complains with "Cross host redirect not allowed"
+        # So instead we use `10.0.1.25`, the local IP of this, the director, but the port number
+        # of the curator.
         url = 'http://10.0.1.25:7311' + request.get_full_path().replace('.git', '/.git')
         return HttpResponseRedirect(url)
     else:
@@ -561,48 +628,6 @@ def git(request, address):
         response = django.http.HttpResponse('Internal redirect to : %s' % url)
         response['X-Accel-Redirect'] = url
         return response
-
-
-@require_GET
-def raw(request, path):
-    '''
-    Serve a raw component file
-
-    Does authorization and then gets Nginx to serve the file using X-Accel-Redirect
-    '''
-    # Get component address
-    component = None
-    address = os.path.dirname(path)
-    while len(address) > 0:
-        try:
-            component = Component.objects.get(address=address)
-        except ObjectDoesNotExist:
-            address = os.path.dirname(address)
-        else:
-            break
-    if component is None:
-            raise Http404()
-    # Authorize a READ
-    component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
-    # Check it exists
-    full_path = os.path.join('/srv/stencila/store', path)
-    if not os.path.exists(full_path):
-        raise Http404()
-    # Respond
-    response = django.http.HttpResponse()
-    if settings.MODE == 'local':
-        return django.views.static.serve(request, path, document_root='/srv/stencila/store')
-    else:
-        # Tell Nginx what to serve
-        response['X-Accel-Redirect'] = '/internal-component-raw/%s' % path
-        # Delete the default text/html content type so Nginx decides what it should be
-        response.__delitem__('Content-Type')
-    return response
 
 
 ######################################################################################

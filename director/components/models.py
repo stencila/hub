@@ -14,6 +14,7 @@ from django.conf import settings
 
 from users.models import User
 from general.errors import Error
+from sessions_.models import Session
 
 # Actions
 #
@@ -519,6 +520,36 @@ class Component(models.Model):
         #TODO : determine type of image to run in
         return 'stencila/ubuntu-14.04-r-3.2'
 
+    def activate(self, user):
+        # TODO store a link between component and session
+        # (here linking session and image required by session)
+        session = Session.get_or_launch(
+            user=user,
+            image=self.image()
+        )
+        session.start()
+        # Request the component so that it gets `Component::get()`ed into
+        # the session. This fails, perhaps a better way to do this asynchronously
+        #session.request(
+        #    resource=self.address.id
+        #)
+        return session
+
+    def deactivate(self, user):
+        session = Session.get_for(
+            user=user,
+            image=self.image()
+        )
+        if session:
+            session.stop()
+        return session
+
+    def session(self, user):
+        session = Session.get_for(
+            user=user,
+            image=self.image()
+        )
+        return session
 
     ##########################################################################
     # Content getting and saving

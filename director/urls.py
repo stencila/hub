@@ -40,6 +40,7 @@ urlpatterns = [
 
     url(r'^sessions/?$',                                             sessions_.views.sessions),
     url(r'^sessions/(?P<id>\d+)/?$',                                 sessions_.views.sessions),
+    url(r'^sessions/(?P<id>\d+)@connect/?$',                         sessions_.views.connect),
     url(r'^sessions/(?P<id>\d+)@ping/?$',                            sessions_.views.ping),
 
     # User management (login, logout etc)
@@ -149,21 +150,22 @@ if settings.MODE == 'local':
 urlpatterns += [
 
     # Create a new component
-    url(r'^new/(?P<type>\w+)$',                                 components.views.new),
+    url(r'^new/(?P<type>\w+)$',                            components.views.new),
 
     # Slugified URL
-    url(r'^(?P<address>.+)/(?P<slug>.*)-$',                 components.views.slugified),
+    url(r'^(?P<address>.+)/(?P<slug>.*)-$',                components.views.slugified),
 
     # Tiny URL e.g.
     #   /gdf3Nd~
     # Gets redirected to the canonical URL for the component
     # The tilde prevents potential (although low probability)
     # clashes between shortened URLs and other URLs
-    url(r'^(?P<tiny>\w+)~$',                                    components.views.tiny),
+    url(r'^(?P<tiny>\w+)~$',                               components.views.tiny),
 
     # Component methods
     url(r'^(?P<address>.+)@activate$',                     components.views.activate),
     url(r'^(?P<address>.+)@deactivate$',                   components.views.deactivate),
+    url(r'^(?P<address>.+)@session$',                      components.views.session),
     url(r'^(?P<address>.+)@save$',                         components.views.method, {'method': 'save'}),
     url(r'^(?P<address>.+)@commit$',                       components.views.method, {'method': 'commit'}),
     url(r'^(?P<address>.+)@commits$',                      components.views.commits),
@@ -174,13 +176,16 @@ urlpatterns += [
     url(r'^(?P<address>.+)@content$',                      components.views.content),
     url(r'^(?P<address>.+)@render$',                       components.views.method, {'method': 'render'}),
 
-    # Component Git repo access: distinguished by `.git` followed by query
-    url(r'^(?P<address>.+)\.git.*$',                        components.views.git),
+    # Sheet methods
+    url(r'^(?P<address>.+)@update$',                       components.views.method, {'method': 'update'}),
 
-    # Component raw file access: any other url with a dot in it (resolved in view)
-    url(r'^(?P<path>(.+)\.(.+))$',                              components.views.raw),
+    # Component Git repo access: distinguished by `.git` followed by query
+    url(r'^(?P<address>.+)\.git.*$',                       components.views.git),
+
+    # Component file access: any other url with a dot in it (resolved in view)
+    url(r'^(?P<path>(.+)\.(.+))$',                         components.views.file),
 
     # Any other URL needs to be routed to the a canonical URL, index page, or
     # listing of components at the address
-    url(r'^(?P<address>.*)$',                                   components.views.route),
+    url(r'^(?P<address>.*)$',                              components.views.route),
 ]

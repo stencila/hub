@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import json
-import httplib
 import datetime
 from collections import OrderedDict
 
@@ -14,11 +13,10 @@ from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
 import pytz
+import requests
 
 from general.errors import Error
-from components.models import Component
 from users.models import User, UserToken
-from accounts.models import Account
 
 from sessions_.providers import providers
 
@@ -96,18 +94,22 @@ class Worker(models.Model):
         Request a POST, GET or DELETE from the agent on this Worker
         '''
         assert self.ip is not None
-        connection = httplib.HTTPConnection(self.ip, self.port)
-        if data is not None:
-            data = json.dumps(data)
-        connection.request(method, resource, data, {
-            "Content-type": "application/json",
-            "Accept": "application/json"
-        })
-        response = connection.getresponse()
-        if response.status == 200:
-            return json.loads(response.read())
+        response = requests.request(
+            method,
+            'http://%s:%s/%s' % (self.ip, self.port, resource),
+            headers={
+                "Content-type": "application/json",
+                "Accept": "application/json"
+            },
+            json=data,
+            # So, that this does not hang for a long time (e.g. if an error with worker) set a timeout
+            # http://docs.python-requests.org/en/latest/user/advanced/#timeouts
+            timeout=(10.1, 120.1)
+        )
+        if response.status_code == 200:
+            return response.json()
         else:
-            raise Exception(response.read())
+            raise Exception(response.text)
 
     ################################################################
     # Whole machine related methods
@@ -131,7 +133,7 @@ class Worker(models.Model):
         '''
         Get information on this worker
         '''
-        stats = self.request('/info', 'GET')
+        stats = self.request('info', 'GET')
         worker_stats = WorkerStats()
         worker_stats.record(self, stats)
 
@@ -185,7 +187,7 @@ class Worker(models.Model):
         '''
         Start a session on this worker
         '''
-        return self.request('/start', 'POST', {
+        return self.request('start', 'POST', {
             'image':    session.image,
             'command':  session.command,
             'memory':   session.memory,
@@ -198,7 +200,7 @@ class Worker(models.Model):
         Get a description of a session on this worker
         '''
         assert session.uuid is not None
-        desc = self.request('/get/%s' % session.uuid, 'GET')
+        desc = self.request('get/%s' % session.uuid, 'GET')
         # If agent returns an empty list it means that no session
         # with matching uuid exists on that worker
         if type(desc) is list and len(desc) == 0:
@@ -210,21 +212,21 @@ class Worker(models.Model):
         Get detailed stats on a session on this worker
         '''
         assert session.uuid is not None
-        return self.request('/stats/%s' % session.uuid, 'GET')
+        return self.request('stats/%s' % session.uuid, 'GET')
 
     def logs_for(self, session):
         '''
         Get logs for a session on this worker
         '''
         assert session.uuid is not None
-        return self.request('/logs/%s' % session.uuid, 'GET')
+        return self.request('logs/%s' % session.uuid, 'GET')
 
     def stop(self, session):
         '''
         Stop a session on this worker
         '''
         assert session.uuid is not None
-        return self.request('/stop/%s' % session.uuid, 'DELETE')
+        return self.request('stop/%s' % session.uuid, 'DELETE')
 
 
 class WorkerStats(models.Model):
@@ -339,7 +341,7 @@ class Session(models.Model):
     )
 
     account = models.ForeignKey(
-        Account,
+        'accounts.Account',
         null=True,
         blank=True,
         help_text='Account that this session is linked to. Usually not null.',
@@ -505,9 +507,23 @@ class Session(models.Model):
             )
 
     @staticmethod
+    def get_for(user, image):
+        '''
+        Get an active session for the user/image pair
+        '''
+        try:
+            return Session.objects.get(
+                user=user,
+                image=image,
+                active=True
+            )
+        except Session.DoesNotExist:
+            return None
+
+    @staticmethod
     def get_or_launch(user, image):
         '''
-        Get an active session for the componet/user pair,
+        Get an active session for the user/image pair,
         or else launch one
         '''
         try:
@@ -634,7 +650,7 @@ class Session(models.Model):
             self.updated = timezone.now()
             self.save()
 
-    def request(self, verb, method, data):
+    def request(self, resource, verb='GET', method=None, data=None):
         '''
         Pass an HTTP request on to the session
         '''
@@ -643,17 +659,28 @@ class Session(models.Model):
             if not self.ready:
                 self.update()
             if self.ready:
-                endpoint = '/' + self.component.address.id + '@' + method
-                connection = httplib.HTTPConnection(self.worker.ip, int(self.port))
-                connection.request(verb, endpoint, data, {
-                    "Content-type": "application/json",
-                    "Accept": "application/json"
-                })
-                response = connection.getresponse()
-                if response.status == 200:
-                    return json.loads(response.read())
+                url = 'http://%s:%s/%s' %(self.worker.ip, self.port, resource)
+                if method:
+                    url += '@%s' % method
+                # If data is string send it as a string, otherwise send it as JSON
+                if data and type(data) is not str:
+                    data = json.dumps(data)
+                response = requests.request(
+                    verb,
+                    url,
+                    headers={
+                        "Content-type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    data=data,
+                    # So, that this does not hang for a long time (e.g. if an error with session) set a timeout
+                    # http://docs.python-requests.org/en/latest/user/advanced/#timeouts
+                    timeout=(10.1, 300.1)
+                )
+                if response.status_code == 200:
+                    return response.json()
                 else:
-                    raise Exception(response.read())
+                    raise Exception(response.text)
             else:
                 raise Session.NotReadyError(self.id)
         else:

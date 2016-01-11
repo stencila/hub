@@ -4,6 +4,17 @@
 SHELL := /bin/bash
 
 
+rundev-startup:
+	sudo ip address add 10.0.1.25 dev lo
+	sudo ip address add 10.0.1.50 dev lo
+	sudo ip address add 10.0.1.100 dev lo
+
+rundev-shutdown:
+	sudo ip address delete 10.0.1.25/32 dev lo
+	sudo ip address delete 10.0.1.50/32 dev lo
+	sudo ip address delete 10.0.1.100/32 dev lo
+
+
 ####################################################################################
 # Director
 
@@ -66,8 +77,12 @@ director-test:
 director-build: director-env-build director-pyc-clean director-migrate director-client-build director-collectstatic
 
 # Run development server
+# Needs:
+#   - port 7300 because in local mode that is where the worker container attempts to git clone from
+#   - threaded because a request to director can trigger another request to director via worker (e.g. via a git clone)
+#     and if you don't have multiple threads it just waits for itself!
 director-rundev:
-	$(DJ) runserver_plus
+	director/env/bin/python director/manage.py runserver_plus --threaded 0.0.0.0:7300
 
 # Run development server on port 80
 director-rundev-80:
