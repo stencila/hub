@@ -400,7 +400,7 @@ def page(request, address, component=None):
         component.save()
     # Return the page of the component
     # If the user is authenticated, check if they have an active session for this component
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         session = component.session(
             user=request.user
         )
@@ -542,7 +542,7 @@ def file(request, path):
         address=address
     )
     # If user is authenticated, check if there is an active user session for this component
-    if request.user.is_authenticated:
+    if request.user.is_authenticated():
         session = component.session(
             user=request.user
         )
