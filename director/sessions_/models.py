@@ -371,7 +371,7 @@ class Session(models.Model):
         null=True,
         blank=True,
         default='stencila-session',
-        help_text='Image for this session',
+        help_text='Command to run the session in the Docker container',
     )
 
     memory = models.CharField(
