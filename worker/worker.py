@@ -72,8 +72,10 @@ class Worker:
 
         # When running in a local or Vagrant environment, containers need to get
         # components from the director running in the private network on HTTP
-        if MODE in ('local', 'vagrant'):
+        if MODE == 'local':
             environment['STENCILA_HUB_ROOT'] = 'http://10.0.1.25:7300'
+        elif MODE == 'vagrant':
+            environment['STENCILA_HUB_ROOT'] = 'http://10.0.1.25'
 
         host_config = docker.create_host_config(
             # See http://docker-py.readthedocs.org/en/latest/hostconfig/ for all options
