@@ -399,31 +399,31 @@ def page(request, address, component=None):
         component.views += 1
         component.save()
     # Return the page of the component
-    # Check if there is a user session for this component
-    session = component.session(
-        user=request.user
-    )
-    if session:
-        # Return the current live page in the session
-        location = '%s:%s/%s' % (session.worker.ip, session.port, address)
-        if settings.MODE == 'local':
-            return HttpResponseRedirect('http://%s' % location)
-        else:
-            # Get Nginx to proxy from session
-            response = django.http.HttpResponse()
-            response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
-            return response
+    # If the user is authenticated, check if they have an active session for this component
+    if request.user.is_authenticated:
+        session = component.session(
+            user=request.user
+        )
+        if session:
+            # Return the current live page in the session
+            location = '%s:%s/%s' % (session.worker.ip, session.port, address)
+            if settings.MODE == 'local':
+                return HttpResponseRedirect('http://%s' % location)
+            else:
+                # Get Nginx to proxy from session
+                response = django.http.HttpResponse()
+                response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
+                return response
+    # Otherwise, return the `index.html` for the compooent
+    if settings.MODE == 'local':
+        # In `local` mode serve the static file
+        return django.views.static.serve(request, '%s/index.html' % address, document_root='/srv/stencila/store')
     else:
-        # Return the `index.html` for the compooent
-        if settings.MODE == 'local':
-            # In `local` mode serve the static file
-            return django.views.static.serve(request, '%s/index.html' % address, document_root='/srv/stencila/store')
-        else:
-            # Otherwise, ask Nginx to serve it
-            url = '/internal-component-file/%s/index.html' % address
-            response = HttpResponse()
-            response['X-Accel-Redirect'] = url
-            return response
+        # Otherwise, ask Nginx to serve it
+        url = '/internal-component-file/%s/index.html' % address
+        response = HttpResponse()
+        response['X-Accel-Redirect'] = url
+        return response
 
 
 @require_GET
@@ -539,35 +539,35 @@ def file(request, path):
         action=READ,
         address=address
     )
-    # Check if there is a user session for this component
-    session = component.session(
-        user=request.user
-    )
-    if session:
-        # Redirect to session
-        location = '%s:%s/%s' % (session.worker.ip, session.port, path)
-        if settings.MODE == 'local':
-            return HttpResponseRedirect('http://%s' % location)
-        else:
-            # Get Nginx to proxy from session
-            response = django.http.HttpResponse()
-            response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
-            return response
-    else:
-        # Check file exists locally
-        full_path = os.path.join('/srv/stencila/store', path)
-        if os.path.exists(full_path):
+    # If user is authenticated, check if there is an active user session for this component
+    if request.user.is_authenticated:
+        session = component.session(
+            user=request.user
+        )
+        if session:
+            # Redirect to session
+            location = '%s:%s/%s' % (session.worker.ip, session.port, path)
             if settings.MODE == 'local':
-                return django.views.static.serve(request, path, document_root='/srv/stencila/store')
+                return HttpResponseRedirect('http://%s' % location)
             else:
-                # Get Ngnix to serve file
+                # Get Nginx to proxy from session
                 response = django.http.HttpResponse()
-                response['X-Accel-Redirect'] = '/internal-component-file%s' % path
-                # Delete the default text/html content type so Nginx decides what it should be
-                response.__delitem__('Content-Type')
-            return response
+                response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
+                return response
+    # Otherwise, check file exists locally
+    full_path = os.path.join('/srv/stencila/store', path)
+    if os.path.exists(full_path):
+        if settings.MODE == 'local':
+            return django.views.static.serve(request, path, document_root='/srv/stencila/store')
         else:
-            raise Http404()
+            # Get Ngnix to serve file
+            response = django.http.HttpResponse()
+            response['X-Accel-Redirect'] = '/internal-component-file%s' % path
+            # Delete the default text/html content type so Nginx decides what it should be
+            response.__delitem__('Content-Type')
+        return response
+    else:
+        raise Http404()
 
 
 @csrf_exempt  # Required because git does not send CSRF tokens. Must be first decorator!
