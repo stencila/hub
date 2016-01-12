@@ -306,6 +306,31 @@ def session(request, address):
     return api.respond(session)
 
 
+@csrf_exempt
+@require_authenticated
+def ping(request, address):
+    '''
+    Ping the component's session.
+    '''
+    api = API(request)
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    session = component.session(
+        user=request.user
+    )
+    if session:
+        session.ping()
+        return api.respond()
+    else:
+        return api.respond({
+            'message': 'This component is no currently activated for this user'
+        })
+
+
 @require_GET
 def commits(request, address):
     '''

@@ -166,6 +166,7 @@ urlpatterns += [
     url(r'^(?P<address>.+)@activate$',                     components.views.activate),
     url(r'^(?P<address>.+)@deactivate$',                   components.views.deactivate),
     url(r'^(?P<address>.+)@session$',                      components.views.session),
+    url(r'^(?P<address>.+)@ping$',                         components.views.ping),
     url(r'^(?P<address>.+)@save$',                         components.views.method, {'method': 'save'}),
     url(r'^(?P<address>.+)@commit$',                       components.views.method, {'method': 'commit'}),
     url(r'^(?P<address>.+)@commits$',                      components.views.commits),
