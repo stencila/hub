@@ -564,7 +564,7 @@ def file(request, path):
         else:
             # Get Ngnix to serve file
             response = django.http.HttpResponse()
-            response['X-Accel-Redirect'] = '/internal-component-file%s' % path
+            response['X-Accel-Redirect'] = '/internal-component-file/%s' % path
             # Delete the default text/html content type so Nginx decides what it should be
             response.__delitem__('Content-Type')
         return response
