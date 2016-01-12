@@ -32,12 +32,14 @@ try:
 except:
     HOSTNAME = None
 
-if HOSTNAME == 'stencila-worker-vagrant':
-    MODE = 'vagrant'
-elif HOSTNAME == 'stencila-worker-prod':
-    MODE = 'prod'
-else:
+dev = len(sys.argv) > 1 and sys.argv[1] == 'dev'
+
+if dev:
     MODE = 'local'
+elif HOSTNAME == 'stencila-worker-vagrant':
+    MODE = 'vagrant'
+else:
+    MODE = 'prod'
 
 
 class Worker:
@@ -309,7 +311,6 @@ class Worker:
         # Whilst not recommended for production, this server runs
         # on a private network and only has one client (stenci.la)
 
-        dev = len(sys.argv) > 1 and sys.argv[1] == 'dev'
         if dev:
             print 'Running in development mode. File will reload on changes.'
 
