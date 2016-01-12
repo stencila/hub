@@ -4,4 +4,4 @@ flanker==0.3.36
 glob2==0.4.1
 requests==2.5.1
 
-http://get.stenci.la/py/stencila-0.20_g61febd0-cp27-none-linux_x86_64.whl
+http://get.stenci.la/py/stencila-0.20_g454142c-cp27-none-linux_x86_64.whl
