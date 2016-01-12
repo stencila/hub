@@ -406,7 +406,9 @@ def page(request, address, component=None):
         )
         if session:
             # Return the current live page in the session
-            location = '%s:%s/%s' % (session.worker.ip, session.port, address)
+            # Ensure a trailing slash so that there is no redirection to the 
+            # trailing slash URL by the embedded server in the session
+            location = '%s:%s/%s/' % (session.worker.ip, session.port, address)
             if settings.MODE == 'local':
                 return HttpResponseRedirect('http://%s' % location)
             else:
