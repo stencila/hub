@@ -398,17 +398,32 @@ def page(request, address, component=None):
         # Increment view count for this component
         component.views += 1
         component.save()
-    # Return the `page.html` of the component
-    if settings.MODE == 'local':
-        # In `local` mode serve the static file
-        return django.views.static.serve(request, '%s/index.html' % address, document_root='/srv/stencila/store')
+    # Return the page of the component
+    # Check if there is a user session for this component
+    session = component.session(
+        user=request.user
+    )
+    if session:
+        # Return the current live page in the session
+        location = '%s:%s/%s' % (session.worker.ip, session.port, address)
+        if settings.MODE == 'local':
+            return HttpResponseRedirect('http://%s' % location)
+        else:
+            # Get Nginx to proxy from session
+            response = django.http.HttpResponse()
+            response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
+            return response
     else:
-        # Otherwise, ask Nginx to serve it
-        # For debugging purposes show the redirect header in the response content
-        url = '/internal-component-raw/%s/index.html' % address
-        response = HttpResponse('X-Accel-Redirect : %s' % url)
-        response['X-Accel-Redirect'] = url
-        return response
+        # Return the `index.html` for the compooent
+        if settings.MODE == 'local':
+            # In `local` mode serve the static file
+            return django.views.static.serve(request, '%s/index.html' % address, document_root='/srv/stencila/store')
+        else:
+            # Otherwise, ask Nginx to serve it
+            url = '/internal-component-file/%s/index.html' % address
+            response = HttpResponse()
+            response['X-Accel-Redirect'] = url
+            return response
 
 
 @require_GET
@@ -536,7 +551,7 @@ def file(request, path):
         else:
             # Get Nginx to proxy from session
             response = django.http.HttpResponse()
-            response['X-Accel-Redirect'] = '/internal-component-file-session/%s' % location
+            response['X-Accel-Redirect'] = '/internal-component-session/%s' % location
             return response
     else:
         # Check file exists locally
@@ -547,7 +562,7 @@ def file(request, path):
             else:
                 # Get Ngnix to serve file
                 response = django.http.HttpResponse()
-                response['X-Accel-Redirect'] = '/internal-component-file-local%s' % path
+                response['X-Accel-Redirect'] = '/internal-component-file%s' % path
                 # Delete the default text/html content type so Nginx decides what it should be
                 response.__delitem__('Content-Type')
             return response
