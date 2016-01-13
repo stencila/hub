@@ -151,6 +151,7 @@ urlpatterns += [
 
     # Create a new component
     url(r'^new/(?P<type>\w+)$',                            components.views.new),
+    url(r'^\+(?P<type>\w+)$',                              components.views.new),
 
     # Slugified URL
     url(r'^(?P<address>.+)/(?P<slug>.*)-$',                components.views.slugified),
