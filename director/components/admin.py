@@ -7,7 +7,7 @@ from components.models import Component, Address, Key
 
 class ComponentAdmin(VersionAdmin):
 
-    list_display = ('id', 'address', 'type', 'title', 'initialised', 'updated', 'shown', 'views', 'stars', 'forks')
+    list_display = ('id', 'address', 'type', 'title', 'initialised', 'updated', 'published', 'views', 'stars', 'forks')
     actions = ['init', 'update']
 
     def init(self, request, queryset):

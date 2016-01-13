@@ -38,7 +38,7 @@ def component_list(request):
         components = Component.list(
             user=request.user,
             address=api.optional('address'),
-            shown=api.optional('shown', True, lambda value: bool(int(value))),
+            published=api.optional('published', True, lambda value: bool(int(value))),
             sort=api.optional('sort', 'id')
         )
         return api.respond(

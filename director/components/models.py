@@ -127,9 +127,9 @@ class Component(models.Model):
 
     ##############
 
-    shown = models.BooleanField(
-        default=True,
-        help_text='Should this component be shown is listings of components at an address?'
+    published = models.BooleanField(
+        default=False,
+        help_text='Should this component be published in listings of components at an address?'
     )
 
     views = models.IntegerField(
@@ -169,7 +169,7 @@ class Component(models.Model):
                 'absolute': self.absolute_url(),
                 'tiny': self.tiny_url(),
             }),
-            ('shown', self.shown),
+            ('published', self.published),
             ('views', self.views),
             ('stars', self.stars),
             ('forks', self.forks),
@@ -228,7 +228,7 @@ class Component(models.Model):
     # Listing
 
     @staticmethod
-    def list(user, address=None, shown=True, sort=None):
+    def list(user, address=None, published=True, sort=None):
         '''
         Get a list of components that the user has at least
         READ access to optionally filtered with arguments.
@@ -244,8 +244,8 @@ class Component(models.Model):
                 query &= Q(address__id__startswith=address[:-2])
             else:
                 query &= Q(address=address)
-        if shown is not None:
-            query &= Q(shown=shown)
+        if published is not None:
+            query &= Q(published=published)
         # Filter with select related
         components = Component.objects.filter(query).select_related()
         # Order using `sort`
