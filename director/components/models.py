@@ -544,11 +544,16 @@ class Component(models.Model):
             session.stop()
         return session
 
-    def session(self, user):
+    def session(self, user, required=True):
         session = Session.get_for(
             user=user,
             image=self.image()
         )
+        if required and session is None:
+            raise Component.InactiveError(
+                address=self.address.id,
+                user=user
+            )
         return session
 
     ##########################################################################
@@ -634,6 +639,20 @@ class Component(models.Model):
                 address=self.address
             )
 
+    class InactiveError(Error):
+        code = 400
+
+        def __init__(self, address, user):
+            self.address = address
+            self.user = user
+
+        def serialize(self):
+            return dict(
+                error='component:inactive',
+                message='This component is not currently activated by the user',
+                address=self.address,
+                user=self.user.username
+            )
 
 class Address(models.Model):
 

@@ -236,7 +236,8 @@ def method(request, address, method):
         address=address
     )
     session = component.session(
-        user=request.user
+        user=request.user,
+        required=True
     )
     result = session.request(
         resource=address,
@@ -301,7 +302,8 @@ def session(request, address):
         address=address
     )
     session = component.session(
-        user=request.user
+        user=request.user,
+        required=False
     )
     return api.respond(session)
 
@@ -320,15 +322,11 @@ def ping(request, address):
         address=address
     )
     session = component.session(
-        user=request.user
+        user=request.user,
+        required=True
     )
-    if session:
-        session.ping()
-        return api.respond()
-    else:
-        return api.respond({
-            'message': 'This component is no currently activated for this user'
-        })
+    session.ping()
+    return api.respond()
 
 
 @require_GET
@@ -427,7 +425,8 @@ def page(request, address, component=None):
     # If the user is authenticated, check if they have an active session for this component
     if request.user.is_authenticated():
         session = component.session(
-            user=request.user
+            user=request.user,
+            required=False
         )
         if session:
             # Return the current live page in the session
@@ -569,7 +568,8 @@ def file(request, path):
     # If user is authenticated, check if there is an active user session for this component
     if request.user.is_authenticated():
         session = component.session(
-            user=request.user
+            user=request.user,
+            required=False
         )
         if session:
             # Redirect to session

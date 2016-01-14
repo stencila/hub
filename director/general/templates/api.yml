@@ -37,7 +37,6 @@ paths:
   # Components
   ###########################################################################
 
-
   /{address}@activate:
 
     put:
@@ -88,6 +87,21 @@ paths:
           description: Active session for the component.
           schema:
             $ref: '#/definitions/Session'
+
+  /{address}@ping:
+
+    put:
+      summary: Ping the component's active session
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Session is still active
 
   /{address}@save:
 
@@ -181,6 +195,9 @@ paths:
         200:
           description: Successfully notified.
 
+  ###########################################################################
+  # Stencils
+  ###########################################################################
 
   /{address}@content:
 
@@ -245,6 +262,50 @@ paths:
               status:
                 type: integer
                 required: true
+
+  ###########################################################################
+  # Sheets
+  ###########################################################################
+
+  /{address}@update:
+
+    put:
+      summary: Update the source of one or more cells
+      tags:
+        - Sheets
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: string
+                  required: true
+                source:
+                  type: string
+                  required: true
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: string
+                  required: true
+                type:
+                  type: string
+                  required: true
+                value:
+                  type: string
+                  required: true
 
 
   ###########################################################################
