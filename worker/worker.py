@@ -157,7 +157,10 @@ class Worker:
                 data.append(desc)
         # If specified a uuid and we get to here it means that
         # the uuid was not matched and we will return an empty 
-        # list (as exprected by director's `Worker.get()` method)
+        # list (as expected by director's `Worker.get()` method)
+        if uuid is not None:
+            data = []
+
         return self.response(data)
 
     def stats(self, request, uuid):
