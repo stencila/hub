@@ -47,7 +47,7 @@ director-migrate:
 	$(DJ) migrate
 	if [ -e director/db.sqlite3 ]; then chmod 775 director/db.sqlite3 ; fi
 
-# Sync cron jobs from django-crontab to the macine user's cron table
+# Sync cron jobs from django-crontab to the machine user's cron table
 director-crons:
 	$(DJ) crontab add
 
@@ -74,7 +74,7 @@ director-test:
 	$(DJ) test
 
 # Build director
-director-build: director-env-build director-pyc-clean director-migrate director-client-build director-collectstatic
+director-build: director-env-build director-pyc-clean director-migrate director-crons director-client-build director-collectstatic
 
 # Run development server
 # Needs:
