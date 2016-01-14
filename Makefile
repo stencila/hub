@@ -48,10 +48,10 @@ director-migrate:
 	if [ -e director/db.sqlite3 ]; then chmod 775 director/db.sqlite3 ; fi
 
 # Sync cron jobs from django-crontab to the machine user's cron table
-# Removing all and then adding them seems the safest way since it seems to 
-# handle changes to job specs
+# `django-crontab` can complain if the hash for a job has changed (because it's spec has changed)
+# So this does the brute force approach of simply removing any existing cron table!
 director-crons:
-	$(DJ) crontab remove
+	crontab -r
 	$(DJ) crontab add
 
 # Build client side files
@@ -77,7 +77,7 @@ director-test:
 	$(DJ) test
 
 # Build director
-director-build: director-env-build director-pyc-clean director-migrate director-crons director-client-build director-collectstatic
+director-build: director-env-build director-pyc-clean director-migrate director-client-build director-collectstatic
 
 # Run development server
 # Needs:
