@@ -156,10 +156,8 @@ class Worker:
             else:
                 data.append(desc)
         # If specified a uuid and we get to here it means that
-        # the uuid was not matched, so return an error
-        if uuid is not None:
-            return self.response({'error': 'no session found with uuid %s' % uuid})
-        # Otherwise return the list
+        # the uuid was not matched and we will return an empty 
+        # list (as exprected by director's `Worker.get()` method)
         return self.response(data)
 
     def stats(self, request, uuid):
