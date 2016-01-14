@@ -229,6 +229,14 @@ class Worker(models.Model):
         return self.request('stop/%s' % session.uuid, 'DELETE')
 
 
+def workers_update():
+    '''
+    Update all workers that are currently active
+    '''
+    for worker in Worker.objects.filter(active=True):
+        worker.update()
+
+
 class WorkerStats(models.Model):
     '''
     Timestamped information about the worker
@@ -693,15 +701,6 @@ class Session(models.Model):
         self.pinged = timezone.now()
         self.save()
 
-    @staticmethod
-    def vacuum(period=datetime.timedelta(minutes=10)):
-        '''
-        Stop all sessions which are stale (i.e. have not been pinged in within `period`)
-        '''
-        for session in Session.objects.filter(active=True):
-            if (timezone.now()-session.pinged) > period:
-                session.stop()
-
     def stop(self):
         '''
         Stop this session
@@ -815,6 +814,15 @@ class Session(models.Model):
                 message='Session is not yet ready',
                 session=self.session
             )
+
+
+def sessions_vacuum(period=datetime.timedelta(minutes=10)):
+    '''
+    Stop all sessions which are stale (i.e. have not been pinged in within `period`)
+    '''
+    for session in Session.objects.filter(active=True):
+        if (timezone.now()-session.pinged) > period:
+            session.stop()
 
 
 class Invitation(models.Model):

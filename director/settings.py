@@ -425,8 +425,10 @@ if MODE in ('vagrant', 'prod'):
 # django-crontab
 # Run `python manage.py crontab add` whenever CRONJOBS is modified!
 CRONJOBS = [
-    # Every minute, stop stale sessions
-    ('*/1 * * * *', 'sessions_.models.Session.vacuum')
+    # Every minute, check for, and stop stale sessions
+    ('*/1 * * * *', 'sessions_.models.sessions_vacuum'),
+    # Every hour, update worker stats
+    ('0 * * * *', 'sessions_.models.workers_update'),
 ]
 
 ###########################################################################################

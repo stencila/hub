@@ -48,7 +48,10 @@ director-migrate:
 	if [ -e director/db.sqlite3 ]; then chmod 775 director/db.sqlite3 ; fi
 
 # Sync cron jobs from django-crontab to the machine user's cron table
+# Removing all and then adding them seems the safest way since it seems to 
+# handle changes to job specs
 director-crons:
+	$(DJ) crontab remove
 	$(DJ) crontab add
 
 # Build client side files
