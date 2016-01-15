@@ -820,8 +820,22 @@ def sessions_vacuum(period=datetime.timedelta(minutes=10)):
     '''
     Stop all sessions which are stale (i.e. have not been pinged in within `period`)
     '''
+    now = timezone.now()
     for session in Session.objects.filter(active=True):
-        if (timezone.now()-session.pinged) > period:
+        since_started = now-session.started if session.started else None
+        since_pinged = now-session.pinged if session.pinged else None
+
+        stop = False
+        if since_pinged is not None:
+            # Started and pinged
+            if since_pinged > period:
+                stop = True
+        else:
+            # Started and never been pinged...
+            if since_started is not None and since_started > period:
+                stop = True
+
+        if stop:
             session.stop()
 
 
