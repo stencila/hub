@@ -9,7 +9,7 @@
 boto==2.38.0
 
 # http://djangoproject.com for the framework
-Django==1.9b1
+Django==1.9.1
 
 # http://django-allauth.readthedocs.org/en/latest/ for integrated conventional and social authentication
 django-allauth==0.24.1
