@@ -512,6 +512,61 @@ paths:
           schema:
             $ref: '#/definitions/User'
 
+  ###########################################################################
+  # Builds
+  ###########################################################################
+
+  /builds:
+
+    get:
+      summary: List builds.
+      tags:
+        - Builds
+      responses:
+        200:
+          description: A list of builds.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Build'
+
+    post:
+      summary: Create a build.
+      tags:
+        - Builds
+      parameters:
+        - name: data
+          in: body
+          required: false
+          schema:
+            $ref: '#/definitions/Build'
+          description: |
+            The fields `user` and `datetime` will be ignored.
+      responses:
+        200:
+          description: A list of builds.
+          schema:
+            $ref: '#/definitions/Build'
+
+  /builds/{id}:
+
+    get:
+      summary: Read a Build.
+      tags:
+        - Builds
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the build
+      responses:
+        200:
+          description: Data on the user
+          schema:
+            $ref: '#/definitions/Build'
+
+
 
 definitions:
 
@@ -525,6 +580,29 @@ definitions:
         type: string
       type:
         type: string
+
+  Build:
+    type: object
+    properties:
+      id:
+        type: string
+      package:
+        type: string
+      flavour:
+        type: string
+      version:
+        type: string
+      commit:
+        type: string      
+      platform:
+        type: string
+      url:
+        type: string
+      user:
+        $ref: '#/definitions/User'
+      datetime:
+        type: string
+        format: date-time
 
   Component:
     properties:

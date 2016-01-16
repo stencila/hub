@@ -135,6 +135,7 @@ INSTALLED_APPS = [
 
     # Stencila apps
     'accounts',
+    'builds',
     'components',
     'sessions_',
     'users',

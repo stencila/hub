@@ -36,6 +36,11 @@ class UserDetails(models.Model):
         help_text='The django.contrib.auth User'
     )
 
+    builder = models.BooleanField(
+        default=False,
+        help_text='Is this user a package builder?'
+    )
+
     def __unicode__(self):
         return 'UserDetails#%s(%s)' % (self.id, self.user.username)
 

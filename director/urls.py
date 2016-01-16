@@ -25,9 +25,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core import urlresolvers
 
 import general.views
+import builds.views
 import components.views
-import users.views
 import sessions_.views
+import users.views
 
 urlpatterns = [
 
@@ -69,6 +70,8 @@ urlpatterns = [
 
     url(r'^users/?$',                                                users.views.users_list),
     url(r'^users/(?P<username>[\w-]+)/?$',                           users.views.users_read),
+
+    url(r'^builds(/(?P<id>\d+))?/?$',                                builds.views.builds),
 
     # Administration interface
     url(r'^admin/',                                                  admin.site.urls),
