@@ -1,3 +1,15 @@
 from django.contrib import admin
 
-# Register your models here.
+from builds.models import Build
+
+
+class BuildAdmin(admin.ModelAdmin):
+
+    list_display = ('id', 'package', 'flavour', 'version', 'commit', 'platform', 'get_username', 'datetime')
+
+    def get_username(self, obj):
+        return obj.user.username
+    get_username.admin_order_field = 'user__username'
+    get_username.short_description = 'Username'
+
+admin.site.register(Build, BuildAdmin)

@@ -19,7 +19,8 @@ def builds(request, id=None):
                 flavour=api.required('flavour'),
                 version=api.required('version'),
                 commit=api.required('commit'),
-                platform=api.required('platform')
+                platform=api.required('platform'),
+                url=api.required('url')
             )
             return api.respond(build)
     else:

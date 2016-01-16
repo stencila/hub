@@ -84,7 +84,7 @@ class Build(models.Model):
         ])
 
     @staticmethod
-    def create(user, package, flavour, version, commit, platform):
+    def create(user, package, flavour, version, commit, platform, url):
         '''
         Create a new build object
         '''

@@ -5,3 +5,4 @@ from django.apps import AppConfig
 
 class BuildsConfig(AppConfig):
     name = 'builds'
+    verbose_name = 'Stencila builds'
