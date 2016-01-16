@@ -1,11 +1,9 @@
 from django.views.decorators.csrf import csrf_exempt
 
-from general.authentication import require_authenticated
 from general.api import API
 from builds.models import Build
 
 @csrf_exempt
-@require_authenticated
 def builds(request, id=None):
     api = API(request)
     if id is None:

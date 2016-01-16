@@ -16,6 +16,22 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from general.errors import Error
+
+
+class UnauthenticatedError(Error):
+    '''
+    Used when user needs to be authenticated
+    '''
+
+    code = 401
+
+    def serialize(self):
+        return dict(
+            error='user:unauthenticated',
+            message='User is not authenticated'
+        )
+
 
 class UserDetails(models.Model):
     '''

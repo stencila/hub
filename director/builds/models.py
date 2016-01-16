@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 
 from general.errors import Error
-from users.models import User
+from users.models import User, UnauthenticatedError
 
 
 class Build(models.Model):
@@ -88,6 +88,9 @@ class Build(models.Model):
         '''
         Create a new build object
         '''
+        if not user.is_authenticated():
+            raise UnauthenticatedError()
+
         if not user.details.builder:
             raise Build.UnauthorizedError(
                 user=user
