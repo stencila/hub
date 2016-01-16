@@ -541,7 +541,7 @@ paths:
           schema:
             $ref: '#/definitions/Build'
           description: |
-            The fields `user` and `datetime` will be ignored.
+            The fields `platform` and `url` are optional; `user` and `datetime` will be ignored.
       responses:
         200:
           description: A list of builds.

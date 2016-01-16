@@ -108,7 +108,7 @@ class Build(models.Model):
         return build
 
     class UnauthorizedError(Error):
-        code = 404
+        code = 403
 
         def __init__(self, user):
             self.user = user
