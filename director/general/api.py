@@ -7,7 +7,9 @@ import json
 
 from django.db.models import Model, QuerySet
 from django.http import JsonResponse
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
+from django.shortcuts import render
 
 from general.errors import Error
 
@@ -18,8 +20,9 @@ class API:
     provides some syntactic sugar. Instantiate an API instance
     within API related views.
     '''
-    def __init__(self, request):
+    def __init__(self, request, template=None):
         self.request = request
+        self.template = template
         self.post = (request.method == 'POST')
         self.get = (request.method == 'GET')
         self.put = (request.method == 'PUT')
@@ -52,6 +55,33 @@ class API:
         return converter(self.data.get(name, default))
 
     def respond(self, data=None, paginate=0):
+        accept = self.request.META.get('Accept')
+        if accept == "application/json":
+            return self.respond_json(data, paginate)
+        else:
+            return self.respond_html(data, paginate)
+
+    def serialize(self, data):
+        if(data is None):
+            data = {}
+        elif isinstance(data, Model):
+            data = data.serialize(self.request.user)
+        elif isinstance(data, QuerySet):
+            data = [item.serialize(self.request.user) for item in data]
+        return data
+
+    def respond_html(self, data=None, paginate=0):
+        if self.template is None:
+            data = self.serialize(data)
+            return render(self.request, 'default.html', {
+                'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4)
+            })
+        else:
+            return render(self.request, self.template, {
+                'data': data
+            })
+
+    def respond_json(self, data=None, paginate=0):
         '''
         Respond to the request with some data.
         '''
@@ -97,13 +127,7 @@ class API:
 
             return response
         else:
-            if(data is None):
-                data = {}
-            elif isinstance(data, Model):
-                data = data.serialize(self.request.user)
-            elif isinstance(data, QuerySet):
-                data = [item.serialize(self.request.user) for item in data]
-            return JsonResponse(data, safe=False)
+            return JsonResponse(self.serialize(data), safe=False)
 
     def authenticated_or_raise(self):
         if not self.request.user.is_authenticated():

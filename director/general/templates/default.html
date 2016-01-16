@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+	{{ block.super }}
+	<style>
+		#data {
+			background: #333;
+			color: #EEE;
+			padding: 1em;
+			border-radius: 5px;
+		}
+	</style>
+{% endblock %}
+
+{% block main %}
+<div id="message" class="ui grey icon message">
+	<i class="ui info circle icon"></i>
+	<div class="ui content">
+		We haven't setup a display for this URL yet; the raw data is below anyway. If you wanted just plain JSON data, add the <code>Accept: application/json</code> header to your request; our <a href="/api">API documentation</a> might be useful too!
+	</div>
+</div>
+
+<h1>{{ request.method }} {{ request.path }}</h1>
+<pre id="data">{{ data }}</pre>
+
+{% endblock %}
