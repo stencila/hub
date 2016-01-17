@@ -38,6 +38,14 @@ class EC2:
 
     def launch(self, worker):
         connection = self.connection()
+
+        # Specify size of root device; the default 8Gb was found
+        # to be insufficient
+        dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
+        dev_sda1.size = 32 # size in Gigabytes
+        blockdevicemapping = boto.ec2.blockdevicemapping.BlockDeviceMapping()
+        blockdevicemapping['/dev/sda1'] = dev_sda1
+
         reservation = connection.run_instances(
             image_id=self.ami(),
             min_count=1,
@@ -51,7 +59,8 @@ class EC2:
             security_group_ids=[
                 # stencila-worker-sg
                 'sg-930401f6'
-            ]
+            ],
+            block_device_mappings=[blockdevicemapping]
         )
         instance = reservation.instances[0]
 
