@@ -286,11 +286,20 @@ class Worker:
         Pull all images. Usually called by director in response to a build notification.
         Because pulls are long running, uses a thread.
         '''
+        image = None
+        if len(request.data):
+            image = json.loads(request.data).get('image', None)
+        if image is None:
+            images = ['ubuntu-14.04-python-2.7', 'ubuntu-14.04-r-3.2']
+        else:
+            images = [image]
+
         def doit():
-            for image in 'ubuntu-14.04-python-2.7', 'ubuntu-14.04-r-3.2':
+            for image in images:
                 print docker.pull('stencila/%s' % image)
         thread = threading.Thread(target=doit)
         thread.start()
+
         return self.response({})
 
     ###########################################################################

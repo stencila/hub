@@ -7,7 +7,7 @@ class WorkerAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'provider_id', 'ip', 'active', 'started', 'updated', 'stopped')
     readonly_fields = ['started', 'updated', 'stopped']
-    actions = ['launch', 'update', 'terminate']
+    actions = ['launch', 'update', 'pull', 'terminate']
 
     def launch(self, request, queryset):
         for worker in queryset:
@@ -20,6 +20,12 @@ class WorkerAdmin(admin.ModelAdmin):
             worker.update()
         self.message_user(request, "%s workers updated." % len(queryset))
     update.short_description = 'Update worker information'
+
+    def pull(self, request, queryset):
+        for worker in queryset:
+            worker.pull()
+        self.message_user(request, "%s workers pulled." % len(queryset))
+    pull.short_description = 'Pull all Docker images'
 
     def terminate(self, request, queryset):
         for worker in queryset:

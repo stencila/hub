@@ -11,6 +11,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import PermissionDenied
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 import pytz
 import requests
@@ -19,6 +21,7 @@ from general.errors import Error
 from users.models import User, UserToken
 
 from sessions_.providers import providers
+from builds.models import Build
 
 
 class Worker(models.Model):
@@ -143,6 +146,15 @@ class Worker(models.Model):
 
         return self
 
+    def pull(self, image=None):
+        '''
+        Pull Docker images from the Docker repository
+        '''
+        self.request('pull', 'PUT', {
+            'image': image
+        })
+        return self
+
     def terminate(self):
         '''
         Stop this worker
@@ -235,6 +247,24 @@ def workers_update():
     '''
     for worker in Worker.objects.filter(active=True):
         worker.update()
+
+
+def workers_pull(image=None):
+    '''
+    Get all active workers to pull Docker images
+    '''
+    for worker in Worker.objects.filter(active=True):
+        worker.pull(image)
+
+
+@receiver(post_save, sender=Build)
+def workers_build_post_save(sender, instance, created, **kwargs):
+    '''
+    Respond to an post_save signal from a build
+    '''
+    if created:
+        if instance.package == 'docker':
+            workers_pull(instance.flavour)
 
 
 class WorkerStats(models.Model):
