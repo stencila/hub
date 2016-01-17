@@ -6,11 +6,21 @@
 {% block styles %}
 	{{ block.super }}
 	<style>
-		#builds .ui.card {
+		#builds .build {
 			width: 100%;
+			line-height: 2em;
 		}
-		#builds .ui.card span {
+		#builds .build .field {
 			margin: 0 0.5em 0 0.5em;
+		}
+		#builds .build img {
+			max-height: 2em;
+			max-width: 6em;
+		}
+		#builds .extra.content,
+		#builds .extra.content>a:not(.ui) {
+			font-size: 0.9em;
+			color: #444;
 		}
 	</style>
 {% endblock %}
@@ -28,36 +38,67 @@
 
 <div id="builds" class="ui centered cards">
 	{% for build in data %}
-		<div class="ui card">
+		<div class="build ui card">
 			<div class="ui content">
-				<span class="ui left floated" data-content="Package and flavour">
-					<i class="ui cube icon"></i>
-					{% if build.url %}
-						<a href="{{ build.url }}">{{ build.package }}&nbsp;{{ build.flavour }}</a>
+				<div class="ui left floated" data-content="Stencila package">
+					{% if "build.package=='docker'" %}
+						<img src="{% static 'logos/docker-logo-name.png' %}">
 					{% else %}
-						{{ build.package }}&nbsp;{{ build.flavour }}
+						<i class="ui cube icon"></i>
+						{{ build.package }}
 					{% endif %}
-				</span>
-				<span class="ui left floated" title="Platform">
-					<i class="ui desktop icon"></i>
-					{{ build.platform }}
-				</span>
-				<span class="ui left floated" title="Stencila version">
-					<i class="ui tag icon"></i>
-					{{ build.version }}
-				</span>
-				<span class="user-time ui right floated" title="Builder and build time">
-					<i class="ui user icon"></i>
-					{{ build.user }}
-					<i class="ui time icon"></i>
-					{{ build.datetime|date:'Y-m-d H:i' }}
-				</span>
+				</div>
+				<div class="ui right floated">
+					<span class="field" data-content="Flavour">
+						{{ build.flavour }}
+					</span>
+					{% if build.platform %}
+						<span class="field" data-content="Platform">
+							<i class="ui desktop icon"></i>
+							{{ build.platform }}
+						</span>
+					{% endif %}
+					<span class="field" data-content="Stencila version">
+						<i class="ui tag icon"></i>
+						{{ build.version }}
+					</span>
+				</div>
+			</div>
+			<div class="ui extra content">
+				<div class="ui left floated">
+					{% if "build.package=='docker'" %}
+						<span class="field" data-content="View on Docker Hub">
+							<i class="ui eye icon"></i>
+							<a target="_blank" href="https://hub.docker.com/r/stencila/{{ build.flavour }}/">View</a>
+						</span>
+						<span class="field code" data-content="docker pull stencila/{{ build.flavour }}:{{ build.version }}">
+							<i class="ui keyboard icon"></i>
+							Code
+						</span>
+					{% else %}
+
+					{% endif %}
+				</div>
+				<div class="ui right floated">
+					<span class="field" data-content="Builder">
+						<i class="ui user icon"></i>
+						{{ build.user }}
+					</span>
+					<span class="field" data-content="Build date/time">
+						<i class="ui time icon"></i>
+						{{ build.datetime|date:'Y-m-d H:i' }}UTC
+					</span>
+				</div>
 			</div>
 		</div>
 	{% endfor %}
 </div>
 
 <script type="text/javascript">
-	$('.ui.card span').popup();
+	$('[data-content]').popup();
+	$('.code').popup({
+		variation: 'very wide inverted',
+		hoverable: 'true'
+	});
 </script>
 {% endblock %}
