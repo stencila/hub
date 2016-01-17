@@ -3,6 +3,7 @@ import subprocess
 import datetime
 import json
 import socket
+import threading
 from collections import OrderedDict
 
 import requests.exceptions
@@ -280,6 +281,18 @@ class Worker:
 
         return self.response(info)
 
+    def pull(self, request):
+        '''
+        Pull all images. Usually called by director in response to a build notification.
+        Because pulls are long running, uses a thread.
+        '''
+        def doit():
+            for image in 'ubuntu-14.04-python-2.7', 'ubuntu-14.04-r-3.2':
+                print docker.pull('stencila/%s' % image)
+        thread = threading.Thread(target=doit)
+        thread.start()
+        return self.response({})
+
     ###########################################################################
     # HTTP serving
 
@@ -291,6 +304,7 @@ class Worker:
         Rule('/logs/<string:uuid>',      endpoint='logs',  methods=['GET']),
         Rule('/stop/<string:uuid>',      endpoint='stop',  methods=['DELETE']),
         Rule('/info',                    endpoint='info',  methods=['GET']),
+        Rule('/pull',                    endpoint='pull',  methods=['PUT']),
     ])
 
     def __call__(self, environ, start_response):
@@ -325,5 +339,6 @@ class Worker:
             use_debugger=dev,
             use_reloader=dev,
         )
+
 
 Worker.run()
