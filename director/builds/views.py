@@ -3,12 +3,13 @@ from django.views.decorators.csrf import csrf_exempt
 from general.api import API
 from builds.models import Build
 
+
 @csrf_exempt
 def builds(request, id=None):
-    api = API(request)
+    api = API(request, 'builds/builds.html')
     if id is None:
         if api.get:
-            builds = Build.objects.all()
+            builds = Build.list()
             return api.respond(builds)
         elif api.post:
             build = Build.create(

@@ -18,7 +18,8 @@
 
 /* Allow for fixed main header menu */
 .main.container {
-	margin-top: 6em;
+	margin-top: 50px;
+	padding: 1em;
 }
 
 /* Adjective for segment which seems to be missing */

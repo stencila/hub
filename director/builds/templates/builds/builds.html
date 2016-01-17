@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Builds{% endblock %}
+
+{% block styles %}
+	{{ block.super }}
+	<style>
+		#builds .ui.card {
+			width: 100%;
+		}
+		#builds .ui.card span {
+			margin: 0 0.5em 0 0.5em;
+		}
+	</style>
+{% endblock %}
+
+{% block main %}
+<h1>Builds</h1>
+
+<div class="ui message">
+  <div class="ui content">
+    <p>
+    	These are the most recent 25 builds of Stencila packages. <a href="mailto:connect@stenci.la">Email us</a> if you would like a build for a host language version or platform that is not available here.
+    </p>
+  </div>
+</div>
+
+<div id="builds" class="ui centered cards">
+	{% for build in data %}
+		<div class="ui card">
+			<div class="ui content">
+				<span class="ui left floated" data-content="Package and flavour">
+					<i class="ui cube icon"></i>
+					{% if build.url %}
+						<a href="{{ build.url }}">{{ build.package }}&nbsp;{{ build.flavour }}</a>
+					{% else %}
+						{{ build.package }}&nbsp;{{ build.flavour }}
+					{% endif %}
+				</span>
+				<span class="ui left floated" title="Platform">
+					<i class="ui desktop icon"></i>
+					{{ build.platform }}
+				</span>
+				<span class="ui left floated" title="Stencila version">
+					<i class="ui tag icon"></i>
+					{{ build.version }}
+				</span>
+				<span class="user-time ui right floated" title="Builder and build time">
+					<i class="ui user icon"></i>
+					{{ build.user }}
+					<i class="ui time icon"></i>
+					{{ build.datetime|date:'Y-m-d H:i' }}
+				</span>
+			</div>
+		</div>
+	{% endfor %}
+</div>
+
+<script type="text/javascript">
+	$('.ui.card span').popup();
+</script>
+{% endblock %}

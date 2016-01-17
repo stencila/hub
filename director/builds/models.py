@@ -84,6 +84,13 @@ class Build(models.Model):
         ])
 
     @staticmethod
+    def list():
+        '''
+        List builds
+        '''
+        return Build.objects.all().order_by('-datetime')[:25]
+
+    @staticmethod
     def create(user, package, flavour, version, commit, platform, url):
         '''
         Create a new build object
