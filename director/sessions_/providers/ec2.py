@@ -43,8 +43,8 @@ class EC2:
         # to be insufficient
         dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
         dev_sda1.size = 32 # size in Gigabytes
-        blockdevicemapping = boto.ec2.blockdevicemapping.BlockDeviceMapping()
-        blockdevicemapping['/dev/sda1'] = dev_sda1
+        block_device_map = boto.ec2.blockdevicemapping.BlockDeviceMapping()
+        block_device_map['/dev/sda1'] = dev_sda1
 
         reservation = connection.run_instances(
             image_id=self.ami(),
@@ -60,7 +60,7 @@ class EC2:
                 # stencila-worker-sg
                 'sg-930401f6'
             ],
-            block_device_mappings=[blockdevicemapping]
+            block_device_map=block_device_map
         )
         instance = reservation.instances[0]
 
