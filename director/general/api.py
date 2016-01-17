@@ -56,7 +56,7 @@ class API:
 
     def respond(self, data=None, paginate=0):
         accept = self.request.META.get('Accept')
-        if accept == "application/json":
+        if "application/json" in accept:
             return self.respond_json(data, paginate)
         else:
             return self.respond_html(data, paginate)
