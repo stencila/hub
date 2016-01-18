@@ -17,8 +17,7 @@
 			max-height: 2em;
 			max-width: 6em;
 		}
-		#builds .extra.content,
-		#builds .extra.content>a:not(.ui) {
+		#builds .extra.content {
 			font-size: 0.9em;
 			color: #444;
 		}
@@ -41,8 +40,10 @@
 		<div class="build ui card">
 			<div class="ui content">
 				<div class="ui left floated">
-					{% if "build.package=='docker'" %}
+					{% if build.package == 'docker' %}
 						<img src="{% static 'logos/docker-logo-name.png' %}">
+					{% elif build.package == 'web' %}
+						<img src="{% static 'logos/web-logo.png' %}"> Web
 					{% else %}
 						<i class="ui cube icon"></i>
 						{{ build.package }}
@@ -66,17 +67,26 @@
 			</div>
 			<div class="ui extra content">
 				<div class="ui left floated">
-					{% if "build.package=='docker'" %}
+					{% if build.package == 'docker' %}
 						<span class="field" data-content="View on Docker Hub">
-							<i class="ui eye icon"></i>
-							<a target="_blank" href="https://hub.docker.com/r/stencila/{{ build.flavour }}/">View</a>
+							<a class="ui" target="_blank" href="https://hub.docker.com/r/stencila/{{ build.flavour }}/">
+								<i class="ui eye icon"></i> View
+							</a>
 						</span>
 						<span class="field code" data-content="docker pull stencila/{{ build.flavour }}:{{ build.version }}">
 							<i class="ui keyboard icon"></i>
-							Code
+							Command
 						</span>
-					{% else %}
-
+					{% elif build.url %}
+						<span class="field">
+							<a href="{{ build.url }}/" download>
+								<i class="ui download icon"></i> Download
+							</a>
+						</span>
+						<span class="field code" data-content="curl -O {{ build.url }}">
+							<i class="ui keyboard icon"></i>
+							Command
+						</span>
 					{% endif %}
 				</div>
 				<div class="ui right floated">
