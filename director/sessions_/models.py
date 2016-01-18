@@ -526,7 +526,11 @@ class Session(models.Model):
             ('url', self.url()),
             ('websocket', self.websocket()),
             ('status', self.status),
-            ('ready', self.ready)
+            ('ready', self.ready),
+            ('started', self.started),
+            ('updated', self.updated),
+            ('pinged', self.pinged),
+            ('stopped', self.stopped)
         ])
 
     @staticmethod
@@ -731,10 +735,16 @@ class Session(models.Model):
         self.pinged = timezone.now()
         self.save()
 
-    def stop(self):
+    def stop(self, user):
         '''
         Stop this session
         '''
+        if user != self.user:
+            raise Session.UnauthorizedError(
+                session=self,
+                action='stop'
+            )
+
         if self.stopped is None:
             # Always get stats and logs before
             # stopping a session
@@ -796,14 +806,16 @@ class Session(models.Model):
     class UnauthorizedError(Error):
         code = 403
 
-        def __init__(self, session):
+        def __init__(self, session, action='read'):
             self.session = session
+            self.action = action
 
         def serialize(self):
             return dict(
                 error='session:unauthorized',
-                message='Not authorized to access this session',
-                session=self.session
+                message='Not authorized to perform this action on this session',
+                session=self.session,
+                action=self.action
             )
 
     class NotFoundError(Error):

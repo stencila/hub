@@ -104,15 +104,20 @@ def ping(request, id):
     else:
         raise API.MethodNotAllowedError(method=request.method)
 
-@csrf_exempt  # Must come first!
+
+@csrf_exempt
 @require_authenticated
-@require_POST
 def stop(request, id):
     '''
     Stop a session
-
-    Checks that the user is authorized to stop the session.
     '''
-    session = Session.get(id=id)
-    session.stop()
-    return API(request).respond(session)
+    api = API(request)
+    if api.put:
+        session = Session.get(
+            id=id,
+            user=request.user
+        )
+        session.stop(request.user)
+        return api.respond(session)
+    else:
+        raise API.MethodNotAllowedError(method=request.method)

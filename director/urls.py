@@ -43,6 +43,7 @@ urlpatterns = [
     url(r'^sessions/(?P<id>\d+)/?$',                                 sessions_.views.sessions),
     url(r'^sessions/(?P<id>\d+)@connect/?$',                         sessions_.views.connect),
     url(r'^sessions/(?P<id>\d+)@ping/?$',                            sessions_.views.ping),
+    url(r'^sessions/(?P<id>\d+)@stop/?$',                            sessions_.views.stop),
 
     # User management (login, logout etc)
     url(r'^me/?$',                                                   users.views.me_read),

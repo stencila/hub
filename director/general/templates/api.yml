@@ -362,6 +362,24 @@ paths:
           description: OK
 
 
+  /sessions/{id}@stop:
+
+    put:
+      summary: Stop a session.
+      tags:
+        - Sessions
+      parameters:
+        - name: id
+          type: number
+          in: path
+          required: true
+          description: ID of the session
+      responses:
+        200:
+          description: Data on the session
+          schema:
+            $ref: '#/definitions/Session'
+
   ###########################################################################
   # Me
   ###########################################################################
