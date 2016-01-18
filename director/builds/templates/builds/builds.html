@@ -42,6 +42,10 @@
 				<div class="ui left floated">
 					{% if build.package == 'docker' %}
 						<img src="{% static 'logos/docker-logo-name.png' %}">
+					{% elif build.package == 'py' %}
+						<img src="{% static 'logos/python-logo-name.png' %}">
+					{% elif build.package == 'r' %}
+						<img src="{% static 'logos/r-logo.png' %}">
 					{% elif build.package == 'web' %}
 						<img src="{% static 'logos/web-logo.png' %}"> Web
 					{% else %}
@@ -51,6 +55,7 @@
 				</div>
 				<div class="ui right floated">
 					<span class="field" data-content="Flavour">
+						<i class="ui flag icon"></i>
 						{{ build.flavour }}
 					</span>
 					{% if build.platform %}
@@ -80,7 +85,7 @@
 					{% elif build.url %}
 						<span class="field">
 							<a href="{{ build.url }}/" download>
-								<i class="ui download icon"></i> Download
+								<i class="ui cloud download icon"></i> Download
 							</a>
 						</span>
 						<span class="field code" data-content="curl -O {{ build.url }}">

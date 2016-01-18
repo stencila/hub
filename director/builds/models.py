@@ -105,11 +105,12 @@ class Build(models.Model):
 
         build = Build()
 
-        build.package = package
-        build.flavour = flavour
-        build.version = version
-        build.commit = commit
-        build.platform = platform
+        build.package = package if package else None
+        build.flavour = flavour if flavour else None
+        build.version = version if version else None
+        build.commit = commit if commit else None
+        build.platform = platform if platform else None
+        build.url = url if url else None
 
         build.user = user
         build.datetime = timezone.now()
