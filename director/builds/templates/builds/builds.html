@@ -54,10 +54,12 @@
 					{% endif %}
 				</div>
 				<div class="ui right floated">
+					{% if build.flavour %}
 					<span class="field" data-content="Flavour">
 						<i class="ui flag icon"></i>
 						{{ build.flavour }}
 					</span>
+					{% endif %}
 					{% if build.platform %}
 						<span class="field" data-content="Platform">
 							<i class="ui desktop icon"></i>
@@ -78,19 +80,27 @@
 								<i class="ui eye icon"></i> View
 							</a>
 						</span>
-						<span class="field code" data-content="docker pull stencila/{{ build.flavour }}:{{ build.version }}">
-							<i class="ui keyboard icon"></i>
-							Command
-						</span>
 					{% elif build.url %}
-						<span class="field">
-							<a href="{{ build.url }}/" download>
-								<i class="ui cloud download icon"></i> Download
-							</a>
-						</span>
-						<span class="field code" data-content="curl -O {{ build.url }}">
-							<i class="ui keyboard icon"></i>
-							Command
+							<span class="field">
+								<a href="{{ build.url }}" download>
+									<i class="ui cloud download icon"></i> Download
+								</a>
+							</span>
+					{% endif %}
+
+					{% if build.package != 'web' %}
+						<span class="field install" data-content=
+							{% if build.package == 'docker' %}
+								"docker pull stencila/{{ build.flavour }}:{{ build.version }}"
+							{% elif build.package == 'py' %}
+								"pip install {{ build.url }}"
+							{% elif build.package == 'r' %}
+								"install.packages('{{ build.url }}', repos=NULL)"
+							{% elif build.url %}
+								"curl -O {{ build.url }}"
+							{% endif %}
+							>
+							<i class="ui keyboard icon"></i> Install
 						</span>
 					{% endif %}
 				</div>
@@ -111,7 +121,7 @@
 
 <script type="text/javascript">
 	$('[data-content]').popup();
-	$('.code').popup({
+	$('.install').popup({
 		variation: 'very wide inverted',
 		hoverable: 'true'
 	});
