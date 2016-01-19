@@ -17,10 +17,10 @@ Including another URLconf
 import os
 import json
 
-from django.conf.urls import url, include
-from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import url, include, handler400, handler403, handler404, handler500
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core import urlresolvers
 
@@ -83,6 +83,11 @@ urlpatterns = [
     url(r'^test/404',                                                general.views.test404),
     url(r'^test/500',                                                general.views.test500),
 ]
+
+handler400 = general.views.handler400
+handler403 = general.views.handler403
+handler404 = general.views.handler404
+handler500 = general.views.handler500
 
 # In development, serve static files that are handled by `nginx.conf` when in production
 if settings.MODE == 'local':

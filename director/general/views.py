@@ -44,13 +44,13 @@ def api_yml(request):
 
 # Custom error views
 #  See https://docs.djangoproject.com/en/1.9/topics/http/views/#customizing-error-views
-
+# At time of writing, 400, 403, 404 and 500 are the only codes which have custom handling
 
 def handler400(request):
     '''
     Bad request handler
     '''
-    template = loader.get_template('400.html')
+    template = loader.get_template('4xx.html')
     return HttpResponseBadRequest(template.render(Context({
         'request': request,
     })))
@@ -96,7 +96,7 @@ def handler500(request):
 
 @staff_member_required
 def test400(request):
-    raise SuspiciousOperation()
+    raise SuspiciousOperation('You should see this in DEBUG mode but in porduction see a custom 400 page')
 
 
 @staff_member_required
