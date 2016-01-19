@@ -74,7 +74,9 @@ class SessionAdmin(admin.ModelAdmin):
 
     def stop(self, request, queryset):
         for session in queryset:
-            session.stop()
+            session.stop(
+                user='hub'
+            )
         self.message_user(request, "%s sessions stopped." % len(queryset))
     stop.short_description = 'Stop session'
 
