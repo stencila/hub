@@ -220,7 +220,7 @@ def new(request, type):
 ###############################################################################
 
 @csrf_exempt
-@login_required
+@require_authenticated
 @require_http_methods(['PUT'])
 def method(request, address, method):
     '''
@@ -249,7 +249,7 @@ def method(request, address, method):
 
 
 @csrf_exempt
-@login_required
+@require_authenticated
 @require_http_methods(['PUT'])
 def activate(request, address):
     '''
@@ -269,7 +269,7 @@ def activate(request, address):
 
 
 @csrf_exempt
-@login_required
+@require_authenticated
 @require_http_methods(['PUT'])
 def deactivate(request, address):
     '''
@@ -289,7 +289,7 @@ def deactivate(request, address):
 
 
 @csrf_exempt
-@login_required
+@require_authenticated
 def session(request, address):
     '''
     Get the session, if any, for a component
