@@ -738,12 +738,16 @@ class Session(models.Model):
     def stop(self, user):
         '''
         Stop this session
+
+        `user` should be supplied for authorization but set to `"hub"`
+        if this session is being stopped by the hub itself (see `vacuum` below)
         '''
-        if user != self.user:
-            raise Session.UnauthorizedError(
-                session=self,
-                action='stop'
-            )
+        if user != 'hub':
+            if user != self.user:
+                raise Session.UnauthorizedError(
+                    session=self,
+                    action='stop'
+                )
 
         if self.stopped is None:
             # Always get stats and logs before
@@ -878,7 +882,9 @@ def sessions_vacuum(period=datetime.timedelta(minutes=10)):
                 stop = True
 
         if stop:
-            session.stop()
+            session.stop(
+                user='hub'
+            )
 
 
 class Invitation(models.Model):

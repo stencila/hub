@@ -541,7 +541,9 @@ class Component(models.Model):
             image=self.image()
         )
         if session:
-            session.stop()
+            session.stop(
+                user=user
+            )
         return session
 
     def session(self, user, required=True):
