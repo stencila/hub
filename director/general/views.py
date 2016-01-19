@@ -81,7 +81,7 @@ def handler500(request):
     Server error handler.
     Includes `request` in the context so that a Sentry case reference id can be reported.
     '''
-    template = loader.get_template('500.html')
+    template = loader.get_template('5xx.html')
     return HttpResponseServerError(template.render(Context({
         'request': request,
         'comment_end': '-->',
@@ -96,7 +96,7 @@ def handler500(request):
 
 @staff_member_required
 def test400(request):
-    raise SuspiciousOperation('You should see this in DEBUG mode but in porduction see a custom 400 page')
+    raise SuspiciousOperation('You should see this in DEBUG mode but in production see a custom 400 page')
 
 
 @staff_member_required
