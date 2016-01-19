@@ -305,6 +305,8 @@ def session(request, address):
         user=request.user,
         required=False
     )
+    if session.active:
+        session.update()
     return api.respond(session)
 
 
