@@ -42,7 +42,7 @@ class EC2:
         # Specify size of root device; the default 8Gb was found
         # to be insufficient
         dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
-        dev_sda1.size = 32 # size in Gigabytes
+        dev_sda1.size = 500 # size in Gigabytes
         dev_sda1.volume_type = 'gp2' # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
         block_device_map = boto.ec2.blockdevicemapping.BlockDeviceMapping()
         block_device_map['/dev/sda1'] = dev_sda1
