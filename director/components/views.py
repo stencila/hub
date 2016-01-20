@@ -361,6 +361,27 @@ def ping(request, address):
     return api.respond()
 
 
+@csrf_exempt
+@require_authenticated
+def commit(request, address):
+    '''
+    Commit the component
+
+    This is a temporary stub implementation.
+    It should robably be implemented as a "method"
+    call above.
+    '''
+    api = API(request)
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+    return api.respond(dict(
+        revision='xxxxxxxxx'
+    ))
+
 @require_GET
 def commits(request, address):
     '''
