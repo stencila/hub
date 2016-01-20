@@ -152,6 +152,14 @@ paths:
           in: path
           required: true
           type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
       responses:
         200:
           description: Successfully committed.

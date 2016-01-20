@@ -66,6 +66,9 @@
           $('pre code').each(function(i, e) {
             hljs.highlightBlock(e)
           });
+          $('input.submit[type=button]').each(function(i, e) {
+            $(e).attr("value","Send").addClass("ui green button");
+          });
         },
         onFailure: function(data) {
           log("Unable to Load SwaggerUI");
