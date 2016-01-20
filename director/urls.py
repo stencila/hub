@@ -176,6 +176,7 @@ urlpatterns += [
     url(r'^(?P<tiny>\w+)~$',                               components.views.tiny),
 
     # Component methods
+    url(r'^(?P<address>.+)@boot$',                         components.views.boot),
     url(r'^(?P<address>.+)@activate$',                     components.views.activate),
     url(r'^(?P<address>.+)@deactivate$',                   components.views.deactivate),
     url(r'^(?P<address>.+)@session$',                      components.views.session),

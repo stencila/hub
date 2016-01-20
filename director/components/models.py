@@ -527,12 +527,16 @@ class Component(models.Model):
             user=user,
             image=self.image()
         )
+        # Start the session (may already be) and then wait until ready (may already be)
         session.start()
+        session.wait()
         # Request the component so that it gets `Component::get()`ed into
-        # the session. This fails, perhaps a better way to do this asynchronously
-        #session.request(
-        #    resource=self.address.id
-        #)
+        # the session
+        session.request(
+            verb='PUT',
+            resource=self.address.id,
+            method='grab'
+        )
         return session
 
     def deactivate(self, user):

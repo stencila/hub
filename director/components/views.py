@@ -225,19 +225,19 @@ def new(request, type):
 def method(request, address, method):
     '''
     A general view for calling methods on components that are hosted
-    in a session. Not all component methods need an active session so views
+    in a session. Will launch a new session for a component if necessary.
+    Not all component methods need an active session so views
     should be explicitly provided for those below.
     '''
     api = API(request)
     component = Component.get(
         id=None,
         user=request.user,
-        action=READ,
+        action=READ, # TODO : allow for alternative rights
         address=address
     )
-    session = component.session(
-        user=request.user,
-        required=True
+    session = component.activate(
+        user=request.user
     )
     result = session.request(
         resource=address,
@@ -246,6 +246,37 @@ def method(request, address, method):
         data=request.body
     )
     return api.respond(result)
+
+
+@csrf_exempt
+@require_authenticated
+@require_http_methods(['PUT'])
+def boot(request, address):
+    '''
+    Boot up a component
+    '''
+    api = API(request)
+    component = Component.get(
+        id=None,
+        user=request.user,
+        action=READ,
+        address=address
+    )
+
+    rights = UPDATE #component.rights(request.user)
+    if rights >= UPDATE:
+        session = component.activate(
+            user=request.user
+        )
+    else:
+        session = None
+
+    return api.respond({
+        'rights' : 'UPDATE',
+        'session' : session.serialize(
+            user=request.user
+        )
+    })
 
 
 @csrf_exempt
@@ -323,9 +354,8 @@ def ping(request, address):
         action=READ,
         address=address
     )
-    session = component.session(
-        user=request.user,
-        required=True
+    session = component.activate(
+        user=request.user
     )
     session.ping()
     return api.respond()
@@ -408,6 +438,7 @@ def content(request, address):
             revision=api.required('revision')
         )
     return api.respond(result)
+
 
 ###############################################################################
 

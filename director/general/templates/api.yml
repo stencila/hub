@@ -37,6 +37,29 @@ paths:
   # Components
   ###########################################################################
 
+  /{address}@boot:
+
+    put:
+      summary: Boot up a component.
+      description: |
+        If the user has write access to the component then a new session will be started for it.
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successfully activated.
+          schema:
+            properties:
+              rights:
+                type: string
+              session:
+                $ref: '#/definitions/Session'
+
   /{address}@activate:
 
     put:
@@ -132,6 +155,10 @@ paths:
       responses:
         200:
           description: Successfully committed.
+          properties:
+            revision:
+              type: string
+              required: true
 
   /{address}@commits:
 
@@ -157,7 +184,7 @@ paths:
   /{address}@sync:
 
     put:
-      summary: Synchronise a component with the master repository.
+      summary: Synchronise a component with it's origin.
       tags:
         - Components
       parameters:
@@ -168,6 +195,10 @@ paths:
       responses:
         200:
           description: Successfully synchronised.
+          properties:
+            revision:
+              type: string
+              required: true
 
   /{address}@received:
 

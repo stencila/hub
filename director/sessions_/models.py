@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+import time
 import datetime
 from collections import OrderedDict
 
@@ -639,11 +640,14 @@ class Session(models.Model):
             self.started = timezone.now()
             self.save()
 
-    def update(self):
+    def update(self, save=True):
         '''
         Update session status. This is intended for getting basic
         information about a session necessary for connecting to it.
         For more detailed monitoring see the `monitor()` method.
+
+        @param save Should the update be saved to database (set to False if being
+            called quickly)
         '''
         if self.worker:
             result = self.worker.get(self)
@@ -665,7 +669,24 @@ class Session(models.Model):
                     for attr in 'port', 'ready', 'status':
                         setattr(self, attr, result.get(attr))
             self.updated = timezone.now()
-            self.save()
+            if save:
+                self.save()
+
+    def wait(self, timeout=60):
+        '''
+        Wait until the session is ready.
+        '''
+        started = time.clock()
+        while not self.ready:
+            time.sleep(0.3)
+            waited = time.clock()-started
+            if waited > timeout:
+                raise Session.TimeoutError(
+                    waited=waited,
+                    timeout=timeout
+                )
+            self.update(save=False)
+        self.save()
 
     def monitor(self):
         '''
@@ -701,7 +722,7 @@ class Session(models.Model):
             if not self.ready:
                 self.update()
             if self.ready:
-                url = 'http://%s:%s/%s' %(self.worker.ip, self.port, resource)
+                url = 'http://%s:%s/%s' % (self.worker.ip, self.port, resource)
                 if method:
                     url += '@%s' % method
                 # If data is string send it as a string, otherwise send it as JSON
@@ -717,6 +738,7 @@ class Session(models.Model):
                     data=data,
                     # So, that this does not hang for a long time (e.g. if an error with session) set a timeout
                     # http://docs.python-requests.org/en/latest/user/advanced/#timeouts
+                    # Tuple of (connect, read) timeouts
                     timeout=(10.1, 300.1)
                 )
                 if response.status_code == 200:
@@ -859,6 +881,21 @@ class Session(models.Model):
                 error="session:not-ready",
                 message='Session is not yet ready',
                 session=self.session
+            )
+
+    class TimeoutError(Error):
+        code = 504
+
+        def __init__(self, waited, timeout):
+            self.waited = waited
+            self.timeout = timeout
+
+        def serialize(self):
+            return dict(
+                error="session:timeout",
+                message='Timed out waiting for session to be ready',
+                waited=self.waited,
+                timeout=self.timeout
             )
 
 
