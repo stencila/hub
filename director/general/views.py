@@ -50,7 +50,10 @@ def api_yml(request):
 
 def render_error(request, template):
     template = loader.get_template(template)
-    sentry_id = request.sentry.id if request.sentry else None
+    try:
+        sentry_id = request.sentry['id']
+    except:
+        sentry_id = None
     data = dict(
         uri=request.build_absolute_uri(),
         remote=request.META.get('REMOTE_ADDR'),
