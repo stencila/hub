@@ -115,3 +115,18 @@ def test500(request):
     # https://docs.djangoproject.com/en/1.7/topics/testing/tools/#exceptions
     # A plain old exception at least gets reportest in the debugger
     raise Exception('Faked server error')
+
+
+def backend_error(request, backend, url):
+    '''
+    Used to capture and report backend requests to Sentry.
+    Only intended to be called internally by Nginx.
+    Hence the HTTP_X_REAL_IP header requirement.
+    Nginx config sets it to 127.0.0.1 for this view and to remote address for and all others.
+    '''
+    if request.META.get('HTTP_X_REAL_IP') != '127.0.0.1':
+        raise PermissionDenied()
+    raise BackendError('%s : %s' % (backend, url))
+
+class BackendError(Exception):
+    pass

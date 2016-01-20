@@ -82,6 +82,9 @@ urlpatterns = [
     url(r'^test/403',                                                general.views.test403),
     url(r'^test/404',                                                general.views.test404),
     url(r'^test/500',                                                general.views.test500),
+
+    # Error handling
+    url(r'^backend-error/(?P<backend>[\w-]+)/(?P<url>.+)$',          general.views.backend_error),
 ]
 
 handler400 = general.views.handler400
