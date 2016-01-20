@@ -51,7 +51,7 @@ director-migrate:
 # `django-crontab` can complain if the hash for a job has changed (because it's spec has changed)
 # So this does the brute force approach of simply removing any existing cron table!
 director-crons:
-	crontab -r
+	-crontab -r
 	$(DJ) crontab add
 
 # Build client side files
