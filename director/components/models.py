@@ -530,12 +530,11 @@ class Component(models.Model):
         # Start the session (may already be) and then wait until ready (may already be)
         session.start()
         session.wait()
-        # Request the component so that it gets `Component::get()`ed into
-        # the session
+        # Request the component to be booted in the session
         session.request(
             verb='PUT',
             resource=self.address.id,
-            method='grab'
+            method='boot'
         )
         return session
 
