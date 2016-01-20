@@ -114,7 +114,7 @@ class Worker:
         )
         return self.response(OrderedDict(
             uuid=session.get('Id'),
-            warnings=session.get('Warnings')
+            warning=session.get('Warnings')
         ))
 
     def get(self, request, uuid=None):

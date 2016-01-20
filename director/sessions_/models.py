@@ -633,8 +633,10 @@ class Session(models.Model):
             # it is started here
             result = self.worker.start(self)
             self.uuid = result['uuid']
-            if result['warnings'] is not None:
-                logger.warning(result['warnings'])
+            if result['warning'] is not None:
+                logger.warning('session %s ; %s ' % (self.id, result['warning']))
+            if result.get('error'):
+                logger.error('session %s ; %s ' % (self.id, result['error']))
             # Update
             self.active = True
             self.started = timezone.now()
@@ -657,7 +659,7 @@ class Session(models.Model):
             else:
                 # If get an error then log it
                 if result.get('error'):
-                    logger.error(result['error'])
+                    logger.error('session %s ; %s ' % (self.id, result['error']))
                     self.active = False
                 # ...otherwise, update details
                 else:
