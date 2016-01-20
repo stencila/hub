@@ -721,6 +721,9 @@ class Session(models.Model):
         '''
         if self.active:
             if self.ready:
+                # Update ping time
+                self.ping()
+                # Construct URL
                 url = 'http://%s:%s/%s' % (self.worker.ip, self.port, resource)
                 if method:
                     url += '@%s' % method
