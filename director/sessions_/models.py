@@ -515,13 +515,13 @@ class Session(models.Model):
         else:
             return None
 
-    def serialize(self, request):
+    def serialize(self, user):
         '''
         Serialize this session
         '''
         return OrderedDict([
             ('id', self.id),
-            ('user', self.user.serialize(request)),
+            ('user', self.user.serialize(user=user)),
             ('image', self.image),
             ('url', self.url()),
             ('websocket', self.websocket()),

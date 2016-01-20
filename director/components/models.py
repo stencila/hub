@@ -157,10 +157,10 @@ class Component(models.Model):
             self.address.id
         )
 
-    def serialize(self, request, detail=0):
+    def serialize(self, user, detail=0):
         data = OrderedDict([
             ('id', self.id),
-            ('address', self.address.serialize(request)),
+            ('address', self.address.serialize(user)),
             ('forkee', self.forkee.id if self.forkee else None),
             ('type', self.type),
             ('title', self.title),
