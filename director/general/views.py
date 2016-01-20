@@ -46,34 +46,33 @@ def api_yml(request):
 #  See https://docs.djangoproject.com/en/1.9/topics/http/views/#customizing-error-views
 # At time of writing, 400, 403, 404 and 500 are the only codes which have custom handling
 
+def render_error(request, template):
+    template = loader.get_template(template)
+    return template.render(Context({
+        'request': request,
+        'comment_end': '-->',
+        'comment_begin': '<!--'
+    }))
+
 def handler400(request):
     '''
     Bad request handler
     '''
-    template = loader.get_template('4xx.html')
-    return HttpResponseBadRequest(template.render(Context({
-        'request': request,
-    })))
+    return HttpResponseBadRequest(render_error(request, '4xx.html'))
 
 
 def handler403(request):
     '''
     Permission denied handler
     '''
-    template = loader.get_template('403.html')
-    return HttpResponseForbidden(template.render(Context({
-        'request': request,
-    })))
+    return HttpResponseForbidden(render_error(request, '403.html'))
 
 
 def handler404(request):
     '''
     Not found handler
     '''
-    template = loader.get_template('404.html')
-    return HttpResponseNotFound(template.render(Context({
-        'request': request,
-    })))
+    return HttpResponseNotFound(render_error(request, '404.html'))
 
 
 def handler500(request):
@@ -81,12 +80,7 @@ def handler500(request):
     Server error handler.
     Includes `request` in the context so that a Sentry case reference id can be reported.
     '''
-    template = loader.get_template('5xx.html')
-    return HttpResponseServerError(template.render(Context({
-        'request': request,
-        'comment_end': '-->',
-        'comment_begin': '<!--'
-    })))
+    return HttpResponseServerError(render_error(request, '5xx.html'))
 
 
 # Test views are used to test that the correct templates

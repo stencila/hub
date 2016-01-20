@@ -8,9 +8,6 @@
 				font-family:sans;
 				margin-top: 2em;
 			}
-			p.code {
-				color:#444;
-			}
 		</style>
 	</head>
 	<body>
@@ -20,9 +17,10 @@
 		</p>
 		<p>
 			We have been notified and will do our best to rectify the problem as soon as possible.
-			<!--{% block dynamic %}{{ comment_end|safe }}
+			<!--{{ comment_end|safe }}
 			If you need assistance, you may reference this error using the identifier <strong>{{ request.sentry.id }}</strong>.
-			{{ comment_begin|safe }}{% endblock %}-->
+			{{ comment_begin|safe }}-->
 		</p>
+		<!--{{ comment_end|safe }}{% include "error-details.html" %}{{ comment_begin|safe }}-->
 	</body>
 </html>
