@@ -18,7 +18,9 @@
 		<p>
 			We have been notified and will do our best to rectify the problem as soon as possible.
 			<!--{{ comment_end|safe }}
-			If you need assistance, you may reference this error using the identifier <strong>{{ request.sentry.id }}</strong>.
+			{% if request.sentry and request.sentry.id %}
+				If you need assistance, you may reference this error using the identifier <strong>{{ request.sentry.id }}</strong>.
+			{% endif %}
 			{{ comment_begin|safe }}-->
 		</p>
 		<!--{{ comment_end|safe }}{% include "error-details.html" %}{{ comment_begin|safe }}-->
