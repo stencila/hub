@@ -346,6 +346,8 @@ def session(request, address):
 def ping(request, address):
     '''
     Ping the component's session.
+
+    Returns the session id since that could change
     '''
     api = API(request)
     component = Component.get(
@@ -358,7 +360,9 @@ def ping(request, address):
         user=request.user
     )
     session.ping()
-    return api.respond()
+    return api.respond({
+        'session': session.id
+    })
 
 
 @csrf_exempt

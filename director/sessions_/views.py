@@ -85,6 +85,7 @@ def ping(request, id):
     '''
     Ping a session to keep it open
 
+    Return `ready` value.
     Sessions that have not been pinged for sometime will be automatically
     stopped.
     '''
@@ -96,9 +97,12 @@ def ping(request, id):
         )
         if session.active:
             session.ping()
-            return api.respond()
+            return api.respond({
+                'ready': session.ready
+            })
         else:
             return api.respond({
+                'error': 'session:inactive',
                 'message': 'Session is no longer active'
             })
     else:
