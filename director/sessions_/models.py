@@ -720,9 +720,6 @@ class Session(models.Model):
         Pass an HTTP request on to the session
         '''
         if self.active:
-            # Make one attempt to check for ready-ness
-            if not self.ready:
-                self.update()
             if self.ready:
                 url = 'http://%s:%s/%s' % (self.worker.ip, self.port, resource)
                 if method:
