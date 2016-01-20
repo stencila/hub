@@ -18,8 +18,8 @@
 		<p>
 			We have been notified and will do our best to rectify the problem as soon as possible.
 			<!--{{ comment_end|safe }}
-			{% if request.sentry and request.sentry.id %}
-				If you need assistance, you may reference this error using the identifier <strong>{{ request.sentry.id }}</strong>.
+			{% if sentry_id %}
+				If you need assistance, you may reference this error using the identifier <strong>{{ sentry_id }}</strong>.
 			{% endif %}
 			{{ comment_begin|safe }}-->
 		</p>

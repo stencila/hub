@@ -50,15 +50,17 @@ def api_yml(request):
 
 def render_error(request, template):
     template = loader.get_template(template)
+    sentry_id = request.sentry.id if request.sentry else None
     data = dict(
-        REMOTE_ADDR=request.META.get('REMOTE_ADDR'),
-        HTTP_X_REAL_IP=request.META.get('HTTP_X_REAL_IP'),
-        URI=request.build_absolute_uri(),
+        uri=request.build_absolute_uri(),
+        remote=request.META.get('REMOTE_ADDR'),
+        sentry_id=sentry_id
     )
     return template.render({
         'comment_end': '-->',
         'comment_begin': '<!--',
-        'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4)
+        'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4),
+        'sentry_id': sentry_id
     })
 
 def handler400(request):
