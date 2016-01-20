@@ -692,7 +692,7 @@ class Session(models.Model):
         '''
         Get detailed statistics and logs for this session
         '''
-        if self.worker:
+        if self.worker and self.active:
             result = self.worker.stats_for(self)
             if result.get('error'):
                 logger.error(result['error'])
@@ -899,7 +899,7 @@ class Session(models.Model):
             )
 
 
-def sessions_vacuum(period=datetime.timedelta(minutes=10)):
+def sessions_vacuum(period=datetime.timedelta(minutes=60)):
     '''
     Stop all sessions which are stale (i.e. have not been pinged in within `period`)
     '''
