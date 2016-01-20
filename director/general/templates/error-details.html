@@ -1,2 +1,12 @@
-Request X-Real-IP: {{ HTTP_X_REAL_IP }} <br>
-Request URI: {{ request.build_absolute_uri }}
+<style>
+	#data {
+		background-color: #333;
+		color: #BBB;
+		padding: 1em;
+		border-radius: 5px;
+		text-align: left;
+		max-width: 30em;
+		margin: 2em auto 0 auto;
+	}
+</style>
+<pre id="data">{{ data }}</pre>

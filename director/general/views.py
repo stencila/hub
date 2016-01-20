@@ -1,6 +1,7 @@
 '''
 Defines some common, "general" views not tied to a specific app.
 '''
+import json
 
 from django.template import Context, loader
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
@@ -8,6 +9,7 @@ from django.http import Http404
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
+from django.core.serializers.json import DjangoJSONEncoder
 
 from components.models import Component
 
@@ -48,12 +50,16 @@ def api_yml(request):
 
 def render_error(request, template):
     template = loader.get_template(template)
-    return template.render(Context({
-        'request': request,
-        'HTTP_X_REAL_IP': request.META.get('HTTP_X_REAL_IP'),
+    data = dict(
+        REMOTE_ADDR=request.META.get('REMOTE_ADDR'),
+        HTTP_X_REAL_IP=request.META.get('HTTP_X_REAL_IP'),
+        URI=request.build_absolute_uri(),
+    )
+    return template.render({
         'comment_end': '-->',
-        'comment_begin': '<!--'
-    }))
+        'comment_begin': '<!--',
+        'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4)
+    })
 
 def handler400(request):
     '''
@@ -116,10 +122,9 @@ def backend_error(request, backend, url):
     '''
     Used to capture and report backend requests to Sentry.
     Only intended to be called internally by Nginx.
-    Hence the HTTP_X_REAL_IP header requirement.
-    Nginx config sets it to 127.0.0.1 for this view and to remote address for and all others.
+    Hence the REMOTE_ADDR header requirement.
     '''
-    if request.META.get('HTTP_X_REAL_IP') != '127.0.0.1':
+    if request.META.get('REMOTE_ADDR') != '127.0.0.1':
         return HttpResponseForbidden()
     raise BackendError('%s : %s' % (backend, url))
 
