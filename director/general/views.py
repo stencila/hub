@@ -50,6 +50,7 @@ def render_error(request, template):
     template = loader.get_template(template)
     return template.render(Context({
         'request': request,
+        'HTTP_X_REAL_IP': request.META.get('HTTP_X_REAL_IP'),
         'comment_end': '-->',
         'comment_begin': '<!--'
     }))
@@ -85,7 +86,7 @@ def handler500(request):
 
 # Test views are used to test that the correct templates
 # are being used for errors and that error reporting (currently via Sentry)(
-# is behaving as intended
+# is behaving as intended.
 
 
 @staff_member_required
@@ -119,7 +120,7 @@ def backend_error(request, backend, url):
     Nginx config sets it to 127.0.0.1 for this view and to remote address for and all others.
     '''
     if request.META.get('HTTP_X_REAL_IP') != '127.0.0.1':
-        raise PermissionDenied()
+        return HttpResponseForbidden()
     raise BackendError('%s : %s' % (backend, url))
 
 class BackendError(Exception):
