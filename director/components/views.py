@@ -239,13 +239,17 @@ def method(request, address, method):
     session = component.activate(
         user=request.user
     )
-    result = session.request(
+    status, body = session.request(
         resource=address,
         verb=request.method,
         method=method,
         data=request.body
     )
-    return api.respond(result)
+    return api.respond(
+        data=body,
+        raw=True,
+        status=status
+    )
 
 
 @csrf_exempt

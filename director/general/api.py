@@ -6,7 +6,7 @@ providing consistency in API views
 import json
 
 from django.db.models import Model, QuerySet
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -54,12 +54,12 @@ class API:
         '''
         return converter(self.data.get(name, default))
 
-    def respond(self, data=None, paginate=0):
+    def respond(self, data=None, paginate=0, raw=False, status=200):
         accept = self.request.META.get('HTTP_ACCEPT')
         if accept and ("application/json" in accept):
-            return self.respond_json(data, paginate)
+            return self.respond_json(data, paginate, raw, status)
         else:
-            return self.respond_html(data, paginate)
+            return self.respond_html(data, paginate, raw, status)
 
     def serialize(self, data):
         if(data is None):
@@ -70,18 +70,27 @@ class API:
             data = [item.serialize(self.request.user) for item in data]
         return data
 
-    def respond_html(self, data=None, paginate=0):
+    def jsonize(self, data, indent=None):
+        data = self.serialize(data)
+        data = json.dumps(
+            data, 
+            cls=DjangoJSONEncoder, # Deals with datetime and other encodings
+            indent=indent
+        )
+        return data
+
+    def respond_html(self, data=None, paginate=0, raw=False, status=200):
         if self.template is None:
-            data = self.serialize(data)
+            if not raw: data = self.jsonize(data, indent=4)
             return render(self.request, 'default.html', {
-                'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4)
-            })
+                'data': data
+            },status=status)
         else:
             return render(self.request, self.template, {
                 'data': data
-            })
+            },status=status)
 
-    def respond_json(self, data=None, paginate=0):
+    def respond_json(self, data=None, paginate=0, raw=False, status=200):
         '''
         Respond to the request with some data.
         '''
@@ -127,7 +136,12 @@ class API:
 
             return response
         else:
-            return JsonResponse(self.serialize(data), safe=False)
+            if not raw: data = self.jsonize(data)
+            return HttpResponse(
+                data,
+                content_type='application/json',
+                status=status
+            )
 
     def authenticated_or_raise(self):
         if not self.request.user.is_authenticated():

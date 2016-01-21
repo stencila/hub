@@ -743,10 +743,25 @@ class Session(models.Model):
                     # Tuple of (connect, read) timeouts
                     timeout=(10.1, 300.1)
                 )
-                if response.status_code == 200:
-                    return response.json()
-                else:
-                    raise Exception(response.text)
+                # Always pass though the response code and content
+                # but log 5xx errors and ensure a JSON object.
+                status = response.status_code
+                body = response.text
+                if status >= 500:
+                    logger.error('session %s ; status %s; %s ' % (self.id, status, body))
+                    # This method is expected to return a JSON string, so ensure that is the case
+                    # for errors (status codes <500 are assumed to behave as expected and provide JSON)
+                    try: 
+                        error = json.loads(body)
+                    except: 
+                        # The `session:request-proxy` error ID is use to distinguish this wrapping
+                        # from a `session:internal` error
+                        error = {
+                            'error': 'session:request-proxy',
+                            'message': body
+                        }
+                    body = json.dumps(error)
+                return (status, body)
             else:
                 raise Session.NotReadyError(self.id)
         else:
