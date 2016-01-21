@@ -632,11 +632,11 @@ class Session(models.Model):
             # Session could be started asynchronously but for now
             # it is started here
             result = self.worker.start(self)
-            self.uuid = result['uuid']
-            if result['warning'] is not None:
-                logger.warning('session %s ; %s ' % (self.id, result['warning']))
+            self.uuid = result.get('uuid')
+            if result.get('warning'):
+                logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
             if result.get('error'):
-                logger.error('session %s ; %s ' % (self.id, result['error']))
+                logger.error('session %s ; %s ' % (self.id, result.get('error')))
             # Update
             self.active = True
             self.started = timezone.now()
@@ -659,7 +659,7 @@ class Session(models.Model):
             else:
                 # If get an error then log it
                 if result.get('error'):
-                    logger.error('session %s ; %s ' % (self.id, result['error']))
+                    logger.error('session %s ; %s ' % (self.id, result.get('error')))
                     self.active = False
                 # ...otherwise, update details
                 else:
@@ -697,7 +697,7 @@ class Session(models.Model):
         if self.worker and self.active:
             result = self.worker.stats_for(self)
             if result.get('error'):
-                logger.error(result['error'])
+                logger.error(result.get('error'))
                 self.active = False
             else:
                 stats = SessionStats()
@@ -708,7 +708,7 @@ class Session(models.Model):
 
             SessionLogs.objects.create(
                 session=self,
-                logs=self.worker.logs_for(self)['logs']
+                logs=self.worker.logs_for(self).get('logs')
             )
 
             self.active = True
