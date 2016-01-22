@@ -29,10 +29,12 @@ def snippets(request, id=None):
         elif api.put:
             snippet = Snippet.put(
                 user=request.user,
-                spec=request.body
+                id=id,
+                spec=api.data
             )
             return api.respond(
-            	snippet
+            	snippet,
+            	detail=0
             )
 
     raise API.MethodNotAllowedError(

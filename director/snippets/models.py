@@ -89,14 +89,14 @@ class Snippet(models.Model):
         if not user.details.builder:
             raise Snippet.UnauthorizedError(user=user)
 
-        if spec['id'] != 'id':
+        if spec.get('id') != id:
             raise Snippet.InvalidError(
-                what='The `id` field in the snippet does not match the requested `id`'
+                message='The `id` field in the snippet does not match the requested `id`'
             )
 
         # TODO further validation of the spec
         
-        snippet, created = Snippet.get_or_create(id=id)
+        snippet, created = Snippet.objects.get_or_create(id=id)
 
         # TODO set searchable fields e.g. summary, notes
         

@@ -388,6 +388,11 @@ paths:
         tags:
           - Snippets
         parameters:
+          - name: id
+            type: string
+            in: path
+            required: true
+            description: ID of the snippet
           - name: data
             in: body
             required: false
