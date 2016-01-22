@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ data.id }} Snippet{% endblock %}
+
+{% block styles %}
+	{{ block.super }}
+{% endblock %}
+
+{% block main %}
+{% with snippet=data.spec %}
+
+{% include "coming-soon.html" %}
+
+<h1>{{ snippet.id }}</h1>
+
+<h2>{{ snippet.summary }}</h2>
+
+<h2>Parameters</h2>
+<table class="ui celled table">
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Shape</th>
+			<th>Optional</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for parameter in snippet.parameters %}
+		<tr>
+			<td>{{ parameter.name }}</td>
+			<td>{{ parameter.description }}</td>
+			<td class="ui center aligned">
+				{{ parameter.shape }}
+			</td>
+			<td class="ui center aligned">
+			{% if parameter.optional %}
+				<i class="ui small green checkmark icon"></i>
+			{% endif %}
+			</td>
+		</tr>
+	{% empty %}
+		<tr>
+			<td class="ui center aligned" colspan="5">None</td>
+		</tr>
+	{% endfor %}
+	{% if snippet.spec.variadic %}
+		<tr>
+			<td class="ui center aligned" colspan="5">None</td>
+		</tr>
+	{% endif %}
+	</tbody>
+</table>
+
+<script type="text/javascript">
+	$('[data-content]').popup();
+	$('#search').on('click',function(){
+		comingSoon('Snippet searches');
+	});
+</script>
+
+{% endwith %}
+{% endblock %}

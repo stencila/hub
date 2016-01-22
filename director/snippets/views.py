@@ -24,7 +24,8 @@ def snippets(request, id=None):
                 id=id
             )
             return api.respond(
-            	snippet
+            	snippet,
+            	template='snippets/get.html'
             )
         elif api.put:
             snippet = Snippet.put(
