@@ -35,7 +35,7 @@ def components(request, id=None, type=None):
     if api.get:
         filters = {}
         if type:
-            type = type[:-1] # Remove the trailing 's'
+            type = type[:-1] # Remove the trailing 's' that is in the URL
             filters['type'] = type
         components = Component.list(
             user=request.user,
@@ -106,6 +106,7 @@ def new(request, type):
     if request.user_agent.is_bot:
         return redirect('/', permanent=True)
     else:
+        type = type[:-1] # Remove the trailing 's' that is in the URL
         component = Component.create(
             user=request.user,
             address=None,
