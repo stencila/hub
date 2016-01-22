@@ -18,18 +18,18 @@ def snippets(request, id=None):
             		'languages':['js','jl','py','r']
             	}
             )
-        elif api.put:
-            snippet = Snippet.put(
-                user=request.user,
-                spec=request.body
-            )
-            return api.respond(
-            	snippet
-            )
     else:
         if api.get:
             snippet = Snippet.get(
                 id=id
+            )
+            return api.respond(
+            	snippet
+            )
+        elif api.put:
+            snippet = Snippet.put(
+                user=request.user,
+                spec=request.body
             )
             return api.respond(
             	snippet

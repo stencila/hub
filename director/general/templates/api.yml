@@ -366,6 +366,21 @@ paths:
 
   /snippets/{id}:
 
+    get:
+      summary: Read a snippet.
+      tags:
+        - Snippets
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the snippet
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/Snippet'
+
     put:
         summary: Create or update a snippet.
         description: |
@@ -383,23 +398,6 @@ paths:
           200:
             schema:
               $ref: '#/definitions/Snippet'
-
-  /snippets/{id}:
-
-    get:
-      summary: Read a snippet.
-      tags:
-        - Snippets
-      parameters:
-        - name: id
-          type: string
-          in: path
-          required: true
-          description: ID of the snippet
-      responses:
-        200:
-          schema:
-            $ref: '#/definitions/Snippet'
 
   ###########################################################################
   # Sessions
