@@ -57,13 +57,18 @@ class API:
         options = {
             'detail': detail
         }
-        if(data is None):
-            data = {}
+        if data is None:
+            return {}
         elif isinstance(data, Model):
-            data = data.serialize(self.request.user,**options)
+            # Some serialize methods, don't define options so catch that
+            try:
+                return data.serialize(self.request.user,**options)
+            except TypeError:
+                return data.serialize(self.request.user)
         elif isinstance(data, QuerySet):
-            data = [item.serialize(self.request.user,**options) for item in data]
-        return data
+            return [self.serialize(item) for item in data]
+        else:
+            return data
 
     def jsonize(self, data, detail=1, indent=None):
         data = self.serialize(data, detail=detail)

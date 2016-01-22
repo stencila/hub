@@ -67,7 +67,7 @@ class Build(models.Model):
         help_text='Date/time that this build was created'
     )
 
-    def serialize(self, user):
+    def serialize(self, user, detail=1):
         '''
         Serialize this build
         '''
