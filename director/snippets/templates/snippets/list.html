@@ -13,20 +13,21 @@
 
 <h1>Snippets</h1>
 <p>
-	Snippets are code generation ....
+	Snippets are small blocks of reusable code that can be used in Stencils and Sheets. 
+	Actually, they're really code generators, and Stencila snippets are multilingual - most of them can generate code for more than one language. Snippets are integrated into our user interfaces, and are available via the <a href="/api#!/Snippets/get_snippets">JSON API</a>, but we thought we'd list them here too in case you need to satisfy your snippety curiosity some more.
 </p>
 
 <div class="ui icon message">
   <i class="ui github icon"></i>
   <div class="ui content">
     <p>
-    	Contribute to the development of 
+    	<strong>Not seeing a snippet you want?</strong> Contribute to the development of snippets in the <a href="https://github.com/stencila/stencila/tree/develop/snippets">stencila/stencila</a> repository on Github! Snippets are defined in JSON; there's a <a href="http://json-schema.org/">JSON Schema</a> defined and a growing library of snippet exampls to work off. We validate snippet definitions and then load them up here each time there's a successful <a href="https://travis-ci.org/stencila/stencila">Travis CI build</a>.
     </p>
   </div>
 </div>
 
-<div id="search" class="ui fluid icon input">
-	<input class="ui prompt" type="text" placeholder="Search for snippets" autocomplete="off">
+<div id="search" class="ui disabled fluid icon input">
+	<input class="ui prompt" type="text" placeholder="Search snippets coming soon!" autocomplete="off">
 	<i class="search icon"></i>
 </div>
 <table id="snippets" class="ui celled structured table">
@@ -62,7 +63,7 @@
 
 <script type="text/javascript">
 	$('[data-content]').popup();
-	$('#search').on('input',function(){
+	$('#search').on('click',function(){
 		comingSoon('Snippet searches');
 	});
 </script>
