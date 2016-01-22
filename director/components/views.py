@@ -27,18 +27,21 @@ from components.models import Component, Address, Key, READ, ANNOTATE, UPDATE, D
 # Component
 
 @csrf_exempt
-def component_list(request):
+def components(request, id=None, type=None):
     '''
-    For:
-        GET /components
-        POST /components
+    Standard API endpoint for components
     '''
     api = API(request)
     if api.get:
+        filters = {}
+        if type:
+            type = type[:-1] # Remove the trailing 's'
+            filters['type'] = type
         components = Component.list(
             user=request.user,
             address=api.optional('address'),
             published=api.optional('published', True, lambda value: bool(int(value))),
+            filters=filters,
             sort=api.optional('sort', 'id')
         )
         return api.respond(
@@ -61,12 +64,7 @@ def component_list(request):
 
 @csrf_exempt
 def component_one(request, id):
-    '''
-    For:
-        GET /components/{id}
-        PATCH /components/{id}
-        DELETE /components/{id}
-    '''
+    # TODO integrate into the above
     api = API(request)
     if api.get:
         component = Component.read_one(
@@ -98,6 +96,22 @@ def component_one(request, id):
     else:
         api.raise_method_not_allowed()
 
+
+@login_required
+def new(request, type):
+    '''
+    Create a new component for the user and redirect them
+    to it's canonical page
+    '''
+    if request.user_agent.is_bot:
+        return redirect('/', permanent=True)
+    else:
+        component = Component.create(
+            user=request.user,
+            address=None,
+            type=type
+        )
+        return redirect(component.url())
 
 @csrf_exempt
 def component_star(request, id):
@@ -194,25 +208,6 @@ def component_extras(request, address):
         'address': address,
         'path': path,
     })
-
-# Component HTML and Redirecting views
-
-
-@login_required
-def new(request, type):
-    '''
-    Create a new component for the user and redirect them
-    to it's canonical page
-    '''
-    if request.user_agent.is_bot:
-        return redirect('/', permanent=True)
-    else:
-        component = Component.create(
-            user=request.user,
-            address=None,
-            type=type
-        )
-        return redirect(component.url())
 
 
 ###############################################################################

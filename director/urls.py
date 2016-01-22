@@ -175,10 +175,16 @@ if settings.MODE == 'local':
 
 urlpatterns += [
 
-    # Create a new component
-    url(r'^new/(?P<type>\w+)$',                            components.views.new),
-    url(r'^\+(?P<type>\w+)$',                              components.views.new),
+    ############### Collections of components #################
+    
+    # List
+    url(r'^(?P<type>(components|stencils|sheets|functions))/?$',  components.views.components),
 
+    # Create
+    url(r'^(?P<type>(stencils|sheets|functions))/new/?$',  components.views.new),
+
+    ############### Individual components #################
+  
     # Slugified URL
     url(r'^(?P<address>.+)/(?P<slug>.*)-$',                components.views.slugified),
 
@@ -213,6 +219,8 @@ urlpatterns += [
 
     # Component file access: any other url with a dot in it (resolved in view)
     url(r'^(?P<path>(.+)\.(.+))$',                         components.views.file),
+
+    ############### Addresses #################
 
     # Any other URL needs to be routed to the a canonical URL, index page, or
     # listing of components at the address

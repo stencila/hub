@@ -228,7 +228,7 @@ class Component(models.Model):
     # Listing
 
     @staticmethod
-    def list(user, address=None, published=True, sort=None):
+    def list(user, address=None, published=True, filters=None, sort=None):
         '''
         Get a list of components that the user has at least
         READ access to optionally filtered with arguments.
@@ -246,6 +246,9 @@ class Component(models.Model):
                 query &= Q(address=address)
         if published is not None:
             query &= Q(published=published)
+        # Add user specified filters
+        if filters:
+            query &= Q(**filters)
         # Filter with select related
         components = Component.objects.filter(query).select_related()
         # Order using `sort`
@@ -777,7 +780,6 @@ class Address(models.Model):
         parts = address.split('/')
         parts.pop()
         id = '/'.join(parts)
-        print address, parts, id
         try:
             return Address.objects.select_related().get(id=id)
         except Address.DoesNotExist:
