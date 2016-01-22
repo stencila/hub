@@ -20,9 +20,8 @@ class API:
     provides some syntactic sugar. Instantiate an API instance
     within API related views.
     '''
-    def __init__(self, request, template=None):
+    def __init__(self, request):
         self.request = request
-        self.template = template
         self.post = (request.method == 'POST')
         self.get = (request.method == 'GET')
         self.put = (request.method == 'PUT')
@@ -54,24 +53,20 @@ class API:
         '''
         return converter(self.data.get(name, default))
 
-    def respond(self, data=None, paginate=0, raw=False, status=200):
-        accept = self.request.META.get('HTTP_ACCEPT')
-        if accept and ("application/json" in accept):
-            return self.respond_json(data, paginate, raw, status)
-        else:
-            return self.respond_html(data, paginate, raw, status)
-
-    def serialize(self, data):
+    def serialize(self, data, detail=1):
+        options = {
+            'detail': detail
+        }
         if(data is None):
             data = {}
         elif isinstance(data, Model):
-            data = data.serialize(self.request.user)
+            data = data.serialize(self.request.user,**options)
         elif isinstance(data, QuerySet):
-            data = [item.serialize(self.request.user) for item in data]
+            data = [item.serialize(self.request.user,**options) for item in data]
         return data
 
-    def jsonize(self, data, indent=None):
-        data = self.serialize(data)
+    def jsonize(self, data, detail=1, indent=None):
+        data = self.serialize(data, detail=detail)
         data = json.dumps(
             data, 
             cls=DjangoJSONEncoder, # Deals with datetime and other encodings
@@ -79,18 +74,24 @@ class API:
         )
         return data
 
-    def respond_html(self, data=None, paginate=0, raw=False, status=200):
-        if self.template is None:
-            if not raw: data = self.jsonize(data, indent=4)
-            return render(self.request, 'default.html', {
-                'data': data
-            },status=status)
+    def respond(self, data=None, detail=1, template=None, context={}, paginate=0, raw=False, status=200):
+        accept = self.request.META.get('HTTP_ACCEPT')
+        if accept and ("application/json" in accept):
+            # TODO, bring respond_json in here
+            return self.respond_json(data=data, detail=detail, paginate=paginate, raw=raw, status=status)
         else:
-            return render(self.request, self.template, {
-                'data': data
-            },status=status)
+            if template is None:
+                if not raw: data = self.jsonize(data, detail=detail, indent=4)
+                return render(self.request, 'default.html', {
+                    'data': data
+                },status=status)
+            else:
+                context.update({
+                    'data': data
+                })
+                return render(self.request, template, context=context, status=status)
 
-    def respond_json(self, data=None, paginate=0, raw=False, status=200):
+    def respond_json(self, data=None, detail=1, paginate=0, raw=False, status=200):
         '''
         Respond to the request with some data.
         '''
@@ -136,7 +137,7 @@ class API:
 
             return response
         else:
-            if not raw: data = self.jsonize(data)
+            if not raw: data = self.jsonize(data, detail=detail)
             return HttpResponse(
                 data,
                 content_type='application/json',

@@ -348,6 +348,60 @@ paths:
 
 
   ###########################################################################
+  # Snippets
+  ###########################################################################
+
+  /snippets:
+
+    get:
+      summary: List snippets.
+      tags:
+        - Snippets
+      responses:
+        200:
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SnippetBrief'
+
+  /snippets/{id}:
+
+    put:
+        summary: Create or update a snippet.
+        description: |
+          If the snippet does not yet exist then it will be created, otherwise it will be updated.
+        tags:
+          - Snippets
+        parameters:
+          - name: data
+            in: body
+            required: false
+            schema:
+              $ref: '#/definitions/Snippet'
+
+        responses:
+          200:
+            schema:
+              $ref: '#/definitions/Snippet'
+
+  /snippets/{id}:
+
+    get:
+      summary: Read a snippet.
+      tags:
+        - Snippets
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+          description: ID of the snippet
+      responses:
+        200:
+          schema:
+            $ref: '#/definitions/Snippet'
+
+  ###########################################################################
   # Sessions
   ###########################################################################
 
@@ -724,6 +778,24 @@ definitions:
       ready:
         type: boolean
       status:
+        type: string
+
+  Snippet:
+    description: Specification of a snippet. See the schema on Github
+    type: object
+    properties:
+      id:
+        type: string
+      summary:
+        type: string
+
+  SnippetBrief:
+    description: Brief summary of a snippet
+    type: object
+    properties:
+      id:
+        type: string
+      summary:
         type: string
 
   Token:

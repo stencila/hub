@@ -45,6 +45,9 @@ ua-parser
 user-agents
 django-user-agents==0.3.0
 
+# https://github.com/bradjasper/django-jsonfield/
+jsonfield==1.0.3
+
 # https://pypi.python.org/pypi/psycopg2 for production DB backend
 psycopg2==2.6.1
 

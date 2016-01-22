@@ -137,6 +137,7 @@ INSTALLED_APPS = [
     'accounts',
     'builds',
     'components',
+    'snippets',
     'sessions_',
     'users',
     'visits'

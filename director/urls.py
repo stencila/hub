@@ -28,7 +28,15 @@ import general.views
 import builds.views
 import components.views
 import sessions_.views
+import snippets.views
 import users.views
+
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def signals_placeholder(request):
+    return HttpResponse()
 
 urlpatterns = [
 
@@ -39,6 +47,10 @@ urlpatterns = [
     url(r'^api/api.yml',                                             general.views.api_yml),
     url(r'^api/?$',                                                  general.views.api_ui),
 
+    # Snippets
+    url(r'^snippets(/(?P<id>.+))?/?$',                               snippets.views.snippets),
+
+    # Sessions
     url(r'^sessions/?$',                                             sessions_.views.sessions),
     url(r'^sessions/(?P<id>\d+)/?$',                                 sessions_.views.sessions),
     url(r'^sessions/(?P<id>\d+)@connect/?$',                         sessions_.views.connect),
@@ -73,6 +85,8 @@ urlpatterns = [
     url(r'^users/(?P<username>[\w-]+)/?$',                           users.views.users_read),
 
     url(r'^builds(/(?P<id>\d+))?/?$',                                builds.views.builds),
+
+    url(r'^signals$',                                                signals_placeholder),
 
     # Administration interface
     url(r'^admin/',                                                  admin.site.urls),

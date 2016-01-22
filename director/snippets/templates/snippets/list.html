@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Snippets{% endblock %}
+
+{% block styles %}
+	{{ block.super }}
+{% endblock %}
+
+{% block main %}
+
+{% include "coming-soon.html" %}
+
+<h1>Snippets</h1>
+<p>
+	Snippets are code generation ....
+</p>
+
+<div class="ui icon message">
+  <i class="ui github icon"></i>
+  <div class="ui content">
+    <p>
+    	Contribute to the development of 
+    </p>
+  </div>
+</div>
+
+<div id="search" class="ui fluid icon input">
+	<input class="ui prompt" type="text" placeholder="Search for snippets" autocomplete="off">
+	<i class="search icon"></i>
+</div>
+<table id="snippets" class="ui celled structured table">
+  <thead>
+    <tr>
+      <th rowspan="2">Name</th>
+      <th rowspan="2">Summary</th>
+      <th class="ui center aligned" colspan="4">Languages</th>
+    </tr>
+    <tr>
+      <th class="ui center aligned">Javascript</th>
+      <th class="ui center aligned">Julia</th>
+      <th class="ui center aligned">Python</th>
+      <th class="ui center aligned">R</th>
+    </tr>
+  </thead>
+	<tbody>
+	{% for snippet in data %}
+		<tr class="snippet">
+			<td><a href="/snippets/{{ snippet.id }}">{{ snippet.id }}</a></td>
+			<td>{{ snippet.spec.summary }}</td>
+			{% for lang in languages %}
+				<td class="ui center aligned">
+				{% if lang in snippet.spec.languages %}
+					<i class="ui green checkmark icon"></i>
+				{% endif %}
+				</td>
+			{% endfor %}
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+
+<script type="text/javascript">
+	$('[data-content]').popup();
+	$('#search').on('input',function(){
+		comingSoon('Snippet searches');
+	});
+</script>
+{% endblock %}
