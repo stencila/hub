@@ -30,8 +30,7 @@ django-extensions==1.5.9
 django-ipware==1.1.2
 
 # http://django-reversion.readthedocs.org/en/latest/index.html for keeping track of who creates and modifies objects
-# Use master due to incompatability with Django==1.9. See https://github.com/etianen/django-reversion/issues/454
-https://github.com/etianen/django-reversion/archive/master.zip
+django-reversion==1.10.0
 
 # https://github.com/peterbe/django-semanticui-form a simple Django template tag to work with Semantic UI
 django-semanticui-form==0.0.1
