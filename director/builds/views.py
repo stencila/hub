@@ -6,11 +6,14 @@ from builds.models import Build
 
 @csrf_exempt
 def builds(request, id=None):
-    api = API(request, 'builds/builds.html')
+    api = API(request)
     if id is None:
         if api.get:
             builds = Build.list()
-            return api.respond(builds)
+            return api.respond(
+                builds,
+                template='builds/builds.html'
+            )
         elif api.post:
             build = Build.create(
                 user=request.user,
