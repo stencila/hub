@@ -228,7 +228,7 @@ class Component(models.Model):
     # Listing
 
     @staticmethod
-    def list(user, address=None, published=True, filters=None, sort=None):
+    def list(user, address=None, published=None, filters=None, sort=None):
         '''
         Get a list of components that the user has at least
         READ access to optionally filtered with arguments.
@@ -247,7 +247,7 @@ class Component(models.Model):
         if published is not None:
             query &= Q(published=published)
         # Add user specified filters
-        if filters:
+        if filters is not None:
             query &= Q(**filters)
         # Filter with select related
         components = Component.objects.filter(query).select_related()

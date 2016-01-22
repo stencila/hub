@@ -19,6 +19,7 @@ def front(request):
     '''
     components = Component.list(
         user=request.user,
+        published=True,
         sort='-id'
     )
     return render(request, 'front.html', {
