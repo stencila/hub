@@ -2,9 +2,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from general.api import API
 from snippets.models import Snippet
-
+from users.views import testers
 
 @csrf_exempt
+@testers
 def snippets(request, id=None):
     api = API(request)
     if id is None:

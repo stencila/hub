@@ -15,6 +15,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.core.mail import mail_admins
 
 import jsonfield
 
@@ -57,6 +58,11 @@ class UserDetails(models.Model):
     builder = models.BooleanField(
         default=False,
         help_text='Is this user a package builder?'
+    )
+
+    tester = models.BooleanField(
+        default=False,
+        help_text='Is this user a tester of new features?'
     )
 
     def __unicode__(self):
@@ -361,3 +367,9 @@ class UserEvent(models.Model):
             name=name,
             data=data
         )
+        if name == 'tester-request':
+            if settings.MODE != 'local':
+                mail_admins(
+                    subject='tester-request: %s' % user.username,
+                    message='tester-request: %s' % user.username
+                )

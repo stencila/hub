@@ -28,19 +28,11 @@
 </div>
 
 <script type="text/javascript">
-	function comingSoon(feature){
+	var comingSoon = function(feature){
 		function send(value) {
-			$.ajax({
-				method: 'POST',
-				url: 'events',
-				contentType: 'application/json',
-				data: JSON.stringify({ 
-					name: 'coming-soon',
-					data: {
-						feature: feature,
-						vote : value
-					}
-				})
+			userEvent('coming-soon',{
+				feature: feature,
+				vote : value
 			});
 		}
 		$('#coming-soon')
@@ -53,5 +45,5 @@
 				}
 			})
 			.modal('show');
-	}
+	};
 </script>
