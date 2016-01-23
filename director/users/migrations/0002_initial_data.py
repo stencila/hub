@@ -2,17 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-from django.contrib.auth.models import User
-
-def create_superuser(apps, schema_editor):
-    '''
-    Creates a super user for using the admin interface during development.
-    Obviously, in production the 'insecure' password is changed.
-    '''
-    try:
-        User.objects.get(username='admin')
-    except User.DoesNotExist:
-        User.objects.create_superuser('admin', 'hub@stenci.la', 'insecure')
 
 
 def create_site(apps, schema_editor):
@@ -56,7 +45,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_superuser),
         migrations.RunPython(create_site),
         migrations.RunPython(create_socialapps)
     ]
