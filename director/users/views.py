@@ -9,7 +9,7 @@ from general.authentication import require_authenticated
 
 # Decorators to be used in other apps
 
-def testers(function):
+def testing(function):
     '''
     A view decorator to only allow testers
     '''
