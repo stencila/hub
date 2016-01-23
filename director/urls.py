@@ -32,12 +32,6 @@ import snippets.views
 import users.views
 
 
-from django.views.decorators.csrf import csrf_exempt
-
-@csrf_exempt
-def signals_placeholder(request):
-    return HttpResponse()
-
 urlpatterns = [
 
     # Front page
@@ -78,15 +72,15 @@ urlpatterns = [
         # social/login/error/                 socialaccount_login_error
         # social/connections                  socialaccount_connections
 
-    url(r'^tokens/?$',                                               users.views.tokens),
-    url(r'^tokens/(?P<id>\d+)/?$',                                   users.views.tokens),
-
     url(r'^users/?$',                                                users.views.users_list),
     url(r'^users/(?P<username>[\w-]+)/?$',                           users.views.users_read),
 
-    url(r'^builds(/(?P<id>\d+))?/?$',                                builds.views.builds),
+    url(r'^tokens/?$',                                               users.views.tokens),
+    url(r'^tokens/(?P<id>\d+)/?$',                                   users.views.tokens),
 
-    url(r'^signals$',                                                signals_placeholder),
+    url(r'^events/?$',                                               users.views.events),
+
+    url(r'^builds(/(?P<id>\d+))?/?$',                                builds.views.builds),
 
     # Administration interface
     url(r'^admin/',                                                  admin.site.urls),

@@ -29,25 +29,27 @@
 
 <script type="text/javascript">
 	function comingSoon(feature){
-		function signal(value) {
+		function send(value) {
 			$.ajax({
 				method: 'POST',
-				url: 'signals',
+				url: 'events',
 				contentType: 'application/json',
 				data: JSON.stringify({ 
-					event: 'coming-soon',
-					feature: feature,
-					value : value
+					name: 'coming-soon',
+					data: {
+						feature: feature,
+						vote : value
+					}
 				})
 			});
 		}
 		$('#coming-soon')
 			.modal({
 				onApprove: function () {
-					signal('yeah');
+					send('yeah');
 				},
 				onDeny: function (elem) {
-					elem.is('.meh')?signal('meh'):signal('nah');
+					elem.is('.meh')?send('meh'):send('nah');
 				}
 			})
 			.modal('show');

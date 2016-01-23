@@ -16,6 +16,8 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+import jsonfield
+
 from general.errors import Error
 
 
@@ -316,3 +318,46 @@ class UserToken(models.Model):
             token.notes = 'Token used by Stencila when launching sessions on your behalf'
             token.save()
         return token
+
+
+class UserEvent(models.Model):
+    '''
+    User event recording and responses
+    '''
+
+    datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Date/time the event occurred',
+        auto_now_add=True
+    )
+
+    user = models.ForeignKey(
+        User,
+        related_name='events',
+        help_text='The user this event is linked to'
+    )
+
+    name = models.CharField(
+        max_length=128,
+        null=False,
+        blank=False,
+        help_text='Name of the event'
+    )
+
+    data = jsonfield.JSONField(
+        null=True,
+        blank=True,
+        help_text='Data associated with the event'
+    )
+
+    def __unicode__(self):
+        return 'UserEvent(%s,%s)' % (self.id, self.name)
+
+    @staticmethod
+    def create(user, name, data):
+        UserEvent.objects.create(
+            user=user,
+            name=name,
+            data=data
+        )

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from users.models import UserDetails, UserToken
+from users.models import UserDetails, UserToken, UserEvent
 
 
 class UserDetailsAdmin(admin.ModelAdmin):
@@ -20,3 +20,10 @@ class UserTokenAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'issued', 'expires')
 
 admin.site.register(UserToken, UserTokenAdmin)
+
+
+class UserEventAdmin(admin.ModelAdmin):
+
+    list_display = ('id', 'datetime', 'user', 'name')
+
+admin.site.register(UserEvent, UserEventAdmin)

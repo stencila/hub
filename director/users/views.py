@@ -1,13 +1,14 @@
-from django.views.decorators.http import require_http_methods, require_GET, require_POST
+from django.views.decorators.http import require_http_methods, require_GET
 from django.views.decorators.csrf import csrf_exempt
 
 import allauth.account.views
 
-from users.models import User, UserToken
+from users.models import User, UserToken, UserEvent
 from general.api import API
 from general.authentication import require_authenticated
 
 # Overrides of allauth urls and templates
+
 
 class SignupView(allauth.account.views.SignupView):
 
@@ -108,3 +109,16 @@ def tokens(request, id=None):
             # Delete it
             token.delete()
             return api.respond()
+
+@csrf_exempt
+def events(request):
+    api = API(request)
+    if api.post:
+        UserEvent.create(
+            user=request.user,
+            name=api.required('name'),
+            data=api.required('data')
+        )
+        return api.respond()
+    else:
+        return api.respond(status=405)
