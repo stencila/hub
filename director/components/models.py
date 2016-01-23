@@ -56,6 +56,7 @@ def curator(method, **kwargs):
     Perhaps could be done aysnychronusly to a task queue
     '''
     if settings.CURATOR_STUB:
+        print 'CURATOR_STUB is on; dummy response'
         return {}
     else:
         connection = httplib.HTTPConnection('10.0.1.50', 7310)

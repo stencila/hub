@@ -438,9 +438,10 @@ CRONJOBS = [
 #
 # Stuff which developers might wan't to override in their own settings_local.py
 
-# Should a stub be used so that code can be tested during development\
-# without a running curator
+# Should a stub be used so that code can be tested during development
+# without a running curator and/or worker
 CURATOR_STUB = False
+WORKER_STUB = False
 
 # During development should /get serve local development build
 GET_LOCAL = False
