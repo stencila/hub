@@ -89,7 +89,7 @@ class API:
                 if not raw: data = self.jsonize(data, detail=detail, indent=4)
                 return render(self.request, 'default.html', {
                     'data': data
-                },status=status)
+                }, status=status)
             else:
                 context.update({
                     'data': data
