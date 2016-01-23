@@ -28,11 +28,14 @@
 </div>
 
 <script type="text/javascript">
-	var comingSoon = function(feature){
+	Stencila.comingSoon = function(feature){
 		function send(value) {
-			userEvent('coming-soon',{
-				feature: feature,
-				vote : value
+			Stencila.post('events',{
+				name: 'coming-soon',
+				data: {
+					feature: feature,
+					vote : value
+				}
 			});
 		}
 		$('#coming-soon')

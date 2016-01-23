@@ -9,7 +9,6 @@
 
 {% block main %}
 
-{% include "users/_event.html" %}
 {% include "_coming_soon.html" %}
 
 <h1>Snippets</h1>
@@ -65,7 +64,7 @@
 <script type="text/javascript">
 	$('[data-content]').popup();
 	$('#search').on('click',function(){
-		comingSoon('Snippet searches');
+		Stencila.comingSoon('snippet-searches');
 	});
 </script>
 {% endblock %}
