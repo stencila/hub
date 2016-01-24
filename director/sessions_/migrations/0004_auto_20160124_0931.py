@@ -6,6 +6,33 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+# Necessary to create default model instances for
+# existing sessions to link to
+
+
+def create_sessionimage_default(apps, schema_editor):
+    SessionImage = apps.get_model("sessions_", "SessionImage")
+    SessionImage.objects.create(
+        id=1,
+        name='',
+        tag='',
+        display_name=''
+    )
+
+
+def create_sessiontype_default(apps, schema_editor):
+    SessionType = apps.get_model("sessions_", "SessionType")
+    SessionType.objects.create(
+        id=1,
+        name='',
+        description='',
+        ram=0,
+        cpu=0,
+        network=0,
+        timeout=0,
+    )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -22,6 +49,7 @@ class Migration(migrations.Migration):
                 ('display_name', models.CharField(help_text='Name of the image as displayed', max_length=128)),
             ],
         ),
+        migrations.RunPython(create_sessionimage_default),
         migrations.CreateModel(
             name='SessionType',
             fields=[
@@ -34,6 +62,7 @@ class Migration(migrations.Migration):
                 ('timeout', models.FloatField(default=0, help_text='Minutes of inactivity before the session is terminated')),
             ],
         ),
+        migrations.RunPython(create_sessiontype_default),
         migrations.AlterField(
             model_name='session',
             name='image',
