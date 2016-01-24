@@ -678,7 +678,7 @@ class Session(models.Model):
         try:
             return Session.objects.get(
                 user=user,
-                image_name=image_name,
+                image=image_name,
                 active=True
             )
         except Session.DoesNotExist:
@@ -693,7 +693,7 @@ class Session(models.Model):
         try:
             return Session.objects.get(
                 user=user,
-                image_name=image_name,
+                image=image_name,
                 active=True
             )
         except Session.DoesNotExist:
