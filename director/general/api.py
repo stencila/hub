@@ -4,6 +4,7 @@ providing consistency in API views
 '''
 
 import json
+import warnings
 
 from django.db.models import Model, QuerySet
 from django.http import HttpResponse, JsonResponse
@@ -149,12 +150,25 @@ class API:
                 status=status
             )
 
+    def respond_created(self, url):
+        '''
+        Return a 201 (Created) response
+        http://www.restapitutorial.com/lessons/httpmethods.html
+        '''
+        response = HttpResponse(status=201)
+        response['Location'] = url
+        return response
+
+    def respond_bad(self):
+        raise API.MethodNotAllowedError(self.request.method)
+
+    def raise_method_not_allowed(self):
+        warnings.warn("deprecated", DeprecationWarning)
+        raise API.MethodNotAllowedError(self.request.method)
+
     def authenticated_or_raise(self):
         if not self.request.user.is_authenticated():
             raise API.UnauthenticatedError(self.request.path, self.request.method)
-
-    def raise_method_not_allowed(self):
-        raise API.MethodNotAllowedError(self.request.method)
 
     def raise_not_found(self):
         raise API.NotFoundError()

@@ -45,8 +45,8 @@ urlpatterns = [
     url(r'^snippets(/(?P<id>.+))?/?$',                               snippets.views.snippets),
 
     # Sessions
-    url(r'^sessions/?$',                                             sessions_.views.sessions),
-    url(r'^sessions/(?P<id>\d+)/?$',                                 sessions_.views.sessions),
+    url(r'^sessions(/(?P<id>\d+))?/?$',                              sessions_.views.sessions),
+    url(r'^sessions/new/?$',                                         sessions_.views.new),
     url(r'^sessions/(?P<id>\d+)@connect/?$',                         sessions_.views.connect),
     url(r'^sessions/(?P<id>\d+)@ping/?$',                            sessions_.views.ping),
     url(r'^sessions/(?P<id>\d+)@stop/?$',                            sessions_.views.stop),

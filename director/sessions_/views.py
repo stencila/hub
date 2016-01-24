@@ -1,11 +1,13 @@
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 
 from general.authentication import require_authenticated
 from general.api import API
 from components.models import Component, READ
-from sessions_.models import Session
-
+from sessions_.models import Session, SessionType, SessionImage
+from users.views import testing
 
 @csrf_exempt
 @require_authenticated
@@ -14,25 +16,21 @@ def sessions(request, id=None):
     if id is None:
         if api.get:
             # Get a list of sessions
-            sessions = Session.objects.filter(user=request.user)
+            sessions = Session.list(
+                user=request.user
+            )
             return api.respond(sessions)
         elif api.post:
-            # Create a session for the component/user.
-            # Starts a new session, if there is not already an active
-            # one for the component/user pair, and returns it's details so that
-            # the client can connect to that session via websockets
-            component = Component.one_if_authorized_or_raise(
-                request.user,
-                READ,
-                address=api.required('address')
-            )
-            session = Session.get_or_launch(
-                component=component,
+            # Launch a session for the user
+            session = Session.launch(
                 user=request.user,
+                type_id=api.required('type'),
+                image_name=api.require('image')
             )
             return api.respond(session)
     else:
         if api.get:
+            # Get a session, updating it first
             session = Session.get(
                 id=id,
                 user=request.user
@@ -41,7 +39,35 @@ def sessions(request, id=None):
                 session.update()
             return api.respond(session)
 
-    raise API.MethodNotAllowedError(method=request.method)
+    return api.respond(status=405)
+
+
+@login_required
+@testing
+def new(request):
+    '''
+    List session types, create a new session, launch it and redirect the
+    to it's page
+    '''
+    api = API(request)
+    if api.get:
+        return api.respond(
+            template='sessions/new.html',
+            context={
+                'sessions': Session.list(user=request.user),
+                'types': SessionType.objects.all(),
+                'images': SessionImage.objects.all()
+            }
+        )
+    elif api.post:
+        session = Session.launch(
+            user=request.user,
+            type_id=api.required('type'),
+            image_name=api.required('image')
+        )
+        return api.respond_created(url=session.url())
+
+    return api.respond_bad()
 
 
 @require_authenticated

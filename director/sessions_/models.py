@@ -98,22 +98,29 @@ class Worker(models.Model):
         Request a POST, GET or DELETE from the agent on this Worker
         '''
         assert self.ip is not None
-        response = requests.request(
-            method,
-            'http://%s:%s/%s' % (self.ip, self.port, resource),
-            headers={
-                "Content-type": "application/json",
-                "Accept": "application/json"
-            },
-            json=data,
-            # So, that this does not hang for a long time (e.g. if an error with worker) set a timeout
-            # http://docs.python-requests.org/en/latest/user/advanced/#timeouts
-            timeout=(10.1, 120.1)
-        )
-        if response.status_code == 200:
-            return response.json()
+        if settings.WORKER_STUB:
+            print 'WORKER_STUB is on; dummy response'
+            return {
+                'uuid':'------',
+                'started':'0001-01-01T01:01:01Z'
+            }
         else:
-            raise Exception(response.text)
+            response = requests.request(
+                method,
+                'http://%s:%s/%s' % (self.ip, self.port, resource),
+                headers={
+                    "Content-type": "application/json",
+                    "Accept": "application/json"
+                },
+                json=data,
+                # So, that this does not hang for a long time (e.g. if an error with worker) set a timeout
+                # http://docs.python-requests.org/en/latest/user/advanced/#timeouts
+                timeout=(10.1, 120.1)
+            )
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise Exception(response.text)
 
     ################################################################
     # Whole machine related methods
@@ -360,6 +367,91 @@ class WorkerStats(models.Model):
         self.save()
 
 
+class SessionType(models.Model):
+
+    name = models.CharField(
+        max_length=128,
+        null=False,
+        blank=False,
+        help_text='Name of the session type',
+    )
+
+    description = models.TextField(
+        null=False,
+        blank=False,
+        help_text='A short description of the session type',
+    )
+
+    ram = models.FloatField(
+        default=0,
+        null=False,
+        blank=False,
+        help_text='Gigabytes (GB) of RAM allocated'
+    )
+
+    cpu = models.FloatField(
+        default=0,
+        null=False,
+        blank=False,
+        help_text='Gigahertz (GHz) of CPU allocated to the session'
+    )
+
+    network = models.FloatField(
+        default=0,
+        null=False,
+        blank=False,
+        help_text='Gigabytes (GB) of netwrk transfer allocated to the session'
+    )
+
+    timeout = models.FloatField(
+        default=0,
+        null=False,
+        blank=False,
+        help_text='Minutes of inactivity before the session is terminated'
+    )
+
+    def serialize(self, *args, **kwargs):
+        return OrderedDict([
+            ('id', self.id),
+            ('name', self.name),
+            ('ram', self.ram),
+            ('cpu', self.cpu),
+            ('network', self.network),
+            ('timeout', self.timeout),
+        ])
+
+class SessionImage(models.Model):
+
+    name = models.CharField(
+        max_length=128,
+        null=False,
+        blank=False,
+        help_text='Name of the Docker image',
+    )
+
+    tag = models.CharField(
+        max_length=128,
+        null=False,
+        blank=False,
+        default='latest',
+        help_text='Tag on the Docker image',
+    )
+
+    display_name = models.CharField(
+        max_length=128,
+        null=False,
+        blank=False,
+        help_text='Name of the image as displayed',
+    )
+
+    def serialize(self, *args, **kwargs):
+        return OrderedDict([
+            ('id', self.id),
+            ('name', self.name),
+            ('tag', self.tag),
+        ])
+
+
 class Session(models.Model):
     '''
     Every session must be linked to a User so that authorization to acess components can
@@ -400,9 +492,15 @@ class Session(models.Model):
         help_text='User token used to sigin from the session',
     )
 
+    image_model = models.ForeignKey(
+        SessionImage,
+        help_text='SessionImage for this session',
+        related_name='sessions'
+    )
+
     image = models.CharField(
         max_length=64,
-        help_text='Image for this session',
+        help_text='Image name string for this session. Redundant given image_model',
     )
 
     command = models.CharField(
@@ -412,6 +510,15 @@ class Session(models.Model):
         default='stencila-session',
         help_text='Command to run the session in the Docker container',
     )
+
+    type = models.ForeignKey(
+        SessionType,
+        help_text='SessionType for this session',
+        related_name='sessions'
+    )
+
+    # Keeping memory and cpu fields since they could be used
+    # for custom session types
 
     memory = models.CharField(
         max_length=8,
@@ -505,7 +612,10 @@ class Session(models.Model):
         return 'Session#%s' % (self.id)
 
     def url(self):
-        return 'https://stenci.la/sessions/%i' % self.id
+        if settings.MODE == 'local':
+            return '/sessions/%i' % self.id
+        else:
+            return 'https://stenci.la/sessions/%i' % self.id
 
     def websocket(self):
         if self.ready:
@@ -523,7 +633,8 @@ class Session(models.Model):
         return OrderedDict([
             ('id', self.id),
             ('user', self.user.serialize(user=user)),
-            ('image', self.image),
+            ('image', self.image_model.serialize()),
+            ('type', self.type.serialize()),
             ('url', self.url()),
             ('websocket', self.websocket()),
             ('status', self.status),
@@ -533,6 +644,15 @@ class Session(models.Model):
             ('pinged', self.pinged),
             ('stopped', self.stopped)
         ])
+
+    @staticmethod
+    def list(user):
+        '''
+        Get a list of sessions that the user owns
+        '''
+        return Session.objects.filter(
+            user=user
+        )
 
     @staticmethod
     def get(id, user):
@@ -550,21 +670,21 @@ class Session(models.Model):
             )
 
     @staticmethod
-    def get_for(user, image):
+    def get_for(user, image_name):
         '''
         Get an active session for the user/image pair
         '''
         try:
             return Session.objects.get(
                 user=user,
-                image=image,
+                image=image_name,
                 active=True
             )
         except Session.DoesNotExist:
             return None
 
     @staticmethod
-    def get_or_launch(user, image):
+    def get_or_launch(user, image_name):
         '''
         Get an active session for the user/image pair,
         or else launch one
@@ -572,17 +692,17 @@ class Session(models.Model):
         try:
             return Session.objects.get(
                 user=user,
-                image=image,
+                image=image_name,
                 active=True
             )
         except Session.DoesNotExist:
             return Session.launch(
                 user=user,
-                image=image
+                image=image_name
             )
 
     @staticmethod
-    def launch(user, image, account=None):
+    def launch(user, image_name, type_id=None, account=None):
         '''
         Create and start a session
         '''
@@ -594,14 +714,23 @@ class Session(models.Model):
         # create a session for that account
         #Account.authorize_or_raise(user, account, CREATE, 'session')
         # Check the account has enough credit to create the session
-        memory = 512  # For now just used a fixed memory size in megabytes
+        #memory = 512  # For now just used a fixed memory size in megabytes
         #account.enough_or_raise(memory=memory)
+        
+        image = SessionImage.objects.get(
+            name=image_name
+        )
+
+        type = SessionType.objects.get(
+            id=type_id
+        )
+
         # Create the session
         session = Session.objects.create(
             account=account,
             user=user,
-            image=image,
-            memory='%sm' % memory
+            image_model=image,
+            type=type
         )
         # Start the session
         session.start()
@@ -620,6 +749,8 @@ class Session(models.Model):
             # Get the sessions token for the user, creating
             # one if necessary
             self.token = UserToken.get_sessions_token(self.user).string
+            # Set the image name string
+            self.image = self.image_model.name
 
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active
@@ -627,6 +758,7 @@ class Session(models.Model):
                 memory=self.memory,
                 cpu=self.cpu
             )
+
             # Start on the worker
             self.status = 'Starting'
             # Session could be started asynchronously but for now
@@ -637,6 +769,7 @@ class Session(models.Model):
                 logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
             if result.get('error'):
                 logger.error('session %s ; %s ' % (self.id, result.get('error')))
+
             # Update
             self.active = True
             self.started = timezone.now()

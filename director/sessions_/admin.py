@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from sessions_.models import Worker, WorkerStats, Session, SessionStats, SessionLogs
+from sessions_.models import Worker, WorkerStats, SessionType, SessionImage, Session, SessionStats, SessionLogs
 
 
 class WorkerAdmin(admin.ModelAdmin):
@@ -42,6 +42,24 @@ class WorkerStatsAdmin(admin.ModelAdmin):
     readonly_fields = ['worker'] + list(WorkerStats.stats_fields)
 
 admin.site.register(WorkerStats, WorkerStatsAdmin)
+
+
+class SessionTypeAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id', 'name', 'ram', 'cpu', 'network', 'timeout'
+    )
+
+admin.site.register(SessionType, SessionTypeAdmin)
+
+
+class SessionImageAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id', 'name', 'tag', 'display_name'
+    )
+
+admin.site.register(SessionImage, SessionImageAdmin)
 
 
 class SessionAdmin(admin.ModelAdmin):

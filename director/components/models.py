@@ -529,7 +529,7 @@ class Component(models.Model):
         # (here linking session and image required by session)
         session = Session.get_or_launch(
             user=user,
-            image=self.image()
+            image_name=self.image()
         )
         # Start the session (may already be) and then wait until ready (may already be)
         session.start()
@@ -545,7 +545,7 @@ class Component(models.Model):
     def deactivate(self, user):
         session = Session.get_for(
             user=user,
-            image=self.image()
+            image_name=self.image()
         )
         if session:
             session.stop(
@@ -556,7 +556,7 @@ class Component(models.Model):
     def session(self, user, required=True):
         session = Session.get_for(
             user=user,
-            image=self.image()
+            image_name=self.image()
         )
         if required and session is None:
             raise Component.InactiveError(
