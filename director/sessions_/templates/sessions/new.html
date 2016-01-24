@@ -51,23 +51,27 @@
 			</div>
 			<div class="ui extra content">
 				{# In extra content so that line up regardless of length of description #}
-				<table class="ui definition table">
+				<table class="ui celled unstackable table">
 					<tbody>
 						<tr>
-						  <td class="two wide column">Memory</td>
-						  <td>{{ type.ram }} GB</td>
+						  <td>Memory</td>
+						  <td class="ui ten wide">{{ type.ram }}</td>
+						  <td class="ui two wide">GB</td>
 						</tr>
 						<tr>
 						  <td>CPU</td>
-						  <td>{{ type.cpu }} GHz</td>
+						  <td>{{ type.cpu }}</td>
+						  <td>GHz</td>
 						</tr>
 						<tr>
 						  <td>Network</td>
-						  <td>{{ type.network }} GB</td>
+						  <td>{{ type.network }}</td>
+						  <td>GB</td>
 						</tr>
 						<tr>
 						  <td>Timeout</td>
-						  <td>{{ type.timeout }} mins</td>
+						  <td>{{ type.timeout }}</td>
+						  <td>min</td>
 						</tr>
 					</tbody>
 				</table>
@@ -92,30 +96,36 @@
 			</div>
 			<div class="ui">
 				Not seeing the session configuration you need? Want different image types? 
-				Let us know and we'll be in touch regarding setting a custom session type.
+				Let us know and we'll be in touch regarding creating a new session type.
 			</div>
 		</div>
-		<div class="ui extra content">
+		<div class="settings ui extra content">
 			{# In extra content so that line up regardless of length of description #}
-			<form class="ui form">
-			<div class="ui right labeled input">
-			  <label class="ui label">Memory</label>
-			  <input type="ram">
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Memory</label>
+			  <input name="ram">
 			  <label class="ui basic label">GB</label>
 			</div>
-			<div class="ui right labeled input">
-			  <label class="ui label">CPU</label>
-			  <input type="cpu">{{ type.cpu }}
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">CPU</label>
+			  <input name="cpu">
+			  <label class="ui basic label">GHz</label>
+			</div>
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Network</label>
+			  <input name="network">
 			  <label class="ui basic label">GB</label>
 			</div>
-			<div class="ui right labeled input">
-			  <label class="ui label">Network</label>
-			  <input type="network">{{ type.network }} GB</td>
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Timeout</label>
+			  <input name="timeout">
+			  <label class="ui basic label">min</label>
 			</div>
-			<div class="ui right labeled input">
-			  <label class="ui label">Timeout</label>
-			  <input type="timeout">{{ type.timeout }} mins</td>
-			</div>
+			<style>
+				.custom .input {
+					margin-top: 0.3em;
+				}
+			</style>
 		</div>
 		<div class="ui bottom attached segment">
 			<div class="ui green fluid button">
@@ -151,10 +161,14 @@
 
 	$('.custom.card .button').click(function(event) {
 		var $button = $(this);
+		var $settings = $('.custom .settings');
 		Stencila.post('events',{
 			name: 'sessions-custom-requested',
 			data: {
-
+				ram: $settings.find('input[name="ram"]').val(),
+				cpu: $settings.find('input[name="cpu"]').val(),
+				network: $settings.find('input[name="network"]').val(),
+				timeout: $settings.find('input[name="timeout"]').val()
 			}
 		}).always(function(){
 			$button
