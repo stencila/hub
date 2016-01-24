@@ -722,6 +722,8 @@ class Session(models.Model):
             name=image_name
         )
 
+        if type_id is None:
+            type_id = 1
         type = SessionType.objects.get(
             id=type_id
         )
