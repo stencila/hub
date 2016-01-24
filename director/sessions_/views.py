@@ -54,7 +54,12 @@ def new(request):
         return api.respond(
             template='sessions/new.html',
             context={
-                'sessions': Session.list(user=request.user),
+                'sessions': Session.list(
+                    user=request.user,
+                    filter={
+                        'active':True
+                    }
+                ),
                 'types': SessionType.objects.all(),
                 'images': SessionImage.objects.all()
             }

@@ -646,13 +646,14 @@ class Session(models.Model):
         ])
 
     @staticmethod
-    def list(user):
+    def list(user, filter):
         '''
         Get a list of sessions that the user owns
         '''
-        return Session.objects.filter(
-            user=user
-        )
+        filter.update({
+            'user': user
+        })
+        return Session.objects.filter(**filter)
 
     @staticmethod
     def get(id, user):
@@ -730,6 +731,7 @@ class Session(models.Model):
             account=account,
             user=user,
             image_model=image,
+            image=image.name,
             type=type
         )
         # Start the session
@@ -749,8 +751,6 @@ class Session(models.Model):
             # Get the sessions token for the user, creating
             # one if necessary
             self.token = UserToken.get_sessions_token(self.user).string
-            # Set the image name string
-            self.image = self.image_model.name
 
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active

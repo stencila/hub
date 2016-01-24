@@ -30,7 +30,7 @@
 			<tr>
 				<td><a href="{{ session.url }}">{{ session.id }}</a></td>
 				<td>{{ session.type.name }}</td>
-				<td title="{{ session.image_type.name }}:{{ session.image_type.tag }}">{{ session.image_type.display_name }}</td>
+				<td title="{{ session.image_type.name }}:{{ session.image_type.tag }}">{{ session.image_model.display_name }}</td>
 				<td>{{ session.started }}</td>
 			</tr>
 		{% endfor %}
