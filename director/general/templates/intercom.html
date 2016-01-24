@@ -1,3 +1,4 @@
+{% if INTERCOM_ON %}
 {% if request.user.is_authenticated %}
 <script>
 	var intercomSettings = {
@@ -21,4 +22,5 @@
 		x.parentNode.insertBefore(s, x);
 	})();
 </script>
+{% endif %}
 {% endif %}

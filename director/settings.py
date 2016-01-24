@@ -446,6 +446,9 @@ WORKER_STUB = False
 # During development should /get serve local development build
 GET_LOCAL = False
 
+# During devopment include Intercom?
+INTERCOM_ON = True
+
 try:
     from local_settings import *
 except ImportError:

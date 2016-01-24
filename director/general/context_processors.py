@@ -7,5 +7,6 @@ def custom(request):
     '''
     return {
         'MODE': settings.MODE,
-        'path': request.path
+        'INTERCOM_ON': settings.INTERCOM_ON,
+        'path': request.path,
     }
