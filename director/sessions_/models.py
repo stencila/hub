@@ -646,7 +646,7 @@ class Session(models.Model):
         ])
 
     @staticmethod
-    def list(user, filter):
+    def list(user, filter={}):
         '''
         Get a list of sessions that the user owns
         '''
