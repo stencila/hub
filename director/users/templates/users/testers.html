@@ -5,8 +5,6 @@
 
 {% block main %}
 
-{% include 'users/_event.html' %}
-
 <div id="users-tester" class="ui modal">
 	<i class="ui close icon"></i>
 	<div class="ui header">
@@ -33,7 +31,12 @@
 	$('#users-tester')
 		.modal({
 			onApprove: function () {
-				userEvent('tester-request');
+				Stencila.post('events',{
+					name: 'tester-request',
+					data: {
+						page: window.location.href
+					}
+				});
 				window.history.back();
 			},
 			onDeny : function(){

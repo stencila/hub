@@ -33,7 +33,7 @@ window.Stencila = (function(){
 		if (typeof data != "string") {
 			data = JSON.stringify(data);
 		}
-		$.ajax({
+		return $.ajax({
 			method: method,
 			// Ensure that this request is going to the host to prevent
 			// a cross domain request sending cookie (below) and
