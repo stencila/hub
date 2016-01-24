@@ -8,6 +8,12 @@
 .ui.main.menu .ui.logo {
 	height: 34px;
 }
+#new-dropdown {
+	padding: 0;
+}
+#new-button {
+	color: #99f054;
+}
 .ui.right.menu {
 	border: none;
 	box-shadow: none;

@@ -2,7 +2,7 @@
 <header class="ui fixed main menu">
 	<div class="ui container">
 		<a href="/" class="ui borderless item">
-			<img src="{% static 'logo-name-400x88.png' %}" class="ui logo">
+			<img src="{% static 'logo-name-beta.png' %}" class="ui logo">
 		</a>
 		<div class="ui right menu">
 			{% if user.is_anonymous %}
@@ -13,6 +13,14 @@
 					<a class="ui grey button" href="/me/signin">Signin</a>
 				</div>
 			{% else %}
+				<div id="new-dropdown" class="ui simple dropdown item">
+					<i id="new-button" class="ui big circle plus icon"></i>
+					<div class="ui menu">
+						<a class="ui item" href="/stencils/new">Stencil</a>
+						<a class="ui item" href="/sheets/new">Sheet</a>
+						<a class="ui item" href="/sessions/new">Session</a>
+					</div>
+				</div>
 				<div class="ui simple dropdown item">
 					{{ user.username }}
 					<i class="ui dropdown icon"></i>
