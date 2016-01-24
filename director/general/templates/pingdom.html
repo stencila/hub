@@ -1,13 +1,11 @@
-{% ifnotequal MODE 'local' %}
-	{# Pingdom RUM check #}
-	<script>
-		var _prum = [['id', '54e69f11abe53d7f779f44c4'],['mark', 'firstbyte', (new Date()).getTime()]];
-		(function() {
-			var s = document.getElementsByTagName('script')[0]
-			  , p = document.createElement('script');
-			p.async = 'async';
-			p.src = '//rum-static.pingdom.net/prum.min.js';
-			s.parentNode.insertBefore(p, s);
-		})();
-	</script>
-{% endifnotequal %}
+{# Pingdom RUM check #}
+<script>
+	var _prum = [['id', '54e69f11abe53d7f779f44c4'],['mark', 'firstbyte', (new Date()).getTime()]];
+	(function() {
+		var s = document.getElementsByTagName('script')[0]
+		  , p = document.createElement('script');
+		p.async = 'async';
+		p.src = '//rum-static.pingdom.net/prum.min.js';
+		s.parentNode.insertBefore(p, s);
+	})();
+</script>

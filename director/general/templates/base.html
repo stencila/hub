@@ -15,7 +15,9 @@
 			<script src="{% static 'semantic-ui-css/semantic.min.js' %}"></script>
 			<script src="{% static 'base.js' %}"></script>
 		{% endblock %}
-		{% include "pingdom.html" %}
+		{% ifnotequal MODE 'local' %}
+			{% include "pingdom.html" %}
+		{% endifnotequal %}
 	</head>
 	<body>
 		{% include "header.html" %}
@@ -24,5 +26,11 @@
 			{% endblock %}
 		</main>
 		{% include "footer.html" %}
+		{% ifnotequal MODE 'local' %}
+			{% include "google-analytics.html" %}
+		{% endifnotequal %}
+		{% if INTERCOM_ON and request.user.is_authenticated %}
+			{% include "intercom.html" %}
+		{% endif %}
 	</body>
 </html>
