@@ -14,6 +14,10 @@
 #new-button {
 	color: #99f054;
 }
+#new-header {
+	color: #888!important;
+	font-size: 1em!important;
+}
 .ui.right.menu {
 	border: none;
 	box-shadow: none;

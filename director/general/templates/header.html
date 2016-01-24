@@ -5,22 +5,23 @@
 			<img src="{% static 'logo-name-beta.png' %}" class="ui logo">
 		</a>
 		<div class="ui right menu">
+			<div id="new-dropdown" class="ui simple dropdown item">
+				<i id="new-button" class="ui big circle plus icon"></i>
+				<div class="ui menu">
+					<h4 id="new-header" class="ui item">New...</h4>
+					<a class="ui item" href="/stencils/new">Stencil</a>
+					<a class="ui item" href="/sheets/new">Sheet</a>
+					<a class="ui item" href="/sessions/new">Session</a>
+				</div>
+			</div>
 			{% if user.is_anonymous %}
 				<div class="ui item">
-					<a class="ui positive button" href="/me/signup">Signup</a>
+					<a class="ui compact green button" href="/me/signup">Sign up</a>
 				</div>
 				<div class="ui item">
-					<a class="ui grey button" href="/me/signin">Signin</a>
+					<a class="ui compact blue button" href="/me/signin">Sign in</a>
 				</div>
 			{% else %}
-				<div id="new-dropdown" class="ui simple dropdown item">
-					<i id="new-button" class="ui big circle plus icon"></i>
-					<div class="ui menu">
-						<a class="ui item" href="/stencils/new">Stencil</a>
-						<a class="ui item" href="/sheets/new">Sheet</a>
-						<a class="ui item" href="/sessions/new">Session</a>
-					</div>
-				</div>
 				<div class="ui simple dropdown item">
 					{{ user.username }}
 					<i class="ui dropdown icon"></i>
