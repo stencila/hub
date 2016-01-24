@@ -43,7 +43,6 @@ def sessions(request, id=None):
 
 
 @login_required
-@testing
 def new(request):
     '''
     List session types, create a new session, launch it and redirect the
