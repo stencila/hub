@@ -48,8 +48,8 @@ window.Stencila = (function(){
 					request.setRequestHeader("X-CSRFToken", cookie('csrftoken'));
 				}
 			},
-			// Expected type of response body
-			dataType: 'application/json'
+		}).fail(function(xhr, textStatus, errorThrown){
+			console.error(arguments);
 		});
 	}
 
