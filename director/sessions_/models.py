@@ -678,7 +678,7 @@ class Session(models.Model):
         try:
             return Session.objects.get(
                 user=user,
-                image=image_name,
+                image_name=image_name,
                 active=True
             )
         except Session.DoesNotExist:
@@ -693,13 +693,13 @@ class Session(models.Model):
         try:
             return Session.objects.get(
                 user=user,
-                image=image_name,
+                image_name=image_name,
                 active=True
             )
         except Session.DoesNotExist:
             return Session.launch(
                 user=user,
-                image=image_name
+                image_name=image_name
             )
 
     @staticmethod
@@ -717,7 +717,7 @@ class Session(models.Model):
         # Check the account has enough credit to create the session
         #memory = 512  # For now just used a fixed memory size in megabytes
         #account.enough_or_raise(memory=memory)
-        
+
         image = SessionImage.objects.get(
             name=image_name
         )
