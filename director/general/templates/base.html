@@ -17,21 +17,25 @@
 			<script src="{% static 'base.js' %}"></script>
 		{% endblock %}
 		{% ifnotequal MODE 'local' %}
-			{% include "pingdom.html" %}
+			{% include "_pingdom.html" %}
 		{% endifnotequal %}
 	</head>
 	<body>
-		{% include "header.html" %}
+		{% block header %}
+			{% include "_header.html" %}
+		{% endblock %}
 		<main id="main" class="ui main container">
 			{% block main %}
 			{% endblock %}
 		</main>
-		{% include "footer.html" %}
+		{% block footer %}
+			{% include "_footer.html" %}
+		{% endblock %}
 		{% ifnotequal MODE 'local' %}
-			{% include "google-analytics.html" %}
+			{% include "_google-analytics.html" %}
 		{% endifnotequal %}
 		{% if INTERCOM_ON and request.user.is_authenticated %}
-			{% include "intercom.html" %}
+			{% include "_intercom.html" %}
 		{% endif %}
 	</body>
 </html>
