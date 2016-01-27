@@ -443,8 +443,12 @@ CRONJOBS = [
 CURATOR_STUB = False
 WORKER_STUB = False
 
-# During development should /get serve local development build
+# During development should `/get/web` be served from
+# ... static local development build at `/srv/stencila/store/get/web` OR
 GET_LOCAL = False
+# ... a locally running `stencila/web/server.js` which compiles on the fly
+# (run it with `make web-devserve` in that repo)
+GET_DEVSERVE = False
 
 # During devopment include Intercom?
 INTERCOM_ON = True

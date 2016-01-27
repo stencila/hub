@@ -55,6 +55,7 @@ urlpatterns = [
     url(r'^me/?$',                                                   users.views.me_read),
     url(r'^me/signup/?$',                                            users.views.signup),
     url(r'^me/signin/?$',                                            users.views.signin),
+    url(r'^me/signin-dialog/?$',                                     users.views.signin_dialog),
     url(r'^me/signout/?$',                                           users.views.signout),
     url(r'^me/',                                                     include('allauth.urls')),
     # The allauth URLs not overidden above are:
@@ -106,13 +107,21 @@ if settings.MODE == 'local':
     # Dynamically generated content
     urlpatterns += static(r'/dynamic/', document_root=os.path.join(settings.BASE_DIR, 'dynamic'))
 
-    # Javascript (and potentially other resources) on get.stenci.la when in production
-    # cal be obtained from a local build via a symlink
+    # Build Javascript and CSS on get.stenci.la when in production
+    # can be obtained when in local mode from:
+    # ...a local directory
     if settings.GET_LOCAL:
-        urlpatterns += static(r'/get/', document_root='/srv/stencila/store/get')
+        urlpatterns += static(r'/get/web/', document_root='/srv/stencila/store/get/web')
+    # ...a locally running `stencila/web/server.js` which compiles on the fly ;
+    # run it with `make web-devserve` in that repo
+    elif settings.GET_DEVSERVE:
+        urlpatterns += [
+            url(r'^get/web/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('//localhost:5000/get/web/'+path))
+        ]
+    # or, fallback to the production deployment
     else:
         urlpatterns += [
-            url(r'^get/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('https://s3-us-west-2.amazonaws.com/get.stenci.la/'+path))
+            url(r'^get/web/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('https://s3-us-west-2.amazonaws.com/get.stenci.la/web/'+path))
         ]
 
     # Django Debug Toolbar for JSON API endpoints
