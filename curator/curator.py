@@ -163,9 +163,9 @@ class Curator:
             raise Exception('No file added for initial commit')
         self.git(path, 'commit', '-m', 'Initial commit')
 
-        # Compile the component so index.html is availabe
+        # Save the component page as index.html
         com = self.component(address)
-        com.compile()
+        com.page('index.html')
 
     def clone(self, origin, address):
         '''
