@@ -7,7 +7,7 @@ import json
 import warnings
 
 from django.db.models import Model, QuerySet
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -29,6 +29,7 @@ class API:
         self.patch = (request.method == 'PATCH')
         self.delete = (request.method == 'DELETE')
 
+        # Get data sent
         self.data = {}
         if self.get:
             self.data = request.GET
@@ -38,6 +39,12 @@ class API:
                     self.data = json.loads(request.body)
                 except ValueError:
                     raise API.JsonInvalidError(json=request.body)
+
+        # See what is accepted back
+        accept = self.request.META.get('HTTP_ACCEPT')
+        if accept and ("application/json" in accept): self.json = True
+        else: self.json = False
+
 
     def required(self, name, converter=lambda x: x):
         '''
@@ -81,8 +88,7 @@ class API:
         return data
 
     def respond(self, data=None, detail=1, template=None, context={}, paginate=0, raw=False, status=200):
-        accept = self.request.META.get('HTTP_ACCEPT')
-        if accept and ("application/json" in accept):
+        if self.json:
             # TODO, bring respond_json in here
             return self.respond_json(data=data, detail=detail, paginate=paginate, raw=raw, status=status)
         else:
@@ -161,6 +167,19 @@ class API:
 
     def respond_bad(self):
         raise API.MethodNotAllowedError(self.request.method)
+
+    def respond_signin(self):
+        '''
+        Respond with a request to signin
+        '''
+        if self.json:
+            # Respond with something other than Basic or Digest auth so that
+            # the broswer does not bring up its login dialog
+            response = HttpResponse(status=401)
+            response['WWW-Authenticate'] = 'Token realm="Restricted"'
+            return response
+        else:
+            return HttpResponseRedirect('/me/signin?next=%s' % self.request.path)
 
     def raise_method_not_allowed(self):
         warnings.warn("deprecated", DeprecationWarning)

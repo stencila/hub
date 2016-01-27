@@ -48,6 +48,13 @@ class SigninView(allauth.account.views.LoginView):
 signin = SigninView.as_view()
 
 
+class SigninDialogView(allauth.account.views.LoginView):
+
+    template_name = "users/signin_dialog.html"
+
+signin_dialog = SigninDialogView.as_view()
+
+
 class SignoutView(allauth.account.views.LogoutView):
 
     template_name = "users/signout.html"

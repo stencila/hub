@@ -249,34 +249,37 @@ def method(request, address, method):
 
 
 @csrf_exempt
-@require_authenticated
-@require_http_methods(['PUT'])
 def boot(request, address):
     '''
     Boot up a component
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
+    if api.put:
+        if request.user.is_authenticated():
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ,
+                address=address
+            )
 
-    rights = UPDATE #component.rights(request.user)
-    if rights >= UPDATE:
-        session = component.activate(
-            user=request.user
-        )
-    else:
-        session = None
+            rights = UPDATE #component.rights(request.user)
+            if rights >= UPDATE:
+                session = component.activate(
+                    user=request.user
+                )
+            else:
+                session = None
 
-    return api.respond({
-        'rights' : 'UPDATE',
-        'session' : session.serialize(
-            user=request.user
-        )
-    })
+            return api.respond({
+                'rights': 'UPDATE',
+                'session': session.serialize(
+                    user=request.user
+                )
+            })
+        else:
+            return api.respond_signin()
+    return api.respond_bad()
 
 
 @csrf_exempt

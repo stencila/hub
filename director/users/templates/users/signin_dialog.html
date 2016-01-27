@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% load account %}
+{% load socialaccount %}
+{% load semanticui %}
+
+{# No header or footer #}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block main %}
+
+{% comment %}
+Eventually have a dialog like this which allows signin without navigating away from page.
+Needs to use AJAX instead of links and form sumission to do that.
+<div class="ui modal">
+	<i class="ui close icon"></i>
+	<div class="header">
+		{{ message }}
+	</div>
+	<div class="ui content">
+		<div class="ui ten column centered stackable grid">
+			<div class="ui five wide center aligned column">
+				<h3> Using...</h3>
+				{% include 'users/_allauth_providers.html' %}
+				<p class="ui warning message">
+					<i class="ui warning icon"></i>
+					If you have signed in with one of these third party accounts before please use the same account, or an account which you have connected to your Stencila user account.
+				</p>
+			</div>
+			<div class="ui five wide center aligned column">
+				<h3>With your Stencila username...</h3>
+				<form class="ui form" method="post" action="/me/signin">
+					{% csrf_token %}
+					{{ form|semanticui }}
+					{% if redirect_field_value %}
+						<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+					{% endif %}
+					<button class="ui positive button" type="submit">Sign me in!</button>
+				</form>
+				<p class="ui warning message">
+					<a href="{% url 'account_reset_password' %}">Forgot your password?</a>
+					<br/>
+					<a href="{{ signup_url }}">Don't have a user account yet?</a>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$('.ui.modal').modal('show');
+</script>
+{% endcomment %}
+
+<style type="text/css">
+	#dialog-dimmer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: hsla(0,0%,0%,0.85);
+		z-index: 999999;
+	}
+	#dialog-message {
+		max-width: 70%;
+		margin: 10em auto 0 auto;
+	}
+</style>
+<div id="dialog-dimmer">
+	<div id="dialog-message" class="ui icon message">
+		<i class="ui sign in icon"></i>
+		<i class="ui close icon"></i>
+	  	<div class="ui content">
+		  	<div class="ui header">
+		  		Sign in required
+		  	</div>
+			<p>
+				This action requires you to be signed in.
+			</p>
+			<p>
+				Please <a href="/me/signin" target="_blank">sign in</a> or <a href="/me/signup" target="_blank">sign up</a> first.
+			</p>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$('.ui.message .close').click(function() {
+	    $(this)
+	      .closest('.ui.message')
+	      .transition('fade')
+	    ;
+	    $('#dialog-dimmer')
+	    	.transition('fade');
+	});
+</script>
+
+{% endblock %}
