@@ -17,6 +17,8 @@ from django.views.decorators.csrf import (
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import HttpResponse, JsonResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 
+import requests
+
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
 from visits.models import Visit
@@ -495,7 +497,9 @@ def page(request, address, component=None):
             # trailing slash URL by the embedded server in the session
             location = '%s:%s/%s/' % (session.worker.ip, session.port, address)
             if settings.MODE == 'local':
-                return HttpResponseRedirect('http://%s' % location)
+                # Proxy to session
+                response = requests.get('http://%s' % location)
+                return HttpResponse(response.text, status=response.status_code)
             else:
                 # Get Nginx to proxy from session
                 response = django.http.HttpResponse()
