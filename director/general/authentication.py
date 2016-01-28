@@ -139,7 +139,7 @@ class AuthenticationMiddleware:
                 if type == 'basic' or type == 'token':
                     login(request, user)
         else:
-            if request.user.is_anonymous():
+            if request.user.is_anonymous() and not request.user_agent.is_bot:
                 # Fallback to  AuthAuth
                 user = authenticate(
                     stencila_auto_auth=True,
