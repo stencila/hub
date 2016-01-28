@@ -25,6 +25,9 @@
 .ui.menu .ui.item:before{
 	display: none;
 }
+.ui.main.menu .user-auto {
+	color: #C5C5C5;
+}
 
 /* Allow for fixed main header menu */
 .main.container {

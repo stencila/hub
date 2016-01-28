@@ -5,7 +5,20 @@
 	<form class="ui form" method="post" action="/me/signout">
 		{% csrf_token %}
 		<p>Are you sure you want to sign out?</p>
-		<button class="ui positive button" type="submit">Yes, sign me out!</button>
+		{% if user.details.auto %}
+			<div style="max-width: 30em" class="ui orange icon message">
+				<i class="ui warning icon"></i>
+				<div class="ui content">
+					You currently have a automatically-generated user name and account with no
+					password or password recovery email address. If you logout you will not
+					be able to log back in and recover any existing work.
+				</div>
+			</div>
+		{% endif %}
+		<button class="ui positive icon button" type="submit">
+			<i class="ui sign out icon"></i>
+			Yes, sign me out!
+		</button>
 	</form>
 </div>
 {% endblock %}

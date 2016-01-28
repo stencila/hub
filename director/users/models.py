@@ -55,6 +55,11 @@ class UserDetails(models.Model):
         help_text='The django.contrib.auth User'
     )
 
+    auto = models.BooleanField(
+        default=False,
+        help_text='Is this an automatically authenticated user?'
+    )
+
     builder = models.BooleanField(
         default=False,
         help_text='Is this user a package builder?'

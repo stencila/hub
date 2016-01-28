@@ -23,9 +23,10 @@
 				</div>
 			{% else %}
 				<div class="ui simple dropdown item">
-					{{ user.username }}
+					<a href="/me" class="{% if user.details.auto %}user-auto{% endif %}">{{ user.username }}</a>
 					<i class="ui dropdown icon"></i>
 					<div class="ui menu">
+						<a class="ui item" href="/me/settings">Settings</a>
 						<a class="ui item" href="/me/signout">Signout</a>
 						<a class="ui item" href="/me/email/">Email addresses</a>
 						<a class="ui item" href="/me/password/change/">Change password</a>
@@ -36,9 +37,11 @@
 						{% endif %}
 					</div>
 				</div>
-				<a id="intercom" class="ui item" title="Get help">
-					<i class="ui comment icon"></i>
-				</a>
+				{% if user.details.auto %}
+					<div class="ui item">
+						<a class="ui compact blue button" href="/me/signin">Sign in</a>
+					</div>
+				{% endif %}
 			{% endif %}
 		</div>
 	</div>

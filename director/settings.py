@@ -331,6 +331,7 @@ AUTHENTICATION_BACKENDS = (
     # Stencila custom auth backends
     'general.authentication.BasicAuthBackend',
     'general.authentication.TokenAuthBackend',
+    'general.authentication.AutoAuthBackend'
 )
 LOGIN_URL = '/me/signin'
 LOGIN_REDIRECT_URL = '/'
@@ -346,6 +347,10 @@ if MODE in ('vagrant', 'prod'):
 # For a full list of configuration options see
 #   http://django-allauth.readthedocs.org/en/latest/configuration.html
 #
+# These settings seem to be used over the usual ones described here:
+#   https://docs.djangoproject.com/en/1.9/ref/settings/#std:setting-SESSION_COOKIE_AGE
+ACCOUNT_SESSION_REMEMBER = True # Always remember the user
+ACCOUNT_SESSION_COOKIE_AGE = 31536000 # Sessions to last up to a year 60*60*24*365
 # Specifies the adapter class to use, allowing you to override certain default behaviour.
 SOCIALACCOUNT_ADAPTER = 'general.allauth_adapter.SocialAccountAdapter'
 # Is the user required to provide an e-mail address when signing up?

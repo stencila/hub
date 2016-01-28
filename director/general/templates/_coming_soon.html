@@ -1,8 +1,7 @@
 <div id="coming-soon" class="ui modal">
 	<i class="ui close icon"></i>
 	<div class="ui header">
-		<i class="ui lab icon"></i>
-		Coming soon!
+		<i class="ui lab icon"></i>Coming soon!
 	</div>
 	<div class="ui content">
 		<div>
@@ -28,7 +27,9 @@
 </div>
 
 <script type="text/javascript">
-	Stencila.comingSoon = function(feature){
+	Stencila.comingSoon = function(feature, title){
+		var dialog = $('#coming-soon');
+		if (title) dialog.find('.header').text(title + ' coming soon!');
 		function send(value) {
 			Stencila.post('events',{
 				name: 'coming-soon',
@@ -38,8 +39,7 @@
 				}
 			});
 		}
-		$('#coming-soon')
-			.modal({
+		dialog.modal({
 				onApprove: function () {
 					send('yeah');
 				},

@@ -34,8 +34,11 @@
 		{% ifnotequal MODE 'local' %}
 			{% include "_google-analytics.html" %}
 		{% endifnotequal %}
-		{% if INTERCOM_ON and request.user.is_authenticated %}
+		{% if INTERCOM_ON and request.user.is_authenticated and not request.user.details.auto %}
 			{% include "_intercom.html" %}
+			<a id="intercom" class="ui item" title="Get help">
+				<i class="ui comment icon"></i>
+			</a>
 		{% endif %}
 	</body>
 </html>

@@ -97,6 +97,14 @@ def users_read(request, username):
         api.raise_not_found()
 
 
+@require_GET
+def settings(request):
+    return API(request).respond(
+        request.user.serialize(request),
+        template='users/settings.html'
+    )
+
+
 @csrf_exempt
 @require_authenticated
 @require_http_methods(["GET", "POST", "PATCH", "DELETE"])

@@ -3,9 +3,11 @@ Module for custom authentication backends, middleware and decorators.
 '''
 import base64
 from importlib import import_module
+import random
+import string
 
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, get_user
+from django.contrib.auth import authenticate, login, logout, get_user
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
@@ -66,8 +68,19 @@ class BasicAuthBackend(ModelBackend):
 
 class TokenAuthBackend(ModelBackend):
 
-    def authenticate(self, stencila_token, **kwargs):
-        return UserToken.authenticate(stencila_token)
+    def authenticate(self, stencila_token_auth, **kwargs):
+        return UserToken.authenticate(stencila_token_auth)
+
+
+class AutoAuthBackend(ModelBackend):
+
+    def authenticate(self, stencila_auto_auth, **kwargs):
+        rand = ''.join(random.sample(string.lowercase+string.digits, 12))
+        user = User.objects.create_user('user-'+rand)
+        user.details.auto = True
+        user.details.save()
+        print user.username
+        return user
 
 
 class AuthenticationMiddleware:
@@ -77,6 +90,13 @@ class AuthenticationMiddleware:
     '''
 
     def process_request(self, request):
+        # If the user is trying to signin/up then automatically log them out
+        # This is logical and prevents them from not be able to get "out"
+        # of an auto-user login
+        if request.path=='/me/signin' or request.path=='/me/signup':
+            logout(request)
+            return
+
         # Get the authorization header
         auth = request.META.get('HTTP_AUTHORIZATION')
         if auth:
@@ -101,7 +121,7 @@ class AuthenticationMiddleware:
                         )
                     elif type == 'token':
                         user = authenticate(
-                            stencila_token=value
+                            stencila_token_auth=value
                         )
                     else:
                         raise Exception('Invalid authorization type: '+type)
@@ -118,6 +138,13 @@ class AuthenticationMiddleware:
                 # with user.
                 if type == 'basic' or type == 'token':
                     login(request, user)
-
-                # Record authentication type
-                request.stencila_authentication = type
+        else:
+            if request.user.is_anonymous():
+                # Fallback to  AuthAuth
+                user = authenticate(
+                    stencila_auto_auth=True,
+                    username='',
+                    password=''
+                )
+                if user:
+                    login(request, user)
