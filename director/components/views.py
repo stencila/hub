@@ -218,8 +218,6 @@ def component_extras(request, address):
 ###############################################################################
 
 @csrf_exempt
-@require_authenticated
-@require_http_methods(['PUT'])
 def method(request, address, method):
     '''
     A general view for calling methods on components that are hosted
@@ -228,26 +226,31 @@ def method(request, address, method):
     should be explicitly provided for those below.
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ, # TODO : allow for alternative rights
-        address=address
-    )
-    session = component.activate(
-        user=request.user
-    )
-    status, body = session.request(
-        resource=address,
-        verb=request.method,
-        method=method,
-        data=request.body
-    )
-    return api.respond(
-        data=body,
-        raw=True,
-        status=status
-    )
+    if api.put:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ, # TODO : allow for alternative rights
+                address=address
+            )
+            session = component.activate(
+                user=request.user
+            )
+            status, body = session.request(
+                resource=address,
+                verb=request.method,
+                method=method,
+                data=request.body
+            )
+            return api.respond(
+                data=body,
+                raw=True,
+                status=status
+            )
+    return api.respond_bad()
 
 
 @csrf_exempt
@@ -257,7 +260,9 @@ def boot(request, address):
     '''
     api = API(request)
     if api.put:
-        if request.user.is_authenticated():
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
             component = Component.get(
                 id=None,
                 user=request.user,
@@ -279,75 +284,82 @@ def boot(request, address):
                     user=request.user
                 )
             })
-        else:
-            return api.respond_signin()
     return api.respond_bad()
 
 
 @csrf_exempt
-@require_authenticated
-@require_http_methods(['PUT'])
 def activate(request, address):
     '''
     Activate a component by starting a session for it
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
-    session = component.activate(
-        user=request.user
-    )
-    return api.respond(session)
+    if api.put:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ,
+                address=address
+            )
+            session = component.activate(
+                user=request.user
+            )
+            return api.respond(session)
+    return api.respond_bad()
 
 
 @csrf_exempt
-@require_authenticated
-@require_http_methods(['PUT'])
 def deactivate(request, address):
     '''
     Dectivate a component by stopping the currently active session for it
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
-    session = component.deactivate(
-        user=request.user
-    )
-    return api.respond(session)
+    if api.put:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ,
+                address=address
+            )
+            session = component.deactivate(
+                user=request.user
+            )
+            return api.respond(session)
+    return api.respond_bad()
 
 
 @csrf_exempt
-@require_authenticated
 def session(request, address):
     '''
     Get the session, if any, for a component
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
-    session = component.session(
-        user=request.user,
-        required=False
-    )
-    if session and session.active:
-        session.update()
-    return api.respond(session)
+    if api.put:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ,
+                address=address
+            )
+            session = component.session(
+                user=request.user,
+                required=False
+            )
+            if session and session.active:
+                session.update()
+            return api.respond(session)
+    return api.respond_bad()
 
 
 @csrf_exempt
-@require_authenticated
 def ping(request, address):
     '''
     Ping the component's session.
@@ -355,19 +367,24 @@ def ping(request, address):
     Returns the session id since that could change
     '''
     api = API(request)
-    component = Component.get(
-        id=None,
-        user=request.user,
-        action=READ,
-        address=address
-    )
-    session = component.activate(
-        user=request.user
-    )
-    session.ping()
-    return api.respond({
-        'session': session.id
-    })
+    if api.put:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            component = Component.get(
+                id=None,
+                user=request.user,
+                action=READ,
+                address=address
+            )
+            session = component.activate(
+                user=request.user
+            )
+            session.ping()
+            return api.respond({
+                'session': session.id
+            })
+    return api.respond_bad()
 
 
 @csrf_exempt
