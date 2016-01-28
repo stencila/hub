@@ -42,6 +42,11 @@
 						<a class="ui compact blue button" href="/me/signin">Sign in</a>
 					</div>
 				{% endif %}
+				{% if INTERCOM_ON and not user.details.auto %}
+					<a id="intercom" class="ui item" title="Get help">
+						<i class="ui big help circle icon"></i>
+					</a>
+				{% endif %}
 			{% endif %}
 		</div>
 	</div>
