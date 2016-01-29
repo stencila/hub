@@ -138,14 +138,3 @@ class AuthenticationMiddleware:
                 # with user.
                 if type == 'basic' or type == 'token':
                     login(request, user)
-
-        elif 0: # Temporarily turned off; interfers with git pushes (?); going to moved into view in any case
-            if request.user.is_anonymous() and not request.user_agent.is_bot:
-                # Fallback to  AuthAuth
-                user = authenticate(
-                    stencila_auto_auth=True,
-                    username='',
-                    password=''
-                )
-                if user:
-                    login(request, user)

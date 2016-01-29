@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
+from django.contrib.auth import authenticate, login
 
 from general.errors import Error
 
@@ -46,6 +47,20 @@ class API:
         else: self.json = False
 
 
+    def user_automatic(self):
+        '''
+        If necesssary create an auto user. See `general/authentication` for the 
+        AutoAuth backend and what it does
+        '''
+        if self.request.user.is_anonymous() and not self.request.user_agent.is_bot:
+            user = authenticate(
+                stencila_auto_auth=True,
+                username='',
+                password=''
+            )
+            if user:
+                login(self.request, user)
+
     def required(self, name, converter=lambda x: x):
         '''
         Get a required parameter from the request.
@@ -60,6 +75,7 @@ class API:
         Get an optional parameter from the request.
         '''
         return converter(self.data.get(name, default))
+
 
     def serialize(self, data, detail=1):
         options = {
