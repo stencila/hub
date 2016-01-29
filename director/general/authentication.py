@@ -3,8 +3,6 @@ Module for custom authentication backends, middleware and decorators.
 '''
 import base64
 from importlib import import_module
-import random
-import string
 
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout, get_user
@@ -13,10 +11,6 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
 from django.contrib.sessions.models import Session
 from django.conf import settings
-from django.db import IntegrityError
-
-import logging
-logger = logging.getLogger('authentication')
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
@@ -74,29 +68,6 @@ class TokenAuthBackend(ModelBackend):
 
     def authenticate(self, stencila_token_auth, **kwargs):
         return UserToken.authenticate(stencila_token_auth)
-
-
-class AutoAuthBackend(ModelBackend):
-
-    def authenticate(self, stencila_auto_auth, **kwargs):
-        user = None
-        trials = 0
-        while trials < 100:
-            trials += 1
-            username = 'user-'+''.join(random.sample(string.digits, 6))
-            try:
-                user = User.objects.create_user(username)
-                break
-            except IntegrityError:
-                if trials >= 30:
-                    logger.error('Needing many trials at generating a random auto user username. Increase digits?')
-
-        if user is None:
-            raise Exception('Unable to create AuthAuthBackend user')
-        else:
-            user.details.auto = True
-            user.details.save()
-            return user
 
 
 class AuthenticationMiddleware:

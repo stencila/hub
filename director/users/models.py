@@ -6,18 +6,24 @@ import time
 import datetime
 import pytz
 import base64
+import random
+import string
 
 import Crypto.Cipher
 import Crypto.Random
 
-from django.db import models
+from django.db import models, IntegrityError
 from django.contrib.auth.models import User, AnonymousUser
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.core.mail import mail_admins
+from django.contrib.auth import login
 
 import jsonfield
+
+import logging
+logger = logging.getLogger('authentication')
 
 from general.errors import Error
 
@@ -96,6 +102,33 @@ models.signals.post_save.connect(
     sender=User,
     dispatch_uid="user_post_save"
 )
+
+
+def login_guest_user(request):
+    '''
+    Creates a guest user
+    '''
+    user = None
+    trials = 0
+    while trials < 100:
+        trials += 1
+        username = 'guest-'+''.join(random.sample(string.digits, 6))
+        try:
+            user = User.objects.create_user(username)
+            break
+        except IntegrityError:
+            if trials >= 30:
+                logger.error('Needing many trials at generating a random auto user username. Increase digits?')
+
+    if user is None:
+        raise Exception('Unable to create AuthAuthBackend user')
+    else:
+        # Mark as a guest user
+        user.details.auto = True
+        user.details.save()
+        # A backend attribute is needed for logging in the user
+        user.backend = 'users.models.create_guest_user'
+        login(request, user)
 
 
 # Monkey patching of django.contrib.auth.models to

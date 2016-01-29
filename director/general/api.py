@@ -11,10 +11,10 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+
 
 from general.errors import Error
-
+from users.models import login_guest_user
 
 class API:
     '''
@@ -66,14 +66,14 @@ class API:
         If a broswer, then create a guest user, if not then raise an
         authentication required error with will return a 401 request for us
         '''
-        if self.request.user.is_anonymous() and not self.request.user_agent.is_bot:
-            user = authenticate(
-                stencila_auto_auth=True,
-                username='',
-                password=''
-            )
-            if user:
-                login(self.request, user)
+        if self.request.user.is_anonymous():
+            if self.browser:
+                login_guest_user(self.request)
+            else:
+                raise API.UnauthenticatedError(
+                    endpoint=self.request.path,
+                    method=self.request.method
+                )
 
     def required(self, name, converter=lambda x: x):
         '''

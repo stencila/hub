@@ -269,7 +269,7 @@ def boot(request, address):
 
         rights = EXECUTE #component.rights(request.user)
         if rights >= EXECUTE:
-            api.user_automatic()
+            api.user_ensure()
             session = component.activate(
                 user=request.user
             )
