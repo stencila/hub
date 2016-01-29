@@ -1,0 +1,140 @@
+<div id="sessions-launch" class="ui cards">
+	{% for type in types %}
+		<div class="ui card">
+			<div class="ui content">
+				<div class="ui header">
+					{{ type.name }}
+				</div>
+				<div class="ui">
+					{{ type.description }}
+				</div>
+			</div>
+			<div class="ui extra content">
+				{# In extra content so that line up regardless of length of description #}
+				<table class="ui celled unstackable table">
+					<tbody>
+						<tr>
+						  <td>Memory</td>
+						  <td class="ui ten wide">{{ type.ram }}</td>
+						  <td class="ui two wide">GB</td>
+						</tr>
+						<tr>
+						  <td>CPU</td>
+						  <td>{{ type.cpu }}</td>
+						  <td>GHz</td>
+						</tr>
+						<tr>
+						  <td>Network</td>
+						  <td>{{ type.network }}</td>
+						  <td>GB</td>
+						</tr>
+						<tr>
+						  <td>Timeout</td>
+						  <td>{{ type.timeout }}</td>
+						  <td>min</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="ui bottom attached segment">
+				<div class="launch ui green fluid button" data-type="{{ type.id }}">
+					<i class="ui rocket icon"></i>
+					Launch
+				</div>
+				<select class="image ui search selection fluid dropdown">
+					{% for image in images %}
+						<option value="{{ image.name }}">{{ image.display_name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
+	{% endfor %}
+	<div class="custom ui card">
+		<div class="ui content">
+			<div class="ui header">
+				Custom
+			</div>
+			<div class="ui">
+				Not seeing the session configuration you need? Want different image types? 
+				Let us know and we'll be in touch regarding creating a new session type.
+			</div>
+		</div>
+		<div class="settings ui extra content">
+			{# In extra content so that line up regardless of length of description #}
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Memory</label>
+			  <input name="ram">
+			  <label class="ui basic label">GB</label>
+			</div>
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">CPU</label>
+			  <input name="cpu">
+			  <label class="ui basic label">GHz</label>
+			</div>
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Network</label>
+			  <input name="network">
+			  <label class="ui basic label">GB</label>
+			</div>
+			<div class="ui right labeled fluid input">
+			  <label class="ui basic label">Timeout</label>
+			  <input name="timeout">
+			  <label class="ui basic label">min</label>
+			</div>
+			<style>
+				.custom .input {
+					margin-top: 0.3em;
+				}
+			</style>
+		</div>
+		<div class="ui bottom attached segment">
+			<div class="ui green fluid button">
+				<i class="ui send icon"></i>
+				One like this please!
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$('#sessions-launch .launch.button').click(function(event){
+		var $button = $(this);
+		var $image = $button.parent().find('select');
+		$button
+			.html('<i class="ui loading spinner icon"></i> Lift off!')
+			.addClass('orange disabled')
+			.off();
+		Stencila.post('sessions/new',{
+			type: $button.data('type'),
+			image: $image.val(),
+		}).done(function(data, status, xhr){
+			if (xhr.status==201) {
+				// Redirect to new location
+				window.location = xhr.getResponseHeader("Location");
+			}
+		});
+	});
+
+	$('#sessions-launch .image.select').dropdown();
+
+	$('#sessions-launch .custom.card .button').click(function(event) {
+		var $button = $(this);
+		var $settings = $('.custom .settings');
+		Stencila.post('events',{
+			name: 'sessions-custom-requested',
+			data: {
+				ram: $settings.find('input[name="ram"]').val(),
+				cpu: $settings.find('input[name="cpu"]').val(),
+				network: $settings.find('input[name="network"]').val(),
+				timeout: $settings.find('input[name="timeout"]').val()
+			}
+		}).always(function(){
+			$button
+				.text('Thanks for feedback! We`ll be in touch')
+				.addClass('disabled')
+				.off();
+		});
+	});
+
+	$('#sessions-launch [title]').popup();
+</script>

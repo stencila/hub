@@ -9,6 +9,7 @@ from components.models import Component, READ
 from sessions_.models import Session, SessionType, SessionImage
 from users.views import testing
 
+
 @csrf_exempt
 @require_authenticated
 def sessions(request, id=None):
@@ -17,9 +18,20 @@ def sessions(request, id=None):
         if api.get:
             # Get a list of sessions
             sessions = Session.list(
-                user=request.user
+                user=request.user,
+                filter={
+                    'active': True
+                }
             )
-            return api.respond(sessions)
+            return api.respond(
+                sessions,
+                template='sessions/list.html',
+                context={
+                    'sessions': sessions,
+                    'types': SessionType.objects.all(),
+                    'images': SessionImage.objects.all()
+                }
+            )
         elif api.post:
             # Launch a session for the user
             session = Session.launch(

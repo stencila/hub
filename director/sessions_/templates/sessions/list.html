@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sessions{% endblock %}
+
+{% block main %}
+
+<h1>Your active sessions</h1>
+<table id="sessions-list" class="ui celled table">
+	<thead>
+		<tr>
+			<th class="ui one wide">ID</th>
+			<th>Type</th>
+			<th>Image</th>
+			<th>Started</th>
+			<th class="ui five wide"></th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for session in sessions %}
+		<tr>
+			<td><a href="{{ session.url }}">{{ session.id }}</a></td>
+			<td>{{ session.type.name }}</td>
+			<td title="{{ session.image_type.name }}:{{ session.image_type.tag }}">{{ session.image_model.display_name }}</td>
+			<td>{{ session.started }}UTC</td>
+			<td>
+				<a data-id="{{session.id}}" class="ui red stop icon button"><i class="ui stop icon"></i>Stop</a>
+			</td>
+		</tr>
+	{% empty %}
+		<tr>
+			<td colspan="5">You have no active sessions</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+<script type="text/javascript">
+	$('#sessions-list .stop.button').click(function(event){
+		var $button = $(this);
+		var id = $button.data('id');
+		$button
+			.html('<i class="ui loading spinner icon"></i> Stopping')
+			.addClass('orange disabled')
+			.off();
+		Stencila.put('sessions/'+id+'@stop')
+			.done(function(data, status, xhr){
+				$button
+					.html('<i class="ui stop icon"></i> Stopped')
+					.addClass('grey')
+			});
+	});
+</script>
+
+
+<h1>Launch a session</h1>
+
+<div id="message" class="ui icon message">
+	<i class="ui circle info icon"></i>
+	<div class="ui content">
+		When you open a Stencila component (e.g stencil or sheet), if you don't have the right session running already we'll automatically launch one for you. So you don't need to launch a session unless you want a specific type (or to play around under the hood!).
+	</div>
+</div>
+
+{% include 'sessions/_launch.html' %}
+
+{% endblock %}

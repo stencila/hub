@@ -57,8 +57,13 @@ window.Stencila = (function(){
 		return request('POST', url, data);
 	}
 
+	function put(url, data){
+		return request('PUT', url, data);
+	}
+
 	return {
-		post: post
+		post: post,
+		put: put
 	};
 
 })();
