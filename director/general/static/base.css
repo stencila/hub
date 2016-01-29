@@ -29,7 +29,7 @@
 .ui.menu .ui.item:before{
 	display: none;
 }
-.ui.main.menu .user-auto {
+.ui.main.menu .user-guest {
 	color: #C5C5C5;
 }
 

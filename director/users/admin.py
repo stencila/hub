@@ -5,7 +5,7 @@ from users.models import UserDetails, UserToken, UserEvent
 
 class UserDetailsAdmin(admin.ModelAdmin):
 
-    list_display = ('id', 'get_username', 'auto', 'builder', 'tester')
+    list_display = ('id', 'get_username', 'guest', 'builder', 'tester')
 
     def get_username(self, obj):
         return obj.user.username

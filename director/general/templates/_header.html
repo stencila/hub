@@ -25,7 +25,7 @@
 					<a class="ui item" href="/sessions">Sessions</a>
 				</div>
 			</div>
-			{% if INTERCOM_ON and user.is_authenticated and not user.details.auto %}
+			{% if INTERCOM_ON and user.is_authenticated and not user.details.guest %}
 				<a id="intercom" class="ui item" >
 					<i class="ui circular inverted help icon" title="Get help, ask us a question"></i>
 				</a>
@@ -39,7 +39,7 @@
 				</div>
 			{% else %}
 				<div class="ui simple dropdown item">
-					<a href="/me" class="{% if user.details.auto %}user-auto{% endif %}">{{ user.username }}</a>
+					<a href="/me" class="{% if user.details.guest %}user-guest{% endif %}">{{ user.username }}</a>
 					<i class="ui dropdown icon"></i>
 					<div class="ui menu">
 						<a class="ui item" href="/me/settings">Settings</a>
@@ -53,7 +53,7 @@
 						{% endif %}
 					</div>
 				</div>
-				{% if user.details.auto %}
+				{% if user.details.guest %}
 					<div class="ui item">
 						<a class="ui compact blue button" href="/me/signin">Sign in</a>
 					</div>

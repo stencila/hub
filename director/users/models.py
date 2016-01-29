@@ -61,9 +61,9 @@ class UserDetails(models.Model):
         help_text='The django.contrib.auth User'
     )
 
-    auto = models.BooleanField(
+    guest = models.BooleanField(
         default=False,
-        help_text='Is this an automatically authenticated user?'
+        help_text='Is this user a guest?'
     )
 
     builder = models.BooleanField(
@@ -124,7 +124,7 @@ def login_guest_user(request):
         raise Exception('Unable to create AuthAuthBackend user')
     else:
         # Mark as a guest user
-        user.details.auto = True
+        user.details.guest = True
         user.details.save()
         # A backend attribute is needed for logging in the user
         user.backend = 'users.models.create_guest_user'
