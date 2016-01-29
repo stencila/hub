@@ -36,6 +36,7 @@ def action_string(action):
     return {
         NONE: 'NONE',
         READ: 'READ',
+        EXECUTE: 'EXECUTE',
         ANNOTATE: 'ANNOTATE',
         UPDATE: 'UPDATE',
         AUTHORIZE: 'AUTHORIZE',
@@ -45,7 +46,7 @@ def action_string(action):
 
 action_choices = [
     (action, action_string(action)) for action in
-    NONE, READ, ANNOTATE, UPDATE, AUTHORIZE, DELETE, CREATE
+    NONE, READ, EXECUTE, ANNOTATE, UPDATE, AUTHORIZE, DELETE, CREATE
 ]
 
 
