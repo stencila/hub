@@ -34,7 +34,7 @@
 		{% ifnotequal MODE 'local' %}
 			{% include "_google-analytics.html" %}
 		{% endifnotequal %}
-		{% if INTERCOM_ON and request.user.is_authenticated and not request.user.details.auto %}
+		{% if INTERCOM_ON and request.user.is_authenticated and not request.user.details.guest %}
 			{% include "_intercom.html" %}
 		{% endif %}
 	</body>

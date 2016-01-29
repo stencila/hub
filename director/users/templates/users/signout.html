@@ -5,13 +5,14 @@
 	<form class="ui form" method="post" action="/me/signout">
 		{% csrf_token %}
 		<p>Are you sure you want to sign out?</p>
-		{% if user.details.auto %}
+		{% if user.details.guest %}
 			<div style="max-width: 30em" class="ui orange icon message">
 				<i class="ui warning icon"></i>
 				<div class="ui content">
-					You currently have a automatically-generated user name and account with no
+					You are currently a guest user with no
 					password or password recovery email address. If you logout you will not
-					be able to log back in and recover any existing work.
+					be able to log back in and recover any of your work.
+					To keep your stuff please <a href="/me/join">join up</a>.
 				</div>
 			</div>
 		{% endif %}

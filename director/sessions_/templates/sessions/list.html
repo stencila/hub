@@ -48,13 +48,13 @@
 				$button
 					.html('<i class="ui stop icon"></i> Stopped')
 					.removeClass('orange')
-					.addClass('gray')
+					.addClass('gray');
 			});
 	});
 </script>
 
 {# Only want authenticated users to launch a session #}
-{% if user.is_authenticated %}
+{% if user.is_authenticated and not user.details.guest %}
 
 	<h1>Launch a session</h1>
 
