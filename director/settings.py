@@ -331,6 +331,7 @@ AUTHENTICATION_BACKENDS = (
     # Stencila custom auth backends
     'general.authentication.BasicAuthBackend',
     'general.authentication.TokenAuthBackend',
+    'general.authentication.GuestAuthBackend',
 )
 LOGIN_URL = '/me/signin'
 LOGIN_REDIRECT_URL = '/'
