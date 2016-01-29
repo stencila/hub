@@ -51,16 +51,20 @@
 	});
 </script>
 
+{# Only want authenticated users to launch a session #}
+{% if user.is_authenticated %}
 
-<h1>Launch a session</h1>
+	<h1>Launch a session</h1>
 
-<div id="message" class="ui icon message">
-	<i class="ui circle info icon"></i>
-	<div class="ui content">
-		When you open a Stencila component (e.g stencil or sheet), if you don't have the right session running already we'll automatically launch one for you. So you don't need to launch a session unless you want a specific type (or to play around under the hood!).
+	<div id="message" class="ui icon message">
+		<i class="ui circle info icon"></i>
+		<div class="ui content">
+			When you open a Stencila component (e.g stencil or sheet), if you don't have the right session running already we'll automatically launch one for you. So you don't need to launch a session unless you want a specific type (or to play around under the hood!).
+		</div>
 	</div>
-</div>
 
-{% include 'sessions/_launch.html' %}
+	{% include 'sessions/_launch.html' %}
+
+{% endif %}
 
 {% endblock %}
