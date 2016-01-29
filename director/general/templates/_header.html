@@ -26,8 +26,8 @@
 				</div>
 			</div>
 			{% if INTERCOM_ON and user.is_authenticated and not user.details.auto %}
-				<a id="intercom" class="ui item" title="Get help">
-					<i class="ui big help circle icon"></i>
+				<a id="intercom" class="ui item" >
+					<i class="ui circular inverted help icon" title="Get help, ask us a question"></i>
 				</a>
 			{% endif %}
 			{% if user.is_anonymous %}

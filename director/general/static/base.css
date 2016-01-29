@@ -8,10 +8,11 @@
 .ui.main.menu .ui.logo {
 	height: 34px;
 }
-.ui.main.menu .dropdown {
+.ui.main.menu .dropdown,
+.ui.main.menu #intercom {
 	padding: 0 0.2em 0 0.2em;
 }
-.ui.main.menu .dropdown .circular.icon {
+.ui.main.menu .circular.icon {
 	background: #78EE1A!important;
 }
 .ui.main.menu .dropdown .menu > .header.item {
@@ -19,9 +20,7 @@
 	font-size: 1em!important;
 }
 
-#intercom {
-	color: #99f054;
-}
+
 
 .ui.right.menu {
 	border: none;
