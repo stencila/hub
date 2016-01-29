@@ -308,8 +308,8 @@ class Curator:
         address = self.address(directory)
         # Get the component
         com = self.component(address)
-        # Compile it
-        com.compile()
+        # Create index.html page
+        com.page('index.html')
         # Ping director
         requests.put('https://stenci.la/%s@received' % address, json={
             'token': COMMS_TOKEN
