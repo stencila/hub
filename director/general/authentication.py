@@ -13,6 +13,10 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import SESSION_KEY, BACKEND_SESSION_KEY, load_backend
 from django.contrib.sessions.models import Session
 from django.conf import settings
+from django.db import IntegrityError
+
+import logging
+logger = logging.getLogger('authentication')
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
@@ -75,12 +79,23 @@ class TokenAuthBackend(ModelBackend):
 class AutoAuthBackend(ModelBackend):
 
     def authenticate(self, stencila_auto_auth, **kwargs):
-        rand = ''.join(random.sample(string.lowercase+string.digits, 12))
-        user = User.objects.create_user('user-'+rand)
-        user.details.auto = True
-        user.details.save()
-        print user.username
-        return user
+        user = None
+        trials = 0
+        while trials < 100:
+            trials += 1
+            username = 'user-'+''.join(random.sample(string.digits, 6))
+            try:
+                user = User.objects.create_user(username)
+            except IntegrityError:
+                if trials >= 30:
+                    logger.error('Needing many trials at generating a random auto user username. Increase digits?')
+
+        if user is None:
+            raise Exception('Unable to create AuthAuthBackend user')
+        else:
+            user.details.auto = True
+            user.details.save()
+            return user
 
 
 class AuthenticationMiddleware:
