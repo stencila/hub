@@ -86,6 +86,7 @@ class AutoAuthBackend(ModelBackend):
             username = 'user-'+''.join(random.sample(string.digits, 6))
             try:
                 user = User.objects.create_user(username)
+                break
             except IntegrityError:
                 if trials >= 30:
                     logger.error('Needing many trials at generating a random auto user username. Increase digits?')
