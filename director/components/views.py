@@ -22,7 +22,7 @@ import requests
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
 from visits.models import Visit
-from components.models import Component, Address, Key, READ, ANNOTATE, UPDATE, DELETE, CREATE
+from components.models import Component, Address, Key, READ, EXECUTE, ANNOTATE, UPDATE, DELETE, CREATE, action_string
 
 
 ######################################################################################
@@ -260,30 +260,28 @@ def boot(request, address):
     '''
     api = API(request)
     if api.put:
-        if not request.user.is_authenticated():
-            return api.respond_signin()
-        else:
-            component = Component.get(
-                id=None,
-                user=request.user,
-                action=READ,
-                address=address
+        component = Component.get(
+            id=None,
+            user=request.user,
+            action=READ,
+            address=address
+        )
+
+        rights = EXECUTE #component.rights(request.user)
+        if rights >= EXECUTE:
+            api.user_automatic()
+            session = component.activate(
+                user=request.user
             )
+        else:
+            session = None
 
-            rights = UPDATE #component.rights(request.user)
-            if rights >= UPDATE:
-                session = component.activate(
-                    user=request.user
-                )
-            else:
-                session = None
-
-            return api.respond({
-                'rights': 'UPDATE',
-                'session': session.serialize(
-                    user=request.user
-                )
-            })
+        return api.respond({
+            'rights': action_string(rights),
+            'session': session.serialize(
+                user=request.user
+            )
+        })
     return api.respond_bad()
 
 

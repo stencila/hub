@@ -24,6 +24,7 @@ from sessions_.models import Session
 
 NONE = 0
 READ = 10
+EXECUTE = 15
 ANNOTATE = 20
 UPDATE = 30
 AUTHORIZE = 40
