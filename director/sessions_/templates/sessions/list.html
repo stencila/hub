@@ -40,13 +40,15 @@
 		var id = $button.data('id');
 		$button
 			.html('<i class="ui loading spinner icon"></i> Stopping')
+			.removeClass('red')
 			.addClass('orange disabled')
 			.off();
 		Stencila.put('sessions/'+id+'@stop')
 			.done(function(data, status, xhr){
 				$button
 					.html('<i class="ui stop icon"></i> Stopped')
-					.addClass('grey')
+					.removeClass('orange')
+					.addClass('gray')
 			});
 	});
 </script>
