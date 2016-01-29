@@ -41,16 +41,30 @@ class API:
                 except ValueError:
                     raise API.JsonInvalidError(json=request.body)
 
-        # See what is accepted back
-        accept = self.request.META.get('HTTP_ACCEPT')
-        if accept and ("application/json" in accept): self.json = True
-        else: self.json = False
+        # Is this a browser?
+        self.browser = None
+        if request.user_agent.browser.family != 'Other':
+            self.browser = request.user_agent.browser.family
 
+        # What content is accepted?
+        self.accept = None
+        accept_header = self.request.META.get('HTTP_ACCEPT')
+        if accept_header:
+            if "application/json" in accept_header:
+                self.accept = 'json'
+            elif "text/html" in accept_header:
+                self.accept = 'html'
+        else:
+            if self.browser is None:
+                self.accept = 'json'
+        if self.accept is None:
+            self.accept = 'html'
 
-    def user_automatic(self):
+    def user_ensure(self):
         '''
-        If necesssary create an auto user. See `general/authentication` for the 
-        AutoAuth backend and what it does
+        Ensure that there is an authenticated user for this request.
+        If a broswer, then create a guest user, if not then raise an
+        authentication required error with will return a 401 request for us
         '''
         if self.request.user.is_anonymous() and not self.request.user_agent.is_bot:
             user = authenticate(
@@ -104,7 +118,7 @@ class API:
         return data
 
     def respond(self, data=None, detail=1, template=None, context={}, paginate=0, raw=False, status=200):
-        if self.json:
+        if self.accept=='json':
             # TODO, bring respond_json in here
             return self.respond_json(data=data, detail=detail, paginate=paginate, raw=raw, status=status)
         else:
@@ -188,7 +202,7 @@ class API:
         '''
         Respond with a request to signin
         '''
-        if self.json:
+        if self.accept=='json':
             # Respond with something other than Basic or Digest auth so that
             # the broswer does not bring up its login dialog
             response = HttpResponse(status=401)

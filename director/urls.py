@@ -92,6 +92,7 @@ urlpatterns = [
     url(r'^test/403',                                                general.views.test403),
     url(r'^test/404',                                                general.views.test404),
     url(r'^test/500',                                                general.views.test500),
+    url(r'^test/user-agent',                                         general.views.test_user_agent),
 
     # Error handling
     url(r'^backend-error/(?P<backend>[\w-]+)/(?P<url>.+)$',          general.views.backend_error),
@@ -180,7 +181,7 @@ if settings.MODE == 'local':
 urlpatterns += [
 
     ############### Collections of components #################
-    
+
     # List
     url(r'^(?P<type>(components|stencils|sheets|functions))/?$',  components.views.components),
 
@@ -188,7 +189,7 @@ urlpatterns += [
     url(r'^(?P<type>(stencils|sheets|functions))/new/?$',  components.views.new),
 
     ############### Individual components #################
-  
+
     # Slugified URL
     url(r'^(?P<address>.+)/(?P<slug>.*)-$',                components.views.slugified),
 

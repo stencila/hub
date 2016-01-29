@@ -2,9 +2,10 @@
 Defines some common, "general" views not tied to a specific app.
 '''
 import json
+from collections import OrderedDict
 
 from django.template import Context, loader
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
 from django.http import Http404
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.contrib.admin.views.decorators import staff_member_required
@@ -12,6 +13,7 @@ from django.shortcuts import render
 from django.core.serializers.json import DjangoJSONEncoder
 
 from components.models import Component
+from general.api import API
 
 def front(request):
     '''
@@ -96,7 +98,7 @@ def handler500(request):
     return HttpResponseServerError(render_error(request, '5xx.html'))
 
 
-# Test views are used to test that the correct templates
+# Test error views are used to test that the correct templates
 # are being used for errors and that error reporting (currently via Sentry)(
 # is behaving as intended.
 
@@ -124,6 +126,34 @@ def test500(request):
     raise Exception('Faked server error')
 
 
+def test_user_agent(request):
+    '''
+    For testing what django-user-agents and our internal request handler
+    is returning for different, ummm, user agents
+    '''
+    rh = API(request)
+    ua = request.user_agent
+    return rh.respond(OrderedDict([
+        ('rh_accept', rh.accept),
+        ('rh_browser', rh.browser),
+        ('ua_is_mobile', ua.is_mobile),
+        ('ua_is_tablet', ua.is_tablet),
+        ('ua_is_touch_capable', ua.is_touch_capable),
+        ('ua_is_pc', ua.is_pc),
+        ('ua_is_bot', ua.is_bot),
+        ('ua_browser', ua.browser),
+        ('ua_browser_family', ua.browser.family),
+        ('ua_browser_version', ua.browser.version),
+        ('ua_browser_version_string', ua.browser.version_string),
+        ('ua_os', ua.os),
+        ('ua_os_family', ua.os.family),
+        ('ua_os_version', ua.os.version),
+        ('ua_os_version_string', ua.os.version_string),
+        ('ua_device', ua.device),
+        ('ua_device_family', ua.device.family),
+    ]))
+
+
 def backend_error(request, backend, url):
     '''
     Used to capture and report backend requests to Sentry.
@@ -133,6 +163,7 @@ def backend_error(request, backend, url):
     if request.META.get('REMOTE_ADDR') != '127.0.0.1':
         return HttpResponseForbidden()
     raise BackendError('%s : %s' % (backend, url))
+
 
 class BackendError(Exception):
     pass
