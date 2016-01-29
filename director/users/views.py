@@ -1,5 +1,7 @@
 from django.views.decorators.http import require_http_methods, require_GET
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 import allauth.account.views
 
@@ -60,6 +62,21 @@ class SignoutView(allauth.account.views.LogoutView):
     template_name = "users/signout.html"
 
 signout = SignoutView.as_view()
+
+
+def join(request):
+    '''
+    Allow a guest to become a full user:
+        - upgrade account
+        - turn user.deails.guest = False 
+    '''
+    # TODO Right now just sign them out and redirect to
+    # signup page
+    if request.user.is_authenticated() and request.user.details.guest:
+        logout(request)
+        return redirect('/me/signup')
+    else:
+        return redirect('/')
 
 
 @require_GET

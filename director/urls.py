@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^me/signin/?$',                                            users.views.signin),
     url(r'^me/signin-dialog/?$',                                     users.views.signin_dialog),
     url(r'^me/signout/?$',                                           users.views.signout),
+    url(r'^me/join/?$',                                              users.views.join),
     url(r'^me/settings/?$',                                          users.views.settings),
     url(r'^me/',                                                     include('allauth.urls')),
     # The allauth URLs not overidden above are:

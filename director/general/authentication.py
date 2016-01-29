@@ -6,7 +6,7 @@ import random
 import string
 
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -105,13 +105,6 @@ class AuthenticationMiddleware:
     '''
 
     def process_request(self, request):
-        # If the user is trying to signin/up then automatically log them out
-        # This is logical and prevents them from not be able to get "out"
-        # of an auto-user login
-        if request.path=='/me/signin' or request.path=='/me/signup':
-            logout(request)
-            return
-
         # Get the authorization header
         auth = request.META.get('HTTP_AUTHORIZATION')
         if auth:
