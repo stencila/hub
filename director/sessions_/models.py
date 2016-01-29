@@ -650,10 +650,13 @@ class Session(models.Model):
         '''
         Get a list of sessions that the user owns
         '''
-        filter.update({
-            'user': user
-        })
-        return Session.objects.filter(**filter)
+        if user.is_authenticated():
+            filter.update({
+                'user': user
+            })
+            return Session.objects.filter(**filter)
+        else:
+            return []
 
     @staticmethod
     def get(id, user):
@@ -966,35 +969,21 @@ class Session(models.Model):
         to this session. A user is authorised if the session
         is theirs or if they hold an invitation
         '''
-        if user == self.user:
-            return True
-        if user.invitations.filter(session=self).count() > 0:
-            return True
+        if user.is_authenticated():
+            if user == self.user:
+                return True
+            if user.invitations.filter(session=self).count() > 0:
+                return True
         return False
 
     def authorize_or_raise(self, user):
         if not self.authorize(user):
-            raise Session.UnauthorizedError(session=self.id)
+            raise Session.NotFoundError(id=self.id)
         else:
             return self
 
     ##########################################################################
     # Errors
-
-    class UnauthorizedError(Error):
-        code = 403
-
-        def __init__(self, session, action='read'):
-            self.session = session
-            self.action = action
-
-        def serialize(self):
-            return dict(
-                error='session:unauthorized',
-                message='Not authorized to perform this action on this session',
-                session=self.session,
-                action=self.action
-            )
 
     class NotFoundError(Error):
         code = 404

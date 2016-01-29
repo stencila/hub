@@ -11,7 +11,6 @@ from users.views import testing
 
 
 @csrf_exempt
-@require_authenticated
 def sessions(request, id=None):
     api = API(request)
     if id is None:
@@ -58,7 +57,7 @@ def sessions(request, id=None):
 def new(request):
     '''
     List session types, create a new session, launch it and redirect the
-    to it's page
+    user to it's page
     '''
     api = API(request)
     if api.get:
@@ -68,7 +67,7 @@ def new(request):
                 'sessions': Session.list(
                     user=request.user,
                     filter={
-                        'active':True
+                        'active': True
                     }
                 ),
                 'types': SessionType.objects.all(),
