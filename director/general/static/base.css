@@ -8,19 +8,21 @@
 .ui.main.menu .ui.logo {
 	height: 34px;
 }
-#new-dropdown {
-	padding: 0;
+.ui.main.menu .dropdown {
+	padding: 0 0.2em 0 0.2em;
 }
-#new-button {
-	color: #99f054;
+.ui.main.menu .dropdown .circular.icon {
+	background: #78EE1A!important;
 }
-#new-header {
+.ui.main.menu .dropdown .menu > .header.item {
 	color: #888!important;
 	font-size: 1em!important;
 }
+
 #intercom {
 	color: #99f054;
 }
+
 .ui.right.menu {
 	border: none;
 	box-shadow: none;
