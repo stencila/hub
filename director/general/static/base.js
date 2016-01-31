@@ -43,6 +43,8 @@ window.Stencila = (function(){
 			// Type of request body
 			contentType: 'application/json',
 			beforeSend: function(request){
+				// Ensure requesting to get JSON back
+				request.setRequestHeader("Accept", "application/json");
 				// Set CSRF token. See https://docs.djangoproject.com/en/1.9/ref/csrf/#ajax
 				if (!/^(GET|HEAD|OPTIONS|TRACE)$/.test(method)) {
 					request.setRequestHeader("X-CSRFToken", cookie('csrftoken'));
