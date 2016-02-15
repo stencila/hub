@@ -294,9 +294,13 @@ class Worker:
         else:
             images = [image]
 
+        # Don't pull all images in the repo (there are many, one for each 
+        # successful build), just latest. Other versions can be pulled "on-demand"
+        tag = 'latest'
+
         def doit():
             for image in images:
-                print docker.pull('stencila/%s' % image)
+                print docker.pull('stencila/%s:%s' % (image, tag))
         thread = threading.Thread(target=doit)
         thread.start()
 
