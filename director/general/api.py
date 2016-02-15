@@ -34,12 +34,11 @@ class API:
         self.data = {}
         if self.get:
             self.data = request.GET
-        elif self.post or self.put or self.patch:
-            if len(request.body) > 0:
-                try:
-                    self.data = json.loads(request.body)
-                except ValueError:
-                    raise API.JsonInvalidError(json=request.body)
+        elif len(request.body) > 0 and ("application/json" in self.request.META.get('HTTP_CONTENT_TYPE','')):
+            try:
+                self.data = json.loads(request.body)
+            except ValueError:
+                raise API.JsonInvalidError(json=request.body)
 
         # Is this a browser?
         self.browser = None
