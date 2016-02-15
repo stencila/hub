@@ -216,6 +216,10 @@ urlpatterns += [
     url(r'^(?P<address>.+)@received$',                     components.views.received),
     url(r'^(?P<address>.+)@snapshot$',                     components.views.snapshot),
 
+    # Executable component methods
+    url(r'^(?P<address>.+)@functions$',                    components.views.method, {'method': 'functions'}),   
+    url(r'^(?P<address>.+)@function$',                     components.views.method, {'method': 'function'}),
+
     # Stencil methods
     url(r'^(?P<address>.+)@content$',                      components.views.content),
     url(r'^(?P<address>.+)@render$',                       components.views.method, {'method': 'render'}),
