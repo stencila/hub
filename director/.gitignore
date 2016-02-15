@@ -15,6 +15,9 @@
 # Ignore dynamically generated files
 /dynamic
 
+# Ignore uploads
+/uploads
+
 # Ignore local settings
 /local_settings.py
 
