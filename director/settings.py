@@ -280,7 +280,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'general', 'node_modules'),
 )
 
-# Looging
+# Uploaded files
+MEDIA_URL = '/uploads/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+
+# Logging
 # Log entries of WARNING and ERROR to go to console and to file
 
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')

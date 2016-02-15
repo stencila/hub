@@ -109,6 +109,8 @@ if settings.MODE == 'local':
 
     # Dynamically generated content
     urlpatterns += static(r'/dynamic/', document_root=os.path.join(settings.BASE_DIR, 'dynamic'))
+    # Uploaded files
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
     # Build Javascript and CSS on get.stenci.la when in production
     # can be obtained when in local mode from:
@@ -212,6 +214,7 @@ urlpatterns += [
     url(r'^(?P<address>.+)@commits$',                      components.views.commits),
     url(r'^(?P<address>.+)@sync$',                         components.views.method, {'method': 'sync'}),
     url(r'^(?P<address>.+)@received$',                     components.views.received),
+    url(r'^(?P<address>.+)@snapshot$',                     components.views.snapshot),
 
     # Stencil methods
     url(r'^(?P<address>.+)@content$',                      components.views.content),

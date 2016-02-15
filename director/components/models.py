@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.conf import settings
 
-from users.models import User
+from users.models import User, UnauthenticatedError
 from general.errors import Error
 from sessions_.models import Session
 
@@ -959,3 +959,126 @@ class Key(models.Model):
     @staticmethod
     def create_one(account, name, address, action, users):
         pass
+
+
+
+def snapshot_upload_to(instance, filename):
+    return 'snapshots/%i-%i-%s' % (
+        instance.component.id,
+        instance.user.id,
+        instance.datetime
+    )
+
+
+class Snapshot(models.Model):
+    '''
+    A snapshot of a component
+    '''
+
+    component = models.ForeignKey(
+        Component,
+        null=True,
+        blank=True,
+        help_text='Component that this snapshot is for'
+    )
+
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        help_text='User that created this snapshot'
+    )
+
+    datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Date/time that this snapshot was created'
+    )
+
+    file = models.FileField(
+        upload_to=snapshot_upload_to,
+        null=True,
+        blank=True,
+        help_text='File (.tar.gz) for this snapshot'
+    )
+
+    def serialize(self, user, detail=1):
+        '''
+        Serialize this snapshot
+        '''
+        return OrderedDict([
+            ('id', self.id),
+            ('component', self.component.id),
+            ('user', self.user.id),
+            ('datetime', self.datetime),
+            ('url', self.file.url),
+        ])
+
+    @staticmethod
+    def create(address, user, file):
+        '''
+        Create a new snapshot
+
+        Will usually be used by posting a `.tar.gz` to 
+        a component addres endpoint:
+
+            curl \
+              -F "file=@path/to/file.tar.gz" \
+              https://stenci.la/{address}@snapshot
+        '''
+        if not user.is_authenticated():
+            raise UnauthenticatedError()
+
+        component = Component.get(
+            id=None,
+            address=address,
+            user=user,
+            action=READ
+        )
+
+        snapshot = Snapshot.objects.create(
+            component=component,
+            user=user,
+            datetime=timezone.now(),
+            file=file
+        )
+
+        return snapshot
+
+    @staticmethod
+    def read(address, user):
+        '''
+        Get the latest snapshot for a user
+        '''
+
+        component = Component.get(
+            id=None,
+            address=address,
+            user=user,
+            action=READ
+        )
+
+        snapshot = Snapshot.objects.filter(
+            component=component,
+            user=user
+        ).order_by('-datetime').first()
+
+        return snapshot
+
+    @staticmethod
+    def get(address, user):
+        '''
+        Get the file for the latest snapshot
+        '''
+        snapshot = Snapshot.read(address, user)
+        return snapshot.file.url
+
+
+    @staticmethod
+    def list(user):
+        '''
+        List snapshots for user
+        '''
+        return Snapshot.objects.filter(
+            user=user
+        )

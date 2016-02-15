@@ -234,6 +234,35 @@ paths:
         200:
           description: Successfully notified.
 
+  /{address}@snapshot:
+
+    post:
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+        - name: file
+          in: body
+          required: true
+      responses:
+        200:
+          description: Snapshot description
+
+    get:
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: URL for latest snapshot
+
   ###########################################################################
   # Stencils
   ###########################################################################

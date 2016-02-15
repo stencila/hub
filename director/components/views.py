@@ -22,7 +22,8 @@ import requests
 from general.authentication import unauthenticated_response, require_authenticated
 from general.api import API
 from visits.models import Visit
-from components.models import Component, Address, Key, READ, EXECUTE, ANNOTATE, UPDATE, DELETE, CREATE, action_string
+from components.models import Component, Address, Key, Snapshot
+from components.models import READ, EXECUTE, ANNOTATE, UPDATE, DELETE, CREATE, action_string
 
 
 ######################################################################################
@@ -894,3 +895,28 @@ def key_one(request, id):
         return api.respond()
     else:
         api.raise_method_not_allowed()
+
+
+@csrf_exempt
+def snapshot(request, address=None):
+    api = API(request)
+    if address:
+        if api.post:
+            snapshot = Snapshot.create(
+                address=address,
+                user=request.user,
+                file=request.FILES['file']
+            )
+            return api.respond(snapshot)
+        elif api.get:
+            snapshot_url = Snapshot.get(
+                address=address,
+                user=request.user
+            )
+            return redirect(snapshot_url) 
+    else:
+        if api.get:
+            snapshots = Snapshot.list(
+                user=request.user
+            )
+            return api.respond(snapshots)

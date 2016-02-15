@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from reversion.admin import VersionAdmin
 
-from components.models import Component, Address, Key
+from components.models import Component, Address, Key, Snapshot
 
 
 class ComponentAdmin(VersionAdmin):
@@ -37,3 +37,10 @@ class KeyAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'address', 'type', 'action')
 
 admin.site.register(Key, KeyAdmin)
+
+
+class SnapshotAdmin(admin.ModelAdmin):
+
+    list_display = ('id', 'component', 'user', 'datetime')
+
+admin.site.register(Snapshot, SnapshotAdmin)
