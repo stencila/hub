@@ -349,7 +349,7 @@ if MODE in ('vagrant', 'prod'):
 
 # django-storages
 if MODE in ('vagrant', 'prod'):
-    AWS_STORAGE_BUCKET_NAME = 'hub'
+    AWS_STORAGE_BUCKET_NAME = 'hub.stenci.la'
     DEFAULT_FILE_STORAGE = 'general.custom_storages.UploadsS3BotoStorage'
     # Static files currently not hosted on S3 but this is the setup
     # STATICFILES_STORAGE = 'general.custom_storages.StaticS3BotoStorage'
