@@ -40,7 +40,7 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 		self.host = 's3-us-west-2.amazonaws.com'
 		self.bucket_name = 'snapshots.stenci.la'
 		self.secure_urls = False
-		SnapshotsS3BotoStorage.__init__(self)
+		S3BotoStorage.__init__(self)
 
 class SnapshotsFileSystemStorage(FileSystemStorage):
 	'''
