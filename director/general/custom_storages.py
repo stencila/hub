@@ -42,13 +42,13 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 		self.secure_urls = False
 		SnapshotsS3BotoStorage.__init__(self)
 
-class SnapshotsLocalBotoStorage(FileSystemStorage):
+class SnapshotsFileSystemStorage(FileSystemStorage):
 	'''
 	Used for `components.models.Snapshot` when in local mode
 	'''
 	location = 'snapshots'
 
 if settings.MODE=='local':
-	SnapshotsStorage = SnapshotsLocalBotoStorage
+	SnapshotsStorage = SnapshotsFileSystemStorage
 else:
 	SnapshotsStorage = SnapshotsS3BotoStorage
