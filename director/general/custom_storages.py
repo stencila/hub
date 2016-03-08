@@ -35,10 +35,12 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 	'''
 	Used for `components.models.Snapshot`
 	'''
-	host = 's3-us-west-2.amazonaws.com'
-	bucket_name = 'snapshots.stenci.la'
-	secure_urls = False
 
+	def __init__(self):
+		self.host = 's3-us-west-2.amazonaws.com'
+		self.bucket_name = 'snapshots.stenci.la'
+		self.secure_urls = False
+		SnapshotsS3BotoStorage.__init__(self)
 
 class SnapshotsLocalBotoStorage(FileSystemStorage):
 	'''
