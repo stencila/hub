@@ -38,6 +38,9 @@ django-semanticui-form==0.0.1
 # https://github.com/django-ses/django-ses a Django email backend for Amazon's Simple Email Service 
 django-ses==0.7.0
 
+# https://django-storages.readthedocs.org Support for many storages (S3, MogileFS, etc) in Django
+django-storages==1.1.8
+
 # https://github.com/selwin/django-user_agents for User Agent parsing and dependencies
 pyyaml
 ua-parser

@@ -68,7 +68,7 @@ if MODE in ('local',):
 else:
     COMMS_TOKEN = secret('stencila-comms-token')
 
-# AWS keys for launching session hosts and for email
+# AWS keys for launching session hosts, SES email and S3 storage
 if MODE in ('vagrant', 'prod'):
     AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = secret('aws-access-key').split()
 
@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     'reversion',
     'django_extensions',
     'semanticuiform',
+    'storages',
 
     # Stencila apps
     'accounts',
@@ -345,6 +346,13 @@ if MODE in ('vagrant', 'prod'):
     EMAIL_BACKEND = 'django_ses.SESBackend'
     AWS_SES_REGION_NAME = 'us-west-2'
     AWS_SES_REGION_ENDPOINT = 'email.us-west-2.amazonaws.com'
+
+# django-storages
+if MODE in ('vagrant', 'prod'):
+    AWS_STORAGE_BUCKET_NAME = 'hub'
+    DEFAULT_FILE_STORAGE = 'general.custom_storages.UploadsS3BotoStorage'
+    # Static files currently not hosted on S3 but this is the setup
+    # STATICFILES_STORAGE = 'general.custom_storages.StaticS3BotoStorage'
 
 # django-allauth
 #
