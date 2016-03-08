@@ -8,6 +8,9 @@ See:
 
 See https://github.com/jschneier/django-storages/blob/master/storages/backends/s3boto.py#L189
 for available settings.
+
+We need to define S3BotoStorage options in `__init__` because of way `storages` initialises
+them from env vars on module import. Related to http://stackoverflow.com/a/24750663/4625911.
 '''
 from django.conf import settings
 from storages.backends.s3boto import S3BotoStorage
@@ -17,18 +20,23 @@ class StaticS3BotoStorage(S3BotoStorage):
 	'''
 	Used for "STATIC_ROOT" which is for static files
 	'''
-	host = 's3-us-west-2.amazonaws.com'
-	bucket_name = 'static.stenci.la'
-	secure_urls = False
+	def __init__(self):
+		self.host = 's3-us-west-2.amazonaws.com'
+		self.bucket_name = 'static.stenci.la'
+		self.secure_urls = False
+		S3BotoStorage.__init__(self)
 
 
 class UploadsS3BotoStorage(S3BotoStorage):
 	'''
 	Used for "MEDIA_ROOT" which is for user uploads
 	'''
-	host = 's3-us-west-2.amazonaws.com'
-	bucket_name = 'uploads.stenci.la'
-	secure_urls = False
+
+	def __init__(self):
+		self.host = 's3-us-west-2.amazonaws.com'
+		self.bucket_name = 'uploads.stenci.la'
+		self.secure_urls = False
+		S3BotoStorage.__init__(self)
 
 
 class SnapshotsS3BotoStorage(S3BotoStorage):
@@ -47,6 +55,7 @@ class SnapshotsFileSystemStorage(FileSystemStorage):
 	Used for `components.models.Snapshot` when in local mode
 	'''
 	location = 'snapshots'
+
 
 if settings.MODE=='local':
 	SnapshotsStorage = SnapshotsFileSystemStorage
