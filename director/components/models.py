@@ -994,7 +994,7 @@ class Snapshot(models.Model):
     )
 
     file = models.FileField(
-        storage=SnapshotsStorage,
+        storage=SnapshotsStorage(),
         upload_to=snapshot_upload_to,
         null=True,
         blank=True,
