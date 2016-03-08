@@ -46,4 +46,7 @@ class SnapshotsLocalBotoStorage(FileSystemStorage):
 	'''
 	location = 'snapshots'
 
-SnapshotsStorage = FileSystemStorage if settings.MODE=='local' else S3BotoStorage
+if settings.MODE=='local':
+	SnapshotsStorage = SnapshotsLocalBotoStorage
+else:
+	SnapshotsStorage = SnapshotsS3BotoStorage
