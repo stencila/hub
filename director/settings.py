@@ -350,6 +350,9 @@ if MODE in ('vagrant', 'prod'):
 # django-storages
 if MODE in ('vagrant', 'prod'):
     AWS_STORAGE_BUCKET_NAME = 'hub.stenci.la'
+    # Fix time out issue. See https://github.com/boto/boto/issues/621#issuecomment-75429765
+    AWS_S3_HOST = 's3-us-west-2.amazonaws.com'
+    
     DEFAULT_FILE_STORAGE = 'general.custom_storages.UploadsS3BotoStorage'
     # Static files currently not hosted on S3 but this is the setup
     # STATICFILES_STORAGE = 'general.custom_storages.StaticS3BotoStorage'
