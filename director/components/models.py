@@ -14,6 +14,7 @@ from django.conf import settings
 
 from users.models import User, UnauthenticatedError
 from general.errors import Error
+from general.custom_storages import SnapshotsStorage
 from sessions_.models import Session
 
 # Actions
@@ -536,11 +537,11 @@ class Component(models.Model):
         # Start the session (may already be) and then wait until ready (may already be)
         session.start()
         session.wait()
-        # Request the component to be booted in the session
+        # Request the component to be restored into the session
         session.request(
             verb='PUT',
             resource=self.address.id,
-            method='boot'
+            method='restore'
         )
         return session
 
@@ -960,15 +961,12 @@ class Key(models.Model):
     def create_one(account, name, address, action, users):
         pass
 
-
-
 def snapshot_upload_to(instance, filename):
-    return 'snapshots/%i-%i-%s' % (
+    return '%i-%i-%s' % (
         instance.component.id,
         instance.user.id,
         instance.datetime
     )
-
 
 class Snapshot(models.Model):
     '''
@@ -996,6 +994,7 @@ class Snapshot(models.Model):
     )
 
     file = models.FileField(
+        storage=SnapshotsStorage,
         upload_to=snapshot_upload_to,
         null=True,
         blank=True,
@@ -1020,7 +1019,7 @@ class Snapshot(models.Model):
         Create a new snapshot
 
         Will usually be used by posting a `.tar.gz` to 
-        a component addres endpoint:
+        a component address endpoint:
 
             curl \
               -F "file=@path/to/file.tar.gz" \
