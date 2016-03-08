@@ -12,11 +12,11 @@ class StaticS3BotoStorage(S3BotoStorage):
 	'''
 	Used for "STATIC_ROOT" which is for static files
 	'''
-    location = 'static'
+	location = 'static'
 
 
 class UploadsS3BotoStorage(S3BotoStorage):
 	'''
 	Used for "MEDIA_ROOT" which is for user uploads
 	'''
-    location = 'uploads'
+	location = 'uploads'
