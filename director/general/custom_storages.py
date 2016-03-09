@@ -34,7 +34,8 @@ class UploadsS3BotoStorage(S3BotoStorage):
 
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
-		self.bucket_name = 'uploads.stenci.la'
+		self.bucket_name = 'uploads.stencila.io'
+		self.custom_domain = 'uploads.stencila.io'
 		self.secure_urls = False
 		S3BotoStorage.__init__(self)
 
@@ -46,9 +47,11 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
-		self.bucket_name = 'snapshots.stenci.la'
+		self.bucket_name = 'snapshots.stencila.io'
+		self.custom_domain = 'snapshots.stencila.io'
 		self.secure_urls = False
 		S3BotoStorage.__init__(self)
+
 
 class SnapshotsFileSystemStorage(FileSystemStorage):
 	'''
