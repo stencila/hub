@@ -967,9 +967,9 @@ class Key(models.Model):
 def snapshot_upload_to(instance, filename):
     ext = os.path.splitext(filename)[-1]
     if instance.pk:
-        filename = '{}.{}'.format(instance.pk, ext)
+        filename = '{}{}'.format(instance.pk, ext)
     else:
-        filename = '{}.{}'.format(uuid4().hex, ext)
+        filename = '{}{}'.format(uuid4().hex, ext)
     return filename
 
 
