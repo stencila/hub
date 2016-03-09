@@ -349,6 +349,8 @@ if MODE in ('vagrant', 'prod'):
 
 # django-storages
 if MODE in ('vagrant', 'prod'):
+    # Although set elsewhere, another attempt to fix https://github.com/boto/boto/issues/621
+    AWS_S3_HOST = 's3-us-west-2.amazonaws.com'
     DEFAULT_FILE_STORAGE = 'general.custom_storages.UploadsS3BotoStorage'
     # Static files currently not hosted on S3 but this is the setup
     # STATICFILES_STORAGE = 'general.custom_storages.StaticS3BotoStorage'
