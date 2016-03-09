@@ -107,10 +107,9 @@ def connect(request, id):
         session.update()
     # Try again
     if session.port:
-        url = '/internal-session-websocket/%s:%s/%s' % (
+        url = '/internal-session-websocket/%s:%s' % (
             session.worker.ip,
-            session.port,
-            session.component.address.id
+            session.port
         )
         response = HttpResponse('X-Accel-Redirect : %s' % url)
         response['X-Accel-Redirect'] = url
