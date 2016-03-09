@@ -43,7 +43,7 @@ class UploadsS3BotoStorage(S3BotoStorage):
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
 		self.bucket_name = 'uploads.stencila.io'
-		# See not above about the following settings
+		# See note above about the following settings
 		self.url_protocol = 'https'
 		self.custom_domain = 's3-us-west-2.amazonaws.com/uploads.stencila.io'
 		self.secure_urls = True
@@ -58,7 +58,7 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
 		self.bucket_name = 'snapshots.stencila.io'
-		# See not above about the following settings
+		# See note above about the following settings
 		self.url_protocol = 'https'
 		self.custom_domain = 's3-us-west-2.amazonaws.com/snapshots.stencila.io'
 		self.secure_urls = True
