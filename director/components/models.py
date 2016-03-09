@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import os
+from uuid import uuid4
 import string
 import random
 import httplib
@@ -961,12 +963,15 @@ class Key(models.Model):
     def create_one(account, name, address, action, users):
         pass
 
+
 def snapshot_upload_to(instance, filename):
-    return '%i-%i-%s' % (
-        instance.component.id,
-        instance.user.id,
-        instance.datetime
-    )
+    ext = os.path.splitext(filename)[-1]
+    if instance.pk:
+        filename = '{}.{}'.format(instance.pk, ext)
+    else:
+        filename = '{}.{}'.format(uuid4().hex, ext)
+    return filename
+
 
 class Snapshot(models.Model):
     '''
