@@ -11,10 +11,18 @@ for available settings.
 
 We need to define S3BotoStorage options in `__init__` because of way `storages` initialises
 them from env vars on module import. Related to http://stackoverflow.com/a/24750663/4625911.
+
+We use the following set ups to provide HTTPS secure access to snapshots. We could
+do a redirect in nginx.conf as we do for get.stenci.la but that seems unessary for these
+
+	self.url_protocol = 'https'
+	self.custom_domain = 's3-us-west-2.amazonaws.com/snapshots.stencila.io'
+	self.secure_urls = True
 '''
 from django.conf import settings
 from storages.backends.s3boto import S3BotoStorage
 from django.core.files.storage import FileSystemStorage
+
 
 class StaticS3BotoStorage(S3BotoStorage):
 	'''
@@ -35,7 +43,9 @@ class UploadsS3BotoStorage(S3BotoStorage):
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
 		self.bucket_name = 'uploads.stencila.io'
+		# See not above about the following settings
 		self.url_protocol = 'https'
+		self.custom_domain = 's3-us-west-2.amazonaws.com/uploads.stencila.io'
 		self.secure_urls = True
 		S3BotoStorage.__init__(self)
 
@@ -48,7 +58,9 @@ class SnapshotsS3BotoStorage(S3BotoStorage):
 	def __init__(self):
 		self.host = 's3-us-west-2.amazonaws.com'
 		self.bucket_name = 'snapshots.stencila.io'
+		# See not above about the following settings
 		self.url_protocol = 'https'
+		self.custom_domain = 's3-us-west-2.amazonaws.com/snapshots.stencila.io'
 		self.secure_urls = True
 		S3BotoStorage.__init__(self)
 
