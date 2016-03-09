@@ -632,6 +632,7 @@ class Session(models.Model):
         '''
         return OrderedDict([
             ('id', self.id),
+            ('local', False),
             ('user', self.user.serialize(user=user)),
             ('image', self.image_model.serialize()),
             ('type', self.type.serialize()),
