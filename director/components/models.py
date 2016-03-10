@@ -1075,7 +1075,7 @@ class Snapshot(models.Model):
         Get the file for the latest snapshot
         '''
         snapshot = Snapshot.read(address, user)
-        return snapshot.file.url
+        return snapshot.file.url if snapshot else None
 
 
     @staticmethod

@@ -913,7 +913,10 @@ def snapshot(request, address=None):
                 address=address,
                 user=request.user
             )
-            return redirect(snapshot_url) 
+            if snapshot_url:
+                return redirect(snapshot_url) 
+            else:
+                return Http404()
     else:
         if api.get:
             snapshots = Snapshot.list(
