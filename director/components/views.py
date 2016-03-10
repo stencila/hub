@@ -916,7 +916,7 @@ def snapshot(request, address=None):
             if snapshot_url:
                 return redirect(snapshot_url) 
             else:
-                return Http404()
+                raise API.NotFoundError()
     else:
         if api.get:
             snapshots = Snapshot.list(
