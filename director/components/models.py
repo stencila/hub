@@ -543,7 +543,7 @@ class Component(models.Model):
         session.request(
             verb='PUT',
             resource=self.address.id,
-            method='boot' #Temporary revert to boot until issue #150 with restore can be addressed
+            method='restore'
         )
         return session
 
