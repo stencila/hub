@@ -6,13 +6,18 @@
 			body {
 				text-align:center;
 				font-family:sans;
+				line-height: 1.5;
 				margin: 2em auto;
-				max-width: 30em;
+				max-width: 40em;
+			}
+			a {
+				text-decoration: none;
+    			color: #27C708;
 			}
 		</style>
 	</head>
 	<body>
-		<p><a href="/"><img src="/static/logo-name-400x88.png"></a></p>
+		<p><a href="/"><img src="/static/logo-name-400x88.png" width="200px"></a></p>
 		<p>
 			Something, somewhere, went wrong.
 		</p>
@@ -25,10 +30,10 @@
 			{{ comment_begin|safe }}-->
 		</p>
 		<p>
-			<a href="https://gitter.im/stencila/hub">Chat with us on Gitter</a>
+			<a href="https://twitter.com/intent/tweet?screen_name=stencila&text=Something%20went%20wrong..." class="twitter-mention-button" data-size="large">Tweet us @stencila</a>
 		</p>
 		<p>
-			<a href="https://twitter.com/intent/tweet?screen_name=stencila&text=Something%20went%20wrong..." class="twitter-mention-button" data-size="large">Tweet us @stencila</a>
+			<a href="https://gitter.im/stencila/hub"><img src="/static/logos/chat-on-gitter.png" alt="Chat with us on Gitter"></a>
 		</p>
 		<!--{{ comment_end|safe }}{% include "_error_details.html" %}{{ comment_begin|safe }}-->
 		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
