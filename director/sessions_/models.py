@@ -727,6 +727,8 @@ class Session(models.Model):
         '''
         Create and start a session
         '''
+        from accounts.models import Account
+
         # If account not supplied then get user's
         # current one
         #if account is None:
@@ -738,17 +740,45 @@ class Session(models.Model):
         #memory = 512  # For now just used a fixed memory size in megabytes
         #account.enough_or_raise(memory=memory)
 
-        image = SessionImage.objects.get(
-            name=image_name
-        )
-
+        # Get the session type
         if type_id is None:
-            type_id = 1
+            # If the session type is not specified (ie the accoun that owns the
+            # component is not hosting it) then fallback to defaults based on
+            # user type
+            assert user.is_authenticated()
+            if user.details.guest:
+                type_id = 1
+            else:
+                type_id = 1
+                # TODO fallback to default based on account type
+                # user_account = Account.objects.filter(
+                #     owners=user,
+                #     personal=True
+                # )
+                # if user_account is None:
+                #     type_id = 1
+                # else:
+                #     type_id = user_account.type.default_session.id
         type = SessionType.objects.get(
             id=type_id
         )
 
-        # Create the session
+        # Check that the number of active sessions of this type does not
+        # exceed the maximum
+        if type.number > 0:
+            if Session.objects.filter(
+                active=True,
+                type=type
+            ).count() >= type.number:
+                raise Session.TypeLimitError()
+
+
+        # Get the session image
+        image = SessionImage.objects.get(
+            name=image_name
+        )
+
+        # Create and start the session
         session = Session.objects.create(
             account=account,
             user=user,
@@ -756,8 +786,8 @@ class Session(models.Model):
             image=image.name,
             type=type
         )
-        # Start the session
         session.start()
+
         return session
 
     def start(self):
@@ -1002,6 +1032,20 @@ class Session(models.Model):
     ##########################################################################
     # Errors
 
+    class TypeLimitError(Error):
+        code = 404
+
+        def __init__(self, type):
+            self.type = type
+
+        def serialize(self):
+            return dict(
+                error='session:type-limit',
+                message='The limit for this number of sessions has been reached. Please wait for an available slot, or launch a different type of session',
+                type=self.type.name
+            )
+
+
     class NotFoundError(Error):
         code = 404
 
@@ -1055,7 +1099,6 @@ class Session(models.Model):
                 waited=self.waited,
                 timeout=self.timeout
             )
-
 
 def sessions_vacuum(period=datetime.timedelta(minutes=60)):
     '''
