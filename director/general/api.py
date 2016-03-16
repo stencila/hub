@@ -34,7 +34,7 @@ class API:
         self.data = {}
         if self.get:
             self.data = request.GET
-        elif len(request.body) > 0 and ("application/json" in self.request.META.get('HTTP_CONTENT_TYPE','')):
+        elif len(request.body) > 0 and ("application/json" in self.request.META.get('CONTENT_TYPE', '')):
             try:
                 self.data = json.loads(request.body)
             except ValueError:
