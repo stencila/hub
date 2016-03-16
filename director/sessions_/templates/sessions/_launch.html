@@ -117,11 +117,6 @@
 				  <input name="email" placeholder="Your email address">
 				</div>
 			{%endif %}
-			<style>
-				.custom .input {
-					margin-top: 0.3em;
-				}
-			</style>
 		</div>
 		<div class="ui bottom attached segment">
 			<div class="ui green fluid button">
@@ -136,11 +131,14 @@
 	#sessions-launch .infinity {
 		font-size: 1.7em;
 	}
+	#sessions-launch .custom .input {
+		margin-top: 0.3em;
+	}
 </style>
 
 <script type="text/javascript">
 
-	$('[data-content]').popup({
+	$('#sessions-launch [data-content]').popup({
 		variation: 'wide'
 	});
 
@@ -173,8 +171,8 @@
 				ram: $settings.find('input[name="ram"]').val(),
 				cpu: $settings.find('input[name="cpu"]').val(),
 				network: $settings.find('input[name="network"]').val(),
-				lifetime: $settings.find('input[name="lifetime"]').val()
-				timeout: $settings.find('input[name="timeout"]').val()
+				lifetime: $settings.find('input[name="lifetime"]').val(),
+				timeout: $settings.find('input[name="timeout"]').val(),
 				email: $settings.find('input[name="email"]').val()
 			}
 		}).always(function(){
