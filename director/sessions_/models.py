@@ -400,14 +400,28 @@ class SessionType(models.Model):
         default=0,
         null=False,
         blank=False,
-        help_text='Gigabytes (GB) of netwrk transfer allocated to the session'
+        help_text='Gigabytes (GB) of network transfer allocated to the session.'
     )
 
-    timeout = models.FloatField(
-        default=0,
+    lifetime = models.IntegerField(
+        default=-1,
+        null=False,
+        blank=False,
+        help_text='Minutes before the session is terminated. -1 = infinite.'
+    )
+
+    timeout = models.IntegerField(
+        default=60,
         null=False,
         blank=False,
         help_text='Minutes of inactivity before the session is terminated'
+    )
+
+    number = models.IntegerField(
+        default=-1,
+        null=False,
+        blank=False,
+        help_text='Maximum number of this session type that can be running at one time. -1 = infinite.'
     )
 
     def serialize(self, *args, **kwargs):
@@ -417,7 +431,9 @@ class SessionType(models.Model):
             ('ram', self.ram),
             ('cpu', self.cpu),
             ('network', self.network),
+            ('lifetime', self.lifetime),
             ('timeout', self.timeout),
+            ('number', self.number),
         ])
 
 class SessionImage(models.Model):
