@@ -766,12 +766,18 @@ class Session(models.Model):
         # Check that the number of active sessions of this type does not
         # exceed the maximum
         if type.number > 0:
-            if Session.objects.filter(
+            count = Session.objects.filter(
                 active=True,
                 type=type
-            ).count() >= type.number:
+            ).count()
+            if count >= type.number:
+                # Log it and then raise an error
+                logger.warning(
+                    'Reached limit for session type\n  type: %s\n  max: %s\n  count: %s' % (
+                        type.name, type.number, count
+                    )
+                )
                 raise Session.TypeLimitError()
-
 
         # Get the session image
         image = SessionImage.objects.get(
