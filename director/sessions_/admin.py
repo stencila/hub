@@ -47,7 +47,7 @@ admin.site.register(WorkerStats, WorkerStatsAdmin)
 class SessionTypeAdmin(admin.ModelAdmin):
 
     list_display = (
-        'id', 'name', 'ram', 'cpu', 'network', 'timeout'
+        'id', 'rank', 'name', 'ram', 'cpu', 'network', 'timeout'
     )
 
 admin.site.register(SessionType, SessionTypeAdmin)

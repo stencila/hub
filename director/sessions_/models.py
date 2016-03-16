@@ -402,6 +402,11 @@ class WorkerStats(models.Model):
 
 class SessionType(models.Model):
 
+    rank = models.IntegerField(
+        default=1,
+        help_text='Nominal rank of session type (higher ~ more powerful)',
+    )
+
     name = models.CharField(
         max_length=128,
         null=False,
@@ -460,6 +465,7 @@ class SessionType(models.Model):
     def serialize(self, *args, **kwargs):
         return OrderedDict([
             ('id', self.id),
+            ('rank', self.rank),
             ('name', self.name),
             ('ram', self.ram),
             ('cpu', self.cpu),

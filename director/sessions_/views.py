@@ -28,7 +28,7 @@ def sessions(request, id=None):
                 template='sessions/list.html',
                 context={
                     'sessions': sessions,
-                    'types': SessionType.objects.all(),
+                    'types': SessionType.objects.order_by('rank').all(),
                     'images': SessionImage.objects.all()
                 }
             )
