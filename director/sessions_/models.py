@@ -178,11 +178,11 @@ class Worker(models.Model):
         return self
 
     @staticmethod
-    def choose(memory, cpu):
+    def choose(type):
         '''
-        Choose the best worker to launch a session on.
+        Choose the best worker to launch a session of the given type.
 
-        Currently, very naive (just use the first worker.
+        Currently, very naive (just use the first worker).
         In the future could use `WorkerStats`
         data and an algorithm to determine the best one to start a session on
         '''
@@ -196,6 +196,39 @@ class Worker(models.Model):
             return worker
         else:
             return workers[0]
+
+    # These conversion methods seem like a bit of a pain but are necessary now
+    # and may be useful if different types of worker end up implementing different
+    # types of resource limits
+
+    @staticmethod
+    def memory_limit(memory):
+        '''
+        Convert a numerical memory limit (GB) into a string
+        expected by worker.py and Docker
+
+        @param memory Memory in GB
+        '''
+        return '%sg' % memory
+
+    @staticmethod
+    def cpu_limit(cpu):
+        '''
+        Convert a numerical share of CPU speed (GHz) into a
+        numeral CPU share
+
+        @param cpu Share of CPU in GHz
+        '''
+        # TODO. Needs to be based on the specs of the 
+        # worker - currently just giving equal shares
+        return 1024
+
+    @staticmethod
+    def network_limit(cpu):
+        '''
+        Convert a network limit
+        '''
+        return None
 
     ################################################################
     # Session related methods
@@ -533,8 +566,9 @@ class Session(models.Model):
         related_name='sessions'
     )
 
-    # Keeping memory and cpu fields since they could be used
-    # for custom session types
+    # Memory, cpu and network fields for sessions are required because they are 
+    # different units from what is in types (e.g. shares instead of Ghz). also
+    # they may be useful in case we want to customise the defaults of the session type.
 
     memory = models.CharField(
         max_length=8,
@@ -549,6 +583,13 @@ class Session(models.Model):
         blank=True,
         default=1024,
         help_text='CPU share for this session. Share out of 1024',
+    )
+
+    network = models.IntegerField(
+        null=True,
+        blank=True,
+        default=-1,
+        help_text='Network limit for this session. -1 = unlimited',
     )
 
     worker = models.ForeignKey(
@@ -729,17 +770,6 @@ class Session(models.Model):
         '''
         from accounts.models import Account
 
-        # If account not supplied then get user's
-        # current one
-        #if account is None:
-        #    account = user.details.account()
-        # Check that the user has rights to
-        # create a session for that account
-        #Account.authorize_or_raise(user, account, CREATE, 'session')
-        # Check the account has enough credit to create the session
-        #memory = 512  # For now just used a fixed memory size in megabytes
-        #account.enough_or_raise(memory=memory)
-
         # Get the session type
         if type_id is None:
             # If the session type is not specified (ie the accoun that owns the
@@ -812,10 +842,13 @@ class Session(models.Model):
 
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active
-            self.worker = Worker.choose(
-                memory=self.memory,
-                cpu=self.cpu
-            )
+            self.worker = Worker.choose(self.type)
+
+            # Get worker to translate session type limits into
+            # Docker container limits
+            self.memory = self.worker.memory_limit(self.type.memory)
+            self.cpu = self.worker.cpu_share(self.type.cpu)
+            self.network = self.worker.network_limit(self.type.network)
 
             # Start on the worker
             self.status = 'Starting'
