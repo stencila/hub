@@ -201,18 +201,17 @@ class Worker(models.Model):
     # and may be useful if different types of worker end up implementing different
     # types of resource limits
 
-    @staticmethod
-    def memory_limit(memory):
+    def memory_limit(self, memory):
         '''
         Convert a numerical memory limit (GB) into a string
         expected by worker.py and Docker
 
         @param memory Memory in GB
         '''
-        return '%sg' % memory
+        megs = round(memory*1000)
+        return '%im' % megs
 
-    @staticmethod
-    def cpu_limit(cpu):
+    def cpu_share(self, cpu):
         '''
         Convert a numerical share of CPU speed (GHz) into a
         numeral CPU share
@@ -223,8 +222,7 @@ class Worker(models.Model):
         # worker - currently just giving equal shares
         return 1024
 
-    @staticmethod
-    def network_limit(cpu):
+    def network_limit(self, cpu):
         '''
         Convert a network limit
         '''
@@ -852,7 +850,7 @@ class Session(models.Model):
 
             # Get worker to translate session type limits into
             # Docker container limits
-            self.memory = self.worker.memory_limit(self.type.memory)
+            self.memory = self.worker.memory_limit(self.type.ram)
             self.cpu = self.worker.cpu_share(self.type.cpu)
             self.network = self.worker.network_limit(self.type.network)
 
