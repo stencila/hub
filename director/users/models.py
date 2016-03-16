@@ -79,7 +79,6 @@ def user_post_save(sender, instance, created, **kwargs):
     '''
     Creates a UserDetails and a personal Account when a User is first created.
     '''
-    print 'user_post_save', created, instance, hasattr(instance, '_guest'), kwargs
     from accounts.models import Account, AccountType
     if created:
         user = instance
