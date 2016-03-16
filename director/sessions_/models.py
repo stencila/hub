@@ -1152,16 +1152,16 @@ def sessions_vacuum():
     for session in Session.objects.filter(active=True):
         since_started = now-session.started if session.started else None
         since_pinged = now-session.pinged if session.pinged else None
-        lifetime = session.type.lifetime
-        timeout = session.type.timeout
+        lifetime = datetime.timedelta(minutes=session.type.lifetime)
+        timeout = datetime.timedelta(minutes=session.type.timeout)
 
         stop = False
 
-        if lifetime > 0:
+        if session.type.lifetime > 0:
             if since_started is not None and since_started > lifetime:
                 stop = True
 
-        if timeout > 0:
+        if session.type.timeout > 0:
             if since_pinged is not None:
                 # Started and pinged
                 if since_pinged > timeout:
