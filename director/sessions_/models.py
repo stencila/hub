@@ -1106,24 +1106,33 @@ class Session(models.Model):
                 timeout=self.timeout
             )
 
-def sessions_vacuum(period=datetime.timedelta(minutes=60)):
+def sessions_vacuum():
     '''
-    Stop all sessions which are stale (i.e. have not been pinged in within `period`)
+    Stop sessions which have exceeded their lifetime or
+    have timedout (i.e. have not been pinged in within `timeout`)
     '''
     now = timezone.now()
     for session in Session.objects.filter(active=True):
         since_started = now-session.started if session.started else None
         since_pinged = now-session.pinged if session.pinged else None
+        lifetime = session.type.lifetime
+        timeout = session.type.timeout
 
         stop = False
-        if since_pinged is not None:
-            # Started and pinged
-            if since_pinged > period:
+
+        if lifetime > 0:
+            if since_started is not None and since_started > lifetime:
                 stop = True
-        else:
-            # Started and never been pinged...
-            if since_started is not None and since_started > period:
-                stop = True
+
+        if timeout > 0:
+            if since_pinged is not None:
+                # Started and pinged
+                if since_pinged > timeout:
+                    stop = True
+            else:
+                # Started and never been pinged...
+                if since_started is not None and since_started > timeout:
+                    stop = True
 
         if stop:
             session.stop(
