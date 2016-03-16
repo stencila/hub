@@ -23,13 +23,16 @@ import stencila
 
 DEV_MODE = len(sys.argv) > 1 and sys.argv[1] == 'dev'
 
+HOME_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 # Token for communication between roles
 if DEV_MODE:
     COMMS_TOKEN = 'an-insecure-token-only-used-in-development'
 else:
     COMMS_TOKEN = file(
         os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
+            HOME_DIR,
             '..', 'secrets', 'stencila-comms-token.txt'
         )
     ).read()
@@ -113,7 +116,11 @@ class Curator:
         # Copy post-receive into .git/hooks so necessary operations can
         # be run on the repository after pushes
         # This script must be executable, that is done below
-        cp('-f', 'git-post-receive.sh', os.path.join(path, '.git/hooks/post-receive'))
+        cp(
+            '-f',
+            os.path.join(HOME_DIR, 'git-post-receive.sh'),
+            os.path.join(path, '.git/hooks/post-receive')
+        )
 
         # Allow the (non-bare) repostory to be pushed to by setting
         # receive.denyCurrentBranch to ignore
