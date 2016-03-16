@@ -75,12 +75,13 @@ class UserDetails(models.Model):
         return 'UserDetails#%s(%s)' % (self.id, self.user.username)
 
 
-def user_post_save(sender, user, created, **kwargs):
+def user_post_save(sender, instance, created, **kwargs):
     '''
     Creates a UserDetails and a personal Account when a User is first created.
     '''
     from accounts.models import Account, AccountType
     if created:
+        user = instance
         if not user.guest:
             account = Account.objects.create(
                 name=user.username,
