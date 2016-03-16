@@ -82,20 +82,20 @@ class GuestAuthBackend(ModelBackend):
             trials += 1
             username = 'guest-'+''.join(random.sample(string.digits, 6))
             try:
-                user = User.objects.create_user(username)
+                user = User.objects.create_user(
+                    username=username,
+                    # Use email as a signal to `user_post_save` that this is a guest
+                    email="guest"
+                )
                 break
             except IntegrityError:
                 if trials >= 30:
                     logger.error('Needing many trials at generating a random auto user username. Increase digits?')
 
         if user is None:
-            raise Exception('Unable to create AuthAuthBackend user')
+            raise Exception('Unable to create GuestAuthBackend user')
         else:
-            # Mark as a guest user
-            user.details.guest = True
-            user.details.save()
-        return user
-
+            return user
 
 
 class AuthenticationMiddleware:
