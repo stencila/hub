@@ -718,7 +718,7 @@ class Session(models.Model):
             })
             return Session.objects.filter(**filter)
         else:
-            return []
+            return Session.objects.none()
 
     @staticmethod
     def get(id, user):
@@ -738,15 +738,17 @@ class Session(models.Model):
     @staticmethod
     def get_for(user, image_name):
         '''
-        Get an active session for the user/image pair
+        Get an active session for the user/image pair.
+        In most cases user will only have one active session per user/image.
+        But in cases that the user has more than one, currently just take the most recently started.
         '''
         try:
-            return Session.objects.get(
+            return Session.objects.filter(
                 user=user,
                 image=image_name,
                 active=True
-            )
-        except Session.DoesNotExist:
+            ).order_by('-started')[0]
+        except IndexError:
             return None
 
     @staticmethod

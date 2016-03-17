@@ -70,8 +70,8 @@ def new(request):
                     filter={
                         'active': True
                     }
-                ),
-                'types': SessionType.objects.all(),
+                ).count(),
+                'types': SessionType.objects.order_by('rank').all(),
                 'images': SessionImage.objects.all()
             }
         )
