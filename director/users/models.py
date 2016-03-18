@@ -22,6 +22,13 @@ import jsonfield
 
 from general.errors import Error
 
+# User "any" is used for creating keys that apply to any user
+# Always loaded so available in various authorisation functions
+try:
+    user_any = User.objects.get(username='any')
+except User.DoesNotExist:
+    user_any = None
+
 
 class UnauthenticatedError(Error):
     '''
