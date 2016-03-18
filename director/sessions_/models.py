@@ -4,6 +4,7 @@ import json
 import time
 import datetime
 from collections import OrderedDict
+import random
 
 import logging
 logger = logging.getLogger('sessions')
@@ -182,9 +183,9 @@ class Worker(models.Model):
         '''
         Choose the best worker to launch a session of the given type.
 
-        Currently, very naive (just use the first worker).
-        In the future could use `WorkerStats`
-        data and an algorithm to determine the best one to start a session on
+        Currently, just uses a random worker.
+        In the future could use `WorkerStats` data and an algorithm 
+        to determine the best one to start a session on.
         '''
         workers = Worker.objects.filter(active=True)
         if len(workers) == 0:
@@ -195,7 +196,7 @@ class Worker(models.Model):
             worker.launch()
             return worker
         else:
-            return workers[0]
+            return random.choice(workers)
 
     # These conversion methods seem like a bit of a pain but are necessary now
     # and may be useful if different types of worker end up implementing different
