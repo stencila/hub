@@ -909,6 +909,7 @@ class Key(models.Model):
     type_choices = [
         ('address', 'Address'),
         ('session', 'Session'),
+        ('sheet', 'Sheet'),
         ('stencil', 'Stencil'),
         ('theme', 'Theme'),
     ]
