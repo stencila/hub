@@ -554,12 +554,16 @@ def route(request, address=''):
         address=address
     )
     if component:
-        # Yes, return the components page or
-        # redirect to the component's canonical URL if necessary
-        if request.path == component.url():
-            return page(request, address, component)
+        api = API(request)
+        if api.accept == 'json':
+            return api.respond(component)
         else:
-            return redirect(component.url(), permanent=True)
+            # Yes, return the components page or
+            # redirect to the component's canonical URL if necessary
+            if request.path == component.url():
+                return page(request, address, component)
+            else:
+                return redirect(component.url(), permanent=True)
     else:
         # Is there an `all` stencil at the address?
         all = address+'/all'

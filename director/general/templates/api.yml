@@ -4,13 +4,13 @@ info:
   title: Stencila API
   version: 1.0
   description: |
-    The Stencila API is under rapid development. So,
+    The Stencila API is under active development. So,
 
       - not all of the endpoints that are documented here are implemented!
       - not all of the endpoint that are implemented are documented here!
       - much of the documentation here may not match what is currently implemented!
 
-    Please bear with us, we are working hard to get the API settled down and to version 1.0.
+    Sigh. Please bear with us, we are working hard to get the API settled down and to version 1.0.
 
     The API uses the ampersand `@` to denote calls to methods of components. We use `address/of/component@method` instead of `address/of/component/method` so that it is possible to resolve where a component address ends and the method name starts. We use `@` instead of `.` to easily differentiate method URL endpoints from raw file endpoints. The ampersand is a valid charater for a HTTP URL (see page 17 of http://tools.ietf.org/html/rfc1738).
 
@@ -36,6 +36,25 @@ paths:
   ###########################################################################
   # Components
   ###########################################################################
+
+  /{address}:
+
+    get:
+      summary: Read a component.
+      description: |
+        Get meta data on the component, it's type, title, number of views etc
+      tags:
+        - Components
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Component meta data.
+          schema:
+            $ref: '#/definitions/Component'
 
   /{address}@boot:
 
