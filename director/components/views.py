@@ -268,8 +268,8 @@ def boot(request, address):
             address=address
         )
 
-        rights = EXECUTE #component.rights(request.user)
-        if rights >= EXECUTE:
+        action, grantor = component.rights(request.user)
+        if action >= EXECUTE:
             api.user_ensure()
             session = component.activate(
                 user=request.user
@@ -278,10 +278,11 @@ def boot(request, address):
             session = None
 
         return api.respond({
-            'rights': action_string(rights),
-            'session': session.serialize(
-                user=request.user
-            )
+            'rights': {
+                'action': action_string(action),
+                'grantor': grantor.serialize(user=request.user) if grantor else None
+            },
+            'session': session.serialize(user=request.user) if session else None
         })
     return api.respond_bad()
 

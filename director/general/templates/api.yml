@@ -789,11 +789,10 @@ definitions:
         description: |
           Is this component public? Determined by whether the component's address, or a it's parent address, is public.
       rights:
-        type: string
-        description: Access rights for the current user for this component ('READ','UPDATE',etc)
-      favourites:
+        $ref: '#/definitions/Rights'
+      stars:
         type: int
-        description: Number of times this component has been favourited
+        description: Number of times this component has been starred
       favourited:
         type: boolean
         description: Has this component been favourtied by the current user?
@@ -813,6 +812,13 @@ definitions:
         type: string
         format: date-time
 
+  Rights:
+      action:
+        type: string
+        description: Access rights for the current user for this component ('READ','UPDATE',etc)
+      grantor:
+        $ref: '#/definitions/Account'
+
   Session:
     type: object
     properties:
@@ -820,8 +826,6 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/User'
-      component:
-        $ref: '#/definitions/Component'
       url:
         type: string
       websocket:

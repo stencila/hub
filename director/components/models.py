@@ -10,11 +10,11 @@ from collections import OrderedDict
 
 from django.db import models, IntegrityError
 from django.utils.text import slugify
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.utils import timezone
 from django.conf import settings
 
-from users.models import User, UnauthenticatedError
+from users.models import User, UnauthenticatedError, user_any
 from general.errors import Error
 from general.custom_storages import SnapshotsStorage
 from sessions_.models import Session
@@ -164,6 +164,7 @@ class Component(models.Model):
         )
 
     def serialize(self, user, detail=0):
+        action, grantor = self.rights(user)
         data = OrderedDict([
             ('id', self.id),
             ('address', self.address.serialize(user)),
@@ -179,6 +180,10 @@ class Component(models.Model):
             ('views', self.views),
             ('stars', self.stars),
             ('forks', self.forks),
+            ('rights', {
+                'action': action_string(action),
+                'grantor': grantor
+            })
         ])
         return data
 
@@ -229,6 +234,25 @@ class Component(models.Model):
             )
         else:
             return component
+
+    def rights(self, user):
+        '''
+        Get the maximum rights that the user has for this component
+
+        Currently the grantor is None but expect to implement this as the
+        account owning the key
+        '''
+        filter = Q(users=user_any)
+        if user.is_authenticated():
+            filter |= Q(users=user)
+        rights = self.address.keys.filter(filter).aggregate(Max('action'))['action__max']
+        if rights is None: rights = NONE
+        grantor = None
+        print rights, self.address.public, rights < READ
+        if self.address.public and (rights is None or rights < READ):
+            rights = READ
+
+        return rights, grantor
 
     ##########################################################################
     # Listing
@@ -935,8 +959,7 @@ class Key(models.Model):
             ('address', self.address),
             ('type', self.type),
             ('action', self.action),
-            ('users', [grantee.serialize(request) for grantee in self.users.all()]),
-            ('account', self.account.serialize(request)),
+            ('users', [grantee.serialize(request) for grantee in self.users.all()])
         ])
 
     ##########################################################################
