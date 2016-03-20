@@ -158,9 +158,10 @@ def backend_error(request, backend, url):
     '''
     Used to capture and report backend requests to Sentry.
     Only intended to be called internally by Nginx.
-    Hence the REMOTE_ADDR header requirement.
+    Note that when doing `usgwi_param` the name of the header
+    is NOT converted to `HTTP_X_INTERNAL`.
     '''
-    internal = request.META.get('HTTP_X_INTERNAL')
+    internal = request.META.get('X-Internal')
     if internal == 'yes':
         raise BackendError('%s : %s' % (backend, url))
     else:
