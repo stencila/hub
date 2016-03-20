@@ -436,7 +436,7 @@ class SessionType(models.Model):
             ('id', self.id),
             ('rank', self.rank),
             ('name', self.name),
-            ('ram', self.ram),
+            ('memory', self.memory),
             ('cpu', self.cpu),
             ('network', self.network),
             ('lifetime', self.lifetime),
