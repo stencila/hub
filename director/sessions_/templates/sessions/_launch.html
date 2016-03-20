@@ -16,19 +16,21 @@
 						<tr>
 						  <td>
 						  	Memory
-						  	<i class="ui info circle icon" data-content="Gigabytes (GB) of RAM allocated to the session"></i>
+						  	<i class="ui info circle icon" data-content="Gigabytes (GB) of memory allocated to the session"></i>
 						  </td>
-						  <td class="ui six wide right aligned">{{ type.ram }}</td>
+						  <td class="ui six wide right aligned">{{ type.memory }}</td>
 						  <td class="ui two wide">GB</td>
 						</tr>
 						<tr>
 						  <td>
 						  	CPU 
-						  	<i class="ui info circle icon" data-content="Share of CPU Gigahertz (GHz) allocated to the session"></i>
+						  	<i class="ui info circle icon" data-content="Share of CPU allocated to the session"></i>
 						  </td>
-						  <td class="ui right aligned">{{ type.cpu }}</td>
-						  <td>GHz</td>
+						  <td class="ui right aligned">{{ type.cpu|stringformat:'d' }}</td>
+						  <td>shares</td>
 						</tr>
+						{% comment %}
+						Not currently implemented, so not displayed here
 						<tr>
 						  <td>
 						  	Network
@@ -37,6 +39,7 @@
 						  <td class="ui right aligned">{{ type.network }}</td>
 						  <td>GB</td>
 						</tr>
+						{% endcomment %}
 						<tr>
 						  <td>
 						  	Lifetime
@@ -97,11 +100,14 @@
 			  <input name="cpu">
 			  <label class="ui basic label">GHz</label>
 			</div>
+			{% comment %}
+			Not currently implemented, so not displayed here
 			<div class="ui right labeled fluid input">
 			  <label class="ui basic label">Network</label>
 			  <input name="network">
 			  <label class="ui basic label">GB</label>
 			</div>
+			{% endcomment %}
 			<div class="ui right labeled fluid input">
 			  <label class="ui basic label">Lifetime</label>
 			  <input name="lifetime">
