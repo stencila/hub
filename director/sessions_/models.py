@@ -198,37 +198,6 @@ class Worker(models.Model):
         else:
             return random.choice(workers)
 
-    # These conversion methods seem like a bit of a pain but are necessary now
-    # and may be useful if different types of worker end up implementing different
-    # types of resource limits
-
-    def memory_limit(self, memory):
-        '''
-        Convert a numerical memory limit (GB) into a string
-        expected by worker.py and Docker
-
-        @param memory Memory in GB
-        '''
-        megs = round(memory*1000)
-        return '%im' % megs
-
-    def cpu_share(self, cpu):
-        '''
-        Convert a numerical share of CPU speed (GHz) into a
-        numeral CPU share
-
-        @param cpu Share of CPU in GHz
-        '''
-        # TODO. Needs to be based on the specs of the 
-        # worker - currently just giving equal shares
-        return 1024
-
-    def network_limit(self, cpu):
-        '''
-        Convert a network limit
-        '''
-        return None
-
     ################################################################
     # Session related methods
     #
@@ -244,6 +213,7 @@ class Worker(models.Model):
             'command':  session.command,
             'memory':   session.memory,
             'cpu':      session.cpu,
+            'cpus':     1,  # TODO use actual number on worker
             'token':    session.token
         })
 
@@ -419,25 +389,25 @@ class SessionType(models.Model):
         help_text='A short description of the session type',
     )
 
-    ram = models.FloatField(
-        default=0,
+    memory = models.FloatField(
+        default=1,
         null=False,
         blank=False,
-        help_text='Gigabytes (GB) of RAM allocated'
+        help_text='Gigabytes (GB) of memory allocated'
     )
 
     cpu = models.FloatField(
-        default=0,
+        default=1,
         null=False,
         blank=False,
-        help_text='Gigahertz (GHz) of CPU allocated to the session'
+        help_text='CPU shares (out of 100 per CPU) allocated'
     )
 
     network = models.FloatField(
-        default=0,
+        default=-1,
         null=False,
         blank=False,
-        help_text='Gigabytes (GB) of network transfer allocated to the session.'
+        help_text='Gigabytes (GB) of network transfer allocated. -1 = unlimited'
     )
 
     lifetime = models.IntegerField(
@@ -571,30 +541,22 @@ class Session(models.Model):
         related_name='sessions'
     )
 
-    # Memory, cpu and network fields for sessions are required because they are 
-    # different units from what is in types (e.g. shares instead of Ghz). also
-    # they may be useful in case we want to customise the defaults of the session type.
-
-    memory = models.CharField(
-        max_length=8,
+    memory = models.FloatField(
         null=True,
         blank=True,
-        default='1g',
-        help_text='Memory limit for this session. Format: <number><optional unit>, where unit = b, k, m or g',
+        help_text='Gigabytes (GB) of memory allocated. If left null will default to that of session type.',
     )
 
-    cpu = models.IntegerField(
+    cpu = models.FloatField(
         null=True,
         blank=True,
-        default=1024,
-        help_text='CPU share for this session. Share out of 1024',
+        help_text='CPU shares (out of 100 per CPU) allocated If left null will default to that of session type.',
     )
 
-    network = models.IntegerField(
+    network = models.FloatField(
         null=True,
         blank=True,
-        default=-1,
-        help_text='Network limit for this session. -1 = unlimited',
+        help_text='Gigabytes (GB) of network transfer allocated. -1 = unlimited. If left null will default to that of session type.',
     )
 
     worker = models.ForeignKey(
@@ -846,16 +808,18 @@ class Session(models.Model):
             # Get the sessions token for the user, creating
             # one if necessary
             self.token = UserToken.get_sessions_token(self.user).string
+            # Apply session type limits to this session
+            # is they have not bee cutomised
+            if self.memory is None:
+                self.memory = self.type.memory
+            if self.cpu is None:
+                self.cpu = self.type.cpu
+            if self.network is None:
+                self.network = self.type.network
 
             # Find the best worker to start the session on
             # Currently this just chooses a random worker that is active
             self.worker = Worker.choose(self.type)
-
-            # Get worker to translate session type limits into
-            # Docker container limits
-            self.memory = self.worker.memory_limit(self.type.ram)
-            self.cpu = self.worker.cpu_share(self.type.cpu)
-            self.network = self.worker.network_limit(self.type.network)
 
             # Start on the worker
             self.status = 'Starting'

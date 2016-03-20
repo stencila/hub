@@ -61,12 +61,19 @@ class Worker:
         # Get and check for parameters
         data = json.loads(request.data)
         pars = {}
-        for par in 'image', 'command', 'memory', 'cpu', 'token':
+        for par in 'image', 'command', 'memory', 'cpu', 'cpus', 'token':
             value = data.get(par, None)
             if value is None:
                 return self.response({'error': 'argument not supplied: '+par})
             else:
                 pars[par] = value
+
+        # Convert resource limits as necessary
+        memory = float(pars['memory'])
+        mem_limit = '%im' % int(memory*1000)
+        cpu = float(pars['cpu'])
+        cpus = float(pars['cpus'])
+        cpu_shares = int(cpu/(cpus*100.) * 1024)  # Docker uses CPU shares out of 1024
 
         # Environment variables
         environment = {
@@ -83,7 +90,7 @@ class Worker:
         host_config = docker.create_host_config(
             # See http://docker-py.readthedocs.org/en/latest/hostconfig/ for all options
             publish_all_ports=True,
-            mem_limit=pars['memory']
+            mem_limit=mem_limit
         )
         session = docker.create_container(
             image=pars['image'],           # image (str): The image to run
@@ -101,7 +108,7 @@ class Worker:
                                             # network_disabled (bool): Disable networking
                                             # name (str): A name for the container
                                             # entrypoint (str or list): An entrypoint
-            cpu_shares=pars['cpu'],         # cpu_shares (int or float): CPU shares (relative weight)
+            cpu_shares=cpu_shares,          # cpu_shares (int or float): CPU shares (relative weight)
                                             # working_dir (str): Path to the working directory
                                             # domainname (str or list): Set custom DNS search domains
                                             # memswap_limit (int):
