@@ -61,7 +61,7 @@ class EC2:
 
         # Specify root storage device
         dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
-        dev_sda1.size = worker.storage
+        dev_sda1.size = int(worker.storage)
         dev_sda1.volume_type = 'gp2'  # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
         block_device_map = boto.ec2.blockdevicemapping.BlockDeviceMapping()
         block_device_map['/dev/sda1'] = dev_sda1
