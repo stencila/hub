@@ -49,11 +49,14 @@ class EC2:
         instance_type = 't2.micro'
         # Note these if statements act like a series of instance
         # type upgrades, not a branching if/else.
-        if worker.cpu >= 1 and worker.memory >= 2:
+        # Also, because discrete combinations of CPU and memory
+        # there is no guarantee that your exact combination will
+        # be met
+        if worker.cpus >= 1 and worker.memory >= 2:
             instance_type = 't2.small'
-        if worker.cpu >= 2 and worker.memory >= 4:
+        if worker.cpus >= 2 and worker.memory >= 4:
             instance_type = 't2.medium'
-        if worker.cpu >= 2 and worker.memory >= 8:
+        if worker.cpus >= 2 and worker.memory >= 8:
             instance_type = 't2.large'
 
         # Specify root storage device
