@@ -37,13 +37,29 @@ class EC2:
         return image.id
 
     def launch(self, worker):
+        '''
+        Translates the worker's attributes into attributes of an EC2 instance and launches it
+        '''
         connection = self.connection()
 
-        # Specify size of root device; the default 8Gb was found
-        # to be insufficient
+        # Determine the instance type
+        # Currently a very simplistic choice of instance type
+        # until various optimisations are done.
+        # See https://aws.amazon.com/ec2/pricing/
+        instance_type = 't2.micro'
+        # Note these if statements act like a series of instance
+        # type upgrades, not a branching if/else.
+        if worker.cpu >= 1 and worker.memory >= 2:
+            instance_type = 't2.small'
+        if worker.cpu >= 2 and worker.memory >= 4:
+            instance_type = 't2.medium'
+        if worker.cpu >= 2 and worker.memory >= 8:
+            instance_type = 't2.large'
+
+        # Specify root storage device
         dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
-        dev_sda1.size = 20 # size in Gigabytes
-        dev_sda1.volume_type = 'gp2' # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
+        dev_sda1.size = worker.storage
+        dev_sda1.volume_type = 'gp2'  # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
         block_device_map = boto.ec2.blockdevicemapping.BlockDeviceMapping()
         block_device_map['/dev/sda1'] = dev_sda1
 
@@ -52,7 +68,7 @@ class EC2:
             min_count=1,
             max_count=1,
             key_name='stencila-aws-us-west-2-key-pair-1',
-            instance_type='t2.small',
+            instance_type=instance_type,
             # stencila-private-subnet-1
             subnet_id='subnet-a0599cf9',
             # When launching into a subnet apparently `security_group_ids` must

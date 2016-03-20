@@ -31,6 +31,21 @@ class Worker(models.Model):
     A computer running a Stencila session agent
     '''
 
+    cpus = models.FloatField(
+        default=1,
+        help_text='Number of CPUs/vCPUs'
+    )
+
+    memory = models.FloatField(
+        default=1,
+        help_text='Random access memory (RAM) in GB'
+    )
+
+    storage = models.FloatField(
+        default=10,
+        help_text='Disk storage in GB'
+    )
+
     provider = models.CharField(
         choices=[(code, provider.__class__.__name__) for code, provider in providers.items()],
         max_length=16,
@@ -213,7 +228,7 @@ class Worker(models.Model):
             'command':  session.command,
             'memory':   session.memory,
             'cpu':      session.cpu,
-            'cpus':     1,  # TODO use actual number on worker
+            'cpus':     self.cpus,
             'token':    session.token
         })
 

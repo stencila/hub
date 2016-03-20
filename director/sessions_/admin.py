@@ -5,8 +5,9 @@ from sessions_.models import Worker, WorkerStats, SessionType, SessionImage, Ses
 
 class WorkerAdmin(admin.ModelAdmin):
 
-    list_display = ('id', 'provider_id', 'ip', 'active', 'started', 'updated', 'stopped')
+    list_display = ('id', 'provider_id', 'ip', 'active', 'cpus', 'memory', 'started', 'updated', 'stopped')
     readonly_fields = ['started', 'updated', 'stopped']
+    list_filter = ('active', 'cpus', 'memory')
     actions = ['launch', 'update', 'pull', 'terminate']
 
     def launch(self, request, queryset):
