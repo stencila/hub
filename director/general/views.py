@@ -161,7 +161,7 @@ def backend_error(request, backend, url):
     Hence the REMOTE_ADDR header requirement.
     '''
     internal = request.META.get('HTTP_X_INTERNAL')
-    if internal == 'true':
+    if internal == 'yes':
         raise BackendError('%s : %s' % (backend, url))
     else:
         return HttpResponseForbidden('X-Internal: %s' % internal)
