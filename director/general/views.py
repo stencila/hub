@@ -160,10 +160,11 @@ def backend_error(request, backend, url):
     Only intended to be called internally by Nginx.
     Hence the REMOTE_ADDR header requirement.
     '''
-    if request.META.get('HTTP_X_INTERNAL') == 'true':
+    internal = request.META.get('HTTP_X_INTERNAL')
+    if internal == 'true':
         raise BackendError('%s : %s' % (backend, url))
     else:
-        return HttpResponseForbidden()
+        return HttpResponseForbidden('X-Internal: %s' % internal)
 
 
 class BackendError(Exception):
