@@ -60,9 +60,11 @@ class EC2:
             instance_type = 't2.large'
 
         # Specify root storage device
-        dev_sda1 = boto.ec2.blockdevicemapping.EBSBlockDeviceType()
-        dev_sda1.size = int(worker.storage)
-        dev_sda1.volume_type = 'gp2'  # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
+        dev_sda1 = boto.ec2.blockdevicemapping.BlockDeviceType(
+            size=int(worker.storage),
+            volume_type='gp2',  # General Purpose (SSD) instead of the defaul 'standard' (magnetic)
+            delete_on_termination=True  # Defaults to False in which case blocks will persist and need to be deleted manually
+        )
         block_device_map = boto.ec2.blockdevicemapping.BlockDeviceMapping()
         block_device_map['/dev/sda1'] = dev_sda1
 
