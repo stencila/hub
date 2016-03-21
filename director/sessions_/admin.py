@@ -5,10 +5,18 @@ from sessions_.models import Worker, WorkerStats, SessionType, SessionImage, Ses
 
 class WorkerAdmin(admin.ModelAdmin):
 
-    list_display = ('id', 'provider_id', 'ip', 'active', 'cpus', 'memory', 'started', 'updated', 'stopped')
+    list_display = (
+        'id', 'provider_id', 'ip', 'active', 'cpus', 'memory',
+        'get_sessions_active',
+        'started', 'updated', 'stopped',
+    )
     readonly_fields = ['started', 'updated', 'stopped']
     list_filter = ('active', 'cpus', 'memory')
     actions = ['launch', 'update', 'pull', 'terminate']
+
+    def get_sessions_active(self, obj):
+        return obj.sessions.filter(active=True).count()
+    get_sessions_active.short_description = 'Active sessions'
 
     def launch(self, request, queryset):
         for worker in queryset:

@@ -41,6 +41,13 @@ class Worker(models.Model):
         help_text='Random access memory (RAM) in GB'
     )
 
+    # Amount of memory (GB) reserved for running a worker
+    # and which can't be allocated to sessions
+    # See `choose()` method below.
+    # Current value of 0.25GB chosen based on base memory usage
+    # of existing workers ~0.18GB
+    memory_reserved = 0.25
+
     storage = models.FloatField(
         default=10,
         help_text='Disk storage in GB'
@@ -194,24 +201,54 @@ class Worker(models.Model):
         return self
 
     @staticmethod
-    def choose(type):
+    def choose(session):
         '''
-        Choose the best worker to launch a session of the given type.
+        Choose the best worker to launch a session.
 
-        Currently, just uses a random worker.
-        In the future could use `WorkerStats` data and an algorithm 
-        to determine the best one to start a session on.
+        Selects the worker that can fit the session (given allocated CPU shares,
+        memory etc) but which is most full. This is done to
+        reduce the number of workers required by making best use of the available workers;
+        workers that end up with no sessions can be terminated.
         '''
-        workers = Worker.objects.filter(active=True)
+        # Select workers that have enough resources to fit session and choose
+        # one with highest number of existing sessions. The memory buffer is
+        # intended to ensure a worker's memory is not completely filled up with
+        # sessions
+        workers = Worker.objects.raw('''
+            SELECT
+                id,
+                memory, memory_alloc, memory-memory_alloc AS memory_remain,
+                cpus*100 AS cpu, cpu_alloc, cpus*100-cpu_alloc AS cpu_remain
+            FROM sessions__worker LEFT JOIN (
+                SELECT
+                    worker_id,
+                    count(*) AS sessions,
+                    sum(memory) AS memory_alloc,
+                    sum(cpu) AS cpu_alloc
+                FROM sessions__session
+                WHERE active=true
+                GROUP BY worker_id
+            ) AS sessions_summary ON sessions__worker.id=sessions_summary.worker_id
+            WHERE
+                active = true AND
+                (memory-memory_alloc-%f) > %f AND
+                (cpus*100-cpu_alloc) > %f
+            ORDER BY
+                sessions DESC
+        ;''' % (Worker.memory_reserved, session.memory, session.cpu))
+        # Ensure `RawQuerySet` is executed before doing `len`
+        workers = list(workers)
         if len(workers) == 0:
             # If there are no active workers then launch one.
-            # In production use EC2 in development VirtualBox
-            provider = 'ec2' if settings.MODE == 'prod' else 'vbox'
-            worker = Worker(provider=provider)
+            # It is intended that workers are launched before they are
+            # needed by `Worker.scale()` but this provides a backup to that.
+            worker = Worker(
+                provider='ec2' if settings.MODE == 'prod' else 'vbox'
+            )
             worker.launch()
             return worker
         else:
-            return random.choice(workers)
+            return workers[0]
 
     ################################################################
     # Session related methods
@@ -833,8 +870,7 @@ class Session(models.Model):
                 self.network = self.type.network
 
             # Find the best worker to start the session on
-            # Currently this just chooses a random worker that is active
-            self.worker = Worker.choose(self.type)
+            self.worker = Worker.choose(self)
 
             # Start on the worker
             self.status = 'Starting'
