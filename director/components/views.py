@@ -658,6 +658,8 @@ def file(request, path):
             required=False
         )
         if session:
+            # Wait until session is ready (otherwise session port is None)
+            session.wait()
             # Redirect to session
             location = '%s:%s/%s' % (session.worker.ip, session.port, path)
             if settings.MODE == 'local':

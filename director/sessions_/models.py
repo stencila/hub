@@ -4,7 +4,6 @@ import json
 import time
 import datetime
 from collections import OrderedDict
-import random
 
 import logging
 logger = logging.getLogger('sessions')
@@ -934,7 +933,9 @@ class Session(models.Model):
                     timeout=timeout
                 )
             self.update(save=False)
-        self.save()
+            # Save, if gone from unready to ready
+            if self.ready:
+                self.save()
 
     def monitor(self):
         '''
