@@ -1,4 +1,6 @@
-<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:300px">
+<div align="center">
+	<img src="http://static.stenci.la/img/logo-name-tagline-500.png" alt="Stencila" style="max-width:250px">
+</div>
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub at [https://stenci.la](https://stenci.la).
 
@@ -28,7 +30,7 @@ This repo is organised into "roles". Most of these roles reflect a web service, 
 
 - [`director`](director) : registry for components, accounts, users, sessions etc, authentication and authorization point, router and API server - a Django application
 
-- [`curator`](curator) : curates and serves component repositories - a Python script which exposes repos via a REST API for `director` to use, a Go script which implements the [Git Smart HTTP Transport](https://git-scm.com/blog/2010/03/04/smart-http.html) for Git clients to access component repos (proxied and authorized by `director`)
+- [`curator`](curator) : curates and serves component repositories - a Python script which exposes a component repo API for `director` to use and a Go script for Git clients to access component repos (proxied and authorized by `director`)
 
 - [`worker`](worker) : a machine that hosts component sessions in Docker container instances - Python script for taking an image of it (for replication), and a Python script `worker.py` which communicates with `director` for starting, stopping and providing information on sessions.
 
