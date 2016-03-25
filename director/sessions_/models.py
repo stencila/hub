@@ -1052,20 +1052,25 @@ class Session(models.Model):
                     action='stop'
                 )
 
-        if self.stopped is None:
-            # Always get stats and logs before
-            # stopping a session
-            self.monitor()
+        if self.stopped is None and self.worker:
 
-            if self.worker:
+            try:
+                # Always get stats and logs before
+                # stopping a session
+                self.monitor()
+
+                # Attempt to stop
                 result = self.worker.stop(self)
                 if result.get('ok') != 1:
                     raise Exception('Session may not have been stopped')
 
-                self.active = False
-                self.ready = False
-                self.stopped = timezone.now()
-                self.save()
+            except Exception, e:
+                logger.error('Error when stopping session %s: %s' % (self.id, e))
+
+            self.active = False
+            self.ready = False
+            self.stopped = timezone.now()
+            self.save()
 
     def invite(self, inviter, invitee):
         '''
