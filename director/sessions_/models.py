@@ -208,7 +208,21 @@ class Worker(models.Model):
         '''
         if self.started and self.active and self.stopped is None:
             self.update()
+
+            sessions = Session.objects.filter(worker=self)
+
+            # Attempt to gracefully stop all sessions
+            for session in sessions:
+                session.stop(user='hub')
+
+            # Actually terminate the machine
             providers[self.provider].terminate(self)
+
+            # Ensure all sessions are now marked as inactive
+            # (in case session.stop() failed)
+            for session in sessions:
+                session.active = False
+                session.save()
 
             self.stopped = timezone.now()
             self.active = False
