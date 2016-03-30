@@ -243,12 +243,19 @@ class Worker(models.Model):
         # Select workers that have enough resources to fit session and choose
         # one with highest number of existing sessions. The memory buffer is
         # intended to ensure a worker's memory is not completely filled up with
-        # sessions
+        # sessions.
+        # The `coalesce` is important otherwise get NULLs if no active sessions on
+        # a worker.
         workers = Worker.objects.raw('''
             SELECT
                 id,
-                memory, memory_alloc, memory-memory_alloc AS memory_remain,
-                cpus*100 AS cpu, cpu_alloc, cpus*100-cpu_alloc AS cpu_remain
+                coalesce(sessions,0) AS sessions,
+                coalesce(memory,0) AS memory,
+                coalesce(memory_alloc,0) AS memory_alloc,
+                coalesce(memory-memory_alloc,0) AS memory_remain,
+                coalesce(cpus*100,0) AS cpu,
+                coalesce(cpu_alloc,0) AS cpu_alloc,
+                coalesce(cpus*100-cpu_alloc,0) AS cpu_remain
             FROM sessions__worker LEFT JOIN (
                 SELECT
                     worker_id,
@@ -899,20 +906,21 @@ class Session(models.Model):
             if self.network is None:
                 self.network = self.type.network
 
-            if 0:
+            # If worker not yet assigned (eg. in admin)
+            if not self.worker:
                 # Find the best worker to start the session on
                 self.worker = Worker.choose(self)
 
-                # Start on the worker
-                self.status = 'Starting'
-                # Session could be started asynchronously but for now
-                # it is started here
-                result = self.worker.start(self)
-                self.uuid = result.get('uuid')
-                if result.get('warning'):
-                    logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
-                if result.get('error'):
-                    logger.error('session %s ; %s ' % (self.id, result.get('error')))
+            # Start on the worker
+            self.status = 'Starting'
+            # Session could be started asynchronously but for now
+            # it is started here
+            result = self.worker.start(self)
+            self.uuid = result.get('uuid')
+            if result.get('warning'):
+                logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
+            if result.get('error'):
+                logger.error('session %s ; %s ' % (self.id, result.get('error')))
 
             # Update
             self.active = True
