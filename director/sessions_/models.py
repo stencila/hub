@@ -853,11 +853,12 @@ class Session(models.Model):
             ).count()
             if count >= type.number:
                 # Log it and then raise an error
-                logger.warning(
-                    'Reached limit for session type\n  type: %s\n  max: %s\n  count: %s' % (
-                        type.name, type.number, count
-                    )
-                )
+                logger.warning('Reached limit for session type', exc_info=True, extra=dict(
+                    user=user,
+                    type=type.name,
+                    max=type.number,
+                    count=count
+                ))
                 raise Session.TypeLimitError()
 
         # Get the session image
@@ -911,9 +912,15 @@ class Session(models.Model):
             result = self.worker.start(self)
             self.uuid = result.get('uuid')
             if result.get('warning'):
-                logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
+                logger.warning('Session start warning', exc_info=True, extra=dict(
+                    session=self.id,
+                    warning=result.get('warning')
+                ))
             if result.get('error'):
-                logger.error('session %s ; %s ' % (self.id, result.get('error')))
+                logger.error('Session start error', exc_info=True, extra=dict(
+                    session=self.id,
+                    error=result.get('error')
+                ))
 
             # Update
             self.active = True
@@ -1081,7 +1088,9 @@ class Session(models.Model):
                     raise Exception('Session may not have been stopped')
 
             except Exception, e:
-                logger.error('Error when stopping session %s: %s' % (self.id, e))
+                logger.error('Error stopping session', exc_info=True, extra=dict(
+                    session=self.id
+                ))
 
             self.active = False
             self.ready = False
