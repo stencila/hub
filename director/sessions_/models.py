@@ -249,7 +249,7 @@ class Worker(models.Model):
         workers = Worker.objects.raw('''
             SELECT
                 id,
-                coalesce(sessions,0) AS sessions,
+                coalesce(sessions,0) AS session_count,
                 coalesce(memory,0) AS memory,
                 coalesce(memory_alloc,0) AS memory_alloc,
                 coalesce(memory-memory_alloc,0) AS memory_remain,
@@ -271,7 +271,7 @@ class Worker(models.Model):
                 (memory-memory_alloc-%f) > %f AND
                 (cpus*100-cpu_alloc) > %f
             ORDER BY
-                sessions DESC
+                session_count DESC
         ;''' % (Worker.memory_reserved, session.memory, session.cpu))
         # Ensure `RawQuerySet` is executed before doing `len`
         workers = list(workers)
