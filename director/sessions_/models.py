@@ -899,19 +899,20 @@ class Session(models.Model):
             if self.network is None:
                 self.network = self.type.network
 
-            # Find the best worker to start the session on
-            self.worker = Worker.choose(self)
+            if 0:
+                # Find the best worker to start the session on
+                self.worker = Worker.choose(self)
 
-            # Start on the worker
-            self.status = 'Starting'
-            # Session could be started asynchronously but for now
-            # it is started here
-            result = self.worker.start(self)
-            self.uuid = result.get('uuid')
-            if result.get('warning'):
-                logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
-            if result.get('error'):
-                logger.error('session %s ; %s ' % (self.id, result.get('error')))
+                # Start on the worker
+                self.status = 'Starting'
+                # Session could be started asynchronously but for now
+                # it is started here
+                result = self.worker.start(self)
+                self.uuid = result.get('uuid')
+                if result.get('warning'):
+                    logger.warning('session %s ; %s ' % (self.id, result.get('warning')))
+                if result.get('error'):
+                    logger.error('session %s ; %s ' % (self.id, result.get('error')))
 
             # Update
             self.active = True
