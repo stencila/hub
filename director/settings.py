@@ -30,6 +30,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import os
 import sys
 import socket
+import raven
 
 # Set host and IP address
 try:
@@ -56,6 +57,12 @@ DEBUG = MODE == 'local'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Get sha of Git repo
+try:
+    GIT_SHA = raven.fetch_git_sha(os.path.dirname(BASE_DIR))
+except:
+    GIT_SHA = "unknown"
 
 # Secrets
 
@@ -440,13 +447,10 @@ SOCIALACCOUNT_PROVIDERS = {
 if MODE in ('vagrant', 'prod'):
     # Configure
     INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
-    import raven
     RAVEN_CONFIG = {
-        'dsn': secret('sentry-dsn')
+        'dsn': secret('sentry-dsn'),
+        'release': GIT_SHA
     }
-    # if MODE in ('prod',):
-        # TODO : import raven!
-        # RAVEN_CONFIG['release'] = raven.fetch_git_sha(os.path.dirname(os.path.dirname(__file__)))
 
     # 404 reporting currently turned off
     # It is recommended that this goes at top of middleware
