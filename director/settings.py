@@ -442,10 +442,11 @@ if MODE in ('vagrant', 'prod'):
     INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
     import raven
     RAVEN_CONFIG = {
-        'dsn': secret('sentry-dsn'),
-        # This seems to crash start up on vagrant
-        #'release': raven.fetch_git_sha(os.path.dirname(os.path.dirname(__file__)))
+        'dsn': secret('sentry-dsn')
     }
+    if MODE in ('prod',):
+        # This seems to crash start up on vagrant
+        RAVEN_CONFIG['release'] = raven.fetch_git_sha(os.path.dirname(os.path.dirname(__file__)))
 
     # 404 reporting currently turned off
     # It is recommended that this goes at top of middleware
