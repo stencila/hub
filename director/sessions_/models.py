@@ -245,17 +245,17 @@ class Worker(models.Model):
         # intended to ensure a worker's memory is not completely filled up with
         # sessions.
         # The `coalesce` is important otherwise get NULLs if no active sessions on
-        # a worker.
+        # a worker which are all filtered out by WHERE
         workers = Worker.objects.raw('''
             SELECT
                 id,
                 coalesce(sessions,0) AS session_count,
-                coalesce(memory,0) AS memory,
+                memory AS memory,
                 coalesce(memory_alloc,0) AS memory_alloc,
-                coalesce(memory-memory_alloc,0) AS memory_remain,
-                coalesce(cpus*100,0) AS cpu,
+                memory-coalesce(memory_alloc,0) AS memory_remain,
+                cpus*100 AS cpu,
                 coalesce(cpu_alloc,0) AS cpu_alloc,
-                coalesce(cpus*100-cpu_alloc,0) AS cpu_remain
+                cpus*100-coalesce(cpu_alloc,0) AS cpu_remain
             FROM sessions__worker LEFT JOIN (
                 SELECT
                     worker_id,
@@ -268,22 +268,15 @@ class Worker(models.Model):
             ) AS sessions_summary ON sessions__worker.id=sessions_summary.worker_id
             WHERE
                 active = true AND
-                (memory-memory_alloc-%f) > %f AND
-                (cpus*100-cpu_alloc) > %f
+                (memory-coalesce(memory_alloc,0)-%f) > %f AND
+                (cpus*100-coalesce(cpu_alloc,0)) > %f
             ORDER BY
                 session_count DESC
         ;''' % (Worker.memory_reserved, session.memory, session.cpu))
         # Ensure `RawQuerySet` is executed before doing `len`
         workers = list(workers)
         if len(workers) == 0:
-            # If there are no active workers then launch one.
-            # It is intended that workers are launched before they are
-            # needed by `Worker.scale()` but this provides a backup to that.
-            worker = Worker(
-                provider='ec2' if settings.MODE == 'prod' else 'vbox'
-            )
-            worker.launch()
-            return worker
+            raise Exception("Insuffient worker capacity")
         else:
             return workers[0]
 
