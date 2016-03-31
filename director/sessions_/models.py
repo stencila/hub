@@ -787,14 +787,11 @@ class Session(models.Model):
         In most cases user will only have one active session per user/image.
         But in cases that the user has more than one, currently just take the most recently started.
         '''
-        try:
-            return Session.objects.filter(
-                user=user,
-                image=image_name,
-                active=True
-            ).order_by('-started')[0]
-        except IndexError:
-            return None
+        return Session.objects.filter(
+            user=user,
+            image=image_name,
+            active=True
+        ).order_by('-started').first()
 
     @staticmethod
     def get_or_launch(user, image_name):
@@ -802,13 +799,13 @@ class Session(models.Model):
         Get an active session for the user/image pair,
         or else launch one
         '''
-        try:
-            return Session.objects.get(
-                user=user,
-                image=image_name,
-                active=True
-            )
-        except Session.DoesNotExist:
+        current = Session.get_for(
+            user=user,
+            image_name=image_name
+        )
+        if current:
+            return current
+        else:
             return Session.launch(
                 user=user,
                 image_name=image_name
