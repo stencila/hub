@@ -242,6 +242,8 @@ urlpatterns += [
     url(r'^(?P<address>.+)@render$',                       components.views.method, {'method': 'render'}),
 
     # Sheet methods
+    url(r'^(?P<address>.+)@cell$',                         components.views.method, {'method': 'cell'}),
+    url(r'^(?P<address>.+)@evaluate$',                     components.views.method, {'method': 'evaluate'}),
     url(r'^(?P<address>.+)@update$',                       components.views.method, {'method': 'update'}),
 
     # Component Git repo access: distinguished by `.git` followed by query
