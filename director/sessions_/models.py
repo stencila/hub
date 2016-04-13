@@ -140,8 +140,8 @@ class Worker(models.Model):
         if settings.WORKER_STUB:
             print 'WORKER_STUB is on; dummy response'
             return {
-                'uuid':'------',
-                'started':'0001-01-01T01:01:01Z'
+                'uuid': '------',
+                'started': '0001-01-01T01:01:01Z'
             }
         else:
             response = requests.request(
@@ -183,13 +183,14 @@ class Worker(models.Model):
         '''
         Get information on this worker
         '''
-        stats = self.request('info', 'GET')
-        worker_stats = WorkerStats()
-        worker_stats.record(self, stats)
+        if self.active:
+            stats = self.request('info', 'GET')
+            worker_stats = WorkerStats()
+            worker_stats.record(self, stats)
 
-        self.updated = timezone.now()
-        self.active = True
-        self.save()
+            self.updated = timezone.now()
+            self.active = True
+            self.save()
 
         return self
 
@@ -197,9 +198,11 @@ class Worker(models.Model):
         '''
         Pull Docker images from the Docker repository
         '''
-        self.request('pull', 'PUT', {
-            'image': image
-        })
+        if self.active:
+            self.request('pull', 'PUT', {
+                'image': image
+            })
+
         return self
 
     def terminate(self):
@@ -525,6 +528,7 @@ class SessionType(models.Model):
             ('timeout', self.timeout),
             ('number', self.number),
         ])
+
 
 class SessionImage(models.Model):
 
