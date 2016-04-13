@@ -310,6 +310,7 @@ class Curator:
             type=com.__class__.__name__.lower(),
             title=com.title(),
             summary=com.description(),
+            environ=com.environ()
         )
 
     def commits(self, address):

@@ -136,6 +136,13 @@ class Component(models.Model):
         help_text='A summary of the component.'
     )
 
+    environ = models.CharField(
+        max_length=128,
+        null=True,
+        blank=True,
+        help_text='The type of execution environment for this component.'
+    )
+
     initialised = models.DateTimeField(
         null=True,
         blank=True,
@@ -189,6 +196,7 @@ class Component(models.Model):
             ('type', self.type),
             ('title', self.title),
             ('summary', self.summary),
+            ('environ', self.environ),
             ('urls', {
                 'absolute': self.absolute_url(),
                 'tiny': self.tiny_url(),
@@ -490,6 +498,7 @@ class Component(models.Model):
         self.type = meta.get('type', '')
         self.title = meta.get('title', '')
         self.summary = meta.get('summary', '')
+        self.environ = meta.get('environ', None)
         self.updated = timezone.now()
         self.save()
 
@@ -565,10 +574,19 @@ class Component(models.Model):
 
     def image(self):
         '''
-        Get and image name that can be used to run this component
+        Get name of image that can be used to run this component.
+
+        The complete name of the stencila image can be specified.
+        If not specified, currently defaults to `stencila/ubuntu-14.04-r-3.2`
         '''
-        #TODO : determine type of image to run in
-        return 'stencila/ubuntu-14.04-r-3.2'
+        if not self.environ:
+            return 'stencila/ubuntu-14.04-r-3.2'
+        elif self.environ in ('py','py-2.7'):
+            return 'stencila/ubuntu-14.04-py-2.7'
+        elif self.environ in ('r', 'r-3.2'):
+            return 'stencila/ubuntu-14.04-r-3.2'
+        else:
+            return 'stencila/' + self.environ
 
     def activate(self, user):
         # TODO store a link between component and session
