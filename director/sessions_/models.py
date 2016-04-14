@@ -1322,7 +1322,7 @@ class SessionStats(models.Model):
         self.data = json.dumps(stats)
         self.time = datetime.datetime.strptime(
             stats.get('read').split('.')[0],
-            "%Y-%m-%dT%H:%M:%S"
+            "%Y-%m-%dT%H:%M:%SZ"
         ).replace(tzinfo=pytz.UTC)
         cpu = stats.get('cpu_stats').get('cpu_usage')
         self.cpu_user = cpu.get('usage_in_usermode')
