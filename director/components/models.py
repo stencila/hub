@@ -492,9 +492,10 @@ class Component(models.Model):
 
     def update(self):
         '''
-        Update metadata on the component by extracting it from its repository
+        Update `index.html` and metadata on the component 
+        by extracting it from its repository
         '''
-        meta = curator('meta', address=self.address.id)
+        meta = curator('update', address=self.address.id)
         self.type = meta.get('type', '')
         self.title = meta.get('title', '')
         self.summary = meta.get('summary', '')

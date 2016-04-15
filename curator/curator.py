@@ -301,41 +301,55 @@ class Curator:
     ###########################################################################
     # Component reading, compiling etc
 
-    def meta(self, address):
+    def meta(self, address=None, component=None):
         '''
         Get metadata for a component at address
         '''
-        com = self.component(address)
+        assert (address is not None and component is None) or \
+               (address is None and component is not None)
+
+        if component is None:
+            component = self.component(address)
+
         return dict(
-            type=com.__class__.__name__.lower(),
-            title=com.title(),
-            summary=com.description(),
-            environ=com.environ()
+            type=component.__class__.__name__.lower(),
+            title=component.title(),
+            summary=component.description(),
+            environ=component.environ()
         )
 
     def commits(self, address):
         '''
         Get list of commits for a component at address
         '''
-        com = self.component(address)
-        return com.commits()
+        component = self.component(address)
+        return component.commits()
+
+    def update(self, address):
+        '''
+        Update a component's `index.html` and return it's meta information
+        '''
+        component = self.component(address)
+        component.page('index.html')
+        return self.meta(component=component)
 
     def received(self, directory):
         '''
         Called when a working directory has been updated by a `git push` by the
         `git-post-receive.sh` script. Currently,
 
-            - compiles component to `page.html`
+            - compiles component to `index.html`
             - pings `director` to let it know a change has been made
 
         '''
         # Extract and address from the directory path
         address = self.address(directory)
-        # Get the component
-        com = self.component(address)
-        # Create index.html page
-        com.page('index.html')
-        # Ping director
+        # Update the component's working directory
+        self.update(address)
+        # Ping director to do an update of meta-information. This will include generation
+        # of `index.html` via another call to `update` but it is done above anyway to ensure
+        # the HTML file is always available and not containing potentially malicious
+        # code that was commited
         requests.put('https://stenci.la/%s@received' % address, json={
             'token': COMMS_TOKEN
         })
@@ -373,6 +387,7 @@ class Curator:
         Rule('/save', endpoint='save', methods=['POST']),
         Rule('/meta', endpoint='meta', methods=['POST']),
         Rule('/commits', endpoint='commits', methods=['POST']),
+        Rule('/update', endpoint='update', methods=['POST']),
         Rule('/received', endpoint='received', methods=['POST']),
 
         Rule('/resetup', endpoint='resetup', methods=['POST']),
