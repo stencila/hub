@@ -1332,9 +1332,9 @@ class SessionStats(models.Model):
         self.cpu_user = cpu.get('usage_in_usermode')
         self.cpu_system = cpu.get('usage_in_kernelmode')
         self.cpu_total = cpu.get('total_usage')
-        mem = stats.get('memory_stats').get('stats')
-        self.mem_rss = mem.get('total_rss')
-        self.mem_vms = mem.get('total_swap')
+        #mem = stats.get('memory_stats').get('stats')
+        #self.mem_rss = mem.get('total_rss')
+        #self.mem_vms = mem.get('total_swap')
         self.save()
 
 
