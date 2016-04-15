@@ -210,7 +210,11 @@ class Worker(models.Model):
         Stop this worker
         '''
         if self.started and self.active and self.stopped is None:
-            self.update()
+            # Attempt to update machine info. If the machine is
+            # hung then we don't want this to timeout, so put in 
+            # a try
+            try: self.update()
+            except: pass
 
             sessions = Session.objects.filter(worker=self)
 
