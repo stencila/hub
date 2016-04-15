@@ -145,20 +145,20 @@ director-serve-restart: director-serve-config
 # Build virtualenv for curator locally
 curator-build:
 	cd curator ;\
+		if [ ! -e env ] ;\
+			then virtualenv env ;\
+		fi ;\
 		. env/bin/activate ;\
+			pip install pip==8.1.1 ;\
 			pip install -r pip-requirements.txt
 
 # Run curator.py during development
 # For testing with requests the Chrome app "Postman" (or similar) is recommended as it
 # shows the friendly HTML debugger
 curator-py-rundev:
+	$(MAKE) curator-build
 	cd curator ;\
-		if [ ! -e env ] ;\
-			then virtualenv env ;\
-		fi ;\
-		. env/bin/activate ;\
-			pip install -r pip-requirements.txt ;\
-			python curator.py 'dev'
+		env/bin/python curator.py 'dev'
 
 # Run curator.go during development
 curator-go-rundev:
