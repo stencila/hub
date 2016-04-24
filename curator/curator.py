@@ -93,9 +93,18 @@ class Curator:
     def component(address):
         '''
         Get a component at an address. Used in methods below.
+
+        Don't use `stencila.grab` since that means components won't be garbage collected
+        in this long running process (they get held in `stencila.instances`).
         '''
         path = Curator.path(address).encode("utf-8")
-        return stencila.grab(path)
+        type = stencila.Component.type(path).lower()
+        if type == 'stencil':
+            return stencila.Stencil(path)
+        elif type == 'sheet':
+            return stencila.Sheet(path)
+        else:
+            raise Exception('Unkown type {'+type+'}')
 
     def git(self, path, *args, **kwargs):
         '''
