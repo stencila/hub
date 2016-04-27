@@ -32,16 +32,35 @@ from django.core.serializers.json import DjangoJSONEncoder
 from components.models import Component
 from general.api import API
 
+
+# Front pages
+
+
 def front(request):
     '''
-    Front page at /
+    Front page at / dispatches to about or explore depending upon
+    if user is logged in
+    '''
+    return explore(request) if request.user.is_authenticated() else about(request)
+
+
+def about(request):
+    '''
+    About Stencila
+    '''
+    return render(request, 'about.html')
+
+
+def explore(request):
+    '''
+    Explore components
     '''
     components = Component.list(
         user=request.user,
         published=True,
         sort='-id'
     )
-    return render(request, 'front.html', {
+    return render(request, 'explore.html', {
         'components': components
     })
 
@@ -85,6 +104,7 @@ def render_error(request, template):
         'data': json.dumps(data, cls=DjangoJSONEncoder, indent=4),
         'sentry_id': sentry_id
     })
+
 
 def handler400(request):
     '''

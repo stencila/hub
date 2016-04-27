@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About{% endblock %}
+
+{% block styles %}
+	{{ block.super }}
+	<style>
+		#main .section {
+			min-height: 1em;
+			margin-top: 1em;
+			margin-bottom: 3em;
+		}
+		#main h1.header {
+			margin-bottom: 0;
+		}
+		#main h1.subheader {
+			margin-top: 0.1em;
+			color: #888;
+			font-size: 1.3rem;
+		}
+		#main p {
+			font-size: 120%;
+			color: #555;
+		}
+	</style>
+{% endblock %}
+
+{% block main %}
+	<div class="section ui stackable grid">
+		<div class="ui ten wide column">
+			<h1 class="ui header">Documents powered by data</h1>
+			<h1 class="subheader">... and awesome open source software!</h1>
+			<p></p>
+		</div>
+		<div class="ui six wide column">
+		</div>
+	</div>
+	<div class="section ui equal width stackable grid">
+		<div class="ui column">
+			<img src="{% static 'images/stencil-example-a.png' %}" class="ui large bordered rounded image">
+		</div>
+		<div class="ui column">
+			<h1 class="ui header">Stencils</h1>
+			<p>Like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think RMarkdown meets Jade meets Google Docs)</p>
+			<a href="/demo/stencils/simple-r/" target="_blank" class="ui huge green button">
+				<i class="ui rocket icon"></i>
+				Launch an example
+			</a>
+			<a href="/explore" class="ui huge button">
+				<i class="ui find icon"></i>
+				Browse stencils
+			</a>
+		</div>
+	</div>
+	<div class="section ui equal width stackable grid">
+		<div class="ui column">
+			<h1 class="ui header">Sheets</h1>
+			<p>Like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think R meets Google Sheets meets git)</p>
+			<a href="/demo/sheets/simple-r/" target="_blank" class="ui huge green button">
+				<i class="ui rocket icon"></i>
+				Launch an example
+			</a>
+			<a href="/explore" class="ui huge button">
+				<i class="ui find icon"></i>
+				Browse sheets
+			</a>
+		</div>
+		<div class="ui column">
+			<img src="{% static 'images/sheet-example-a.gif' %}" class="ui large bordered rounded image">
+		</div>
+	</div>
+{% endblock %}

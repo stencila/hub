@@ -51,8 +51,10 @@ import users.views
 
 urlpatterns = [
 
-    # Front page
+    # Front pages
     url(r'^$',                                                       general.views.front),
+    url(r'^about/?$',                                                general.views.about),
+    url(r'^explore/?$',                                              general.views.explore),
 
     # API documentation
     url(r'^api/api.yml',                                             general.views.api_yml),
