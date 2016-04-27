@@ -1,3 +1,29 @@
 {% load static %}
 <footer id="footer">
+  <div class="ui vertical footer segment">
+    <div class="ui container">
+      <div class="ui stackable equal height grid">
+        <div class="ui five wide center aligned column">
+            Documents powered by data <span class="copyright ui float right">© 2016 Stencila Ltd.</span>
+        </div>
+        <div class="ui six wide center aligned column">
+            <a class="ui compact basic button" href="/contact">Contact</a>
+            <a class="ui compact basic button" href="/api">API</a>
+            <a class="ui compact basic button" href="/builds">Builds</a>
+            {% if user.is_anonymous %}
+              <a class="ui compact basic green button" href="/me/signup">Sign up</a>
+            {% endif %}
+        </div>
+        <div class="ui five wide center aligned column">
+            We <i class="ui fitted red heart icon"></i> your input:
+            <a href="https://github.com/stencila/" title="Code with us Github!"><i class="ui large github icon"></i></a>
+            <a href="https://gitter.im/stencila/stencila/" title="Chat with us on Gitter!"><i class="ui large feed icon"></i></a>
+            <a href="https://twitter.com/stencila/" title="Tweet us!"><i class="ui large twitter icon"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $('footer a[title]').popup();
+  </script>
 </footer>

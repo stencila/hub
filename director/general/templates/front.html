@@ -23,17 +23,6 @@
 {% endblock %}
 
 {% block main %}
-<div id="message" class="ui red icon message">
-  <i class="ui lab icon"></i>
-  <div class="ui content">
-    <div class="header">
-    	Beta : work in progress
-    </div>
-    <p>
-    	This is the Stencila hub. It's a work in progress so a lot of things don't work quite right. We'd love your feedback: <a href="/me/signup">signup</a> to chat and receive updates on progress, or <a href="mailto:connect@stenci.la">email us</a>. Want to connect to the hub? There's an <a href="/api">API</a> for that! Want to develop your own stencils? Check out the Stencila core over on Github <a href="https://github.com/stencila/stencila">stencila/stencila</a> or grab one of the recent package <a href="builds">builds</a>.
-    </p>
-  </div>
-</div>
 <div id="components" class="ui centered cards">
 	{% for component in components %}
 		<div class="ui card">
