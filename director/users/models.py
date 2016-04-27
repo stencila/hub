@@ -27,6 +27,7 @@ import base64
 import Crypto.Cipher
 import Crypto.Random
 
+import django
 from django.db import models
 from django.contrib.auth.models import User, AnonymousUser
 from django.conf import settings
@@ -43,7 +44,7 @@ from general.errors import Error
 # Always loaded so available in various authorisation functions
 try:
     user_any = User.objects.get(username='any')
-except User.DoesNotExist:
+except (django.db.utils.OperationalError, User.DoesNotExist):
     user_any = None
 
 
