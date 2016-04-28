@@ -6,19 +6,24 @@
 {% block styles %}
 	{{ block.super }}
 	<style>
+		body {
+			{# Flex causes a flickering footer on this page (cause of other flex elems?) #}
+			display:block;
+		}
 		#main .screen {
-			height: 100vh;
+			min-height: 100vh;
 			position: relative;
+			padding-top: 2em;
 		}
 		#main #screen-last {
-			height: 85vh;
+			min-height: 85vh;
 		}
 		#main .screen .ui.chevron.icon {
 			color: #E2E2E2;
 		}
 		#main .screen .next {
 			position: absolute;
-			bottom: 60px;
+			bottom: 70px;
 			width: 100%;
 		}
 		#main .screen .next .icon {
@@ -27,17 +32,35 @@
 			margin-right: auto;
 			font-size: 2.5em;
 		}
-		#main .screen h1.header {
-			margin-bottom: 0;
-		}
-		#main .screen h1.subheader {
-			margin-top: 0.1em;
-			color: #888;
-			font-size: 1.3rem;
+		#main .screen .ui.header {
+			color: #333;
 		}
 		#main .screen p {
+			text-align: justify;
 			font-size: 120%;
 			color: #555;
+			line-height: 1.6em;
+		}
+		#main .quote p:first-child {
+			text-align: left;
+			color: #888;
+			font-style: italic;
+			line-height: 1.2em;
+		}
+		#main .quote .who {
+			color: #333;
+			font-size: 0.9em;
+		}
+		#main pre {
+			background: #333;
+			border-radius: 3px;
+			margin-left:2em;
+			margin-right:2em;
+			padding: 1em;
+			color: #DDD;
+		}
+		#main .example>.button {
+			margin: 3px;
 		}
 	</style>
 {% endblock %}
@@ -48,7 +71,6 @@
 		<div class="section ui stackable grid">
 			<div class="ui ten wide column">
 				<h1 class="ui header">Documents powered by data</h1>
-				<h1 class="subheader">... and awesome open source software!</h1>
 				<p></p>
 			</div>
 			<div class="ui six wide column">
@@ -58,16 +80,36 @@
 	</div>
 
 	<div id="screen-1" class="screen">
-		<div class="ui equal width stackable grid">
+		<div class="ui equal width stackable grid basic segment">
+			<div class="ui column">
+				<h1 class="ui header">Stencils</h1>
+				<p>
+					Like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think RMarkdown meets Jade meets Google Docs)
+				</p>
+			</div>
 			<div class="ui column">
 				<img src="{% static 'images/stencil-example-a.png' %}" class="ui image">
 			</div>
-			<div class="ui column">
-				<h1 class="ui header">Stencils</h1>
-				<p>Like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think RMarkdown meets Jade meets Google Docs)</p>
-				<a href="/demo/stencils/simple-r/" target="_blank" class="ui huge green button">
-					<i class="ui rocket icon"></i>
-					Launch an example
+		</div>
+		<div class="example ui basic segment">
+			<h4 class="ui header">Example:</h4>
+			<a href="/demo/stencils/simple-r/" class="ui green icon button">
+				<i class="ui rocket icon"></i> Launch it
+			</a>
+			<div class="ui left labeled button">
+				<div class="ui label">
+					Clone it
+				</div>
+				<div class="ui basic button">
+					<span>git clone https://stenci.la/demo/stencils/simple-r.git</span>
+				</div>
+			</div>
+			<div class="ui left labeled button">
+				<div class="ui label">
+					The source
+				</div>
+				<a href="/demo/stencils/simple-r/stencil.cila" class="ui basic button">
+					https://stenci.la/demo/stencils/simple-r/stencil.cila
 				</a>
 			</div>
 		</div>
@@ -75,17 +117,74 @@
 	</div>
 
 	<div id="screen-last" class="screen">
-		<div class="ui equal width stackable grid">
+		<div class="ui equal width stackable grid basic segment">
 			<div class="ui column">
 				<h1 class="ui header">Sheets</h1>
-				<p>Like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think R meets Google Sheets meets git)</p>
-				<a href="/demo/sheets/simple-r/" target="_blank" class="ui huge green button">
-					<i class="ui rocket icon"></i>
-					Launch an example
-				</a>
+				<p>
+					Spreadsheets are the probably the most widely used environment for data analysis and end user programming.
+					Their ubiquity comes from the intuitive simplicity of a live, reactive, see-your-data-and-do-stuff with it interface.
+				</p>
+				<p>
+					Stencila sheets combine the benefits of the spreadsheet interface with power of languages like R and Python.
+				</p>
+				<p>
+					Built from the ground up for transparency, testability and version control, we think Stencila sheets are the next step in the evolution of the spreadsheet.
+				</p>
+				<h4 class="ui header">More:</h4>
+				<div class="ui list">
+					<a href="/stencila/blog/introducing-sheets/" target="_blank" class="ui item link">
+						Spreadsheets are dead, long live reactive programming environments!
+					</a>
+					<a href="/stencila/blog/underneath-sheets/" target="_blank" class="ui item link">
+						Getting under Stencila sheets
+					</a>
+					<a href="/stencila/blog/humane-sheets/" target="_blank" class="ui item link">
+						A spreadsheet file format for humans
+					</a>
+				</div>
 			</div>
 			<div class="ui column">
 				<img src="{% static 'images/sheet-example-a.gif' %}" class="ui image">
+			</div>
+		</div>
+		<div class="ui equal width stackable grid basic segment">
+			<div class="ui column">
+				<div class="quote ui item">
+					<div class="ui content">
+						<p>"Bridging the gap between Excel and code. Accessible yet potentially powerful"</p>
+						<p class="who">Patrick Lee, Data hacker and developer <a class="ui link" href="https://twitter.com/patleeman">@patleeman</a></p>
+					</div>
+				</div>
+			</div>
+			<div class="ui column">
+				<div class="quote ui item">
+					<div class="ui content">
+						<p>"The hybrid spreadsheet/R model in @stencila is a really interesting approach to providing the best features from both worlds"</p>
+						<p class="who">Mark Sellors, Technical architect <a class="ui link" href="https://twitter.com/sellorm">@sellorm</a></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="example ui basic segment">
+			<h4 class="ui header">Example:</h4>
+			<a href="/demo/sheets/simple-r/" class="ui green icon button">
+				<i class="ui rocket icon"></i> Launch it
+			</a>
+			<div class="ui left labeled button">
+				<div class="ui label">
+					Clone it
+				</div>
+				<div class="ui basic button">
+					<span>git clone https://stenci.la/demo/sheets/simple-r.git</span>
+				</div>
+			</div>
+			<div class="ui left labeled button">
+				<div class="ui label">
+					The source
+				</div>
+				<a href="/demo/sheets/simple-r/sheet.tsv" class="ui basic button">
+					https://stenci.la/demo/sheets/simple-r/sheet.tsv
+				</a>
 			</div>
 		</div>
 	</div>
