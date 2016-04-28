@@ -6,20 +6,36 @@
 {% block styles %}
 	{{ block.super }}
 	<style>
-		#main .section {
-			min-height: 1em;
-			margin-top: 1em;
-			margin-bottom: 3em;
+		#main .screen {
+			height: 100vh;
+			position: relative;
 		}
-		#main h1.header {
+		#main #screen-last {
+			height: 85vh;
+		}
+		#main .screen .ui.chevron.icon {
+			color: #E2E2E2;
+		}
+		#main .screen .next {
+			position: absolute;
+			bottom: 60px;
+			width: 100%;
+		}
+		#main .screen .next .icon {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+			font-size: 2.5em;
+		}
+		#main .screen h1.header {
 			margin-bottom: 0;
 		}
-		#main h1.subheader {
+		#main .screen h1.subheader {
 			margin-top: 0.1em;
 			color: #888;
 			font-size: 1.3rem;
 		}
-		#main p {
+		#main .screen p {
 			font-size: 120%;
 			color: #555;
 		}
@@ -27,47 +43,58 @@
 {% endblock %}
 
 {% block main %}
-	<div class="section ui stackable grid">
-		<div class="ui ten wide column">
-			<h1 class="ui header">Documents powered by data</h1>
-			<h1 class="subheader">... and awesome open source software!</h1>
-			<p></p>
+
+	<div id="screen-0" class="screen">
+		<div class="section ui stackable grid">
+			<div class="ui ten wide column">
+				<h1 class="ui header">Documents powered by data</h1>
+				<h1 class="subheader">... and awesome open source software!</h1>
+				<p></p>
+			</div>
+			<div class="ui six wide column">
+			</div>
 		</div>
-		<div class="ui six wide column">
+		<a href="#screen-1" class="next"><i class="ui big chevron circle down icon"></i></a>
+	</div>
+
+	<div id="screen-1" class="screen">
+		<div class="ui equal width stackable grid">
+			<div class="ui column">
+				<img src="{% static 'images/stencil-example-a.png' %}" class="ui image">
+			</div>
+			<div class="ui column">
+				<h1 class="ui header">Stencils</h1>
+				<p>Like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think RMarkdown meets Jade meets Google Docs)</p>
+				<a href="/demo/stencils/simple-r/" target="_blank" class="ui huge green button">
+					<i class="ui rocket icon"></i>
+					Launch an example
+				</a>
+			</div>
+		</div>
+		<a href="#screen-last" class="next"><i class="ui big chevron circle down icon"></i></a>
+	</div>
+
+	<div id="screen-last" class="screen">
+		<div class="ui equal width stackable grid">
+			<div class="ui column">
+				<h1 class="ui header">Sheets</h1>
+				<p>Like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think R meets Google Sheets meets git)</p>
+				<a href="/demo/sheets/simple-r/" target="_blank" class="ui huge green button">
+					<i class="ui rocket icon"></i>
+					Launch an example
+				</a>
+			</div>
+			<div class="ui column">
+				<img src="{% static 'images/sheet-example-a.gif' %}" class="ui image">
+			</div>
 		</div>
 	</div>
-	<div class="section ui equal width stackable grid">
-		<div class="ui column">
-			<img src="{% static 'images/stencil-example-a.png' %}" class="ui large bordered rounded image">
-		</div>
-		<div class="ui column">
-			<h1 class="ui header">Stencils</h1>
-			<p>Like traditional templates for embedding data analysis and presentation code but designed to allow what-you-see-is-what-you-get editing while still maintaining reproducibility (think RMarkdown meets Jade meets Google Docs)</p>
-			<a href="/demo/stencils/simple-r/" target="_blank" class="ui huge green button">
-				<i class="ui rocket icon"></i>
-				Launch an example
-			</a>
-			<a href="/explore" class="ui huge button">
-				<i class="ui find icon"></i>
-				Browse stencils
-			</a>
-		</div>
-	</div>
-	<div class="section ui equal width stackable grid">
-		<div class="ui column">
-			<h1 class="ui header">Sheets</h1>
-			<p>Like traditional spreadsheets but with cells that are expressions in the host language (i.e. R or Python or ...) and built from the ground up for transparency, testability and version control while still maintaining accessibility (think R meets Google Sheets meets git)</p>
-			<a href="/demo/sheets/simple-r/" target="_blank" class="ui huge green button">
-				<i class="ui rocket icon"></i>
-				Launch an example
-			</a>
-			<a href="/explore" class="ui huge button">
-				<i class="ui find icon"></i>
-				Browse sheets
-			</a>
-		</div>
-		<div class="ui column">
-			<img src="{% static 'images/sheet-example-a.gif' %}" class="ui large bordered rounded image">
-		</div>
-	</div>
+
+	<script type="text/javascript">
+		$('a[href^="#screen"]').click(function() {
+			$('html, body').animate({ scrollTop: $($(this).attr('href')).offset().top-50},700);
+			return false;
+		});
+	</script>
+
 {% endblock %}
