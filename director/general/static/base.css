@@ -66,6 +66,9 @@ footer .ui.button {
 footer .ui.icon {
 	color: #888;
 }
+footer .ui.heart.icon {
+	margin: 0;
+}
 
 /* Adjective for segment which seems to be missing */
 .ui.centered.segment {
