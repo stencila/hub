@@ -12,7 +12,7 @@ info:
 
     Sigh. Please bear with us, we are working hard to get the API settled down and to version 1.0.
 
-    The API uses the ampersand `@` to denote calls to methods of components. We use `address/of/component@method` instead of `address/of/component/method` so that it is possible to resolve where a component address ends and the method name starts. We use `@` instead of `.` to easily differentiate method URL endpoints from raw file endpoints. The ampersand is a valid charater for a HTTP URL (see page 17 of http://tools.ietf.org/html/rfc1738).
+    The API uses the at sign `@` to denote calls to methods of components. We use `address/of/component@method` instead of `address/of/component/method` so that it is possible to resolve where a component address ends and the method name starts. We use `@` instead of `.` to easily differentiate method URL endpoints from raw file endpoints. The at sign is a valid charater for a HTTP URL (see page 17 of http://tools.ietf.org/html/rfc1738).
 
 
 {% if MODE != 'local' %}
