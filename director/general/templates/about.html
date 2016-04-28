@@ -14,6 +14,11 @@
 		header>.ui.container>a.logo-name.item {
 			display: none;
 		}
+		
+		{# Interfer's with revealed header logo #}
+		#HW_badge_cont {
+			display: none;
+		}
 
 		#main {
 			padding: 0;
@@ -34,7 +39,8 @@
 		}
 		#main .screen .next {
 			position: absolute;
-			bottom: 0;
+			bottom: 3em;
+			height: 3em;
 			width: 100%;
 		}
 		#main .screen .next .icon {
@@ -55,7 +61,7 @@
 		#main #screen-0 .hero {
 			max-width: 45em;
 			margin-top: 5em;
-			margin-bottom: 9em;
+			margin-bottom: 5em;
 		}
 
 		#main #screen-0 .blocks .icon {

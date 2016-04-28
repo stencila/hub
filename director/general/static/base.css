@@ -1,4 +1,7 @@
 /* Customisation of the main header menu */
+header {
+	height: 50px;
+}
 .ui.main.menu {
 	box-shadow: none;
 }
