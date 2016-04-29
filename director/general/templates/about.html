@@ -31,7 +31,7 @@
 			padding-bottom: 3em;
 			color: #555;
 		}
-		#main #screen-last {
+		#main #sheets {
 			min-height: 85vh;
 		}
 		#main .screen .ui.chevron.icon {
@@ -50,7 +50,7 @@
 			font-size: 3em;
 		}
 
-		#main #screen-0 .logo.image {
+		#main #intro .logo.image {
 			width: 100%;
 			max-width: 40em;
 			display: block;
@@ -58,26 +58,26 @@
 			margin-left: auto;
 		}
 
-		#main #screen-0 .hero {
+		#main #intro .hero {
 			max-width: 45em;
 			margin-top: 5em;
 			margin-bottom: 5em;
 		}
-		#main #screen-0 .hero p {
+		#main #intro .hero p {
 			font-size: 140%;
 			text-align: center;
 		}
 
-		#main #screen-0 .blocks .icon {
+		#main #intro .blocks .icon {
 			font-size: 5em;
 			color: #8AF039;
 		}
-		#main #screen-0 .blocks .ui.header {
+		#main #intro .blocks .ui.header {
 			color: #555;
 		}
-		#main #screen-0 .blocks p.text {
+		#main #intro .blocks p.text {
 		}
-		#main #screen-0 .blocks pre {
+		#main #intro .blocks pre {
 			text-align: left;
     		font-size: 90%;
     		padding: 0.5em;
@@ -110,7 +110,7 @@
 
 {% block main %}
 
-	<div id="screen-0" class="screen">
+	<div id="intro" class="screen">
 		<div class="logo ui basic segment">
 			<img src="{% static 'logo-name.svg' %}" class="logo ui image">
 		</div>
@@ -126,7 +126,7 @@
 				<i class="ui huge copy icon"></i>
 				<h2 class="ui header">Open documents</h1>
 				<p class="text">
-					<a href="#screen-1">Stencils</a> and <a href="#screen-2">sheets</a> are
+					<a href="#stencils">Stencils</a> and <a href="#sheets">sheets</a> are
 					open documents that embed code in the interfaces we're used to.
 					Use the power of open source languages in documents that won't scare away your colleagues.
 				</p>
@@ -171,10 +171,10 @@ s.view()</pre>
 				</p>
 			</div>
 		</div>
-		<a href="#screen-1" class="next"><i class="ui big chevron circle down icon"></i></a>
+		<a href="#stencils" class="next"><i class="ui big chevron circle down icon"></i></a>
 	</div>
 
-	<div id="screen-1" class="screen">
+	<div id="stencils" class="screen">
 		<div class="ui equal width stackable grid basic segment">
 			<div class="ui column">
 				<h1 class="ui header">Stencils</h1>
@@ -216,10 +216,10 @@ s.view()</pre>
 				</a>
 			</div>
 		</div>
-		<a href="#screen-last" class="next"><i class="ui big chevron circle down icon"></i></a>
+		<a href="#sheets" class="next"><i class="ui big chevron circle down icon"></i></a>
 	</div>
 
-	<div id="screen-last" class="screen">
+	<div id="sheets" class="screen">
 		<div class="ui equal width stackable grid basic segment">
 			<div class="ui column">
 				<h1 class="ui header">Sheets</h1>
@@ -295,17 +295,17 @@ s.view()</pre>
 	<script type="text/javascript">
   		$(document).ready(function() {
 
-			$('#screen-0 .next').visibility({
+			$('#intro .logo').visibility({
 				once: false,
 				onBottomPassed: function() {
-					$('header .logo-name').transition('fade in');
+					$('header .logo-name').transition('fade in').css("display","inline-block");
 				},
 				onBottomPassedReverse: function() {
 					$('header .logo-name').transition('fade out');
 				}
 			});
 
-			$('a[href^="#screen"]').click(function() {
+			$('a[href^="#"]').click(function() {
 				$('html, body').animate({ scrollTop: $($(this).attr('href')).offset().top-50},700);
 				return false;
 			});
