@@ -51,9 +51,8 @@ class ErrorMiddleware(object):
         if isinstance(exception, Error):
 
             logger.error(exception.__class__.__name__, extra=dict(
-                user=request.user,
-                request=request,
-                error=exception
+                user=request.user.username,
+                error=exception.serialize()
             ))
 
             if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
