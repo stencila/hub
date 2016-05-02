@@ -51,6 +51,9 @@
 					<i class="ui eye icon"></i>
 					{{ component.views }}
 				</span>
+				{% comment %}
+				There is currently no way to bookmark/star a component or to fork so temporarily don't display these.
+				</input>
 				<span class="ui right floated">
 					<i class="ui star icon"></i>
 					{{ component.stars }}
@@ -59,6 +62,7 @@
 					<i class="ui fork icon"></i>
 					{{ component.forks }}
 				</span>
+				{% endcomment %}
 			</div>
 		</div>
 	{% endfor %}
