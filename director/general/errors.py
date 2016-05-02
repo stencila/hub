@@ -50,7 +50,7 @@ class ErrorMiddleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, Error):
 
-            logger.warning(exception.__class__.__name__, extra=dict(
+            logger.error(exception.__class__.__name__, extra=dict(
                 user=request.user,
                 request=request,
                 error=exception
