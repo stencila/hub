@@ -27,7 +27,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import (
     require_http_methods, require_GET, require_POST
 )
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import (
     csrf_exempt
 )
@@ -117,7 +117,7 @@ def component_one(request, id):
         api.raise_method_not_allowed()
 
 
-@login_required
+@user_passes_test(lambda user: user.is_authenticated() and not user.details.guest)
 def new(request, type):
     '''
     Create a new component for the user and redirect them
