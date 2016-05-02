@@ -23,11 +23,11 @@ from urlparse import urlparse
 
 import django
 from django.conf import settings
+from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from django.views.decorators.http import (
     require_http_methods, require_GET, require_POST
 )
-from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import (
     csrf_exempt
 )
@@ -117,14 +117,23 @@ def component_one(request, id):
         api.raise_method_not_allowed()
 
 
-@user_passes_test(lambda user: user.is_authenticated() and not user.details.guest)
 def new(request, type):
     '''
     Create a new component for the user and redirect them
     to it's canonical page
+
+    Guests should not be able to login. Can't use the `user_passes_test` decorators here
+    to make use of `?next=/new/stencil` becuase for guest that
+    results in a redirect loop (they need to be signed out first).
+    This should be made better sometime.
     '''
     if request.user_agent.is_bot:
         return redirect('/', permanent=True)
+    elif not request.user.is_authenticated():
+        return redirect('/me/signup')
+    elif request.user.details.guest:
+        logout(request)
+        return redirect('/me/signup')
     else:
         type = type[:-1] # Remove the trailing 's' that is in the URL
         component = Component.create(
