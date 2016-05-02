@@ -235,9 +235,6 @@ class API:
         if not self.request.user.is_authenticated():
             raise API.UnauthenticatedError(self.request.path, self.request.method)
 
-    def raise_not_found(self):
-        raise API.NotFoundError()
-
     class UnauthenticatedError(Error):
         code = 401
 
@@ -294,16 +291,4 @@ class API:
                 message='Required parameter was not supplied',
                 url='https://stenci.la/api/errors/parameter-required',
                 parameter=self.parameter
-            )
-
-    class NotFoundError(Error):
-        code = 404
-
-        def __init__(self):
-            pass
-
-        def serialize(self):
-            return dict(
-                error="not-found",
-                message='Resource not found'
             )

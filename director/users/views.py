@@ -16,6 +16,7 @@
 #  along with Stencila Hub.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.views.decorators.http import require_http_methods, require_GET
+from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import logout
 from django.shortcuts import redirect
@@ -128,7 +129,7 @@ def users_read(request, username):
     try:
         return api.respond(User.objects.get(username=username))
     except User.DoesNotExist:
-        api.raise_not_found()
+        raise Http404
 
 
 @require_GET

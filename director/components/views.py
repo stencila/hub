@@ -933,6 +933,7 @@ def key_one(request, id):
 @csrf_exempt
 def snapshot(request, address=None):
     api = API(request)
+    api.authenticated_or_raise()
     if address:
         if api.post:
             snapshot = Snapshot.create(
@@ -947,9 +948,9 @@ def snapshot(request, address=None):
                 user=request.user
             )
             if snapshot_url:
-                return redirect(snapshot_url) 
+                return redirect(snapshot_url)
             else:
-                raise API.NotFoundError()
+                raise Http404
     else:
         if api.get:
             snapshots = Snapshot.list(
