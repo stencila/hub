@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Error{% endblock %}
+
+{% block styles %}
+	{{ block.super }}
+{% endblock %}
+
+{% block main %}
+
+<div class="ui red icon message">
+	<i class="ui warning icon"></i>
+	<div class="ui header">
+		{{ error.serialize.message }} 
+	</div>
+</div>
+
+{% endblock %}

@@ -19,7 +19,11 @@
 Base `Error` exception class and  `ErrorMiddleware`
 for raising and handling error exceptions
 '''
+import logging
+logger = logging.getLogger('errors')
+
 from django.http import JsonResponse
+from django.shortcuts import render
 
 
 class Error(Exception):
@@ -45,7 +49,19 @@ class ErrorMiddleware(object):
 
     def process_exception(self, request, exception):
         if isinstance(exception, Error):
-            return JsonResponse(
-                exception.serialize(),
-                status=exception.code
-            )
+
+            logger.warning(exception.__class__.__name__, extra=dict(
+                user=request.user,
+                request=request,
+                error=exception
+            ))
+
+            if 'application/json' in request.META.get('HTTP_ACCEPT', ''):
+                return JsonResponse(
+                    exception.serialize(),
+                    status=exception.code
+                )
+            else:
+                return render(request, 'error.html', {
+                    'error': exception
+                }, status=exception.code)

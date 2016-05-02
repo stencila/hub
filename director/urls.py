@@ -112,6 +112,7 @@ urlpatterns = [
     url(r'^test/403',                                                general.views.test403),
     url(r'^test/404',                                                general.views.test404),
     url(r'^test/500',                                                general.views.test500),
+    url(r'^test/custom-error',                                       general.views.test_custom_error),
     url(r'^test/user-agent',                                         general.views.test_user_agent),
 
     # Error handling

@@ -31,7 +31,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from components.models import Component
 from general.api import API
-
+from general.errors import Error
 
 # Front pages
 
@@ -157,10 +157,15 @@ def test404(request):
 
 @staff_member_required
 def test500(request):
-    # Supposdly a SystemExist exception is ignored by the test client - but it wasn't for me
+    # Supposedly a SystemExist exception is ignored by the test client - but it wasn't for me
     # https://docs.djangoproject.com/en/1.7/topics/testing/tools/#exceptions
     # A plain old exception at least gets reportest in the debugger
     raise Exception('Faked server error')
+
+
+@staff_member_required
+def test_custom_error(request):
+    raise Error()
 
 
 def test_user_agent(request):
