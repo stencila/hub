@@ -42,6 +42,8 @@
 				<div class="ui left floated">
 					{% if build.package == 'docker' %}
 						<img src="{% static 'logos/docker-logo-name.png' %}">
+					{% elif build.package == 'node' %}
+						<img src="{% static 'logos/nodejs-logo.png' %}">
 					{% elif build.package == 'py' %}
 						<img src="{% static 'logos/python-logo-name.png' %}">
 					{% elif build.package == 'r' %}
@@ -92,6 +94,8 @@
 						<span class="field install" data-content=
 							{% if build.package == 'docker' %}
 								"docker pull stencila/{{ build.flavour }}:{{ build.version }}"
+							{% if build.package == 'node' %}
+								"npm install stencila/stencila"
 							{% elif build.package == 'py' %}
 								"pip install {{ build.url }}"
 							{% elif build.package == 'r' %}
