@@ -21,7 +21,15 @@ import mimetypes
 mimetypes.add_type('application/font-woff', '.woff')
 from urlparse import urlparse
 import json
+
 import hmac
+# Deal with fact that some older versions of Python dont have `compare_digest`
+if hasattr(hmac, "compare_digest"):
+    compare_digest = hmac.compare_digest
+else:
+    def compare_digest(s1, s2):
+        return s1 == s2
+
 
 import django
 from django.conf import settings
@@ -853,7 +861,7 @@ def collaborate(request, address):
         else:
             # Check that the permit is correct for this address and user
             # TODO add a salt
-            if hmac.compare_digest(
+            if compare_digest(
                 str(request.GET.get('permit', '')),
                 hmac.new(settings.SECRET_KEY, address + ':' + request.user.username).hexdigest()
             ):
