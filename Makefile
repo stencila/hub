@@ -7,11 +7,13 @@ SHELL := /bin/bash
 rundev-startup:
 	sudo ip address add 10.0.1.25 dev lo
 	sudo ip address add 10.0.1.50 dev lo
+	sudo ip address add 10.0.1.75 dev lo
 	sudo ip address add 10.0.1.100 dev lo
 
 rundev-shutdown:
 	sudo ip address delete 10.0.1.25/32 dev lo
 	sudo ip address delete 10.0.1.50/32 dev lo
+	sudo ip address delete 10.0.1.75/32 dev lo
 	sudo ip address delete 10.0.1.100/32 dev lo
 
 
@@ -170,6 +172,22 @@ curator-test:
 	cd curator ;\
 		. env/bin/activate ;\
 			python tests.py
+
+
+##########################################################################
+# Broker
+
+# Install packages for node
+broker-build:
+	cd broker && npm install
+
+# Run redis
+broker-redis-serve:
+	cd broker && redis-server redis.conf
+
+# Run broker.js
+broker-node-serve:
+	cd broker && node broker.js
 
 
 ##########################################################################
