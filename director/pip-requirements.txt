@@ -60,7 +60,7 @@ pycrypto==2.6.1
 pytz==2015.7
 
 # https://github.com/getsentry/raven-python exception reporting client for https://www.getsentry.com
-raven==5.8.1
+raven==5.25.0
 
 # https://pypi.python.org/pypi/requests
 requests==2.9.1
