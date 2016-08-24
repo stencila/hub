@@ -132,22 +132,20 @@ if settings.MODE == 'local':
     # Uploaded files
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-    # Build Javascript and CSS on get.stenci.la when in production
-    # can be obtained when in local mode from:
-    # ...a local directory
+    # When in local mode component UI assests (JS, CSS, fonts etc) can be obtained from
+    # ...a locally running `stencila/web/server.js` which compiles JS or CSS on the fly ;
+    # run it with `make -C web serve` in the `stencila` repo
+    if settings.GET_DEVSERVE:
+        urlpatterns += [
+            url(r'^get/web/(?P<path>.*(\.js|\.css))$', lambda request, path: HttpResponseRedirect('//localhost:5000/get/web/'+path))
+        ]
+    # ...a local directory (which could be symlinked to the `stencila/web/build` directory)
     if settings.GET_LOCAL:
         urlpatterns += static(r'/get/web/', document_root='/srv/stencila/store/get/web')
-    # ...a locally running `stencila/web/server.js` which compiles on the fly ;
-    # run it with `make web-devserve` in that repo
-    elif settings.GET_DEVSERVE:
-        urlpatterns += [
-            url(r'^get/web/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('//localhost:5000/get/web/'+path))
-        ]
     # or, fallback to the production deployment
-    else:
-        urlpatterns += [
-            url(r'^get/web/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('https://s3-us-west-2.amazonaws.com/get.stenci.la/web/'+path))
-        ]
+    urlpatterns += [
+        url(r'^get/web/(?P<path>.*)$', lambda request, path: HttpResponseRedirect('https://s3-us-west-2.amazonaws.com/get.stenci.la/web/'+path))
+    ]
 
     # Django Debug Toolbar for JSON API endpoints
     # Useful for checking performance of views, in particular
@@ -235,6 +233,9 @@ urlpatterns += [
     url(r'^(?P<address>.+)@sync$',                         components.views.method, {'method': 'sync'}),
     url(r'^(?P<address>.+)@received$',                     components.views.received),
     url(r'^(?P<address>.+)@snapshot$',                     components.views.snapshot),
+
+    url(r'^(?P<address>.+)@live$',                         components.views.live),
+    url(r'^(?P<address>.+)@collaborate$',                  components.views.collaborate),
 
     # Executable component methods
     url(r'^(?P<address>.+)@functions$',                    components.views.method, {'method': 'functions'}),   

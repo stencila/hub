@@ -20,10 +20,13 @@ import mimetypes
 # Add missing MIME type extensions
 mimetypes.add_type('application/font-woff', '.woff')
 from urlparse import urlparse
+import json
+import hmac
 
 import django
 from django.conf import settings
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.http import (
     require_http_methods, require_GET, require_POST
@@ -785,6 +788,87 @@ def git(request, address):
         response['X-Accel-Redirect'] = url
         return response
 
+@login_required
+def live(request, address):
+    '''
+    Open the live collaboration clone for the component.
+    '''
+    api = API(request)
+    if api.get:
+        # First, check access rights
+        component = Component.get(
+            id=None,
+            address=address,
+            user=request.user,
+            action=ANNOTATE
+        )
+        action, grantor = component.rights(request.user)
+        # Then, see if a live collaboration clone already exists
+        # TODO: In the future there may be several collaboration servers
+        response = requests.get('http://10.0.1.75:7315/' + address + '@live')
+        if response.status_code == 404:
+            response = requests.post('http://10.0.1.75:7315/', json = {
+                'schemaName': 'stencila-document',
+                'documentId': address + '@live',
+                'format': 'html',
+                'content': component.content_get('html')['content']
+            })
+            if response.status_code != 200:
+                raise Exception(response.text)
+        # Get the snapshot data and insert the collaboration websocket URL and
+        # the user rights into it
+        snapshot = response.json()
+        if settings.MODE == 'local':
+            # It's not possible to do a Websocket redirect (without Nginx's 'X-Accel-Redirect') so
+            # in development just give direct WS URL of collaboration server
+            ws = 'ws://10.0.1.75:7315'
+        else:
+            ws = 'wss://stenci.la'
+        ws += '/%s@collaborate?permit=%s' % (
+            address,
+            hmac.new(settings.SECRET_KEY, address + ':' + request.user.username).hexdigest()
+        )
+        snapshot['collabUrl'] = ws
+
+        snapshot['rights'] = action_string(action)
+        # Render template with snapshot data embedded in it
+        return api.respond(
+            template = 'components/live.html',
+            context = {
+                'type': 'document',
+                'snapshot': json.dumps(snapshot)
+            }
+        )
+
+    return api.respond_bad()
+
+def collaborate(request, address):
+    '''
+    Connect to a live collaboration clone via a Websocket connection
+    '''
+    api = API(request)
+    if api.get:
+        if not request.user.is_authenticated():
+            return api.respond_signin()
+        else:
+            # Check that the permit is correct for this address and user
+            # TODO add a salt
+            if hmac.compare_digest(
+                str(request.GET.get('permit', '')),
+                hmac.new(settings.SECRET_KEY, address + ':' + request.user.username).hexdigest()
+            ):
+                url = '/internal-collaboration-websocket/%s:%s' % (
+                    # TODO when we have multiple collaboration servers, find the IP one for the one hostong
+                    # this address
+                    '10.0.1.75',
+                    7315
+                )
+                response = HttpResponse('X-Accel-Redirect : %s' % url)
+                response['X-Accel-Redirect'] = url
+                return response
+            else:
+                raise Http404()
+    return api.respond_bad()
 
 ######################################################################################
 # Address
