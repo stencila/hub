@@ -32,6 +32,8 @@ This repo is organised into "roles". Most of these roles reflect a web service, 
 
 - [`curator`](curator) : curates and serves component repositories - a Python script which exposes a component repo API for `director` to use and a Go script for Git clients to access component repos (proxied and authorized by `director`)
 
+- [`broker`](broker) : serves collaborative group sessions on components - a Node.js server running a Substance `CollabServer`.
+
 - [`worker`](worker) : a machine that hosts component sessions in Docker container instances - Python script for taking an image of it (for replication), and a Python script `worker.py` which communicates with `director` for starting, stopping and providing information on sessions.
 
 More details are provided for each of these roles in the `README.md` files of their respective directories. 
@@ -42,5 +44,6 @@ Role      | IP range     | Service      | Port |
 ----------|--------------|--------------|------|
 Director  | 10.0.1.25-49 | WSGI Django  | 7300 |
 Curator   | 10.0.1.50-74 | `curator.py` | 7310 |
-          |              | `curator.go` | 7311 | 
+          |              | `curator.go` | 7311 |
+Broker    | 10.0.1.75-99 | `broker.js`  | 7315 |
 Worker    | 10.0.1.100-  | `worker.py`  | 7320 |
