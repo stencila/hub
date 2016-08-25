@@ -810,8 +810,9 @@ def live(request, address):
             user=request.user,
             action=ANNOTATE
         )
-        action, grantor = component.rights(request.user)
+        payload = {}
         # Then, see if a live collaboration clone already exists
+        # Get the snapshot data
         # TODO: In the future there may be several collaboration servers
         response = requests.get('http://10.0.1.75:7315/' + address + '@live')
         if response.status_code == 404:
@@ -823,9 +824,8 @@ def live(request, address):
             })
             if response.status_code != 200:
                 raise Exception(response.text)
-        # Get the snapshot data and insert the collaboration websocket URL and
-        # the user rights into it
-        snapshot = response.json()
+        payload['snapshot'] = response.json()
+        # Insert the collaboration websocket URL
         if settings.MODE == 'local':
             # It's not possible to do a Websocket redirect (without Nginx's 'X-Accel-Redirect') so
             # in development just give direct WS URL of collaboration server
@@ -836,15 +836,17 @@ def live(request, address):
             address,
             hmac.new(settings.SECRET_KEY, address + ':' + request.user.username).hexdigest()
         )
-        snapshot['collabUrl'] = ws
-
-        snapshot['rights'] = action_string(action)
+        payload['collabUrl'] = ws
+        # Insert the user and access rights
+        action, grantor = component.rights(request.user)
+        payload['user'] = request.user.username
+        payload['rights'] = action_string(action)
         # Render template with snapshot data embedded in it
         return api.respond(
             template = 'components/live.html',
             context = {
                 'type': 'document',
-                'snapshot': json.dumps(snapshot)
+                'payload': json.dumps(payload)
             }
         )
 
