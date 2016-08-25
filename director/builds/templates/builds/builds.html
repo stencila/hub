@@ -94,7 +94,7 @@
 						<span class="field install" data-content=
 							{% if build.package == 'docker' %}
 								"docker pull stencila/{{ build.flavour }}:{{ build.version }}"
-							{% if build.package == 'node' %}
+							{% elif build.package == 'node' %}
 								"npm install stencila/stencila"
 							{% elif build.package == 'py' %}
 								"pip install {{ build.url }}"
