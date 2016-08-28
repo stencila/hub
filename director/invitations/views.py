@@ -83,11 +83,15 @@ def accept(request, string):
                     raise Exception("Maximum number of ")
                 express_username = '%s%s' %(base, trials)
 
+        # URL for redirect when using third party account
+        # to login (come back to this view and get redirected)
+        next = '/invitations/%s/accept' % string
+
         if api.get:
             # Render athentication forms
             return render(request, 'invitations/accept.html', dict(
                 invitation=invitation,
-                next='/invitations/%s' % string,
+                next=next,
                 userpass_form=AuthenticationForm(),
                 express_username=express_username
             ))
@@ -99,7 +103,7 @@ def accept(request, string):
                     # Display errors
                     return render(request, 'invitations/accept.html', dict(
                         invitation=invitation,
-                        next='/invitations/%s' % string,
+                        next=next,
                         userpass_form=form,
                         express_username=express_username
                     ))
@@ -120,7 +124,7 @@ def accept(request, string):
                 return accept(request, string)
             else:
                 # Some thing else, just go back the page
-                return redirect('/invitations/%s/accept' % string)
+                return redirect(next)
         else:
             return api.respond_bad()
 
