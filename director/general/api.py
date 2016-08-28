@@ -251,6 +251,23 @@ class API:
                 method=self.method
             )
 
+
+    class NotFoundError(Error):
+        code = 404
+
+        def serialize(self):
+            return dict(
+                error='not-found',
+                message='Not found'
+            )
+
+    def raise_not_found(self):
+        raise API.NotFoundError()
+
+
+
+
+
     class MethodNotAllowedError(Error):
         code = 405
 
