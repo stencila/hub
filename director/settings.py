@@ -162,6 +162,7 @@ INSTALLED_APPS = [
     'accounts',
     'builds',
     'components',
+    'invitations',
     'snippets',
     'sessions_',
     'users',
@@ -366,7 +367,9 @@ LOGIN_URL = '/me/signin'
 LOGIN_REDIRECT_URL = '/'
 
 # django-ses
-if MODE in ('vagrant', 'prod'):
+if MODE == 'local':
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+elif MODE in ('vagrant', 'prod'):
     EMAIL_BACKEND = 'django_ses.SESBackend'
     AWS_SES_REGION_NAME = 'us-west-2'
     AWS_SES_REGION_ENDPOINT = 'email.us-west-2.amazonaws.com'

@@ -44,6 +44,7 @@ from django.core import urlresolvers
 import general.views
 import builds.views
 import components.views
+import invitations.views
 import sessions_.views
 import snippets.views
 import users.views
@@ -99,6 +100,8 @@ urlpatterns = [
 
     url(r'^tokens/?$',                                               users.views.tokens),
     url(r'^tokens/(?P<id>\d+)/?$',                                   users.views.tokens),
+
+    url(r'^invitations(/(?P<string>[a-z0-9]+))?/accept?$',           invitations.views.accept),
 
     url(r'^events/?$',                                               users.views.events),
 
