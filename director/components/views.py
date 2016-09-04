@@ -875,7 +875,7 @@ def live_html(request, address):
             raise Exception(response.text)
         else:
             if api.browser:
-                response = HttpResponse(response.text, content_type='text/html')
+                response = HttpResponse(response.json().data, content_type='text/html')
                 response['Content-Disposition'] = 'attachment; filename="document.html"'
                 return response
             else:
