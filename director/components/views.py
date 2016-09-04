@@ -852,6 +852,38 @@ def live(request, address):
 
     return api.respond_bad()
 
+
+@login_required
+def live_html(request, address):
+    '''
+    Get the HTML of a live copy of a document
+
+    This should be generalised and/or merge wiith the `content` view (which also gets (and sets) HTML).
+    '''
+    api = API(request)
+    if api.get:
+        # First, check access rights
+        component = Component.get(
+            id=None,
+            address=address,
+            user=request.user,
+            action=READ
+        )
+        # Get HTML from broker
+        response = requests.get('http://10.0.1.75:7315/' + address + '@live?format=html')
+        if response.status_code != 200:
+            raise Exception(response.text)
+        else:
+            if api.browser:
+                response = HttpResponse(response.text, content_type='text/html')
+                response['Content-Disposition'] = 'attachment; filename="document.html"'
+                return response
+            else:
+                return api.respond(data=response.json())
+
+    return api.respond_bad()
+
+
 def collaborate(request, address):
     '''
     Connect to a live collaboration clone via a Websocket connection

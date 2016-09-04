@@ -238,6 +238,7 @@ urlpatterns += [
     url(r'^(?P<address>.+)@snapshot$',                     components.views.snapshot),
 
     url(r'^(?P<address>.+)@live$',                         components.views.live),
+    url(r'^(?P<address>.+)@live/html$',                    components.views.live_html),
     url(r'^(?P<address>.+)@collaborate$',                  components.views.collaborate),
 
     # Executable component methods
