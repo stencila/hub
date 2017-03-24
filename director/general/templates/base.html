@@ -33,7 +33,6 @@
 		{% endblock %}
 		{% ifnotequal MODE 'local' %}
 			{% include "_google-analytics.html" %}
-			{% include "_headway.html" %}
 		{% endifnotequal %}
 		{% if INTERCOM_ON and request.user.is_authenticated and not request.user.details.guest %}
 			{% include "_intercom.html" %}
