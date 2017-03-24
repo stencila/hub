@@ -41,7 +41,10 @@ def front(request):
     Front page at / dispatches to about or explore depending upon
     if user is logged in
     '''
-    return explore(request) if request.user.is_authenticated() else about(request)
+    # Replacing this:
+    #   return explore(request) if request.user.is_authenticated() else about(request)
+    # with this for moment
+    return about(request)
 
 
 def about(request):
