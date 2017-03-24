@@ -53,16 +53,13 @@ import users.views
 urlpatterns = [
 
     # Front pages
-    url(r'^$',                                                       general.views.front),
+    url(r'^$',                                                       general.views.about),
     url(r'^about/?$',                                                general.views.about),
-    url(r'^explore/?$',                                              general.views.explore),
+    url(r'^explore/?$',                                              general.views.about),
 
     # API documentation
     url(r'^api/api.yml',                                             general.views.api_yml),
     url(r'^api/?$',                                                  general.views.api_ui),
-
-    # Snippets
-    url(r'^snippets(/(?P<id>.+))?/?$',                               snippets.views.snippets),
 
     # Sessions
     url(r'^sessions(/(?P<id>\d+))?/?$',                              sessions_.views.sessions),
