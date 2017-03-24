@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}About{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block styles %}
 	{{ block.super }}
@@ -22,76 +22,36 @@
 
 		#main {
 			padding: 0;
-		}
-
-		#main .screen {
-			min-height: 100vh;
-			position: relative;
-			padding-top: 1em;
-			padding-bottom: 3em;
-			color: #555;
-		}
-		#main #sheets {
-			min-height: 85vh;
-		}
-		#main .screen .ui.chevron.icon {
-			color: #E2E2E2;
-		}
-		#main .screen .next {
-			position: absolute;
-			bottom: 3em;
-			height: 3em;
-			width: 100%;
-		}
-		#main .screen .next .icon {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-			font-size: 3em;
+			color: #777;
 		}
 
 		#main #intro .logo.image {
 			width: 100%;
-			max-width: 40em;
+			max-width: 30em;
 			display: block;
 			margin-right: auto;
 			margin-left: auto;
 		}
 
 		#main #intro .hero {
-			max-width: 45em;
-			margin-top: 5em;
-			margin-bottom: 5em;
+			max-width: 50em;
+			margin-top: 1em;
+			margin-bottom: 1em;
 		}
 		#main #intro .hero p {
-			font-size: 140%;
+			font-size: 130%;
 			text-align: center;
 		}
 
-		#main #intro .blocks .icon {
-			font-size: 5em;
-			color: #8AF039;
-		}
-		#main #intro .blocks .ui.header {
-			color: #555;
-		}
-		#main #intro .blocks p.text {
-		}
-		#main #intro .blocks pre {
-			text-align: left;
-    		font-size: 90%;
-    		padding: 0.5em;
-    		background: #333;
-    		color: #CCC;
-    		border-radius: 3px;
-    		overflow: hidden;
+		#main #actions {
+			margin: auto 0;
 		}
 
-		#main .screen p {
-			text-align: justify;
-			font-size: 120%;
-			line-height: 1.3em;
+		#main #actions .button {
+			margin: 0.3em;
+			max-width: 15em;
 		}
+
 		#main .quote p:first-child {
 			text-align: left;
 			color: #888;
@@ -103,132 +63,53 @@
 			font-size: 0.9em;
 			text-align: left;
 		}
-		#main .example>.button {
-			margin: 3px;
-		}
 	</style>
 {% endblock %}
 
 {% block main %}
 
-	<div id="intro" class="screen">
+	<div id="intro">
 		<div class="logo ui basic segment">
 			<img src="{% static 'logo-name.svg' %}" class="logo ui image">
 		</div>
 		<div class="hero ui basic center aligned centered segment">
-			<h1 class="ui huge header">Open data science, open to all</h1>
+			<h1 class="ui huge header">The office suite for reproducible research</h1>
 			<p>
-				We're bridging the gap between coders and clickers to make open, data driven, documents that are accessible to all.
-				The key to reproducibility is collaboration and true collaboration comes from allowing people to use the interfaces they want, where they want.
+				The calls for research to be transparent and reproducible have never been louder.
+				But today's tools for reproducible research can be intimidating - especially if you're not a coder.
+				We're building software for reproducible research with the intuitive, visual interfaces that you and your colleagues are used to.
 			</p>
 		</div>
-		<div class="blocks ui equal width stackable grid basic center aligned segment">
-			<div class="ui column">
-				<i class="ui huge copy icon"></i>
-				<h2 class="ui header">Open documents</h1>
-				<p class="text">
-					Stencila <a href="#documents">Documents</a> and <a href="#sheets">Sheets</a>
-					embed code in the interfaces we're used to.
-					Use the power of open source languages in documents that won't scare away your colleagues.
-				</p>
-				<p>
-				</p>
-			</div>
-			<div class="ui column">
-				<i class="ui huge fork icon"></i>
-				<h2 class="ui header">Built from source</h1>
-				<p class="text">
-					Documents that use source code file formats, so they're diff-able, version-able, fork-able. 
-					Don't want no fancy UI? Use your text editor:
-				</p>
-				<pre>
-A1 Model of icecream sales
-A2 = read.table('data.csv')
-A3 = lm(sales~rain+temp,A2)
-A4 = summary(A3)
-</pre>
-			</div>
-			<div class="ui column">
-				<i class="ui huge desktop icon"></i>
-				<h2 class="ui header">On the desktop</h1>
-				<p class="text">
-					Download Stencila packages and create documents on your own machine. In the browser, at the command line, or in a script.
-				</p>
-				<pre>
-from stencila import *
-s = Stencil('.')
-s.render()
-s.view()</pre>
-			</div>
-			<div class="ui column">
-				<i class="ui huge cloud icon"></i>
-				<h2 class="ui header">In the cloud</h1>
-				<p class="text">
-					Documents that are internet natives.
-					Sync changes using git or collaborate in the browser. 
-					Publish to the web and provide API endpoints to share your documents, analyses and data.
-				</p>
-				<p>
-				</p>
-			</div>
-		</div>
-		<a href="#documents" class="next"><i class="ui big chevron circle down icon"></i></a>
 	</div>
 
-	<div id="documents" class="screen">
-		<div class="ui equal width stackable grid basic segment">
-			<div class="ui column">
-				<h1 class="ui header">Stencila Documents</h1>
-				<p>
-					The traditional approach to creating data driven documents is laborious and error prone: copy and paste from spreadsheets and statistical software into a word processor.
-					If the data or analyses change, it's all got to be done again.
-					And copying and pasting kills transparency and reproducibility – it decouples the data analysis methods from the final document.
-				</p>
-				<p>
-					Template based approaches that embed code within content provide a more efficient and reproducible alternative. But they are inaccessible to less technical users.
-				</p>
-				<p>
-					Stencila Documents combine the statistical power of languages like R and Python, with the flexibility of templating engines, with a what-you-see-is-what-you-get collaborative editing environment.
-				</p>
-			</div>
-			<div class="ui column">
-				<img src="{% static 'images/stencil-example-b.png' %}" class="ui image">
+	<div class="ui centered stackable grid basic segment">
+		<div class="ui twelve wide column">
+			<img class="ui centered image" src="{% static 'images/desktop-screenshot.png' %}">
+		</div>
+		<div id="actions" class="ui four wide column">
+			<div class="ui centered stackable grid basic segment">
+				<a class="ui large fluid green labeled icon button" href="https://github.com/stencila/stencila/releases"><i class="ui large download icon"></i>Download</a>
+				<a class="ui large fluid grey labeled icon button" href="https://github.com/stencila/stencila"><i class="ui large github icon"></i>Contribute</a>
+				<a class="ui large fluid grey labeled icon button" href="https://gitter.im/stencila/stencila"><i class="ui large comment icon"></i>Chat with us</a>
+				<a class="ui large fluid grey labeled icon button" href="/me/signup"><i class="ui large announcement icon"></i>Get updates</a>
 			</div>
 		</div>
-		<a href="#sheets" class="next"><i class="ui big chevron circle down icon"></i></a>
 	</div>
 
-	<div id="sheets" class="screen">
-		<div class="ui equal width stackable grid basic segment">
-			<div class="ui column">
-				<h1 class="ui header">Stencila Sheets</h1>
-				<p>
-					Spreadsheets are the probably the most widely used environment for data analysis and end user programming.
-					Their ubiquity comes from the intuitive simplicity of a live, reactive, see-your-data-and-do-stuff with it interface.
-				</p>
-				<p>
-					Stencila Sheets combine the benefits of the spreadsheet interface with power of languages like R and Python.
-				</p>
-				<p>
-					Built from the ground up for transparency, testability and version control, we think Stencila sheets are the next step in the evolution of the spreadsheet.
-				</p>
-				<h4 class="ui header">More:</h4>
-				<div class="ui list">
-					<a href="/stencila/blog/introducing-sheets/" target="_blank" class="ui item link">
-						Spreadsheets are dead, long live reactive programming environments!
-					</a>
-					<a href="/stencila/blog/underneath-sheets/" target="_blank" class="ui item link">
-						Getting under Stencila sheets
-					</a>
-					<a href="/stencila/blog/humane-sheets/" target="_blank" class="ui item link">
-						A spreadsheet file format for humans
-					</a>
-				</div>
-			</div>
-			<div class="ui column">
-				<img src="{% static 'images/sheet-example-a.gif' %}" class="ui image">
+	<div class="ui basic center aligned centered segment">
+		<h1 class="ui header">Funders</h1>
+		<div class="ui centered card">
+			<a class="ui image" href="http://coko.foundation">
+				<img src="{% static 'logos/coko.png' %}" class="ui image">
+			</a>
+			<div class="ui content">
+				Support for platform development and integration with <a href="https://coko.foundation/technology/">PubSweet</a>.
 			</div>
 		</div>
+	</div>
+
+	<div class="ui basic center aligned centered segment">
+		<h1 class="ui header">Testimonials</h1>
 		<div class="ui equal width centered stackable grid basic segment">
 			<div class="ui five wide column">
 				<div class="quote ui item">

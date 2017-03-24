@@ -5,16 +5,14 @@
 			<img src="{% static 'logo-name-beta.png' %}" class="ui logo">
 		</a>
 		<div class="ui right menu">
-			<a class="section ui item" href="http://blog.stenci.la">Blog</a>
 			{% if INTERCOM_ON and user.is_authenticated and not user.details.guest %}
 				<a id="intercom" class="ui item" title="Get help, ask us a question">
 					<i class="ui circular inverted help icon"></i>
 				</a>
 			{% endif %}
 			{% if user.is_anonymous %}
-			    <a class="ui item" href="/me/signin" title="Sign in">
-			    	<i class="ui circular inverted sign in icon"></i>
-				</a>
+			  <a class="ui compact basic gray button" href="http://blog.stenci.la">Blog</a>
+              <a class="ui compact basic green button" href="/me/signin">Sign in</a>
 			{% else %}
 				{% if not user.details.guest %}
 					<div class="ui simple dropdown item">

@@ -6,10 +6,10 @@ header {
 	box-shadow: none;
 }
 .ui.main.menu>.ui.container>.ui.item:first-child {
-	padding: 0.5em 0;
+	padding: 0.5em 0 0 0.1em;
 }
 .ui.main.menu .ui.logo {
-	height: 34px;
+	height: 30px;
 }
 .ui.main.menu .dropdown,
 .ui.main.menu #intercom {
@@ -34,6 +34,10 @@ header {
 	font-weight: bold;
 	padding-right: 1em;
 	color: #999;
+}
+.ui.main.menu .ui.right.menu .ui.basic.button {
+	height: 2.2em;
+    margin: auto 0.1em;
 }
 .ui.main.menu .ui.menu .ui.item:before{
 	display: none;
