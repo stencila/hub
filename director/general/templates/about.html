@@ -63,6 +63,11 @@
 			font-size: 0.9em;
 			text-align: left;
 		}
+		#main .funders .card,
+		#main .partners .card {
+			border: none;
+			box-shadow: none;
+		}
 	</style>
 {% endblock %}
 
@@ -88,7 +93,7 @@
 		</div>
 		<div id="actions" class="ui four wide column">
 			<div class="ui centered stackable grid basic segment">
-				<a class="ui large fluid green labeled icon button" href="https://github.com/stencila/desktop/releases"><i class="ui large download icon"></i>Download</a>
+				<a class="ui large fluid green labeled icon button" href="https://github.com/stencila/desktop/releases"><i class="ui large download icon"></i>Download beta</a>
 				<a class="ui large fluid grey labeled icon button" href="https://github.com/stencila/stencila"><i class="ui large github icon"></i>Contribute</a>
 				<a class="ui large fluid grey labeled icon button" href="https://gitter.im/stencila/stencila"><i class="ui large comment icon"></i>Chat with us</a>
 				<a class="ui large fluid grey labeled icon button" href="https://twitter.com/intent/follow?screen_name=stencila"><i class="ui large twitter icon"></i>Follow us</a>
@@ -96,20 +101,24 @@
 		</div>
 	</div>
 
-	<div class="ui basic center aligned centered segment">
-		<h1 class="ui header">Partners</h1>
-		<div class="ui centered card">
-			<a class="ui image" href="http://coko.foundation" style="margin: 2em;">
+	<div class="funders ui centered basic segment">
+		<h3 class="ui centered grey header">Funders</h1>
+		<div class="ui basic centered card">
+			<a class="ui image" href="https://sloan.org/programs/digital-technology/data-and-computational-research">
+				<img src="{% static 'logos/sloan.png' %}" class="ui image">
+			</a>
+		</div>
+	</div>
+	<div class="partners ui centered basic segment">
+		<h3 class="ui centered grey header">Partners</h1>
+		<div class="ui basic centered card">
+			<a class="ui image" href="http://coko.foundation" style="width: 80%; margin: 0 auto">
 				<img src="{% static 'logos/coko.jpg' %}" class="ui image">
 			</a>
-			<div class="ui content">
-				Support for platform development and integration with PubSweet.
-			</div>
 		</div>
 	</div>
 
 	<div class="ui basic center aligned centered segment">
-		<h1 class="ui header">Testimonials</h1>
 		<div class="ui equal width centered stackable grid basic segment">
 			<div class="ui five wide column">
 				<div class="quote ui item">
