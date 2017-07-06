@@ -66,6 +66,7 @@
 		#main .funders a img,
 		#main .partners a img {
 			max-height: 80px;
+			max-width: 260px;
 			margin: 1em;
 		}
 	</style>
@@ -111,16 +112,23 @@
 	</div>
 	<div class="partners ui centered basic segment">
 		<h3 class="ui centered grey header">Partners</h1>
-		<div class="ui centered stackable grid"> 
-			<a href="https://codeforscience.org">
-				<img src="{% static 'logos/css.png' %}" class="ui image">
-			</a>
-			<a href="http://coko.foundation">
-				<img src="{% static 'logos/coko.jpg' %}" class="ui image">
-			</a>
-			<a href="https://datproject.org">
-				<img src="{% static 'logos/dat.png' %}" class="ui image">
-			</a>
+		<div class="ui centered stackable grid">
+			<div class="ui row">
+				<a href="https://codeforscience.org">
+					<img src="{% static 'logos/css.png' %}" class="ui image">
+				</a>
+				<a href="http://coko.foundation">
+					<img src="{% static 'logos/coko.jpg' %}" class="ui image">
+				</a>
+			</div>
+			<div class="ui row">
+				<a href="https://datproject.org">
+					<img src="{% static 'logos/dat.png' %}" class="ui image">
+				</a>
+				<a href="https://substance.io">
+					<img src="{% static 'logos/substance.svg' %}" class="ui image">
+				</a>
+			</div>
 		</div>
 	</div>
 
