@@ -22,7 +22,7 @@
 
 		#main {
 			padding: 0;
-			color: #777;
+			color: #555;
 		}
 
 		#main #intro .logo.image {
@@ -50,6 +50,28 @@
 		#main #actions .button {
 			margin: 0.3em;
 			max-width: 15em;
+		}
+
+		#main .ui.segments {
+		    border: 0;
+		    box-shadow: 0 0 0 0;
+		    max-width: 30em;
+		    margin: 1em auto 3em auto;
+		    font-size: 1.4em;
+		}
+		#main .go-step {
+			margin-top: 1em;
+		}
+		pre {
+		    font-size: 14px;
+		    overflow: scroll-x;
+		    background: #e0e0e0;
+		    color: #5e5e5e;
+		    padding: 0.5em;
+		    border-radius: 5px;
+		    max-width: 25em;
+		    display: block;
+		    margin: 0.5em auto 1em auto;
 		}
 
 		#main .quote p:first-child {
@@ -88,22 +110,49 @@
 		</div>
 	</div>
 
-	<div class="ui centered stackable grid basic segment">
-		<div class="ui twelve wide column">
-			<img class="ui centered image" src="{% static 'images/desktop-screenshot.png' %}">
-		</div>
-		<div id="actions" class="ui four wide column">
-			<div class="ui centered stackable grid basic segment">
-				<a class="ui large fluid green labeled icon button" href="https://github.com/stencila/desktop/releases"><i class="ui large download icon"></i>Download beta</a>
-				<a class="ui large fluid grey labeled icon button" href="https://github.com/stencila/stencila"><i class="ui large github icon"></i>Contribute</a>
-				<a class="ui large fluid grey labeled icon button" href="https://gitter.im/stencila/stencila"><i class="ui large comment icon"></i>Chat with us</a>
-				<a class="ui large fluid grey labeled icon button" href="https://twitter.com/intent/follow?screen_name=stencila"><i class="ui large twitter icon"></i>Follow us</a>
+	<div class="ui centered basic segment">
+		<img class="ui centered image" src="{% static 'images/desktop-screenshot.png' %}">
+	</div>
+
+	<div class="go-steps ui centered basic segments">
+		<h2 class="ui centered grey header">Get started</h1>
+		<div class="ui center aligned basic segment">
+			<div class="ui image">
+				<a class="ui huge green circular label">1</a>
 			</div>
+			<div class="go-step">
+				Download the <a href="https://github.com/stencila/desktop/releases">Stencila Desktop</a> application.
+			</div>
+		</div>
+		<div class="ui center aligned basic segment">
+			<div class="ui image">
+				<a class="ui huge green circular label">2</a>
+			</div>
+			<div class="go-step">
+				<p><em>Optional:</em> To use code cells in external languages either run our Docker image.</p>
+			    <pre><code>docker run -p 2100:2000 stencila/alpha</pre></code>
+			    <p>Or, install one of the Stencila language packages for R, Python, Node.js. See our <a href="https://github.com/stencila/stencila/wiki/Getting-started">getting started guide</a> for more.</p>
+			</div>
+		</div>
+		<div class="ui center aligned basic segment">
+			<div class="ui image">
+				<a class="ui huge green circular label">3</a>
+			</div>
+			<p class="go-step">
+		    	Help shape Stencila by joining the community <a class="ui" href="https://community.stenci.la/">forum</a>, contributing <a class="ui" href="https://github.com/stencila">code</a>, or following us on <a class="ui" href="https://twitter.com/intent/follow?screen_name=stencila">Twitter</a>!
+			</p>
 		</div>
 	</div>
 
+	<div class="ui centered basic segments">
+		<h2 class="ui centered grey header">Roadmap</h1>
+		<p class="ui center aligned basic segment">
+			Stencila is currently in early beta development. We're working towards a 1.0 in early 2018. Check out our <a class="ui" href="https://github.com/stencila/stencila#roadmap">feature status and roadmap</a>.
+		</p>
+	</div>
+
 	<div class="funders ui centered basic segment">
-		<h3 class="ui centered grey header">Funders</h1>
+		<h2 class="ui centered grey header">Funders</h1>
 		<div class="ui centered stackable grid">
 			<a href="https://sloan.org/programs/digital-technology/data-and-computational-research">
 				<img src="{% static 'logos/sloan.png' %}" class="ui image">
@@ -111,7 +160,7 @@
 		</div>
 	</div>
 	<div class="partners ui centered basic segment">
-		<h3 class="ui centered grey header">Partners</h1>
+		<h2 class="ui centered grey header">Partners</h1>
 		<div class="ui centered stackable grid">
 			<div class="ui row">
 				<a href="https://codeforscience.org">
@@ -132,6 +181,7 @@
 		</div>
 	</div>
 
+	<!--
 	<div class="ui basic center aligned centered segment">
 		<div class="ui equal width centered stackable grid basic segment">
 			<div class="ui five wide column">
@@ -176,6 +226,7 @@
 			</div>
 		</div>
 	</div>
+	-->
 
 	<script type="text/javascript">
   		$(document).ready(function() {
