@@ -1,3 +1,14 @@
+{% for p in object_list %}
+<div>
+  <div>{{ p.address }}</div>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="address" value="{{ p.address }}">
+    <input type="submit" value="Open">
+  </form>
+</div>
+{% empty %}
+<div>No gallery projects in the database, try this one:</div>
 <div>
   <div>github://stencila/examples/hello-world</div>
   <form method="POST">
@@ -6,4 +17,5 @@
     <input type="submit" value="Open">
   </form>
 </div>
+{% endfor %}
 

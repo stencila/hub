@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from .auth import login_guest_user
 from .storer import storers
 from .models import Project
@@ -11,14 +11,12 @@ class FrontPageView(TemplateView):
 class SignInView(TemplateView):
     template_name = 'signin.html'
 
-class GalleryView(TemplateView):
+class GalleryView(ListView):
     template_name = 'gallery.html'
+    model = Project
 
-    def dispatch(self, request, *args, **kwargs):
-        return super(GalleryView, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, **kwargs):
-        return super(GalleryView, self).get(request, **kwargs)
+    def get_queryset(self):
+        return Project.objects.filter(gallery=True)[:12]
 
     def post(self, request, **kwargs):
         if not 'address' in request.POST:
@@ -29,16 +27,25 @@ class GalleryView(TemplateView):
         try:
             proto, path = address.split("://")
             storer = storers[proto](path)
+            assert(storer.valid_path())
+            valid = True
         except:
-            # TODO
-            return render(request, self.template_name, {})
+            valid = False
 
-        if storer.valid_path():
+        self.object_list = self.get_queryset()
+
+        if valid:
+
             if not request.user.is_authenticated:
                 login_guest_user(request)
 
             p, _ = Project.objects.get_or_create(address=address)
             p.users.add(request.user)
-            # Redirect
 
-        return render(request, self.template_name, {})
+            if self.object_list.count() == 0 and not p.gallery:
+                p.gallery = True
+                p.save()
+
+            # Redirect?
+
+        return render(request, self.template_name, self.get_context_data())
