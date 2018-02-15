@@ -1,0 +1,9 @@
+<div>
+  <div>github://stencila/examples/hello-world</div>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="address" value="github://stencila/examples/hello-world">
+    <input type="submit" value="Open">
+  </form>
+</div>
+

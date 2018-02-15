@@ -10,25 +10,29 @@ class FrontPageView(TemplateView):
 class SignInView(TemplateView):
     template_name = 'signin.html'
 
-class ProjectView(TemplateView):
-    template_name = 'project.html'
+class GalleryView(TemplateView):
+    template_name = 'gallery.html'
 
     def dispatch(self, request, *args, **kwargs):
-        self.storer_name = kwargs.get('storer')
-        self.path = kwargs.get('path')
-        return super(ProjectView, self).dispatch(request, *args, **kwargs)
+        return super(GalleryView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, **kwargs):
+        return super(GalleryView, self).get(request, **kwargs)
+
+    def post(self, request, **kwargs):
+        if not 'address' in request.POST:
+            raise Http404
+
+        address = request.POST['address']
+
         try:
-            storer = storers[self.storer_name](self.path)
+            proto, path = address.split("://")
+            storer = storers[proto](path)
         except:
             raise Http404
 
-        if storer.is_accessible():
+        if storer.valid_path():
             if not request.user.is_authenticated:
                 login_guest_user(request)
 
-            address = storer.get_address()
             _, p = Project.objects.get_or_create(creator=request.user, address=address)
-
-        return super(ProjectView, self).get(request, **kwargs)
