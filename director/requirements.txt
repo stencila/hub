@@ -2,6 +2,7 @@ bjoern==2.0.5
 Django>2.0,<2.1
 django-allauth==0.35.0
 django-configurations==2.0
+pyjwt==1.5.3
 pytz==2018.3
 oauthlib==2.0.6
 requests==2.18.4
