@@ -127,6 +127,7 @@ class Common(Configuration):
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
         'allauth.account.auth_backends.AuthenticationBackend',
+        'director.auth_backends.GuestAuthBackend',
     )
 
     ACCOUNT_SESSION_REMEMBER = True # Always remember the user
