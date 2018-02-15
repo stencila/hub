@@ -40,7 +40,9 @@ class Common(Configuration):
         'allauth.socialaccount.providers.google',
         'allauth.socialaccount.providers.linkedin',
         'allauth.socialaccount.providers.orcid',
-        'allauth.socialaccount.providers.twitter'
+        'allauth.socialaccount.providers.twitter',
+
+        'director',
     ]
 
     MIDDLEWARE = [
