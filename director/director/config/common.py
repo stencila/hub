@@ -20,6 +20,24 @@ class Common(Configuration):
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'django.contrib.sites',  # Required by allauth
+
+        # Third party apps
+        'allauth',
+        'allauth.account',
+        'allauth.socialaccount',
+        # Social account providers. See
+        #    http://django-allauth.readthedocs.org/en/latest/providers.html
+        # When you add an item here you must:
+        #   - add an entry in SOCIALACCOUNT_PROVIDERS below
+        #   - register Stencila as an API client or app with the provider
+        #   - add a SocialApp instance (/admin/socialaccount/socialapp/add/) adding the credentials provided by the provider
+        'allauth.socialaccount.providers.facebook',
+        'allauth.socialaccount.providers.github',
+        'allauth.socialaccount.providers.google',
+        'allauth.socialaccount.providers.linkedin',
+        'allauth.socialaccount.providers.orcid',
+        'allauth.socialaccount.providers.twitter'
     ]
 
     MIDDLEWARE = [
