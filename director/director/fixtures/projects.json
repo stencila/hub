@@ -1,0 +1,1 @@
+[{"model": "director.project", "pk": 1, "fields": {"address": "github://stencila/examples/hello-world", "gallery": true, "users": [1]}}]

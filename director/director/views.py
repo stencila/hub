@@ -32,20 +32,13 @@ class GalleryView(ListView):
         except:
             valid = False
 
-        self.object_list = self.get_queryset()
-
         if valid:
-
             if not request.user.is_authenticated:
                 login_guest_user(request)
 
             p, _ = Project.objects.get_or_create(address=address)
             p.users.add(request.user)
-
-            if self.object_list.count() == 0 and not p.gallery:
-                p.gallery = True
-                p.save()
-
             # Redirect?
 
+        self.object_list = self.get_queryset()
         return render(request, self.template_name, self.get_context_data())
