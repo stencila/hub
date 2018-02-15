@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.shortcuts import render
 from django.views.generic import TemplateView
 from .auth import login_guest_user
 from .storer import storers
@@ -29,10 +30,15 @@ class GalleryView(TemplateView):
             proto, path = address.split("://")
             storer = storers[proto](path)
         except:
-            raise Http404
+            # TODO
+            return render(request, self.template_name, {})
 
         if storer.valid_path():
             if not request.user.is_authenticated:
                 login_guest_user(request)
 
-            _, p = Project.objects.get_or_create(creator=request.user, address=address)
+            p, _ = Project.objects.get_or_create(address=address)
+            p.users.add(request.user)
+            # Redirect
+
+        return render(request, self.template_name, {})
