@@ -16,7 +16,6 @@ DJ := $(VE) director/manage.py
 # Install necessary packages
 director-setup:
 	sudo apt-get install python3.6 python3.6-dev python3.6-venv libev-dev
-	git submodule init && git submodule update
 
 # Setup virtual environment
 director-env: director/requirements.txt
@@ -29,6 +28,7 @@ director/style/css/stencila.min.css: $(wildcard director/style/sass/*.sass)
 
 # Build any static files
 director-static: director/style/css/stencila.min.css
+	$(DJ) collectstatic --noinput
 
 # Run development server
 director-run: director-env director-static
