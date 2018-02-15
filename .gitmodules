@@ -1,0 +1,3 @@
+[submodule "director/style"]
+	path = director/style
+	url = git@github.com:stencila/style
