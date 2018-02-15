@@ -1,8 +1,9 @@
 # Ignore compiled Python files
 *.pyc
 
-# Ignore virtualenvs
+# Ignore virtualenvs and collected static files
 director/env
+director/static
 
 # Ignore IDE/text editor files
 *.sublime-workspace
