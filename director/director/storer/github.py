@@ -1,5 +1,5 @@
 import re
-from . import StorerPathException, Storer
+from . import Storer
 
 class GithubStorer(Storer):
     name = 'github'
