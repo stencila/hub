@@ -28,9 +28,9 @@ class Cluster(models.Model):
         return jwt.encode(payload, self.secret, algorithm='HS256')
 
     def open(self, user, project):
-        jwt = self.get_jwt(user)
+        token = self.get_jwt(user)
         url = '{}/open/{}'.format(self.host, project.address)
-        headers = {'Authorization': 'Bearer {}'.format(jwt.decode('utf-8'))}
+        headers = {'Authorization': 'Bearer {}'.format(token.decode())}
         response = requests.get(url, headers=headers)
         print(url)
         print(response.status_code)
