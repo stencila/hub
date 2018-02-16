@@ -11,11 +11,16 @@ RUN apt-get update && \
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
-
 RUN apt-get install -y python3.6 python3.6-dev python3.6-venv libev-dev python3-pip
-
-COPY director/requirements.txt /etc/requirements.txt
-RUN pip3 install -r /etc/requirements.txt
-
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN mkdir -p /app
+WORKDIR /app
+COPY director/requirements.txt /app/requirements.txt
+RUN pip3 install -r /app/requirements.txt
+
+ADD director /app 
+
+CMD /app/wsgi.py
+
