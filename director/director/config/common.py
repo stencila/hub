@@ -14,6 +14,7 @@ class Common(Configuration):
 
     ALLOWED_HOSTS = ['*']
     SECRET_KEY = 'changeme'
+    JWT_SECRET = values.Value('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
     DEBUG = values.BooleanValue(False)
 
     INSTALLED_APPS = [

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 import jwt
 import requests
@@ -21,11 +22,10 @@ class Project(models.Model):
 
 class Cluster(models.Model):
     host = models.TextField(unique=True)
-    secret = models.TextField()
 
     def get_jwt(self, user):
         payload = dict(iat=time.time(), user=user.username)
-        return jwt.encode(payload, self.secret, algorithm='HS256')
+        return jwt.encode(payload, settings.JWT_SECRET, algorithm='HS256')
 
     def open(self, user, project):
         token = self.get_jwt(user)
