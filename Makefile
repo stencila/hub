@@ -46,4 +46,10 @@ director-run: director-env director-static
 docker-run: director-static
 	$(DOCKER) python3 director/manage.py runserver
 
-
+sync-dev-db:
+	rm -f director/db.sqlite3
+	rm -fr director/director/migrations
+	$(DJ) makemigrations director
+	$(DJ) migrate
+	$(DJ) loaddata users
+	$(DJ) loaddata projects
