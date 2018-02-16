@@ -31,12 +31,8 @@ director-env: director/requirements.txt
 	python3 -m venv director/env
 	$(VE) pip3 install -r director/requirements.txt
 
-# Build styles
-director/style/css/stencila.min.css: $(wildcard director/style/sass/*.sass)
-	cd director/style && npm install && npm run build
-
 # Build any static files
-director-static: director/style/css/stencila.min.css
+director-static:
 	$(DJ) collectstatic --noinput
 
 # Run development server
