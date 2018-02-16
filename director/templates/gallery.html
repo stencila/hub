@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+
+{% block main %}
 {% for p in object_list %}
 <div>
   <div>{{ p.address }}</div>
@@ -10,4 +13,4 @@
 {% empty %}
 <div>No gallery projects in the database</div>
 {% endfor %}
-
+{% endblock %}
