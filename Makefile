@@ -53,3 +53,4 @@ sync-dev-db:
 	$(DJ) migrate
 	$(DJ) loaddata users
 	$(DJ) loaddata projects
+	$(DJ) loaddata clusters
