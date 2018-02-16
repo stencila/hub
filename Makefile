@@ -8,6 +8,10 @@ run: director-run
 docker: Dockerfile
 	docker build -t $(IMAGE) .
 
+deploy: docker
+	docker tag $(IMAGE) stencila/hub
+	docker push stencila/hub
+
 DOCKER ?= docker run --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work $(IMAGE)
 
 interact:
