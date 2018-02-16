@@ -7,3 +7,6 @@ director/static
 
 # Ignore IDE/text editor files
 *.sublime-workspace
+
+# Ingore sqlite3 db file
+director/db.sqlite3
