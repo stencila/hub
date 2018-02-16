@@ -36,11 +36,7 @@ class GalleryView(ListView):
             if not request.user.is_authenticated:
                 login_guest_user(request)
 
-            p, _ = Project.objects.get_or_create(address=address)
-            p.users.add(request.user)
-
-            c = Cluster.choose_cluster(user=request.user, project=p)
-            c.open(request.user, p)
+            response = Project.open(user=request.user, address=address)
             # Redirect?
 
         self.object_list = self.get_queryset()

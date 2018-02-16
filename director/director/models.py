@@ -9,6 +9,13 @@ class Project(models.Model):
     gallery = models.BooleanField(default=False)
     users = models.ManyToManyField('auth.User', related_name='projects')
 
+    @classmethod
+    def open(cls, user, address):
+        p, _ = Project.objects.get_or_create(address=address)
+        p.users.add(user)
+        c = Cluster.choose_cluster(user=user, project=p)
+        return c.open(user, p)
+
     class Meta:
         app_label = 'director'
 
@@ -29,6 +36,7 @@ class Cluster(models.Model):
         print(response.status_code)
         if response.status_code == 200:
             print(response.json())
+        return response
 
     @classmethod
     def choose_cluster(cls, user, project):
