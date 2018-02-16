@@ -9,16 +9,6 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
     apt-get install -y tzdata locales software-properties-common
 
-RUN echo "Pacific/Auckland" > /etc/timezone
-RUN ln -fs /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
-RUN dpkg-reconfigure -f noninteractive tzdata
-
-RUN locale-gen en_NZ.UTF-8
-RUN dpkg-reconfigure locales
-
-ENV LANG en_NZ.utf8
-ENV LANGUAGE en_NZ:en
-
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
 

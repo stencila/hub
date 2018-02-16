@@ -1,7 +1,7 @@
 IMAGE := stencila-director
 all: setup run
 
-setup: director-setup
+setup: director-setup director-env
 
 run: director-run
 
@@ -20,7 +20,11 @@ interact:
 VE := . director/env/bin/activate ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
-DJ := $(VE) director/manage.py
+ifeq ($(DOCKER), '')
+	DJ := $(VE) director/manage.py
+else
+	DJ := $(DOCKER) python3 director/manage.py 
+endif
 
 # Install necessary packages
 director-setup:
@@ -36,11 +40,8 @@ director-static:
 	$(DJ) collectstatic --noinput
 
 # Run development server
-director-run: director-env director-static
-	director/env/bin/python director/manage.py runserver
-
-docker-run: director-static
-	$(DOCKER) python3 director/manage.py runserver
+director-run: director-static
+	$(DJ) runserver
 
 sync-dev-db:
 	rm -f director/db.sqlite3
