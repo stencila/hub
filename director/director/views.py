@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView
 from .auth import login_guest_user
 from .storer import storers
-from .models import Project
+from .models import Project, Cluster
 
 class FrontPageView(TemplateView):
     template_name = 'index.html'
@@ -38,6 +38,9 @@ class GalleryView(ListView):
 
             p, _ = Project.objects.get_or_create(address=address)
             p.users.add(request.user)
+
+            c = Cluster.choose_cluster(user=request.user, project=p)
+            c.open(request.user, p)
             # Redirect?
 
         self.object_list = self.get_queryset()
