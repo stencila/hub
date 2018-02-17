@@ -16,10 +16,11 @@ class OpenInput(TemplateView):
     template_name = 'open-input.html'
 
 class OpenAddress(TemplateView):
-    template_name = 'open-view.html'
+    template_name = 'open-address.html'
 
     def get(self, request, address=None):
-
+        cluster = None
+        token = None
         if address:
             try:
                 proto, path = address.split("://")
@@ -33,10 +34,13 @@ class OpenAddress(TemplateView):
                 if not request.user.is_authenticated:
                     login_guest_user(request)
 
-                response = Project.open(user=request.user, address=address)
-                # Redirect?
+                cluster, token = Project.open(user=request.user, address=address)
+        return self.render_to_response(dict(
+            address=address,
+            cluster=cluster,
+            token=token
+        ))
 
-        return super().get(self, request)
 
 class GalleryView(ListView):
     template_name = 'gallery.html'
@@ -44,5 +48,3 @@ class GalleryView(ListView):
 
     def get_queryset(self):
         return Project.objects.filter(gallery=True)[:12]
-
-
