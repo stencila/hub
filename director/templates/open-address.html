@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'project/stencila.css' %}">
+{% endblock %}
+
+{% block main %}
+    <div class="app">
+        Loading...
+    </div>
+    <script>
+        window.STENCILA_PROJECT = '{{ address }}';
+        window.STENCILA_STORAGE = '{{ cluster }}/open/{{ token }}';
+        window.STENCILA_HOSTS = '{{ cluster }}/?token={{ token }}';
+    </script>
+
+    <script type="text/javascript" src="{% static 'project/katex/katex.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/plotly.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/substance.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/texture.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/stencila-mini.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/stencila-libcore.xml.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/lib/stencila-libcore.all.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/stencila.js' %}"></script>
+    <script type="text/javascript" src="{% static 'project/app.js' %}"></script>
+{% endblock %}
