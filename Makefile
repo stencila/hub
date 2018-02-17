@@ -26,8 +26,8 @@ interact:
 VE := . director/env/bin/activate ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
-ifeq ($(DOCKER), '')
-	DJ ?= $(VE) director/manage.py
+ifeq ($(DOCKER),false)
+	DJ ?= $(VE) python3 director/manage.py
 else
 	DJ ?= $(DOCKER) python3 director/manage.py 
 endif
@@ -49,7 +49,7 @@ director-stencila: director/stencila/dist/stencila.js
 
 
 # Build any static files
-director-static: director-stencila
+director-static: #director-stencila
 	$(DJ) collectstatic --noinput
 
 # Run development server
