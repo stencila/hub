@@ -1,1 +1,1 @@
-[{"model": "director.cluster", "pk": 1, "fields": {"host": "http://35.227.206.1"}}]
+[{"model": "director.cluster", "pk": 1, "fields": {"host": "http://127.0.0.1:2000"}}]
