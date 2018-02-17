@@ -12,7 +12,7 @@ deploy: docker
 	docker tag $(IMAGE) stencila/hub
 	docker push stencila/hub
 
-DOCKER ?= docker run --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work $(IMAGE)
+DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work $(IMAGE)
 
 interact:
 	$(DOCKER) bash

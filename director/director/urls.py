@@ -21,7 +21,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('gallery', views.GalleryView.as_view(), name='gallery'),
-    # path('open/<str:storer>/<path:path>', views.GalleryView.as_view(), name='project'),
+    path('open/', views.OpenView.as_view(), name='open'),
+    path('open/<path:address>', views.OpenView.as_view(), name='open'),
     path('signin/', views.SignInView.as_view(), name='signin'),
     path('accounts/', include('allauth.urls')),
     path('logout', logout),

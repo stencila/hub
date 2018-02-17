@@ -33,6 +33,7 @@ class Cluster(models.Model):
         headers = {'Authorization': 'Bearer {}'.format(token.decode())}
         response = requests.get(url, headers=headers)
         print(url)
+        print(token)
         print(response.status_code)
         if response.status_code == 200:
             print(response.json())
