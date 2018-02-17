@@ -1,0 +1,84 @@
+/* Customisation of the main header menu */
+header {
+	height: 50px;
+}
+.ui.main.menu {
+	box-shadow: none;
+}
+.ui.main.menu>.ui.container>.ui.item:first-child {
+	padding: 0.5em 0 0 0.1em;
+}
+.ui.main.menu .ui.logo {
+	height: 30px;
+}
+.ui.main.menu .dropdown,
+.ui.main.menu #intercom {
+	padding: 0 0.2em 0 0.2em;
+}
+.ui.main.menu .circular.icon {
+	background: #78EE1A!important;
+}
+.ui.main.menu .dropdown .menu > .header.item {
+	color: #888!important;
+	font-size: 1em!important;
+}
+.ui.main.menu .ui.right.menu {
+	border: none;
+	box-shadow: none;
+}
+.ui.main.menu .ui.right.menu .ui.item {
+	padding: 0.5em 0.2em;
+}
+.ui.main.menu .ui.right.menu .ui.item.section {
+	font-size: 110%;
+	font-weight: bold;
+	padding-right: 1em;
+	color: #999;
+}
+.ui.main.menu .ui.right.menu .ui.basic.button {
+	height: 2.2em;
+    margin: auto 0.1em;
+}
+.ui.main.menu .ui.menu .ui.item:before{
+	display: none;
+}
+.ui.main.menu .user-guest {
+	color: #C5C5C5;
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+/* Allow for fixed main header menu */
+.ui.main.container {
+	margin-top: 50px;
+	padding: 1em;
+	flex:1;
+}
+
+footer {
+	margin-top: 2em;
+	border: solid #CCC;
+	border-width: 1px 0;
+}
+footer .copyright {
+	color: #AAA;
+}
+footer .ui.button {
+	margin-bottom: 4px;
+}
+footer .ui.icon {
+	color: #888;
+}
+footer .ui.heart.icon {
+	margin: 0;
+}
+
+/* Adjective for segment which seems to be missing */
+.ui.centered.segment {
+	margin-left: auto;
+	margin-right: auto;
+}
