@@ -12,8 +12,11 @@ class FrontPageView(TemplateView):
 class SignInView(TemplateView):
     template_name = 'signin.html'
 
+class OpenInput(TemplateView):
+    template_name = 'open-input.html'
+
 class OpenView(TemplateView):
-    template_name = 'open.html'
+    template_name = 'open-view.html'
 
     def get(self, request, address=None):
 
