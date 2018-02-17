@@ -1,3 +1,4 @@
+SHELL := bash
 IMAGE := stencila-director
 all: setup run
 
@@ -16,6 +17,7 @@ DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it -
 
 interact:
 	$(DOCKER) bash
+
 
 ####################################################################################
 # Director
@@ -39,8 +41,15 @@ director-env: director/requirements.txt
 	python3 -m venv director/env
 	$(VE) pip3 install -r director/requirements.txt
 
+# Build stencila
+director/stencila/dist/stencila.js: 
+	docker run --rm -v $$(pwd):/work -w /work/director/stencila node make setup build
+director-stencila: director/stencila/dist/stencila.js
+	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/
+
+
 # Build any static files
-director-static:
+director-static: director-stencila
 	$(DJ) collectstatic --noinput
 
 # Run development server

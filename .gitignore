@@ -8,5 +8,15 @@ director/static
 # Ignore IDE/text editor files
 *.sublime-workspace
 
-# Ingore sqlite3 db file
+# Ignore sqlite3 db file
 director/db.sqlite3
+
+# Ignore stencila outputs
+director/client/font-awesome/
+director/client/katex/
+director/client/lib/
+director/client/stencila.css
+director/client/stencila.css.map
+director/client/stencila.js
+director/client/stencila.js.map
+
