@@ -25,9 +25,9 @@ VE := . director/env/bin/activate ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
 ifeq ($(DOCKER), '')
-	DJ := $(VE) director/manage.py
+	DJ ?= $(VE) director/manage.py
 else
-	DJ := $(DOCKER) python3 director/manage.py 
+	DJ ?= $(DOCKER) python3 director/manage.py 
 endif
 
 # Install necessary packages

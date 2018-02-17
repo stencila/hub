@@ -22,5 +22,11 @@ RUN pip3 install -r /app/requirements.txt
 
 ADD director /app 
 
+RUN python3 manage.py makemigrations director
+RUN python3 manage.py migrate
+RUN python3 manage.py loaddata users
+RUN python3 manage.py loaddata projects
+RUN python3 manage.py loaddata clusters
+
 CMD /app/wsgi.py
 
