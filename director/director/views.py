@@ -15,7 +15,7 @@ class SignInView(TemplateView):
 class OpenInput(TemplateView):
     template_name = 'open-input.html'
 
-class OpenView(TemplateView):
+class OpenAddress(TemplateView):
     template_name = 'open-view.html'
 
     def get(self, request, address=None):
