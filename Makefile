@@ -41,15 +41,21 @@ director-env: director/requirements.txt
 	python3 -m venv director/env
 	$(VE) pip3 install -r director/requirements.txt
 
-# Build stencila
-director/stencila/dist/stencila.js: 
+# Build stencila/stencila Javascript and CSS
+director/stencila/dist/stencila.js:
+ifeq ($(DOCKER),false)
+	cd director/stencila && make setup build
+else
 	docker run --rm -v $$(pwd):/work -w /work/director/stencila node make setup build
+endif
+
 director-stencila: director/stencila/dist/stencila.js
-	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/
+	mkdir -p director/client/stencila
+	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
 
 
 # Build any static files
-director-static: #director-stencila
+director-static: director-stencila
 	$(DJ) collectstatic --noinput
 
 # Run development server

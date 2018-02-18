@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block styles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'project/stencila.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'stencila/stencila.css' %}">
 {% endblock %}
 
 {% block main %}
@@ -15,13 +15,13 @@
         window.STENCILA_HOSTS = '{{ cluster }}/?token={{ token }}';
     </script>
 
-    <script type="text/javascript" src="{% static 'project/katex/katex.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/plotly.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/substance.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/texture.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/stencila-mini.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/stencila-libcore.xml.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/lib/stencila-libcore.all.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/stencila.js' %}"></script>
-    <script type="text/javascript" src="{% static 'project/app.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/katex/katex.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/plotly.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/substance.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/texture.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/stencila-mini.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/stencila-libcore.xml.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/lib/stencila-libcore.all.js' %}"></script>
+    <script type="text/javascript" src="{% static 'stencila/stencila.js' %}"></script>
+    <script type="text/javascript" src="{% static 'open-address.js' %}"></script>
 {% endblock %}
