@@ -1,19 +1,18 @@
 SHELL := bash
-IMAGE := stencila-director
+
 all: setup run
 
 setup: director-setup director-env
 
 run: director-run
 
-docker: Dockerfile
-	docker build -t $(IMAGE) .
+docker: director/Dockerfile
+	docker build -t stencila/hub/director director
 
 deploy: docker
-	docker tag $(IMAGE) stencila/hub
-	docker push stencila/hub
+	docker push stencila/hub/direcor
 
-DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work $(IMAGE)
+DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work stencila/hub/director
 
 interact:
 	$(DOCKER) bash

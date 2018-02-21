@@ -17,10 +17,10 @@ RUN apt-get autoremove -y && apt-get clean && \
 
 RUN mkdir -p /app
 WORKDIR /app
-COPY director/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 RUN pip3 install -r /app/requirements.txt
 
-ADD director /app 
+ADD . /app 
 
 RUN python3 manage.py makemigrations director
 RUN python3 manage.py migrate
@@ -29,4 +29,3 @@ RUN python3 manage.py loaddata projects
 RUN python3 manage.py loaddata clusters
 
 CMD /app/wsgi.py
-
