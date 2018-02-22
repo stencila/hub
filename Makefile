@@ -7,12 +7,12 @@ setup: director-setup director-env
 run: director-run
 
 docker: director/Dockerfile
-	docker build -t stencila/hub/director director
+	docker build -t stencila/hub-director director
 
 deploy: docker
-	docker push stencila/hub/direcor
+	docker push stencila/hub-director
 
-DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work stencila/hub/director
+DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work stencila/hub-director
 
 interact:
 	$(DOCKER) bash
