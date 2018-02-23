@@ -1,1 +1,5 @@
-[{"model": "director.project", "pk": 1, "fields": {"address": "github://michael/documents/welcome-to-stencila", "gallery": true, "users": [1]}}]
+[
+  {"model": "director.project", "pk": 1, "fields": {"address": "github://michael/documents/welcome-to-stencila", "gallery": true, "users": [1]}},
+  {"model": "director.project", "pk": 2, "fields": {"address": "dropbox://foo", "gallery": true, "users": [1]}},
+  {"model": "director.project", "pk": 3, "fields": {"address": "dat://foo", "gallery": true, "users": [1]}}
+]

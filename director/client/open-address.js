@@ -52,12 +52,12 @@ class App extends substance.Component {
         );
       }
     } else {
-      el.append('LOADING')
+      el.append('Loading')
     }
     return el
   }
 }
 
 window.addEventListener('load', () => {
-  App.mount({}, window.document.body);
+  App.mount(window.document.getElementById('app'));
 });
