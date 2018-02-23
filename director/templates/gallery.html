@@ -1,16 +1,25 @@
 {% extends 'base.html' %}
 
+{% block title %}Gallery{% endblock %}
+
 {% block main %}
-{% for p in object_list %}
-<div>
-  <div>{{ p.address }}</div>
-  <form method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="address" value="{{ p.address }}">
-    <input type="submit" value="Open">
-  </form>
-</div>
-{% empty %}
-<div>No gallery projects in the database</div>
-{% endfor %}
+<main class="main">
+  <div class="container">
+    <div class="columns">
+      {% for project in object_list %}
+      <div class="column">
+        <div class="card">
+          <div class="card-content">
+            <div class="content">
+              <a href="{% url 'open' address=project.address %}" target="_blank">{{ project.address }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div>No gallery projects in the database</div>
+      {% endfor %}
+    </div>
+  </div>
+</main>
 {% endblock %}

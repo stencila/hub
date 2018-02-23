@@ -1,8 +1,26 @@
 {% load static %}
 
 <header>
-  <nav>
-    <a href="{% url 'home' %}">Home</a> |
-    <a href="{% url 'gallery' %}">Gallery</a>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{% url 'home' %}">
+        <img src="{% static 'images/logo-name.svg' %}" alt="Stencila" width="112" height="28">
+      </a>
+
+      <div class="navbar-burger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="{% url 'gallery' %}">Gallery</a>
+      </div>
+
+      <div class="navbar-end">
+        <a class="navbar-item" href="{% url 'signin' %}">Sign in</a>
+      </div>
+    </div>
   </nav>
 </header>
