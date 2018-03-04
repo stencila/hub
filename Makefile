@@ -1,16 +1,16 @@
 SHELL := bash
 
+OS := $(shell uname -s)
+
 all: setup run
 
 setup: director-setup director-env
 
 run: director-run
 
-docker: director/Dockerfile
-	docker build -t stencila/hub-director director
+build: director-build
 
-deploy: docker
-	docker push stencila/hub-director
+deploy: director-deploy
 
 DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work stencila/hub-director
 
@@ -31,9 +31,14 @@ else
 	DJ ?= $(DOCKER) python3 director/manage.py 
 endif
 
-# Install necessary packages
+# Install necessary system packages
 director-setup:
-	sudo apt-get install python3.6 python3.6-dev python3.6-venv libev-dev
+ifeq ($(OS),Linux)
+	sudo apt-get install libev-dev
+endif
+ifeq ($(OS),Darwin)
+	brew install libev
+endif
 
 # Setup virtual environment
 director-env: director/requirements.txt
@@ -47,11 +52,9 @@ ifeq ($(DOCKER),false)
 else
 	docker run --rm -v $$(pwd):/work -w /work/director/stencila node make setup build
 endif
-
 director-stencila: director/stencila/dist/stencila.js
 	mkdir -p director/client/stencila
 	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
-
 
 # Build any static files
 director-static: director-stencila
@@ -60,6 +63,12 @@ director-static: director-stencila
 # Run development server
 director-run: director-static
 	$(DJ) runserver
+
+director-build: director/Dockerfile
+	docker build -t stencila/hub-director director
+
+director-deploy: director-build
+	docker push stencila/hub-director
 
 sync-dev-db:
 	rm -f director/db.sqlite3
