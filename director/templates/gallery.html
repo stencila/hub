@@ -2,24 +2,20 @@
 
 {% block title %}Gallery{% endblock %}
 
-{% block main %}
-<main class="main">
-  <div class="container">
-    <div class="columns">
-      {% for project in object_list %}
-      <div class="column">
-        <div class="card">
-          <div class="card-content">
-            <div class="content">
-              <a href="{% url 'open' address=project.address %}" target="_blank">{{ project.address }}</a>
-            </div>
-          </div>
+{% block content %}
+<div class="columns">
+  {% for project in object_list %}
+  <div class="column">
+    <div class="card">
+      <div class="card-content">
+        <div class="content">
+          <a href="{% url 'open' address=project.address %}" target="_blank">{{ project.address }}</a>
         </div>
       </div>
-      {% empty %}
-      <div>No gallery projects in the database</div>
-      {% endfor %}
     </div>
   </div>
-</main>
+  {% empty %}
+  <div>No gallery projects in the database</div>
+  {% endfor %}
+</div>
 {% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% comment %}
+	This template is an expedient wrapper around allauth supplied templates.
+	Gives a consistent style wthout having to rewrite them all. Rewrite them as needed.
+{% endcomment %}
+
+{% block main %}
+<main class="main section">
+	<div class="container">
+		{% block content %}
+		{% endblock %}
+	</div>
+</main>
+{% endblock %}

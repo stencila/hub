@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign in" %}{% endblock %}
+
+{% block content %}
+<div class="columns">
+  <div class="column">
+    <h3 class="title"> Sign in using...</h3>
+    {% include 'user/_allauth_providers.html' %}
+    <p class="help">
+      If you have signed in with one of these third party accounts before please use the same account, or an account which you have connected to your Stencila user account.
+    </p>
+  </div>
+  <div class="column">
+    <h3 class="title">Sign in with your username</h3>
+    {% crispy form %}
+    <p class="help"><a href="{% url 'account_reset_password' %}">Forgot your password?</a></p>
+    <p class="help"><a href="{% url 'user_signup' %}">Don't have a user account yet?</a></p>
+  </div>
+</div>
+{% endblock %}

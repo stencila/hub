@@ -1,12 +1,11 @@
 {% load static %}
 
-<header>
+<header class="header">
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="{% url 'home' %}">
         <img src="{% static 'images/logo-name.svg' %}" alt="Stencila" width="112" height="28">
       </a>
-
       <div class="navbar-burger">
         <span></span>
         <span></span>
@@ -17,9 +16,16 @@
       <div class="navbar-start">
         <a class="navbar-item" href="{% url 'gallery' %}">Gallery</a>
       </div>
-
       <div class="navbar-end">
-        <a class="navbar-item" href="{% url 'signin' %}">Sign in</a>
+        {% if user.is_anonymous %}
+          <a class="navbar-item" href="{% url 'user_signin' %}">Sign in</a>
+          <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
+        {% else %}
+          {{ user.username }}
+          <a class="navbar-item" href="{% url 'user_join' %}">Join</a>
+          <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
+          <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
+        {% endif %}
       </div>
     </div>
   </nav>

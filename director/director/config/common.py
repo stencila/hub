@@ -42,6 +42,9 @@ class Common(Configuration):
         'allauth.socialaccount.providers.linkedin',
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
+        
+        'crispy_forms',
+        'crispy_forms_bulma',
 
         'director',
     ]
@@ -108,7 +111,6 @@ class Common(Configuration):
         },
     ]
 
-
     # Internationalization
     # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -127,6 +129,10 @@ class Common(Configuration):
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
     SITE_ID = 1
+
+    LOGIN_URL = '/me/signin/'
+    LOGIN_REDIRECT_URL = '/'
+
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
         'allauth.account.auth_backends.AuthenticationBackend',
@@ -184,3 +190,7 @@ class Common(Configuration):
             # Manage the app at https://dev.twitter.com/apps/5640979/show logged in as user `stencila`
         },
     }
+
+    CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
+    CRISPY_TEMPLATE_PACK = 'bulma'
+
