@@ -5,3 +5,4 @@ class Local(Common):
 
     JWT_SECRET = values.Value('not-a-secret')
     DEBUG = values.BooleanValue(True)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
