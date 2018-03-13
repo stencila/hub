@@ -1,3 +1,3 @@
 from .common import Common
 from .dev import Dev
-from .dev import Prod
+from .prod import Prod
