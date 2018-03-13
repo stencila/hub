@@ -172,3 +172,6 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
     CRISPY_TEMPLATE_PACK = 'bulma'
 
+    AWS_ACCESS_KEY_ID = 'xxx'
+    AWS_SECRET_ACCESS_KEY = 'yyy'
+    AWS_STORAGE_BUCKET_NAME = 'uploads.stencila.io'

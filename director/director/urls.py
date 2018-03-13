@@ -24,6 +24,8 @@ urlpatterns = [
     path('open/', views.OpenInput.as_view(), name='open'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
 
+    path('files/me/<slug:project>', views.MyProjectFiles.as_view(), name='my-project-files'),
+    path('files/<slug:user>/<slug:project>', views.ProjectFiles.as_view(), name='project-files'),
     # User management (login, logout etc)
     # Mostly overrides of `allauth` views (often just to provide new templates).
     # The allauth URLs not overidden below are:
