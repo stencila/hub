@@ -43,6 +43,7 @@ endif
 # Setup virtual environment
 director-env: director/requirements.txt
 	python3 -m venv director/env
+	$(VE) pip3 install wheel
 	$(VE) pip3 install -r director/requirements.txt
 
 # Build stencila/stencila Javascript and CSS
