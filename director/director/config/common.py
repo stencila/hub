@@ -7,15 +7,13 @@ from configurations import Configuration, values
 
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
+
 class Common(Configuration):
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
     )
 
     ALLOWED_HOSTS = ['*']
-    SECRET_KEY = 'changeme'
-    JWT_SECRET = values.Value('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-    DEBUG = values.BooleanValue(False)
 
     INSTALLED_APPS = [
         'django.contrib.admin',
@@ -42,7 +40,7 @@ class Common(Configuration):
         'allauth.socialaccount.providers.linkedin',
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
-        
+
         'crispy_forms',
         'crispy_forms_bulma',
 
@@ -81,7 +79,6 @@ class Common(Configuration):
 
     WSGI_APPLICATION = 'director.wsgi.application'
 
-
     # Database
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -91,7 +88,6 @@ class Common(Configuration):
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-
 
     # Password validation
     # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -141,7 +137,7 @@ class Common(Configuration):
 
     ACCOUNT_SESSION_REMEMBER = True # Always remember the user
     ACCOUNT_SESSION_COOKIE_AGE = 31536000 # Sessions to last up to a year 60*60*24*365
-    SOCIALACCOUNT_ADAPTER = 'general.allauth_adapter.SocialAccountAdapter'
+    SOCIALACCOUNT_ADAPTER = 'director.allauth_adapter.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     SOCIALACCOUNT_QUERY_EMAIL = True
     SOCIALACCOUNT_PROVIDERS = {
