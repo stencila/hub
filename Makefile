@@ -60,21 +60,31 @@ director-stencila: director/stencila/dist/stencila.js
 director-static: director-stencila
 	$(DJ) collectstatic --noinput
 
-# Run development server
-director-run: director-static
-	$(DJ) runserver
-
-director-build: director/Dockerfile
-	docker build -t stencila/hub-director director
-
-director-deploy: director-build
-	docker push stencila/hub-director
-
-sync-dev-db:
+# Build a development database
+director-devdb:
 	rm -f director/db.sqlite3
 	rm -fr director/director/migrations
 	$(DJ) makemigrations director
 	$(DJ) migrate
-	$(DJ) loaddata users
-	$(DJ) loaddata projects
-	$(DJ) loaddata clusters
+	$(DJ) runscript create_allauth
+	$(DJ) runscript create_users
+	$(DJ) runscript create_projects
+
+# Run development server
+director-run: director-static
+	$(DJ) runserver
+
+# Run development server on http://stenci.la:80
+# This is useful for testing allauth callbacks.
+# You need to add a `127.0.0.1 stenci.la` line to 
+# hosts file using `sudo nano /etc/hosts`
+director-run80: director-static
+	sudo director/env/bin/python3 director/manage.py runserver stenci.la:80
+
+# Build director Docker image
+director-build: director/Dockerfile
+	docker build -t stencila/hub-director director
+
+# Push director Docker image to Docker hub
+director-deploy: director-build
+	docker push stencila/hub-director
