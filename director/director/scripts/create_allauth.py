@@ -22,7 +22,7 @@ def run():
         pw = os.environ['STENCILA_DEVPASS']
         with open(path, 'rb') as file:
             data = simplecrypt.decrypt(pw, file.read())
-            secrets = json.loads(data)
+            secrets = json.loads(data.decode('utf-8'))
     except Exception as exc:
         warnings.warn('Warning, unable to open allauth SocialApp secrets:', RuntimeWarning)
         print(exc)
