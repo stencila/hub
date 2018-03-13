@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign out" %}{% endblock %}
+
+{% block content %}
+<form class="form" method="post" action="{% url 'user_signout' %}">
+	{% csrf_token %}
+	<h4 class="title">Are you sure you want to sign out?</h4>
+	{% if user.email == 'guest' %}
+		<div class="notification is-warning">
+			You are currently a guest user with no
+			password or password recovery email address. If you logout you will not
+			be able to log back in and recover any of your work.
+			To keep your stuff please <a href="{% url 'user_join' %}">join up</a>.
+		</div>
+	{% endif %}
+	<button class="button" type="submit">
+		<i class="ui sign out icon"></i>
+		<span>Yes, sign me out!</span>
+	</button>
+</form>
+{% endblock %}

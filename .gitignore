@@ -1,12 +1,15 @@
 # Ignore compiled Python files
 *.pyc
 
+# Ignore IDE/text editor files
+*.sublime-workspace
+
+# Ignore secrets
+secrets
+
 # Ignore virtualenvs and collected static files
 director/env
 director/static
-
-# Ignore IDE/text editor files
-*.sublime-workspace
 
 # Ignore sqlite3 db file
 director/db.sqlite3
