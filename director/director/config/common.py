@@ -37,7 +37,7 @@ class Common(Configuration):
         'allauth.socialaccount.providers.facebook',
         'allauth.socialaccount.providers.github',
         'allauth.socialaccount.providers.google',
-        'allauth.socialaccount.providers.linkedin',
+        'allauth.socialaccount.providers.linkedin_oauth2',
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
 
@@ -142,33 +142,17 @@ class Common(Configuration):
     SOCIALACCOUNT_QUERY_EMAIL = True
     SOCIALACCOUNT_PROVIDERS = {
         'facebook': {
-            # See https://github.com/pennersr/django-allauth#facebook
-            # Manage the app at http://developers.facebook.com logged in as user `stencila`
-            # Callback URL must be HTTP
             'SCOPE': ['email'],
             'METHOD': 'oauth2',
         },
         'github': {
-            # See http://developer.github.com/v3/oauth/#scopes for list of scopes available
-            # At the time of writing it was not clear if scopes are implemented in allauth for Github
-            # see https://github.com/pennersr/django-allauth/issues/369
-            # Manage the app at https://github.com/organizations/stencila/settings/applications/74505
-            # Callback URL must be HTTP
             'SCOPE': ['user:email']
         },
         'google': {
-            # Manage the app at
-            #   https://code.google.com/apis/console/
-            #   https://cloud.google.com/console/project/582496091484/apiui/credential
-            #   https://cloud.google.com/console/project/582496091484/apiui/consent
             'SCOPE': ['profile', 'email'],
             'AUTH_PARAMS': {'access_type': 'online'}
         },
         'linkedin': {
-            # Manage the app at
-            #  https://www.linkedin.com/developer/apps/3129843/auth
-            # logged in as a user with access rights to the app
-            # The scopes are listed on the above page
             'SCOPE': ['r_fullprofile', 'r_emailaddress'],
             'PROFILE_FIELDS': [
                 'id',
@@ -180,10 +164,8 @@ class Common(Configuration):
             ]
         },
         'orcid': {
-            # Manage the app at https://orcid.org/developer-tools logged in as 0000-0003-1608-7967 (Nokome Bentley)
         },
         'twitter': {
-            # Manage the app at https://dev.twitter.com/apps/5640979/show logged in as user `stencila`
         },
     }
 

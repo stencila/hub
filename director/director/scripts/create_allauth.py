@@ -29,7 +29,7 @@ def run():
         secrets = {}
 
     # Create `SocialApp` objects for each provider
-    for provider in 'facebook', 'github', 'google', 'linkedin', 'twitter':
+    for provider in 'facebook', 'github', 'google', 'linkedin_oauth2', 'orcid', 'twitter':
         provider_secrets = secrets.get(provider, {
             'client_id': 'missing-client-id',
             'secret': 'missing-secret'
