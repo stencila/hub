@@ -11,7 +11,8 @@ RUN apt-get update && \
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
-RUN apt-get install -y python3.6 python3.6-dev python3.6-venv python3-pip libev-dev
+RUN apt-get install -y python3.6 python3.6-dev python3.6-venv python3-pip libev-dev \
+    git-core python3-wheel
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -24,8 +25,5 @@ ADD . /app
 
 RUN python3 manage.py makemigrations director
 RUN python3 manage.py migrate
-RUN python3 manage.py loaddata users
-RUN python3 manage.py loaddata projects
-RUN python3 manage.py loaddata clusters
 
 CMD /app/wsgi.py
