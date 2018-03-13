@@ -23,29 +23,8 @@ urlpatterns = [
     path('gallery', views.GalleryView.as_view(), name='gallery'),
     path('open/', views.OpenInput.as_view(), name='open'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
-
-    # User management (login, logout etc)
-    # Mostly overrides of `allauth` views (often just to provide new templates).
-    # The allauth URLs not overidden below are:
-    #    password/change/                    account_change_password         change password
-    #    password/set/                       account_set_password            confirmation that password is changed?
-    #    inactive/                           account_inactive                notify user that account is inactive?
-    #    email/                              account_email                   add, change and verify emails
-    #    confirm-email/                      account_email_verification_sent
-    #    confirm-email/(?P<key>\w+)/
-    #    password/reset/                     account_reset_password
-    #    password/reset/done/                account_reset_password_done
-    #    password/reset/key/.../             account_reset_password_from_key
-    #    password/reset/key/done/            account_reset_password_from_key_done
-    #    social/login/cancelled/             socialaccount_login_cancelled
-    #    social/login/error/                 socialaccount_login_error
-    #    social/connections                  socialaccount_connections
-    path('me/', views.UserSettingsView.as_view(), name='user_settings'),
-    path('me/signup/', views.UserSignupView.as_view(), name='user_signup'),
-    path('me/signin/', views.UserSigninView.as_view(), name='user_signin'),
-    path('me/signout/', views.UserSignoutView.as_view(), name='user_signout'),
-    path('me/join/', views.UserJoinView.as_view(), name='user_join'),
-    path('me/', include('allauth.urls')),
-
+    path('signin/', views.SignInView.as_view(), name='signin'),
+    path('accounts/', include('allauth.urls')),
+    path('logout', logout),
     path('', views.FrontPageView.as_view(), name='home'),
 ]

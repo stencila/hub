@@ -7,13 +7,15 @@ from configurations import Configuration, values
 
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
-
 class Common(Configuration):
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
     )
 
     ALLOWED_HOSTS = ['*']
+    SECRET_KEY = 'changeme'
+    JWT_SECRET = values.Value('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+    DEBUG = values.BooleanValue(False)
 
     INSTALLED_APPS = [
         'django.contrib.admin',
@@ -37,12 +39,9 @@ class Common(Configuration):
         'allauth.socialaccount.providers.facebook',
         'allauth.socialaccount.providers.github',
         'allauth.socialaccount.providers.google',
-        'allauth.socialaccount.providers.linkedin_oauth2',
+        'allauth.socialaccount.providers.linkedin',
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
-
-        'crispy_forms',
-        'crispy_forms_bulma',
 
         'director',
     ]
@@ -79,6 +78,7 @@ class Common(Configuration):
 
     WSGI_APPLICATION = 'director.wsgi.application'
 
+
     # Database
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -88,6 +88,7 @@ class Common(Configuration):
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
+
 
     # Password validation
     # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -107,6 +108,7 @@ class Common(Configuration):
         },
     ]
 
+
     # Internationalization
     # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -125,10 +127,6 @@ class Common(Configuration):
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
     SITE_ID = 1
-
-    LOGIN_URL = '/me/signin/'
-    LOGIN_REDIRECT_URL = '/'
-
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
         'allauth.account.auth_backends.AuthenticationBackend',
@@ -137,22 +135,38 @@ class Common(Configuration):
 
     ACCOUNT_SESSION_REMEMBER = True # Always remember the user
     ACCOUNT_SESSION_COOKIE_AGE = 31536000 # Sessions to last up to a year 60*60*24*365
-    SOCIALACCOUNT_ADAPTER = 'director.allauth_adapter.SocialAccountAdapter'
+    SOCIALACCOUNT_ADAPTER = 'general.allauth_adapter.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     SOCIALACCOUNT_QUERY_EMAIL = True
     SOCIALACCOUNT_PROVIDERS = {
         'facebook': {
+            # See https://github.com/pennersr/django-allauth#facebook
+            # Manage the app at http://developers.facebook.com logged in as user `stencila`
+            # Callback URL must be HTTP
             'SCOPE': ['email'],
             'METHOD': 'oauth2',
         },
         'github': {
+            # See http://developer.github.com/v3/oauth/#scopes for list of scopes available
+            # At the time of writing it was not clear if scopes are implemented in allauth for Github
+            # see https://github.com/pennersr/django-allauth/issues/369
+            # Manage the app at https://github.com/organizations/stencila/settings/applications/74505
+            # Callback URL must be HTTP
             'SCOPE': ['user:email']
         },
         'google': {
+            # Manage the app at
+            #   https://code.google.com/apis/console/
+            #   https://cloud.google.com/console/project/582496091484/apiui/credential
+            #   https://cloud.google.com/console/project/582496091484/apiui/consent
             'SCOPE': ['profile', 'email'],
             'AUTH_PARAMS': {'access_type': 'online'}
         },
         'linkedin': {
+            # Manage the app at
+            #  https://www.linkedin.com/developer/apps/3129843/auth
+            # logged in as a user with access rights to the app
+            # The scopes are listed on the above page
             'SCOPE': ['r_fullprofile', 'r_emailaddress'],
             'PROFILE_FIELDS': [
                 'id',
@@ -164,11 +178,9 @@ class Common(Configuration):
             ]
         },
         'orcid': {
+            # Manage the app at https://orcid.org/developer-tools logged in as 0000-0003-1608-7967 (Nokome Bentley)
         },
         'twitter': {
+            # Manage the app at https://dev.twitter.com/apps/5640979/show logged in as user `stencila`
         },
     }
-
-    CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
-    CRISPY_TEMPLATE_PACK = 'bulma'
-

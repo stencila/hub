@@ -2,8 +2,8 @@
 import os
 import bjoern
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'director.config.prod')
-os.environ.setdefault('DJANGO_CONFIGURATION', 'Prod')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "director.config.local")
+os.environ.setdefault('DJANGO_CONFIGURATION', 'Local')
 
 from configurations.wsgi import get_wsgi_application
 

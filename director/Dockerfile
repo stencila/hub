@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update
-RUN apt-get install -y python3.6 python3.6-dev python3.6-venv python3-pip libev-dev
+RUN apt-get install -y python3.6 python3.6-dev python3.6-venv libev-dev python3-pip
 RUN apt-get autoremove -y && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
