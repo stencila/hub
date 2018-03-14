@@ -12,3 +12,10 @@ class HubStorer(Storer):
         self.owner = m.group('owner')
         self.project_name = m.group('project_name')
         return True
+
+    def prefix(self, owner, project_name):
+        return "%s/%s" % (owner.username, project_name)
+
+    def address(self, owner, project_name):
+        prefix = self.prefix(owner, project_name)
+        return "%s://%s" % (self.name, prefix)
