@@ -8,6 +8,6 @@ class Storer(object):
 
 from .github import GithubStorer
 from .dropbox import DropboxStorer
-from .hub import HubStorer
+from .stencila import StencilaStorer
 
-storers = {s.name: s for s in (GithubStorer, DropboxStorer, HubStorer)}
+storers = {s.name: s for s in (GithubStorer, DropboxStorer, StencilaStorer)}
