@@ -10,10 +10,7 @@ import boto3
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateProjectForm
 from .storer import storers
-from .storer.hub import HubStorer
-from .models import Project, Cluster
-
-hubstorer = HubStorer()
+from .models import Project, StencilaProject, Cluster
 
 class FrontPageView(TemplateView):
     template_name = 'index.html'
@@ -104,7 +101,7 @@ class ProjectFileMixin(object):
         response = client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
         contents = response.get('Contents', [])
         return [dict(
-            name=c.get('Key', None),
+            name=c.get('Key', None)[len(prefix):],
             size=c.get('Size', None),
             last_modified=c.get('LastModified', None)) for c in contents]
 
@@ -120,14 +117,12 @@ class ProjectFiles(ProjectFileMixin, View):
         return User.objects.get(username=kwargs['user'])
 
     def get_project(self, **kwargs):
-        self.project_name = kwargs['project']
-        address = hubstorer.address(self.user, self.project_name)
-        return self.user.projects.get(address=address)
+        return self.user.stencilaproject_set.get(name=kwargs['project']).project
 
     def get_prefix(self, request, **kwargs):
         self.user = self.get_user(request, **kwargs)
         self.project = self.get_project(**kwargs)
-        return hubstorer.prefix(self.user, self.project_name)
+        return str(self.project.stencilaproject.uuid) + '/'
 
     def get(self, request, **kwargs):
         try:
@@ -146,18 +141,18 @@ class CreateProjectView(ProjectFileMixin, TemplateView):
     template_name = 'project_form.html'
 
     def get(self, *args, **kwargs):
-        context = dict(form = CreateProjectForm(user=self.request.user))
+        context = dict(form = CreateProjectForm())
         return self.render_to_response(context)
 
     def post(self, *args, **kwargs):
-        form = CreateProjectForm(self.request.POST, user=self.request.user)
+        if not self.request.user.is_authenticated:
+            # Force email verification
+            login_guest_user(self.request)
+        form = CreateProjectForm(self.request.POST)
         files = self.request.FILES.getlist('files')
         if form.is_valid():
-            project_name = form.cleaned_data['name']
-            prefix = "%s/%s" % (self.request.user.username, project_name)
-            self.upload(prefix, files)
-            project = Project(address=form.project_address)
-            project.save()
+            project = StencilaProject.create_for_user(self.request.user)
+            self.upload(project.stencilaproject.uuid, files)
             project.users.add(self.request.user)
-            return redirect('my-project-files', project=project_name)
+            return redirect('my-project-files', project=project.stencilaproject.name)
         return self.render_to_response(dict(form=form))
