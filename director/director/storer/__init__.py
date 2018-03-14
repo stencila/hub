@@ -9,5 +9,6 @@ class Storer(object):
 
 from .github import GithubStorer
 from .dropbox import DropboxStorer
+from .hub import HubStorer
 
-storers = {s.name: s for s in (GithubStorer, DropboxStorer)}
+storers = {s.name: s for s in (GithubStorer, DropboxStorer, HubStorer)}
