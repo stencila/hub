@@ -114,7 +114,8 @@ class ProjectFileMixin(object):
 class ProjectFiles(ProjectFileMixin, View):
 
     def get_user(self, request, **kwargs):
-        return User.objects.get(username=kwargs['user'])
+        username = kwargs['user']
+        return User.objects.get(username=username)
 
     def get_project(self, **kwargs):
         return self.user.stencilaproject_set.get(name=kwargs['project']).project
@@ -131,11 +132,6 @@ class ProjectFiles(ProjectFileMixin, View):
         except Exception:
             return JsonResponse(dict(message="Not found"), status=404)
         return JsonResponse(dict(objects=listing), status=200)
-
-class MyProjectFiles(ProjectFiles):
-
-    def get_user(self, request, **kwargs):
-        return self.request.user
 
 class CreateProjectView(ProjectFileMixin, TemplateView):
     template_name = 'project_form.html'
@@ -160,5 +156,8 @@ class CreateProjectView(ProjectFileMixin, TemplateView):
             project = StencilaProject.create_for_user(self.request.user)
             self.upload(project.stencilaproject.uuid, files)
             project.users.add(self.request.user)
-            return redirect('my-project-files', project=project.stencilaproject.name)
+            return redirect(
+                'project-files',
+                user=self.request.user.username,
+                project=project.stencilaproject.name)
         return self.render_to_response(dict(form=form))
