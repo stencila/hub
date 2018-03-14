@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="columns">
+  {% for project in object_list %}
+  <div class="column">
+    <div class="card">
+      <div class="card-content">
+        <div class="content">
+          <a href="{% url 'open' address=project.address %}" target="_blank">{{ project.address }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div>No projects yet</div>
+  {% endfor %}
+</div>
+{% endblock %}

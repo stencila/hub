@@ -86,6 +86,13 @@ class GalleryView(ListView):
     def get_queryset(self):
         return Project.objects.filter(gallery=True)[:12]
 
+class ProjectListView(ListView):
+    template_name = 'project_list.html'
+    model = Project
+
+    def get_queryset(self):
+        return self.request.user.projects.all()
+
 class ProjectFileMixin(object):
 
     bucket_name = settings.AWS_STORAGE_BUCKET_NAME
