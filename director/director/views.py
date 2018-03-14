@@ -140,14 +140,20 @@ class MyProjectFiles(ProjectFiles):
 class CreateProjectView(ProjectFileMixin, TemplateView):
     template_name = 'project_form.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('home')
+        if request.user.email == 'guest':
+            logout(request)
+            return redirect('user_signup')
+        # TODO Check email address is verified
+        return super(CreateProjectView, self).dispatch(request, *args, **kwargs)
+
     def get(self, *args, **kwargs):
         context = dict(form = CreateProjectForm())
         return self.render_to_response(context)
 
     def post(self, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            # Force email verification
-            login_guest_user(self.request)
         form = CreateProjectForm(self.request.POST)
         files = self.request.FILES.getlist('files')
         if form.is_valid():
