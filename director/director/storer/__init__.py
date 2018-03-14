@@ -5,7 +5,7 @@ class Storer(object):
         self.url = None
 
     def __unicode__(self):
-        return "Storer {}/{}".format(self.name, self.path)
+        return "Storer {}".format(self.name)
 
 from .github import GithubStorer
 from .dropbox import DropboxStorer

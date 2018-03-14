@@ -4,10 +4,8 @@ from . import Storer
 class GithubStorer(Storer):
     name = 'github'
 
-    def __init__(self, path):
+    def valid_path(self, path):
         self.path = path
-
-    def valid_path(self):
         m = re.match('^(?P<owner>[^/@]+)\/(?P<repo>[^@/]+)(?P<folder>\/[^@]+)?(?P<ref>@\w+)?$', self.path)
         if not m:
             return False

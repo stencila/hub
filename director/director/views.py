@@ -61,8 +61,8 @@ class OpenAddress(TemplateView):
         if address:
             try:
                 proto, path = address.split("://")
-                storer = storers[proto](path)
-                assert(storer.valid_path())
+                storer = storers[proto]
+                assert(storer.valid_path(path))
                 valid = True
             except:
                 valid = False
