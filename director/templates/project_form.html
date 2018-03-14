@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
-{% block main %}
-<div>
-  <h2>Upload project files</h2>
-  <form class="ui form" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form }}
-    <input class="ui primary button" type="submit" value="Upload" />
-  </form>
+
+{% block title %}Upload a project{% endblock %}
+
+{% block content %}
+<div class="columns">
+  <div class="column">
+    <form class="ui form" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form }}
+      <input class="ui primary button" type="submit" value="Upload" />
+    </form>
+  </div>
 </div>
 {% endblock %}
