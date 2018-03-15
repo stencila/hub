@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Files in {{ project.project.stencilaproject.name }}{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'handlebars.js' %}"></script>
+
+{% verbatim %}
+<script id="file_list_template" type="text/x-handlebars-template">
+  <table class="table">
+    <tbody>
+{{#each objects}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{size}}</td>
+        <td>{{last_modified}}</td>
+      </tr>
+{{/each}}
+    </tbody>
+  </table>
+</script>
+{% endverbatim %}
+
+<script>
+$(document).ready(function(){
+  var file_list_template = Handlebars.compile($("#file_list_template").html());
+  $.ajax({url: "{% url 'project-files-data' user=project.owner.username project=project.project.stencilaproject.name %}"})
+  .done(function (data) {
+    $("#file_list").html(file_list_template(data));
+  });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="columns">
+  <div class="column">
+    <div id="file_list">Loading</div>
+  </div>
+</div>
+{% endblock %}

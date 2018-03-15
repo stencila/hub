@@ -94,7 +94,7 @@ class ProjectListView(ListView):
     def get_queryset(self):
         return self.request.user.projects.all()
 
-class ProjectFileMixin(object):
+class ProjectFileStoreMixin(object):
 
     bucket_name = settings.AWS_STORAGE_BUCKET_NAME
 
@@ -119,19 +119,26 @@ class ProjectFileMixin(object):
             key = "%s/%s" % (prefix, f.name)
             client.upload_fileobj(f, self.bucket_name, key)
 
-class ProjectFiles(ProjectFileMixin, View):
+class ProjectFileArgsMixin(object):
+    owner = None
+    project = None
 
-    def get_user(self, request, **kwargs):
-        username = kwargs['user']
-        return User.objects.get(username=username)
+    def get_owner(self, **kwargs):
+        if not self.owner:
+            username = kwargs['user']
+            self.owner = User.objects.get(username=username)
+        return self.owner
 
     def get_project(self, **kwargs):
-        return self.user.stencilaproject_set.get(name=kwargs['project']).project
+        if not self.project:
+            self.project = self.get_owner(**kwargs).stencilaproject_set.get(
+                name=kwargs['project']).project
+        return self.project
+
+class ProjectFilesData(ProjectFileStoreMixin, ProjectFileArgsMixin, View):
 
     def get_prefix(self, request, **kwargs):
-        self.user = self.get_user(request, **kwargs)
-        self.project = self.get_project(**kwargs)
-        return str(self.project.stencilaproject.uuid) + '/'
+        return str(self.get_project(**kwargs).stencilaproject.uuid) + '/'
 
     def get(self, request, **kwargs):
         try:
@@ -141,7 +148,17 @@ class ProjectFiles(ProjectFileMixin, View):
             return JsonResponse(dict(message="Not found"), status=404)
         return JsonResponse(dict(objects=listing), status=200)
 
-class CreateProjectView(ProjectFileMixin, TemplateView):
+class ProjectFilesView(ProjectFileStoreMixin, ProjectFileArgsMixin, TemplateView):
+    template_name = 'project_files.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(ProjectFilesView, self).get_context_data(*args, **kwargs)
+        context['project'] = dict(
+            owner=self.get_owner(*args, **kwargs),
+            project=self.get_project(*args, **kwargs))
+        return context
+
+class CreateProjectView(ProjectFileStoreMixin, TemplateView):
     template_name = 'project_form.html'
 
     def dispatch(self, request, *args, **kwargs):
