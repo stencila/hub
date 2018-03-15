@@ -21,6 +21,6 @@ class UserSigninForm(allauth.account.forms.LoginForm):
         self.helper.add_input(Submit('submit', 'Sign me in!', css_class='button is-primary'))
 
 class CreateProjectForm(forms.Form):
-    files = forms.FileField(
+    file = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'multiple': True}))

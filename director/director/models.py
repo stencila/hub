@@ -29,7 +29,23 @@ class StencilaProject(models.Model):
     base_project_name = 'project'
 
     @classmethod
-    def create_for_user(cls, owner):
+    def get_or_create_for_user(cls, owner, uuid):
+        try:
+            return Project.objects.get(
+                stencilaproject__owner=owner, stencilaproject__uuid=uuid)
+        except Project.DoesNotExist:
+            pass
+
+        name = cls.generate_name(owner)
+        address = 'stencila://%s/%s' % (owner, name)
+        project = Project(address=address)
+        project.save()
+        stencila_project = cls(name=name, owner=owner, project=project, uuid=uuid)
+        stencila_project.save()
+        return project
+
+    @classmethod
+    def generate_name(cls, owner):
         existing_names = [
             p.name for p in cls.objects.filter(
                 owner=owner, name__startswith=cls.base_project_name)]
@@ -38,12 +54,7 @@ class StencilaProject(models.Model):
         while name in existing_names:
             i += 1
             name = "%s-%d" % (cls.base_project_name, i)
-        address = 'stencila://%s/%s' % (owner, name)
-        project = Project(address=address)
-        project.save()
-        stencila_project = cls(name=name, owner=owner, project=project)
-        stencila_project.save()
-        return project
+        return name
 
     class Meta:
         unique_together = ('name', 'owner')

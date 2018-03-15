@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, CreateView
 import allauth.account.views
 import boto3
+import uuid
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateProjectForm
 from .storer import storers
@@ -153,14 +154,15 @@ class CreateProjectView(ProjectFileMixin, TemplateView):
         return super(CreateProjectView, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
-        context = dict(form = CreateProjectForm())
+        context = dict(form=CreateProjectForm(), uuid=uuid.uuid4())
         return self.render_to_response(context)
 
     def post(self, *args, **kwargs):
         form = CreateProjectForm(self.request.POST)
-        files = self.request.FILES.getlist('files')
+        files = self.request.FILES.getlist('file')
+        uuid = self.request.POST.get('uuid')
         if form.is_valid():
-            project = StencilaProject.create_for_user(self.request.user)
+            project = StencilaProject.get_or_create_for_user(self.request.user, uuid)
             self.upload(project.stencilaproject.uuid, files)
             project.users.add(self.request.user)
             return redirect(
