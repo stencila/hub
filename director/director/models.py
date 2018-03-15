@@ -24,7 +24,7 @@ class StencilaProject(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE)
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.SlugField(max_length=255)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     base_project_name = 'project'
 
@@ -44,6 +44,9 @@ class StencilaProject(models.Model):
         stencila_project = cls(name=name, owner=owner, project=project)
         stencila_project.save()
         return project
+
+    class Meta:
+        unique_together = ('name', 'owner')
 
 class Cluster(models.Model):
     host = models.TextField(unique=True)
