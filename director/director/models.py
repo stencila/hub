@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 
 from .filestore import Client as FilestoreClient
 import jwt
@@ -63,10 +64,21 @@ class StencilaProject(models.Model):
     def list_files(self):
         fsclient = FilestoreClient()
         prefix = str(self.uuid)
-        return [dict(
-            name=c.get('Key', None)[len(prefix)+1:],
-            size=c.get('Size', None),
-            last_modified=c.get('LastModified', None)) for c in fsclient.list(prefix)]
+        files = []
+        for c in fsclient.list(prefix):
+            filename = c.get('Key', None)[len(prefix)+1:]
+            files.append(dict(
+                name=filename,
+                size=c.get('Size', None),
+                url=reverse('project-file', kwargs=dict(
+                    user=self.owner.username, project=self.name, filename=filename)),
+                last_modified=c.get('LastModified', None)))
+        return files
+
+    def get_file(self, filename, to):
+        prefix = str(self.uuid)
+        fsclient = FilestoreClient()
+        fsclient.download(prefix, filename, to)
 
     class Meta:
         unique_together = ('name', 'owner')

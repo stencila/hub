@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('api/files/<slug:user>/<slug:project>/', views.StencilaProjectApiDetailView.as_view(), name='project-files-data'),
     path('files/<slug:user>/<slug:project>/', views.StencilaProjectDetailView.as_view(), name='project-files'),
+    path('file/<slug:user>/<slug:project>/<path:filename>', views.StencilaProjectFileView.as_view(), name='project-file'),
     path('projects/<slug:user>/', views.ProjectListView.as_view(), name='list-projects'),
     # User management (login, logout etc)
     # Mostly overrides of `allauth` views (often just to provide new templates).

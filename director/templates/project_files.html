@@ -14,7 +14,7 @@
     <tbody>
 {{#each objects}}
       <tr>
-        <td>{{name}}</td>
+        <td><a href="{{url}}">{{name}}</a></td>
         <td>{{size}}</td>
         <td>{{last_modified}}</td>
       </tr>
@@ -29,6 +29,7 @@ $(document).ready(function(){
   var file_list_template = Handlebars.compile($("#file_list_template").html());
   $.ajax({url: "{% url 'project-files-data' user=object.owner.username project=object.name %}"})
   .done(function (data) {
+    data.owner = {{ owner }};
     $("#file_list").html(file_list_template(data));
   });
 });
@@ -39,7 +40,7 @@ $(document).ready(function(){
 <h1>Files in {{ object.name }}</h1>
 <div class="columns">
   <div class="column">
-    <div id="file_list">Loading</div>
+    <div id="file_list">Loading...</div>
   </div>
 </div>
 {% endblock %}

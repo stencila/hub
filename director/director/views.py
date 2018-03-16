@@ -1,11 +1,12 @@
 import re
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
 import allauth.account.views
+import io
 import uuid
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateProjectForm
@@ -100,6 +101,22 @@ class ProjectListView(ListView):
             accounts[account.provider] = storers[account.provider]().account_info(account)
         context.update(accounts=accounts)
         return context
+
+class StencilaProjectFileView(DetailView):
+    model = StencilaProject
+
+    def get(self, request, **kwargs):
+        self.object = get_object_or_404(
+            StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
+        try:
+            filename = kwargs['filename']
+        except KeyError:
+            raise Http404
+        s = io.BytesIO()
+        self.object.get_file(filename, s)
+        response = HttpResponse(s.getvalue())
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
 
 class StencilaProjectApiDetailView(DetailView):
     model = StencilaProject

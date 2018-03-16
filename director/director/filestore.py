@@ -20,3 +20,9 @@ class Client(object):
         for f in files:
             key = "%s/%s" % (prefix, f.name)
             self.client.upload_fileobj(f, self.bucket, key)
+
+    def download(self, prefix, filename, to):
+        if len(prefix) > 0 and not prefix.endswith('/'):
+            prefix += '/'
+        key = prefix + filename
+        self.client.download_fileobj(self.bucket, key, to)
