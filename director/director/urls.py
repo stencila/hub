@@ -26,8 +26,8 @@ urlpatterns = [
 
     path('project/new/', views.CreateProjectView.as_view(), name='create-project'),
 
-    path('api/files/<slug:user>/<slug:project>/', views.ProjectFilesData.as_view(), name='project-files-data'),
-    path('files/<slug:user>/<slug:project>/', views.ProjectFilesView.as_view(), name='project-files'),
+    path('api/files/<slug:user>/<slug:project>/', views.StencilaProjectApiDetailView.as_view(), name='project-files-data'),
+    path('files/<slug:user>/<slug:project>/', views.StencilaProjectDetailView.as_view(), name='project-files'),
     path('projects/<slug:user>/', views.ProjectListView.as_view(), name='list-projects'),
     # User management (login, logout etc)
     # Mostly overrides of `allauth` views (often just to provide new templates).

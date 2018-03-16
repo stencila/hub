@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Files in {{ project.project.stencilaproject.name }}{% endblock %}
+{% block title %}Files in {{ object.name }}{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -27,7 +27,7 @@
 <script>
 $(document).ready(function(){
   var file_list_template = Handlebars.compile($("#file_list_template").html());
-  $.ajax({url: "{% url 'project-files-data' user=project.owner.username project=project.project.stencilaproject.name %}"})
+  $.ajax({url: "{% url 'project-files-data' user=object.owner.username project=object.name %}"})
   .done(function (data) {
     $("#file_list").html(file_list_template(data));
   });
@@ -36,7 +36,7 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}
-<h1>Files in {{ project.project.stencilaproject.name }}</h1>
+<h1>Files in {{ object.name }}</h1>
 <div class="columns">
   <div class="column">
     <div id="file_list">Loading</div>

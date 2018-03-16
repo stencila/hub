@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 
+from .filestore import Client as FilestoreClient
 import jwt
 import time
 import uuid
@@ -31,9 +32,8 @@ class StencilaProject(models.Model):
     @classmethod
     def get_or_create_for_user(cls, owner, uuid):
         try:
-            return Project.objects.get(
-                stencilaproject__owner=owner, stencilaproject__uuid=uuid)
-        except Project.DoesNotExist:
+            return StencilaProject.objects.get(owner=owner, uuid=uuid)
+        except StencilaProject.DoesNotExist:
             pass
 
         name = cls.generate_name(owner)
@@ -42,7 +42,7 @@ class StencilaProject(models.Model):
         project.save()
         stencila_project = cls(name=name, owner=owner, project=project, uuid=uuid)
         stencila_project.save()
-        return project
+        return stencila_project
 
     @classmethod
     def generate_name(cls, owner):
@@ -55,6 +55,18 @@ class StencilaProject(models.Model):
             i += 1
             name = "%s-%d" % (cls.base_project_name, i)
         return name
+
+    def upload(self, files):
+        fsclient = FilestoreClient()
+        fsclient.upload(self.uuid, files)
+
+    def list_files(self):
+        fsclient = FilestoreClient()
+        prefix = str(self.uuid)
+        return [dict(
+            name=c.get('Key', None)[len(prefix)+1:],
+            size=c.get('Size', None),
+            last_modified=c.get('LastModified', None)) for c in fsclient.list(prefix)]
 
     class Meta:
         unique_together = ('name', 'owner')
