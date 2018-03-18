@@ -118,17 +118,15 @@ class StencilaProjectFileView(DetailView):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
-class StencilaProjectApiDetailView(DetailView):
+class StencilaProjectFilesBlock(DetailView):
     model = StencilaProject
+    template_name = 'project_filelist_block.html'
 
     def get(self, request, **kwargs):
-        try:
-            self.object = StencilaProject.objects.get(
-	            owner__username=kwargs['user'], name=kwargs['project'])
-            listing = self.object.list_files()
-        except Exception:
-            return JsonResponse(dict(message="Not found"), status=404)
-        return JsonResponse(dict(objects=listing), status=200)
+        self.object = get_object_or_404(
+            StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 class StencilaProjectDetailView(DetailView):
     model = StencilaProject

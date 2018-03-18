@@ -6,32 +6,9 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'handlebars.js' %}"></script>
-
-{% verbatim %}
-<script id="file_list_template" type="text/x-handlebars-template">
-  <table class="table">
-    <tbody>
-{{#each objects}}
-      <tr>
-        <td><a href="{{url}}">{{name}}</a></td>
-        <td>{{size}}</td>
-        <td>{{last_modified}}</td>
-      </tr>
-{{/each}}
-    </tbody>
-  </table>
-</script>
-{% endverbatim %}
-
 <script>
 $(document).ready(function(){
-  var file_list_template = Handlebars.compile($("#file_list_template").html());
-  $.ajax({url: "{% url 'project-files-data' user=object.owner.username project=object.name %}"})
-  .done(function (data) {
-    data.owner = {{ owner }};
-    $("#file_list").html(file_list_template(data));
-  });
+  $("#file_list").load("{% url 'project-files-block' object.owner object.name %}");
 });
 </script>
 {% endblock %}

@@ -1,0 +1,11 @@
+<table class="table">
+  <tbody>
+    {% for f in object.list_files %}
+    <tr>
+      <td><a href="{% url 'project-file' object.owner.username object.name f.name %}">{{ f.name }}</a></td>
+      <td>{{ f.size }}</td>
+      <td>{{ f.last_modified }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

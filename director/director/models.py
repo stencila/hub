@@ -66,12 +66,9 @@ class StencilaProject(models.Model):
         prefix = str(self.uuid)
         files = []
         for c in fsclient.list(prefix):
-            filename = c.get('Key', None)[len(prefix)+1:]
             files.append(dict(
-                name=filename,
+                name=c.get('Key', None)[len(prefix)+1:],
                 size=c.get('Size', None),
-                url=reverse('project-file', kwargs=dict(
-                    user=self.owner.username, project=self.name, filename=filename)),
                 last_modified=c.get('LastModified', None)))
         return files
 
