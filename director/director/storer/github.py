@@ -3,7 +3,8 @@ import re
 from . import Storer
 
 class GithubStorer(Storer):
-    name = 'github'
+    code = 'github'
+    name = 'GitHub'
 
     def valid_path(self, path):
         self.path = path
@@ -19,7 +20,8 @@ class GithubStorer(Storer):
 
         return True
 
-    def account_info(self, account):
-        return dict(
-            username=account.extra_data.get('login', None),
-            profile_url=account.extra_data.get('html_url', None))
+    def username(self):
+        return self.account.extra_data.get('login')
+
+    def profile_url(self):
+        return self.account.extra_data.get('profile_url')

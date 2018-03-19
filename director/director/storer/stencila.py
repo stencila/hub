@@ -2,7 +2,8 @@ import re
 from . import Storer
 
 class StencilaStorer(Storer):
-    name = 'stencila'
+    code = 'stencila'
+    name = 'Stencila'
 
     def valid_path(self, path):
         self.path = path

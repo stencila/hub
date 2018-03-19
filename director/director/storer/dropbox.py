@@ -2,7 +2,8 @@ import re
 from . import Storer
 
 class DropboxStorer(Storer):
-    name = 'dropbox'
+    code = 'dropbox'
+    name = 'Dropbox'
 
     def valid_path(self, path):
         self.path = path

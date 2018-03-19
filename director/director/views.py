@@ -10,7 +10,7 @@ import io
 import uuid
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateProjectForm
-from .storer import storers
+from .storer import Storer
 from .models import Project, StencilaProject, Cluster
 
 class FrontPageView(TemplateView):
@@ -62,7 +62,7 @@ class OpenAddress(TemplateView):
         if address:
             try:
                 proto, path = address.split("://")
-                storer = storers[proto]
+                storer = Storer.get_instance_by_provider(proto)
                 assert(storer.valid_path(path))
                 valid = True
             except:
@@ -96,22 +96,17 @@ class ProjectListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProjectListView, self).get_context_data(*args, **kwargs)
-        providers = [
-            dict(code='github', name='GitHub'),
-            dict(code='google', name='Google')]
-            # dict(code='dropbox', name='Dropbox')]
         accounts = {a.provider: a for a in self.request.user.socialaccount_set.all()}
-        _storers = dict(enabled=[], disabled=[])
+        enabled = []
+        disabled = []
+        providers = ['github', 'google']
         for provider in providers:
-            _storer = dict(code=provider['code'], name=provider['name'])
-            account = accounts.get(provider['code'], None)
+            account = accounts.get(provider, None)
             if account:
-                _storer['account'] = account
-                _storer['extra'] = storers[provider['code']]().account_info(account)
-                _storers['enabled'].append(_storer)
+                enabled.append(Storer.get_instance_by_account(account))
             else:
-                _storers['disabled'].append(_storer)
-        context.update(storers=_storers)
+                disabled.append(Storer.get_instance_by_provider(provider))
+        context['storers'] = dict(enabled=enabled, disabled=disabled)
         return context
 
 class StencilaProjectFileView(DetailView):
