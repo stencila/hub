@@ -1,5 +1,8 @@
 import json
 import re
+
+import requests
+
 from . import Storer
 
 class GithubStorer(Storer):
@@ -25,3 +28,12 @@ class GithubStorer(Storer):
 
     def profile_url(self):
         return self.account.extra_data.get('profile_url')
+
+    def units(self):
+        repos_url = self.account.extra_data.get('repos_url')
+        response = requests.get(repos_url)
+        if response.status_code != 200:
+            return
+        repos = json.loads(response.content.decode('utf-8'))
+        units = [dict(name=r['full_name'], url=r['html_url']) for r in repos]
+        return units

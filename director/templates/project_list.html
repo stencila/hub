@@ -4,6 +4,18 @@
 
 {% block title %}Projects{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
+<script>
+$(document).ready(function(){
+{% for storer in storers.enabled %}
+  $("#storer_units_{{ storer.code }}").load("{% url 'storer-project-block' storer.code %}");
+{% endfor %}
+});
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="columns">
   <div class="column">
@@ -20,12 +32,12 @@
   </div>
 </div>
 {% for storer in storers.enabled %}
-<div id="storer_projects_{{ storer.code }}">
+<div id="storer_units_{{ storer.code }}">
   <div class="columns">
     <div class="column">
       <div class="card">
         <div class="card-content">
-            Loading from {{ storer.name }}: <a href="{{ storer.extra.profile_url }}">{{ storer.extra.username }}</a>
+            Loading from {{ storer.name }}: <a href="{{ storer.profile_url }}">{{ storer.username }}</a>
         </div>
       </div>
     </div>

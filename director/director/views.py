@@ -109,6 +109,21 @@ class ProjectListView(ListView):
         context['storers'] = dict(enabled=enabled, disabled=disabled)
         return context
 
+class StorerProjectBlock(TemplateView):
+    template_name = 'storer_unit_list.html'
+
+    def get_context_data(self):
+        return dict(storer=self.storer, units=self.storer.units())
+
+    def get(self, request, **kwargs):
+        try:
+            self.account = self.request.user.socialaccount_set.get(provider=kwargs['storer'])
+            self.storer = Storer.get_instance_by_account(account=self.account)
+        except Exception:
+            raise Http404
+
+        return self.render_to_response(self.get_context_data())
+
 class StencilaProjectFileView(DetailView):
     model = StencilaProject
 

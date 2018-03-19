@@ -1,0 +1,14 @@
+{% if units %}
+<div class="columns">
+  <div class="column">
+{% for u in units %}
+    <div class="card">
+      <div class="card-content">
+        <span class="icon"><i class="fab fa-{{ storer.name }}"></i></span>
+        <span><a href="{{ u.url }}">{{ u.name }}</a></span>
+      </div>
+    </div>
+{% endfor %}
+  </div>
+</div>
+{% endif %}
