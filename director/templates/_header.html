@@ -24,7 +24,7 @@
           <a class="navbar-item" href="{% url 'user_signin' %}">Sign in</a>
           <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
         {% else %}
-          {{ user.username }}
+          <div class="navbar-item">{{ user.username }}</div>
           <a class="navbar-item" href="{% url 'user_join' %}">Join</a>
           <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
           <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
