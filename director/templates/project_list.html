@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
+{% load static %}
 
 {% block title %}Projects{% endblock %}
 
@@ -17,4 +19,36 @@
     {% endfor %}
   </div>
 </div>
+{% for storer in storers.enabled %}
+<div id="storer_projects_{{ storer.code }}">
+  <div class="columns">
+    <div class="column">
+      <div class="card">
+        <div class="card-content">
+            Loading from {{ storer.name }}: <a href="{{ storer.extra.profile_url }}">{{ storer.extra.username }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% if storers.disabled %}
+<div class="columns">
+  <div class="column">
+    <div class="card">
+      <div class="card-content">
+        <div>Add an account</div>
+        <div class="buttons">
+        {% for storer in storers.disabled %}
+          <a class="button" title="{{ storer.name }}" href="{% provider_login_url storer.code process='login' %}">
+            <span class="icon"><i class="fab fa-{{ storer.code }}"></i></span>
+            <span>{{ storer.name }}</span>
+          </a>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,3 +1,4 @@
+import json
 import re
 from . import Storer
 
@@ -17,3 +18,8 @@ class GithubStorer(Storer):
             self.ref = 'master'
 
         return True
+
+    def account_info(self, account):
+        return dict(
+            username=account.extra_data.get('login', None),
+            profile_url=account.extra_data.get('html_url', None))

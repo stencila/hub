@@ -96,10 +96,22 @@ class ProjectListView(ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProjectListView, self).get_context_data(*args, **kwargs)
-        accounts = {}
-        for account in self.request.user.socialaccount_set.all():
-            accounts[account.provider] = storers[account.provider]().account_info(account)
-        context.update(accounts=accounts)
+        providers = [
+            dict(code='github', name='GitHub'),
+            dict(code='google', name='Google')]
+            # dict(code='dropbox', name='Dropbox')]
+        accounts = {a.provider: a for a in self.request.user.socialaccount_set.all()}
+        _storers = dict(enabled=[], disabled=[])
+        for provider in providers:
+            _storer = dict(code=provider['code'], name=provider['name'])
+            account = accounts.get(provider['code'], None)
+            if account:
+                _storer['account'] = account
+                _storer['extra'] = storers[provider['code']]().account_info(account)
+                _storers['enabled'].append(_storer)
+            else:
+                _storers['disabled'].append(_storer)
+        context.update(storers=_storers)
         return context
 
 class StencilaProjectFileView(DetailView):
