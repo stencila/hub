@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from .filestore import Client as FilestoreClient
 import jwt
+import sys
 import time
 import uuid
 
@@ -92,7 +93,7 @@ class Cluster(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            pass
+            sys.stderr.write("No clusters\n")
 
     class Meta:
         app_label = 'director'
