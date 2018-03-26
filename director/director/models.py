@@ -58,6 +58,13 @@ class StencilaProject(models.Model):
             name = "%s-%d" % (cls.base_project_name, i)
         return name
 
+    def save(self, *args, **kwargs):
+        address = 'stencila://%s/%s' % (self.owner, self.name)
+        if self.project and self.project.address != address:
+            self.project.address = address
+            self.project.save()
+        super().save(*args, **kwargs)
+
     def upload(self, files):
         fsclient = FilestoreClient()
         fsclient.upload(self.uuid, files)
