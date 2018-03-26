@@ -16,13 +16,14 @@ class Client(object):
         response = self.client.list_objects_v2(Bucket=self.bucket, Prefix=prefix)
         return response.get('Contents', [])
 
-    def upload(self, prefix, files):
-        for f in files:
-            key = "%s/%s" % (prefix, f.name)
-            self.client.upload_fileobj(f, self.bucket, key)
-
-    def download(self, prefix, filename, to):
+    def key(self, prefix, filename):
         if len(prefix) > 0 and not prefix.endswith('/'):
             prefix += '/'
-        key = prefix + filename
-        self.client.download_fileobj(self.bucket, key, to)
+        return prefix + filename
+
+    def upload(self, prefix, files):
+        for f in files:
+            self.client.upload_fileobj(f, self.bucket, self.key(prefix, f.name))
+
+    def download(self, prefix, filename, to):
+        self.client.download_fileobj(self.bucket, self.key(prefix, filename), to)
