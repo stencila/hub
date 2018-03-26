@@ -81,10 +81,14 @@ class OpenAddress(TemplateView):
 
     def post(self, request, address):
         # Address is a storer code, and the address components are in post variables
-        storer = Storer.get_instance_by_provider(address)
+        try:
+            storer = Storer.get_instance_by_provider(address)
+        except:
+            raise Http404
         form = storer.get_form(request.POST)
         if form.is_valid():
             return redirect('open', address=form.get_address())
+        raise Http404
 
 class GalleryView(ListView):
     template_name = 'gallery.html'
