@@ -37,7 +37,7 @@ $(document).ready(function(){
     <div class="column">
       <div class="card">
         <div class="card-content">
-            Loading from {{ storer.name }}: <a href="{{ storer.profile_url }}">{{ storer.username }}</a>
+            Loading {{ storer.unit_name_plural }} from {{ storer.name }} for {% if storer.profile_url %}<a href="{{ storer.profile_url }}">{{ storer.username }}</a>{% else %}{{ storer.username }}{% endif %}
         </div>
       </div>
     </div>

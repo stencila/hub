@@ -8,6 +8,8 @@ from . import Storer
 class GithubStorer(Storer):
     code = 'github'
     name = 'GitHub'
+    unit_name = 'public repository'
+    unit_name_plural = 'public repositories'
 
     def valid_path(self, path):
         self.path = path

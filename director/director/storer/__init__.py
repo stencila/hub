@@ -9,8 +9,11 @@ class Storer(object):
     def __unicode__(self):
         return "Storer {}".format(self.name)
 
-    def account_info(self):
-        return {}
+    def username(self):
+        pass
+
+    def profile_url(self):
+        pass
 
     @classmethod
     def get_instance_by_provider(cls, provider, **kwargs):
