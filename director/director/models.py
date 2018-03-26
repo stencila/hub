@@ -78,6 +78,11 @@ class StencilaProject(models.Model):
         fsclient = FilestoreClient()
         fsclient.download(prefix, filename, to)
 
+    def delete_file(self, filename):
+        prefix = str(self.uuid)
+        fsclient = FilestoreClient()
+        fsclient.delete(prefix, filename)
+
     class Meta:
         unique_together = ('name', 'owner')
 

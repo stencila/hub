@@ -164,11 +164,23 @@ class StencilaProjectDetailView(DetailView):
     model = StencilaProject
     template_name = 'project_files.html'
 
-    def get(self, request, **kwargs):
-        self.object = get_object_or_404(
+    def get_object_or_404(self, **kwargs):
+        return get_object_or_404(
             StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
-        context = self.get_context_data(
-            object=self.object, owner=int(request.user == self.object.owner))
+
+    def get(self, request, **kwargs):
+        self.object = self.get_object_or_404(**kwargs)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, **kwargs):
+        self.object = self.get_object_or_404(**kwargs)
+        if self.object.owner != request.user:
+            raise Http404
+        if 'delete' in request.POST:
+            filename = request.POST['delete']
+            self.object.delete_file(filename)
+        context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
 class CreateProjectView(TemplateView):

@@ -27,3 +27,6 @@ class Client(object):
 
     def download(self, prefix, filename, to):
         self.client.download_fileobj(self.bucket, self.key(prefix, filename), to)
+
+    def delete(self, prefix, filename):
+        self.client.delete_object(Bucket=self.bucket, Key=self.key(prefix, filename))

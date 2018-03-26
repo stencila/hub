@@ -5,6 +5,15 @@
       <td><a href="{% url 'project-file' object.owner.username object.name f.name %}">{{ f.name }}</a></td>
       <td>{{ f.size }}</td>
       <td>{{ f.last_modified }}</td>
+      {% if object.owner == user %}
+      <td>
+        <form method="POST" action="{% url 'project-files' object.owner.username object.name %}">
+          {% csrf_token %}
+          <input type="hidden" name="delete" value="{{ f.name }}">
+          <input type="submit" value="Delete">
+        </form>
+      </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
