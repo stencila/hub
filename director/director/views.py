@@ -9,7 +9,7 @@ import allauth.account.views
 import io
 import uuid
 from .auth import login_guest_user
-from .forms import UserSignupForm, UserSigninForm, CreateProjectForm
+from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster
 
@@ -183,7 +183,7 @@ class StencilaProjectDetailView(DetailView):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
-class CreateProjectView(TemplateView):
+class CreateStencilaProjectView(TemplateView):
     template_name = 'project_form.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -193,14 +193,14 @@ class CreateProjectView(TemplateView):
             logout(request)
             return redirect('user_signup')
         # TODO Check email address is verified
-        return super(CreateProjectView, self).dispatch(request, *args, **kwargs)
+        return super(CreateStencilaProjectView, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
-        context = dict(form=CreateProjectForm(), uuid=uuid.uuid4())
+        context = dict(form=CreateStencilaProjectForm(), uuid=uuid.uuid4())
         return self.render_to_response(context)
 
     def post(self, *args, **kwargs):
-        form = CreateProjectForm(self.request.POST)
+        form = CreateStencilaProjectForm(self.request.POST)
         files = self.request.FILES.getlist('file')
         uuid = self.request.POST.get('uuid')
         if form.is_valid():

@@ -26,7 +26,7 @@ urlpatterns = [
 
     path('projects/<slug:user>/', views.ProjectListView.as_view(), name='list-projects'),
 
-    path('project/new/', views.CreateProjectView.as_view(), name='create-project'),
+    path('project/new/', views.CreateStencilaProjectView.as_view(), name='create-project'),
     path('block/file-list/<slug:user>/<slug:project>/', views.StencilaProjectFilesBlock.as_view(), name='project-files-block'),
     path('files/<slug:user>/<slug:project>/', views.StencilaProjectDetailView.as_view(), name='project-files'),
     path('file/<slug:user>/<slug:project>/<path:filename>', views.StencilaProjectFileView.as_view(), name='project-file'),

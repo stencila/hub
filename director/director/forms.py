@@ -3,7 +3,7 @@ import allauth.account.forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from .models import Project
+from .models import Project, StencilaProject
 
 class UserSignupForm(allauth.account.forms.SignupForm):
 
@@ -20,7 +20,7 @@ class UserSigninForm(allauth.account.forms.LoginForm):
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', 'Sign me in!', css_class='button is-primary'))
 
-class CreateProjectForm(forms.Form):
+class CreateStencilaProjectForm(forms.Form):
     file = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'multiple': True}))
