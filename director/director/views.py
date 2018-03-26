@@ -79,6 +79,12 @@ class OpenAddress(TemplateView):
             token=token
         ))
 
+    def post(self, request, address):
+        # Address is a storer code, and the address components are in post variables
+        storer = Storer.get_instance_by_provider(address)
+        form = storer.get_form(request.POST)
+        if form.is_valid():
+            return redirect('open', address=form.get_address())
 
 class GalleryView(ListView):
     template_name = 'gallery.html'

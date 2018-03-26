@@ -1,6 +1,7 @@
 import json
 import re
 
+from django import forms
 import requests
 
 from . import Storer
@@ -37,5 +38,25 @@ class GithubStorer(Storer):
         if response.status_code != 200:
             return
         repos = json.loads(response.content.decode('utf-8'))
-        units = [dict(name=r['full_name'], url=r['html_url']) for r in repos]
+        units = []
+        for r in repos:
+            form = self.get_form(dict(
+                repo=r['full_name'], ref=r.get('default_branch', 'master')))
+            units.append(dict(name=r['full_name'], url=r['html_url'], form=form))
         return units
+
+    def get_form(self, initial):
+        return GithubStorerAddressForm(initial)
+
+class GithubStorerAddressForm(forms.Form):
+    repo = forms.CharField(max_length=255, required=True, widget=forms.HiddenInput())
+    subfolder = forms.CharField(max_length=255, required=False)
+    ref = forms.CharField(max_length=255, required=False)
+
+    def get_address(self):
+        address = "github://{}".format(self.cleaned_data['repo'])
+        if self.cleaned_data['subfolder']:
+            address += "/" + self.cleaned_data['subfolder']
+        if self.cleaned_data['ref']:
+            address += "@" + self.cleaned_data['ref']
+        return address

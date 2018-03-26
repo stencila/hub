@@ -4,6 +4,11 @@
 {% for u in units %}
     <div class="card">
       <div class="card-content">
+        <form style="float: right;" method="POST" action="{% url 'open' storer.code %}">
+          {% csrf_token %}
+          {{ u.form }}
+          <input type="submit" value="Open">
+        </form>
         <span class="icon"><i class="fab fa-{{ storer.code }}"></i></span>
         <span><a href="{{ u.url }}">{{ u.name }}</a></span>
       </div>
