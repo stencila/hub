@@ -109,7 +109,7 @@ class ProjectListView(ListView):
         accounts = {a.provider: a for a in self.request.user.socialaccount_set.all()}
         enabled = []
         disabled = []
-        providers = ['github', 'google']
+        providers = ['github']
         for provider in providers:
             account = accounts.get(provider, None)
             if account:
