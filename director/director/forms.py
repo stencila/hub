@@ -24,3 +24,10 @@ class CreateStencilaProjectForm(forms.Form):
     file = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
+class StencilaProjectForm(forms.ModelForm):
+
+    class Meta:
+        model = StencilaProject
+        fields = ('name',)
+

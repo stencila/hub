@@ -20,4 +20,11 @@ $(document).ready(function(){
     <div id="file_list">Loading...</div>
   </div>
 </div>
+{% if object.owner == user %}
+<form method="POST" action="{% url 'project-files' object.owner.username object.name %}">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" name="rename" value="Rename">
+</form>
+{% endif %}
 {% endblock %}

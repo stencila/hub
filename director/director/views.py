@@ -9,7 +9,8 @@ import allauth.account.views
 import io
 import uuid
 from .auth import login_guest_user
-from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm
+from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
+     StencilaProjectForm
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster
 
@@ -171,16 +172,33 @@ class StencilaProjectDetailView(DetailView):
     def get(self, request, **kwargs):
         self.object = self.get_object_or_404(**kwargs)
         context = self.get_context_data(object=self.object)
+        if self.object.owner == request.user:
+            context['form'] = StencilaProjectForm(instance=self.object)
         return self.render_to_response(context)
 
     def post(self, request, **kwargs):
         self.object = self.get_object_or_404(**kwargs)
+
         if self.object.owner != request.user:
             raise Http404
-        if 'delete' in request.POST:
+
+        context = self.get_context_data(object=self.object)
+
+        if 'rename' in request.POST:
+            form = StencilaProjectForm(request.POST, instance=self.object)
+            if form.is_valid():
+                form.save()
+                return redirect(
+                    'project-files', user=request.user.username,
+                    project=self.object.name)
+            context['form'] = form
+
+        elif 'delete' in request.POST:
             filename = request.POST['delete']
             self.object.delete_file(filename)
-        context = self.get_context_data(object=self.object)
+
+        if not 'form' in context:
+            context['form'] = StencilaProjectForm(instance=self.object)
         return self.render_to_response(context)
 
 class CreateStencilaProjectView(TemplateView):
