@@ -16,7 +16,7 @@
       <div class="navbar-start">
         <a class="navbar-item" href="{% url 'gallery' %}">Gallery</a>
         {% if user.is_authenticated %}
-        <a class="navbar-item" href="{% url 'list-projects' user=user %}">Projects</a>
+        <a class="navbar-item" href="{% url 'list-projects' %}">Projects</a>
         {% endif %}
       </div>
       <div class="navbar-end">

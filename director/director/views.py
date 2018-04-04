@@ -3,6 +3,7 @@ from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
 import allauth.account.views
@@ -98,7 +99,7 @@ class GalleryView(ListView):
     def get_queryset(self):
         return Project.objects.filter(gallery=True)[:12]
 
-class ProjectListView(ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'project_list.html'
     model = Project
 
