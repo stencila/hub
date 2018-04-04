@@ -6,8 +6,13 @@
       <div class="card-content">
         <form style="float: right;" method="POST" action="{% url 'open' storer.code %}">
           {% csrf_token %}
-          {{ u.form }}
+          {{ u.open_form }}
           <input type="submit" value="Open">
+        </form>
+        <form style="float: right;" method="POST" action="{% url 'browse' storer.code %}">
+          {% csrf_token %}
+          {{ u.browse_form }}
+          <input type="submit" value="Browse">
         </form>
         <span class="icon"><i class="fab fa-{{ storer.code }}"></i></span>
         <span><a href="{{ u.url }}">{{ u.name }}</a></span>

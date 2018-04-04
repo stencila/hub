@@ -1,0 +1,29 @@
+{% if files %}
+<table>
+  <tbody>
+    {% for f in files %}
+    <tr>
+      <td>{% if f.type == "dir" %}
+        <a href="{% url 'browse' address=f.address %}">{{ f.name }}</a>
+        {% else %}{{ f.name }}{% endif %}
+      </td>
+      <td>{% if f.type != "dir" %}{{ f.size }}{% endif %}</td>
+      <td>
+        {% if f.open_form %}
+        <form style="display: inline;" method="POST" action="{% url 'browse' storer.code %}">
+          {% csrf_token %}
+          {{ f.browse_form }}
+          <input type="submit" value="Browse">
+        </form>
+        <form style="display: inline;" method="POST" action="{% url 'open' storer.code %}">
+          {% csrf_token %}
+          {{ f.open_form }}
+          <input type="submit" value="Open">
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}

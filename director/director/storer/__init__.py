@@ -15,6 +15,9 @@ class Storer(object):
     def profile_url(self):
         pass
 
+    def refs(self):
+        return []
+
     @classmethod
     def get_instance_by_provider(cls, provider, **kwargs):
         for subclass in cls.__subclasses__():

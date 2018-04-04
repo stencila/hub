@@ -1,0 +1,7 @@
+{% if refs %}
+<select id="ref" name="ref">
+  {% for r in refs %}
+  <option value="{{ r.ref }}">{{ r.ref }}</option>
+  {% endfor %}
+</select>
+{% endif %}

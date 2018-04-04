@@ -85,7 +85,7 @@ class OpenAddress(TemplateView):
             storer = Storer.get_instance_by_provider(address)
         except:
             raise Http404
-        form = storer.get_form(request.POST)
+        form = storer.get_open_form(request.POST)
         if form.is_valid():
             return redirect('open', address=form.get_address())
         raise Http404
@@ -132,6 +132,60 @@ class StorerProjectBlock(TemplateView):
         except Exception:
             raise Http404
 
+        return self.render_to_response(self.get_context_data())
+
+class BrowseFolder(TemplateView):
+    template_name = 'storer_browse_folder.html'
+
+    def get(self, request, address):
+        try:
+            storer = Storer.get_instance_by_address(address)
+        except:
+            raise Http404
+        context = self.get_context_data()
+        context['storer'] = storer.code
+        context['address'] = address
+        return self.render_to_response(context)
+
+    def post(self, request, address):
+        # Address is a storer code, and the address components are in post variables
+        try:
+            storer = Storer.get_instance_by_provider(address)
+        except:
+            raise Http404
+        form = storer.get_browse_form(request.POST)
+        if not form.is_valid():
+            raise Http404
+        context = self.get_context_data()
+        context.update(form.cleaned_data)
+        context['storer'] = storer.code
+        context['address'] = form.get_address()
+        return self.render_to_response(context)
+
+class StorerRefsBlock(TemplateView):
+    template_name = 'storer_refs_block.html'
+
+    def get_context_data(self):
+        return dict(
+            address=self.address, storer=self.storer, refs=self.storer.refs())
+
+    def get(self, request, **kwargs):
+        self.address = kwargs['address']
+        self.storer = Storer.get_instance_by_address(self.address)
+        self.storer.account = request.user.socialaccount_set.get(provider=self.storer.code)
+        return self.render_to_response(self.get_context_data())
+
+class StorerFolderBlock(TemplateView):
+    template_name = 'storer_folder_block.html'
+
+    def get_context_data(self):
+        return dict(
+            address=self.address, storer=self.storer, files=self.storer.folder_contents())
+
+    def get(self, request, **kwargs):
+        self.address = kwargs['address']
+        self.storer = Storer.get_instance_by_address(self.address)
+        self.storer.account = request.user.socialaccount_set.get(provider=self.storer.code)
         return self.render_to_response(self.get_context_data())
 
 class StencilaProjectFileView(DetailView):

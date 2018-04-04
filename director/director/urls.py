@@ -23,6 +23,7 @@ urlpatterns = [
     path('gallery', views.GalleryView.as_view(), name='gallery'),
     path('open/', views.OpenInput.as_view(), name='open'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
+    path('browse/<path:address>', views.BrowseFolder.as_view(), name='browse'),
 
     path('projects/', views.ProjectListView.as_view(), name='list-projects'),
 
@@ -32,6 +33,8 @@ urlpatterns = [
     path('file/<slug:user>/<slug:project>/<path:filename>', views.StencilaProjectFileView.as_view(), name='project-file'),
 
     path('block/storer-projects/<slug:storer>/', views.StorerProjectBlock.as_view(), name='storer-project-block'),
+    path('block/storer-refs/<path:address>', views.StorerRefsBlock.as_view(), name='storer-refs-block'),
+    path('block/storer-folder/<path:address>', views.StorerFolderBlock.as_view(), name='storer-folder-block'),
     # User management (login, logout etc)
     # Mostly overrides of `allauth` views (often just to provide new templates).
     # The allauth URLs not overidden below are:
