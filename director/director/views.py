@@ -63,9 +63,7 @@ class OpenAddress(TemplateView):
         token = None
         if address:
             try:
-                proto, path = address.split("://")
-                storer = Storer.get_instance_by_provider(proto)
-                assert(storer.valid_path(path))
+                storer = Storer.get_instance_by_address(address)
                 valid = True
             except:
                 valid = False
