@@ -29,7 +29,7 @@ class Storer(object):
         except ValueError:
             raise RuntimeError("Bad address {}".format(address))
         instance = cls.get_instance_by_provider(proto)
-        if not instance.valid_path(path):
+        if not instance.parse_path(path):
             raise RuntimeError("Bad address {}".format(address))
         return instance
 

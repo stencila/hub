@@ -12,17 +12,17 @@ class GithubStorer(Storer):
     unit_name = 'public repository'
     unit_name_plural = 'public repositories'
 
-    def valid_path(self, path):
+    def parse_path(self, path):
         self.path = path
         m = re.match('^(?P<owner>[^/@]+)\/(?P<repo>[^@/]+)(?P<folder>\/[^@]+)?(?P<ref>@\w+)?$', self.path)
         if not m:
             return False
         self.owner = m.group('owner')
         self.repo = m.group('repo')
-        self.folder = m.group('folder')
-        self.ref = m.group('ref')
-        if not self.ref:
-            self.ref = 'master'
+        _folder = m.group('folder')
+        self.folder = _folder[1:] if _folder else ''
+        _ref = m.group('ref')
+        self.ref = _ref[1:] if _ref else 'master'
 
         return True
 

@@ -5,7 +5,7 @@ class StencilaStorer(Storer):
     code = 'stencila'
     name = 'Stencila'
 
-    def valid_path(self, path):
+    def parse_path(self, path):
         self.path = path
         m = re.match('^(?P<owner>[a-z0-9-]+)/(?P<project_name>[a-z0-9-]+)$', self.path)
         if not m:
