@@ -1,24 +1,26 @@
 {% if units %}
-<div class="columns provider">
-  <div class="column">
-{% for u in units %}
-    <div class="card">
-      <div class="card-content">
-        <form style="float: right;" method="POST" action="{% url 'open' storer.code %}">
-          {% csrf_token %}
-          {{ u.open_form }}
-          <input type="submit" value="Open">
-        </form>
-        <form style="float: right;" method="POST" action="{% url 'browse' storer.code %}">
+<table>
+  <tbody>
+    {% for u in units %}
+    <tr>
+      <td class="provider">
+        <a href="{{ u.url }}"><span class="icon"><i class="fab fa-{{ storer.code }}"></i></span></a>
+        <span>{{ u.name }}</span>
+      </td>
+      <td>
+        <form style="display: inline;" method="POST" action="{% url 'browse' storer.code %}">
           {% csrf_token %}
           {{ u.browse_form }}
           <input type="submit" value="Browse">
         </form>
-        <span class="icon"><i class="fab fa-{{ storer.code }}"></i></span>
-        <span><a href="{{ u.url }}">{{ u.name }}</a></span>
-      </div>
-    </div>
-{% endfor %}
-  </div>
-</div>
+        <form style="display: inline;" method="POST" action="{% url 'open' storer.code %}">
+          {% csrf_token %}
+          {{ u.open_form }}
+          <input type="submit" value="Open">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 {% endif %}
