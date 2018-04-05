@@ -1,7 +1,6 @@
 {% if refs %}
-<select id="ref" name="ref">
-  {% for r in refs %}
-  <option value="{{ r.ref }}">{{ r.ref }}</option>
-  {% endfor %}
-</select>
+<form id="refs_form" method="POST" action="{% url 'browse' storer.code %}">
+  {% csrf_token %}
+  {{ refs.form }}
+</form>
 {% endif %}

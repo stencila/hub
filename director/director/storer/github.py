@@ -66,7 +66,10 @@ class GithubStorer(Storer):
             print("{} {}".format(response.status_code, base_url + "?..."))
             return
         branches = json.loads(response.content.decode('utf-8'))
-        return [{'ref': b['name']} for b in branches]
+        ref_choices = [(b['name'], b['name']) for b in branches]
+        return dict(form=self.get_refs_form(ref_choices, initial=dict(
+            repo="{}/{}".format(self.owner, self.repo),
+            subfolder=self.folder, ref=self.ref, ref_changed=True)))
 
     def folder_address(self, folder):
         folder = "/" + folder if len(folder) else ""
@@ -109,7 +112,11 @@ class GithubStorer(Storer):
     def get_browse_form(self, initial):
         return GithubStorerAddressForm(initial)
 
+    def get_refs_form(self, refs, initial):
+        return GithubStorerRefsForm(refs, initial)
+
 class GithubStorerAddressForm(forms.Form):
+    ref_changed = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     repo = forms.CharField(max_length=255, required=True, widget=forms.HiddenInput())
     subfolder = forms.CharField(max_length=255, required=False, widget=forms.HiddenInput())
     ref = forms.CharField(max_length=255, required=True, widget=forms.HiddenInput())
@@ -121,3 +128,9 @@ class GithubStorerAddressForm(forms.Form):
         if self.cleaned_data['ref']:
             address += "@" + self.cleaned_data['ref']
         return address
+
+class GithubStorerRefsForm(GithubStorerAddressForm):
+
+    def __init__(self, refs, *args, **kwargs):
+        super(GithubStorerRefsForm, self).__init__(*args, **kwargs)
+        self.fields['ref'] = forms.ChoiceField(choices=refs)

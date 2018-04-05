@@ -9,7 +9,9 @@
 <script>
 $(document).ready(function(){
   {% if ref %}
-  $("#refs").load("{% url 'storer-refs-block' address %}");
+  $("#refs").load("{% url 'storer-refs-block' address %}", "", function() {
+    $("#refs_form select").change(function(){$("#refs_form").submit()});
+  });
   {% endif %}
   $("#folders").load("{% url 'storer-folder-block' address %}");
 });
