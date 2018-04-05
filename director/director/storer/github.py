@@ -4,6 +4,7 @@ import re
 from django import forms
 import requests
 
+from allauth.socialaccount.models import SocialApp
 from . import Storer
 
 class GithubStorer(Storer):
@@ -50,12 +51,16 @@ class GithubStorer(Storer):
                 open_form=open_form, browse_form=browse_form))
         return units
 
+    def site_oauth_params(self):
+        gh = SocialApp.objects.get_current('github')
+        return "client_id={}&client_secret={}".format(gh.client_id, gh.secret)
+
     def refs(self):
-        return [] # TODO Send authenticated request to branch url to avoid rate limiting
         if not self.repo or not self.owner:
             return
         branches_url = "https://api.github.com/repos/{}/{}/branches".format(
             self.owner, self.repo)
+        branches_url += "?" + self.site_oauth_params()
         response = requests.get(branches_url)
         if response.status_code != 200:
             print("{} {}".format(response.status_code, branches_url))
