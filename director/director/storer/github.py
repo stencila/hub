@@ -15,7 +15,7 @@ class GithubStorer(Storer):
 
     def parse_path(self, path):
         self.path = path
-        m = re.match('^(?P<owner>[^/@]+)\/(?P<repo>[^@/]+)(?P<folder>\/[^@]+)?(?P<ref>@\w+)?$', self.path)
+        m = re.match('^(?P<owner>[^/@]+)\/(?P<repo>[^@/]+)(?P<folder>\/[^@]+)?(?P<ref>@[-\w]+)?$', self.path)
         if not m:
             return False
         self.owner = m.group('owner')
