@@ -58,12 +58,12 @@ class GithubStorer(Storer):
     def refs(self):
         if not self.repo or not self.owner:
             return
-        branches_url = "https://api.github.com/repos/{}/{}/branches".format(
+        base_url = "https://api.github.com/repos/{}/{}/branches".format(
             self.owner, self.repo)
-        branches_url += "?" + self.site_oauth_params()
+        branches_url = base_url + "?" + self.site_oauth_params()
         response = requests.get(branches_url)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, branches_url))
+            print("{} {}".format(response.status_code, base_url + "?..."))
             return
         branches = json.loads(response.content.decode('utf-8'))
         return [{'ref': b['name']} for b in branches]
