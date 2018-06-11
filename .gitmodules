@@ -1,3 +1,0 @@
-[submodule "director/stencila"]
-	path = director/stencila
-	url = git@github.com:stencila/stencila
