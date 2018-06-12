@@ -38,9 +38,9 @@ director-env: director/requirements.txt
 	$(VE) pip3 install -r director/requirements.txt
 
 # Build stencila/stencila Javascript and CSS
-director-stencila: director/stencila/dist/stencila.js
+director-stencila:
 	mkdir -p director/client/stencila
-	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
+	# cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
 
 # Build any static files
 director-static: director-stencila
