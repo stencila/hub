@@ -20,11 +20,7 @@ deploy: director-deploy
 VE := . director/env/bin/activate ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
-ifeq ($(DOCKER),false)
-	DJ ?= $(VE) python3 director/manage.py
-else
-	DJ ?= python3 director/manage.py 
-endif
+DJ ?= $(VE) python3 director/manage.py
 
 # Install necessary system packages
 director-setup:
