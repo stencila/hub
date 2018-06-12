@@ -1,6 +1,14 @@
-from configurations import values
-from .common import Common
+import imp
+import os
+import sys
+import traceback
 
+from os.path import dirname
+
+from configurations import values
+from .common import Common, BASE_DIR, external_keys
+
+SECRETS_DIR = os.path.join(dirname(BASE_DIR), "secrets")
 
 class Dev(Common):
 
@@ -12,3 +20,17 @@ class Dev(Common):
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+    @classmethod
+    def setup(cls):
+        super(Dev, cls).setup()
+        filename = "director_dev_secrets.py"
+        try:
+            dev_secrets = imp.load_source(
+                "dev_secrets", os.path.join(SECRETS_DIR, filename))
+        except ImportError as e:
+            print("Could not import %s: %s" % (filename, e))
+            return
+
+        for key in external_keys:
+            if not hasattr(cls, key) and hasattr(dev_secrets, key):
+                setattr(cls, key, getattr(dev_secrets, key))
