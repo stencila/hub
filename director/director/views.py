@@ -15,6 +15,15 @@ from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster
 
+
+class Error404View(TemplateView):
+    template_name = 'error404.html'
+
+
+class Error500View(TemplateView):
+    template_name = 'error500.html'
+
+
 class FrontPageView(TemplateView):
     template_name = 'index.html'
 

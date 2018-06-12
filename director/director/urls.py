@@ -60,3 +60,6 @@ urlpatterns = [
 
     path('', views.FrontPageView.as_view(), name='home'),
 ]
+
+handler404 = views.Error404View.as_view()
+handler500 = views.Error500View.as_view()

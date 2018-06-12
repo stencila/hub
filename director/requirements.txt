@@ -14,6 +14,7 @@ google-cloud-storage==1.10.0
 pyjwt==1.5.3
 pytz==2018.3
 oauthlib==2.0.6
+raven==6.9.0
 requests==2.18.4
 requests-oauthlib==0.8.0
 setuptools==39.2.0
