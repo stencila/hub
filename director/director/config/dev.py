@@ -1,6 +1,5 @@
 import imp
 import os
-
 from os.path import dirname
 
 from .common import Common, BASE_DIR, external_keys
@@ -20,6 +19,7 @@ class Dev(Common):
 
     @classmethod
     def setup(cls):
+        """Obtain config settings from secrets file"""
         super(Dev, cls).setup()
         filename = "director_dev_secrets.py"
         path = os.path.join(SECRETS_DIR, filename)
@@ -35,3 +35,11 @@ class Dev(Common):
         for key in external_keys:
             if not getattr(cls, key, None) and hasattr(dev_secrets, key):
                 setattr(cls, key, getattr(dev_secrets, key))
+
+    @classmethod
+    def post_setup(cls):
+        """Warn if a setting is missing"""
+        super(Dev, cls).post_setup()
+        for key in external_keys:
+            if not hasattr(cls, key):
+                print("Warning: missing setting %s" % key)

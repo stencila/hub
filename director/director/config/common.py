@@ -16,19 +16,15 @@ class Common(Configuration):
 
     @classmethod
     def setup(cls):
+        """Obtain config settings from environment"""
         super(Common, cls).setup()
         for key in external_keys:
             if key in os.environ:
                 setattr(cls, key, os.environ[key])
 
-    @classmethod
-    def post_setup(cls):
-        super(Common, cls).post_setup()
-        for key in external_keys:
-            if not hasattr(cls, key):
-                print("Missing setting: %s" % key)
-
-    SECRET_KEY = 'not-a-secret'
+    # This setting needs to be set to something
+    # In `prod.py` we check that this value is overridden
+    SECRET_KEY = ' '
 
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
