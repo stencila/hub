@@ -7,8 +7,5 @@ env
 # Ignore client side static content
 client
 
-# Ignore stencila/stencila sumodule from which additional static content is built
-stencila
-
 # Ignore Django static folder into which static all content is collected
 static
