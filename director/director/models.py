@@ -6,7 +6,7 @@ from django.urls import reverse
 import jwt
 import sys
 import time
-import uuid
+from uuid import uuid4
 
 class Project(models.Model):
     address = models.TextField(unique=True)
@@ -27,39 +27,49 @@ class StencilaProject(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE)
     owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     name = models.SlugField(max_length=255)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
 
     base_project_name = 'project'
 
     @classmethod
     def get_or_create_for_user(cls, owner, uuid):
+        if uuid is None:
+            uuid = uuid4()
         try:
             return StencilaProject.objects.get(owner=owner, uuid=uuid)
         except StencilaProject.DoesNotExist:
             pass
 
         name = cls.generate_name(owner)
-        address = 'stencila://%s/%s' % (owner, name)
-        project = Project(address=address)
-        project.save()
+        address = cls._get_address(owner, name)
+        project, created = Project.objects.get_or_create(address=address)
+        if not created and hasattr(project, 'stencilaproject'):
+            return # TODO fail
         stencila_project = cls(name=name, owner=owner, project=project, uuid=uuid)
         stencila_project.save()
         return stencila_project
 
     @classmethod
+    def _get_address(cls, owner, name):
+        return 'stencila://%s/%s' % (owner, name)
+
+    def get_address(self):
+        return self._get_address(self.owner, self.name)
+
+    @classmethod
     def generate_name(cls, owner):
-        existing_names = [
-            p.name for p in cls.objects.filter(
-                owner=owner, name__startswith=cls.base_project_name)]
+        address_prefix = cls._get_address(owner, cls.base_project_name)
+        existing_addresses = [
+            p.address for p in Project.objects.filter(
+                stencilaproject__isnull=False,
+                stencilaproject__owner=owner,
+                address__startswith=address_prefix)]
         i = 1
         name = "%s-%d" % (cls.base_project_name, i)
-        while name in existing_names:
+        while cls._get_address(owner, name) in existing_addresses:
             i += 1
             name = "%s-%d" % (cls.base_project_name, i)
         return name
-
-    def get_address(self):
-        return 'stencila://%s/%s' % (self.owner, self.name)
 
     def delete(self):
         try:
