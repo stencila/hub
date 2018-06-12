@@ -1,6 +1,6 @@
 SHELL := bash
-
 OS := $(shell uname -s)
+
 
 all: setup run
 
@@ -11,11 +11,6 @@ run: director-run
 build: director-build
 
 deploy: director-deploy
-
-DOCKER ?= docker run -e DJANGO_JWT_SECRET=$${DJANGO_JWT_SECRET} --net=host -it --rm -u $$(id -u):$$(id -g) -v $$(pwd):/work -w /work stencila/hub-director
-
-interact:
-	$(DOCKER) bash
 
 
 ####################################################################################
@@ -28,7 +23,7 @@ VE := . director/env/bin/activate ;
 ifeq ($(DOCKER),false)
 	DJ ?= $(VE) python3 director/manage.py
 else
-	DJ ?= $(DOCKER) python3 director/manage.py 
+	DJ ?= python3 director/manage.py 
 endif
 
 # Install necessary system packages
@@ -47,12 +42,6 @@ director-env: director/requirements.txt
 	$(VE) pip3 install -r director/requirements.txt
 
 # Build stencila/stencila Javascript and CSS
-director/stencila/dist/stencila.js:
-ifeq ($(DOCKER),false)
-	cd director/stencila && make setup build
-else
-	docker run --rm -v $$(pwd):/work -w /work/director/stencila node make setup build
-endif
 director-stencila: director/stencila/dist/stencila.js
 	mkdir -p director/client/stencila
 	cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
@@ -72,7 +61,7 @@ director-devdb:
 	$(DJ) runscript create_projects
 
 # Run development server
-director-run: director-static
+director-run:
 	$(DJ) runserver
 
 # Run development server on http://stenci.la:80
@@ -82,10 +71,18 @@ director-run: director-static
 director-run80: director-static
 	sudo director/env/bin/python3 director/manage.py runserver stenci.la:80
 
-# Build director Docker image
+# Build Docker image
 director-build: director/Dockerfile
-	docker build -t stencila/hub-director director
+	docker build --tag stencila/hub-director director
 
-# Push director Docker image to Docker hub
+# Interact with the Docker image
+director-rundocker:
+	docker run -e DJANGO_JWT_SECRET=not-a-secret -e DJANGO_SECRET_KEY=not-a-secret -p 8080:8080 -it --rm stencila/hub-director
+
+# Interact with the Docker image
+director-interact:
+	$(DOCKER_RUN) bash
+
+# Push Docker image to Docker hub
 director-deploy: director-build
 	docker push stencila/hub-director
