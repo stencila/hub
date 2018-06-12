@@ -1,14 +1,12 @@
 import imp
 import os
-import sys
-import traceback
 
 from os.path import dirname
 
-from configurations import values
 from .common import Common, BASE_DIR, external_keys
 
 SECRETS_DIR = os.path.join(dirname(BASE_DIR), "secrets")
+
 
 class Dev(Common):
 
@@ -35,5 +33,5 @@ class Dev(Common):
             return
 
         for key in external_keys:
-            if not hasattr(cls, key) and hasattr(dev_secrets, key):
+            if not getattr(cls, key, None) and hasattr(dev_secrets, key):
                 setattr(cls, key, getattr(dev_secrets, key))
