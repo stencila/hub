@@ -13,7 +13,7 @@ from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
      StencilaProjectForm
 from .storer import Storer
-from .models import Project, StencilaProject, Cluster
+from .models import Project, StencilaProject, Cluster, ClusterError
 
 
 class Error404View(TemplateView):
@@ -67,25 +67,27 @@ class OpenInput(TemplateView):
 class OpenAddress(TemplateView):
     template_name = 'open-address.html'
 
-    def get(self, request, address=None):
-        cluster = None
-        token = None
-        if address:
-            try:
-                storer = Storer.get_instance_by_address(address)
-                valid = True
-            except:
-                valid = False
+    def get(self, request, address):
+        try:
+            storer = Storer.get_instance_by_address(address)
+        except:
+            raise Http404
 
-            if valid:
-                if not request.user.is_authenticated:
-                    login_guest_user(request)
+        if not request.user.is_authenticated:
+            login_guest_user(request)
 
-                cluster, token = Project.open(user=request.user, address=address)
+        try:
+            cluster, token = Project.open(user=request.user, address=address)
+            error = None
+        except ClusterError as e:
+            cluster = token = None
+            error = e
+
         return self.render_to_response(dict(
             address=address,
             cluster=cluster,
-            token=token
+            token=token,
+            error=error,
         ))
 
     def post(self, request, address):

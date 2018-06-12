@@ -121,6 +121,9 @@ class StencilaProject(models.Model):
     class Meta:
         unique_together = ('name', 'owner')
 
+class ClusterError(RuntimeError):
+    pass
+
 class Cluster(models.Model):
     host = models.TextField(unique=True)
 
@@ -133,7 +136,7 @@ class Cluster(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            sys.stderr.write("No clusters\n")
+            raise ClusterError("No cluster available")
 
     class Meta:
         app_label = 'director'
