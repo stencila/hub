@@ -8,9 +8,9 @@ from configurations import Configuration, values
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
 external_keys = (
-    'SECRET_KEY', 'JWT_SECRET', 'AWS_ACCESS_KEY_ID',
-    'AWS_SECRET_ACCESS_KEY', 'AWS_STORAGE_BUCKET_NAME',
+    'SECRET_KEY', 'JWT_SECRET',
     'GS_PROJECT_ID', 'GS_CREDENTIALS', 'GS_BUCKET_NAME')
+
 
 class Common(Configuration):
 
@@ -27,6 +27,8 @@ class Common(Configuration):
         for key in external_keys:
             if not hasattr(cls, key):
                 print("Missing setting: %s" % key)
+
+    SECRET_KEY = 'not-a-secret'
 
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
