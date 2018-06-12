@@ -33,6 +33,11 @@ $(document).ready(function(){
         <form style="display: inline;" method="get" action="{% url 'open' address=project.address %}">
           <input type="submit" value="Open">
         </form>
+        <form style="display: inline;" method="post" action="{% url 'list-projects' %}">
+          {% csrf_token %}
+          <input type="hidden" name="project" value="{{ project.id }}">
+          <input type="submit" value="Delete">
+        </form>
       </td>
     </tr>
     {% endfor %}

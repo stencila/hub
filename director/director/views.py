@@ -119,6 +119,16 @@ class ProjectListView(LoginRequiredMixin, ListView):
         context['storers'] = dict(enabled=enabled, disabled=disabled)
         return context
 
+    def post(self, request, **kwargs):
+        project_id = request.POST.get("project", 0)
+        project = get_object_or_404(Project, id=project_id)
+        if hasattr(project, 'stencilaproject') \
+          and project.stencilaproject.owner == request.user:
+          project.stencilaproject.delete()
+        else:
+            project.users.remove(request.user)
+        return redirect('list-projects')
+
 class StorerProjectBlock(TemplateView):
     template_name = 'storer_unit_list.html'
 
