@@ -21,6 +21,13 @@ class Common(Configuration):
             if key in os.environ:
                 setattr(cls, key, os.environ[key])
 
+    @classmethod
+    def post_setup(cls):
+        super(Common, cls).post_setup()
+        for key in external_keys:
+            if not hasattr(cls, key):
+                print("Missing setting: %s" % key)
+
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
     )
