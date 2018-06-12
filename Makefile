@@ -86,3 +86,17 @@ director-interact:
 # Push Docker image to Docker hub
 director-deploy: director-build
 	docker push stencila/hub-director
+
+
+####################################################################################
+# Secrets
+
+secrets-encrypt:
+	./make.py encrypt_secret secrets/director-allauth.json
+	./make.py encrypt_secret secrets/director-dev-secrets.py
+	./make.py encrypt_secret secrets/stencila-general-test-serviceaccount.json
+
+secrets-decrypt:
+	./make.py decrypt_secret secrets/director-allauth.json.enc
+	./make.py decrypt_secret secrets/director-dev-secrets.py.enc
+	./make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
