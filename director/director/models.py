@@ -58,6 +58,17 @@ class StencilaProject(models.Model):
             name = "%s-%d" % (cls.base_project_name, i)
         return name
 
+    def get_address(self):
+        return 'stencila://%s/%s' % (self.owner, self.name)
+
+    def delete(self):
+        try:
+            default_storage.delete(self.prefix())
+        except:
+            pass
+        self.project.delete()
+        super(StencilaProject, self).delete()
+
     def prefix(self):
         return "projects/%s" % str(self.uuid)
 
@@ -65,7 +76,7 @@ class StencilaProject(models.Model):
         return "%s/%s" % (self.prefix(), filename)
 
     def save(self, *args, **kwargs):
-        address = 'stencila://%s/%s' % (self.owner, self.name)
+        address = self.get_address()
         if self.project and self.project.address != address:
             self.project.address = address
             self.project.save()
