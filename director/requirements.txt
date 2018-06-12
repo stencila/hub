@@ -9,7 +9,7 @@ django_extensions==2.0.5
 django-storages==1.6.6
 google-api-python-client==1.6.5
 googleapis-common-protos==1.5.3
-google-auth=1.5.0
+google-auth==1.5.0
 google-cloud-storage==1.10.0
 pyjwt==1.5.3
 pytz==2018.3
