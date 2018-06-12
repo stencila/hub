@@ -59,7 +59,7 @@ class StencilaProject(models.Model):
         return name
 
     def prefix(self):
-        return str(self.uuid)
+        return "projects/%s" % str(self.uuid)
 
     def path(self, filename):
         return "%s/%s" % (self.prefix(), filename)
