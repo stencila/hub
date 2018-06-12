@@ -73,9 +73,15 @@ director-run80: director-static
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
 
-# Interact with the Docker image
+# Run the Docker image
 director-rundocker:
-	docker run -e DJANGO_JWT_SECRET=not-a-secret -e DJANGO_SECRET_KEY=not-a-secret -p 8080:8080 -it --rm stencila/hub-director
+	docker run \
+		-e SECRET_KEY=not-a-secret \
+		-e JWT_SECRET=not-a-secret \
+		-e GS_PROJECT_ID=some-project-id \
+		-e GS_CREDENTIALS=dome-creds \
+		-e GS_BUCKET_NAME=a-name \
+		-p 8080:8080 -it --rm stencila/hub-director
 
 # Interact with the Docker image
 director-interact:
