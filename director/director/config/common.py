@@ -7,8 +7,23 @@ from configurations import Configuration, values
 
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
+external_keys = (
+    'SECRET_KEY', 'JWT_SECRET', 'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY', 'AWS_STORAGE_BUCKET_NAME',
+    'GS_PROJECT_ID', 'GS_CREDENTIALS', 'GS_BUCKET_NAME')
 
 class Common(Configuration):
+
+    @classmethod
+    def setup(cls):
+        super(Common, cls).setup()
+        for key in external_keys:
+            if key in os.environ:
+                value = os.environ[key]
+            else:
+                value = 'not-a-secret'
+            setattr(cls, key, value)
+
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
     )
@@ -173,7 +188,5 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
     CRISPY_TEMPLATE_PACK = 'bulma'
 
-    AWS_ACCESS_KEY_ID = 'xxx'
-    AWS_SECRET_ACCESS_KEY = 'yyy'
-    AWS_STORAGE_BUCKET_NAME = 'uploads.stencila.io'
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
