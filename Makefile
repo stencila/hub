@@ -32,10 +32,11 @@ ifeq ($(OS),Darwin)
 endif
 
 # Setup virtual environment
-director-env: director/requirements.txt
+director/env: director/requirements.txt
 	python3 -m venv director/env
 	$(VE) pip3 install wheel
 	$(VE) pip3 install -r director/requirements.txt
+	touch director/env
 
 # Build stencila/stencila Javascript and CSS
 director-stencila:
@@ -43,11 +44,12 @@ director-stencila:
 	# cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
 
 # Build any static files
-director-static: director-stencila
+# Needs `director/env` to setup virtualenv for Django collectstatic
+director-static: director/env director-stencila
 	$(DJ) collectstatic --noinput
 
 # Build a development database
-director-devdb:
+director-devdb: director/env
 	rm -f director/db.sqlite3
 	rm -fr director/director/migrations
 	$(DJ) makemigrations director
@@ -57,7 +59,7 @@ director-devdb:
 	$(DJ) runscript create_projects
 
 # Run development server
-director-run:
+director-run: director/env
 	$(DJ) runserver
 
 # Run development server on http://stenci.la:80
