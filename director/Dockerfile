@@ -19,7 +19,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip3 install -r /app/requirements.txt
 
-ADD . /app 
+ADD . /app
 
 RUN python3 manage.py makemigrations director
 RUN python3 manage.py migrate
