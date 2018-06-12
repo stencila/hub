@@ -13,13 +13,6 @@ class Project(models.Model):
     gallery = models.BooleanField(default=False)
     users = models.ManyToManyField('auth.User', related_name='projects')
 
-    @classmethod
-    def open(cls, user, address):
-        project, _ = Project.objects.get_or_create(address=address)
-        project.users.add(user)
-        cluster = Cluster.choose(user=user, project=project)
-        return cluster.host, cluster.jwt(user)
-
     class Meta:
         app_label = 'director'
 

@@ -76,18 +76,17 @@ class OpenAddress(TemplateView):
         if not request.user.is_authenticated:
             login_guest_user(request)
 
+        project, _ = Project.objects.get_or_create(address=address)
+        project.users.add(request.user)
+
         try:
-            cluster, token = Project.open(user=request.user, address=address)
-            error = None
+            cluster = Cluster.choose(user=request.user, project=project)
         except ClusterError as e:
-            cluster = token = None
-            error = e
+            cluster = None
 
         return self.render_to_response(dict(
             address=address,
             cluster=cluster,
-            token=token,
-            error=error,
         ))
 
     def post(self, request, address):
