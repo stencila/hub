@@ -8,11 +8,14 @@ django-crispy-forms==1.7.2
 django_extensions==2.0.5
 django-storages==1.6.6
 google-api-python-client==1.6.5
+googleapis-common-protos==1.5.3
 google-auth=1.5.0
+google-cloud-storage==1.10.0
 pyjwt==1.5.3
 pytz==2018.3
 oauthlib==2.0.6
 requests==2.18.4
 requests-oauthlib==0.8.0
+setuptools==39.2.0
 simple-crypt==4.1.7
 urllib3==1.22
