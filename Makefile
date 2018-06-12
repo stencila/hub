@@ -92,11 +92,11 @@ director-deploy: director-build
 # Secrets
 
 secrets-encrypt:
-	./make.py encrypt_secret secrets/director-allauth.json
-	./make.py encrypt_secret secrets/director-dev-secrets.py
-	./make.py encrypt_secret secrets/stencila-general-test-serviceaccount.json
+	$(VE) python make.py encrypt_secret secrets/director-allauth.json
+	$(VE) python make.py encrypt_secret secrets/director_dev_secrets.py
+	$(VE) python make.py encrypt_secret secrets/stencila-general-test-serviceaccount.json
 
 secrets-decrypt:
-	./make.py decrypt_secret secrets/director-allauth.json.enc
-	./make.py decrypt_secret secrets/director-dev-secrets.py.enc
-	./make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
+	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
+	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
+	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc

@@ -30,13 +30,16 @@ def decrypt_secret(*args):
        STENCILA_DEVPASS=notasecret ./make.py decrypt_secret secrets/director-allauth.json.enc
     """
     inp = args[0]
-    out = inp[:-4] + '_'
+    out = inp[:-4]
     password = os.environ['STENCILA_DEVPASS']
     with open(inp, 'rb') as inp_file:
         ciphertext = inp_file.read()
-        with open(out, 'w') as out_file:
-            plaintext = simplecrypt.decrypt(password, ciphertext)
-            out_file.write(plaintext.decode('utf8'))
+        plaintext = simplecrypt.decrypt(password, ciphertext)
+        if not os.path.exists(out):
+            with open(out, 'w') as out_file:
+                out_file.write(plaintext.decode('utf8'))
+        else:
+            print('File already exists: ' + out)
 
 
 if __name__ == '__main__':
