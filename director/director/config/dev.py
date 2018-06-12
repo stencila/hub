@@ -24,11 +24,14 @@ class Dev(Common):
     def setup(cls):
         super(Dev, cls).setup()
         filename = "director_dev_secrets.py"
+        path = os.path.join(SECRETS_DIR, filename)
         try:
-            dev_secrets = imp.load_source(
-                "dev_secrets", os.path.join(SECRETS_DIR, filename))
+            dev_secrets = imp.load_source("dev_secrets", path)
         except ImportError as e:
             print("Could not import %s: %s" % (filename, e))
+            return
+        except FileNotFoundError as e:
+            print("File %s not found" % path)
             return
 
         for key in external_keys:
