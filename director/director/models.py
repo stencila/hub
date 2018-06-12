@@ -1,8 +1,8 @@
 from django.db import models
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.urls import reverse
 
-from .filestore import Client as FilestoreClient
 import jwt
 import sys
 import time
@@ -58,6 +58,12 @@ class StencilaProject(models.Model):
             name = "%s-%d" % (cls.base_project_name, i)
         return name
 
+    def prefix(self):
+        return str(self.uuid)
+
+    def path(self, filename):
+        return "%s/%s" % (self.prefix(), filename)
+
     def save(self, *args, **kwargs):
         address = 'stencila://%s/%s' % (self.owner, self.name)
         if self.project and self.project.address != address:
@@ -66,29 +72,30 @@ class StencilaProject(models.Model):
         super().save(*args, **kwargs)
 
     def upload(self, files):
-        fsclient = FilestoreClient()
-        fsclient.upload(self.uuid, files)
+        for f in files:
+            obj = default_storage.open(self.path(f.name), 'w')
+            obj.write(f.read())
+            obj.close()
+            f.close()
 
     def list_files(self):
-        fsclient = FilestoreClient()
-        prefix = str(self.uuid)
+        _, filenames = default_storage.listdir(self.prefix())
         files = []
-        for c in fsclient.list(prefix):
+        for f in filenames:
+            name = self.path(f)
             files.append(dict(
-                name=c.get('Key', None)[len(prefix)+1:],
-                size=c.get('Size', None),
-                last_modified=c.get('LastModified', None)))
+                name=f,
+                size=default_storage.size(name),
+                last_modified=default_storage.get_modified_time(name)))
         return files
 
     def get_file(self, filename, to):
-        prefix = str(self.uuid)
-        fsclient = FilestoreClient()
-        fsclient.download(prefix, filename, to)
+        f = default_storage.open(self.path(filename), 'rb')
+        to.write(f.read())
+        f.close()
 
     def delete_file(self, filename):
-        prefix = str(self.uuid)
-        fsclient = FilestoreClient()
-        fsclient.delete(prefix, filename)
+        default_storage.delete(self.path(filename))
 
     class Meta:
         unique_together = ('name', 'owner')

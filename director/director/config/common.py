@@ -40,6 +40,7 @@ class Common(Configuration):
         'allauth.socialaccount.providers.linkedin_oauth2',
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
+        'storages',
 
         'crispy_forms',
         'crispy_forms_bulma',
@@ -175,3 +176,4 @@ class Common(Configuration):
     AWS_ACCESS_KEY_ID = 'xxx'
     AWS_SECRET_ACCESS_KEY = 'yyy'
     AWS_STORAGE_BUCKET_NAME = 'uploads.stencila.io'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
