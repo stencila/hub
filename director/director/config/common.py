@@ -17,12 +17,22 @@ class Common(Configuration):
     @classmethod
     def setup(cls):
         super(Common, cls).setup()
+        try:
+            import secrets.director_dev_secrets as dev_secrets
+        except:
+            dev_secrets = {}
+        unset = []
         for key in external_keys:
             if key in os.environ:
                 value = os.environ[key]
+            elif key in dev_secrets:
+                value = dev_secrets[key]
             else:
-                value = 'not-a-secret'
+                unset.append(key)
+                continue
             setattr(cls, key, value)
+        if len(unset) > 0:
+            print("Missing settings: " + ",".join(unset))
 
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
