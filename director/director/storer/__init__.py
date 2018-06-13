@@ -115,7 +115,7 @@ class Storer(object):
         with open(log_file, 'w', 1) as stdout, redirect_stdout(stdout):
             copied = self.copy_files(source_folder)
 
-        edf_folder = os.path.join(key, 'edf')
+        edf_folder = os.path.join(key, '.edf')
         self.makedirs(edf_folder)
         cmd = ["stencila", "convert", source_folder, edf_folder]
         f = open(log_file, 'a', 1)

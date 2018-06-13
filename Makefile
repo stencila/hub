@@ -121,7 +121,7 @@ editor-build: editor/Dockerfile
 
 # Run Docker image
 editor-rundocker:
-	docker run -it --rm -p 4000:4000 -v $$PWD/editor/storage:/home/editor/storage:rw stencila/hub-editor
+	docker run -it --rm -p 4000:4000 -v $$PWD/storage:/home/editor/storage:rw stencila/hub-editor
 
 # Push Docker image to Docker hub
 editor-deploy: editor-build

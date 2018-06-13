@@ -5,7 +5,8 @@ from os.path import dirname
 from django.conf.locale.en import formats as en_formats
 from configurations import Configuration, values
 
-BASE_DIR = dirname(dirname(dirname(__file__)))
+DIRECTOR_DIR = dirname(dirname(dirname(__file__)))
+HUB_DIR = dirname(DIRECTOR_DIR)
 
 external_keys = (
     'SECRET_KEY', 'JWT_SECRET',
@@ -81,7 +82,7 @@ class Common(Configuration):
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [
-                os.path.join(BASE_DIR, 'templates')
+                os.path.join(DIRECTOR_DIR, 'templates')
             ],
             'APP_DIRS': True,
             'OPTIONS': {
@@ -103,7 +104,7 @@ class Common(Configuration):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'NAME': os.path.join(DIRECTOR_DIR, 'db.sqlite3'),
         }
     }
 
@@ -138,9 +139,9 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
     STATIC_URL = values.Value('/static/')
     STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'client')
+        os.path.join(DIRECTOR_DIR, 'client')
     ]
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    STATIC_ROOT = os.path.join(DIRECTOR_DIR, 'static')
 
     SITE_ID = 1
 
@@ -194,5 +195,7 @@ class Common(Configuration):
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
     UNCONVERTIBLE_FILE_TYPES = []
-    CONVERT_WORKDIR = '/var/lib/stencila/hub/working'
+    CONVERT_WORKDIR = os.path.join(HUB_DIR, 'storage')
     CONVERT_MAX_SIZE = 10485760
+
+

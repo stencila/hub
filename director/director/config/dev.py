@@ -2,10 +2,9 @@ import imp
 import os
 from os.path import dirname
 
-from .common import Common, BASE_DIR, external_keys
+from .common import Common, HUB_DIR, external_keys
 
-SECRETS_DIR = os.path.join(dirname(BASE_DIR), "secrets")
-
+SECRETS_DIR = os.path.join(HUB_DIR, "secrets")
 
 class Dev(Common):
 
