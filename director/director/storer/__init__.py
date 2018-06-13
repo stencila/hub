@@ -1,4 +1,6 @@
+import json
 import os
+from contextlib import redirect_stdout
 from django.conf import settings
 
 class Storer(object):
@@ -88,6 +90,7 @@ class Storer(object):
             remote_filename = os.path.join(remote_folder, self.file_name(f))
             self.copy_file(remote_filename, local_filename)
             copied.append(remote_filename)
+        self.log_json(dict(message="Copied %d files from /%s" % (len(copied), remote_folder)))
 
         for f in filelist:
             if self.file_type(f) != "dir":
@@ -98,11 +101,15 @@ class Storer(object):
 
         return copied
 
+    def log_json(self, data):
+        print(json.dumps(data))
+
     def ui_convert(self, key):
         source_folder = os.path.join(key, 'source')
         self.makedirs(source_folder)
-        copied = self.copy_files(source_folder)
-        # convert files
+        log_file = self.workdir_path(os.path.join(key, 'log.json'))
+        with open(log_file, 'w', 1) as stdout, redirect_stdout(stdout):
+            copied = self.copy_files(source_folder)
 
 from .github import GithubStorer
 from .dropbox import DropboxStorer

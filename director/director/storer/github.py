@@ -55,7 +55,9 @@ class GithubStorer(Storer):
             display_url = url
         response = requests.get(request_url)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, display_url))
+            self.log_json(dict(
+                message="Request failed",
+                url=display_url, status_code=response.status_code))
         return response
 
     def units(self):
