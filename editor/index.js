@@ -7,24 +7,24 @@ const url = `http://localhost:${port}`
 
 const app = express()
 
-// In development, serve the editor application HTML, CSS and JS
-// In production, this is served from elsewhere (e.g. a Google Storage bucket)
+// HTML served in development
 const indexFile = path.join(__dirname, 'index.html')
 app.use('/', function (req, res, next) {
   if(req.path == '/') return res.sendFile(indexFile)
   next()
 })
 
-const staticDir = path.join(__dirname, 'node_modules/stencila/dist')
-app.use('/static', express.static(staticDir))
+// In development, serve CSS and JS from local filesystem
+// In production, this is served from elsewhere (e.g. a Google Storage bucket)
+app.use('/static', express.static(__dirname))
+app.use('/static/dist', express.static(path.join(__dirname, 'node_modules/stencila/dist')))
 
 // Provide read (GET) and write (PUT) of DARs in the `storage` directory 
-const storageDir = path.join(__dirname, 'storage')
 darServer.serve(app, {
   port,
   serverUrl: url,
   apiUrl: '/storage',
-  rootDir: storageDir
+  rootDir: path.join(__dirname, 'storage')
 })
 
 app.listen(port, () => {

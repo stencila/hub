@@ -8,9 +8,11 @@ setup: director-setup director-env
 
 run: director-run
 
-build: director-build
+build: director-build editor-build
 
-deploy: director-deploy
+static: director-static editor-static
+
+deploy: director-deploy editor-deploy
 
 
 ####################################################################################
@@ -105,6 +107,13 @@ editor/node_modules: editor/package.json
 # Run locally
 editor-run: editor/node_modules
 	cd editor && npm start
+
+# Collect static files
+editor-static:
+	rm -rf editor/static
+	mkdir -p editor/static
+	cp editor/{index.html,editor.css,editor.js} editor/static/
+	cp -r editor/node_modules/stencila/dist/ editor/static/
 
 # Build Docker image
 editor-build: editor/Dockerfile

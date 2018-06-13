@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <title>Stencila Desktop</title>
-    <link rel="stylesheet" type="text/css" href="/static/stencila.css">
+    <link rel="stylesheet" type="text/css" href="/static/dist/stencila.css">
+    <link rel="stylesheet" type="text/css" href="/static/editor.css">
   </head>
   <body>
     <div id="loading">
@@ -12,72 +13,13 @@
         <div class="double-bounce2"></div>
       </div>
     </div>
-    <style>
-      #loading {
-        position: fixed;
-        top: 30%;
-        width: 100%;
-      }
-      .spinner {
-        position: relative;
-        width: 60px;
-        height: 60px;
-        margin: 0 auto;
-      }
-      .double-bounce1, .double-bounce2 {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background-color: #12ea10;
-        opacity: 0.6;
-        position: absolute;
-        top: 0;
-        left: 0;
-        
-        -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
-        animation: sk-bounce 2.0s infinite ease-in-out;
-      }
-      .double-bounce2 {
-        -webkit-animation-delay: -1.0s;
-        animation-delay: -1.0s;
-      }
-      @-webkit-keyframes sk-bounce {
-        0%, 100% { -webkit-transform: scale(0.0) }
-        50% { -webkit-transform: scale(1.0) }
-      }
-      @keyframes sk-bounce {
-        0%, 100% { 
-          transform: scale(0.0);
-          -webkit-transform: scale(0.0);
-        } 50% { 
-          transform: scale(1.0);
-          -webkit-transform: scale(1.0);
-        }
-      }
-    </style>
-
-    <script type="text/javascript" src="/static/lib/plotly.min.js"></script>
-    <script type="text/javascript" src="/static/lib/substance.js"></script>
-    <script type="text/javascript" src="/static/lib/texture.js"></script>
-    <script type="text/javascript" src="/static/lib/stencila-mini.js"></script>
-    <script type="text/javascript" src="/static/lib/stencila-envcore.min.js"></script>
-    <script type="text/javascript" src="/static/lib/stencila-libcore.min.js"></script>
-    <script type="text/javascript" src="/static/stencila.js"></script>
-
-    <script type="text/javascript">
-      window.addEventListener('load', () => {
-        // Mount the app
-        substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
-        stencila.StencilaWebApp.mount({
-          archiveId: substance.getQueryStringParam('archive') || 'reproducible-publication',
-          storageType: 'fs',
-          storageUrl: '/storage'
-        }, window.document.body);
-
-        // Remove the loading
-        var loading = document.getElementById('loading');
-        loading.parentNode.removeChild(loading)
-      });
-    </script>
+    <script type="text/javascript" src="/static/dist/lib/plotly.min.js"></script>
+    <script type="text/javascript" src="/static/dist/lib/substance.js"></script>
+    <script type="text/javascript" src="/static/dist/lib/texture.js"></script>
+    <script type="text/javascript" src="/static/dist/lib/stencila-mini.js"></script>
+    <script type="text/javascript" src="/static/dist/lib/stencila-envcore.min.js"></script>
+    <script type="text/javascript" src="/static/dist/lib/stencila-libcore.min.js"></script>
+    <script type="text/javascript" src="/static/dist/stencila.js"></script>
+    <script type="text/javascript" src="/static/editor.js"></script>
   </body>
 </html>

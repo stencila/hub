@@ -4,12 +4,13 @@
 # Ignore secrets
 secrets
 
-# Ignore virtualenvs and collected static files
-director/env
-director/static
+# Ignore director virtualenvs and collected static files
+/director/env
+/director/static
 
-# Ignore sqlite3 db file
+# Ignore dev sqlite3 db file
 director/db.sqlite3
 
-# Ignore editor
+# Ignore editor node modues and collected static files
 /editor/node_modules
+/editor/static
