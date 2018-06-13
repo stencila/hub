@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
 import allauth.account.views
+import hashlib
 import io
 import uuid
 from .auth import login_guest_user
@@ -79,8 +80,9 @@ class OpenAddress(TemplateView):
         project, _ = Project.objects.get_or_create(address=address)
         project.users.add(request.user)
 
-        key = uuid.uuid4()
-        storer.ui_convert(str(key)) # async here!
+        key = (request.session.session_key + address).encode('utf-8')
+        key = hashlib.sha1(key).hexdigest()
+        storer.ui_convert(key) # async here!
 
         try:
             cluster = Cluster.choose(user=request.user, project=project)
