@@ -25,6 +25,7 @@ class StencilaStorer(Storer):
         return self.get_stencila_project().list_files()
 
     def copy_file(self, filename, to):
+        to = self.workdir_path(to)
         outfile = open(to, 'wb')
         self.get_stencila_project().get_file(filename, outfile)
         outfile.close()

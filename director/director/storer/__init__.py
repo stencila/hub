@@ -52,11 +52,24 @@ class Storer(object):
     def file_size(self, f):
         return f['size']
 
+    def workdir_path(self, f):
+        return os.path.join(settings.CONVERT_WORKDIR, f)
+
     def copy_file(self, filename, to):
+        to = self.workdir_path(to)
         contents = self.file_contents(filename)
         outfile = open(to, 'wb')
         outfile.write(contents)
         outfile.close()
+
+    def makedirs(self, folder):
+        folder = self.workdir_path(folder)
+        if os.path.exists(folder):
+            return
+        try:
+            os.makedirs(folder)
+        except FileExistsError:
+            pass
 
     def copy_files(self, local_folder, remote_folder=''):
         filelist = self.get_folder_contents(remote_folder)
@@ -70,11 +83,7 @@ class Storer(object):
                     continue
             if self.file_size(f) > settings.CONVERT_MAX_SIZE:
                 continue
-            if not os.path.exists(local_folder):
-                try:
-                    os.makedirs(local_folder)
-                except FileExistsError:
-                    pass
+            self.makedirs(local_folder)
             local_filename = os.path.join(local_folder, self.file_name(f))
             remote_filename = os.path.join(remote_folder, self.file_name(f))
             self.copy_file(remote_filename, local_filename)
@@ -90,8 +99,8 @@ class Storer(object):
         return copied
 
     def ui_convert(self, key):
-        source_folder = os.path.join(settings.CONVERT_WORKDIR, key, 'source')
-        os.makedirs(source_folder)
+        source_folder = os.path.join(key, 'source')
+        self.makedirs(source_folder)
         copied = self.copy_files(source_folder)
         # convert files
 
