@@ -190,7 +190,7 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
     CRISPY_TEMPLATE_PACK = 'bulma'
 
-    # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
     CONVERTIBLE_FILE_TYPES = ('.md', '.markdown', '.txt')
