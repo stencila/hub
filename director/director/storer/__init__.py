@@ -1,5 +1,8 @@
+import datetime
 import json
 import os
+import subprocess
+import sys
 from contextlib import redirect_stdout
 from django.conf import settings
 
@@ -102,6 +105,7 @@ class Storer(object):
         return copied
 
     def log_json(self, data):
+        data['time'] = datetime.datetime.now().isoformat()
         print(json.dumps(data))
 
     def ui_convert(self, key):
@@ -110,6 +114,14 @@ class Storer(object):
         log_file = self.workdir_path(os.path.join(key, 'log.json'))
         with open(log_file, 'w', 1) as stdout, redirect_stdout(stdout):
             copied = self.copy_files(source_folder)
+
+        edf_folder = os.path.join(key, 'edf')
+        self.makedirs(edf_folder)
+        cmd = ["stencila", "convert", source_folder, edf_folder]
+        f = open(log_file, 'a', 1)
+        p = subprocess.Popen(cmd, stdout=f, stderr=sys.stderr)
+        p.communicate()
+        f.close()
 
 from .github import GithubStorer
 from .dropbox import DropboxStorer
