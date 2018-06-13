@@ -65,10 +65,9 @@ class Storer(object):
         for f in filelist:
             if self.file_type(f) != "file":
                 continue
-            convertible = any(
-                [self.file_name(f).endswith(ext) for ext in settings.CONVERTIBLE_FILE_TYPES])
-            if not convertible:
-                continue
+            for ext in settings.UNCONVERTIBLE_FILE_TYPES:
+                if self.file_name(f).endswith(ext):
+                    continue
             if self.file_size(f) > settings.CONVERT_MAX_SIZE:
                 continue
             if not os.path.exists(local_folder):
