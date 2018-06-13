@@ -35,11 +35,33 @@ class GithubStorer(Storer):
     def profile_url(self):
         return self.account.extra_data.get('profile_url')
 
+    def add_site_oauth_params(self, url, censored=False):
+        if censored:
+            client_id = "xxxx"
+            client_secret = "yyyy"
+        else:
+            gh = SocialApp.objects.get_current('github')
+            client_id = gh.client_id
+            client_secret = gh.secret
+        sep = '&' if '?' in url else '?'
+        return url + sep + "client_id={}&client_secret={}".format(client_id, client_secret)
+
+    def api_get(self, url, authenticate=True):
+        if authenticate:
+            request_url = self.add_site_oauth_params(url)
+            display_url = self.add_site_oauth_params(url, censored=True)
+        else:
+            request_url = url
+            display_url = url
+        response = requests.get(request_url)
+        if response.status_code != 200:
+            print("{} {}".format(response.status_code, display_url))
+        return response
+
     def units(self):
         repos_url = self.account.extra_data.get('repos_url')
-        response = requests.get(repos_url)
+        response = self.api_get(repos_url)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, repos_url))
             return
         repos = json.loads(response.content.decode('utf-8'))
         units = []
@@ -53,19 +75,13 @@ class GithubStorer(Storer):
                 open_form=open_form, browse_form=browse_form))
         return units
 
-    def site_oauth_params(self):
-        gh = SocialApp.objects.get_current('github')
-        return "client_id={}&client_secret={}".format(gh.client_id, gh.secret)
-
     def refs(self):
         if not self.repo or not self.owner:
             return
-        base_url = "https://api.github.com/repos/{}/{}/branches".format(
+        branches_url = "https://api.github.com/repos/{}/{}/branches".format(
             self.owner, self.repo)
-        branches_url = base_url + "?" + self.site_oauth_params()
-        response = requests.get(branches_url)
+        response = self.api_get(branches_url)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, base_url + "?..."))
             return
         branches = json.loads(response.content.decode('utf-8'))
         ref_choices = [(b['name'], b['name']) for b in branches]
@@ -82,9 +98,8 @@ class GithubStorer(Storer):
         folder = self.folder if subfolder is None else subfolder
         contents_url = "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
             self.owner, self.repo, folder, self.ref)
-        response = requests.get(contents_url)
+        response = self.api_get(contents_url)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, contents_url))
             return
         return json.loads(response.content.decode('utf-8'))
 
@@ -123,9 +138,8 @@ class GithubStorer(Storer):
     def file_contents(self, filename):
         contents_url = "https://raw.githubusercontent.com/{}/{}/{}/{}".format(
             self.owner, self.repo, self.ref, filename)
-        response = requests.get(contents_url)
+        response = self.api_get(contents_url, authenticate=False)
         if response.status_code != 200:
-            print("{} {}".format(response.status_code, contents_url))
             return
         return response.content
 
