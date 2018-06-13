@@ -79,6 +79,9 @@ class OpenAddress(TemplateView):
         project, _ = Project.objects.get_or_create(address=address)
         project.users.add(request.user)
 
+        key = uuid.uuid4()
+        storer.ui_convert(str(key)) # async here!
+
         try:
             cluster = Cluster.choose(user=request.user, project=project)
         except ClusterError as e:
@@ -87,6 +90,7 @@ class OpenAddress(TemplateView):
         return self.render_to_response(dict(
             address=address,
             cluster=cluster,
+            key=key,
         ))
 
     def post(self, request, address):

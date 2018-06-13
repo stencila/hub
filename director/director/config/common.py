@@ -192,3 +192,7 @@ class Common(Configuration):
 
     # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+    CONVERTIBLE_FILE_TYPES = ('.md', '.markdown', '.txt')
+    CONVERT_WORKDIR = '/var/lib/stencila/hub/working'
+    CONVERT_MAX_SIZE = 10485760

@@ -1,7 +1,9 @@
 import json
+import os
 import re
 
 from django import forms
+from django.conf import settings
 import requests
 
 from allauth.socialaccount.models import SocialApp
@@ -76,15 +78,18 @@ class GithubStorer(Storer):
         return "github://{}/{}".format(self.owner, self.repo) \
           + folder + "@" + self.ref
 
-    def folder_contents(self):
+    def get_folder_contents(self, subfolder=None):
+        folder = self.folder if subfolder is None else subfolder
         contents_url = "https://api.github.com/repos/{}/{}/contents/{}?ref={}".format(
-            self.owner, self.repo, self.folder, self.ref)
+            self.owner, self.repo, folder, self.ref)
         response = requests.get(contents_url)
         if response.status_code != 200:
             print("{} {}".format(response.status_code, contents_url))
             return
+        return json.loads(response.content.decode('utf-8'))
 
-        contents = json.loads(response.content.decode('utf-8'))
+    def folder_contents(self):
+        contents = self.get_folder_contents()
         result = []
         keys = ('name', 'type', 'size')
 
@@ -114,6 +119,15 @@ class GithubStorer(Storer):
 
     def get_refs_form(self, refs, initial):
         return GithubStorerRefsForm(refs, initial)
+
+    def file_contents(self, filename):
+        contents_url = "https://raw.githubusercontent.com/{}/{}/{}/{}".format(
+            self.owner, self.repo, self.ref, filename)
+        response = requests.get(contents_url)
+        if response.status_code != 200:
+            print("{} {}".format(response.status_code, contents_url))
+            return
+        return response.content
 
 class GithubStorerAddressForm(forms.Form):
     ref_changed = forms.BooleanField(widget=forms.HiddenInput(), required=False)
