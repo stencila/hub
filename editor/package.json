@@ -1,0 +1,15 @@
+{
+  "name": "stencila-hub-editor",
+  "version": "1.0.0",
+  "description": "Document editor provided at http://hub.stenci.la",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dar-server": "0.5.1",
+    "express": "^4.16.3",
+    "stencila": "0.28.2"
+  }
+}

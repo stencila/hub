@@ -11,6 +11,5 @@ director/static
 # Ignore sqlite3 db file
 director/db.sqlite3
 
-# Ignore stencila outputs
-director/client/stencila
-
+# Ignore editor
+/editor/node_modules

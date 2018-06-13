@@ -95,6 +95,31 @@ director-deploy: director-build
 
 
 ####################################################################################
+# Editor
+
+# Setup locally
+editor/node_modules: editor/package.json
+	cd editor && npm install
+	touch $@
+
+# Run locally
+editor-run: editor/node_modules
+	cd editor && npm start
+
+# Build Docker image
+editor-build: editor/Dockerfile
+	docker build --tag stencila/hub-editor editor
+
+# Run Docker image
+editor-rundocker:
+	docker run -it --rm -p 4000:4000 -v $$PWD/editor/storage:/home/editor/storage:rw stencila/hub-editor
+
+# Push Docker image to Docker hub
+editor-deploy: editor-build
+	docker push stencila/hub-editor
+
+
+####################################################################################
 # Secrets
 
 secrets-encrypt:
