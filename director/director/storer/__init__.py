@@ -58,13 +58,12 @@ class Storer(object):
         outfile.write(contents)
         outfile.close()
 
-    def copy_files(self, local_folder, remote_folder='', copied=[]):
+    def copy_files(self, local_folder, remote_folder=''):
         filelist = self.get_folder_contents(remote_folder)
+        copied = []
+
         for f in filelist:
-            if self.file_type(f) == "dir":
-                remote_subfolder = os.path.join(remote_folder, self.file_name(f))
-                local_subfolder = os.path.join(local_folder, self.file_name(f))
-                copied += self.copy_files(local_subfolder, remote_subfolder, copied)
+            if self.file_type(f) != "file":
                 continue
             convertible = any(
                 [self.file_name(f).endswith(ext) for ext in settings.CONVERTIBLE_FILE_TYPES])
@@ -80,7 +79,15 @@ class Storer(object):
             local_filename = os.path.join(local_folder, self.file_name(f))
             remote_filename = os.path.join(remote_folder, self.file_name(f))
             self.copy_file(remote_filename, local_filename)
-            copied.append(f)
+            copied.append(remote_filename)
+
+        for f in filelist:
+            if self.file_type(f) != "dir":
+                continue
+            remote_subfolder = os.path.join(remote_folder, self.file_name(f))
+            local_subfolder = os.path.join(local_folder, self.file_name(f))
+            copied += self.copy_files(local_subfolder, remote_subfolder)
+
         return copied
 
     def ui_convert(self, key):
