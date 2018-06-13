@@ -91,9 +91,9 @@ class Storer(object):
         return copied
 
     def ui_convert(self, key):
-        folder = os.path.join(settings.CONVERT_WORKDIR, key)
-        os.makedirs(folder)
-        copied = self.copy_files(folder)
+        source_folder = os.path.join(settings.CONVERT_WORKDIR, key, 'source')
+        os.makedirs(source_folder)
+        copied = self.copy_files(source_folder)
         # convert files
 
 from .github import GithubStorer
