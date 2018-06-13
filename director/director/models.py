@@ -13,13 +13,6 @@ class Project(models.Model):
     gallery = models.BooleanField(default=False)
     users = models.ManyToManyField('auth.User', related_name='projects')
 
-    @classmethod
-    def open(cls, user, address):
-        project, _ = Project.objects.get_or_create(address=address)
-        project.users.add(user)
-        cluster = Cluster.choose(user=user, project=project)
-        return cluster.host, cluster.jwt(user)
-
     class Meta:
         app_label = 'director'
 
@@ -121,6 +114,9 @@ class StencilaProject(models.Model):
     class Meta:
         unique_together = ('name', 'owner')
 
+class ClusterError(RuntimeError):
+    pass
+
 class Cluster(models.Model):
     host = models.TextField(unique=True)
 
@@ -133,7 +129,7 @@ class Cluster(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            sys.stderr.write("No clusters\n")
+            raise ClusterError("No cluster available")
 
     class Meta:
         app_label = 'director'
