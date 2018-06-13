@@ -9,7 +9,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "dar-server": "0.5.1",
-    "express": "^4.16.3",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
     "stencila": "0.28.2"
   }
 }

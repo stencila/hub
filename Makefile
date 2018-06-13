@@ -109,7 +109,7 @@ editor-run: editor/node_modules
 	cd editor && npm start
 
 # Collect static files
-editor-static:
+editor-static: editor/node_modules
 	rm -rf editor/static
 	mkdir -p editor/static
 	cp editor/{index.html,editor.css,editor.js} editor/static/
