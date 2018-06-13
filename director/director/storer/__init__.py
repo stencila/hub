@@ -115,9 +115,11 @@ class Storer(object):
         with open(log_file, 'w', 1) as stdout, redirect_stdout(stdout):
             copied = self.copy_files(source_folder)
 
-        edf_folder = os.path.join(key, '.edf')
-        self.makedirs(edf_folder)
-        cmd = ["stencila", "convert", source_folder, edf_folder]
+        dar_folder = os.path.join(key, '.dar')
+        self.makedirs(dar_folder)
+        cmd = [
+            "stencila", "convert", self.workdir_path(source_folder),
+            self.workdir_path(dar_folder)]
         f = open(log_file, 'a', 1)
         p = subprocess.Popen(cmd, stdout=f, stderr=sys.stderr)
         p.communicate()
