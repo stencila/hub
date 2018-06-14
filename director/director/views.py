@@ -6,7 +6,7 @@ from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth import logout
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
 from django.views import static
@@ -19,6 +19,14 @@ from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster, ClusterError
 
+class SigninRequiredMixin(AccessMixin):
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if request.user.email == 'guest':
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
 
 class Error404View(TemplateView):
     template_name = 'error404.html'
@@ -126,7 +134,7 @@ class GalleryView(ListView):
     def get_queryset(self):
         return Project.objects.filter(gallery=True)[:12]
 
-class ProjectListView(LoginRequiredMixin, ListView):
+class ProjectListView(SigninRequiredMixin, LoginRequiredMixin, ListView):
     template_name = 'project_list.html'
     model = Project
 
@@ -158,7 +166,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
             project.users.remove(request.user)
         return redirect('list-projects')
 
-class StorerProjectBlock(TemplateView):
+class StorerProjectBlock(SigninRequiredMixin, TemplateView):
     template_name = 'storer_unit_list.html'
 
     def get_context_data(self):
@@ -173,7 +181,7 @@ class StorerProjectBlock(TemplateView):
 
         return self.render_to_response(self.get_context_data())
 
-class BrowseFolder(TemplateView):
+class BrowseFolder(SigninRequiredMixin, TemplateView):
     template_name = 'storer_browse_folder.html'
 
     def get(self, request, address):
@@ -201,7 +209,7 @@ class BrowseFolder(TemplateView):
         context['address'] = form.get_address()
         return self.render_to_response(context)
 
-class StorerRefsBlock(TemplateView):
+class StorerRefsBlock(SigninRequiredMixin, TemplateView):
     template_name = 'storer_refs_block.html'
 
     def get_context_data(self):
@@ -214,7 +222,7 @@ class StorerRefsBlock(TemplateView):
         self.storer.account = request.user.socialaccount_set.get(provider=self.storer.code)
         return self.render_to_response(self.get_context_data())
 
-class StorerFolderBlock(TemplateView):
+class StorerFolderBlock(SigninRequiredMixin, TemplateView):
     template_name = 'storer_folder_block.html'
 
     def get_context_data(self):
@@ -227,7 +235,7 @@ class StorerFolderBlock(TemplateView):
         self.storer.account = request.user.socialaccount_set.get(provider=self.storer.code)
         return self.render_to_response(self.get_context_data())
 
-class StencilaProjectFileView(DetailView):
+class StencilaProjectFileView(SigninRequiredMixin, DetailView):
     model = StencilaProject
 
     def get(self, request, **kwargs):
@@ -243,7 +251,7 @@ class StencilaProjectFileView(DetailView):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
-class StencilaProjectFilesBlock(DetailView):
+class StencilaProjectFilesBlock(SigninRequiredMixin, DetailView):
     model = StencilaProject
     template_name = 'project_filelist_block.html'
 
@@ -253,7 +261,7 @@ class StencilaProjectFilesBlock(DetailView):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
 
-class StencilaProjectDetailView(DetailView):
+class StencilaProjectDetailView(SigninRequiredMixin, DetailView):
     model = StencilaProject
     template_name = 'project_files.html'
 
@@ -308,16 +316,7 @@ class StencilaProjectDetailView(DetailView):
 
         return self.render_to_response(context)
 
-class CreateStencilaProjectView(View):
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('home')
-        if request.user.email == 'guest':
-            logout(request)
-            return redirect('user_signup')
-        # TODO Check email address is verified
-        return super(CreateStencilaProjectView, self).dispatch(request, *args, **kwargs)
+class CreateStencilaProjectView(SigninRequiredMixin, View):
 
     def create_project(self):
         return StencilaProject.get_or_create_for_user(
