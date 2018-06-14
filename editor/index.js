@@ -16,7 +16,7 @@ app.use('/', function (req, res, next) {
 
 // In development, serve CSS and JS from local filesystem
 // In production, this is served from elsewhere (e.g. a Google Storage bucket)
-app.use('/static', express.static(__dirname, 'static'))
+app.use('/static', express.static(path.join(__dirname, 'static')))
 
 // Provide read (GET) and write (PUT) of DARs in the `storage` directory 
 darServer.serve(app, {
