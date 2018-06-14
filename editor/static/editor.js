@@ -4,7 +4,7 @@ window.addEventListener('load', () => {
   stencila.StencilaWebApp.mount({
     archiveId: substance.getQueryStringParam('project') + '.dar',
     storageType: 'fs',
-    storageUrl: '/storage'
+    storageUrl: '/edit/storage'
   }, window.document.body);
 
   // Remove the loading
