@@ -104,9 +104,9 @@ class Storer(object):
 
         return copied
 
-    def log_json(self, data):
+    def log_json(self, data, file=None):
         data['time'] = datetime.datetime.now().isoformat()
-        print(json.dumps(data))
+        print(json.dumps(data), file=file)
 
     def ui_convert(self, key):
         source_folder = os.path.join(key, 'source')
@@ -120,9 +120,16 @@ class Storer(object):
         cmd = [
             "stencila", "convert", self.workdir_path(source_folder),
             self.workdir_path(dar_folder)]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        print(stdout, file=sys.stdout)
+        print(stderr, file=sys.stderr)
+
+        log_data = dict(
+            return_code=p.returncode,
+            message="Convert returned")
         f = open(log_file, 'a', 1)
-        p = subprocess.Popen(cmd, stdout=f, stderr=sys.stderr)
-        p.communicate()
+        self.log_json(log_data, file=f)
         f.close()
 
 from .github import GithubStorer
