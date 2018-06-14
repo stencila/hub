@@ -84,6 +84,9 @@ class OpenAddress(TemplateView):
 
         key = (request.session.session_key + address).encode('utf-8')
         key = hashlib.sha1(key).hexdigest()
+        if not 'open' in request.session:
+            request.session['open'] = []
+        request.session['open'].append(key)
         storer.ui_convert(key) # async here!
 
         try:
@@ -111,6 +114,8 @@ class OpenAddress(TemplateView):
 class OpenProgress(View):
 
     def get(self, request, key):
+        if not key in request.session.get('open', []):
+            return JsonResponse(dict(status=404, error="Not found"))
         rel_path = os.path.join(key, 'log.json')
         full_path = os.path.join(settings.CONVERT_WORKDIR, rel_path)
         if not os.path.exists(full_path):
