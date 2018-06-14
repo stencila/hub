@@ -118,12 +118,12 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         project, _ = Project.objects.get_or_create(address=address)
         project.users.add(request.user)
 
-        key = (request.session.session_key + address).encode('utf-8')
-        key = hashlib.sha1(key).hexdigest()
+        project_session_id = (request.session.session_key + address).encode('utf-8')
+        project_session_id = hashlib.sha1(project_session_id).hexdigest()
         if not 'open' in request.session:
             request.session['open'] = []
-        request.session['open'].append(key)
-        storer.ui_convert(key) # async here!
+        request.session['open'].append(project_session_id)
+        storer.ui_convert(project_session_id) # async here!
 
         try:
             cluster = Cluster.choose(user=request.user, project=project)
@@ -133,7 +133,7 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         return self.render_to_response(dict(
             address=address,
             cluster=cluster,
-            key=key,
+            project_session_id=project_session_id,
         ))
 
     def post(self, request, address):

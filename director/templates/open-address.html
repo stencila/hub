@@ -7,7 +7,7 @@
 {% block main %}
 <script>
   // Redirect to the editor
-  window.location = "/edit?project={{ key }}"; // &hosts='{{ cluster.host }}/?token={{ cluster.token }}';
+  window.location = "/edit?project={{ project_session_id }}"; // &hosts='{{ cluster.host }}/?token={{ cluster.token }}';
 </script>
 {% endblock %}
 
