@@ -44,8 +44,11 @@ class BetaTokenRequiredMixin(AccessMixin):
         return 'beta-token'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated \
-            and not request.session.get('beta_token', '') in BETA_TOKENS:
+        if request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+        if request.GET.get('token', '') in BETA_TOKENS:
+            request.session['beta_token'] = request.GET['token']
+        if not request.session.get('beta_token', '') in BETA_TOKENS:
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
