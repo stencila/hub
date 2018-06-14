@@ -12,6 +12,7 @@ google-api-python-client==1.6.5
 googleapis-common-protos==1.5.3
 google-auth==1.5.0
 google-cloud-storage==1.10.0
+psycopg2==2.7.4
 pyjwt==1.5.3
 pytz==2018.3
 oauthlib==2.0.6
