@@ -8,11 +8,11 @@ setup: director-setup director-env
 
 run: director-run
 
-build: director-build editor-build
+build: router-build director-build editor-build
 
 static: director-static editor-static
 
-deploy: director-deploy editor-deploy
+deploy: router-build director-deploy editor-deploy
 
 
 ####################################################################################
@@ -102,6 +102,8 @@ director-rundocker:
 		-e GS_PROJECT_ID=some-project-id \
 		-e GS_CREDENTIALS=dome-creds \
 		-e GS_BUCKET_NAME=a-name \
+		-v $$PWD/storage:/home/app/storage \
+		-v $$PWD/secrets:/home/app/secrets \
 		-p 8080:8080 -it --rm stencila/hub-director
 
 # Interact with the Docker image
