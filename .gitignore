@@ -14,4 +14,4 @@ director/db.sqlite3
 
 # Ignore editor node modues and collected static files
 /editor/node_modules
-/editor/static
+/editor/static/dist

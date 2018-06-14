@@ -110,13 +110,11 @@ editor-run: editor/node_modules
 
 # Collect static files
 editor-static: editor/node_modules
-	rm -rf editor/static
-	mkdir -p editor/static
-	cp editor/{index.html,editor.css,editor.js} editor/static/
+	rm -rf editor/static/dist
 	cp -r editor/node_modules/stencila/dist/ editor/static/
 
 # Build Docker image
-editor-build: editor/Dockerfile
+editor-build: editor/Dockerfile editor-static
 	docker build --tag stencila/hub-editor editor
 
 # Run Docker image
