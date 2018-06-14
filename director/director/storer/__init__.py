@@ -137,11 +137,12 @@ class Storer(object):
         #print(stderr, file=sys.stderr)
 
         # Create a symlink from `storage` to the project's `.dar`
-        # This is necessary because the editor does not accept subdirectories
+        # This is necessary because the `dar-server` in `editor` does not
+        # seem to accept subdirectories
         dar_link = key + '.dar'
         dar_link_path = self.workdir_path(dar_link)
         if not os.path.exists(dar_link_path):
-            os.symlink(self.workdir_path(dar_folder), dar_link_path)
+            os.symlink(dar_folder, dar_link_path)
 
         log_data = dict(
             return_code=p.returncode,
