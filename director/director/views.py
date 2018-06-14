@@ -21,6 +21,11 @@ from .models import Project, StencilaProject, Cluster, ClusterError
 
 class SigninRequiredMixin(AccessMixin):
 
+    def get_login_url(self):
+        if self.request.user.is_authenticated and self.request.user.email == 'guest':
+            return 'user_join'
+        return 'user_signin'
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
