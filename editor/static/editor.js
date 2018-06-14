@@ -2,7 +2,7 @@ window.addEventListener('load', () => {
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
   stencila.StencilaWebApp.mount({
-    archiveId: substance.getQueryStringParam('archive') || 'reproducible-publication',
+    archiveId: substance.getQueryStringParam('project'),
     storageType: 'fs',
     storageUrl: '/storage'
   }, window.document.body);
