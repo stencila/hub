@@ -104,7 +104,7 @@ director-rundocker:
 		-e GS_BUCKET_NAME=a-name \
 		-v $$PWD/storage:/app/storage \
 		-v $$PWD/secrets:/app/secrets \
-		-p 8080:8080 -it --rm stencila/hub-director
+		-p 8000:8000 -it --rm stencila/hub-director
 
 # Interact with the Docker image
 director-interact:
