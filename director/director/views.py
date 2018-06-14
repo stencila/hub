@@ -64,10 +64,6 @@ class UserSettingsView(TemplateView):
     template_name = "user/settings.html"
 
 
-class OpenInput(TemplateView):
-    template_name = 'open-input.html'
-
-
 class OpenAddress(TemplateView):
     template_name = 'open-address.html'
 
@@ -323,8 +319,17 @@ class CreateStencilaProjectView(View):
         # TODO Check email address is verified
         return super(CreateStencilaProjectView, self).dispatch(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        stencila_project = StencilaProject.get_or_create_for_user(
+    def create_project(self):
+        return StencilaProject.get_or_create_for_user(
             self.request.user, uuid=uuid4())
+
+    def post(self, request, *args, **kwargs):
+        stencila_project = self.create_project()
         return redirect(
             'project-files', user=request.user.username, project=stencila_project.name)
+
+class OpenNew(CreateStencilaProjectView):
+
+    def post(self, request, *args, **kwargs):
+        stencila_project = self.create_project()
+        return redirect('open', address=stencila_project.project.address)

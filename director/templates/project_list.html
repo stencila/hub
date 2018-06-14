@@ -19,7 +19,11 @@ $(document).ready(function(){
 {% block content %}
 <form style="float: right;" method="post" action="{% url 'create-project' %}">
   {% csrf_token %}
-  <input type="submit" value="New project">
+  <input type="submit" value="Upload project">
+</form>
+<form style="float: right;" method="post" action="{% url 'open-new' %}">
+  {% csrf_token %}
+  <input type="submit" value="Edit new project">
 </form>
 <h2>Projects</h2>
 <table>
