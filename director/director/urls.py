@@ -55,7 +55,7 @@ urlpatterns = [
     path('me/signup/', views.UserSignupView.as_view(), name='user_signup'),
     path('me/signin/', views.UserSigninView.as_view(), name='user_signin'),
     path('me/signout/', views.UserSignoutView.as_view(), name='user_signout'),
-    path('me/join/', views.UserJoinView.as_view(), name='user_join'),
+    # path('me/join/', views.UserJoinView.as_view(), name='user_join'),
     path('me/', include('allauth.urls')),
 
     path('', views.GalleryView.as_view(), name='home'),
