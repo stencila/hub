@@ -41,10 +41,6 @@ class Error500View(TemplateView):
     template_name = 'error500.html'
 
 
-class FrontPageView(TemplateView):
-    template_name = 'index.html'
-
-
 class UserSignupView(allauth.account.views.SignupView):
 
     template_name = "user/signup.html"

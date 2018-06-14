@@ -20,7 +20,6 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('gallery', views.GalleryView.as_view(), name='gallery'),
     path('open/new/', views.OpenNew.as_view(), name='open-new'),
     path('open/log/<key>/', views.OpenProgress.as_view(), name='open-progress'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
@@ -59,7 +58,7 @@ urlpatterns = [
     path('me/join/', views.UserJoinView.as_view(), name='user_join'),
     path('me/', include('allauth.urls')),
 
-    path('', views.FrontPageView.as_view(), name='home'),
+    path('', views.GalleryView.as_view(), name='home'),
 ]
 
 handler404 = views.Error404View.as_view()
