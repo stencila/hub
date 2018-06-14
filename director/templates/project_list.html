@@ -17,6 +17,10 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}
+<form style="float: right;" method="post" action="{% url 'create-project' %}">
+  {% csrf_token %}
+  <input type="submit" value="New project">
+</form>
 <h2>Projects</h2>
 <table>
   <tbody>

@@ -297,8 +297,7 @@ class StencilaProjectDetailView(DetailView):
             context['form'] = StencilaProjectForm(instance=self.object)
         return self.render_to_response(context)
 
-class CreateStencilaProjectView(TemplateView):
-    template_name = 'project_form.html'
+class CreateStencilaProjectView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -309,20 +308,8 @@ class CreateStencilaProjectView(TemplateView):
         # TODO Check email address is verified
         return super(CreateStencilaProjectView, self).dispatch(request, *args, **kwargs)
 
-    def get(self, *args, **kwargs):
-        context = dict(form=CreateStencilaProjectForm(), uuid=uuid4())
-        return self.render_to_response(context)
-
-    def post(self, *args, **kwargs):
-        form = CreateStencilaProjectForm(self.request.POST)
-        files = self.request.FILES.getlist('file')
-        uuid = self.request.POST.get('uuid')
-        if form.is_valid():
-            stencila_project = StencilaProject.get_or_create_for_user(self.request.user, uuid)
-            stencila_project.upload(files)
-            stencila_project.project.users.add(self.request.user)
-            return redirect(
-                'project-files',
-                user=self.request.user.username,
-                project=stencila_project.name)
-        return self.render_to_response(dict(form=form))
+    def post(self, request, *args, **kwargs):
+        stencila_project = StencilaProject.get_or_create_for_user(
+            self.request.user, uuid=uuid4())
+        return redirect(
+            'project-files', user=request.user.username, project=stencila_project.name)
