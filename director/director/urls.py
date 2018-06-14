@@ -58,6 +58,7 @@ urlpatterns = [
     # path('me/join/', views.UserJoinView.as_view(), name='user_join'),
     path('me/', include('allauth.urls')),
 
+    path('token/', views.BetaTokenView.as_view(), name='beta-token'),
     path('', views.GalleryView.as_view(), name='home'),
 ]
 

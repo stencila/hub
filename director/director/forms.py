@@ -35,3 +35,5 @@ class StencilaProjectRenameForm(forms.ModelForm):
         model = StencilaProject
         fields = ('name',)
 
+class BetaTokenForm(forms.Form):
+    token = forms.CharField()

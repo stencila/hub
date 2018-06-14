@@ -8,14 +8,16 @@ from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.contrib.auth.models import User
-from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
+from django.views.generic import View, TemplateView, ListView, DetailView, CreateView, \
+     FormView
 from django.views import static
+from django.urls import reverse
 from uuid import uuid4
 
 import allauth.account.views
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
-     StencilaProjectUploadForm
+     StencilaProjectUploadForm, BetaTokenForm
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster, ClusterError
 
@@ -34,6 +36,19 @@ class SigninRequiredMixin(AccessMixin):
             return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
+BETA_TOKENS = ['abc123']
+
+class BetaTokenRequiredMixin(AccessMixin):
+
+    def get_login_url(self):
+        return 'beta-token'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated \
+            and not request.session.get('beta_token', '') in BETA_TOKENS:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
 class Error404View(TemplateView):
     template_name = 'error404.html'
 
@@ -42,13 +57,27 @@ class Error500View(TemplateView):
     template_name = 'error500.html'
 
 
-class UserSignupView(allauth.account.views.SignupView):
+class BetaTokenView(FormView):
+    template_name = 'beta_token.html'
+    form_class = BetaTokenForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid() and form.cleaned_data['token'] in BETA_TOKENS:
+            request.session['beta_token'] = form.cleaned_data['token']
+            url = request.GET.get('next', reverse('user_signin'))
+            return redirect(url)
+        else:
+            form.add_error("token", "Incorrect token")
+        return self.render_to_response(dict(form=form))
+
+class UserSignupView(BetaTokenRequiredMixin, allauth.account.views.SignupView):
 
     template_name = "user/signup.html"
     form_class = UserSignupForm
 
 
-class UserSigninView(allauth.account.views.LoginView):
+class UserSigninView(BetaTokenRequiredMixin, allauth.account.views.LoginView):
 
     template_name = "user/signin.html"
     form_class = UserSigninForm
