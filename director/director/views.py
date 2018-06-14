@@ -1,4 +1,8 @@
+import hashlib
+import io
+import os
 import re
+import uuid
 from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
@@ -6,10 +10,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
+from django.views import static
 import allauth.account.views
-import hashlib
-import io
-import uuid
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
      StencilaProjectForm
@@ -105,6 +107,17 @@ class OpenAddress(TemplateView):
         if form.is_valid():
             return redirect('open', address=form.get_address())
         raise Http404
+
+class OpenProgress(View):
+
+    def get(self, request, key):
+        rel_path = os.path.join(key, 'log.json')
+        full_path = os.path.join(settings.CONVERT_WORKDIR, rel_path)
+        if not os.path.exists(full_path):
+            return JsonResponse(dict(status=404, error="Not found"))
+        response = static.serve(request, rel_path, document_root=settings.CONVERT_WORKDIR)
+        response["Content-Type"] = "text/plain"
+        return response
 
 class GalleryView(ListView):
     template_name = 'gallery.html'
