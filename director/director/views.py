@@ -2,7 +2,6 @@ import hashlib
 import io
 import os
 import re
-import uuid
 from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
@@ -11,6 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic import View, TemplateView, ListView, DetailView, CreateView
 from django.views import static
+from uuid import uuid4
+
 import allauth.account.views
 from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
@@ -309,7 +310,7 @@ class CreateStencilaProjectView(TemplateView):
         return super(CreateStencilaProjectView, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
-        context = dict(form=CreateStencilaProjectForm(), uuid=uuid.uuid4())
+        context = dict(form=CreateStencilaProjectForm(), uuid=uuid4())
         return self.render_to_response(context)
 
     def post(self, *args, **kwargs):
