@@ -104,14 +104,14 @@ editor/node_modules: editor/package.json
 	cd editor && npm install
 	touch $@
 
-# Run locally
-editor-run: editor/node_modules
-	cd editor && npm start
-
 # Collect static files
 editor-static: editor/node_modules
 	rm -rf editor/static/dist
 	cp -r editor/node_modules/stencila/dist/ editor/static/
+
+# Run locally
+editor-run: editor-static
+	cd editor && npm start
 
 # Build Docker image
 editor-build: editor/Dockerfile editor-static
