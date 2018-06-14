@@ -115,15 +115,33 @@ class Storer(object):
         with open(log_file, 'w', 1) as stdout, redirect_stdout(stdout):
             copied = self.copy_files(source_folder)
 
-        dar_folder = os.path.join(key, '.dar')
-        self.makedirs(dar_folder)
+        # Create an EDF which will be used as the canonical
+        # source for all conversions
+        edf_folder = os.path.join(key, '.edf')
         cmd = [
-            "stencila", "convert", self.workdir_path(source_folder),
+            "stencila", "convert",
+            self.workdir_path(source_folder),
+            self.workdir_path(edf_folder)]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+
+        # Create a DAR for the editor to work on
+        dar_folder = os.path.join(key, '.dar')
+        cmd = [
+            "stencila", "convert",
+            self.workdir_path(edf_folder),
             self.workdir_path(dar_folder)]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
-        print(stdout, file=sys.stdout)
-        print(stderr, file=sys.stderr)
+        #print(stdout, file=sys.stdout)
+        #print(stderr, file=sys.stderr)
+
+        # Create a symlink from `storage` to the project's `.dar`
+        # This is necessary because the editor does not accept subdirectories
+        dar_link = key + '.dar'
+        dar_link_path = self.workdir_path(dar_link)
+        if not os.path.exists(dar_link_path):
+            os.symlink(self.workdir_path(dar_folder), dar_link_path)
 
         log_data = dict(
             return_code=p.returncode,

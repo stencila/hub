@@ -1,29 +1,13 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block styles %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{% static 'stencila/stencila.css' %}">
-  <style type="text/css">
-    {# Styling necessary to contain the application within div#app #}
-    #app {
-      border-top: 1px solid #CCC;
-      height: calc(100vh - 50px);
-      position: relative;
-    }
-  </style>
 {% endblock %}
 
 {% block main %}
-<div id="app"></div>
-
 <script>
-  window.location = "/edit@stencila?archive={{ key }}.dar";
-  //window.STENCILA_PROJECT = '{{ address }}';
-  //window.STENCILA_STORAGE = 'http://localhost:2000/open';
-  //window.STENCILA_HOSTS = 'http://localhost:2000';
-  //window.STENCILA_STORAGE = '{{ cluster.host }}/open/{{ cluster.token }}';
-  //window.STENCILA_HOSTS = '{{ cluster.host }}/?token={{ cluster.token }}';
+  // Redirect to the editor
+  window.location = "/edit@stencila?archive={{ key }}.dar"; // &hosts='{{ cluster.host }}/?token={{ cluster.token }}';
 </script>
 {% endblock %}
 
