@@ -134,7 +134,7 @@ class GalleryView(ListView):
     def get_queryset(self):
         return Project.objects.filter(gallery=True)[:12]
 
-class ProjectListView(SigninRequiredMixin, LoginRequiredMixin, ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     template_name = 'project_list.html'
     model = Project
 
