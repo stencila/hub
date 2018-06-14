@@ -1,8 +1,9 @@
 # Ignore compiled Python files
 *.pyc
 
-# Ignore secrets
+# Ignore secrets & storage
 secrets
+storage
 
 # Ignore director virtualenvs and collected static files
 /director/env
