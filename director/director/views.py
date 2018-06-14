@@ -14,8 +14,8 @@ from uuid import uuid4
 
 import allauth.account.views
 from .auth import login_guest_user
-from .forms import UserSignupForm, UserSigninForm, CreateStencilaProjectForm, \
-     StencilaProjectForm
+from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
+     StencilaProjectUploadForm
 from .storer import Storer
 from .models import Project, StencilaProject, Cluster, ClusterError
 
@@ -269,7 +269,8 @@ class StencilaProjectDetailView(DetailView):
         self.object = self.get_object_or_404(**kwargs)
         context = self.get_context_data(object=self.object)
         if self.object.owner == request.user:
-            context['form'] = StencilaProjectForm(instance=self.object)
+            context['rename_form'] = StencilaProjectRenameForm(instance=self.object)
+            context['upload_form'] = StencilaProjectUploadForm(instance=self.object)
         return self.render_to_response(context)
 
     def post(self, request, **kwargs):
@@ -281,20 +282,34 @@ class StencilaProjectDetailView(DetailView):
         context = self.get_context_data(object=self.object)
 
         if 'rename' in request.POST:
-            form = StencilaProjectForm(request.POST, instance=self.object)
-            if form.is_valid():
-                form.save()
+            rename_form = StencilaProjectRenameForm(request.POST, instance=self.object)
+            if rename_form.is_valid():
+                rename_form.save()
                 return redirect(
                     'project-files', user=request.user.username,
                     project=self.object.name)
-            context['form'] = form
+            context['rename_form'] = rename_form
+
+        if 'upload' in request.POST:
+            upload_form = StencilaProjectUploadForm(request.POST, instance=self.object)
+            files = self.request.FILES.getlist('upload')
+            if upload_form.is_valid():
+                self.object.upload(files)
+                self.object.project.users.add(request.user)
+                return redirect(
+                    'project-files', user=request.user.username,
+                    project=self.object.name)
+            context['upload_form'] = upload_form
 
         elif 'delete' in request.POST:
             filename = request.POST['delete']
             self.object.delete_file(filename)
 
-        if not 'form' in context:
-            context['form'] = StencilaProjectForm(instance=self.object)
+        if not 'upload_form' in context:
+            context['upload_form'] = StencilaProjectUploadForm(instance=self.object)
+        if not 'rename_form' in context:
+            context['rename_form'] = StencilaProjectRenameForm(instance=self.object)
+
         return self.render_to_response(context)
 
 class CreateStencilaProjectView(View):

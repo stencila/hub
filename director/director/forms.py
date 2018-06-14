@@ -20,12 +20,16 @@ class UserSigninForm(allauth.account.forms.LoginForm):
         self.helper = FormHelper()
         self.helper.add_input(Submit('submit', 'Sign me in!', css_class='button is-primary'))
 
-class CreateStencilaProjectForm(forms.Form):
-    file = forms.FileField(
+class StencilaProjectUploadForm(forms.ModelForm):
+    upload = forms.FileField(
         required=False,
         widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
-class StencilaProjectForm(forms.ModelForm):
+    class Meta:
+        model = StencilaProject
+        fields = []
+
+class StencilaProjectRenameForm(forms.ModelForm):
 
     class Meta:
         model = StencilaProject

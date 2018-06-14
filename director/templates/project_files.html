@@ -7,8 +7,14 @@
 {{ block.super }}
 <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
 <script>
-$(document).ready(function(){
+window.addEventListener("DOMContentLoaded", function(event) {
   $("#file_list").load("{% url 'project-files-block' object.owner object.name %}");
+  document.querySelector("form#upload input[type=file]").onchange = function () {
+    document.getElementById("upload").submit();
+  };
+  document.querySelector("form#rename input[type=text]").onchange = function () {
+    document.getElementById("rename").submit();
+  };
 });
 </script>
 {% endblock %}
@@ -21,10 +27,15 @@ $(document).ready(function(){
   </div>
 </div>
 {% if object.owner == user %}
-<form method="POST" action="{% url 'project-files' object.owner.username object.name %}">
+<form method="POST" enctype="multipart/form-data" id="upload">
   {% csrf_token %}
-  {{ form }}
-  <input type="submit" name="rename" value="Rename">
+  {{ upload_form }}
+  <input type="hidden" name="upload" value="1">
+</form>
+<form method="POST" id="rename">
+  {% csrf_token %}
+  {{ rename_form }}
+  <input type="hidden" name="rename" value="1">
 </form>
 {% endif %}
 {% endblock %}
