@@ -8,9 +8,14 @@
 <script type="text/javascript" src="{% static 'jquery.min.js' %}"></script>
 <script>
 window.addEventListener("DOMContentLoaded", function(event) {
-  $("#file_list").load("{% url 'project-files-block' object.owner object.name %}");
+  document.getElementById("id_upload").disabled = true;
+  $("#file_list").load(
+    "{% url 'project-files-block' object.owner object.name %}",
+    function() { document.getElementById("id_upload").disabled = false; }
+  );
   document.querySelector("form#upload input[type=file]").onchange = function () {
     document.getElementById("upload").submit();
+    this.disabled = true;
   };
   document.querySelector("form#rename input[type=text]").onchange = function () {
     document.getElementById("rename").submit();
