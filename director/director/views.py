@@ -115,9 +115,7 @@ class OpenProgress(View):
         full_path = os.path.join(settings.CONVERT_WORKDIR, rel_path)
         if not os.path.exists(full_path):
             return JsonResponse(dict(status=404, error="Not found"))
-        response = static.serve(request, rel_path, document_root=settings.CONVERT_WORKDIR)
-        response["Content-Type"] = "text/plain"
-        return response
+        return static.serve(request, rel_path, document_root=settings.CONVERT_WORKDIR)
 
 class GalleryView(ListView):
     template_name = 'gallery.html'
