@@ -14,7 +14,7 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://github.com/stencila/cli/releases/download/v0.29.3/stencila-linux-x64.tar.gz | tar xvz \
+RUN curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz \
  && mv stencila /usr/local/bin
 
 RUN mkdir -p /app

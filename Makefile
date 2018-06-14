@@ -45,7 +45,7 @@ DJ ?= $(VE) python3 director/manage.py
 director-setup:
 ifeq ($(OS),Linux)
 	sudo apt-get install libev-dev
-	curl -L https://github.com/stencila/cli/releases/download/v0.29.3/stencila-linux-x64.tar.gz | tar xvz
+	curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz
 	sudo mv stencila /usr/local/bin
 endif
 ifeq ($(OS),Darwin)
