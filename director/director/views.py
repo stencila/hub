@@ -122,7 +122,9 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         project_session_id = hashlib.sha1(project_session_id).hexdigest()
         if not 'convert' in request.session:
             request.session['convert'] = {}
-        request.session['convert'][project_session_id] = project.id
+        if not project_session_id in request.session:
+            request.session['convert'][project_session_id] = project.id
+            request.session.modified = True # See "When sessions are saved", django docs.
 
         try:
             cluster = Cluster.choose(user=request.user, project=project)
