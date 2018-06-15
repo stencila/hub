@@ -7,12 +7,35 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-var request = new Request("{% url 'convert' project_session_id %}", {
+var convert = new Request("{% url 'convert' project_session_id %}", {
   method: "get", credentials: "same-origin",
 });
-fetch(request).then(function() {
-  document.getElementById("progress").innerHTML = "Done";
+fetch(convert).then(function() {
+  document.getElementById("done").className += "done";
   window.location = "/edit?project={{ project_session_id }}";
+});
+function update_log() {
+  var lines = this.responseText.match(/[^\r\n]+/g);
+  if (!lines) {
+    return;
+  }
+  var messages = [];
+  lines.forEach(function(line) { messages.push(JSON.parse(line).message); });
+  var content = "<div>" + messages.join("</div><div>") + "</div>";
+  document.getElementById("progress").innerHTML = content;
+}
+function fetch_log() {
+  var progress = new XMLHttpRequest();
+  progress.addEventListener("load", update_log);
+  progress.open("GET", "{% url 'open-progress' project_session_id %}");
+  progress.send();
+  if (document.querySelector("#done.done")) {
+    return;
+  }
+  setTimeout(fetch_log, 1000);
+}
+window.addEventListener("DOMContentLoaded", function(event) {
+  fetch_log();
 });
 </script>
 {% endblock %}
@@ -21,9 +44,9 @@ fetch(request).then(function() {
 <h3>{{ address }}</h3>
 <div class="columns">
   <div class="column">
-    <div id="progress">
-      Converting...
-    </div>
+    <div id="status">Converting...</div>
+    <div id="progress"></div>
+    <div id="done"></div>
   </div>
 </div>
 {% endblock %}
