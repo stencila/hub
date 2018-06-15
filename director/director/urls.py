@@ -21,7 +21,8 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('open/new/', views.OpenNew.as_view(), name='open-new'),
-    path('open/log/<key>/', views.OpenProgress.as_view(), name='open-progress'),
+    path('convert/<project_session_id>/', views.ConvertStart.as_view(), name='convert'),
+    path('open/log/<project_session_id>/', views.OpenProgress.as_view(), name='open-progress'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
     path('browse/<path:address>', views.BrowseFolder.as_view(), name='browse'),
 

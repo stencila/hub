@@ -120,10 +120,9 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
 
         project_session_id = (request.session.session_key + address).encode('utf-8')
         project_session_id = hashlib.sha1(project_session_id).hexdigest()
-        if not 'open' in request.session:
-            request.session['open'] = []
-        request.session['open'].append(project_session_id)
-        storer.ui_convert(project_session_id) # async here!
+        if not 'convert' in request.session:
+            request.session['convert'] = {}
+        request.session['convert'][project_session_id] = project.id
 
         try:
             cluster = Cluster.choose(user=request.user, project=project)
@@ -147,12 +146,30 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
             return redirect('open', address=form.get_address())
         raise Http404
 
-class OpenProgress(LoginRequiredMixin, View):
+class ConvertView(View):
 
-    def get(self, request, key):
-        if not key in request.session.get('open', []):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
             return JsonResponse(dict(status=404, error="Not found"))
-        rel_path = os.path.join(key, 'log.json')
+        if not "project_session_id" in kwargs:
+            return JsonResponse(dict(status=404, error="Not found"))
+        project_session_id = kwargs.get("project_session_id")
+        if not project_session_id in request.session.get('convert', {}):
+            return JsonResponse(dict(status=404, error="Not found"))
+        return super().dispatch(request, *args, **kwargs)
+
+class ConvertStart(ConvertView):
+
+    def get(self, request, project_session_id):
+        project_id = request.session['convert'][project_session_id]
+        storer = Storer.get_instance_by_project_id(project_id)
+        storer.ui_convert(project_session_id)
+        return JsonResponse(dict(status=200, message="Conversion finished"))
+
+class OpenProgress(ConvertView):
+
+    def get(self, request, project_session_id):
+        rel_path = os.path.join(project_session_id, 'log.json')
         full_path = os.path.join(settings.CONVERT_WORKDIR, rel_path)
         if not os.path.exists(full_path):
             return JsonResponse(dict(status=404, error="Not found"))

@@ -4,11 +4,28 @@
   {{ block.super }}
 {% endblock %}
 
-{% block main %}
+{% block scripts %}
+{{ block.super }}
 <script>
-  // Redirect to the editor
-  window.location = "/edit?project={{ project_session_id }}"; // &hosts='{{ cluster.host }}/?token={{ cluster.token }}';
+var startReq = new XMLHttpRequest();
+startReq.addEventListener("load", function() {
+  document.getElementById("progress").innerHTML = "Done";
+  window.location = "/edit?project={{ project_session_id }}";
+});
+startReq.open("GET", "{% url 'convert' project_session_id %}");
+startReq.send();
 </script>
+{% endblock %}
+
+{% block content %}
+<h3>{{ address }}</h3>
+<div class="columns">
+  <div class="column">
+    <div id="progress">
+      Converting...
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block footer %}

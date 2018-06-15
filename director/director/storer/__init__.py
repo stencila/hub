@@ -5,6 +5,7 @@ import subprocess
 import sys
 from contextlib import redirect_stdout
 from django.conf import settings
+from director.models import Project
 
 class Storer(object):
     code = None
@@ -43,6 +44,11 @@ class Storer(object):
         if not instance.parse_path(path):
             raise RuntimeError("Bad address {}".format(address))
         return instance
+
+    @classmethod
+    def get_instance_by_project_id(cls, project_id):
+        project = Project.objects.get(id=project_id)
+        return cls.get_instance_by_address(project.address)
 
     @classmethod
     def get_instance_by_account(cls, account):
