@@ -190,7 +190,7 @@ class Common(Configuration):
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
     UNCONVERTIBLE_FILE_TYPES = []
-    CONVERT_WORKDIR = os.path.join(HUB_DIR, 'storage')
+    CONVERT_WORKDIR = values.Value(os.path.join(HUB_DIR, 'storage'))
     CONVERT_MAX_SIZE = 10485760
 
 

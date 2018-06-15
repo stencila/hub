@@ -7,27 +7,25 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-var convert = new Request("{% url 'convert' project_session_id %}", {
+var convert = new Request("{% url 'convert' checkout.key %}", {
   method: "get", credentials: "same-origin",
 });
 fetch(convert).then(function() {
   document.getElementById("done").className += "done";
-  window.location = "/edit?project={{ project_session_id }}";
+  window.location = "/edit?project={{ checkout.key }}";
 });
 function update_log() {
-  var lines = this.responseText.match(/[^\r\n]+/g);
-  if (!lines) {
-    return;
-  }
+  console.log(this.responseText)
+  var d = JSON.parse(this.responseText);
   var messages = [];
-  lines.forEach(function(line) { messages.push(JSON.parse(line).message); });
+  d.messages.forEach(function(m) {messages.push(m.message)});
   var content = "<div>" + messages.join("</div><div>") + "</div>";
   document.getElementById("progress").innerHTML = content;
 }
 function fetch_log() {
   var progress = new XMLHttpRequest();
   progress.addEventListener("load", update_log);
-  progress.open("GET", "{% url 'open-progress' project_session_id %}");
+  progress.open("GET", "{% url 'open-progress' checkout.key %}");
   progress.send();
   if (document.querySelector("#done.done")) {
     return;
@@ -41,7 +39,7 @@ window.addEventListener("DOMContentLoaded", function(event) {
 {% endblock %}
 
 {% block content %}
-<h3>{{ address }}</h3>
+<h3>{{ project.address }}</h3>
 <div class="columns">
   <div class="column">
     <div id="status">Converting...</div>
