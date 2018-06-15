@@ -7,13 +7,13 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-var startReq = new XMLHttpRequest();
-startReq.addEventListener("load", function() {
+var request = new Request("{% url 'convert' project_session_id %}", {
+  method: "get", credentials: "same-origin",
+});
+fetch(request).then(function() {
   document.getElementById("progress").innerHTML = "Done";
   window.location = "/edit?project={{ project_session_id }}";
 });
-startReq.open("GET", "{% url 'convert' project_session_id %}");
-startReq.send();
 </script>
 {% endblock %}
 
