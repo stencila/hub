@@ -17,15 +17,13 @@ RUN apt-get update \
 RUN curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz \
  && mv stencila /usr/local/bin
 
-RUN mkdir -p /app
-WORKDIR /app
+RUN useradd -ms /bin/bash director
+WORKDIR /home/director
+USER director
 
-COPY requirements.txt /app/requirements.txt
-RUN pip3 install -r /app/requirements.txt
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
-ADD . /app
+ADD . .
 
-RUN python3 manage.py makemigrations director
-RUN python3 manage.py migrate
-
-CMD /app/wsgi.py
+CMD /home/director/wsgi.py
