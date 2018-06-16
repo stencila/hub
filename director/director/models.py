@@ -40,7 +40,7 @@ class Checkout(models.Model):
     dirty = models.BooleanField(default=False)
 
     def workdir_path(self, f):
-        return os.path.join(settings.CONVERT_WORKDIR, f)
+        return os.path.join(settings.STORAGE_DIR, f)
 
     def makedirs(self, folder):
         folder = self.workdir_path(folder)

@@ -42,15 +42,24 @@ VE := . director/env/bin/activate ;
 DJ ?= $(VE) python3 director/manage.py
 
 # Install necessary system packages
-director-setup:
+director-setup: director-setup-dirs
+	# Install necessary system dependencies etc
 ifeq ($(OS),Linux)
 	sudo apt-get install libev-dev
-	curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz
-	sudo mv stencila /usr/local/bin
 endif
 ifeq ($(OS),Darwin)
 	brew install libev
 endif
+	# Install Stencila Convert
+	curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz
+	sudo mv stencila /usr/local/bin
+
+director-setup-dirs:
+	# Setup directories
+	mkdir -p secrets
+	ln -sfT ../secrets director/secrets
+	mkdir -p storage
+	ln -sfT ../storage director/storage
 
 # Setup virtual environment
 director/env: director/requirements.txt
@@ -102,8 +111,8 @@ director-rundocker:
 		-e GS_PROJECT_ID=some-project-id \
 		-e GS_CREDENTIALS=dome-creds \
 		-e GS_BUCKET_NAME=a-name \
-		-v $$PWD/storage:/home/storage \
-		-v $$PWD/secrets:/home/secrets \
+		-v $$PWD/storage:/home/director/storage \
+		-v $$PWD/secrets:/home/director/secrets \
 		-p 8000:8000 -it --rm stencila/hub-director
 
 # Interact with the Docker image
@@ -117,6 +126,11 @@ director-deploy: director-build
 
 ####################################################################################
 # Editor
+
+editor-setup:
+	# Setup directories
+	mkdir -p storage
+	ln -sfT ../storage editor/storage
 
 # Setup locally
 editor/node_modules: editor/package.json

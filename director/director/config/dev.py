@@ -1,10 +1,8 @@
 import imp
 import os
-from os.path import dirname
 
-from .common import Common, HUB_DIR, external_keys
+from .common import Common, external_keys
 
-SECRETS_DIR = os.path.join(HUB_DIR, "secrets")
 
 class Dev(Common):
 
@@ -21,7 +19,7 @@ class Dev(Common):
         """Obtain config settings from secrets file"""
         super(Dev, cls).setup()
         filename = "director_dev_secrets.py"
-        path = os.path.join(SECRETS_DIR, filename)
+        path = os.path.join(cls.SECRETS_DIR, filename)
         try:
             dev_secrets = imp.load_source("dev_secrets", path)
         except ImportError as e:

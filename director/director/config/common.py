@@ -6,7 +6,6 @@ from django.conf.locale.en import formats as en_formats
 from configurations import Configuration, values
 
 DIRECTOR_DIR = dirname(dirname(dirname(__file__)))
-HUB_DIR = dirname(DIRECTOR_DIR)
 
 external_keys = (
     'SECRET_KEY', 'JWT_SECRET',
@@ -186,11 +185,10 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ('bulma',)
     CRISPY_TEMPLATE_PACK = 'bulma'
 
-
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
+    STORAGE_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'storage'))
+    SECRETS_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'secrets'))
+
     UNCONVERTIBLE_FILE_TYPES = []
-    CONVERT_WORKDIR = values.Value(os.path.join(HUB_DIR, 'storage'))
     CONVERT_MAX_SIZE = 10485760
-
-
