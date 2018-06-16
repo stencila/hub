@@ -1,5 +1,6 @@
 import hashlib
 import io
+import json
 import os
 import re
 from django.http import Http404, JsonResponse, HttpResponse
@@ -19,7 +20,7 @@ from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
      StencilaProjectUploadForm, BetaTokenForm
 from .storer import Storer
-from .models import Project, StencilaProject, Cluster, ClusterError
+from .models import Project, Checkout, StencilaProject, Cluster, ClusterError
 
 class SigninRequiredMixin(AccessMixin):
     # Not required until we bring back guests
@@ -110,21 +111,14 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
     template_name = 'open-address.html'
 
     def get(self, request, address):
-        try:
-            storer = Storer.get_instance_by_address(address)
-        except:
+        if not Storer.valid_address(address):
             raise Http404
 
         project, _ = Project.objects.get_or_create(address=address)
         project.users.add(request.user)
 
-        project_session_id = (request.session.session_key + address).encode('utf-8')
-        project_session_id = hashlib.sha1(project_session_id).hexdigest()
-        if not 'convert' in request.session:
-            request.session['convert'] = {}
-        if not project_session_id in request.session:
-            request.session['convert'][project_session_id] = project.id
-            request.session.modified = True # See "When sessions are saved", django docs.
+        checkout = Checkout(project=project, owner=request.user)
+        checkout.save()
 
         try:
             cluster = Cluster.choose(user=request.user, project=project)
@@ -132,9 +126,9 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
             cluster = None
 
         return self.render_to_response(dict(
-            address=address,
+            project=project,
             cluster=cluster,
-            project_session_id=project_session_id,
+            checkout=checkout,
         ))
 
     def post(self, request, address):
@@ -148,34 +142,31 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
             return redirect('open', address=form.get_address())
         raise Http404
 
-class ConvertView(View):
+class ConvertView(LoginRequiredMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
+        if not "checkout_key" in kwargs:
             return JsonResponse(dict(status=404, error="Not found"))
-        if not "project_session_id" in kwargs:
-            return JsonResponse(dict(status=404, error="Not found"))
-        project_session_id = kwargs.get("project_session_id")
-        if not project_session_id in request.session.get('convert', {}):
+        try:
+            self.checkout = Checkout.objects.get(
+                key=kwargs['checkout_key'], owner=request.user)
+        except Checkout.DoesNotExist:
             return JsonResponse(dict(status=404, error="Not found"))
         return super().dispatch(request, *args, **kwargs)
 
 class ConvertStart(ConvertView):
 
-    def get(self, request, project_session_id):
-        project_id = request.session['convert'][project_session_id]
-        storer = Storer.get_instance_by_project_id(project_id)
-        storer.ui_convert(project_session_id)
+    def get(self, request, checkout_key):
+        self.checkout.convert()
         return JsonResponse(dict(status=200, message="Conversion finished"))
 
 class OpenProgress(ConvertView):
 
-    def get(self, request, project_session_id):
-        rel_path = os.path.join(project_session_id, 'log.json')
-        full_path = os.path.join(settings.CONVERT_WORKDIR, rel_path)
-        if not os.path.exists(full_path):
-            return JsonResponse(dict(status=404, error="Not found"))
-        return static.serve(request, rel_path, document_root=settings.CONVERT_WORKDIR)
+    def get(self, request, checkout_key):
+        messages = [
+            dict(message=m.message, level=m.level)
+            for m in self.checkout.message_set.all().order_by('time')]
+        return JsonResponse(dict(messages=messages))
 
 class GalleryView(ListView):
     template_name = 'gallery.html'

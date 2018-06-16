@@ -1,12 +1,20 @@
+import binascii
+import datetime
+import jwt
+import os
+import subprocess
+import sys
+import time
+from contextlib import redirect_stdout
+from uuid import uuid4
+
 from django.db import models
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.urls import reverse
+from django.utils.timezone import now
 
-import jwt
-import sys
-import time
-from uuid import uuid4
+from .storer import Storer
 
 class Project(models.Model):
     address = models.TextField(unique=True)
@@ -15,6 +23,118 @@ class Project(models.Model):
 
     class Meta:
         app_label = 'director'
+
+def new_checkout_key():
+    return binascii.hexlify(os.urandom(32)).decode()
+
+class Message(models.Model):
+    checkout = models.ForeignKey('checkout', on_delete=models.CASCADE)
+    time = models.DateTimeField(default=now)
+    level = models.IntegerField(default=2)
+    message = models.TextField()
+
+class Checkout(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    key = models.TextField(unique=True, default=new_checkout_key)
+    dirty = models.BooleanField(default=False)
+
+    def workdir_path(self, f):
+        return os.path.join(settings.CONVERT_WORKDIR, f)
+
+    def makedirs(self, folder):
+        folder = self.workdir_path(folder)
+        if os.path.exists(folder):
+            return
+        try:
+            os.makedirs(folder)
+        except FileExistsError:
+            pass
+
+    def get_storer(self):
+        return Storer.get_instance_by_address(self.project.address)
+
+    def get_folder_contents(self, remote_folder):
+        if hasattr(self.project, 'stencilaproject'):
+            return self.project.stencilaproject.list_files()
+        storer = self.get_storer()
+        return storer.get_folder_contents(remote_folder)
+
+    def log(self, message, level=2):
+        Message(message=message, level=level, checkout=self).save()
+
+    def copy_file(self, filename, to):
+        to = self.workdir_path(to)
+        outfile = open(to, 'wb')
+        if hasattr(self.project, 'stencilaproject'):
+            self.project.stencilaproject.get_file(filename, outfile)
+        else:
+            storer = self.get_storer()
+            contents = storer.file_contents(filename)
+            outfile.write(contents)
+        outfile.close()
+
+    def copy_files(self, local_folder, remote_folder=''):
+        filelist = self.get_folder_contents(remote_folder)
+        copied = []
+
+        for f in filelist:
+            if f['type'] != "file":
+                continue
+            for ext in settings.UNCONVERTIBLE_FILE_TYPES:
+                if f['name'].endswith(ext):
+                    continue
+            if f['size'] > settings.CONVERT_MAX_SIZE:
+                continue
+            self.makedirs(local_folder)
+            local_filename = os.path.join(local_folder, f['name'])
+            remote_filename = os.path.join(remote_folder, f['name'])
+            self.copy_file(remote_filename, local_filename)
+            copied.append(remote_filename)
+        self.log("Copied %d files from /%s" % (len(copied), remote_folder))
+
+        for f in filelist:
+            if f['type'] != "dir":
+                continue
+            remote_subfolder = os.path.join(remote_folder, f['name'])
+            local_subfolder = os.path.join(local_folder, f['name'])
+            copied += self.copy_files(local_subfolder, remote_subfolder)
+
+        return copied
+
+    def convert(self):
+        source_folder = os.path.join(self.key, 'source')
+        self.makedirs(source_folder)
+        copied = self.copy_files(source_folder)
+
+        # Create an EDF which will be used as the canonical
+        # source for all conversions
+        edf_folder = os.path.join(self.key, '.edf')
+        cmd = [
+            "stencila", "convert",
+            self.workdir_path(source_folder),
+            self.workdir_path(edf_folder)]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+
+        # Create a DAR for the editor to work on
+        dar_folder = os.path.join(self.key, '.dar')
+        cmd = [
+            "stencila", "convert",
+            self.workdir_path(edf_folder),
+            self.workdir_path(dar_folder)]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+
+        # Create a symlink from `storage` to the project's `.dar`
+        # This is necessary because the `dar-server` in `editor` does not
+        # seem to accept subdirectories
+        dar_link = self.key + '.dar'
+        dar_link_path = self.workdir_path(dar_link)
+        if not os.path.exists(dar_link_path):
+            os.symlink(dar_folder, dar_link_path)
+
+        self.log("Convert returned %d" % p.returncode)
 
 class StencilaProject(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE)
@@ -98,6 +218,7 @@ class StencilaProject(models.Model):
         for f in filenames:
             name = self.path(f)
             files.append(dict(
+                type="file",
                 name=f,
                 size=default_storage.size(name),
                 last_modified=default_storage.get_modified_time(name)))
