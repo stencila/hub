@@ -139,8 +139,8 @@ editor/node_modules: editor/package.json
 
 # Collect static files
 editor-static: editor/node_modules
-	rm -rf editor/static/dist
-	cp -r editor/node_modules/stencila/dist/ editor/static/
+	mkdir -p editor/static/dist/
+	rsync --recursive --delete editor/node_modules/stencila/dist/ editor/static/dist/
 
 # Run locally
 editor-run: editor-static
