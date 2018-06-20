@@ -36,11 +36,14 @@ router-deploy: router-build
 # Director
 
 # Shortcut to activate the virtual environment during development
-# including required environment variables
-VE := . director/env/bin/activate ; test -f director/env.sh && source director/env.sh;
+VE := . director/env/bin/activate ;
+
+# Shortcut to set required environment variables during development
+# Uses a custom `env.sh` or falls back to `env-example.sh`
+EV := (test -f director/env.sh && source director/env.sh) || source director/env-example.sh ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
-DJ ?= $(VE) python3 director/manage.py
+DJ ?= $(VE) $(EV) python3 director/manage.py
 
 # Install necessary system packages
 director-setup: director-setup-dirs
@@ -109,7 +112,7 @@ director-build: director/Dockerfile
 # Run the Docker image passing through development
 # environment variables
 director-rundocker:
-	test -f director/env.sh && source director/env.sh; \
+	$(EV) \
 	docker run \
 		-e DJANGO_SECRET_KEY \
 		-e DJANGO_JWT_SECRET \
