@@ -86,9 +86,9 @@ director-migrations: director/env
 director-devdb: director/env
 	rm -f director/db.sqlite3
 	$(DJ) migrate
-	$(DJ) runscript devdb_allauth
-	$(DJ) runscript devdb_users
-	$(DJ) runscript devdb_projects
+	$(DJ) runscript create_allauth
+	$(DJ) runscript create_users
+	$(DJ) runscript create_projects
 
 # Run development server
 director-run: director/env
