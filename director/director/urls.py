@@ -63,5 +63,5 @@ urlpatterns = [
     path('', views.GalleryView.as_view(), name='home'),
 ]
 
-handler404 = views.Error404View.as_view()
+#handler404 = views.Error404View.as_view()
 handler500 = views.Error500View.as_view()
