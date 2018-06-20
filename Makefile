@@ -81,12 +81,10 @@ director-static: director/env director-stencila
 # Build a development database
 director-devdb: director/env
 	rm -f director/db.sqlite3
-	rm -fr director/director/migrations
-	$(DJ) makemigrations director
 	$(DJ) migrate
-	$(DJ) runscript create_allauth
-	$(DJ) runscript create_users
-	$(DJ) runscript create_projects
+	$(DJ) runscript devdb_allauth
+	$(DJ) runscript devdb_users
+	$(DJ) runscript devdb_projects
 
 # Run development server
 director-run: director/env
