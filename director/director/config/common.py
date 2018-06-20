@@ -87,7 +87,10 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
-    DATABASES = values.DatabaseURLValue('sqlite:///%s/db.sqlite3' % DIRECTOR_DIR)
+    DATABASES = values.DatabaseURLValue(
+        'sqlite:///%s/db.sqlite3' % DIRECTOR_DIR,
+        environ_prefix='DJANGO'  # For consistent naming with other env vars
+    )
 
     # Password validation
     # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
