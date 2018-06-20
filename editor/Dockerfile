@@ -7,6 +7,6 @@ USER editor
 COPY package.json .
 RUN npm install --production
 
-ADD . .
+ADD --chown=editor:editor . .
 
 CMD ["npm", "start"]

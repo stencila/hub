@@ -24,6 +24,6 @@ USER director
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-ADD . .
+ADD --chown=director:director . .
 
 CMD /home/director/wsgi.py
