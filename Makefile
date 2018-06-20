@@ -35,8 +35,9 @@ router-deploy: router-build
 ####################################################################################
 # Director
 
-# Shortcut to activate the virtual environment; used below
-VE := . director/env/bin/activate ;
+# Shortcut to activate the virtual environment during development
+# including required environment variables
+VE := . director/env/bin/activate ; test -f director/env.sh && source director/env.sh;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
 DJ ?= $(VE) python3 director/manage.py
@@ -108,11 +109,10 @@ director-build: director/Dockerfile
 # Run the Docker image
 director-rundocker:
 	docker run \
-		-e SECRET_KEY=not-a-secret \
-		-e JWT_SECRET=not-a-secret \
-		-e GS_PROJECT_ID=some-project-id \
-		-e GS_CREDENTIALS=dome-creds \
-		-e GS_BUCKET_NAME=a-name \
+		-e DJANGO_SECRET_KEY=not-a-secret \
+		-e DJANGO_JWT_SECRET=not-a-secret \
+		-e DJANGO_GS_PROJECT_ID=some-project-id \
+		-e DJANGO_GS_BUCKET_NAME=a-name \
 		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \

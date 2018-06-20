@@ -7,6 +7,7 @@ storage
 
 # Ignore director virtualenvs and collected static files
 /director/env
+/director/env.sh
 /director/static
 
 # Ignore dev sqlite3 db file

@@ -1,30 +1,15 @@
 import os
-import sys
-
 from os.path import dirname
-from django.conf.locale.en import formats as en_formats
 from configurations import Configuration, values
 
 DIRECTOR_DIR = dirname(dirname(dirname(__file__)))
 
-external_keys = (
-    'SECRET_KEY', 'JWT_SECRET',
-    'GS_PROJECT_ID', 'GS_CREDENTIALS', 'GS_BUCKET_NAME')
-
 
 class Common(Configuration):
 
-    @classmethod
-    def setup(cls):
-        """Obtain config settings from environment"""
-        super(Common, cls).setup()
-        for key in external_keys:
-            if key in os.environ:
-                setattr(cls, key, os.environ[key])
+    DEBUG = values.BooleanValue(True)
 
-    # This setting needs to be set to something
-    # In `prod.py` we check that this value is overridden
-    SECRET_KEY = ' '
+    SECRET_KEY = values.SecretValue()
 
     ADMINS = (
         ('Nokome Bentley', 'nokome@stenci.la'),
@@ -50,7 +35,8 @@ class Common(Configuration):
         # When you add an item here you must:
         #   - add an entry in SOCIALACCOUNT_PROVIDERS below
         #   - register Stencila as an API client or app with the provider
-        #   - add a SocialApp instance (/admin/socialaccount/socialapp/add/) adding the credentials provided by the provider
+        #   - add a SocialApp instance (/admin/socialaccount/socialapp/add/)
+        # adding the credentials provided by the provider
         'allauth.socialaccount.providers.facebook',
         'allauth.socialaccount.providers.github',
         'allauth.socialaccount.providers.google',
@@ -132,7 +118,7 @@ class Common(Configuration):
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
-    STATIC_URL = values.Value('/static/', environ_prefix=None)
+    STATIC_URL = values.Value('/static/')
     STATICFILES_DIRS = [
         os.path.join(DIRECTOR_DIR, 'client')
     ]
@@ -149,8 +135,8 @@ class Common(Configuration):
         'director.auth_backends.GuestAuthBackend',
     )
 
-    ACCOUNT_SESSION_REMEMBER = True # Always remember the user
-    ACCOUNT_SESSION_COOKIE_AGE = 31536000 # Sessions to last up to a year 60*60*24*365
+    ACCOUNT_SESSION_REMEMBER = True  # Always remember the user
+    ACCOUNT_SESSION_COOKIE_AGE = 31536000  # Sessions to last up to a year 60*60*24*365
     SOCIALACCOUNT_ADAPTER = 'director.allauth_adapter.SocialAccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
     SOCIALACCOUNT_QUERY_EMAIL = True
@@ -187,9 +173,13 @@ class Common(Configuration):
     CRISPY_TEMPLATE_PACK = 'bulma'
 
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_PROJECT_ID = values.Value()
+    GS_BUCKET_NAME = values.Value()
 
-    STORAGE_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'storage'), environ_prefix=None)
-    SECRETS_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'secrets'), environ_prefix=None)
+    JWT_SECRET = values.SecretValue()
+
+    STORAGE_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'storage'))
+    SECRETS_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'secrets'))
 
     UNCONVERTIBLE_FILE_TYPES = []
     CONVERT_MAX_SIZE = 10485760
