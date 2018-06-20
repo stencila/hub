@@ -78,6 +78,10 @@ director-stencila:
 director-static: director/env director-stencila
 	$(DJ) collectstatic --noinput
 
+# Create migrations
+director-migrations: director/env
+	$(DJ) makemigrations director
+
 # Build a development database
 director-devdb: director/env
 	rm -f director/db.sqlite3
