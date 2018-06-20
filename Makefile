@@ -111,8 +111,8 @@ director-rundocker:
 		-e GS_PROJECT_ID=some-project-id \
 		-e GS_CREDENTIALS=dome-creds \
 		-e GS_BUCKET_NAME=a-name \
-		-v $$PWD/storage:/home/director/storage \
-		-v $$PWD/secrets:/home/director/secrets \
+		-v $$PWD/storage:/home/director/storage:rw \
+		-v $$PWD/secrets:/home/director/secrets:ro \
 		-p 8000:8000 -it --rm stencila/hub-director
 
 # Interact with the Docker image

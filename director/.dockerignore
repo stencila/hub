@@ -1,11 +1,18 @@
-# To minimize size of the sencila/hub/director image ignore (ie. don't ADD) 
+# To minimize size of the sencila/hub-director image ignore (ie. don't ADD) 
 # various folders...
 
 # Ignore python virtual env
-env
+/env
 
 # Ignore client side static content
-client
+/client
 
 # Ignore Django static folder into which static all content is collected
-static
+/static
+
+# Ignore any shared volumes
+/storage
+/secrets
+
+# Ignore dev db
+/db.sqlite3
