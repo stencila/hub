@@ -106,13 +106,15 @@ director-run80: director-static
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
 
-# Run the Docker image
+# Run the Docker image passing through development
+# environment variables
 director-rundocker:
+	test -f director/env.sh && source director/env.sh; \
 	docker run \
-		-e DJANGO_SECRET_KEY=not-a-secret \
-		-e DJANGO_JWT_SECRET=not-a-secret \
-		-e DJANGO_GS_PROJECT_ID=some-project-id \
-		-e DJANGO_GS_BUCKET_NAME=a-name \
+		-e DJANGO_SECRET_KEY \
+		-e DJANGO_JWT_SECRET \
+		-e DJANGO_GS_PROJECT_ID \
+		-e DJANGO_GS_BUCKET_NAME \
 		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
