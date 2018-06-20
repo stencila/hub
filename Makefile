@@ -111,6 +111,7 @@ director-rundocker:
 		-e GS_PROJECT_ID=some-project-id \
 		-e GS_CREDENTIALS=dome-creds \
 		-e GS_BUCKET_NAME=a-name \
+		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
 		-p 8000:8000 -it --rm stencila/hub-director
@@ -140,7 +141,7 @@ editor/node_modules: editor/package.json
 # Collect static files
 editor-static: editor/node_modules
 	mkdir -p editor/static/dist/
-	rsync --recursive --delete editor/node_modules/stencila/dist/ editor/static/dist/
+	rsync --verbose --archive --recursive --delete editor/node_modules/stencila/dist/ editor/static/dist/
 
 # Run locally
 editor-run: editor-static
