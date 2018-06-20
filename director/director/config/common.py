@@ -132,7 +132,7 @@ class Common(Configuration):
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
-    STATIC_URL = values.Value('/static/')
+    STATIC_URL = values.Value('/static/', environ_prefix=None)
     STATICFILES_DIRS = [
         os.path.join(DIRECTOR_DIR, 'client')
     ]
@@ -188,8 +188,8 @@ class Common(Configuration):
 
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
-    STORAGE_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'storage'))
-    SECRETS_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'secrets'))
+    STORAGE_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'storage'), environ_prefix=None)
+    SECRETS_DIR = values.Value(os.path.join(DIRECTOR_DIR, 'secrets'), environ_prefix=None)
 
     UNCONVERTIBLE_FILE_TYPES = []
     CONVERT_MAX_SIZE = 10485760
