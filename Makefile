@@ -40,7 +40,7 @@ VE := . director/env/bin/activate ;
 
 # Shortcut to set required environment variables during development
 # Uses a custom `env.sh` or falls back to `env-example.sh`
-EV := (test -f director/env.sh && source director/env.sh) || source director/env-example.sh ;
+EV := test -f director/env.sh && source director/env.sh || source director/env-example.sh ;
 
 # Shortcut to run a Django manage.py task in the virtual environment; used below
 DJ ?= $(VE) $(EV) python3 director/manage.py
