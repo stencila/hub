@@ -20,7 +20,7 @@ from .auth import login_guest_user
 from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
      StencilaProjectUploadForm, BetaTokenForm
 from .storer import Storer
-from .models import Project, Checkout, StencilaProject, Cluster, ClusterError
+from .models import Project, Checkout, StencilaProject, Host
 
 class SigninRequiredMixin(AccessMixin):
     # Not required until we bring back guests
@@ -107,6 +107,7 @@ class UserSettingsView(LoginRequiredMixin, TemplateView):
     template_name = "user/settings.html"
 
 
+
 class OpenAddress(LoginRequiredMixin, TemplateView):
     template_name = 'open_address.html'
 
@@ -120,15 +121,13 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         checkout = Checkout(project=project, owner=request.user)
         checkout.save()
 
-        try:
-            cluster = Cluster.choose(user=request.user, project=project)
-        except ClusterError as e:
-            cluster = None
+        host = Host.choose(user=request.user, project=project)
 
         return self.render_to_response(dict(
             project=project,
-            cluster=cluster,
             checkout=checkout,
+            host=host,
+            host_token=host.token(request.user)
         ))
 
     def post(self, request, address):
@@ -142,7 +141,7 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
             return redirect('open', address=form.get_address())
         raise Http404
 
-class ConvertView(LoginRequiredMixin, View):
+class OpenBase(LoginRequiredMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
         if not "checkout_key" in kwargs:
@@ -154,19 +153,20 @@ class ConvertView(LoginRequiredMixin, View):
             return JsonResponse(dict(status=404, error="Not found"))
         return super().dispatch(request, *args, **kwargs)
 
-class ConvertStart(ConvertView):
+class OpenStart(OpenBase):
 
     def get(self, request, checkout_key):
         self.checkout.convert()
         return JsonResponse(dict(status=200, message="Conversion finished"))
 
-class OpenProgress(ConvertView):
+class OpenLog(OpenBase):
 
     def get(self, request, checkout_key):
         messages = [
             dict(message=m.message, level=m.level)
             for m in self.checkout.message_set.all().order_by('time')]
         return JsonResponse(dict(messages=messages))
+
 
 class GalleryView(ListView):
     template_name = 'gallery.html'

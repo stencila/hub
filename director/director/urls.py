@@ -20,10 +20,12 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('open/new/', views.OpenNew.as_view(), name='open-new'),
-    path('convert/<checkout_key>/', views.ConvertStart.as_view(), name='convert'),
-    path('open/log/<checkout_key>/', views.OpenProgress.as_view(), name='open-progress'),
+    path('open/start/<checkout_key>/', views.OpenStart.as_view(), name='open-start'),
+    path('open/log/<checkout_key>/', views.OpenLog.as_view(), name='open-log'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
+
     path('browse/<path:address>', views.BrowseFolder.as_view(), name='browse'),
 
     path('projects/', views.ProjectListView.as_view(), name='list-projects'),

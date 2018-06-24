@@ -235,13 +235,12 @@ class StencilaProject(models.Model):
     class Meta:
         unique_together = ('name', 'owner')
 
-class ClusterError(RuntimeError):
-    pass
 
-class Cluster(models.Model):
-    host = models.TextField(unique=True)
 
-    def jwt(self, user):
+class Host(models.Model):
+    url = models.URLField(unique=True)
+
+    def token(self, user):
         payload = dict(iat=time.time(), user=user.username)
         return jwt.encode(payload, settings.JWT_SECRET, algorithm='HS256').decode("utf-8")
 
@@ -250,7 +249,7 @@ class Cluster(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            raise ClusterError("No cluster available")
+            return Host(url='http://localhost:2000/v1')
 
     class Meta:
         app_label = 'director'
