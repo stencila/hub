@@ -108,7 +108,7 @@ class UserSettingsView(LoginRequiredMixin, TemplateView):
 
 
 class OpenAddress(LoginRequiredMixin, TemplateView):
-    template_name = 'open-address.html'
+    template_name = 'open_address.html'
 
     def get(self, request, address):
         if not Storer.valid_address(address):
