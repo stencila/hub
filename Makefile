@@ -55,7 +55,7 @@ ifeq ($(OS),Darwin)
 	brew install libev
 endif
 	# Install Stencila Convert
-	curl -L https://github.com/stencila/cli/releases/download/v0.29.4/stencila-linux-x64.tar.gz | tar xvz
+	curl -L https://github.com/stencila/cli/releases/download/v0.30.0/stencila-linux-x64.tar.gz | tar xvz
 	sudo mv stencila /usr/local/bin
 
 director-setup-dirs:
