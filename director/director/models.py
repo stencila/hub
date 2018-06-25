@@ -121,7 +121,7 @@ class Checkout(models.Model):
         dar_folder = os.path.join(self.key, '.dar')
         cmd = [
             "stencila", "convert",
-            self.workdir_path(edf_folder),
+            self.workdir_path(source_folder),
             self.workdir_path(dar_folder)]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
@@ -249,7 +249,7 @@ class Host(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            return Host(url='http://localhost:2000/v1')
+            return Host(url='http://localhost:2000')
 
     class Meta:
         app_label = 'director'
