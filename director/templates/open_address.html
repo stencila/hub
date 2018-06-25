@@ -7,34 +7,74 @@
 {% block scripts %}
 {{ block.super }}
 <script>
-var convert = new Request("{% url 'convert' checkout.key %}", {
-  method: "get", credentials: "same-origin",
-});
-fetch(convert).then(function() {
-  document.getElementById("done").className += "done";
-  window.location = "/edit?project={{ checkout.key }}";
-});
-function update_log() {
-  console.log(this.responseText)
-  var d = JSON.parse(this.responseText);
-  var messages = [];
-  d.messages.forEach(function(m) {messages.push(m.message)});
-  var content = "<div>" + messages.join("</div><div>") + "</div>";
-  document.getElementById("progress").innerHTML = content;
-}
+
+fetch("{% url 'open-start' checkout.key %}", {
+  method: 'GET', 
+  credentials: 'same-origin'
+}).then(() => {
+  event({subject: 'open-finished'})
+})
+
 function fetch_log() {
-  var progress = new XMLHttpRequest();
-  progress.addEventListener("load", update_log);
-  progress.open("GET", "{% url 'open-progress' checkout.key %}");
-  progress.send();
-  if (document.querySelector("#done.done")) {
-    return;
-  }
-  setTimeout(fetch_log, 1000);
+  fetch("{% url 'open-log' checkout.key %}", {
+    method: 'GET', 
+    credentials: 'same-origin',
+  }).then(response => {
+    response.json().then(messages => {
+      event({subject: 'open-log', messages} )
+    })
+  })
+  setTimeout(fetch_log, 2000);
 }
-window.addEventListener("DOMContentLoaded", function(event) {
-  fetch_log();
-});
+window.addEventListener('DOMContentLoaded', fetch_log)
+
+
+fetch('{{ host.url }}/v1/sessions/stencila/core?token={{ host_token }}', {
+  method: 'POST',
+  credentials: 'include'
+}).then(response => {
+  response.json().then(session => {
+    event({subject: 'session-started', session })
+  })
+})
+
+function event(detail) {
+  window.dispatchEvent(new CustomEvent('log', { detail: detail }))
+}
+
+var openFinished = false
+var session = null
+window.addEventListener('log', event => {
+  const detail = event.detail
+  let message
+  switch (detail.subject) {
+    case 'open-log':
+      message = JSON.stringify(detail.messages.messages)
+      break;
+    case 'open-finished':
+      message = 'Finished fetching and converting files'
+      openFinished = true
+      break;
+    case 'session-started':
+      message = 'Session has started'
+      session = detail.session.id
+      break;
+    default:
+      console.log(detail)
+  }
+
+  const logEl = document.getElementById('log')
+  const itemEl = document.createElement('div')
+  itemEl.innerHTML = message
+  logEl.appendChild(itemEl)
+
+  if (openFinished && session) {
+    const url = "/edit?checkout={{ checkout.key }}&host={{ host.url }}&session=" + session
+    window.location = url
+  }
+})
+
+
 </script>
 {% endblock %}
 
@@ -42,9 +82,7 @@ window.addEventListener("DOMContentLoaded", function(event) {
 <h3>{{ project.address }}</h3>
 <div class="columns">
   <div class="column">
-    <div id="status">Converting...</div>
-    <div id="progress"></div>
-    <div id="done"></div>
+    <div id="log"></div>
   </div>
 </div>
 {% endblock %}
