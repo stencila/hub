@@ -3,6 +3,7 @@
 
 # Ignore python virtual env
 /env
+/env.sh
 
 # Ignore client side static content
 /client
