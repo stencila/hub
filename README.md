@@ -4,7 +4,7 @@
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub at [https://stenci.la](https://stenci.la).
 
-## Contribe
+## Contribute
 
 We are always keen to get comments and suggestions for ways to improve the Stencila Hub. Chat with us in the [stencila/stencila room](https://gitter.im/stencila/stencila) on Gitter or using the in-app intercom (if you have a user account). 
 
