@@ -21,10 +21,12 @@ $(document).ready(function(){
   {% csrf_token %}
   <input type="submit" value="Upload project">
 </form>
+<!--
 <form style="float: right;" method="post" action="{% url 'open-new' %}">
   {% csrf_token %}
   <input type="submit" value="Edit new project">
 </form>
+-->
 <h2>Projects</h2>
 <table>
   <tbody>
@@ -51,6 +53,7 @@ $(document).ready(function(){
     {% endfor %}
   </tbody>
 </table>
+<!--
 <h2>Add project</h2>
 {% for storer in storers.enabled %}
 <div id="storer_units_{{ storer.code }}">
@@ -84,4 +87,5 @@ $(document).ready(function(){
   </div>
 </div>
 {% endif %}
+-->
 {% endblock %}
