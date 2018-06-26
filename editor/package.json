@@ -12,6 +12,6 @@
     "express": "^4.16.3"
   },
   "devDependencies": {
-    "stencila": "0.28.2"
+    "stencila": "0.28.3-preview.1"
   }
 }
