@@ -39,10 +39,10 @@ window.addEventListener('load', () => {
     save.disabled = true;
     commit.disabled = true;
     app._save().then(() => {
+      save.disabled = false;
       fetch(`/checkouts/${checkout}/commit`, {
         credentials: 'same-origin'
       }).then(() => {
-        save.disabled = true;
         commit.disabled = false;
       })
     })
