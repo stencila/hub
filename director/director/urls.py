@@ -26,6 +26,8 @@ urlpatterns = [
     path('open/log/<checkout_key>/', views.OpenLog.as_view(), name='open-log'),
     path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
 
+    path('checkouts/<checkout_key>/commit', views.CheckoutCommitView.as_view(), name='checkout_commit'),
+
     path('browse/<path:address>', views.BrowseFolder.as_view(), name='browse'),
 
     path('projects/', views.ProjectListView.as_view(), name='list-projects'),

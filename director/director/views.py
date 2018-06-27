@@ -107,7 +107,6 @@ class UserSettingsView(LoginRequiredMixin, TemplateView):
     template_name = "user/settings.html"
 
 
-
 class OpenAddress(LoginRequiredMixin, TemplateView):
     template_name = 'open_address.html'
 
@@ -166,6 +165,13 @@ class OpenLog(OpenBase):
             dict(message=m.message, level=m.level)
             for m in self.checkout.message_set.all().order_by('time')]
         return JsonResponse(dict(messages=messages))
+
+class CheckoutCommitView(OpenBase):
+
+    def get(self, request, checkout_key):
+        self.checkout.commit()
+        return JsonResponse(dict(status=200, message="Commit finished"))
+
 
 
 class GalleryView(ListView):

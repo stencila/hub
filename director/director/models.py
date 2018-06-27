@@ -102,6 +102,16 @@ class Checkout(models.Model):
 
         return copied
 
+    def commit(self):
+        if hasattr(self.project, 'stencilaproject'):
+            dar_folder = self.workdir_path(os.path.join(self.key, 'source'))
+            for file in os.listdir(dar_folder):
+                path = self.project.stencilaproject.path(file)
+                with open(os.path.join(dar_folder, file)) as fh:
+                    obj = default_storage.open(path, 'w')
+                    obj.write(fh.read())
+                    obj.close()
+
     def convert(self):
         source_folder = os.path.join(self.key, 'source')
         self.makedirs(source_folder)
@@ -109,20 +119,20 @@ class Checkout(models.Model):
 
         # Create an EDF which will be used as the canonical
         # source for all conversions
-        edf_folder = os.path.join(self.key, '.edf')
-        cmd = [
-            "stencila", "convert",
-            self.workdir_path(source_folder),
-            self.workdir_path(edf_folder)]
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
+        # edf_folder = os.path.join(self.key, '.edf')
+        # cmd = [
+        #     "stencila", "convert",
+        #     self.workdir_path(source_folder),
+        #     self.workdir_path(edf_folder)]
+        # p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # stdout, stderr = p.communicate()
 
-        # Create a DAR for the editor to work on
-        dar_folder = os.path.join(self.key, '.dar')
+        # Convert the source directory to a DAR for the editor to work on
         cmd = [
-            "stencila", "convert",
+            "stencila", "convert", "--to=dar",
             self.workdir_path(source_folder),
-            self.workdir_path(dar_folder)]
+            self.workdir_path(source_folder)
+        ]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
@@ -132,7 +142,7 @@ class Checkout(models.Model):
         dar_link = self.key + '.dar'
         dar_link_path = self.workdir_path(dar_link)
         if not os.path.exists(dar_link_path):
-            os.symlink(dar_folder, dar_link_path)
+            os.symlink(source_folder, dar_link_path)
 
         self.log("Convert returned %d" % p.returncode)
 
@@ -249,7 +259,7 @@ class Host(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            return Host(url='http://cloud-test.stenci.la')
+            return Host(url='http://localhost:2000')
 
     class Meta:
         app_label = 'director'
