@@ -259,7 +259,7 @@ class Host(models.Model):
         try:
             return cls.objects.all()[0]
         except IndexError:
-            return Host(url='http://localhost:2000')
+            return Host(url='http://cloud-test.stenci.la')
 
     class Meta:
         app_label = 'director'
