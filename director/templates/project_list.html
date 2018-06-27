@@ -19,7 +19,7 @@ $(document).ready(function(){
 {% block content %}
 <form style="float: right;" method="post" action="{% url 'create-project' %}">
   {% csrf_token %}
-  <input type="submit" value="Upload project">
+  <input type="submit" value="New project">
 </form>
 <!--
 <form style="float: right;" method="post" action="{% url 'open-new' %}">
@@ -36,13 +36,11 @@ $(document).ready(function(){
         {{ project.address }}
       </td>
       <td>{% if project.stencilaproject %}
+        <a href="{% url 'open' address=project.address %}" target="_blank">Open</a>
         <form style="display: inline;" method="get" action="{% url 'project-files' project.stencilaproject.owner project.stencilaproject.name %}">
           <input type="submit" value="Browse">
         </form>
         {% endif %}
-        <form style="display: inline;" method="get" action="{% url 'open' address=project.address %}">
-          <input type="submit" value="Open">
-        </form>
         <form style="display: inline;" method="post" action="{% url 'list-projects' %}">
           {% csrf_token %}
           <input type="hidden" name="project" value="{{ project.id }}">
