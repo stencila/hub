@@ -36,7 +36,7 @@ $(document).ready(function(){
         {{ project.address }}
       </td>
       <td>{% if project.stencilaproject %}
-        <a href="{% url 'open' address=project.address %}" target="_blank">Open</a>
+        <a href="{% url 'open' address=project.address %}" target="_blank">Edit</a>
         <form style="display: inline;" method="get" action="{% url 'project-files' project.stencilaproject.owner project.stencilaproject.name %}">
           <input type="submit" value="Browse">
         </form>
