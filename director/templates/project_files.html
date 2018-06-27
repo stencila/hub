@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Files in {{ object.name }}{% endblock %}
+{% block title %}Project {{ object.name }}{% endblock %}
 
 {% block scripts %}
 {{ block.super }}
@@ -25,7 +25,7 @@ window.addEventListener("DOMContentLoaded", function(event) {
 {% endblock %}
 
 {% block content %}
-<h1>Files in {{ object.name }}</h1>
+<h1>Project {{ object.name }}</h1>
 <div class="columns">
   <div class="column">
     <div id="file_list">Loading...</div>
