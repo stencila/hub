@@ -1,5 +1,5 @@
 window.addEventListener('load', () => {
-  
+  var project = substance.getQueryStringParam('project');
   var checkout = substance.getQueryStringParam('checkout');
   var host = substance.getQueryStringParam('host');
   var session = substance.getQueryStringParam('session');
@@ -14,7 +14,7 @@ window.addEventListener('load', () => {
 
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
-  stencila.StencilaWebApp.mount({
+  var app = stencila.StencilaWebApp.mount({
     archiveId: checkout + '.dar',
     storageType: 'fs',
     storageUrl: '/edit/storage'
@@ -23,11 +23,40 @@ window.addEventListener('load', () => {
   // Remove the loading
   var loading = document.getElementById('loading');
   loading.parentNode.removeChild(loading)
+
+  // Save button
+  var save = document.getElementById('save');
+  save.addEventListener('click', () => {
+    save.disabled = true;
+    app._save().then(() => {
+      save.disabled = false;
+    })
+  })
+
+  // Commit button
+  var commit = document.getElementById('commit');
+  commit.addEventListener('click', () => {
+    save.disabled = true;
+    commit.disabled = true;
+    app._save().then(() => {
+      fetch(`/checkouts/${checkout}/commit`, {
+        credentials: 'same-origin'
+      }).then(() => {
+        save.disabled = true;
+        commit.disabled = false;
+      })
+    })
+  })
 });
 
 window.addEventListener('beforeunload', () => {
   // If a session was provided then ask for it to be destroyed
   // when leaving the page
   var session = substance.getQueryStringParam('session');
-  if (session) fetch(`${host}/v1/sessions/${session}`, {method: 'DELETE'})
+  if (session) {
+    fetch(`${host}/v1/sessions/${session}`, {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    })
+  }
 })
