@@ -24,22 +24,11 @@ window.addEventListener('load', () => {
   var loading = document.getElementById('loading');
   loading.parentNode.removeChild(loading)
 
-  // Save button
-  var save = document.getElementById('save');
-  save.addEventListener('click', () => {
-    save.disabled = true;
-    app._save().then(() => {
-      save.disabled = false;
-    })
-  })
-
   // Commit button
   var commit = document.getElementById('commit');
   commit.addEventListener('click', () => {
-    save.disabled = true;
     commit.disabled = true;
     app._save().then(() => {
-      save.disabled = false;
       fetch(`/checkouts/${checkout}/commit`, {
         credentials: 'same-origin'
       }).then(() => {
