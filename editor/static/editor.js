@@ -1,10 +1,17 @@
+var app
+
+var project
+var checkout
+var host
+var session
+
 window.addEventListener('load', () => {
-  var project = substance.getQueryStringParam('project');
-  var checkout = substance.getQueryStringParam('checkout');
-  var host = substance.getQueryStringParam('host');
-  var session = substance.getQueryStringParam('session');
-  
-  // If a session is provided then connect firectly to that host
+  project = substance.getQueryStringParam('project');
+  checkout = substance.getQueryStringParam('checkout');
+  host = substance.getQueryStringParam('host');
+  session = substance.getQueryStringParam('session');
+
+  // If a session is provided then connect directly to that host
   // otherwise use the top level v0 API to create a new session
   if (session) {
     window.STENCILA_HOSTS = `${host}/v1/sessions!/${session}`;
@@ -14,7 +21,7 @@ window.addEventListener('load', () => {
 
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
-  var app = stencila.StencilaWebApp.mount({
+  app = stencila.StencilaWebApp.mount({
     archiveId: checkout + '.dar',
     storageType: 'fs',
     storageUrl: '/edit/storage'
@@ -25,27 +32,25 @@ window.addEventListener('load', () => {
   loading.parentNode.removeChild(loading)
 
   // Commit button
-  var commit = document.getElementById('commit');
-  commit.addEventListener('click', () => {
-    commit.disabled = true;
-    app._save().then(() => {
-      fetch(`/checkouts/${checkout}/commit`, {
-        credentials: 'same-origin'
-      }).then(() => {
-        commit.disabled = false;
-      })
+  var commitBtn = document.getElementById('commit');
+  commitBtn.addEventListener('click', () => {
+    commitBtn.disabled = true;
+    commit().then(() => {
+      commitBtn.disabled = false;
     })
   })
 });
 
 window.addEventListener('beforeunload', () => {
-  // If a session was provided then ask for it to be destroyed
-  // when leaving the page
-  var session = substance.getQueryStringParam('session');
-  if (session) {
-    fetch(`${host}/v1/sessions/${session}`, {
-      method: 'DELETE',
+  // Commit changes when window closed
+  commit()
+})
+
+
+function commit () {
+  return app._save().then(() => {
+    fetch(`/checkouts/${checkout}/commit`, {
       credentials: 'same-origin'
     })
-  }
-})
+  })
+}
