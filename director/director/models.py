@@ -136,6 +136,11 @@ class Checkout(models.Model):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
 
+        if p.returncode != 0 or 'error' in stderr.decode(): # Currently CLI does not return exit code 1 if it fails
+            self.log("Conversion failed: %s" % stderr)
+        else:
+            self.log("Conversion suceeded")
+
         # Create a symlink from `storage` to the project's `.dar`
         # This is necessary because the `dar-server` in `editor` does not
         # seem to accept subdirectories
@@ -143,8 +148,6 @@ class Checkout(models.Model):
         dar_link_path = self.workdir_path(dar_link)
         if not os.path.exists(dar_link_path):
             os.symlink(source_folder, dar_link_path)
-
-        self.log("Convert returned %d" % p.returncode)
 
 class StencilaProject(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE)

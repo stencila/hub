@@ -28,14 +28,17 @@ function fetch_log() {
 }
 window.addEventListener('DOMContentLoaded', fetch_log)
 
-
 fetch('{{ host.url }}/v1/sessions/stencila/core?token={{ host_token }}', {
   method: 'POST',
   credentials: 'include'
 }).then(response => {
-  response.json().then(session => {
-    event({subject: 'session-started', session })
-  })
+  if (response.ok) {
+    response.json().then(session => {
+      event({subject: 'session-started', session })
+    })
+  } else {
+    event({subject: 'session-error', message: response.statusText})
+  }
 })
 
 function event(detail) {
@@ -49,24 +52,33 @@ window.addEventListener('log', event => {
   let message
   switch (detail.subject) {
     case 'open-log':
-      message = JSON.stringify(detail.messages.messages)
+      let last = detail.messages.messages.pop()
+      if (last) {
+        message = last.message
+      }
       break;
     case 'open-finished':
       message = 'Finished fetching and converting files'
       openFinished = true
       break;
     case 'session-started':
-      message = 'Session has started'
       session = detail.session.id
+      message = 'Session has started:' + session
+      break;
+    case 'session-error':
+      message = 'Error starting session:' + detail.message
       break;
     default:
-      console.log(detail)
+      message = JSON.stringify(detail)
+      console.error(detail)
   }
 
-  const logEl = document.getElementById('log')
-  const itemEl = document.createElement('div')
-  itemEl.innerHTML = message
-  logEl.appendChild(itemEl)
+  if (message) {
+    const logEl = document.getElementById('log')
+    const itemEl = document.createElement('div')
+    itemEl.innerHTML = message
+    logEl.appendChild(itemEl)
+  }
 
   if (openFinished && session) {
     const url = "/edit?checkout={{ checkout.key }}&host={{ host.url }}&session=" + session
