@@ -28,7 +28,7 @@ function fetch_log() {
 }
 window.addEventListener('DOMContentLoaded', fetch_log)
 
-fetch('{{ host.url }}/v1/sessions/stencila/core?token={{ host_token }}', {
+fetch('{{ host.url }}/v1/sessions/stencila/core?ticket=c3po', { // token={{ host_token }}
   method: 'POST',
   credentials: 'include'
 }).then(response => {
