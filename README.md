@@ -2,7 +2,7 @@
 	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:250px">
 </div>
 
-Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub at [https://stenci.la](https://stenci.la).
+Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 
 ## Contribute
 
