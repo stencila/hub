@@ -1,2 +1,4 @@
-/node_modules
-/storage
+*
+!/static
+!/index.js
+!/package.json
