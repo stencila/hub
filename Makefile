@@ -98,15 +98,6 @@ director-devdb: director/env
 director-run: director/env
 	$(DJ) runserver
 
-# Run development server on http://hub-test.stenci.la:80
-# This is useful for testing things like allauth callbacks.
-# You need to add a `127.0.0.1 stenci.la` line to 
-# hosts file using `sudo nano /etc/hosts`
-director-run80: director-static
-	sudo DJANGO_JWT_SECRET=foo \
-		 DJANGO_SECRET_KEY=foo \
-		 director/env/bin/python3 director/manage.py runserver hub-test.stenci.la:80
-
 # Build Docker image
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
