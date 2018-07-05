@@ -114,8 +114,7 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         if not Storer.valid_address(address):
             raise Http404
 
-        project, _ = Project.objects.get_or_create(address=address)
-        project.users.add(request.user)
+        project, _ = Project.get_or_create_for_user(address=address, user=request.user)
 
         checkout = Checkout(project=project, owner=request.user)
         checkout.save()
@@ -186,7 +185,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
 
     def get_queryset(self):
-        return self.request.user.projects.all()
+        return self.request.user.projects_viewed.all()
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProjectListView, self).get_context_data(*args, **kwargs)
@@ -210,7 +209,7 @@ class ProjectListView(LoginRequiredMixin, ListView):
           and project.stencilaproject.owner == request.user:
           project.stencilaproject.delete()
         else:
-            project.users.remove(request.user)
+            project.viewers.remove(request.user)
         return redirect('list-projects')
 
 class StorerProjectBlock(LoginRequiredMixin, TemplateView):
@@ -346,7 +345,7 @@ class StencilaProjectDetailView(LoginRequiredMixin, DetailView):
             files = self.request.FILES.getlist('upload')
             if upload_form.is_valid():
                 self.object.upload(files)
-                self.object.project.users.add(request.user)
+                self.object.project.viewers.add(request.user)
                 return redirect(
                     'project-files', user=request.user.username,
                     project=self.object.name)

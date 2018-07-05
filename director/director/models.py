@@ -28,6 +28,22 @@ class Project(models.Model):
     class Meta:
         app_label = 'director'
 
+    @classmethod
+    def get_or_create_for_user(cls, address, user):
+        try:
+            project = cls.objects.get(address=address)
+            project.viewers.add(user)
+            return (project, False)
+        except cls.DoesNotExist:
+            pass
+
+        project = cls(address=address, creator=user)
+        project.save()
+        project_permission = ProjectPermission(user=user, type='admin', project=project)
+        project_permission.save()
+        project.viewers.add(user)
+        return (project, True)
+
 class ProjectPermission(models.Model):
     TYPES = (('read', 'Read'), ('write', 'Write'), ('admin', 'Admin'))
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -179,7 +195,7 @@ class StencilaProject(models.Model):
 
         name = cls.generate_name(owner)
         address = cls._get_address(owner, name)
-        project, created = Project.objects.get_or_create(address=address)
+        project, created = Project.get_or_create_for_user(address=address, user=owner)
         if not created and hasattr(project, 'stencilaproject'):
             return # TODO fail
         stencila_project = cls(name=name, owner=owner, project=project, uuid=uuid)
