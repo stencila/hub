@@ -10,7 +10,7 @@
 window.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById("id_upload").disabled = true;
   $("#file_list").load(
-    "{% url 'project-files-block' object.owner object.name %}",
+    "{% url 'project-files-block' object.creator object.name %}",
     function() { document.getElementById("id_upload").disabled = false; }
   );
   document.querySelector("form#upload input[type=file]").onchange = function () {
@@ -26,13 +26,13 @@ window.addEventListener("DOMContentLoaded", function(event) {
 
 {% block content %}
 <h1>Project {{ object.name }}</h1>
-{% if object.project.creator %}<div>Created by {{ object.project.creator }}</div>{% endif %}
+{% if object.creator %}<div>Created by {{ object.creator }}</div>{% endif %}
 <div class="columns">
   <div class="column">
     <div id="file_list">Loading...</div>
   </div>
 </div>
-{% if object.owner == user %}
+{% if object.creator == user %}
 <form method="POST" enctype="multipart/form-data" id="upload">
   {% csrf_token %}
   {{ upload_form }}

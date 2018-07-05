@@ -24,12 +24,31 @@ class Project(models.Model):
         'auth.User', on_delete=models.SET_NULL, related_name='projects_owned',
         null=True, blank=True)
     viewers = models.ManyToManyField('auth.User', related_name='projects_viewed')
+    name = models.SlugField(max_length=255)
+    uuid = models.UUIDField(default=uuid4, unique=True, editable=False)
+
+    base_project_name = 'project'
 
     class Meta:
         app_label = 'director'
+        unique_together = ('creator', 'name')
 
     @classmethod
-    def get_or_create_for_user(cls, address, user):
+    def generate_name(cls, creator, prefix=None):
+        if prefix is None:
+            prefix = cls.base_project_name
+        existing_names = [
+            p.name for p in Project.objects.filter(
+                creator=creator, name__startswith=prefix)]
+        i = 1
+        name = "%s-%d" % (prefix, i)
+        while name in existing_names:
+            i += 1
+            name = "%s-%d" % (prefix, i)
+        return name
+
+    @classmethod
+    def get_or_create_by_address(cls, address, user):
         try:
             project = cls.objects.get(address=address)
             project.viewers.add(user)
@@ -37,12 +56,84 @@ class Project(models.Model):
         except cls.DoesNotExist:
             pass
 
-        project = cls(address=address, creator=user)
+        name = cls.generate_name(user, prefix=address.split('/')[-1])
+        project = cls(address=address, creator=user, name=name)
         project.save()
-        project_permission = ProjectPermission(user=user, type='admin', project=project)
+        project_permission = ProjectPermission(project=project, user=user, type='admin')
         project_permission.save()
         project.viewers.add(user)
         return (project, True)
+
+    @classmethod
+    def _get_address(cls, owner, name):
+        return 'stencila://%s/%s' % (owner, name)
+
+    def get_address(self):
+        return self._get_address(self.creator, self.name)
+
+    @classmethod
+    def add(cls, creator):
+        name = cls.generate_name(creator)
+        address = cls._get_address(creator, name)
+        project = cls(address=address, creator=creator, name=name)
+        project.save()
+        project_permission = ProjectPermission(project=project, user=creator, type='admin')
+        project_permission.save()
+        project.viewers.add(creator)
+        return project
+
+    def can_edit(self, user):
+        return len(self.permissions.filter(user=user, type__in=('write', 'admin'))) > 0
+
+    def is_admin(self, user):
+        return len(self.permissions.filter(user=user, type__in=('admin',))) > 0
+
+    def delete(self):
+        try:
+            default_storage.delete(self.prefix())
+        except:
+            pass
+        super().delete()
+
+    def prefix(self):
+        return "projects/%s" % str(self.uuid)
+
+    def path(self, filename):
+        return "%s/%s" % (self.prefix(), filename)
+
+    def save(self, *args, **kwargs):
+        # Do we still need this?
+        address = self.get_address()
+        if self.address != address:
+            self.address = address
+        super(Project, self).save(*args, **kwargs)
+
+    def upload(self, files):
+        for f in files:
+            obj = default_storage.open(self.path(f.name), 'w')
+            obj.write(f.read())
+            obj.close()
+            f.close()
+
+    def list_files(self):
+        _, filenames = default_storage.listdir(self.prefix())
+        files = []
+        for f in filenames:
+            name = self.path(f)
+            files.append(dict(
+                type="file",
+                name=f,
+                size=default_storage.size(name),
+                last_modified=default_storage.get_modified_time(name)))
+        return files
+
+    def get_file(self, filename, to):
+        f = default_storage.open(self.path(filename), 'rb')
+        to.write(f.read())
+        f.close()
+
+    def delete_file(self, filename):
+        default_storage.delete(self.path(filename))
 
 class ProjectPermission(models.Model):
     TYPES = (('read', 'Read'), ('write', 'Write'), ('admin', 'Admin'))
@@ -82,8 +173,8 @@ class Checkout(models.Model):
         return Storer.get_instance_by_address(self.project.address)
 
     def get_folder_contents(self, remote_folder):
-        if hasattr(self.project, 'stencilaproject'):
-            return self.project.stencilaproject.list_files()
+        if self.project.address.startswith('stencila://'):
+            return self.project.list_files()
         storer = self.get_storer()
         return storer.get_folder_contents(remote_folder)
 
@@ -93,8 +184,8 @@ class Checkout(models.Model):
     def copy_file(self, filename, to):
         to = self.workdir_path(to)
         outfile = open(to, 'wb')
-        if hasattr(self.project, 'stencilaproject'):
-            self.project.stencilaproject.get_file(filename, outfile)
+        if self.project.address.startswith('stencila://'):
+            self.project.get_file(filename, outfile)
         else:
             storer = self.get_storer()
             contents = storer.file_contents(filename)
@@ -130,10 +221,10 @@ class Checkout(models.Model):
         return copied
 
     def commit(self):
-        if hasattr(self.project, 'stencilaproject'):
+        if self.project.address.startswith('stencila://'):
             dar_folder = self.workdir_path(os.path.join(self.key, 'source'))
             for file in os.listdir(dar_folder):
-                path = self.project.stencilaproject.path(file)
+                path = self.project.path(file)
                 with open(os.path.join(dar_folder, file)) as fh:
                     obj = default_storage.open(path, 'w')
                     obj.write(fh.read())
@@ -175,107 +266,6 @@ class Checkout(models.Model):
         dar_link_path = self.workdir_path(dar_link)
         if not os.path.exists(dar_link_path):
             os.symlink(source_folder, dar_link_path)
-
-class StencilaProject(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.CASCADE)
-    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    name = models.SlugField(max_length=255)
-    uuid = models.UUIDField(default=uuid4, editable=False, unique=True)
-
-    base_project_name = 'project'
-
-    @classmethod
-    def get_or_create_for_user(cls, owner, uuid):
-        if uuid is None:
-            uuid = uuid4()
-        try:
-            return StencilaProject.objects.get(owner=owner, uuid=uuid)
-        except StencilaProject.DoesNotExist:
-            pass
-
-        name = cls.generate_name(owner)
-        address = cls._get_address(owner, name)
-        project, created = Project.get_or_create_for_user(address=address, user=owner)
-        if not created and hasattr(project, 'stencilaproject'):
-            return # TODO fail
-        stencila_project = cls(name=name, owner=owner, project=project, uuid=uuid)
-        stencila_project.save()
-        return stencila_project
-
-    @classmethod
-    def _get_address(cls, owner, name):
-        return 'stencila://%s/%s' % (owner, name)
-
-    def get_address(self):
-        return self._get_address(self.owner, self.name)
-
-    @classmethod
-    def generate_name(cls, owner):
-        address_prefix = cls._get_address(owner, cls.base_project_name)
-        existing_addresses = [
-            p.address for p in Project.objects.filter(
-                stencilaproject__isnull=False,
-                stencilaproject__owner=owner,
-                address__startswith=address_prefix)]
-        i = 1
-        name = "%s-%d" % (cls.base_project_name, i)
-        while cls._get_address(owner, name) in existing_addresses:
-            i += 1
-            name = "%s-%d" % (cls.base_project_name, i)
-        return name
-
-    def delete(self):
-        try:
-            default_storage.delete(self.prefix())
-        except:
-            pass
-        self.project.delete()
-        super(StencilaProject, self).delete()
-
-    def prefix(self):
-        return "projects/%s" % str(self.uuid)
-
-    def path(self, filename):
-        return "%s/%s" % (self.prefix(), filename)
-
-    def save(self, *args, **kwargs):
-        address = self.get_address()
-        if self.project and self.project.address != address:
-            self.project.address = address
-            self.project.save()
-        super().save(*args, **kwargs)
-
-    def upload(self, files):
-        for f in files:
-            obj = default_storage.open(self.path(f.name), 'w')
-            obj.write(f.read())
-            obj.close()
-            f.close()
-
-    def list_files(self):
-        _, filenames = default_storage.listdir(self.prefix())
-        files = []
-        for f in filenames:
-            name = self.path(f)
-            files.append(dict(
-                type="file",
-                name=f,
-                size=default_storage.size(name),
-                last_modified=default_storage.get_modified_time(name)))
-        return files
-
-    def get_file(self, filename, to):
-        f = default_storage.open(self.path(filename), 'rb')
-        to.write(f.read())
-        f.close()
-
-    def delete_file(self, filename):
-        default_storage.delete(self.path(filename))
-
-    class Meta:
-        unique_together = ('name', 'owner')
-
-
 
 class Host(models.Model):
     url = models.URLField(unique=True)

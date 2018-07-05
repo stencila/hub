@@ -17,10 +17,10 @@ from uuid import uuid4
 
 import allauth.account.views
 from .auth import login_guest_user
-from .forms import UserSignupForm, UserSigninForm, StencilaProjectRenameForm, \
-     StencilaProjectUploadForm, BetaTokenForm
+from .forms import UserSignupForm, UserSigninForm, ProjectRenameForm, \
+     ProjectUploadForm, BetaTokenForm
 from .storer import Storer
-from .models import Project, Checkout, StencilaProject, Host
+from .models import Project, ProjectPermission, Checkout, Host
 
 class SigninRequiredMixin(AccessMixin):
     # Not required until we bring back guests
@@ -114,7 +114,7 @@ class OpenAddress(LoginRequiredMixin, TemplateView):
         if not Storer.valid_address(address):
             raise Http404
 
-        project, _ = Project.get_or_create_for_user(address=address, user=request.user)
+        project, _ = Project.get_or_create_by_address(address=address, user=request.user)
 
         checkout = Checkout(project=project, owner=request.user)
         checkout.save()
@@ -185,14 +185,14 @@ class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
 
     def get_queryset(self):
-        return self.request.user.projects_viewed.all()
+        return self.request.user.projects_viewed.all() # Add projects created
 
     def get_context_data(self, *args, **kwargs):
         context = super(ProjectListView, self).get_context_data(*args, **kwargs)
         accounts = {a.provider: a for a in self.request.user.socialaccount_set.all()}
         enabled = []
         disabled = []
-        providers = ['github']
+        providers = [] #['github']
         for provider in providers:
             account = accounts.get(provider, None)
             if account:
@@ -205,9 +205,8 @@ class ProjectListView(LoginRequiredMixin, ListView):
     def post(self, request, **kwargs):
         project_id = request.POST.get("project", 0)
         project = get_object_or_404(Project, id=project_id)
-        if hasattr(project, 'stencilaproject') \
-          and project.stencilaproject.owner == request.user:
-          project.stencilaproject.delete()
+        if project.is_admin(request.user):
+            project.delete()
         else:
             project.viewers.remove(request.user)
         return redirect('list-projects')
@@ -281,12 +280,12 @@ class StorerFolderBlock(LoginRequiredMixin, TemplateView):
         self.storer.account = request.user.socialaccount_set.get(provider=self.storer.code)
         return self.render_to_response(self.get_context_data())
 
-class StencilaProjectFileView(LoginRequiredMixin, DetailView):
-    model = StencilaProject
+class ProjectFileView(LoginRequiredMixin, DetailView):
+    model = Project
 
     def get(self, request, **kwargs):
         self.object = get_object_or_404(
-            StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
+            Project, creator__username=kwargs['user'], name=kwargs['project'])
         try:
             filename = kwargs['filename']
         except KeyError:
@@ -297,42 +296,55 @@ class StencilaProjectFileView(LoginRequiredMixin, DetailView):
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
-class StencilaProjectFilesBlock(LoginRequiredMixin, DetailView):
-    model = StencilaProject
+class ProjectFilesBlock(LoginRequiredMixin, DetailView):
+    model = Project
     template_name = 'project_filelist_block.html'
 
     def get(self, request, **kwargs):
         self.object = get_object_or_404(
-            StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
+            Project, creator__username=kwargs['user'], name=kwargs['project'])
         context = self.get_context_data(object=self.object)
+        context['can_edit'] = self.object.can_edit(request.user)
         return self.render_to_response(context)
 
-class StencilaProjectDetailView(LoginRequiredMixin, DetailView):
-    model = StencilaProject
+class ProjectDetailView(LoginRequiredMixin, DetailView):
+    model = Project
     template_name = 'project_files.html'
 
-    def get_object_or_404(self, **kwargs):
-        return get_object_or_404(
-            StencilaProject, owner__username=kwargs['user'], name=kwargs['project'])
+    def get_object(self, **kwargs):
+        try:
+            self.object = Project.objects.get(
+                creator__username=kwargs['user'], name=kwargs['project'])
+        except Project.DoesNotExist:
+            pass
+
+    def check_permissions(self, request, **kwargs):
+        try:
+            self.object = Project.objects.get(
+                creator__username=kwargs['user'], name=kwargs['project'])
+        except Project.DoesNotExist:
+            raise Http404
+
+        self.permissions = ProjectPermission.objects.filter(
+            project=self.object, user=request.user)
+
+        if len(self.permissions) < 1:
+            raise Http404
 
     def get(self, request, **kwargs):
-        self.object = self.get_object_or_404(**kwargs)
+        self.check_permissions(request, **kwargs)
         context = self.get_context_data(object=self.object)
-        if self.object.owner == request.user:
-            context['rename_form'] = StencilaProjectRenameForm(instance=self.object)
-            context['upload_form'] = StencilaProjectUploadForm(instance=self.object)
+        if self.object.creator == request.user:
+            context['rename_form'] = ProjectRenameForm(instance=self.object)
+            context['upload_form'] = ProjectUploadForm(instance=self.object)
         return self.render_to_response(context)
 
     def post(self, request, **kwargs):
-        self.object = self.get_object_or_404(**kwargs)
-
-        if self.object.owner != request.user:
-            raise Http404
-
+        self.check_permissions(request, **kwargs)
         context = self.get_context_data(object=self.object)
 
         if 'rename' in request.POST:
-            rename_form = StencilaProjectRenameForm(request.POST, instance=self.object)
+            rename_form = ProjectRenameForm(request.POST, instance=self.object)
             if rename_form.is_valid():
                 rename_form.save()
                 return redirect(
@@ -341,11 +353,10 @@ class StencilaProjectDetailView(LoginRequiredMixin, DetailView):
             context['rename_form'] = rename_form
 
         if 'upload' in request.POST:
-            upload_form = StencilaProjectUploadForm(request.POST, instance=self.object)
+            upload_form = ProjectUploadForm(request.POST, instance=self.object)
             files = self.request.FILES.getlist('upload')
             if upload_form.is_valid():
                 self.object.upload(files)
-                self.object.project.viewers.add(request.user)
                 return redirect(
                     'project-files', user=request.user.username,
                     project=self.object.name)
@@ -356,25 +367,24 @@ class StencilaProjectDetailView(LoginRequiredMixin, DetailView):
             self.object.delete_file(filename)
 
         if not 'upload_form' in context:
-            context['upload_form'] = StencilaProjectUploadForm(instance=self.object)
+            context['upload_form'] = ProjectUploadForm(instance=self.object)
         if not 'rename_form' in context:
-            context['rename_form'] = StencilaProjectRenameForm(instance=self.object)
+            context['rename_form'] = ProjectRenameForm(instance=self.object)
 
         return self.render_to_response(context)
 
-class CreateStencilaProjectView(LoginRequiredMixin, View):
+class CreateProjectView(LoginRequiredMixin, View):
 
     def create_project(self):
-        return StencilaProject.get_or_create_for_user(
-            self.request.user, uuid=uuid4())
+        return Project.add(self.request.user)
 
     def post(self, request, *args, **kwargs):
         stencila_project = self.create_project()
         return redirect(
             'project-files', user=request.user.username, project=stencila_project.name)
 
-class OpenNew(CreateStencilaProjectView):
+class OpenNew(CreateProjectView):
 
     def post(self, request, *args, **kwargs):
-        stencila_project = self.create_project()
-        return redirect('open', address=stencila_project.project.address)
+        project = self.create_project()
+        return redirect('open', address=project.address)

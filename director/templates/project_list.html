@@ -33,14 +33,10 @@ $(document).ready(function(){
     {% for project in object_list %}
     <tr>
       <td>
-        {{ project.address }}
+        <a href="{% url 'project-files' project.creator project.name %}">{{ project.address }}</a>
       </td>
-      <td>{% if project.stencilaproject %}
+      <td>
         <a href="{% url 'open' address=project.address %}" target="_blank">Edit</a>
-        <form style="display: inline;" method="get" action="{% url 'project-files' project.stencilaproject.owner project.stencilaproject.name %}">
-          <input type="submit" value="Browse">
-        </form>
-        {% endif %}
         <form style="display: inline;" method="post" action="{% url 'list-projects' %}">
           {% csrf_token %}
           <input type="hidden" name="project" value="{{ project.id }}">
