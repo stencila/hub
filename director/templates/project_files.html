@@ -26,6 +26,7 @@ window.addEventListener("DOMContentLoaded", function(event) {
 
 {% block content %}
 <h1>Project {{ object.name }}</h1>
+{% if object.project.creator %}<div>Created by {{ object.project.creator }}</div>{% endif %}
 <div class="columns">
   <div class="column">
     <div id="file_list">Loading...</div>
