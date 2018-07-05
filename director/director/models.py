@@ -19,10 +19,21 @@ from .storer import Storer
 class Project(models.Model):
     address = models.TextField(unique=True)
     gallery = models.BooleanField(default=False)
-    users = models.ManyToManyField('auth.User', related_name='projects')
+    public = models.BooleanField(default=False)
+    creator = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, related_name='projects_owned',
+        null=True, blank=True)
+    viewers = models.ManyToManyField('auth.User', related_name='projects_viewed')
 
     class Meta:
         app_label = 'director'
+
+class ProjectPermission(models.Model):
+    TYPES = (('read', 'Read'), ('write', 'Write'), ('admin', 'Admin'))
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        'Project', on_delete=models.CASCADE, related_name='permissions')
+    type = models.CharField(max_length=10, choices=TYPES)
 
 def new_checkout_key():
     return binascii.hexlify(os.urandom(32)).decode()
