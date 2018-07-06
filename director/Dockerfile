@@ -19,7 +19,7 @@ RUN curl -L https://github.com/stencila/cli/releases/download/v0.30.1/stencila-l
 
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
-#USER director
+USER director
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
