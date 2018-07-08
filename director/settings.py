@@ -20,7 +20,7 @@ class Common(Configuration):
     Configuration settings common to both development and production
     """
 
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
     # Application definition
 
@@ -43,7 +43,7 @@ class Common(Configuration):
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ]
 
-    ROOT_URLCONF = 'director.urls'
+    ROOT_URLCONF = 'urls'
 
     TEMPLATES = [
         {
@@ -61,7 +61,7 @@ class Common(Configuration):
         },
     ]
 
-    WSGI_APPLICATION = 'director.wsgi.application'
+    WSGI_APPLICATION = 'wsgi.application'
 
     # Database
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/
 
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "director.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 os.environ.setdefault("DJANGO_CONFIGURATION", "Prod")
 
 from configurations.wsgi import get_wsgi_application
