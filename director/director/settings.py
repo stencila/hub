@@ -22,8 +22,6 @@ class Common(Configuration):
 
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-    ALLOWED_HOSTS = []
-
     # Application definition
 
     INSTALLED_APPS = [
@@ -125,6 +123,9 @@ class Dev(Common):
     # This variable must always be set, even in development.
     SECRET_KEY = 'not-a-secret-key'
 
+    # Only allow localhost if in development mode
+    ALLOWED_HOSTS = ['127.0.0.1']
+
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + [
         'django_extensions'
@@ -142,3 +143,6 @@ class Prod(Common):
     # Require that a `DJANGO_SECRET_KEY` environment
     # variable is set during production
     SECRET_KEY = values.SecretValue()
+
+    # Allow for development, staging and full production hosts
+    ALLOWED_HOSTS = ['127.0.0.1', 'hub-test.stenci.la', 'hub.stenci.la']
