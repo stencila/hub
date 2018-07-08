@@ -1,8 +1,9 @@
-"""director URL Configuration
+"""
+URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
-Examples:
+
 Function views
     1. Add an import:  from my_app import views
     2. Add a URL to urlpatterns:  path('', views.home, name='home')
@@ -13,59 +14,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib.auth.views import logout
 from django.contrib import admin
-from django.urls import path, include
-from . import views
+from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    path('open/new/', views.OpenNew.as_view(), name='open-new'),
-    path('open/start/<checkout_key>/', views.OpenStart.as_view(), name='open-start'),
-    path('open/log/<checkout_key>/', views.OpenLog.as_view(), name='open-log'),
-    path('open/<path:address>', views.OpenAddress.as_view(), name='open'),
-
-    path('checkouts/<checkout_key>/commit', views.CheckoutCommitView.as_view(), name='checkout_commit'),
-
-    path('browse/<path:address>', views.BrowseFolder.as_view(), name='browse'),
-
-    path('projects/', views.ProjectListView.as_view(), name='list-projects'),
-
-    path('project/new/', views.CreateProjectView.as_view(), name='create-project'),
-    path('block/file-list/<slug:user>/<slug:project>/', views.ProjectFilesBlock.as_view(), name='project-files-block'),
-    path('files/<slug:user>/<slug:project>/', views.ProjectDetailView.as_view(), name='project-files'),
-    path('file/<slug:user>/<slug:project>/<path:filename>', views.ProjectFileView.as_view(), name='project-file'),
-
-    path('block/storer-projects/<slug:storer>/', views.StorerProjectBlock.as_view(), name='storer-project-block'),
-    path('block/storer-refs/<path:address>', views.StorerRefsBlock.as_view(), name='storer-refs-block'),
-    path('block/storer-folder/<path:address>', views.StorerFolderBlock.as_view(), name='storer-folder-block'),
-    # User management (login, logout etc)
-    # Mostly overrides of `allauth` views (often just to provide new templates).
-    # The allauth URLs not overidden below are:
-    #    password/change/                    account_change_password         change password
-    #    password/set/                       account_set_password            confirmation that password is changed?
-    #    inactive/                           account_inactive                notify user that account is inactive?
-    #    email/                              account_email                   add, change and verify emails
-    #    confirm-email/                      account_email_verification_sent
-    #    confirm-email/(?P<key>\w+)/
-    #    password/reset/                     account_reset_password
-    #    password/reset/done/                account_reset_password_done
-    #    password/reset/key/.../             account_reset_password_from_key
-    #    password/reset/key/done/            account_reset_password_from_key_done
-    #    social/login/cancelled/             socialaccount_login_cancelled
-    #    social/login/error/                 socialaccount_login_error
-    #    social/connections                  socialaccount_connections
-    path('me/', views.UserSettingsView.as_view(), name='user_settings'),
-    path('me/signup/', views.UserSignupView.as_view(), name='user_signup'),
-    path('me/signin/', views.UserSigninView.as_view(), name='user_signin'),
-    path('me/signout/', views.UserSignoutView.as_view(), name='user_signout'),
-    # path('me/join/', views.UserJoinView.as_view(), name='user_join'),
-    path('me/', include('allauth.urls')),
-
-    path('token/', views.BetaTokenView.as_view(), name='beta-token'),
-    path('', views.GalleryView.as_view(), name='home'),
 ]
-
-handler404 = views.Error404View.as_view()
-handler500 = views.Error500View.as_view()
