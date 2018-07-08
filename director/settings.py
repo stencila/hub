@@ -132,7 +132,7 @@ class Dev(Common):
     SECRET_KEY = 'not-a-secret-key'
 
     # Only allow localhost if in development mode
-    ALLOWED_HOSTS = ['127.0.0.1']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + [
@@ -153,4 +153,4 @@ class Prod(Common):
     SECRET_KEY = values.SecretValue()
 
     # Allow for development, staging and full production hosts
-    ALLOWED_HOSTS = ['127.0.0.1', 'hub-test.stenci.la', 'hub.stenci.la']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hub-test.stenci.la', 'hub.stenci.la']
