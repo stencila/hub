@@ -1,6 +1,0 @@
-{% if refs %}
-<form id="refs_form" method="POST" action="{% url 'browse' storer.code %}">
-  {% csrf_token %}
-  {{ refs.form }}
-</form>
-{% endif %}
