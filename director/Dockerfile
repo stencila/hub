@@ -21,4 +21,4 @@ RUN pip3 install -r requirements.txt
 
 ADD --chown=director:director . .
 
-CMD gunicorn wsgi -b 0.0.0.0:8000
+CMD gunicorn wsgi --bind 0.0.0.0:8000

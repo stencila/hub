@@ -113,6 +113,12 @@ class Common(Configuration):
     # Can be set using `DJANGO_STATIC_URL` env var
     STATIC_URL = values.Value('/static/')
 
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'assets')
+    ]
+
 
 class Dev(Common):
     """

@@ -71,7 +71,7 @@ director-venv: director/venv
 
 # Build any static files
 # Needs `director/venv` to setup virtualenv for Django collectstatic
-director-static: director/venv director-stencila
+director-static: director/venv
 	$(DJ) collectstatic --noinput
 
 # Create migrations
@@ -94,8 +94,8 @@ director-build: director/Dockerfile
 
 # Run the Docker image passing through
 # environment variables required for `Prod` settings
-# but using development database
-director-rundocker:
+# but using development database and static files
+director-rundocker: director-static
 	$(EV) \
 	docker run \
 		-e DJANGO_SECRET_KEY='not-a-secret' \
