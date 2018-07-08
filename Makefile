@@ -36,7 +36,7 @@ router-deploy: router-build
 # Director
 
 # Shortcut to activate the virtual environment during development
-VE := . director/env/bin/activate ;
+VE := . director/venv/bin/activate ;
 
 # Shortcut to set required environment variables during development
 # Uses a custom `env.sh` or falls back to `env-example.sh`
@@ -54,9 +54,6 @@ endif
 ifeq ($(OS),Darwin)
 	brew install libev
 endif
-	# Install Stencila Convert
-	curl -L https://github.com/stencila/cli/releases/download/v0.30.1/stencila-linux-x64.tar.gz | tar xvz
-	sudo mv stencila /usr/local/bin
 
 director-setup-dirs:
 	# Setup directories
@@ -66,51 +63,42 @@ director-setup-dirs:
 	ln -sfT ../storage director/storage
 
 # Setup virtual environment
-director/env: director/requirements.txt
-	python3 -m venv director/env
-	$(VE) pip3 install wheel
+director/venv: director/requirements.txt
+	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
-	touch director/env
-
-# Build stencila/stencila Javascript and CSS
-director-stencila:
-	mkdir -p director/client/stencila
-	# cp -rv director/stencila/dist/{font-awesome,katex,lib,stencila.css*,stencila.js*} director/client/stencila
+	touch director/venv
+director-venv: director/venv
 
 # Build any static files
-# Needs `director/env` to setup virtualenv for Django collectstatic
-director-static: director/env director-stencila
+# Needs `director/venv` to setup virtualenv for Django collectstatic
+director-static: director/venv director-stencila
 	$(DJ) collectstatic --noinput
 
 # Create migrations
-director-migrations: director/env
+director-migrations: director/venv
 	$(DJ) makemigrations director
 
 # Build a development database
-director-devdb: director/env
+director-devdb: director/venv
 	rm -f director/db.sqlite3
 	$(DJ) migrate
-	$(DJ) runscript create_allauth
-	$(DJ) runscript create_users
-	$(DJ) runscript create_projects
+	$(DJ) runscript create_dev_users
 
 # Run development server
-director-run: director/env
+director-run: director/venv
 	$(DJ) runserver
 
 # Build Docker image
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
 
-# Run the Docker image passing through development
-# environment variables
+# Run the Docker image passing through
+# environment variables required for `Prod` settings
+# but using development database
 director-rundocker:
 	$(EV) \
 	docker run \
-		-e DJANGO_SECRET_KEY \
-		-e DJANGO_JWT_SECRET \
-		-e DJANGO_GS_PROJECT_ID \
-		-e DJANGO_GS_BUCKET_NAME \
+		-e DJANGO_SECRET_KEY='not-a-secret' \
 		-v $$PWD/director/static:/home/director/static:ro \
 		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
