@@ -76,7 +76,7 @@ director-static: director/venv
 
 # Create migrations
 director-migrations: director/venv
-	$(DJ) makemigrations director
+	$(DJ) makemigrations
 
 # Build a development database
 director-devdb: director/venv
