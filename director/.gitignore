@@ -1,0 +1,14 @@
+# Ignore compiled Python files
+*.pyc
+
+# Ignore secrets & storage
+/secrets
+/storage
+
+# Ignore director virtualenvs and collected static files
+/venv
+/env.sh
+/static
+
+# Ignore dev sqlite3 db file
+/db.sqlite3
