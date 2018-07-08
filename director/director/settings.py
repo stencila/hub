@@ -125,6 +125,11 @@ class Dev(Common):
     # This variable must always be set, even in development.
     SECRET_KEY = 'not-a-secret-key'
 
+    # Additional apps only used in development
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'django_extensions'
+    ]
+
 
 class Prod(Common):
     """
