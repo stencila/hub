@@ -88,6 +88,10 @@ director-devdb: director/venv
 director-run: director/venv
 	$(DJ) runserver
 
+# Run tests
+director-test: director/venv
+	$(DJ) test
+
 # Build Docker image
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
