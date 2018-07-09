@@ -25,12 +25,21 @@ class Common(Configuration):
     # Application definition
 
     INSTALLED_APPS = [
+        # Django contrib apps
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+
+        # Third party apps
+        'polymorphic',
+        'rest_framework',
+
+        # Our apps
+        'projects',
+        'editors'
     ]
 
     MIDDLEWARE = [
@@ -118,6 +127,11 @@ class Common(Configuration):
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'assets')
     ]
+
+    # 'Media' files (uploaded by users)
+    # https://docs.djangoproject.com/en/2.0/topics/files/
+
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 
 
 class Dev(Common):

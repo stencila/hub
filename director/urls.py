@@ -18,8 +18,12 @@ from django.contrib import admin
 from django.urls import path
 
 from views import HomeView
+from projects.views import ProjectArchiveView
 
 urlpatterns = [
+    path('api/v0/projects/<int:project_id>/archive', ProjectArchiveView.as_view()),
+
     path('admin/', admin.site.urls),
+
     path('', HomeView.as_view(), name='home')
 ]
