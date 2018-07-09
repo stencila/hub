@@ -1,9 +1,14 @@
 const express = require('express')
+const fs = require('fs')
 const darServer = require('dar-server')
+const multer = require('multer')
+const mkdirp = require('mkdirp')
 const path = require('path')
+const rimraf = require('rimraf')
 
 const port = 4000
 const url = `http://localhost:${port}`
+const storage = path.join(__dirname, 'storage')
 
 const app = express()
 
@@ -18,12 +23,32 @@ app.use('/', function (req, res, next) {
 // In production, this is served from elsewhere (e.g. a Google Storage bucket)
 app.use('/edit/static', express.static(path.join(__dirname, 'static')))
 
-// Provide read (GET) and write (PUT) of DARs in the `storage` directory 
+// Provide endpoints to create (POST) DARs
+// Currently, creating DARs is not provided by darServer so
+// we implement that here
+const upload = multer({
+	storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      const dest = path.join(storage, req.params.id)
+      if (fs.existsSync()) rimraf.sync(dest)
+      mkdirp.sync(dest)
+      cb(null, dest)
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+})
+app.post('/edit/storage/:id', upload.any(), (req, res) => {
+	res.send()
+})
+
+// Provide endpoints to read (GET) and write (PUT) DARs
 darServer.serve(app, {
   port,
   serverUrl: url,
   apiUrl: '/edit/storage',
-  rootDir: path.join(__dirname, 'storage')
+  rootDir: storage
 })
 
 app.listen(port, () => {
