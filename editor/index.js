@@ -8,7 +8,7 @@ const rimraf = require('rimraf')
 
 const port = 4000
 const url = `http://localhost:${port}`
-const storage = path.join(__dirname, 'storage')
+const storage = path.join(__dirname, 'storage', 'dars')
 
 const app = express()
 

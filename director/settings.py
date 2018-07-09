@@ -131,7 +131,7 @@ class Common(Configuration):
     # 'Media' files (uploaded by users)
     # https://docs.djangoproject.com/en/2.0/topics/files/
 
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
 
 
 class Dev(Common):
