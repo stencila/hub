@@ -32,7 +32,36 @@ class Project(PolymorphicModel):
         pass
 
 
-class FileProject(Project):
+# Project classes in alphabetaical order
+#
+# Note: many of these are, obviously, not implemented but are
+# here as placeholders, to sketch out the different types of
+# project sources that might be avilable
+#
+# Note: where these derived classes do not need any additional
+# fields it is tempting to define them as `class Meta: abstract = True`
+# so that an additional database table is not created.
+# However, that means that they are not available in the admin
+# so we currently avoid that optimisation.
+
+
+class DatProject(Project):
+    """
+    A project hosted on Dat
+    """
+
+    pass
+
+
+class DropboxProject(Project):
+    """
+    A project hosted on Dropbox
+    """
+
+    pass
+
+
+class FilesProject(Project):
     """
     A project hosted on Stencila Hub consisting of a set of files
     """
@@ -57,18 +86,18 @@ class FileProject(Project):
             pass
 
 
-def file_project_file_path(instance, filename):
+def files_project_file_path(instance, filename):
     # File will be uploaded to MEDIA_ROOT/file_projects/<id>/<filename>
-    return 'file_projects/{0}/{1}'.format(instance.project.id, filename)
+    return 'files_projects/{0}/{1}'.format(instance.project.id, filename)
 
 
-class FileProjectFile(Model):
+class FilesProjectFile(Model):
     """
-    A file residing in a `FileProject`
+    A file residing in a `FilesProject`
     """
 
     project = ForeignKey(
-        FileProject,
+        FilesProject,
         related_name='files',
         on_delete=CASCADE
     )
@@ -76,24 +105,8 @@ class FileProjectFile(Model):
     file = FileField(
         null=False,
         blank=True,
-        upload_to=file_project_file_path
+        upload_to=files_project_file_path
     )
-
-
-class DatProject(Project):
-    """
-    A project hosted on Dat
-    """
-
-    pass
-
-
-class DropboxProject(Project):
-    """
-    A project hosted on Dropbox
-    """
-
-    pass
 
 
 class GithubProject(Project):

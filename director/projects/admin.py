@@ -7,7 +7,7 @@ from polymorphic.admin import (
 
 from .models import (
     Project,
-    FileProject, FileProjectFile,
+    FilesProject, FilesProjectFile,
     GithubProject
 )
 
@@ -16,23 +16,23 @@ from .models import (
 class ProjectAdmin(PolymorphicParentModelAdmin):
     base_model = Project
     child_models = [
-        FileProject,
-        GithubProject
+        FilesProject,
+        GithubProject,
     ]
     list_filter = [
         PolymorphicChildModelFilter
     ]
 
 
-class FileProjectFileInline(admin.TabularInline):
-    model = FileProjectFile
+class FilesProjectFileInline(admin.TabularInline):
+    model = FilesProjectFile
 
 
-@admin.register(FileProject)
-class FileProjectAdmin(PolymorphicChildModelAdmin):
-    base_model = FileProject
+@admin.register(FilesProject)
+class FilesProjectAdmin(PolymorphicChildModelAdmin):
+    base_model = FilesProject
     inlines = [
-        FileProjectFileInline
+        FilesProjectFileInline
     ]
 
 
