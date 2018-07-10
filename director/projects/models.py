@@ -19,23 +19,52 @@ class Project(PolymorphicModel):
     A project
     """
 
+    address = CharField(
+        blank=True,
+        help_text='Address of project e.g. github://org/repo/folder'
+    )
+
+    @staticmethod
+    def create_from_address(address):
+        """
+        Create a project from an address.
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def create_from_url(url):
+        """
+        Create a project from a URL.
+
+        This method enables users to specify a project
+        by copying a third party URL from the browser address bar.
+        Converts the URL into an address.For example,
+
+        https://github.com/stencila/examples/tree/master/mtcars
+
+        is converted to,
+
+        github://stencila/examples/mtcars
+        """
+        raise NotImplementedError()
+
     def pull(self):
         """
         Pull files from the project source
         """
-        pass
+        raise NotImplementedError()
 
     def push(self, archive):
         """
         Push files to the project source
         """
-        pass
+        raise NotImplementedError()
 
 
 # Project classes in alphabetaical order
 #
-# Note: many of these are, obviously, not implemented but are
-# here as placeholders, to sketch out the different types of
+# Note: many of these are, obviously, not implemented, but have
+# been added here as placeholders, to sketch out the different types of
 # project sources that might be avilable
 #
 # Note: where these derived classes do not need any additional
@@ -43,6 +72,14 @@ class Project(PolymorphicModel):
 # so that an additional database table is not created.
 # However, that means that they are not available in the admin
 # so we currently avoid that optimisation.
+
+
+class BitbucketProject(Project):
+    """
+    A project hosted on Bitbucket
+    """
+
+    pass
 
 
 class DatProject(Project):
@@ -120,6 +157,16 @@ class GithubProject(Project):
 class GitlabProject(Project):
     """
     A project hosted on Gitlab
+    """
+
+    pass
+
+
+class OSFProject(Project):
+    """
+    A project hosted on the Open Science Framework
+
+    See https://developer.osf.io/ for API documentation
     """
 
     pass
