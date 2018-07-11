@@ -1,0 +1,11 @@
+body {
+    color: #444;
+    font-family: Lato, sans;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+main.section {
+    /* Push footer to the bottom */
+    min-height: 90vh;
+}
