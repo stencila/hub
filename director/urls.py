@@ -14,12 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
 from views import (
     HomeView,
-    OpenView
+    OpenView,
+    UserSettingsView,
+    UserSignupView,
+    UserSigninView,
+    UserSignoutView
 )
 from projects.views import (
     ProjectListView,
@@ -41,9 +46,20 @@ urlpatterns = [
         path('<int:pk>/archive/', ProjectArchiveView.as_view(),  name='project_archive')
     ])),
 
-    path('admin/', admin.site.urls),
-    path('me/', include('allauth.urls')),
+    path('me/',          UserSettingsView.as_view(), name='user_settings'),
+    path('me/signup/',   UserSignupView.as_view(),   name='user_signup'),
+    path('me/signin/',   UserSigninView.as_view(),   name='user_signin'),
+    path('me/signout/',  UserSignoutView.as_view(),  name='user_signout'),
+    path('me/',          include('allauth.urls')),
 
-    path('open',   OpenView.as_view(), name='open'),
-    path('',       HomeView.as_view(), name='home')
+    path('open/',        OpenView.as_view(), name='open'),
+    path('',             HomeView.as_view(), name='home'),
+
+    path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('debug/', include(debug_toolbar.urls)),
+    ] + urlpatterns

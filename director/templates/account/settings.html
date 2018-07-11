@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "User settings" %}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 30em">
+    <div class="buttons">
+        <a class="button" href="{% url 'account_change_password' %}">
+            <span class="icon"><i class="fa fa-key"></i></span>
+            <span>Change password</span>
+        </a>
+        <a class="button" href="{% url 'account_email' %}">
+            <span class="icon"><i class="fa fa-envelope"></i></span>
+            <span>Manage email addresses</span>
+        </a>
+        <a class="button" href="{% url 'socialaccount_connections' %}">
+            <span class="icon"><i class="fa fa-share-square"></i></span>
+            <span>Manage account connections</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

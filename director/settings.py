@@ -128,6 +128,10 @@ class Common(Configuration):
         },
     ]
 
+    LOGIN_URL = '/me/signin'
+
+    LOGIN_REDIRECT_URL = '/'
+
     # Internationalization
     # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -161,7 +165,6 @@ class Common(Configuration):
     # Third-party application settings
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
-
     CRISPY_TEMPLATE_PACK = 'bulma'
 
 
@@ -182,10 +185,18 @@ class Dev(Common):
     # Only allow localhost if in development mode
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+    INTERNAL_IPS = '127.0.0.1'  # For debug_toolbar
+
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'debug_toolbar',
         'django_extensions'
     ]
+
+    # Additional middleware only used in development
+    MIDDLEWARE = [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ] + Common.MIDDLEWARE
 
 
 class Prod(Common):

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign up" %}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 25em">
+    <h3 class="title">Sign up</h3>
+    {% crispy form %}
+</div>
+{% endblock %}
+
+

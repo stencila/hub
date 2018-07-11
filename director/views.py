@@ -1,20 +1,35 @@
+from allauth.account.views import (
+    SignupView,
+    LoginView,
+    LogoutView
+)
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin
+)
 from django.views.generic import (
     TemplateView
 )
 
+
 from projects.models import Project
 from editors.models import Editor
 #from hosts.models import Host
+
+from forms import (
+    UserSignupForm,
+    UserSigninForm
+)
 
 
 class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-class OpenView(TemplateView):
+class OpenView(LoginRequiredMixin, TemplateView):
     """
     Open a project with an editor
     """
+
     template_name = 'open.html'
 
     def get(self, request):
@@ -53,3 +68,34 @@ class OpenView(TemplateView):
             editor=editor,
             host=host
         ))
+
+
+class UserSettingsView(LoginRequiredMixin, TemplateView):
+
+    template_name = "account/settings.html"
+
+
+class UserSignupView(SignupView):
+    """
+    Override of allauth SignupView to allow for custom template and form
+    """
+
+    template_name = 'account/signup.html'
+    form_class = UserSignupForm
+
+
+class UserSigninView(LoginView):
+    """
+    Override of allauth LoginView to allow for custom template and form
+    """
+
+    template_name = 'account/signin.html'
+    form_class = UserSigninForm
+
+
+class UserSignoutView(LogoutView):
+    """
+    Override of allauth LogoutView to allow for custom template and form
+    """
+
+    template_name = 'account/signout.html'
