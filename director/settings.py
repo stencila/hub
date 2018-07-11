@@ -34,6 +34,8 @@ class Common(Configuration):
         'django.contrib.staticfiles',
 
         # Third party apps
+        'crispy_forms',
+        'crispy_forms_bulma',
         'polymorphic',
         'rest_framework',
 
@@ -133,6 +135,10 @@ class Common(Configuration):
 
     MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
 
+    # Third-party application settings
+    CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
+    CRISPY_TEMPLATE_PACK = 'bulma'
+
 
 class Dev(Common):
     """
@@ -141,6 +147,9 @@ class Dev(Common):
 
     # Ensure debug is always true in development
     DEBUG = True
+
+    # Crispy forms should fail loudly during development
+    CRISPY_FAIL_SILENTLY = not DEBUG
 
     # This variable must always be set, even in development.
     SECRET_KEY = 'not-a-secret-key'
