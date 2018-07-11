@@ -33,7 +33,11 @@
   </div>
   <div class="column">
     <h3 class="title">Sign in with your username</h3>
-    {% crispy form %}
+    <form class="form" method="post" action="{% url 'user_signin' %}">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button class="button is-primary" type="submit">Sign me in!</button>
+    </form>
     <p class="help"><a href="{% url 'account_reset_password' %}">Forgot your password?</a></p>
     <p class="help"><a href="{% url 'user_signup' %}">Don't have a user account yet?</a></p>
   </div>

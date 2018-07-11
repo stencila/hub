@@ -15,11 +15,6 @@ from projects.models import Project
 from editors.models import Editor
 #from hosts.models import Host
 
-from forms import (
-    UserSignupForm,
-    UserSigninForm
-)
-
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -71,31 +66,35 @@ class OpenView(LoginRequiredMixin, TemplateView):
 
 
 class UserSettingsView(LoginRequiredMixin, TemplateView):
+    """
+    Dashboard of settings available to the user
+    """
 
     template_name = "account/settings.html"
 
 
 class UserSignupView(SignupView):
     """
-    Override of allauth SignupView to allow for custom template and form
+    Override of allauth SignupView to allow for custom
+    URL and template name (and perhaps more later)
     """
 
     template_name = 'account/signup.html'
-    form_class = UserSignupForm
 
 
 class UserSigninView(LoginView):
     """
-    Override of allauth LoginView to allow for custom template and form
+    Override of allauth LoginView to allow for custom
+    URL and template name (and perhaps more later)
     """
 
     template_name = 'account/signin.html'
-    form_class = UserSigninForm
 
 
 class UserSignoutView(LogoutView):
     """
-    Override of allauth LogoutView to allow for custom template and form
+    Override of allauth LogoutView to allow for custom
+    URL and template name (and perhaps more later)
     """
 
     template_name = 'account/signout.html'
