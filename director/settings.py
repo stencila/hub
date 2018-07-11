@@ -32,14 +32,31 @@ class Common(Configuration):
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'django.contrib.sites',  # Required by allauth
 
         # Third party apps
+
+        'allauth',
+        'allauth.account',
+        'allauth.socialaccount',
+        # Social account providers. See
+        #    http://django-allauth.readthedocs.org/en/latest/providers.html
+        # When you add an item here you must:
+        #   - add an entry in SOCIALACCOUNT_PROVIDERS below
+        #   - register Stencila as an API client or app with the provider
+        #   - add a SocialApp instance (/admin/socialaccount/socialapp/add/)
+        'allauth.socialaccount.providers.github',
+        'allauth.socialaccount.providers.google',
+        'allauth.socialaccount.providers.orcid',
+        'allauth.socialaccount.providers.twitter',
+
         'crispy_forms',
         'crispy_forms_bulma',
         'polymorphic',
         'rest_framework',
 
         # Our apps
+
         'projects',
         'editors'
     ]
@@ -76,6 +93,8 @@ class Common(Configuration):
 
     WSGI_APPLICATION = 'wsgi.application'
 
+    SITE_ID = 1  # Required by allauth
+
     # Database
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
     #
@@ -87,8 +106,12 @@ class Common(Configuration):
         environ_prefix='DJANGO'  # For consistent naming with other env vars
     )
 
-    # Password validation
-    # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+    # Authentication
+
+    AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+        'allauth.account.auth_backends.AuthenticationBackend',
+    )
 
     AUTH_PASSWORD_VALIDATORS = [
         {
@@ -136,7 +159,9 @@ class Common(Configuration):
     MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
 
     # Third-party application settings
+
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
+
     CRISPY_TEMPLATE_PACK = 'bulma'
 
 

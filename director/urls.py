@@ -42,6 +42,7 @@ urlpatterns = [
     ])),
 
     path('admin/', admin.site.urls),
+    path('me/', include('allauth.urls')),
 
     path('open',   OpenView.as_view(), name='open'),
     path('',       HomeView.as_view(), name='home')
