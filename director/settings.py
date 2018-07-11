@@ -198,6 +198,9 @@ class Dev(Common):
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ] + Common.MIDDLEWARE
 
+    # During development just print emails to console
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 class Prod(Common):
     """
