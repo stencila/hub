@@ -58,7 +58,8 @@ class Common(Configuration):
         # Our apps
 
         'projects',
-        'editors'
+        'editors',
+        'checkouts'
     ]
 
     MIDDLEWARE = [

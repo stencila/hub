@@ -28,11 +28,18 @@ from views import (
 )
 from projects.views import (
     ProjectListView,
-    ProjectReadView,
     ProjectCreateView,
+    ProjectReadView,
     ProjectUpdateView,
     ProjectDeleteView,
     ProjectArchiveView
+)
+from checkouts.views import (
+    CheckoutListView,
+    CheckoutCreateView,
+    CheckoutReadView,
+    CheckoutLaunchView,
+    CheckoutEventsView
 )
 
 urlpatterns = [
@@ -44,6 +51,14 @@ urlpatterns = [
         path('<int:pk>/update/',  ProjectUpdateView.as_view(),   name='project_update'),
         path('<int:pk>/delete/',  ProjectDeleteView.as_view(),   name='project_delete'),
         path('<int:pk>/archive/', ProjectArchiveView.as_view(),  name='project_archive')
+    ])),
+
+    path('checkouts/', include([
+        path('',                  CheckoutListView.as_view(),     name='checkout_list'),
+        path('create/',           CheckoutCreateView.as_view(),   name='checkout_create'),
+        path('<int:pk>/',         CheckoutReadView.as_view(),     name='checkout_read'),
+        path('<int:pk>/launch',   CheckoutLaunchView.as_view(),   name='checkout_launch'),
+        path('<int:pk>/events',   CheckoutEventsView.as_view(),   name='checkout_events'),
     ])),
 
     path('me/',          UserSettingsView.as_view(), name='user_settings'),
