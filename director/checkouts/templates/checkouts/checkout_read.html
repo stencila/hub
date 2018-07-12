@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <ul>
+        <li><a href="{% url 'checkout_list' %}">Checkouts</a></li>
+        <li class="is-active"><a href="#" aria-current="page">{{ object.id }}</a></li>
+    </ul>
+</nav>
+
+<div id="checkout">
+  <ol>
+    <li v-for="event of events">
+      [[ event.message ]]
+    </li>
+  </ol>
+</div>
+
+<script>
+new Vue({
+    el: '#checkout',
+    delimiters: ['[[', ']]'],
+    data: {
+        events: [],
+        since: 0
+    },
+    methods: {
+        launch: function() {
+            fetch("{% url 'checkout_launch' object.id %}", {
+                method: 'POST', 
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': cookie('csrftoken')
+                }
+            }).then(() => {
+                this.poll()
+            })
+        },
+
+        poll: function() {
+            fetch("{% url 'checkout_events' object.id %}?since=" + this.since, {
+                method: 'GET', 
+                credentials: 'same-origin',
+            })
+            .then(response => response.json())
+            .then(events => {
+                if (events.length) {
+                    this.events = this.events.concat(events)
+                    this.since = events.pop().id
+                }
+            });
+            setTimeout(this.poll, 2000)
+        },
+    },
+    created: function(){
+        this.launch()
+    }
+})
+</script>
+
+{% endblock %}
