@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -21,53 +22,53 @@ from .forms import (
 )
 
 
-class ProjectListView(ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
     paginate_by = 100
 
 
-class ProjectCreateView(CreateView):
-    model = Project
-    #form_class = ProjectCreateForm
-    fields = ['address']
+class ProjectCreateView(LoginRequiredMixin, FormView):
+    form_class = ProjectCreateForm
     template_name = 'projects/project_create.html'
 
     def get_success_url(self):
         return reverse('project_read', args=[self.object.id])
 
-    def ___post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
-            #project = FilesProject.objects.create()
-            files = request.FILES.getlist('files_field')
+            project = Project.objects.create()
+            #files = request.FILES.getlist('files_field')
             #for file in files:
             #    project.files.add(file)
-            #project.save()
+            project.save()
+            # For consistency with CreateView...
+            self.object = project
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
 
-class ProjectReadView(DetailView):
+class ProjectReadView(LoginRequiredMixin, DetailView):
     model = Project
     fields = ['address']
     template_name = 'projects/project_read.html'
 
 
-class ProjectUpdateView(UpdateView):
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = Project
     template_name = 'projects/project_update.html'
     fields = ['address']
 
 
-class ProjectDeleteView(DeleteView):
+class ProjectDeleteView(LoginRequiredMixin, DeleteView):
     model = Project
     template_name = 'projects/project_delete.html'
     success_url = reverse_lazy('project_list')
 
 
-class ProjectArchiveView(View):
+class ProjectArchiveView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         project = get_object_or_404(Project, id=pk)

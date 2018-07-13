@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -8,12 +9,12 @@ from .models import Checkout, CheckoutEvent
 from .forms import CheckoutCreateForm
 
 
-class CheckoutListView(ListView):
+class CheckoutListView(LoginRequiredMixin, ListView):
     model = Checkout
     paginate_by = 100
 
 
-class CheckoutCreateView(CreateView):
+class CheckoutCreateView(LoginRequiredMixin, CreateView):
     model = Checkout
     form_class = CheckoutCreateForm
     template_name = 'checkouts/checkout_create.html'
@@ -22,13 +23,13 @@ class CheckoutCreateView(CreateView):
         return reverse('checkout_read', args=[self.object.id])
 
 
-class CheckoutReadView(DetailView):
+class CheckoutReadView(LoginRequiredMixin, DetailView):
     model = Checkout
     fields = '__all__'
     template_name = 'checkouts/checkout_read.html'
 
 
-class CheckoutLaunchView(View):
+class CheckoutLaunchView(LoginRequiredMixin, View):
     """
     TODO: check this is only accessible to the creator of the checkout
     """
@@ -41,7 +42,7 @@ class CheckoutLaunchView(View):
         return HttpResponse()
 
 
-class CheckoutEventsView(View):
+class CheckoutEventsView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         since = request.GET.get('since', 0)
