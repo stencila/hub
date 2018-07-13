@@ -57,6 +57,7 @@ class Common(Configuration):
 
         # Our apps
 
+        'accounts',
         'projects',
         'editors',
         'checkouts'
