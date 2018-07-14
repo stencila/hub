@@ -13,16 +13,16 @@ window.addEventListener('load', () => {
 
   // If a session is provided then connect directly to that host
   // otherwise use the top level v0 API to create a new session
-  if (session) {
+  if (host && session) {
     window.STENCILA_HOSTS = `${host}/v1/sessions!/${session}`;
-  } else {
+  } else if (host) {
     window.STENCILA_HOSTS = `${host}/v0`;
   }
 
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
   app = stencila.StencilaWebApp.mount({
-    archiveId: checkout + '.dar',
+    archiveId: checkout,
     storageType: 'fs',
     storageUrl: '/edit/storage'
   }, window.document.body);
