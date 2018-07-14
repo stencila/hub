@@ -1,11 +1,114 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <p></p>
-        <button class="button is-success" type="submit">Launch</button>
+<div id="checkout" class="container" style="max-width: 30em">
+    <form v-on:submit.prevent>
+        <div class="field">
+            <div class="control">
+                <input class="input" type="text" placeholder="Project URL e.g. github://user/repo/folder" v-model="project" v-on:input="error = ''">
+            </div>
+            <p class="help is-danger">[[ error ]]</p>
+        </div>
+        <div class="buttons is-centered">
+           <button class="button is-primary" type="submit" v-on:click="create()" v-bind:disabled="!enabled">Launch!</button>
+        </div>
     </form>
+  <ol>
+    <li v-for="event of instance.events">
+      [[ event.time ]]  [[ event.topic ]]  [[ event.message ]]
+    </li>
+  </ol>
+</div>
+
+<script type="text/javascript">
+new Vue({
+    el: '#checkout',
+    delimiters: ['[[', ']]'],
+    data: {
+        enabled: true,
+        project: utils.param('project'),
+        error: null,
+        instance: {}
+    },
+    methods: {
+        create: function() {
+            this.error = null
+            this.enabled = false
+
+            fetch('/checkouts/create/', {
+                method: 'POST', 
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken')
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    project: this.project
+                })
+            })
+            .then(response => response.json())
+            .then(instance => {
+                if (!instance.error) {
+                    this.instance = instance
+                    this.launch()
+                } else {
+                    this.error = instance.error
+                    this.enabled = true
+                }
+            })
+        },
+
+        launch: function() {
+            fetch(`/checkouts/${this.instance.id}/launch/`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken')
+                },
+                credentials: 'same-origin'             
+            })
+            .then(response => response.json())
+            .then(instance => {
+                this.enabled = true
+                
+                this.instance = instance
+                if (this.interval) {
+                    clearInterval(this.interval)
+                    this.interval = null
+                }
+            })
+
+            if (!this.interval) {
+                this.interval = setInterval(this.poll, 1000)
+            }
+        },
+
+        poll: function() {
+            fetch(`/checkouts/${this.instance.id}/`, {
+                method: 'GET', 
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+            })
+            .then(response => response.json())
+            .then(instance => {
+                this.instance = instance
+            })
+        },
+    },
+    mounted: function () {
+        // When app is mounted, if project is defined (from query string), create the checkout
+        if (this.project) this.create()
+    },
+    watch: {
+        project: function () {
+            // When project is changed, clear any error
+            this.error = null
+        }
+    }
+})
+</script>
+
 {% endblock %}
