@@ -2,22 +2,27 @@
 
 {% block content %}
 <div id="checkout" class="container" style="max-width: 30em">
-    <form v-on:submit.prevent>
+    <form @submit.prevent>
         <div class="field">
             <div class="control">
-                <input class="input" type="text" placeholder="Project URL e.g. github://user/repo/folder" v-model="project" v-on:input="error = ''">
+                <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = ''">
             </div>
-            <p class="help is-danger">[[ error ]]</p>
+            <p class="help is-danger" v-text="error"></p>
         </div>
         <div class="buttons is-centered">
-           <button class="button is-primary" type="submit" v-on:click="create()" v-bind:disabled="!enabled">Launch!</button>
+           <button class="button is-primary" type="submit" @click="create()" :disabled="!enabled">
+                <span class="icon">
+                    <i class="fas fa-rocket"></i>
+                </span>
+                <span>Open</span>
+            </button>
         </div>
     </form>
-  <ol>
-    <li v-for="event of instance.events">
-      [[ event.time ]]  [[ event.topic ]]  [[ event.message ]]
+  <ul>
+    <li v-cloak="instance.events" v-for="event of instance.events" :title="event.time">
+      [[ event.message ]]
     </li>
-  </ol>
+  </ul>
 </div>
 
 <script type="text/javascript">
@@ -51,7 +56,7 @@ new Vue({
             .then(instance => {
                 if (!instance.error) {
                     this.instance = instance
-                    this.launch()
+                    this.open()
                 } else {
                     this.error = instance.error
                     this.enabled = true
@@ -59,8 +64,9 @@ new Vue({
             })
         },
 
-        launch: function() {
-            fetch(`/checkouts/${this.instance.id}/launch/`, {
+        open: function() {
+            // Open the checkout asynchrously
+            fetch(`/checkouts/${this.instance.id}/open/`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -70,12 +76,17 @@ new Vue({
             })
             .then(response => response.json())
             .then(instance => {
-                this.enabled = true
-                
+                // Open finished
                 this.instance = instance
                 if (this.interval) {
                     clearInterval(this.interval)
                     this.interval = null
+                }
+
+                // Redirect to the editor window if 
+                // succeeded and the checkout is 'open'
+                if (this.instance.status === 'O') {
+                    window.location = instance.editorUrl
                 }
             })
 
@@ -99,7 +110,8 @@ new Vue({
         },
     },
     mounted: function () {
-        // When app is mounted, if project is defined (from query string), create the checkout
+        // When app is mounted, if project is defined (from query string),
+        // create the checkout
         if (this.project) this.create()
     },
     watch: {

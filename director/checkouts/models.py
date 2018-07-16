@@ -1,7 +1,5 @@
-import time
-
 from django.db.models import (
-    Model, ForeignKey,
+    Model, OneToOneField, ForeignKey,
     CharField, DateTimeField, IntegerField, TextField,
     CASCADE, SET_NULL
 )
@@ -26,7 +24,6 @@ class Checkout(Model):
         'auth.User',
         null=True,  # Should only be null if the creator is deleted
         on_delete=SET_NULL,
-        editable=False,
         related_name='checkouts_created',
         help_text='User who created the checkout'
     )
@@ -51,26 +48,32 @@ class Checkout(Model):
         Project,
         null=True,
         blank=True,
-        on_delete=SET_NULL
+        on_delete=SET_NULL,
+        related_name='checkouts'
     )
 
-    editor = ForeignKey(
+    editor = OneToOneField(
         Editor,
         null=True,
         blank=True,
-        on_delete=SET_NULL
+        on_delete=SET_NULL,
+        related_name='checkout'
     )
 
     @staticmethod
-    def create(project):
+    def create(project, creator):
         if type(project) is str:
             try:
-                project = Project.objects.get(pk=project)
+                project = Project.objects.get(address=project)
             except Project.DoesNotExist as error:
                 raise error
 
+        editor = Editor.create('native')
+
         return Checkout.objects.create(
-            project=project
+            project=project,
+            editor=editor,
+            creator=creator
         )
 
     @staticmethod
@@ -83,7 +86,8 @@ class Checkout(Model):
     def json(self):
         return {
             'id': self.id,
-            'project': self.project.id if self.project else None,
+            'projectId': self.project.id if self.project else None,
+            'editorUrl': self.editor.url if self.editor else None,
             'status': self.status,
             'events': list(self.events.all().values())
         }
@@ -105,26 +109,42 @@ class Checkout(Model):
             self.status = 'F'
             self.save()
 
-    def launch(self):
+    def open(self):
+        """
+        Open the checkout by pulling from the project and
+        pushing to the editor.
+        """
         self.status = 'L'
         self.save()
 
         self.event(START, 'project:pull', 'Pulling files from project')
         try:
-            time.sleep(3)
             archive = self.project.pull()
             self.event(FINISH, 'project:pull', 'Pulled files from project')
         except Exception as error:
-            self.event(ERROR, 'project:pull', str(error))
+            self.event(ERROR, 'project:pull', repr(error))
 
         self.event(START, 'editor:push', 'Pushing files to editor')
         try:
-            time.sleep(3)
+            self.editor.push(archive)
             self.event(FINISH, 'editor:push', 'Pushed files to editor')
         except Exception as error:
-            self.event(ERROR, 'editor:push', str(error))
+            self.event(ERROR, 'editor:push', repr(error))
+
+        if self.status != 'F':
+            self.status = 'O'
 
         self.save()
+
+    def save_(self):
+        """
+        Save the checkout by pulling from the editor and
+        pushing to the project. Underscore suffix to
+        avoid name clash.
+        """
+
+        archive = self.editor.pull()
+        self.project.push(archive)
 
 
 class CheckoutEvent(Model):
@@ -165,7 +185,8 @@ class CheckoutEvent(Model):
     )
 
     # Note: ideally we would use the Postgres JSONField here for
-    # better query support. See https://docs.djangoproject.com/en/2.0/ref/contrib/postgres/fields/#jsonfield
+    # better query support.
+    # See https://docs.djangoproject.com/en/2.0/ref/contrib/postgres/fields/#jsonfield
     # However, that can not be used with SQLIte suring development so
     # at present we stick with a TextField
     data = TextField(

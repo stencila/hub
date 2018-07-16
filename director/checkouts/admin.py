@@ -6,4 +6,6 @@ from .models import Checkout
 
 @admin.register(Checkout)
 class CheckoutAdmin(ModelAdmin):
-    pass
+    list_display = [
+        '__str__', 'creator', 'created_at'
+    ]
