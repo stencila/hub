@@ -1,13 +1,13 @@
 var app
 
-var project
 var checkout
+var key
 var host
 var session
 
 window.addEventListener('load', () => {
-  project = substance.getQueryStringParam('project');
   checkout = substance.getQueryStringParam('checkout');
+  key = substance.getQueryStringParam('key');
   host = substance.getQueryStringParam('host');
   session = substance.getQueryStringParam('session');
 
@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
   app = stencila.StencilaWebApp.mount({
-    archiveId: checkout,
+    archiveId: key,
     storageType: 'fs',
     storageUrl: '/edit/storage'
   }, window.document.body);
@@ -49,7 +49,8 @@ window.addEventListener('beforeunload', () => {
 
 function commit () {
   return app._save().then(() => {
-    fetch(`/checkouts/${checkout}/commit`, {
+    fetch(`/checkouts/${checkout}/save/`, {
+      method: 'POST',
       credentials: 'same-origin'
     })
   })
