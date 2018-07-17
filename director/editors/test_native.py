@@ -13,3 +13,8 @@ class NativeEditorTestCase(TestCase):
     def test_push(self):
         with open(os.path.join(FIXTURES, 'archive1.zip'), 'rb') as archive:
             self.editor.push(archive)
+
+    def test_pull(self):
+        archive = self.editor.pull()
+        with open(os.path.join(FIXTURES, 'archive1-got.zip'), 'wb') as file:
+            file.write(archive.read())
