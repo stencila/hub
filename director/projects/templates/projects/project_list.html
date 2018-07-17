@@ -8,7 +8,13 @@
     <ul>
     {% for project in object_list %}
         <li>
-            {{ project.address }}
+            <span>{{ project.address }}</span>
+            <a href="{% url 'checkout_create' %}?project={{ project.address }}" target="_blank" title="Checkout">
+                <span class="icon is-success">
+                    <i class="fas fa-rocket"></i>
+                </span>
+            </a>
+            {% comment %}
             <a href="{% url 'project_read' project.id %}" title="Read">
                 <span class="icon has-text-info">
                     <i class="fas fa-info-circle"></i>
@@ -19,6 +25,7 @@
                     <i class="fas fa-cog"></i>
                 </span>
             </a>
+            {% endcomment %}
             <a href="{% url 'project_delete' project.id %}" title="Delete">
                 <span class="icon has-text-danger">
                     <i class="fas fa-trash"></i>
