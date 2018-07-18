@@ -117,14 +117,12 @@ class Checkout(Model):
         self.status = 'L'
         self.save()
 
-        self.event(START, 'project:pull', 'Pulling files from project')
         try:
             archive = self.project.pull()
             self.event(FINISH, 'project:pull', 'Pulled files from project')
         except Exception as error:
             self.event(ERROR, 'project:pull', repr(error))
 
-        self.event(START, 'editor:push', 'Pushing files to editor')
         try:
             self.editor.push(archive)
             self.event(FINISH, 'editor:push', 'Pushed files to editor')
