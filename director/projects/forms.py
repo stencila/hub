@@ -3,6 +3,8 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
+from .models import FilesProject, FilesProjectFile
+
 
 class ProjectCreateForm(forms.Form):
     """
@@ -23,5 +25,20 @@ class ProjectCreateForm(forms.Form):
     )
 
 
-class FilesProjectUpdateForm(forms.Form):
-    pass
+class FilesProjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = FilesProject
+        fields = ['address']
+
+
+class FilesProjectFileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = FilesProjectFile
+        fields = ['file']
+
+
+FilesProjectFileFormSet = forms.inlineformset_factory(
+    FilesProject, FilesProjectFile,
+    form=FilesProjectFileUpdateForm,
+    extra=1
+)

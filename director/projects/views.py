@@ -1,11 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     View,
     DetailView,
-    ListView
+    ListView,
+    RedirectView
 )
 from django.views.generic.edit import (
     CreateView,
@@ -15,11 +16,12 @@ from django.views.generic.edit import (
 )
 
 from .models import (
-    Project
+    Project,
+    FilesProject
 )
 from .forms import (
     ProjectCreateForm,
-    FilesProjectUpdateForm
+    FilesProjectUpdateForm, FilesProjectFileFormSet
 )
 
 
@@ -49,10 +51,15 @@ class ProjectReadView(LoginRequiredMixin, DetailView):
     template_name = 'projects/project_read.html'
 
 
-class ProjectUpdateView(LoginRequiredMixin, UpdateView):
-    model = Project
-    template_name = 'projects/project_update.html'
-    fields = ['address']
+class ProjectUpdateView(LoginRequiredMixin, RedirectView):
+    """
+    Generic view for updating a project which redirects to
+    the type-specific update view.
+    """
+
+    def get_redirect_url(self, *args, **kwargs):
+        project = get_object_or_404(Project, pk=kwargs['pk'])
+        return reverse('%s_update' % project.type, args=[kwargs['pk']])
 
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):
@@ -64,7 +71,7 @@ class ProjectDeleteView(LoginRequiredMixin, DeleteView):
 class ProjectArchiveView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
-        project = get_object_or_404(Project, id=pk)
+        project = get_object_or_404(Project, pk=pk)
 
         archive = project.pull()
         body = archive.getvalue()
@@ -74,24 +81,32 @@ class ProjectArchiveView(LoginRequiredMixin, View):
         return response
 
 
-class FilesProjectUpdateView(LoginRequiredMixin, FormView):
+class FilesProjectUpdateView(LoginRequiredMixin, UpdateView):
+    model = FilesProject
     form_class = FilesProjectUpdateForm
-    template_name = 'projects/files_project_update.html'
+    template_name = 'projects/filesproject_update.html'
+    success_url = reverse_lazy('project_list')
 
-    def get_success_url(self):
-        return reverse('files_project_update', args=[self.object.id])
-
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            project = Project.objects.create()
-            #files = request.FILES.getlist('files_field')
-            #for file in files:
-            #    project.files.add(file)
-            project.save()
-            # For consistency with CreateView...
-            self.object = project
-            return self.form_valid(form)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['file_formset'] = FilesProjectFileFormSet(
+                self.request.POST,
+                self.request.FILES,
+                instance=self.object
+            )
+            context['file_formset'].full_clean()
         else:
-            return self.form_invalid(form)
+            context['file_formset'] = FilesProjectFileFormSet(instance=self.object)
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['file_formset']
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.success_url)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))

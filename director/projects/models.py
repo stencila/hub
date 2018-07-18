@@ -89,6 +89,10 @@ class Project(PolymorphicModel):
         address = url
         return Project.get_or_create_from_address(address, creator)
 
+    @property
+    def type(self):
+        return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
+
     def pull(self):
         """
         Pull files from the project source
@@ -148,7 +152,7 @@ class FilesProject(Project):
 
     def save(self, *args, **kwargs):
         if not self.address:
-            self.address = 'file://{}'.format(self.id)
+            self.address = 'files://{}'.format(self.id)
         super().save(*args, **kwargs)
 
     def pull(self):

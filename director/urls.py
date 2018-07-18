@@ -14,7 +14,9 @@ from projects.views import (
     ProjectReadView,
     ProjectUpdateView,
     ProjectDeleteView,
-    ProjectArchiveView
+    ProjectArchiveView,
+
+    FilesProjectUpdateView
 )
 from checkouts.views import (
     CheckoutListView,
@@ -27,12 +29,15 @@ from checkouts.views import (
 urlpatterns = [
     # Project CRUD
     path('projects/', include([
-        path('',                  ProjectListView.as_view(),      name='project_list'),
-        path('create/',           ProjectCreateView.as_view(),    name='project_create'),
-        path('<int:pk>/',         ProjectReadView.as_view(),      name='project_read'),
-        path('<int:pk>/update/',  ProjectUpdateView.as_view(),    name='project_update'),
-        path('<int:pk>/delete/',  ProjectDeleteView.as_view(),    name='project_delete'),
-        path('<int:pk>/archive/', ProjectArchiveView.as_view(),   name='project_archive')
+        # Generic views
+        path('',                       ProjectListView.as_view(),        name='project_list'),
+        path('create/',                ProjectCreateView.as_view(),      name='project_create'),
+        path('<int:pk>/',              ProjectReadView.as_view(),        name='project_read'),
+        path('<int:pk>/update/',       ProjectUpdateView.as_view(),      name='project_update'),
+        path('<int:pk>/delete/',       ProjectDeleteView.as_view(),      name='project_delete'),
+        path('<int:pk>/archive/',      ProjectArchiveView.as_view(),     name='project_archive'),
+        # Type-specific views
+        path('files/<int:pk>/update/', FilesProjectUpdateView.as_view(), name='filesproject_update'),
     ])),
     # Home is shortcut to `project_list`
     path('',                      ProjectListView.as_view(),      name='home'),
