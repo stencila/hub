@@ -18,7 +18,8 @@ from .models import (
     Project
 )
 from .forms import (
-    ProjectCreateForm
+    ProjectCreateForm,
+    FilesProjectUpdateForm
 )
 
 
@@ -32,22 +33,14 @@ class ProjectCreateView(LoginRequiredMixin, FormView):
     template_name = 'projects/project_create.html'
 
     def get_success_url(self):
-        return reverse('project_read', args=[self.object.id])
+        return reverse('project_update', args=[self.project.id])
 
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            project = Project.objects.create()
-            #files = request.FILES.getlist('files_field')
-            #for file in files:
-            #    project.files.add(file)
-            project.save()
-            # For consistency with CreateView...
-            self.object = project
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+    def form_valid(self, form):
+        self.project = Project.create(
+            type=form.cleaned_data['type'],
+            creator=self.request.user
+        )
+        return super().form_valid(form)
 
 
 class ProjectReadView(LoginRequiredMixin, DetailView):
@@ -79,3 +72,26 @@ class ProjectArchiveView(LoginRequiredMixin, View):
         response = HttpResponse(body, content_type='application/x-zip-compressed')
         response['Content-Disposition'] = 'attachment; filename={}.zip'.format('project.name')
         return response
+
+
+class FilesProjectUpdateView(LoginRequiredMixin, FormView):
+    form_class = FilesProjectUpdateForm
+    template_name = 'projects/files_project_update.html'
+
+    def get_success_url(self):
+        return reverse('files_project_update', args=[self.object.id])
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            project = Project.objects.create()
+            #files = request.FILES.getlist('files_field')
+            #for file in files:
+            #    project.files.add(file)
+            project.save()
+            # For consistency with CreateView...
+            self.object = project
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

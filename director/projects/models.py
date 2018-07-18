@@ -1,5 +1,4 @@
 from io import BytesIO
-import os.path
 import re
 from zipfile import ZipFile
 
@@ -40,13 +39,23 @@ class Project(PolymorphicModel):
         return self.address if self.address else 'Project #{}'.format(self.id)
 
     @staticmethod
+    def create(type, creator):
+        """
+        Create a new editor of the given type
+        """
+        if type == 'files':
+            return FilesProject.objects.create(creator=creator)
+        else:
+            raise RuntimeError('Unhandled type "{}" when attempting to create project'.format(type))
+
+    @staticmethod
     def get_or_create(type, address, creator):
         """
         Get, or create, a project
         """
         return Project.objects.get_or_create(
             address=address,
-            creator=creator.id
+            creator=creator
         )
 
     @staticmethod
@@ -84,13 +93,13 @@ class Project(PolymorphicModel):
         """
         Pull files from the project source
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Pull is not implemented for class {}'.format(self.__class__.__name__))
 
     def push(self, archive):
         """
         Push files to the project source
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
 
 
 # Project classes in alphabetaical order
@@ -160,15 +169,15 @@ class FilesProject(Project):
         Push files in the archive to the Django storage
         """
 
-        raise NotImplementedError()
+        # Unzip all the files and add to this project
+        zipfile = ZipFile(archive, 'r')
+        zipfile.extractall(dest)
 
         # Clear the files in this project
-        self.clear()
-
-        # Unzip all the files and add to this project
-        with ZipFile(archive, 'r') as zipfile:
-            # TODO
-            pass
+        # TODO: until the above is implemented, skip this
+        # self.files.all().delete()
+        for file in zipfile.namelist():
+            FileField()
 
         self.save()
 
