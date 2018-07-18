@@ -5,7 +5,7 @@ body, button, input {
     font-weight: 300;
 }
 
-main.section {
+main {
     /* Push footer to the bottom */
     min-height: 90vh;
 }

@@ -12,7 +12,7 @@
         </ul>
     </nav>
     
-    <div id="checkout" class="container" style="max-width: 30em">
+    <div class="container" style="max-width: 30em">
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|crispy }}
