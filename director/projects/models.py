@@ -93,6 +93,14 @@ class Project(PolymorphicModel):
     def type(self):
         return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
 
+    @property
+    def name(self):
+        """
+        A temporary implementation of a name property
+        which is likely to be replaced by a db field in future
+        """
+        return self.address if self.address else 'Unnamed'
+
     def pull(self):
         """
         Pull files from the project source

@@ -1,11 +1,13 @@
 var app
 
+var project
 var checkout
 var key
 var host
 var session
 
 window.addEventListener('load', () => {
+  project = substance.getQueryStringParam('project');
   checkout = substance.getQueryStringParam('checkout');
   key = substance.getQueryStringParam('key');
   host = substance.getQueryStringParam('host');
@@ -26,6 +28,10 @@ window.addEventListener('load', () => {
     storageType: 'fs',
     storageUrl: '/edit/storage'
   }, window.document.body);
+
+  // Set the project name
+  var projectEl = document.getElementById('project')
+  projectEl.innerHTML = project || ''
 
   // Remove the loading
   var loading = document.getElementById('loading');

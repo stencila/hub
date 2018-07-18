@@ -130,7 +130,10 @@ class NativeEditor(Editor):
         response.raise_for_status()
 
         # Set URL for user to access the editor checkout session
-        self.url = '{}/?checkout={}&key={}'.format(self.base_url, self.checkout.id, self.key)
+        self.url = '{}/?project={}&checkout={}&key={}'.format(
+            self.base_url,
+            self.checkout.project.name, self.checkout.id, self.key
+        )
         self.save()
 
         # Clean up
