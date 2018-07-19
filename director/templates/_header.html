@@ -25,7 +25,6 @@
             {% if user.is_staff %}
               <a class="navbar-item" href="{% url 'admin:index' %}">Admin</a>
             {% endif %}
-            <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
             <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
             <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
           {% endif %}
