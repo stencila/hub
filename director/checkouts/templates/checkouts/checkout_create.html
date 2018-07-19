@@ -72,7 +72,7 @@ new Vue({
                     'Accept': 'application/json',
                     'X-CSRFToken': utils.cookie('csrftoken')
                 },
-                credentials: 'same-origin'             
+                credentials: 'same-origin'
             })
             .then(response => response.json())
             .then(instance => {
@@ -81,15 +81,25 @@ new Vue({
                 if (this.interval) {
                     clearInterval(this.interval)
                     this.interval = null
-                }
-
-                // Redirect to the editor window if 
-                // succeeded and the checkout is 'open'
+                } 
+                // If checkout is 'open' (ie. no failiures) then...
                 if (this.instance.status === 'O') {
-                    window.location = instance.editorUrl
+                    // Login to the host with provided token
+                    // so that a host session token can be set
+                    fetch(`${instance.hostUrl}/login`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${instance.hostToken}`
+                        },
+                        credentials: 'include'
+                    }).then(response => {
+                        // Redirect to the editor
+                        window.location = instance.editorUrl
+                    })
                 }
             })
 
+            // Start polling the checkout
             if (!this.interval) {
                 this.interval = setInterval(this.poll, 1000)
             }
