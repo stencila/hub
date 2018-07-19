@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -17,11 +17,11 @@ from django.views.generic.edit import (
 
 from .models import (
     Project,
-    FilesProject
+    FilesProject, FilesProjectFile
 )
 from .forms import (
     ProjectCreateForm,
-    FilesProjectUpdateForm, FilesProjectFileFormSet
+    FilesProjectUpdateForm
 )
 
 
@@ -81,32 +81,43 @@ class ProjectArchiveView(LoginRequiredMixin, View):
         return response
 
 
+class FilesProjectReadView(LoginRequiredMixin, DetailView):
+    model = FilesProject
+    template_name = 'projects/fileproject_read.html'
+
+    def get(self, request, pk):
+        project = get_object_or_404(FilesProject, pk=pk)
+        if request.META.get('HTTP_ACCEPT') == 'application/json':
+            return JsonResponse(project.serialize())
+        else:
+            return render(request, self.template_name, project)
+
+
 class FilesProjectUpdateView(LoginRequiredMixin, UpdateView):
     model = FilesProject
     form_class = FilesProjectUpdateForm
     template_name = 'projects/filesproject_update.html'
     success_url = reverse_lazy('project_list')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.POST:
-            context['file_formset'] = FilesProjectFileFormSet(
-                self.request.POST,
-                self.request.FILES,
-                instance=self.object
-            )
-            context['file_formset'].full_clean()
-        else:
-            context['file_formset'] = FilesProjectFileFormSet(instance=self.object)
-        return context
 
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['file_formset']
-        if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            return redirect(self.success_url)
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+class FilesProjectUploadView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        project = get_object_or_404(FilesProject, pk=pk)
+        files = request.FILES.getlist('file')
+        for file in files:
+            instance = FilesProjectFile(
+                project=project,
+                file=request.FILES['file']
+            )
+            instance.save()
+        return JsonResponse(project.serialize())
+
+
+class FilesProjectRemoveView(LoginRequiredMixin, View):
+
+    def delete(self, request, pk, file):
+        project = get_object_or_404(FilesProject, pk=pk)
+        file = get_object_or_404(FilesProjectFile, project=project, pk=file)
+        file.delete()
+        return JsonResponse(project.serialize())

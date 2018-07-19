@@ -1,30 +1,132 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}Project{% endblock %}
 
-{% block content %}
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-        <ul>
-            <li><a href="{% url 'project_list' %}">Projects</a></li>
-            <li><a href="{% url 'project_read' object.id %}">{{ object.id }}</a></li>
-            <li class="is-active"><a href="#" aria-current="page">Update</a></li>
-        </ul>
-    </nav>
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'js/vue-upload-component.min.js' %}"></script>
+{% endblock %}
 
+{% block content %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <ul>
+        <li><a href="{% url 'project_list' %}">Projects</a></li>
+        <li><a href="#">{{ object.id }}</a></li>
+        <li class="is-active"><a href="#" aria-current="page">Update</a></li>
+    </ul>
+</nav>
+
+<div class="section">
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
-
-        {{ file_formset.management_form }}
-        {% for form in file_formset %}
-            {{ form|crispy }}
-        {% endfor %}
-
-        <div class="buttons is-centered">
-           <button class="button is-primary" type="submit">
-                <span>Save</span>
-            </button>
-        </div>
+        <button class="button is-primary" type="submit">
+            <span>Save</span>
+        </button>
     </form>
+</div>
+<div id="filesproject" class="section">
+    <table class="table is-fullwidth">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th><th>
+            </tr>
+        </thead>
+        <tbody v-if="files.length">
+            <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
+                <td>[[file.name]]</td>
+                <td>[[file.size | formatSize]]</td>
+                <td v-if="file.error">
+                    <span class="icon">
+                        <i class="fas fa-error"></i>
+                    </span>
+                    <span>[[file.error]]</span>
+                </td>
+                <td v-else-if="file.active">
+                    <span class="icon">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    </span>
+                </td>
+                <td v-else-if="file.success">
+                    <span class="icon has-text-success">
+                        <i class="fas fa-check"></i>
+                    </span>
+                </td>
+                <td v-else-if="file.current">
+                    <a class="icon has-text-danger" @click="remove(file.id)">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+
+    <file-upload
+      class="button"
+      post-action="{% url 'filesproject_upload' object.id %}"
+      :headers="{'X-CSRFToken': utils.cookie('csrftoken')}"
+      :multiple="true"
+      v-model="files"
+      ref="upload"
+    >
+      <i class="fa fa-plus"></i>
+      Add files
+    </file-upload>
+    <button type="button" class="button is-success" :disabled="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = true">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+      Upload
+    </button>
+</div>
+
+<script type="text/javascript">
+window.vue = new Vue({
+    el: '#filesproject',
+    delimiters: ['[[', ']]'],
+    components: {
+        FileUpload: VueUploadComponent,
+    },
+    data: {
+        instance: {},
+        files: []
+    },
+    methods: {
+        read: function() {
+            fetch('{% url 'filesproject_read' object.id %}', {
+                method: 'GET', 
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(instance => {
+                this.instance = instance
+                this.$refs.upload.add(instance.files.map(file => Object.assign(file, {current: true})))
+            })
+        },
+        remove: function (fileId) {
+            fetch(`/projects/files/${this.instance.id}/remove/${fileId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(instance => {
+                this.instance = instance
+                this.$refs.upload.remove(fileId)
+            })
+        }
+    },
+    mounted: function () {
+        this.read()
+    }
+})
+</script>
 {% endblock %}

@@ -72,6 +72,8 @@ director-venv: director/venv
 # Build any static files
 # Needs `director/venv` to setup virtualenv for Django collectstatic
 director-static: director/venv
+	cp director/node_modules/vue/dist/vue.min.js director/assets/js
+	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js director/assets/js
 	$(DJ) collectstatic --noinput
 
 # Create migrations

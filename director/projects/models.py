@@ -164,6 +164,12 @@ class FilesProject(Project):
         help_text='Name of the project'
     )
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'files': [file.serialize() for file in self.files.all()],
+        }
+
     def save(self, *args, **kwargs):
         if not self.address:
             self.address = 'files://{}'.format(self.id)
@@ -181,8 +187,7 @@ class FilesProject(Project):
         archive = BytesIO()
         with ZipFile(archive, 'w') as zipfile:
             for file in self.files.all():
-                relpath = re.match(r'files_projects/\d+/(.*)', file.file.name).group(1)
-                zipfile.write(file.file.path, relpath)
+                zipfile.write(file.file.path, file.name)
         return archive
 
     def push(self, archive):
@@ -224,6 +229,17 @@ class FilesProjectFile(Model):
         blank=True,
         upload_to=files_project_file_path
     )
+
+    @property
+    def name(self):
+        return re.match(r'files_projects/\d+/(.*)', self.file.name).group(1)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'size': self.file.size
+        }
 
 
 class GithubProject(Project):

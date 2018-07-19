@@ -16,7 +16,10 @@ from projects.views import (
     ProjectDeleteView,
     ProjectArchiveView,
 
-    FilesProjectUpdateView
+    FilesProjectReadView,
+    FilesProjectUpdateView,
+    FilesProjectUploadView,
+    FilesProjectRemoveView
 )
 from checkouts.views import (
     CheckoutListView,
@@ -37,7 +40,10 @@ urlpatterns = [
         path('<int:pk>/delete/',       ProjectDeleteView.as_view(),      name='project_delete'),
         path('<int:pk>/archive/',      ProjectArchiveView.as_view(),     name='project_archive'),
         # Type-specific views
+        path('files/<int:pk>/',        FilesProjectReadView.as_view(),   name='filesproject_read'),
         path('files/<int:pk>/update/', FilesProjectUpdateView.as_view(), name='filesproject_update'),
+        path('files/<int:pk>/upload/', FilesProjectUploadView.as_view(), name='filesproject_upload'),
+        path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
     ])),
     # Home is shortcut to `project_list`
     path('',                      ProjectListView.as_view(),      name='home'),

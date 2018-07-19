@@ -29,16 +29,3 @@ class FilesProjectUpdateForm(forms.ModelForm):
     class Meta:
         model = FilesProject
         fields = ['name']
-
-
-class FilesProjectFileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = FilesProjectFile
-        fields = ['file']
-
-
-FilesProjectFileFormSet = forms.inlineformset_factory(
-    FilesProject, FilesProjectFile,
-    form=FilesProjectFileUpdateForm,
-    extra=1
-)
