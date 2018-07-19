@@ -53,6 +53,7 @@ class Common(Configuration):
         'crispy_forms',
         'crispy_forms_bulma',
         'polymorphic',
+        'storages',
         'rest_framework',
 
         # Our apps
@@ -234,3 +235,8 @@ class Prod(Common):
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
+
+    # In production, use GoogleCloudStorage
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_PROJECT_ID = values.Value()
+    GS_BUCKET_NAME = values.Value()
