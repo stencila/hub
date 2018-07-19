@@ -71,7 +71,16 @@ class Checkout(Model):
 
     @staticmethod
     def create(project, creator):
-        project = Project.objects.get(address=project)
+        # If the project argument is an integer then get
+        # project by `id`, otherwise by `address`
+        try:
+            project_id = int(project)
+        except ValueError:
+            project_id = None
+        if project_id:
+            project = Project.objects.get(id=project_id)
+        else:
+            project = Project.objects.get(address=project)
 
         # Currently, create a native editor
         # In the future, this the editor class might be chosen

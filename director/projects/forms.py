@@ -28,7 +28,7 @@ class ProjectCreateForm(forms.Form):
 class FilesProjectUpdateForm(forms.ModelForm):
     class Meta:
         model = FilesProject
-        fields = ['address']
+        fields = ['name']
 
 
 class FilesProjectFileUpdateForm(forms.ModelForm):

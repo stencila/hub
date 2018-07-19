@@ -41,7 +41,7 @@
         <div class="card">
           <header class="card-header">
             <p class="card-header-title">
-              {{ project.address }}
+              {{ project.get_name }}
             </p>
           </header>
           <div class="card-content">
@@ -49,7 +49,7 @@
             </div>
           </div>
           <footer class="card-footer">
-            <a class="card-footer-item" href="{% url 'checkout_create' %}?project={{ project.address }}" target="_blank" title="Open">
+            <a class="card-footer-item" href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
                 <span class="icon">
                     <i class="fas fa-edit"></i>
                 </span>

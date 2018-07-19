@@ -8,6 +8,7 @@ from django.db.models import (
     CharField,
     ForeignKey,
     FileField,
+    SlugField,
     TextField,
 
     CASCADE, SET_NULL
@@ -93,8 +94,7 @@ class Project(PolymorphicModel):
     def type(self):
         return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
 
-    @property
-    def name(self):
+    def get_name(self):
         """
         A temporary implementation of a name property
         which is likely to be replaced by a db field in future
@@ -158,10 +158,19 @@ class FilesProject(Project):
 
     # ROOT = os.path.join(configMEDIA_ROOT, 'files_projects')
 
+    name = SlugField(
+        null=True,
+        blank=True,
+        help_text='Name of the project'
+    )
+
     def save(self, *args, **kwargs):
         if not self.address:
             self.address = 'files://{}'.format(self.id)
         super().save(*args, **kwargs)
+
+    def get_name(self):
+        return self.name if self.name else 'Unnamed'
 
     def pull(self):
         """
