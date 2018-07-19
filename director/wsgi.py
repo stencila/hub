@@ -1,13 +1,17 @@
-#!/usr/bin/python3
-import os
-import bjoern
+"""
+WSGI config for director project.
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'director.config.prod')
-os.environ.setdefault('DJANGO_CONFIGURATION', 'Prod')
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/2.0/howto/deployment/wsgi/
+"""
+
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+os.environ.setdefault("DJANGO_CONFIGURATION", "Prod")
 
 from configurations.wsgi import get_wsgi_application
 
-wsgi_app = get_wsgi_application()
-
-if __name__ == '__main__':
-    bjoern.run(wsgi_app, '0.0.0.0', 8000, reuse_port=True)
+application = get_wsgi_application()

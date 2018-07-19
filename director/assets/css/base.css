@@ -1,0 +1,19 @@
+body, button, input {
+    color: #444;
+    font-family: Nunito, Lato, sans;
+    font-size: 1.2rem;
+    font-weight: 300;
+}
+
+main {
+    /* Push footer to the bottom */
+    min-height: 90vh;
+}
+
+/*
+Hide uncompiled Vue elements 
+See https://vuejs.org/v2/api/#v-cloak
+*/
+[v-cloak] {
+	display: none;
+}

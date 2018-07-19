@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Project{% endblock %}
+
+{% block content %}
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="{% url 'project_list' %}">Projects</a></li>
+            <li><a href="{% url 'project_read' object.id %}">{{ object.id }}</a></li>
+            <li class="is-active"><a href="#" aria-current="page">Update</a></li>
+        </ul>
+    </nav>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        {{ file_formset.management_form }}
+        {% for form in file_formset %}
+            {{ form|crispy }}
+        {% endfor %}
+
+        <div class="buttons is-centered">
+           <button class="button is-primary" type="submit">
+                <span>Save</span>
+            </button>
+        </div>
+    </form>
+{% endblock %}

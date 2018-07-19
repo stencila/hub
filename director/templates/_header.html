@@ -1,33 +1,42 @@
 {% load static %}
 
 <header class="header">
-  <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" href="{% url 'home' %}">
-        <img src="{% static 'images/logo-name.svg' %}" alt="Stencila" width="112" height="28">
-      </a>
-      <div class="navbar-burger">
-        <span></span>
-        <span></span>
-        <span></span>
+  <nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="{% url 'home' %}">
+          <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+        </a>
+        <div class="navbar-burger" @click="active = !active" :class="{ 'is-active':active }">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       </div>
-    </div>
-    <div class="navbar-menu">
-      <div class="navbar-start">
-        {% if user.is_authenticated %}
-        <a class="navbar-item" href="{% url 'list-projects' %}">Projects</a>
-        {% endif %}
+      <div class="navbar-menu" :class="{ 'is-active':active }">
+        <div class="navbar-start">
+        </div>
+        <div class="navbar-end">
+          {% if user.is_anonymous %}
+            <a class="navbar-item" href="{% url 'user_signin' %}">Sign in</a>
+            <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
+          {% else %}
+            <div class="navbar-item">{{ user.username }}</div>
+            {% if user.is_staff %}
+              <a class="navbar-item" href="{% url 'admin:index' %}">Admin</a>
+            {% endif %}
+            <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
+            <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
+            <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
+          {% endif %}
+        </div>
       </div>
-      <div class="navbar-end">
-        {% if user.is_anonymous %}
-          <a class="navbar-item" href="{% url 'user_signin' %}">Sign in</a>
-          <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
-        {% else %}
-          <div class="navbar-item">{{ user.username }}</div>
-          <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
-          <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
-        {% endif %}
-      </div>
-    </div>
-  </nav>
+      <script type="text/javascript">
+        new Vue({
+          el: '#navbar',
+          data: { active: false }
+        })
+      </script>
+    </nav>
+  </div>
 </header>

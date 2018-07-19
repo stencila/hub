@@ -5,14 +5,6 @@
 secrets
 storage
 
-# Ignore director virtualenvs and collected static files
-/director/env
-/director/env.sh
-/director/static
-
-# Ignore dev sqlite3 db file
-director/db.sqlite3
-
 # Ignore editor node modues and collected static files
 /editor/node_modules
 /editor/static/dist

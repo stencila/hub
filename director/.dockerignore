@@ -1,19 +1,7 @@
-# To minimize size of the sencila/hub-director image ignore (ie. don't ADD) 
-# various folders...
+# Tell Docker to ignore all files apart from those absolutely neeeded in the image
+# For while this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
 
-# Ignore python virtual env
-/env
-/env.sh
-
-# Ignore client side static content
-/client
-
-# Ignore Django static folder into which static all content is collected
-/static
-
-# Ignore any shared volumes
-/storage
-/secrets
-
-# Ignore dev db
-/db.sqlite3
+*
+!/requirements.txt
+!/*.py
+!/templates

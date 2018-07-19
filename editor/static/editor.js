@@ -2,30 +2,36 @@ var app
 
 var project
 var checkout
+var key
 var host
 var session
 
 window.addEventListener('load', () => {
   project = substance.getQueryStringParam('project');
   checkout = substance.getQueryStringParam('checkout');
+  key = substance.getQueryStringParam('key');
   host = substance.getQueryStringParam('host');
   session = substance.getQueryStringParam('session');
 
   // If a session is provided then connect directly to that host
   // otherwise use the top level v0 API to create a new session
-  if (session) {
+  if (host && session) {
     window.STENCILA_HOSTS = `${host}/v1/sessions!/${session}`;
-  } else {
+  } else if (host) {
     window.STENCILA_HOSTS = `${host}/v0`;
   }
 
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
   app = stencila.StencilaWebApp.mount({
-    archiveId: checkout + '.dar',
+    archiveId: key,
     storageType: 'fs',
     storageUrl: '/edit/storage'
   }, window.document.body);
+
+  // Set the project name
+  var projectEl = document.getElementById('project')
+  projectEl.innerHTML = project || ''
 
   // Remove the loading
   var loading = document.getElementById('loading');
@@ -49,7 +55,8 @@ window.addEventListener('beforeunload', () => {
 
 function commit () {
   return app._save().then(() => {
-    fetch(`/checkouts/${checkout}/commit`, {
+    fetch(`/checkouts/${checkout}/save/`, {
+      method: 'POST',
       credentials: 'same-origin'
     })
   })

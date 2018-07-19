@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="checkout" class="container" style="max-width: 30em">
+    <form @submit.prevent>
+        <div class="field">
+            <div class="control">
+                <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = ''">
+            </div>
+            <p class="help is-danger" v-text="error"></p>
+        </div>
+        <div class="buttons is-centered">
+           <button class="button is-primary" type="submit" @click="create()" :disabled="!enabled">
+                <span class="icon">
+                    <i class="fas fa-rocket"></i>
+                </span>
+                <span>Open</span>
+            </button>
+        </div>
+    </form>
+  <ul>
+    <li v-cloak="instance.events" v-for="event of instance.events" :title="event.time">
+      [[ event.message ]]
+    </li>
+  </ul>
+</div>
+
+<script type="text/javascript">
+new Vue({
+    el: '#checkout',
+    delimiters: ['[[', ']]'],
+    data: {
+        enabled: true,
+        project: utils.param('project'),
+        error: null,
+        instance: {}
+    },
+    methods: {
+        create: function() {
+            this.error = null
+            this.enabled = false
+
+            fetch('/checkouts/create/', {
+                method: 'POST', 
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken')
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    project: this.project
+                })
+            })
+            .then(response => response.json())
+            .then(instance => {
+                if (!instance.error) {
+                    this.instance = instance
+                    this.open()
+                } else {
+                    this.error = instance.error
+                    this.enabled = true
+                }
+            })
+        },
+
+        open: function() {
+            // Open the checkout asynchrously
+            fetch(`/checkouts/${this.instance.id}/open/`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(instance => {
+                // Open finished
+                this.instance = instance
+                if (this.interval) {
+                    clearInterval(this.interval)
+                    this.interval = null
+                } 
+                // If checkout is 'open' (ie. no failiures) then...
+                if (this.instance.status === 'O') {
+                    // Login to the host with provided token
+                    // so that a host session token can be set
+                    fetch(`${instance.hostUrl}/login`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${instance.hostToken}`
+                        },
+                        credentials: 'include'
+                    }).then(response => {
+                        // Redirect to the editor
+                        window.location = instance.editorUrl
+                    })
+                }
+            })
+
+            // Start polling the checkout
+            if (!this.interval) {
+                this.interval = setInterval(this.poll, 1000)
+            }
+        },
+
+        poll: function() {
+            fetch(`/checkouts/${this.instance.id}/`, {
+                method: 'GET', 
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+            })
+            .then(response => response.json())
+            .then(instance => {
+                this.instance = instance
+            })
+        },
+    },
+    mounted: function () {
+        // When app is mounted, if project is defined (from query string),
+        // create the checkout
+        if (this.project) this.create()
+    },
+    watch: {
+        project: function () {
+            // When project is changed, clear any error
+            this.error = null
+        }
+    }
+})
+</script>
+
+{% endblock %}
