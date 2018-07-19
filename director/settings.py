@@ -60,6 +60,7 @@ class Common(Configuration):
         'accounts',
         'projects',
         'editors',
+        'hosts',
         'checkouts'
     ]
 
@@ -169,6 +170,13 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
     CRISPY_TEMPLATE_PACK = 'bulma'
 
+    # Stencila settings
+
+    # URL of Stencila native execution host
+    # This default value is the local evelopment URL for
+    # the `stencila/cloud` host
+    NATIVE_HOST_URL = values.Value('http://localhost:2000')
+
 
 class Dev(Common):
     """
@@ -203,6 +211,10 @@ class Dev(Common):
     # During development just print emails to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+    # JWT secret can be set but has a default value
+    # when in development which is shared with stencila/cloud
+    JWT_SECRET = values.Value('not-a-secret')
+
 
 class Prod(Common):
     """
@@ -218,3 +230,7 @@ class Prod(Common):
 
     # Allow for development, staging and full production hosts
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hub-test.stenci.la', 'hub.stenci.la']
+
+    # JWT secret must be set as environment
+    # variable when in production
+    JWT_SECRET = values.SecretValue()

@@ -6,6 +6,7 @@ from django.db.models import (
 
 from projects.models import Project
 from editors.models import Editor
+from hosts.models import Host
 
 INFO = 'I'
 START = 'S'
@@ -60,19 +61,32 @@ class Checkout(Model):
         related_name='checkout'
     )
 
+    host = OneToOneField(
+        Host,
+        null=True,
+        blank=True,
+        on_delete=SET_NULL,
+        related_name='host'
+    )
+
     @staticmethod
     def create(project, creator):
-        if type(project) is str:
-            try:
-                project = Project.objects.get(address=project)
-            except Project.DoesNotExist as error:
-                raise error
+        project = Project.objects.get(address=project)
 
+        # Currently, create a native editor
+        # In the future, this the editor class might be chosen
+        # by the user
         editor = Editor.create('native')
+
+        # Currently, create a native execution host
+        # In the future, this the editor class might be chosen
+        # by the user
+        host = Host.create('native')
 
         return Checkout.objects.create(
             project=project,
             editor=editor,
+            host=host,
             creator=creator
         )
 
@@ -87,7 +101,9 @@ class Checkout(Model):
         return {
             'id': self.id,
             'projectId': self.project.id if self.project else None,
-            'editorUrl': self.editor.url if self.editor else None,
+            'hostUrl': self.host.url(),
+            'hostToken': self.host.token(),
+            'editorUrl': self.editor.url,
             'status': self.status,
             'events': list(self.events.all().values())
         }
