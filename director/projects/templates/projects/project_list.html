@@ -4,7 +4,7 @@
 
 {% block content %}
     <h1>Projects</h1>
-    <a href="{% url 'project_create' %}">Create</a>
+    <a class="button is-primary" href="{% url 'project_create' %}">New</a>
     <ul>
     {% for project in object_list %}
         <li>
@@ -23,7 +23,7 @@
             {% endcomment %}
             <a href="{% url 'project_update' project.id %}" title="Update">
                 <span class="icon">
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-edit"></i>
                 </span>
             </a>
             <a href="{% url 'project_delete' project.id %}" title="Delete">

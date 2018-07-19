@@ -11,22 +11,20 @@
             <li class="is-active"><a href="#" aria-current="page">Update</a></li>
         </ul>
     </nav>
-    
-    <div class="container" style="max-width: 30em">
-        <form action="" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        {{ file_formset.management_form }}
+        {% for form in file_formset %}
             {{ form|crispy }}
+        {% endfor %}
 
-            {{ file_formset.management_form }}
-            {% for form in file_formset %}
-                {{ form|crispy }}
-            {% endfor %}
-
-            <div class="buttons is-centered">
-               <button class="button is-primary" type="submit">
-                    <span>Save</span>
-                </button>
-            </div>
-        </form>
-    </div>
+        <div class="buttons is-centered">
+           <button class="button is-primary" type="submit">
+                <span>Save</span>
+            </button>
+        </div>
+    </form>
 {% endblock %}
