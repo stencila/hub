@@ -81,6 +81,18 @@
       Upload
     </button>
 </div>
+<nav class="level">
+  <div class="level-left">
+  </div>
+  <div class="level-right">
+    <p class="level-item">
+        <a class="button is-success" href="{% url 'checkout_create' %}?project={{ object.id }}">
+            <span class="icon"><i class="fas fa-edit"></i></span>
+            <span>Open</span>
+        </a>
+    </p>
+  </div>
+</nav>
 
 <script type="text/javascript">
 window.vue = new Vue({
