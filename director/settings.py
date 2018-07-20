@@ -178,6 +178,8 @@ class Common(Configuration):
     # the `stencila/cloud` host
     NATIVE_HOST_URL = values.Value('http://localhost:2000')
 
+    BETA_TOKEN = values.Value('abc123')
+
 
 class Dev(Common):
     """

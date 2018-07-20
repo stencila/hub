@@ -6,7 +6,8 @@ from accounts.views import (
     AccountSettingsView,
     AccountSignupView,
     AccountSigninView,
-    AccountSignoutView
+    AccountSignoutView,
+    BetaTokenView
 )
 from projects.views import (
     ProjectListView,
@@ -60,6 +61,7 @@ urlpatterns = [
     path('open/',                 CheckoutCreateView.as_view(),   name='checkout_create_shortcut'),
 
     # User sign in, settings etc
+    path('beta-token/',           BetaTokenView.as_view(),        name='beta_token'),
     path('me/',                   AccountSettingsView.as_view(),  name='user_settings'),
     path('me/signup/',            AccountSignupView.as_view(),    name='user_signup'),
     path('me/signin/',            AccountSigninView.as_view(),    name='user_signin'),

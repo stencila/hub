@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}{% trans "Beta token required" %}{% endblock %}
+
+{% block content %}
+<div class="columns">
+  <div class="column">
+    <p>Please enter a token to sign in to Stencila Hub during the beta phase</p>
+    {% crispy form %}
+  </div>
+</div>
+{% endblock %}
