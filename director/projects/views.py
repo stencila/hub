@@ -108,7 +108,7 @@ class FilesProjectUploadView(LoginRequiredMixin, View):
         for file in files:
             instance = FilesProjectFile(
                 project=project,
-                file=request.FILES['file']
+                file=file
             )
             instance.save()
         return JsonResponse(project.serialize())
