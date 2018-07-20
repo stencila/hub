@@ -3,6 +3,8 @@ from django.db.models import (
     CharField, DateTimeField, IntegerField, TextField,
     CASCADE, SET_NULL
 )
+from django.conf import settings
+from django.shortcuts import reverse
 
 from projects.models import Project
 from editors.models import Editor
@@ -116,6 +118,12 @@ class Checkout(Model):
             'status': self.status,
             'events': list(self.events.all().values())
         }
+
+    def get_absolute_url(self):
+        return reverse('checkout_read', args=[self.pk])
+
+    def get_callback_url(self):
+        return settings.CALLBACK_URL + self.get_absolute_url()
 
     def event(self, type, topic, message, data=None):
         """

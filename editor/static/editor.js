@@ -37,25 +37,25 @@ window.addEventListener('load', () => {
   var loading = document.getElementById('loading');
   loading.parentNode.removeChild(loading)
 
-  // Commit button
-  var commitBtn = document.getElementById('commit');
-  commitBtn.addEventListener('click', () => {
-    commitBtn.disabled = true;
-    commit().then(() => {
-      commitBtn.disabled = false;
+  // Save button
+  var saveBtn = document.getElementById('save');
+  saveBtn.addEventListener('click', () => {
+    saveBtn.disabled = true;
+    save().then(() => {
+      saveBtn.disabled = false;
     })
   })
 });
 
 window.addEventListener('beforeunload', () => {
-  // Commit changes when window closed
-  commit()
+  // Save changes when window closed
+  save()
 })
 
 
-function commit () {
+function save () {
   return app._save().then(() => {
-    fetch(`/checkouts/${checkout}/save/`, {
+    fetch(`${checkout}save/`, {
       method: 'POST',
       credentials: 'same-origin'
     })

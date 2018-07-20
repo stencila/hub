@@ -180,6 +180,8 @@ class Common(Configuration):
     # the `stencila/cloud` host
     NATIVE_HOST_URL = values.Value('http://localhost:2000')
 
+    CALLBACK_URL = values.Value('http://localhost:3000')
+
     BETA_TOKEN = values.Value('abc123')
 
 

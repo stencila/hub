@@ -134,7 +134,7 @@ class NativeEditor(Editor):
             self.base_url,
             self.checkout.project.get_name(),
             self.checkout.host.url(),
-            self.checkout.id,
+            self.checkout.get_callback_url(),
             self.key
         )
         self.save()
