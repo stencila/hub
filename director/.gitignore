@@ -8,7 +8,9 @@
 # Ignore director virtualenvs and collected static files
 /venv
 /env.sh
+/extern
 /static
+/node_modules
 
 # Ignore dev sqlite3 db file
 /db.sqlite3

@@ -4,9 +4,7 @@
   "repository": "https://github.com/stencila/hub",
   "license": "Apache-2.0",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "dependencies": {
     "vue": "^2.5.16",
     "vue-upload-component": "^2.8.10"

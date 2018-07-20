@@ -69,11 +69,17 @@ director/venv: director/requirements.txt
 	touch director/venv
 director-venv: director/venv
 
+# Build directory of external third party JS and CSS
+director/extern: director/package.json
+	cd director && npm install
+	mkdir -p $@/js
+	cp director/node_modules/vue/dist/vue.min.js $@/js
+	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js $@/js
+	touch $@
+
 # Build any static files
 # Needs `director/venv` to setup virtualenv for Django collectstatic
-director-static: director/venv
-	cp director/node_modules/vue/dist/vue.min.js director/assets/js
-	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js director/assets/js
+director-static: director/venv director/extern
 	$(DJ) collectstatic --noinput
 
 # Create migrations
@@ -87,7 +93,7 @@ director-devdb: director/venv
 	$(DJ) runscript create_dev_users
 
 # Run development server
-director-run: director/venv
+director-run: director/venv director/extern
 	$(DJ) runserver
 
 # Run tests
