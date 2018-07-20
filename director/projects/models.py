@@ -14,6 +14,7 @@ from django.db.models import (
     CASCADE, SET_NULL
 )
 from django.contrib.contenttypes.models import ContentType
+from django.core.files import File
 from polymorphic.models import PolymorphicModel
 
 
@@ -195,17 +196,16 @@ class FilesProject(Project):
         Push files in the archive to the Django storage
         """
 
+        # Clear the files in this project
+        self.files.all().delete()
+
         # Unzip all the files and add to this project
         zipfile = ZipFile(archive, 'r')
-        zipfile.extractall(dest)
-
-        # Clear the files in this project
-        # TODO: until the above is implemented, skip this
-        # self.files.all().delete()
-        for file in zipfile.namelist():
-            FileField()
-
-        self.save()
+        for name in zipfile.namelist():
+            FilesProjectFile.objects.create(
+                project=self,
+                file=File(zipfile.open(name, 'r'))
+            )
 
 
 def files_project_file_path(instance, filename):
