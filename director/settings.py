@@ -81,7 +81,9 @@ class Common(Configuration):
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
             'DIRS': [
-                os.path.join(BASE_DIR, 'templates')
+                os.path.join(BASE_DIR, 'templates'),
+                # Needed to ensure that allauth templates are overidden by ours
+                os.path.join(BASE_DIR, 'accounts', 'templates')
             ],
             'APP_DIRS': True,
             'OPTIONS': {
