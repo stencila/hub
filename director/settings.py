@@ -187,7 +187,7 @@ class Common(Configuration):
         },
         'loggers': {
             '': {
-                'level': 'DEBUG',
+                'level': 'WARNING',
                 'handlers': ['console']
             },
         }
