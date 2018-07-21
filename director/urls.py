@@ -46,8 +46,6 @@ urlpatterns = [
         path('files/<int:pk>/upload/', FilesProjectUploadView.as_view(), name='filesproject_upload'),
         path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
     ])),
-    # Home is shortcut to `project_list`
-    path('',                      ProjectListView.as_view(),      name='home'),
 
     # Checkout CRUD
     path('checkouts/', include([
@@ -70,6 +68,9 @@ urlpatterns = [
 
     # Staff admin
     path('admin/', admin.site.urls),
+
+    # Home is currently shortcut to `project_list`
+    path('',                      ProjectListView.as_view(),      name='home'),
 ]
 
 if settings.DEBUG:

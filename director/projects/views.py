@@ -25,7 +25,7 @@ from .forms import (
 )
 
 
-class ProjectListView(LoginRequiredMixin, ListView):
+class ProjectListView(ListView):
     model = Project
     paginate_by = 100
 
