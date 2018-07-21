@@ -1,7 +1,12 @@
 # Tell Docker to ignore all files apart from those absolutely neeeded in the image
-# For while this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
+# For why this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
 
 *
 !/requirements.txt
 !/*.py
+!/accounts
+!/checkouts
+!/editors
+!/hosts
+!/projects
 !/templates

@@ -110,7 +110,8 @@ director-build: director/Dockerfile
 director-rundocker: director-static
 	$(EV) \
 	docker run \
-		-e DJANGO_SECRET_KEY='not-a-secret' \
+		-e DJANGO_SECRET_KEY \
+		-e DJANGO_JWT_SECRET \
 		-v $$PWD/director/static:/home/director/static:ro \
 		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
