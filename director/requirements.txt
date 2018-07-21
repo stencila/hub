@@ -6,6 +6,7 @@ django-crispy-forms==1.7.2
 django-debug-toolbar==1.9.1
 django-extensions==2.0.7
 django-polymorphic==2.0.2
+django-sendgrid-v5==0.6.893
 django-storages==1.6.6
 djangorestframework==3.8.2
 dj_database_url==0.5.0

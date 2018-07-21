@@ -281,3 +281,7 @@ class Prod(Common):
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_PROJECT_ID = values.Value()
     GS_BUCKET_NAME = values.Value()
+
+    # Use SendGrid for emails
+    EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+    SENDGRID_API_KEY = values.SecretValue()
