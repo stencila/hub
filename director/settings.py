@@ -270,6 +270,11 @@ class Prod(Common):
     # perform health checks without host specific Host header value
     ALLOWED_HOSTS = ['*']
 
+    # Additional apps only used in production
+    INSTALLED_APPS = Common.INSTALLED_APPS + [
+        'raven.contrib.django.raven_compat'
+    ]
+
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
@@ -277,7 +282,7 @@ class Prod(Common):
     # Ensure that the beta token is set
     BETA_TOKEN = values.SecretValue()
 
-    # In production, use GoogleCloudStorage
+    # Use GoogleCloudStorage for uploads
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_PROJECT_ID = values.Value()
     GS_BUCKET_NAME = values.Value()
@@ -285,3 +290,8 @@ class Prod(Common):
     # Use SendGrid for emails
     EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
     SENDGRID_API_KEY = values.SecretValue()
+
+    # Use Sentry for error reporting
+    RAVEN_CONFIG = {
+        'dsn': values.Value(environ_name='SENTRY_DSN')
+    }

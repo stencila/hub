@@ -13,5 +13,6 @@ dj_database_url==0.5.0
 google-cloud-storage==1.10.0
 pyjwt==1.6.4
 psycopg2==2.7.5
+raven==6.9.0
 requests==2.19.1
 sh==1.12.14
