@@ -260,8 +260,9 @@ class Prod(Common):
     # variable is set during production
     SECRET_KEY = values.SecretValue()
 
-    # Allow for development, staging and full production hosts
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'hub-test.stenci.la', 'hub.stenci.la']
+    # In production, use wildcard because load balancers
+    # perform health checks without host specific Host header value
+    ALLOWED_HOSTS = ['*']
 
     # JWT secret must be set as environment
     # variable when in production
