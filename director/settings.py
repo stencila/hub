@@ -205,8 +205,14 @@ class Common(Configuration):
     # the `stencila/cloud` host
     NATIVE_HOST_URL = values.Value('http://localhost:2000')
 
+    # URL of this application. This is used by editors and other
+    # external applications to callback to the director.
+    # It needs to be the URL that the user is logged in to
+    # the hub so that cedentails are sent.
+    # This default value is the usual value in development
     CALLBACK_URL = values.Value('http://localhost:3000')
 
+    # Token to restrict signins and singups while beta testing
     BETA_TOKEN = values.Value('abc123')
 
 
@@ -267,6 +273,9 @@ class Prod(Common):
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
+
+    # Ensure that the beta token is set
+    BETA_TOKEN = values.SecretValue()
 
     # In production, use GoogleCloudStorage
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
