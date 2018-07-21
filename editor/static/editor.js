@@ -57,7 +57,8 @@ function save () {
   return app._save().then(() => {
     fetch(`${checkout}save/`, {
       method: 'POST',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
+      mode: 'no-cors'
     })
   })
 }
