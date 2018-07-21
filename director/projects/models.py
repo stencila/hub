@@ -122,10 +122,9 @@ class Project(PolymorphicModel):
 # project sources that might be avilable
 #
 # Note: where these derived classes do not need any additional
-# fields it is tempting to define them as `class Meta: abstract = True`
+# fields you can use `class Meta: abstract = True`
 # so that an additional database table is not created.
-# However, that means that they are not available in the admin
-# so we currently avoid that optimisation.
+# However, that means that they are not available in the admin.
 
 
 class BitbucketProject(Project):
@@ -133,7 +132,8 @@ class BitbucketProject(Project):
     A project hosted on Bitbucket
     """
 
-    pass
+    class Meta:
+        abstract = True
 
 
 class DatProject(Project):
@@ -141,7 +141,8 @@ class DatProject(Project):
     A project hosted on Dat
     """
 
-    pass
+    class Meta:
+        abstract = True
 
 
 class DropboxProject(Project):
@@ -149,7 +150,8 @@ class DropboxProject(Project):
     A project hosted on Dropbox
     """
 
-    pass
+    class Meta:
+        abstract = True
 
 
 class FilesProject(Project):
@@ -247,7 +249,8 @@ class GithubProject(Project):
     A project hosted on Github
     """
 
-    pass
+    class Meta:
+        abstract = True
 
 
 class GitlabProject(Project):
@@ -255,7 +258,8 @@ class GitlabProject(Project):
     A project hosted on Gitlab
     """
 
-    pass
+    class Meta:
+        abstract = True
 
 
 class OSFProject(Project):
@@ -265,4 +269,5 @@ class OSFProject(Project):
     See https://developer.osf.io/ for API documentation
     """
 
-    pass
+    class Meta:
+        abstract = True

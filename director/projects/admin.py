@@ -45,8 +45,3 @@ class FilesProjectAdmin(PolymorphicChildModelAdmin):
     inlines = [
         FilesProjectFileInline
     ]
-
-
-@admin.register(GithubProject)
-class GithubProjectAdmin(PolymorphicChildModelAdmin):
-    base_model = GithubProject
