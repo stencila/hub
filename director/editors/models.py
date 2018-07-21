@@ -74,8 +74,8 @@ class NativeEditor(Editor):
     """
 
     # URL of the editor role (see Node.js `hub/editor` in this
-    # repo.
-    base_url = 'http://localhost:4000/edit'
+    # repo). Used to redirect browser window to the editor.
+    base_url = '/edit'
 
     # Key used to identify the Dar in the editor
     key = CharField(
