@@ -5,6 +5,7 @@
     <form @submit.prevent>
         <div class="field">
             <div class="control">
+                <label class="label">Project</label>
                 <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = ''">
             </div>
             <p class="help is-danger" v-text="error"></p>
@@ -18,11 +19,16 @@
             </button>
         </div>
     </form>
-  <ul>
-    <li v-cloak="instance.events" v-for="event of instance.events" :title="event.time">
-      [[ event.message ]]
-    </li>
-  </ul>
+    <div class="section">
+        <div
+            v-cloak="instance.events" 
+            v-for="event of instance.events" 
+            :class="['notification', event.type === 'E' ? 'is-danger' : 'is-info']" 
+            :title="event.time"
+        >
+            [[ event.message ]]
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -53,7 +59,7 @@ new Vue({
                 })
             })
             .then(response => response.json())
-            .then(instance => {
+            .then(instance => { 
                 if (!instance.error) {
                     this.instance = instance
                     this.open()
@@ -78,10 +84,11 @@ new Vue({
             .then(instance => {
                 // Open finished
                 this.instance = instance
+                // Stop polling
                 if (this.interval) {
                     clearInterval(this.interval)
                     this.interval = null
-                } 
+                }
                 // If checkout is 'open' (ie. no failiures) then...
                 if (this.instance.status === 'O') {
                     // Login to the host with provided token

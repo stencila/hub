@@ -169,6 +169,30 @@ class Common(Configuration):
 
     MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
 
+    # Logging
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'console': {
+                'format': '%(levelname)s %(asctime)s %(module)s '
+                          '%(process)d %(message)s'
+            },
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'console'
+            }
+        },
+        'loggers': {
+            '': {
+                'level': 'DEBUG',
+                'handlers': ['console']
+            },
+        }
+    }
+
     # Third-party application settings
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']

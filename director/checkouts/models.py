@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from django.db.models import (
     Model, OneToOneField, ForeignKey,
     CharField, DateTimeField, IntegerField, TextField,
@@ -128,9 +131,12 @@ class Checkout(Model):
     def event(self, type, topic, message, data=None):
         """
         """
+        # Format the message using the data
         if data:
             message = message.format(**data)
 
+        # Record the event so it can be retrieved
+        # by client polling
         CheckoutEvent.objects.create(
             checkout=self,
             type=type,
@@ -139,6 +145,10 @@ class Checkout(Model):
         )
 
         if type == ERROR:
+            # Log the error
+            logger.error(message, exc_info=True, extra=data)
+
+            # Set checkout's status to fail
             self.status = 'F'
             self.save()
 
@@ -154,13 +164,13 @@ class Checkout(Model):
             archive = self.project.pull()
             self.event(FINISH, 'project:pull', 'Pulled files from project')
         except Exception as error:
-            self.event(ERROR, 'project:pull', repr(error))
+            return self.event(ERROR, 'project:pull', 'Error pulling files from project: ' + repr(error))
 
         try:
             self.editor.push(archive)
             self.event(FINISH, 'editor:push', 'Pushed files to editor')
         except Exception as error:
-            self.event(ERROR, 'editor:push', repr(error))
+            return self.event(ERROR, 'editor:push', 'Error pushing files to editor: ' + repr(error))
 
         if self.status != 'F':
             self.status = 'O'
