@@ -74,8 +74,9 @@ class NativeEditor(Editor):
     """
 
     # URL of the editor role (see Node.js `hub/editor` in this
-    # repo). Used to redirect browser window to the editor.
-    base_url = '/edit'
+    # repo). Used to push file to editor and
+    # redirect browser window to the editor.
+    base_url = 'http://hub.stenci.la/edit'
 
     # Key used to identify the Dar in the editor
     key = CharField(
