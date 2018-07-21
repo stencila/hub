@@ -190,7 +190,9 @@ class FilesProject(Project):
         archive = BytesIO()
         with ZipFile(archive, 'w') as zipfile:
             for file in self.files.all():
-                zipfile.write(file.file.path, file.name)
+                # For remote storages (e.g. Google Cloud Storage buckets)
+                # `file.file.path` is not available, so use `file.file.read()`
+                zipfile.writestr(file.name, file.file.read())
         return archive
 
     def push(self, archive):
