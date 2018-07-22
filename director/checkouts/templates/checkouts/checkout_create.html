@@ -19,6 +19,12 @@
             </button>
         </div>
     </form>
+    <div class="section is-small has-text-centered">
+        <span v-cloak="instance.status" class="icon is-large">
+            <i v-if="instance.status == 'L'" class="fas fa-2x fa-spinner fa-pulse"></i>
+            <i v-else :class="['fas', 'fa-2x', instance.status === 'F' ? 'fa-bomb' : 'fa-check-double']"></i>
+        </span>
+    </div>
     <div class="section">
         <div
             v-cloak="instance.events" 
@@ -102,6 +108,12 @@ new Vue({
                     }).then(response => {
                         // Redirect to the editor
                         window.location = instance.editorUrl
+                    }).catch(error => {
+                        this.instance.status = 'F'
+                        this.instance.events.push({
+                            type: 'E',
+                            message: 'Error connecting to execution host: ' + error
+                        })
                     })
                 }
             })
