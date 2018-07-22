@@ -206,9 +206,16 @@ class FilesProject(Project):
         # Unzip all the files and add to this project
         zipfile = ZipFile(archive, 'r')
         for name in zipfile.namelist():
+            # Read the file from the zipfile
+            content = BytesIO()
+            content.write(zipfile.read(name))
+            content.seek(0)
+            # Create a Django file with contents and name
+            file = File(content, name)
+            # Create a new file object from the bytes
             FilesProjectFile.objects.create(
                 project=self,
-                file=File(zipfile.open(name, 'r'))
+                file=file
             )
 
 
