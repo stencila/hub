@@ -10,7 +10,6 @@ from polymorphic.admin import (
 from .models import (
     Project,
     FilesProject, FilesProjectFile,
-    GithubProject
 )
 
 
@@ -19,7 +18,6 @@ class ProjectAdmin(PolymorphicParentModelAdmin):
     base_model = Project
     child_models = [
         FilesProject,
-        GithubProject,
     ]
 
     list_display = [
