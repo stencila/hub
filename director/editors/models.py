@@ -18,6 +18,7 @@ from django.db.models import (
 
     CASCADE
 )
+from django.conf import settings
 from polymorphic.models import PolymorphicModel
 
 
@@ -70,13 +71,13 @@ class Editor(PolymorphicModel):
 class NativeEditor(Editor):
     """
     Stencila's native editor based on Substance/Texture editor
-    which operated on Reproducible Document Archives (Dar).
+    which operates on Reproducible Document Archives (Dar).
     """
 
     # URL of the editor role (see Node.js `hub/editor` in this
     # repo). Used to push file to editor and
     # redirect browser window to the editor.
-    base_url = 'http://hub.stenci.la/edit'
+    base_url = settings.CALLBACK_URL + '/edit'
 
     # Key used to identify the Dar in the editor
     key = CharField(
@@ -114,7 +115,12 @@ class NativeEditor(Editor):
             zipfile.extractall(src)
 
         # Convert to Dar
-        sh.stencila.convert(src, dest, '--to', 'dar')
+        if os.path.exists(os.path.join(src, 'manifest.xml')):
+            # Already a Dar, just copy it over
+            sh.cp('-R', src, dest)
+        else:
+            # Convert to Dar
+            sh.stencila.convert(src, dest, '--to', 'dar')
 
         # Read the Dar files and post them to the editor
         # as a new Dar archive
@@ -171,8 +177,6 @@ class NativeEditor(Editor):
                 file.write(details['data'])
 
         # Convert to Dar
-        # TODO The converter should store a map of
-        # documents back to original format
         # sh.stencila.convert(src, dest, '--from', 'dar')
         sh.cp('-R', src, dest)
 
