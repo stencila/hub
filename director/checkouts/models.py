@@ -34,7 +34,7 @@ class Checkout(Model):
         help_text='User who created the checkout'
     )
 
-    created_at = DateTimeField(
+    created = DateTimeField(
         auto_now_add=True,
         help_text='When this event was created'
     )
