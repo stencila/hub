@@ -88,10 +88,14 @@ director-migrations: director/venv
 	$(DJ) makemigrations
 
 # Build a development database
-director-devdb: director/venv
+director-create-devdb: director/venv
 	rm -f director/db.sqlite3
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
+
+# Build a development database
+director-migrate-devdb: director/venv
+	$(DJ) migrate
 
 # Run development server
 director-run: director/venv director/extern
