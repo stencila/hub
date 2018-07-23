@@ -208,7 +208,7 @@ class Common(Configuration):
     # URL of this application. This is used by editors and other
     # external applications to callback to the director.
     # It needs to be the URL that the user is logged in to
-    # the hub so that cedentails are sent.
+    # the hub so that credentails are sent.
     # This default value is the usual value in development
     CALLBACK_URL = values.Value('http://localhost:3000')
 

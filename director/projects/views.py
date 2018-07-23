@@ -106,8 +106,9 @@ class FilesProjectUploadView(LoginRequiredMixin, View):
         project = get_object_or_404(FilesProject, pk=pk)
         files = request.FILES.getlist('file')
         for file in files:
-            instance = FilesProjectFile(
+            instance = FilesProjectFile.objects.create(
                 project=project,
+                name=file,
                 file=file
             )
             instance.save()

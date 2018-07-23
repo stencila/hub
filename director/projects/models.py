@@ -1,11 +1,13 @@
+import datetime
 from io import BytesIO
-import re
 from zipfile import ZipFile
 
 from django.db.models import (
     Model,
 
     CharField,
+    DateTimeField,
+    IntegerField,
     ForeignKey,
     FileField,
     SlugField,
@@ -159,8 +161,6 @@ class FilesProject(Project):
     A project hosted on Stencila Hub consisting of a set of files
     """
 
-    # ROOT = os.path.join(configMEDIA_ROOT, 'files_projects')
-
     name = SlugField(
         null=True,
         blank=True,
@@ -200,23 +200,22 @@ class FilesProject(Project):
         Push files in the archive to the Django storage
         """
 
-        # Clear the files in this project
-        self.files.all().delete()
-
         # Unzip all the files and add to this project
         zipfile = ZipFile(archive, 'r')
         for name in zipfile.namelist():
+            # Replace existing file or create a new one
+            try:
+                instance = FilesProjectFile.objects.get(project=self, name=name)
+            except FilesProjectFile.DoesNotExist:
+                instance = FilesProjectFile(project=self, name=name)
             # Read the file from the zipfile
             content = BytesIO()
             content.write(zipfile.read(name))
             content.seek(0)
-            # Create a Django file with contents and name
-            file = File(content, name)
-            # Create a new file object from the bytes
-            FilesProjectFile.objects.create(
-                project=self,
-                file=file
-            )
+            # Create a new file with contents and name
+            instance.file.save(name, content, save=False)
+            instance.modified = datetime.datetime.utcnow()
+            instance.save()
 
 
 def files_project_file_path(instance, filename):
@@ -235,22 +234,59 @@ class FilesProjectFile(Model):
         on_delete=CASCADE
     )
 
+    name = CharField(
+        max_length=1024,
+        default='unnamed',
+        help_text='Name of the file (a path relative to the project root)'
+    )
+
+    size = IntegerField(
+        null=True,
+        blank=True,
+        help_text='Size of the file in bytes'
+    )
+
     file = FileField(
         null=False,
         blank=True,
-        upload_to=files_project_file_path
+        upload_to=files_project_file_path,
+        help_text='The actual file stored'
     )
 
-    @property
-    def name(self):
-        return re.match(r'files_projects/\d+/(.*)', self.file.name).group(1)
+    updated = DateTimeField(
+        auto_now=True,
+        help_text='Time this model instance was last updated'
+    )
+
+    modified = DateTimeField(
+        null=True,
+        blank=True,
+        help_text='Time the file was last modified'
+    )
+
+    class Meta:
+        unique_together = ['project', 'name']
 
     def serialize(self):
+        """
+        Serialize to a dict for conversion
+        to JSON
+        """
         return {
             'id': self.id,
             'name': self.name,
-            'size': self.file.size
+            'size': self.size,
+            'modified': self.modified,
+            'current': True  # Used to distinguish already uploaded files in UI
         }
+
+    def save(self, *args, **kwargs):
+        """
+        Override of save() to update the size
+        property from the file size
+        """
+        self.size = self.file.size
+        super().save(*args, **kwargs)
 
 
 class GithubProject(Project):

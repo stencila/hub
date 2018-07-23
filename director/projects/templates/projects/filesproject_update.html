@@ -33,6 +33,7 @@
             <tr>
                 <th>Name</th>
                 <th>Size</th>
+                <th>Modified</th>
                 <th><th>
             </tr>
         </thead>
@@ -40,6 +41,7 @@
             <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
                 <td>[[file.name]]</td>
                 <td>[[file.size | formatSize]]</td>
+                <td>[[file.modified]]</td>
                 <td v-if="file.error">
                     <span class="icon">
                         <i class="fas fa-error"></i>
@@ -86,7 +88,7 @@
   </div>
   <div class="level-right">
     <p class="level-item">
-        <a class="button is-success" href="{% url 'checkout_create' %}?project={{ object.id }}">
+        <a class="button is-success" href="{% url 'checkout_create' %}?project={{ object.id }}" target="_blank">
             <span class="icon"><i class="fas fa-edit"></i></span>
             <span>Open</span>
         </a>
@@ -117,7 +119,7 @@ window.vue = new Vue({
             .then(response => response.json())
             .then(instance => {
                 this.instance = instance
-                this.$refs.upload.add(instance.files.map(file => Object.assign(file, {current: true})))
+                this.$refs.upload.add(instance.files)
             })
         },
         remove: function (fileId) {
