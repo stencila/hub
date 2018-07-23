@@ -173,7 +173,7 @@ class NativeEditor(Editor):
         # Write the Dar to disk
         for name, details in data['resources'].items():
             path = os.path.join(src, name)
-            with open(path, 'w') as file:
+            with open(path, 'w', encoding='utf-8') as file:
                 file.write(details['data'])
 
         # Convert to Dar
