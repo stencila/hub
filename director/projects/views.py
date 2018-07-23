@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
@@ -34,8 +35,9 @@ class ProjectListView(ListView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            # TODO add OR public clause
-            return Project.objects.filter(creator=self.request.user)
+            return Project.objects.filter(
+                Q(creator=self.request.user) | Q(public=True)
+            )
         else:
             return Project.objects.filter(public=True)
 
