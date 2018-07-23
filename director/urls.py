@@ -27,7 +27,8 @@ from checkouts.views import (
     CheckoutCreateView,
     CheckoutReadView,
     CheckoutOpenView,
-    CheckoutSaveView
+    CheckoutSaveView,
+    CheckoutCloseView
 )
 
 urlpatterns = [
@@ -53,7 +54,8 @@ urlpatterns = [
         path('create/',           CheckoutCreateView.as_view(),   name='checkout_create'),
         path('<int:pk>/',         CheckoutReadView.as_view(),     name='checkout_read'),
         path('<int:pk>/open/',    CheckoutOpenView.as_view(),     name='checkout_open'),
-        path('<int:pk>/save/',    CheckoutSaveView.as_view(),     name='checkout_save')
+        path('<int:pk>/save/',    CheckoutSaveView.as_view(),     name='checkout_save'),
+        path('<int:pk>/close/',   CheckoutCloseView.as_view(),    name='checkout_close')
     ])),
     # Shortcut to `checkout_create`
     path('open/',                 CheckoutCreateView.as_view(),   name='checkout_create_shortcut'),

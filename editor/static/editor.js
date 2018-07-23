@@ -45,17 +45,38 @@ window.addEventListener('load', () => {
       saveBtn.disabled = false;
     })
   })
+
+  // Close button
+  var closeBtn = document.getElementById('close');
+  closeBtn.addEventListener('click', () => {
+    closeBtn.disabled = true;
+    close().then(() => {
+      // Redirect page to the host
+      // window.close() does not actually close the tab (on Chrome at least)
+      window.location = window.location.origin
+    })
+  })
 });
 
 window.addEventListener('beforeunload', () => {
   // Save changes when window closed
-  save()
+  close()
 })
 
 
 function save () {
   return app._save().then(() => {
     fetch(`${checkout}save/`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      mode: 'no-cors'
+    })
+  })
+}
+
+function close () {
+  return app._save().then(() => {
+    fetch(`${checkout}close/`, {
       method: 'POST',
       credentials: 'same-origin',
       mode: 'no-cors'

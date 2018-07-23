@@ -1,18 +1,30 @@
+import datetime
 import logging
 logger = logging.getLogger(__name__)
 
 from django.db.models import (
     Model, OneToOneField, ForeignKey,
     CharField, DateTimeField, IntegerField, TextField,
-    CASCADE, SET_NULL
+    CASCADE, SET_NULL,
+    Q
 )
 from django.conf import settings
 from django.shortcuts import reverse
+from django.utils import timezone
 
 from projects.models import Project
 from editors.models import Editor
 from hosts.models import Host
 
+
+# Checkout status types
+LAUNCHING = 'L'
+OPEN = 'O'
+CLOSED = 'C'
+FAILED = 'F'
+TERMINATED = 'T'
+
+# Checkout event types
 INFO = 'I'
 START = 'S'
 FINISH = 'F'
@@ -36,16 +48,29 @@ class Checkout(Model):
 
     created = DateTimeField(
         auto_now_add=True,
-        help_text='When this event was created'
+        help_text='When the checkout was created'
+    )
+
+    saved = DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When the checkout was saved'
+    )
+
+    closed = DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When the checkout was closed'
     )
 
     status = CharField(
         max_length=1,
         choices=(
-            ('L', 'Launching'),
-            ('O', 'Open'),
-            ('C', 'Closed'),
-            ('F', 'Failed'),
+            (LAUNCHING, 'Launching'),
+            (OPEN, 'Open'),
+            (CLOSED, 'Closed'),
+            (FAILED, 'Failed'),
+            (TERMINATED, 'Terminated')
         ),
         help_text='Status of the checkout'
     )
@@ -86,6 +111,18 @@ class Checkout(Model):
             project = Project.objects.get(id=project_id)
         else:
             project = Project.objects.get(address=project)
+
+        # Check that there are no open checkouts for the
+        # project (for some projects/editors/permissions this may be
+        # able to be relaxed in the future)
+        checkouts_open = Checkout.objects.filter(
+            Q(project=project) &
+            (Q(status=OPEN) | Q(status=LAUNCHING))
+        )
+        if checkouts_open:
+            # TODO Terminate the open checkout if they have not been `saved`
+            # for more than a certain period of time
+            raise RuntimeError('There is already a checkout open for this project')
 
         # Currently, create a native editor
         # In the future, this the editor class might be chosen
@@ -149,7 +186,7 @@ class Checkout(Model):
             logger.error(message, exc_info=True, extra=data)
 
             # Set checkout's status to fail
-            self.status = 'F'
+            self.status = FAILED
             self.save()
 
     def open(self):
@@ -157,7 +194,7 @@ class Checkout(Model):
         Open the checkout by pulling from the project and
         pushing to the editor.
         """
-        self.status = 'L'
+        self.status = LAUNCHING
         self.save()
 
         try:
@@ -172,8 +209,8 @@ class Checkout(Model):
         except Exception as error:
             return self.event(ERROR, 'editor:push', 'Error pushing files to editor: ' + repr(error))
 
-        if self.status != 'F':
-            self.status = 'O'
+        if self.status != FAILED:
+            self.status = OPEN
 
         self.save()
 
@@ -183,9 +220,25 @@ class Checkout(Model):
         pushing to the project. Underscore suffix to
         avoid name clash.
         """
+        if self.status == OPEN:
+            archive = self.editor.pull()
+            self.project.push(archive)
 
-        archive = self.editor.pull()
-        self.project.push(archive)
+            # Record the last time this was saved
+            self.saved = datetime.datetime.now(tz=timezone.utc)
+            self.save()
+
+    def close(self):
+        """
+        Close the checkout, allowing the project to be opened
+        by others
+        """
+        if self.status == OPEN:
+            self.save_()
+
+            self.status = CLOSED
+            self.closed = datetime.datetime.now(tz=timezone.utc)
+            self.save()
 
 
 class CheckoutEvent(Model):

@@ -64,3 +64,12 @@ class CheckoutSaveView(LoginRequiredMixin, View):
         checkout = Checkout.obtain(pk=pk, user=request.user)
         checkout.save_()
         return HttpResponse()
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CheckoutCloseView(LoginRequiredMixin, View):
+
+    def post(self, request, pk):
+        checkout = Checkout.obtain(pk=pk, user=request.user)
+        checkout.close()
+        return HttpResponse()
