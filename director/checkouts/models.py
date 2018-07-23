@@ -122,7 +122,12 @@ class Checkout(Model):
         if checkouts_open:
             # TODO Terminate the open checkout if they have not been `saved`
             # for more than a certain period of time
-            raise RuntimeError('There is already a checkout open for this project')
+            checkout = checkouts_open[0]
+            raise CheckoutCreateError(
+                type='exists',
+                message='You already have a checkout open for this project',
+                data={'url': checkout.editor.url}
+            )
 
         # Currently, create a native editor
         # In the future, this the editor class might be chosen
@@ -239,6 +244,21 @@ class Checkout(Model):
             self.status = CLOSED
             self.closed = datetime.datetime.now(tz=timezone.utc)
             self.save()
+
+
+class CheckoutCreateError(RuntimeError):
+
+    def __init__(self, type, message, data):
+        self.type = type
+        self.message = message
+        self.data = data
+
+    def serialize(self):
+        return {
+            'type': self.type,
+            'message': self.message,
+            'data': self.data
+        }
 
 
 class CheckoutEvent(Model):

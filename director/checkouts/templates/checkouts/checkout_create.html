@@ -6,9 +6,15 @@
         <div class="field">
             <div class="control">
                 <label class="label">Project</label>
-                <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = ''">
+                <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = null">
             </div>
-            <p class="help is-danger" v-text="error"></p>
+        </div>
+        <div class="notification is-danger" v-if="error">
+            <p>[[ error.message ]].</p>
+            <p v-if="error.type === 'exists'">
+                Please check that you do not have a window already open for this project.
+                If not, you can open the existing checkout <a :href="error.data.url">here</a>.
+            </p>
         </div>
         <div class="buttons is-centered">
            <button class="button is-primary" type="submit" @click="create()" :disabled="!enabled">
@@ -19,13 +25,13 @@
             </button>
         </div>
     </form>
-    <div class="section is-small has-text-centered">
+    <div class="section is-small has-text-centered" v-if="instance">
         <span v-cloak="instance.status" class="icon is-large">
             <i v-if="instance.status == 'L'" class="fas fa-2x fa-spinner fa-pulse"></i>
             <i v-else :class="['fas', 'fa-2x', instance.status === 'F' ? 'fa-bomb' : 'fa-check-double']"></i>
         </span>
     </div>
-    <div class="section">
+    <div class="section" v-if="instance">
         <div
             v-cloak="instance.events" 
             v-for="event of instance.events" 
@@ -45,7 +51,7 @@ new Vue({
         enabled: true,
         project: utils.param('project'),
         error: null,
-        instance: {}
+        instance: null
     },
     methods: {
         create: function() {

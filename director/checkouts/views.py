@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View, ListView
 
-from .models import Checkout
+from .models import Checkout, CheckoutCreateError
 
 
 class CheckoutListView(LoginRequiredMixin, ListView):
@@ -31,9 +31,15 @@ class CheckoutCreateView(LoginRequiredMixin, View):
                 creator=request.user
             )
             return JsonResponse(checkout.json())
+        except CheckoutCreateError as error:
+            return JsonResponse({
+                'error': error.serialize()
+            })
         except Exception as error:
             return JsonResponse({
-                'error': str(error)
+                'error': {
+                    'message': str(error)
+                }
             })
 
 
