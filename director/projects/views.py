@@ -1,7 +1,10 @@
+import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import (
     View,
     DetailView,
@@ -109,7 +112,8 @@ class FilesProjectUploadView(LoginRequiredMixin, View):
             instance = FilesProjectFile.objects.create(
                 project=project,
                 name=file,
-                file=file
+                file=file,
+                modified=datetime.datetime.now(tz=timezone.utc)
             )
             instance.save()
         return JsonResponse(project.serialize())

@@ -42,7 +42,7 @@
             <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
                 <td>[[ file.name ]]</td>
                 <td>[[ file.size ]]</td>
-                <td>[[ moment(Date.parse(file.modified)).local().fromNow() ]]</td>
+                <td>[[ file.modified ? moment(Date.parse(file.modified)).local().fromNow() : '-' ]]</td>
                 <td v-if="file.error">
                     <span class="icon">
                         <i class="fas fa-error"></i>
