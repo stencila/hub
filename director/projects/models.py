@@ -16,7 +16,7 @@ from django.db.models import (
     CASCADE, SET_NULL
 )
 from django.contrib.contenttypes.models import ContentType
-from django.core.files import File
+from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 
 
@@ -214,7 +214,7 @@ class FilesProject(Project):
             content.seek(0)
             # Create a new file with contents and name
             instance.file.save(name, content, save=False)
-            instance.modified = datetime.datetime.utcnow()
+            instance.modified = datetime.datetime.now(tz=timezone.utc)
             instance.save()
 
 
