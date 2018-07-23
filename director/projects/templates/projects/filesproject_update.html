@@ -7,6 +7,7 @@
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript" src="{% static 'js/vue-upload-component.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -39,9 +40,9 @@
         </thead>
         <tbody v-if="files.length">
             <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
-                <td>[[file.name]]</td>
-                <td>[[file.size | formatSize]]</td>
-                <td>[[file.modified]]</td>
+                <td>[[ file.name ]]</td>
+                <td>[[ file.size ]]</td>
+                <td>[[ moment(Date.parse(file.modified)).local().fromNow() ]]</td>
                 <td v-if="file.error">
                     <span class="icon">
                         <i class="fas fa-error"></i>
@@ -78,13 +79,19 @@
       <i class="fa fa-plus"></i>
       Add files
     </file-upload>
-    <button type="button" class="button is-success" :disabled="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = true">
+    <button type="button" class="button" :disabled="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = true">
       <i class="fa fa-arrow-up" aria-hidden="true"></i>
       Upload
     </button>
 </div>
 <nav class="level">
   <div class="level-left">
+    <p class="level-item">
+        <a class="button" href="{% url 'project_archive' object.id %}">
+            <span class="icon"><i class="fas fa-download"></i></span>
+            <span>Download</span>
+        </a>
+    </p>
   </div>
   <div class="level-right">
     <p class="level-item">
