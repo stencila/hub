@@ -21,7 +21,7 @@ class ProjectAdmin(PolymorphicParentModelAdmin):
     ]
 
     list_display = [
-        '__str__', 'archive'
+        '__str__', 'public', 'archive'
     ]
     list_filter = [
         PolymorphicChildModelFilter

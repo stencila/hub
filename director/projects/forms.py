@@ -28,4 +28,4 @@ class ProjectCreateForm(forms.Form):
 class FilesProjectUpdateForm(forms.ModelForm):
     class Meta:
         model = FilesProject
-        fields = ['name']
+        fields = ['name', 'public']

@@ -32,6 +32,13 @@ class ProjectListView(ListView):
     model = Project
     paginate_by = 100
 
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            # TODO add OR public clause
+            return Project.objects.filter(creator=self.request.user)
+        else:
+            return Project.objects.filter(public=True)
+
 
 class ProjectCreateView(LoginRequiredMixin, FormView):
     form_class = ProjectCreateForm

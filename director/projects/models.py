@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from django.db.models import (
     Model,
 
+    BooleanField,
     CharField,
     DateTimeField,
     IntegerField,
@@ -37,6 +38,16 @@ class Project(PolymorphicModel):
         on_delete=SET_NULL,
         related_name='projects_created',
         help_text='User who created project'
+    )
+
+    created = DateTimeField(
+        auto_now_add=True,
+        help_text='When this project was created'
+    )
+
+    public = BooleanField(
+        default=False,
+        help_text='Should this project be publically visible?'
     )
 
     def __str__(self):
