@@ -276,7 +276,8 @@ class FilesProjectFile(Model):
     )
 
     class Meta:
-        unique_together = ['project', 'name']
+        pass
+        #unique_together = ['project', 'name']
 
     def serialize(self):
         """
