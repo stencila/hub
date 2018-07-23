@@ -226,12 +226,15 @@ class Checkout(Model):
         avoid name clash.
         """
         if self.status == OPEN:
-            archive = self.editor.pull()
-            self.project.push(archive)
+            try:
+                archive = self.editor.pull()
+                self.project.push(archive)
 
-            # Record the last time this was saved
-            self.saved = datetime.datetime.now(tz=timezone.utc)
-            self.save()
+                # Record the last time this was saved
+                self.saved = datetime.datetime.now(tz=timezone.utc)
+                self.save()
+            except Exception as error:
+                return self.event(ERROR, 'save', 'Error saving checkout: ' + repr(error))
 
     def close(self):
         """
@@ -239,7 +242,11 @@ class Checkout(Model):
         by others
         """
         if self.status == OPEN:
-            self.save_()
+            # Catch errors to ensure that this is always closed
+            try:
+                self.save_()
+            except Exception as error:
+                return self.event(ERROR, 'close', 'Error closing checkout: ' + repr(error))
 
             self.status = CLOSED
             self.closed = datetime.datetime.now(tz=timezone.utc)
