@@ -5,10 +5,26 @@
 {% block title %}{% trans "Beta token required" %}{% endblock %}
 
 {% block content %}
-<div class="columns">
-  <div class="column">
-    <p>Please enter a token to sign in to Stencila Hub during the beta phase</p>
+<div class="container" style="max-width: 35em">
+    <div class="notification content">
+        <h1 class="title is-5">
+        	<span class="icon">
+        		<i class="fa fa-flask"></i>
+        	</span>
+        	Beta testing
+        </h1>
+        <p>
+        	Stencila Hub is an open source project under active development.
+        </p>
+        <p>
+        	While things are still in a little flaky, and to limit demands on our servers, we're currently restricting access
+        	to registered beta testers.
+        </p>
+        <p>
+        	Sign up to <a href="https://stenci.la/community/beta-testing.html">become a beta tester</a>, and/or <a href="https://github.com/stencila/hub">help
+        	us develop the site</a>.
+        </p>
+    </div>
     {% crispy form %}
-  </div>
 </div>
 {% endblock %}
