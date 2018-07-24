@@ -6,6 +6,7 @@
       <div class="navbar-brand">
         <a class="navbar-item" href="{% url 'home' %}">
           <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+          <span style="margin: 0 0.5em">Beta</span>
         </a>
         <div class="navbar-burger" @click="active = !active" :class="{ 'is-active':active }">
           <span></span>
