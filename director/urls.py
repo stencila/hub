@@ -2,6 +2,9 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
+from views import (
+    HomeView
+)
 from accounts.views import (
     AccountSettingsView,
     AccountSignupView,
@@ -71,8 +74,8 @@ urlpatterns = [
     # Staff admin
     path('admin/', admin.site.urls),
 
-    # Home is currently shortcut to `project_list`
-    path('',                      ProjectListView.as_view(),      name='home'),
+    # Home page
+    path('',                      HomeView.as_view(),             name='home'),
 ]
 
 if settings.DEBUG:
