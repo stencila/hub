@@ -13,11 +13,14 @@ class CheckoutEventInline(admin.TabularInline):
 @admin.register(Checkout)
 class CheckoutAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'project', 'creator', 'status', 'created', 'saved', 'closed'
+        'id', 'project_id', 'creator', 'status', 'created', 'saved', 'closed'
     ]
     list_select_related = [
         'creator',
         'project'
+    ]
+    list_filter = [
+        'status'
     ]
     inlines = [
         CheckoutEventInline
