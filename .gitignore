@@ -8,3 +8,7 @@ storage
 # Ignore editor node modues and collected static files
 /editor/node_modules
 /editor/static/dist
+
+
+# Ignore Pycharm/IntelliJ Project Dir
+.idea

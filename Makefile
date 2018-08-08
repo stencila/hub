@@ -117,6 +117,8 @@ director-rundocker: director-static
 	docker run \
 		-e DJANGO_SECRET_KEY \
 		-e DJANGO_JWT_SECRET \
+		-e DJANGO_BETA_TOKEN \
+		-e DJANGO_SENDGRID_API_KEY \
 		-v $$PWD/director/static:/home/director/static:ro \
 		-v $$PWD/director/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
