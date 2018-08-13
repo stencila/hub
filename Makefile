@@ -45,22 +45,7 @@ EV := test -f director/env.sh && source director/env.sh || source director/env-e
 # Shortcut to run a Django manage.py task in the virtual environment; used below
 DJ ?= $(VE) $(EV) python3 director/manage.py
 
-# Install necessary system packages
-director-setup: director-setup-dirs
-	# Install necessary system dependencies etc
-ifeq ($(OS),Linux)
-	sudo apt-get install libev-dev
-endif
-ifeq ($(OS),Darwin)
-	brew install libev
-endif
 
-director-setup-dirs:
-	# Setup directories
-	mkdir -p secrets
-	ln -sfT ../secrets director/secrets
-	mkdir -p storage
-	ln -sfT ../storage director/storage
 
 # Setup virtual environment
 director/venv: director/requirements.txt
