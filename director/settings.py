@@ -62,7 +62,8 @@ class Common(Configuration):
         'projects',
         'editors',
         'hosts',
-        'checkouts'
+        'checkouts',
+        'publisher'
     ]
 
     MIDDLEWARE = [

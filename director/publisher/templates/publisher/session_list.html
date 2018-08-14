@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Sessions{% endblock %}
+
+{% block content %}
+    <h1>Sessions for <a href="{% url "session_group_edit" session_group.pk %}">{{ session_group }}</a></h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Session ID</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Stopped</th>
+                <th>Last Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in object_list %}
+                <tr>
+                    <td>{{ session.id }}</td>
+                    <td>{{ session.status.value }}</td>
+                    <td>{% if session.started %}{{ session.started|date:"SHORT_DATETIME_FORMAT" }}{% else %}&mdash;{% endif %}</td>
+                    <td>{% if session.stopped %}{{ session.stopped|date:"SHORT_DATETIME_FORMAT" }}{% else %}&mdash;{% endif %}</td>
+                    <td>{% if session.last_check %}{{ session.last_check|date:"SHORT_DATETIME_FORMAT" }}{% else %}&mdash;{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No sessions exist.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

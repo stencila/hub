@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 
+from publisher.views import SessionGroupListView, SessionGroupDetail, SessionTemplateListView, \
+    SessionTemplateDetailView, SessionStartView, SessionListView, PublisherMainView
 from views import (
     HomeView
 )
@@ -49,6 +51,23 @@ urlpatterns = [
         path('files/<int:pk>/update/', FilesProjectUpdateView.as_view(), name='filesproject_update'),
         path('files/<int:pk>/upload/', FilesProjectUploadView.as_view(), name='filesproject_upload'),
         path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
+    ])),
+
+    # Publisher views
+
+    path('publisher/', include([
+        path('', PublisherMainView.as_view(), name='publisher_main'),
+        path('session-groups/', SessionGroupListView.as_view(), name="session_group_list"),
+        path('session-groups/create/', SessionGroupDetail.as_view(), name="session_group_create"),
+        path('session-groups/<int:pk>/', SessionGroupDetail.as_view(), name="session_group_edit"),
+        path('session-groups/<int:session_group_pk>/sessions/', SessionListView.as_view(), name="session_list"),
+
+        re_path(r'session-groups/(?P<token>[0-9a-f]+)/start-session', SessionStartView.as_view(),
+                name="session_token_start"),
+
+        path('session-templates/', SessionTemplateListView.as_view(), name="session_template_list"),
+        path('session-templates/create/', SessionTemplateDetailView.as_view(), name="session_template_create"),
+        path('session-templates/<int:pk>/', SessionTemplateDetailView.as_view(), name="session_template_detail"),
     ])),
 
     # Checkout CRUD

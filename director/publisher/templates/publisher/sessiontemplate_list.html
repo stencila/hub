@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Session Templates{% endblock %}
+
+{% block content %}
+    <h1>Session Templates</h1>
+    <a href="{% url 'session_template_create' %}">Create</a>
+    <ul>
+    {% for session_template in object_list %}
+        <li>
+            <a href="{% url 'session_template_detail' session_template.id %}" title="View">
+                {{ session_template }}
+            </a>
+        </li>
+    {% empty %}
+        <li>No session templates yet.</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

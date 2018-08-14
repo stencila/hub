@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Session Group{% endblock %}
+{% block content %}
+    {% if session_group %}
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'session_group_list' %}">Session Groups</a></li>
+                <li class="is-active"><a href="#" aria-current="page">{{ session_group }}</a></li>
+            </ul>
+        </nav>
+    {% endif %}
+    <section class="section">
+        <div class="container">
+            <h3 class="title is-3">{% if session_group %}{{ session_group }}{% else %}New Session Group{% endif %}</h3>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button class="button is-primary" type="submit">Save</button>
+            </form>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <h4 class="subtitle is-4">Access Details</h4>
+            {% if session_group %}
+                <div class="container">
+                    <h5 class="subtitle is-5">URL</h5>
+                    <p>To start a new Session, POST a request to this URL:</p>
+                    <p>{{ session_start_url }}</p>
+                </div>
+                {% if session_group.key %}
+                    <div class="container is-top-padding">
+                        <h5 class="subtitle is-5">POST Parameters</h5>
+                        <p>Make sure to include these parameters in your POST:</p>
+                        <p><strong>key</strong>: {{ session_group.key }}</p>
+                    </div>
+                {% endif %}
+                </div>
+            {% else %}
+                <div>Save the form to generate access details.</div>
+            {% endif %}
+        </div>
+    </section>
+    <script>
+        (function () {
+            var keyInput = document.getElementById('id_key');
+            var oldKey = '';
+            document.getElementById('id_generate_key').addEventListener('change', function () {
+                if (this.checked) {
+                    oldKey = keyInput.value;
+                    keyInput.setAttribute('disabled', 'disabled');
+                    keyInput.value = '';
+                } else {
+                    keyInput.removeAttribute('disabled');
+                    keyInput.value = oldKey;
+                }
+            });
+        })()
+    </script>
+{% endblock %}
