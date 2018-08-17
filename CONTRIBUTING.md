@@ -72,6 +72,10 @@ make router-build router-rundocker
 Now, you should be able to access the the Hub at http://localhost:3000.
 
 
+## Deployment
+
+Docker containers (`stencila/hub-director`, `stencila/hub-editor`, `stencila/hub-router`) are used for deployment.
+
 
 ## Get in touch!
 
