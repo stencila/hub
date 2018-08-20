@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='filesprojectfile',
             name='file',
-            field=models.FileField(blank=True, help_text='The actual file stored', upload_to=projects.models.files_project_file_path),
+            field=models.FileField(blank=True, help_text='The actual file stored', upload_to=projects.models.files_source_file_path),
         ),
         migrations.AlterUniqueTogether(
             name='filesprojectfile',

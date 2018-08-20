@@ -4,7 +4,7 @@ import typing
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db.models import QuerySet, Model
+from django.db.models import QuerySet
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -14,12 +14,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, View
 
 from publisher.forms import SessionGroupForm, SessionTemplateForm
-from publisher.models import SessionGroup, generate_session_group_key, SessionTemplate, Session
 
 PUBLISHER_GROUP_NAME = 'Publisher'
 
 
-def update_session_group_from_form_data(owner: typing.Optional[User], session_group: SessionGroup,
+def update_session_group_from_form_data(owner: typing.Optional[User], session_group: "SessionGroup",
                                         form_data: dict) -> None:
     """
     Updates a SessionGroup's attributes with data from a SessionGroupForm's cleaned_data. Assumes the form the data
@@ -38,12 +37,12 @@ def update_session_group_from_form_data(owner: typing.Optional[User], session_gr
     session_group.template = form_data['template']
 
     if form_data['generate_key']:
-        session_group.key = generate_session_group_key()
+        session_group.key = generate_project_key()
     else:
         session_group.key = form_data['key']
 
 
-def session_group_initial_form_values(session_group: typing.Optional[SessionGroup]) -> dict:
+def session_group_initial_form_values(session_group) -> dict:
     """
     Extract values from a SessionGroup into a dictionary for initial values of SessionGroupForm. Returns empty
     dictionary if session_group is None.
@@ -85,7 +84,7 @@ class OwnerOrAdminListView(PublisherOrAdminMixin, ListView):
 
 
 class SessionGroupListView(OwnerOrAdminListView):
-    model = SessionGroup
+    model = None
 
 
 T = typing.TypeVar('T')
@@ -118,10 +117,10 @@ class PublisherMainView(PublisherOrAdminMixin, View):
 
 
 class SessionGroupDetail(OwnerOrAdminView):
-    model = SessionGroup
+    model = None
 
     @staticmethod
-    def get_session_start_url(request: HttpRequest, session_group: typing.Optional[SessionGroup]):
+    def get_session_start_url(request: HttpRequest, session_group: typing.Optional):
         if session_group is None:
             return None
 
@@ -150,7 +149,7 @@ class SessionGroupDetail(OwnerOrAdminView):
 
         return self.get_form_response(request, form, session_group)
 
-    def get_form(self, session_group: typing.Optional[SessionGroup],
+    def get_form(self, session_group: typing.Optional,
                  post_data: typing.Optional[dict] = None) -> SessionGroupForm:
         form = SessionGroupForm(post_data, initial=session_group_initial_form_values(session_group))
         form.fields['template'].queryset = SessionTemplate.objects.filter(owner=self.request.user)
@@ -161,7 +160,7 @@ class SessionGroupDetail(OwnerOrAdminView):
         return redirect(reverse('session_group_list'))
 
     def get_form_response(self, request: HttpRequest, form: SessionGroupForm,
-                          session_group: typing.Optional[SessionGroup]) -> HttpResponse:
+                          session_group: typing.Optional) -> HttpResponse:
         session_start_url = self.get_session_start_url(request, session_group)
 
         return render(request, 'publisher/sessiongroup_detail.html',
@@ -169,11 +168,11 @@ class SessionGroupDetail(OwnerOrAdminView):
 
 
 class SessionTemplateListView(OwnerOrAdminListView):
-    model = SessionTemplate
+    model = None
 
 
 class SessionTemplateDetailView(OwnerOrAdminView):
-    model = SessionTemplate
+    model = None
 
     def get(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
         session_template = self.get_class_model_instance_by_pk(pk)
@@ -201,7 +200,7 @@ class SessionTemplateDetailView(OwnerOrAdminView):
 
 
 class SessionListView(OwnerOrAdminView):
-    model = Session
+    model = None
 
     def get(self, request, session_group_pk: int) -> HttpResponse:
         session_group = self.get_model_instance(SessionGroup, {'pk': session_group_pk})

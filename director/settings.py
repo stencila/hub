@@ -62,8 +62,7 @@ class Common(Configuration):
         'projects',
         'editors',
         'hosts',
-        'checkouts',
-        'publisher'
+        'checkouts'
     ]
 
     MIDDLEWARE = [
@@ -198,6 +197,9 @@ class Common(Configuration):
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
     CRISPY_TEMPLATE_PACK = 'bulma'
+    CRISPY_CLASS_CONVERTERS = {
+        "checkboxinput": "checkbox"
+    }
 
     # Stencila settings
 

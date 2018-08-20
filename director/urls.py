@@ -2,30 +2,12 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 
-from publisher.views import SessionGroupListView, SessionGroupDetail, SessionTemplateListView, \
-    SessionTemplateDetailView, SessionStartView, SessionListView, PublisherMainView
-from views import (
-    HomeView
-)
 from accounts.views import (
     AccountSettingsView,
     AccountSignupView,
     AccountSigninView,
     AccountSignoutView,
     BetaTokenView
-)
-from projects.views import (
-    ProjectListView,
-    ProjectCreateView,
-    ProjectReadView,
-    ProjectUpdateView,
-    ProjectDeleteView,
-    ProjectArchiveView,
-
-    FilesProjectReadView,
-    FilesProjectUpdateView,
-    FilesProjectUploadView,
-    FilesProjectRemoveView
 )
 from checkouts.views import (
     CheckoutListView,
@@ -35,22 +17,52 @@ from checkouts.views import (
     CheckoutSaveView,
     CheckoutCloseView
 )
+from projects.resource_limit_views import ResourceLimitListView, ResourceLimitDetailView
+from projects.views import (
+    ProjectListView,
+    ProjectReadView,
+    ProjectDeleteView,
+    ProjectArchiveView,
+
+    FilesSourceReadView,
+    FilesSourceUpdateView,
+    FilesSourceUploadView,
+    FilesProjectRemoveView,
+    ProjectDetailView, DataSourceListView, DataSourceDetailRouteView, DataSourceDetailView)
+from publisher.views import SessionGroupListView, SessionGroupDetail, SessionTemplateListView, \
+    SessionTemplateDetailView, SessionStartView, SessionListView, PublisherMainView
+from views import (
+    HomeView
+)
 
 urlpatterns = [
     # Project CRUD
     path('projects/', include([
         # Generic views
-        path('',                       ProjectListView.as_view(),        name='project_list'),
-        path('create/',                ProjectCreateView.as_view(),      name='project_create'),
-        path('<int:pk>/',              ProjectReadView.as_view(),        name='project_read'),
-        path('<int:pk>/update/',       ProjectUpdateView.as_view(),      name='project_update'),
-        path('<int:pk>/delete/',       ProjectDeleteView.as_view(),      name='project_delete'),
-        path('<int:pk>/archive/',      ProjectArchiveView.as_view(),     name='project_archive'),
+        path('', ProjectListView.as_view(), name='project_list'),
+        path('create/', ProjectDetailView.as_view(), name='project_create'),
+        path('<int:pk>/', ProjectReadView.as_view(), name='project_read'),
+        path('<int:pk>/update/', ProjectDetailView.as_view(), name='project_update'),
+        path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
+        path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
         # Type-specific views
-        path('files/<int:pk>/',        FilesProjectReadView.as_view(),   name='filesproject_read'),
-        path('files/<int:pk>/update/', FilesProjectUpdateView.as_view(), name='filesproject_update'),
-        path('files/<int:pk>/upload/', FilesProjectUploadView.as_view(), name='filesproject_upload'),
+        path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
+        path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),
+        path('files/<int:pk>/upload/', FilesSourceUploadView.as_view(), name='filesproject_upload'),
         path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
+    ])),
+
+    path('resource-limits/', include([
+        path('', ResourceLimitListView.as_view(), name='resourcelimit_list'),
+        path('create/', ResourceLimitDetailView.as_view(), name='resourcelimit_create'),
+        path('<int:pk>/', ResourceLimitDetailView.as_view(), name='resourcelimit_update')
+    ])),
+
+    path('data-sources/', include([
+        path('', DataSourceListView.as_view(), name='datasource_list'),
+        path('create/', DataSourceDetailRouteView.as_view(), name='datasource_create_route'),
+        path('<project_type>/create/', DataSourceDetailView.as_view(), name='datasource_create'),
+        path('<project_type>/<int:pk>/', DataSourceDetailView.as_view(), name='datasource_detail'),
     ])),
 
     # Publisher views
@@ -72,33 +84,34 @@ urlpatterns = [
 
     # Checkout CRUD
     path('checkouts/', include([
-        path('',                  CheckoutListView.as_view(),     name='checkout_list'),
-        path('create/',           CheckoutCreateView.as_view(),   name='checkout_create'),
-        path('<int:pk>/',         CheckoutReadView.as_view(),     name='checkout_read'),
-        path('<int:pk>/open/',    CheckoutOpenView.as_view(),     name='checkout_open'),
-        path('<int:pk>/save/',    CheckoutSaveView.as_view(),     name='checkout_save'),
-        path('<int:pk>/close/',   CheckoutCloseView.as_view(),    name='checkout_close')
+        path('', CheckoutListView.as_view(), name='checkout_list'),
+        path('create/', CheckoutCreateView.as_view(), name='checkout_create'),
+        path('<int:pk>/', CheckoutReadView.as_view(), name='checkout_read'),
+        path('<int:pk>/open/', CheckoutOpenView.as_view(), name='checkout_open'),
+        path('<int:pk>/save/', CheckoutSaveView.as_view(), name='checkout_save'),
+        path('<int:pk>/close/', CheckoutCloseView.as_view(), name='checkout_close')
     ])),
     # Shortcut to `checkout_create`
-    path('open/',                 CheckoutCreateView.as_view(),   name='checkout_create_shortcut'),
+    path('open/', CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
 
     # User sign in, settings etc
-    path('beta-token/',           BetaTokenView.as_view(),        name='beta_token'),
-    path('me/',                   AccountSettingsView.as_view(),  name='user_settings'),
-    path('me/signup/',            AccountSignupView.as_view(),    name='user_signup'),
-    path('me/signin/',            AccountSigninView.as_view(),    name='user_signin'),
-    path('me/signout/',           AccountSignoutView.as_view(),   name='user_signout'),
-    path('me/',                   include('allauth.urls')),
+    path('beta-token/', BetaTokenView.as_view(), name='beta_token'),
+    path('me/', AccountSettingsView.as_view(), name='user_settings'),
+    path('me/signup/', AccountSignupView.as_view(), name='user_signup'),
+    path('me/signin/', AccountSigninView.as_view(), name='user_signin'),
+    path('me/signout/', AccountSignoutView.as_view(), name='user_signout'),
+    path('me/', include('allauth.urls')),
 
     # Staff admin
     path('admin/', admin.site.urls),
 
     # Home page
-    path('',                      HomeView.as_view(),             name='home'),
+    path('', HomeView.as_view(), name='home'),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns = [
-        path('debug/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+                      path('debug/', include(debug_toolbar.urls)),
+                  ] + urlpatterns

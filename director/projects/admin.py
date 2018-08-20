@@ -9,38 +9,46 @@ from polymorphic.admin import (
 
 from .models import (
     Project,
-    FilesProject, FilesProjectFile,
-)
+    FilesSource, FilesSourceFile,
+    DataSource, ResourceLimit)
 
 
 @admin.register(Project)
-class ProjectAdmin(PolymorphicParentModelAdmin):
-    base_model = Project
-    child_models = [
-        FilesProject,
-    ]
-
+class ProjectAdmin(admin.ModelAdmin):
     list_display = [
         '__str__', 'public', 'archive'
     ]
     list_filter = [
-        'public',
-        PolymorphicChildModelFilter
+        'public'
     ]
 
     def archive(self, project):
         url = reverse('project_archive', args=[project.id])
         return format_html('<a href="{}">Archive</a>'.format(url))
+
     archive.short_description = 'Archive'
 
 
-class FilesProjectFileInline(admin.TabularInline):
-    model = FilesProjectFile
-
-
-@admin.register(FilesProject)
-class FilesProjectAdmin(PolymorphicChildModelAdmin):
-    base_model = FilesProject
-    inlines = [
-        FilesProjectFileInline
+@admin.register(DataSource)
+class DataSourceAdmin(PolymorphicParentModelAdmin):
+    base_model = DataSource
+    child_models = [
+        FilesSource,
     ]
+
+
+class FilesSourceFileInline(admin.TabularInline):
+    model = FilesSourceFile
+
+
+@admin.register(FilesSource)
+class FilesProjectAdmin(PolymorphicChildModelAdmin):
+    base_model = FilesSource
+    inlines = [
+        FilesSourceFileInline
+    ]
+
+
+@admin.register(ResourceLimit)
+class ResourceLimitAdmin(admin.ModelAdmin):
+    pass

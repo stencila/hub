@@ -1,4 +1,4 @@
-{% load static permission_filters %}
+{% load static %}
 
 <header class="header">
   <nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
@@ -23,12 +23,11 @@
             <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
           {% else %}
             <div class="navbar-item">{{ user.username }}</div>
-            {% if user.is_superuser or user|has_group:"Publisher" %}
-                <a class="navbar-item" href="{% url 'publisher_main' %}">Publisher</a>
-            {% endif %}
             {% if user.is_staff %}
               <a class="navbar-item" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin</a>
             {% endif %}
+            <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
+            <a class="navbar-item" href="{% url 'datasource_list' %}">Data Sources</a>
             <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
             <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
           {% endif %}
@@ -40,6 +39,6 @@
           data: { active: false }
         })
       </script>
-    </nav>
-  </div>
+    </div>
+  </nav>
 </header>

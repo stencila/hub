@@ -1,7 +1,5 @@
 from django import forms
 
-from publisher.models import SessionTemplate
-
 
 class SessionGroupForm(forms.Form):
     token = forms.CharField(
@@ -33,9 +31,9 @@ class SessionGroupForm(forms.Form):
         help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
     )
 
-    template = forms.ModelChoiceField(
+    template = forms.ChoiceField(
         required=True,
-        queryset=SessionTemplate.objects.none(),  # this needs to be set at runtime
+        # queryset=SessionTemplate.objects.none(),  # this needs to be set at runtime
         help_text='The Session Template to use to defines resources when creating new Sessions in this group.'
     )
 
@@ -54,7 +52,7 @@ class SessionGroupForm(forms.Form):
 
 class SessionTemplateForm(forms.ModelForm):
     class Meta:
-        model = SessionTemplate
+        model = None
         fields = ['name', 'description', 'memory', 'cpu', 'network', 'lifetime', 'timeout']
         widgets = {
             'name': forms.TextInput

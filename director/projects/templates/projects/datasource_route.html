@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h4 class="subtitle is-4">Data Sources Create</h4>
+    <p>Select data source type to create</p>
+    <ul>
+        {% for source_type in source_types %}
+            <li>
+                <a href="{% url "datasource_create" source_type.value.id %}">{{ source_type.value.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

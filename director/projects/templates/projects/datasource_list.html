@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Sources{% endblock %}
+
+{% block content %}
+    <nav class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <p class="subtitle is-5">
+                    <strong>{{ object_list|length }}</strong> Data Source{{ object_list|length|pluralize }}
+                </p>
+            </div>
+        </div>
+        <div class="level-right">
+            <p class="level-item">
+                <a class="button is-success" href="{% url 'datasource_create_route' %}">
+                    <span class="icon"><i class="fas fa-plus"></i></span>
+                    <span>New</span>
+                </a>
+            </p>
+        </div>
+    </nav>
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for project_source in object_list %}
+            <tr>
+                <td>{{ project_source.pk }}</td>
+                <td>{{ project_source.type_name }}</td>
+                <td class="has-text-right">
+                    <a href="{{ project_source.get_absolute_url }}">
+                                <span class="icon">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                        <span>Edit</span>
+                    </a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No data sources.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,7 +1,11 @@
 import datetime
+import enum
+import hashlib
+import secrets
 from io import BytesIO
 from zipfile import ZipFile
 
+import typing as typing
 from django.db.models import (
     Model,
 
@@ -13,25 +17,34 @@ from django.db.models import (
     FileField,
     SlugField,
     TextField,
-
-    CASCADE, SET_NULL
-)
+    CASCADE, SET_NULL,
+    FloatField, PROTECT, URLField, OneToOneField)
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 
+TOKEN_HASH_FUNCTION = hashlib.sha256
+PROJECT_KEY_LENGTH = 32
+TRUNCATED_TOKEN_SHOW_CHARACTERS = 8
 
-class Project(PolymorphicModel):
+
+def generate_project_key() -> str:
+    """Generate a random key for a SessionGroup."""
+    return secrets.token_hex(PROJECT_KEY_LENGTH)
+
+
+def generate_project_token(project: 'Project') -> str:
+    """Generate a unique token for a Project based on its creator, creation date and a random string."""
+    user_id = project.creator.id if project.creator else None
+    created = project.created or datetime.datetime.now()
+    return TOKEN_HASH_FUNCTION("{}{}{}".format(user_id, created, secrets.token_hex()).encode("utf8")).hexdigest()
+
+
+class Project(Model):
     """
     A project
     """
-
-    address = CharField(
-        max_length=1024,
-        blank=True,
-        help_text='Address of project e.g. github://org/repo/folder'
-    )
-
     creator = ForeignKey(
         'auth.User',
         null=True,  # Should only be null if the creator is deleted
@@ -50,21 +63,55 @@ class Project(PolymorphicModel):
         help_text='Should this project be publically visible?'
     )
 
+    token = TextField(
+        unique=True,
+        help_text='A token to publicly identify the SessionGroup (in URLs etc)'
+    )
+
+    key = TextField(
+        null=True,
+        blank=True,
+        help_text='Key required to create Sessions in this SessionGroup'
+    )
+
+    max_sessions = IntegerField(
+        null=True,
+        help_text='Maximum total number of sessions that can be created in this SessionGroup (null = unlimited)'
+    )
+
+    max_concurrent = IntegerField(
+        null=True,
+        help_text='Maximum number of sessions allowed to run at one time for this SessionGroup (null = unlimited)',
+    )
+
+    max_queue = IntegerField(
+        null=True,
+        help_text='Maximum number of users waiting for a new Session to be created in this Session Group '
+                  '(null = unlimited)'
+    )
+
+    resource_limit = ForeignKey(
+        'ResourceLimit',
+        related_name='session_groups',
+        null=True, on_delete=SET_NULL,
+        help_text='The SessionTemplate that defines resources for new sessions in this group.'
+    )
+
     def __str__(self):
-        return self.address if self.address else 'Project #{}'.format(self.id)
+        return 'Project #{}'.format(self.id)
 
     @staticmethod
-    def create(type, creator):
+    def create(project_type, creator):
         """
-        Create a new editor of the given type
+        Create a new editor of the given project_type
         """
-        if type == 'files':
-            return FilesProject.objects.create(creator=creator)
+        if project_type == 'files':
+            return FilesSource.objects.create(creator=creator)
         else:
-            raise RuntimeError('Unhandled type "{}" when attempting to create project'.format(type))
+            raise RuntimeError('Unhandled project type "{}" when attempting to create project'.format(project_type))
 
     @staticmethod
-    def get_or_create(type, address, creator):
+    def get_or_create(project_type, address, creator):
         """
         Get, or create, a project
         """
@@ -104,16 +151,12 @@ class Project(PolymorphicModel):
         address = url
         return Project.get_or_create_from_address(address, creator)
 
-    @property
-    def type(self):
-        return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
-
     def get_name(self):
         """
         A temporary implementation of a name property
         which is likely to be replaced by a db field in future
         """
-        return self.address if self.address else 'Unnamed'
+        return 'Unnamed'
 
     def pull(self):
         """
@@ -127,8 +170,20 @@ class Project(PolymorphicModel):
         """
         raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
 
+    def save(self, *args, **kwargs) -> None:
+        if not self.token:
+            self.token = generate_project_token(self)
 
-# Project classes in alphabetaical order
+        super(Project, self).save(*args, **kwargs)
+
+    @property
+    def truncated_token(self) -> str:
+        """Chop out the middle of the token for short display."""
+        return "{}...{}".format(self.token[:TRUNCATED_TOKEN_SHOW_CHARACTERS],
+                                self.token[-TRUNCATED_TOKEN_SHOW_CHARACTERS:])
+
+
+# Source classes in alphabetical order
 #
 # Note: many of these are, obviously, not implemented, but have
 # been added here as placeholders, to sketch out the different types of
@@ -140,7 +195,46 @@ class Project(PolymorphicModel):
 # However, that means that they are not available in the admin.
 
 
-class BitbucketProject(Project):
+class DataSource(PolymorphicModel):
+    project = ForeignKey(
+        Project,
+        null=True,
+        blank=True,
+        on_delete=SET_NULL,
+        related_name='sources'
+    )
+
+    creator = ForeignKey(
+        'auth.User',
+        null=True,  # Should only be null if the creator is deleted
+        on_delete=SET_NULL,
+        related_name='sources',
+        help_text='User who created this data source'
+    )
+
+    address = CharField(
+        max_length=1024,
+        blank=True,
+        help_text='Address of project e.g. github://org/repo/folder'
+    )
+
+    @property
+    def type(self) -> typing.Type['DataSource']:
+        return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
+
+    @property
+    def type_name(self) -> str:
+        return AvailableDataSourceType.get_project_type_name(type(self))
+
+    @property
+    def type_id(self) -> str:
+        return AvailableDataSourceType.get_project_type_id(type(self))
+
+    def get_absolute_url(self):
+        return reverse('datasource_detail', args=[self.type_id, self.pk])
+
+
+class BitbucketSource(DataSource):
     """
     A project hosted on Bitbucket
     """
@@ -149,7 +243,7 @@ class BitbucketProject(Project):
         abstract = True
 
 
-class DatProject(Project):
+class DatSource(DataSource):
     """
     A project hosted on Dat
     """
@@ -158,7 +252,7 @@ class DatProject(Project):
         abstract = True
 
 
-class DropboxProject(Project):
+class DropboxSource(DataSource):
     """
     A project hosted on Dropbox
     """
@@ -167,16 +261,10 @@ class DropboxProject(Project):
         abstract = True
 
 
-class FilesProject(Project):
+class FilesSource(DataSource):
     """
     A project hosted on Stencila Hub consisting of a set of files
     """
-
-    name = SlugField(
-        null=True,
-        blank=True,
-        help_text='Name of the project'
-    )
 
     def serialize(self):
         return {
@@ -215,10 +303,8 @@ class FilesProject(Project):
         zipfile = ZipFile(archive, 'r')
         for name in zipfile.namelist():
             # Replace existing file or create a new one
-            try:
-                instance = FilesProjectFile.objects.get(project=self, name=name)
-            except FilesProjectFile.DoesNotExist:
-                instance = FilesProjectFile(project=self, name=name)
+            instance = FilesSourceFile.objects.get_or_create(project=self, name=name)
+
             # Read the file from the zipfile
             content = BytesIO()
             content.write(zipfile.read(name))
@@ -229,18 +315,18 @@ class FilesProject(Project):
             instance.save()
 
 
-def files_project_file_path(instance, filename):
+def files_source_file_path(instance: "FilesSourceFile", filename: str):
     # File will be uploaded to MEDIA_ROOT/files_projects/<id>/<filename>
-    return 'files_projects/{0}/{1}'.format(instance.project.id, filename)
+    return 'files_projects/{0}/{1}'.format(instance.source.id, filename)
 
 
-class FilesProjectFile(Model):
+class FilesSourceFile(Model):
     """
     A file residing in a `FilesProject`
     """
 
-    project = ForeignKey(
-        FilesProject,
+    source = ForeignKey(
+        FilesSource,
         related_name='files',
         on_delete=CASCADE
     )
@@ -260,7 +346,7 @@ class FilesProjectFile(Model):
     file = FileField(
         null=False,
         blank=True,
-        upload_to=files_project_file_path,
+        upload_to=files_source_file_path,
         help_text='The actual file stored'
     )
 
@@ -277,7 +363,7 @@ class FilesProjectFile(Model):
 
     class Meta:
         pass
-        #unique_together = ['project', 'name']
+        # unique_together = ['project', 'name']
 
     def serialize(self):
         """
@@ -301,7 +387,7 @@ class FilesProjectFile(Model):
         super().save(*args, **kwargs)
 
 
-class GithubProject(Project):
+class GithubSource(DataSource):
     """
     A project hosted on Github
     """
@@ -310,7 +396,7 @@ class GithubProject(Project):
         abstract = True
 
 
-class GitlabProject(Project):
+class GitlabSource(DataSource):
     """
     A project hosted on Gitlab
     """
@@ -319,7 +405,7 @@ class GitlabProject(Project):
         abstract = True
 
 
-class OSFProject(Project):
+class OSFSource(DataSource):
     """
     A project hosted on the Open Science Framework
 
@@ -328,3 +414,145 @@ class OSFProject(Project):
 
     class Meta:
         abstract = True
+
+
+class ResourceLimit(Model):
+    """
+    Defines the resource limits for new Sessions created in a Project
+    """
+    owner = ForeignKey(
+        'auth.User',
+        null=True,  # Should only be null if the creator is deleted
+        on_delete=SET_NULL,
+        related_name='session_templates',
+        help_text='User who owns the SessionTemplate'
+    )
+
+    name = TextField(
+        null=False,
+        blank=False
+    )
+
+    description = TextField(
+        null=True,
+        blank=True,
+        help_text='Optional long description about the ResourceLimit'
+    )
+
+    memory = FloatField(
+        default=1,
+        null=False,
+        blank=False,
+        help_text='Gigabytes (GB) of memory allocated'
+    )
+
+    cpu = FloatField(
+        default=1,
+        null=False,
+        blank=False,
+        help_text='CPU shares (out of 100 per CPU) allocated'
+    )
+
+    network = FloatField(
+        null=True,
+        blank=True,
+        help_text='Gigabytes (GB) of network transfer allocated. null = unlimited'
+    )
+
+    lifetime = IntegerField(
+        null=True,
+        blank=True,
+        help_text='Minutes before the session is terminated. null = unlimited'
+    )
+
+    timeout = IntegerField(
+        default=60,
+        null=False,
+        blank=False,
+        help_text='Minutes of inactivity before the session is terminated'
+    )
+
+    def __str__(self) -> str:
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('resourcelimit_update', args=[self.pk])
+
+
+class SessionStatus(enum.Enum):
+    UNKNOWN = 'Unknown'
+    NOT_STARTED = 'Not Started'
+    RUNNING = 'Running'
+    STOPPED = 'Stopped'
+
+
+class Session(Model):
+    """
+    An execution Session
+    """
+    project = ForeignKey(
+        Project,
+        null=False,
+        on_delete=PROTECT,  # Don't want to delete references if the container is running and we need control still
+        related_name='sessions',
+        help_text='The Project that this Session belongs to.'
+    )
+
+    url = URLField(
+        help_text='URL for API access to administrate this Session'
+    )
+
+    started = DateTimeField(
+        null=True,
+        help_text='DateTime this Session was started'
+    )
+
+    stopped = DateTimeField(
+        null=True,
+        help_text='DateTime this Session was stopped (or that we detected it had stopped)'
+    )
+
+    last_check = DateTimeField(
+        null=True,
+        help_text='The last time the status of this Session was checked'
+    )
+
+    @property
+    def status(self) -> SessionStatus:
+        if self.last_check is None:
+            return SessionStatus.UNKNOWN
+
+        if self.stopped is not None and self.stopped <= timezone.now():
+            return SessionStatus.STOPPED
+
+        if self.started is not None and self.started <= timezone.now():
+            return SessionStatus.RUNNING
+
+        return SessionStatus.NOT_STARTED
+
+
+class DataSourceType(typing.NamedTuple):
+    id: str
+    name: str
+    model: typing.Type
+
+
+class AvailableDataSourceType(enum.Enum):
+    FILE = DataSourceType('files', 'Files', FilesSource)
+
+    @classmethod
+    def setup_type_lookup(cls) -> None:
+        if not hasattr(cls, "_type_lookup"):
+            cls._type_lookup = {
+                source_type.value.model: source_type.value for source_type in cls
+            }
+
+    @classmethod
+    def get_project_type_name(cls, model: typing.Type[DataSource]) -> str:
+        cls.setup_type_lookup()
+        return cls._type_lookup[model].name
+
+    @classmethod
+    def get_project_type_id(cls, model: typing.Type[DataSource]) -> str:
+        cls.setup_type_lookup()
+        return cls._type_lookup[model].id
