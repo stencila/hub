@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
-{% block title %}Resource Limits{% endblock %}
+{% block title %}Session Parameter Objects{% endblock %}
 
 {% block content %}
     <nav class="level">
         <div class="level-left">
             <div class="level-item">
                 <p class="subtitle is-5">
-                    <strong>{{ object_list|length }}</strong> Resource Limit{{ object_list|length|pluralize }}
+                    <strong>{{ object_list|length }}</strong> Session Parameter Object{{ object_list|length|pluralize }}
                 </p>
             </div>
         </div>
         <div class="level-right">
             <p class="level-item">
-                <a class="button is-success" href="{% url 'resourcelimit_create' %}">
+                <a class="button is-success" href="{% url 'sessionparameters_create' %}">
                     <span class="icon"><i class="fas fa-plus"></i></span>
                     <span>New</span>
                 </a>
@@ -29,9 +29,9 @@
             </tr>
             </thead>
             <tbody>
-            {% for resource_limit in object_list %}
+            {% for session_parameters_object in object_list %}
                 <tr>
-                    <td>{{ resource_limit.pk }}</td>
+                    <td>{{ session_parameters_object.pk }}</td>
                 </tr>
             {% endfor %}
             </tbody>

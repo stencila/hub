@@ -28,7 +28,8 @@
         </div>
         <div class="level-right">
             <p class="level-item">
-                <a class="button is-success" {% if not resource_limits %}disabled="disabled" title="Please create a resource limit first."{% endif %} href="{% url 'project_create' %}">
+                <a class="button is-success" {% if not session_parameters %}disabled="disabled"
+                   title="Please create Session Parameters first."{% endif %} href="{% url 'project_create' %}">
                     <span class="icon"><i class="fas fa-plus"></i></span>
                     <span>New</span>
                 </a>
@@ -74,18 +75,18 @@
         {% empty %}
             <p>No projects yet.</p>
         {% endfor %}
-    </div>
+    </div>`
     {% if request.user.is_authenticated %}
-        <h4 class="subtitle is-4">Resource Limits</h4>
+        <h4 class="subtitle is-4">Session Parameters</h4>
 
         <nav class="level">
-        <div class="level-left">
-            <div class="level-item">
-                <p class="subtitle is-5">
-                    <strong>{{ resource_limits|length }}</strong> resource limit{{ resource_limits|length|pluralize }}
-                </p>
-            </div>
-            {% comment %}
+            <div class="level-left">
+                <div class="level-item">
+                    <p class="subtitle is-5">
+                        <strong>{{ session_parameters|length }}</strong> session parameters object{{ session_paramaters|length|pluralize }}
+                    </p>
+                </div>
+                {% comment %}
     <div class="level-item">
       <div class="field has-addons">
         <p class="control">
@@ -99,18 +100,18 @@
       </div>
     </div>
     {% endcomment %}
-        </div>
-        <div class="level-right">
-            <p class="level-item">
-                <a class="button is-success" href="{% url 'resourcelimit_create' %}">
-                    <span class="icon"><i class="fas fa-plus"></i></span>
-                    <span>New</span>
-                </a>
-            </p>
-        </div>
-    </nav>
+            </div>
+            <div class="level-right">
+                <p class="level-item">
+                    <a class="button is-success" href="{% url 'sessionparameters_create' %}">
+                        <span class="icon"><i class="fas fa-plus"></i></span>
+                        <span>New</span>
+                    </a>
+                </p>
+            </div>
+        </nav>
 
-        {% if resource_limits %}
+        {% if session_parameters %}
             <table class="table is-fullwidth">
                 <thead>
                 <tr>
@@ -125,17 +126,17 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for resource_limit in resource_limits %}
+                {% for session_parameters_object in session_parameters %}
                     <tr>
-                        <td>{{ resource_limit.name }}</td>
-                        <td>{{ resource_limit.description }}</td>
-                        <td class="has-text-right">{{ resource_limit.memory }}</td>
-                        <td class="has-text-right">{{ resource_limit.cpu }}</td>
-                        <td class="has-text-right">{{ resource_limit.network|default:"Unlimited" }}</td>
-                        <td class="has-text-right">{{ resource_limit.lifetime|default:"Unlimited" }}</td>
-                        <td class="has-text-right">{{ resource_limit.timeout }}</td>
+                        <td>{{ session_parameters_object.name }}</td>
+                        <td>{{ session_parameters_object.description }}</td>
+                        <td class="has-text-right">{{ session_parameters_object.memory }}</td>
+                        <td class="has-text-right">{{ session_parameters_object.cpu }}</td>
+                        <td class="has-text-right">{{ session_parameters_object.network|default:"Unlimited" }}</td>
+                        <td class="has-text-right">{{ session_parameters_object.lifetime|default:"Unlimited" }}</td>
+                        <td class="has-text-right">{{ session_parameters_object.timeout }}</td>
                         <td class="has-text-right">
-                            <a href="{{ resource_limit.get_absolute_url }}">
+                            <a href="{{ session_parameters_object.get_absolute_url }}">
                                 <span class="icon">
                                     <i class="fas fa-edit"></i>
                                 </span>
@@ -147,7 +148,7 @@
                 </tbody>
             </table>
         {% else %}
-            <p>No resource limits yet.</p>
+            <p>No session parameters objects yet.</p>
         {% endif %}
     {% endif %}
 {% endblock %}

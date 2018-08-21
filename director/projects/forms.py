@@ -7,7 +7,7 @@ from crispy_forms.layout import Submit
 from django.contrib.auth.models import User
 from django.http import QueryDict
 
-from .models import FilesSource, ResourceLimit, DataSource, Project, generate_project_key
+from .models import FilesSource, SessionParameters, Source, Project, generate_project_key
 
 
 def get_initial_form_data_from_project(project: typing.Optional[Project]) -> dict:
@@ -16,7 +16,7 @@ def get_initial_form_data_from_project(project: typing.Optional[Project]) -> dic
 
     initial = {
         key: getattr(project, key) for key in
-        ('token', 'key', 'max_concurrent', 'max_sessions', 'resource_limit', 'public')
+        ('token', 'key', 'max_concurrent', 'max_sessions', 'session_parameters', 'public')
     }
 
     initial['source'] = project.sources.first()
@@ -27,7 +27,7 @@ def get_initial_form_data_from_project(project: typing.Optional[Project]) -> dic
 def update_project_from_form_data(project: Project, form_data: QueryDict) -> None:
     project.max_concurrent = form_data['max_concurrent']
     project.max_sessions = form_data['max_sessions']
-    project.resource_limit = form_data['resource_limit']
+    project.session_parameters = form_data['session_parameters']
     project.public = form_data['public']
 
     # at this stage assume a 1:1 mapping Project:Source even though the DB support multiple sources
@@ -128,21 +128,21 @@ class ProjectForm(FormWithSubmit):
         help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
     )
 
-    resource_limit = forms.ModelChoiceField(
+    session_parameters = forms.ModelChoiceField(
         required=True,
-        queryset=ResourceLimit.objects.none(),  # this needs to be set at runtime
-        help_text='The Resource Limit to use to define resources when creating new Sessions in this project.'
+        queryset=SessionParameters.objects.none(),  # this needs to be set at runtime
+        help_text='The Session Parameters to use to define resources when creating new Sessions in this project.'
     )
 
     source = forms.ModelChoiceField(
         required=False,
-        queryset=DataSource.objects.none(),  # this needs to be set at runtime,
-        help_text='The data source for this Project'
+        queryset=Source.objects.none(),  # this needs to be set at runtime,
+        help_text='The data for this Project'
     )
 
     def populate_choice_fields(self, user: User):
-        self.fields['resource_limit'].queryset = ResourceLimit.objects.filter(owner=user)
-        self.fields['source'].queryset = DataSource.objects.filter(creator=user)
+        self.fields['session_parameters'].queryset = SessionParameters.objects.filter(owner=user)
+        self.fields['source'].queryset = Source.objects.filter(creator=user)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -165,11 +165,11 @@ class ProjectUpdateForm(SaveButtonMixin, ProjectForm):
     pass
 
 
-class ResourceLimitForm(ModelFormWithSubmit):
+class SessionParametersForm(ModelFormWithSubmit):
     submit_button_label = None
 
     class Meta:
-        model = ResourceLimit
+        model = SessionParameters
         fields = ['name', 'description', 'memory', 'cpu', 'network', 'lifetime', 'timeout']
 
         widgets = {
@@ -196,11 +196,11 @@ class ResourceLimitForm(ModelFormWithSubmit):
         return cleaned_data
 
 
-class ResourceLimitUpdateForm(SaveButtonMixin, ResourceLimitForm):
+class SessionParametersUpdateForm(SaveButtonMixin, SessionParametersForm):
     pass
 
 
-class ResourceLimitCreateForm(CreateButtonMixin, ResourceLimitForm):
+class SessionParametersCreateForm(CreateButtonMixin, SessionParametersForm):
     pass
 
 

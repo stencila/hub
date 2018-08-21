@@ -10,7 +10,7 @@ from polymorphic.admin import (
 from .models import (
     Project,
     FilesSource, FilesSourceFile,
-    DataSource, ResourceLimit)
+    Source, SessionParameters)
 
 
 @admin.register(Project)
@@ -29,9 +29,9 @@ class ProjectAdmin(admin.ModelAdmin):
     archive.short_description = 'Archive'
 
 
-@admin.register(DataSource)
-class DataSourceAdmin(PolymorphicParentModelAdmin):
-    base_model = DataSource
+@admin.register(Source)
+class SourceAdmin(PolymorphicParentModelAdmin):
+    base_model = Source
     child_models = [
         FilesSource,
     ]
@@ -49,6 +49,6 @@ class FilesProjectAdmin(PolymorphicChildModelAdmin):
     ]
 
 
-@admin.register(ResourceLimit)
-class ResourceLimitAdmin(admin.ModelAdmin):
+@admin.register(SessionParameters)
+class SessionParametersAdmin(admin.ModelAdmin):
     pass

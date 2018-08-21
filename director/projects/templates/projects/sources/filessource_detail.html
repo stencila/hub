@@ -1,4 +1,4 @@
-{% extends "projects/sources/datasource_detail.html" %}
+{% extends "projects/sources/source_detail.html" %}
 {% load crispy_forms_tags static %}
 
 {% block title %}Files Source{% endblock %}
@@ -9,7 +9,7 @@
     <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
 {% endblock %}
 
-{% block datasource_content %}
+{% block source_content %}
     <div class="section">
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}

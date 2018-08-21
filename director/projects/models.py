@@ -15,10 +15,9 @@ from django.db.models import (
     IntegerField,
     ForeignKey,
     FileField,
-    SlugField,
     TextField,
     CASCADE, SET_NULL,
-    FloatField, PROTECT, URLField, OneToOneField)
+    FloatField, PROTECT, URLField)
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
@@ -64,6 +63,7 @@ class Project(Model):
     )
 
     token = TextField(
+        null=True,
         unique=True,
         help_text='A token to publicly identify the SessionGroup (in URLs etc)'
     )
@@ -90,11 +90,12 @@ class Project(Model):
                   '(null = unlimited)'
     )
 
-    resource_limit = ForeignKey(
-        'ResourceLimit',
-        related_name='session_groups',
-        null=True, on_delete=SET_NULL,
-        help_text='The SessionTemplate that defines resources for new sessions in this group.'
+    session_parameters = ForeignKey(
+        'SessionParameters',
+        related_name='projects',
+        null=True,
+        on_delete=CASCADE,
+        help_text='The SessionParameters that defines resources and other parameters of new sessions for this Project.'
     )
 
     def __str__(self):
@@ -195,7 +196,7 @@ class Project(Model):
 # However, that means that they are not available in the admin.
 
 
-class DataSource(PolymorphicModel):
+class Source(PolymorphicModel):
     project = ForeignKey(
         Project,
         null=True,
@@ -209,7 +210,7 @@ class DataSource(PolymorphicModel):
         null=True,  # Should only be null if the creator is deleted
         on_delete=SET_NULL,
         related_name='sources',
-        help_text='User who created this data source'
+        help_text='User who created this source'
     )
 
     address = CharField(
@@ -219,22 +220,22 @@ class DataSource(PolymorphicModel):
     )
 
     @property
-    def type(self) -> typing.Type['DataSource']:
+    def type(self) -> typing.Type['Source']:
         return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
 
     @property
     def type_name(self) -> str:
-        return AvailableDataSourceType.get_project_type_name(type(self))
+        return AvailableSourceType.get_project_type_name(type(self))
 
     @property
     def type_id(self) -> str:
-        return AvailableDataSourceType.get_project_type_id(type(self))
+        return AvailableSourceType.get_project_type_id(type(self))
 
     def get_absolute_url(self):
-        return reverse('datasource_detail', args=[self.type_id, self.pk])
+        return reverse('source_detail', args=[self.type_id, self.pk])
 
 
-class BitbucketSource(DataSource):
+class BitbucketSource(Source):
     """
     A project hosted on Bitbucket
     """
@@ -243,7 +244,7 @@ class BitbucketSource(DataSource):
         abstract = True
 
 
-class DatSource(DataSource):
+class DatSource(Source):
     """
     A project hosted on Dat
     """
@@ -252,7 +253,7 @@ class DatSource(DataSource):
         abstract = True
 
 
-class DropboxSource(DataSource):
+class DropboxSource(Source):
     """
     A project hosted on Dropbox
     """
@@ -261,7 +262,7 @@ class DropboxSource(DataSource):
         abstract = True
 
 
-class FilesSource(DataSource):
+class FilesSource(Source):
     """
     A project hosted on Stencila Hub consisting of a set of files
     """
@@ -363,7 +364,7 @@ class FilesSourceFile(Model):
 
     class Meta:
         pass
-        # unique_together = ['project', 'name']
+        # unique_together = ['source', 'name']  # this constraint is not necessary
 
     def serialize(self):
         """
@@ -387,7 +388,7 @@ class FilesSourceFile(Model):
         super().save(*args, **kwargs)
 
 
-class GithubSource(DataSource):
+class GithubSource(Source):
     """
     A project hosted on Github
     """
@@ -396,7 +397,7 @@ class GithubSource(DataSource):
         abstract = True
 
 
-class GitlabSource(DataSource):
+class GitlabSource(Source):
     """
     A project hosted on Gitlab
     """
@@ -405,7 +406,7 @@ class GitlabSource(DataSource):
         abstract = True
 
 
-class OSFSource(DataSource):
+class OSFSource(Source):
     """
     A project hosted on the Open Science Framework
 
@@ -416,16 +417,28 @@ class OSFSource(DataSource):
         abstract = True
 
 
-class ResourceLimit(Model):
+class SessionParameters(Model):
     """
-    Defines the resource limits for new Sessions created in a Project
+    Defines the parameters for new Sessions created in a Project
     """
     owner = ForeignKey(
         'auth.User',
         null=True,  # Should only be null if the creator is deleted
         on_delete=SET_NULL,
         related_name='session_templates',
-        help_text='User who owns the SessionTemplate'
+        help_text='User who owns the SessionParameters'
+    )
+
+    is_system = BooleanField(
+        default=False,
+        help_text='If True, this SessionParameters can be used by any user'
+    )
+
+    display_order = IntegerField(
+        null=False,
+        blank=True,
+        default=0,
+        help_text="The order this SessionParameter should be displayed in list/tables"
     )
 
     name = TextField(
@@ -436,7 +449,7 @@ class ResourceLimit(Model):
     description = TextField(
         null=True,
         blank=True,
-        help_text='Optional long description about the ResourceLimit'
+        help_text='Optional long description about the SessionParameters'
     )
 
     memory = FloatField(
@@ -476,7 +489,7 @@ class ResourceLimit(Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('resourcelimit_update', args=[self.pk])
+        return reverse('sessionparameters_update', args=[self.pk])
 
 
 class SessionStatus(enum.Enum):
@@ -531,14 +544,14 @@ class Session(Model):
         return SessionStatus.NOT_STARTED
 
 
-class DataSourceType(typing.NamedTuple):
+class SourceType(typing.NamedTuple):
     id: str
     name: str
     model: typing.Type
 
 
-class AvailableDataSourceType(enum.Enum):
-    FILE = DataSourceType('files', 'Files', FilesSource)
+class AvailableSourceType(enum.Enum):
+    FILE = SourceType('files', 'Files', FilesSource)
 
     @classmethod
     def setup_type_lookup(cls) -> None:
@@ -548,11 +561,11 @@ class AvailableDataSourceType(enum.Enum):
             }
 
     @classmethod
-    def get_project_type_name(cls, model: typing.Type[DataSource]) -> str:
+    def get_project_type_name(cls, model: typing.Type[Source]) -> str:
         cls.setup_type_lookup()
         return cls._type_lookup[model].name
 
     @classmethod
-    def get_project_type_id(cls, model: typing.Type[DataSource]) -> str:
+    def get_project_type_id(cls, model: typing.Type[Source]) -> str:
         cls.setup_type_lookup()
         return cls._type_lookup[model].id

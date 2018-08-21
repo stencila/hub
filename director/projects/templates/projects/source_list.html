@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
 
-{% block title %}Data Sources{% endblock %}
+{% block title %}Sources{% endblock %}
 
 {% block content %}
     <nav class="level">
         <div class="level-left">
             <div class="level-item">
                 <p class="subtitle is-5">
-                    <strong>{{ object_list|length }}</strong> Data Source{{ object_list|length|pluralize }}
+                    <strong>{{ object_list|length }}</strong> Source{{ object_list|length|pluralize }}
                 </p>
             </div>
         </div>
         <div class="level-right">
             <p class="level-item">
-                <a class="button is-success" href="{% url 'datasource_create_route' %}">
+                <a class="button is-success" href="{% url 'source_create_route' %}">
                     <span class="icon"><i class="fas fa-plus"></i></span>
                     <span>New</span>
                 </a>
@@ -44,7 +44,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td colspan="3">No data sources.</td>
+                <td colspan="3">No sources.</td>
             </tr>
         {% endfor %}
         </tbody>

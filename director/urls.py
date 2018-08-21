@@ -17,20 +17,16 @@ from checkouts.views import (
     CheckoutSaveView,
     CheckoutCloseView
 )
-from projects.resource_limit_views import ResourceLimitListView, ResourceLimitDetailView
+from projects.session_parameters_views import SessionParametersListView, SessionParametersDetailView
 from projects.views import (
     ProjectListView,
     ProjectReadView,
     ProjectDeleteView,
     ProjectArchiveView,
 
-    FilesSourceReadView,
-    FilesSourceUpdateView,
-    FilesSourceUploadView,
-    FilesProjectRemoveView,
-    ProjectDetailView, DataSourceListView, DataSourceDetailRouteView, DataSourceDetailView)
-from publisher.views import SessionGroupListView, SessionGroupDetail, SessionTemplateListView, \
-    SessionTemplateDetailView, SessionStartView, SessionListView, PublisherMainView
+    ProjectDetailView, ProjectSessionsListView)
+from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, FilesSourceUploadView, \
+    FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
 from views import (
     HomeView
 )
@@ -45,6 +41,7 @@ urlpatterns = [
         path('<int:pk>/update/', ProjectDetailView.as_view(), name='project_update'),
         path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
         path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
+        path('<int:pk>/sessions/', ProjectSessionsListView.as_view(), name='project_sessions'),
         # Type-specific views
         path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
         path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),
@@ -52,35 +49,35 @@ urlpatterns = [
         path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
     ])),
 
-    path('resource-limits/', include([
-        path('', ResourceLimitListView.as_view(), name='resourcelimit_list'),
-        path('create/', ResourceLimitDetailView.as_view(), name='resourcelimit_create'),
-        path('<int:pk>/', ResourceLimitDetailView.as_view(), name='resourcelimit_update')
+    path('session-parameters/', include([
+        path('', SessionParametersListView.as_view(), name='sessionparameters_list'),
+        path('create/', SessionParametersDetailView.as_view(), name='sessionparameters_create'),
+        path('<int:pk>/', SessionParametersDetailView.as_view(), name='sessionparameters_update')
     ])),
 
-    path('data-sources/', include([
-        path('', DataSourceListView.as_view(), name='datasource_list'),
-        path('create/', DataSourceDetailRouteView.as_view(), name='datasource_create_route'),
-        path('<project_type>/create/', DataSourceDetailView.as_view(), name='datasource_create'),
-        path('<project_type>/<int:pk>/', DataSourceDetailView.as_view(), name='datasource_detail'),
+    path('sources/', include([
+        path('', SourceListView.as_view(), name='source_list'),
+        path('create/', SourceDetailRouteView.as_view(), name='source_create_route'),
+        path('<project_type>/create/', SourceDetailView.as_view(), name='source_create'),
+        path('<project_type>/<int:pk>/', SourceDetailView.as_view(), name='source_detail'),
     ])),
 
     # Publisher views
 
-    path('publisher/', include([
-        path('', PublisherMainView.as_view(), name='publisher_main'),
-        path('session-groups/', SessionGroupListView.as_view(), name="session_group_list"),
-        path('session-groups/create/', SessionGroupDetail.as_view(), name="session_group_create"),
-        path('session-groups/<int:pk>/', SessionGroupDetail.as_view(), name="session_group_edit"),
-        path('session-groups/<int:session_group_pk>/sessions/', SessionListView.as_view(), name="session_list"),
-
-        re_path(r'session-groups/(?P<token>[0-9a-f]+)/start-session', SessionStartView.as_view(),
-                name="session_token_start"),
-
-        path('session-templates/', SessionTemplateListView.as_view(), name="session_template_list"),
-        path('session-templates/create/', SessionTemplateDetailView.as_view(), name="session_template_create"),
-        path('session-templates/<int:pk>/', SessionTemplateDetailView.as_view(), name="session_template_detail"),
-    ])),
+    # path('publisher/', include([
+    #     path('', PublisherMainView.as_view(), name='publisher_main'),
+    #     path('session-groups/', SessionGroupListView.as_view(), name="session_group_list"),
+    #     path('session-groups/create/', SessionGroupDetail.as_view(), name="session_group_create"),
+    #     path('session-groups/<int:pk>/', SessionGroupDetail.as_view(), name="session_group_edit"),
+    #     path('session-groups/<int:session_group_pk>/sessions/', SessionListView.as_view(), name="session_list"),
+    #
+    #     re_path(r'session-groups/(?P<token>[0-9a-f]+)/start-session', SessionStartView.as_view(),
+    #             name="session_token_start"),
+    #
+    #     path('session-templates/', SessionTemplateListView.as_view(), name="session_template_list"),
+    #     path('session-templates/create/', SessionTemplateDetailView.as_view(), name="session_template_create"),
+    #     path('session-templates/<int:pk>/', SessionTemplateDetailView.as_view(), name="session_template_detail"),
+    # ])),
 
     # Checkout CRUD
     path('checkouts/', include([

@@ -3,8 +3,8 @@
 {% block title %}Sessions{% endblock %}
 
 {% block content %}
-    <h1>Sessions for <a href="{% url "session_group_edit" session_group.pk %}">{{ session_group }}</a></h1>
-    <table class="table">
+    <h1>Sessions for <a href="{% url "project_update" project.pk %}">{{ project }}</a></h1>
+    <table class="table is-fullwidth">
         <thead>
             <tr>
                 <th>Session ID</th>
@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for session in object_list %}
+            {% for session in project.sessions.objects %}
                 <tr>
                     <td>{{ session.id }}</td>
                     <td>{{ session.status.value }}</td>
