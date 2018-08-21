@@ -5,6 +5,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import QueryDict
 
 from .models import FilesSource, SessionParameters, Source, Project, generate_project_key
@@ -142,7 +143,13 @@ class ProjectForm(FormWithSubmit):
 
     def populate_choice_fields(self, user: User):
         self.fields['session_parameters'].queryset = SessionParameters.objects.filter(owner=user)
-        self.fields['source'].queryset = Source.objects.filter(creator=user)
+
+        source_query = Q(creator=user)
+
+        if 'source' in self.initial:
+            source_query = source_query | Q(pk=self.initial['source'].id)
+
+        self.fields['source'].queryset = Source.objects.filter(source_query)
 
     def clean(self):
         cleaned_data = super().clean()
