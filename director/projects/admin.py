@@ -12,6 +12,8 @@ from .models import (
     FilesSource, FilesSourceFile,
     Source, SessionParameters)
 
+from .session_admin import *
+
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -48,7 +50,3 @@ class FilesProjectAdmin(PolymorphicChildModelAdmin):
         FilesSourceFileInline
     ]
 
-
-@admin.register(SessionParameters)
-class SessionParametersAdmin(admin.ModelAdmin):
-    pass
