@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='FilesProjectFile',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(blank=True, upload_to=projects.models.files_project_file_path)),
+                ('file', models.FileField(blank=True, upload_to=projects.models.files_source_file_path)),
             ],
         ),
         migrations.CreateModel(

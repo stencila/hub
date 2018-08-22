@@ -1,0 +1,152 @@
+{% extends "projects/sources/source_detail.html" %}
+{% load crispy_forms_tags static %}
+
+{% block title %}Files Source{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/vue-upload-component.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/moment.min.js' %}"></script>
+{% endblock %}
+
+{% block source_content %}
+    <div class="section">
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="button is-primary" type="submit">
+                <span>Save</span>
+            </button>
+        </form>
+    </div>
+    {% if object %}
+        <div id="filesproject" class="section">
+            <table class="table is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Modified</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody v-if="files.length">
+                <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
+                    <td>[[ file.name ]]</td>
+                    <td>[[ file.size ]]</td>
+                    <td>[[ file.modified ? moment(Date.parse(file.modified)).local().fromNow() : '-' ]]</td>
+                    <td v-if="file.error">
+                    <span class="icon">
+                        <i class="fas fa-error"></i>
+                    </span>
+                        <span>[[file.error]]</span>
+                    </td>
+                    <td v-else-if="file.active">
+                    <span class="icon">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    </span>
+                    </td>
+                    <td v-else-if="file.success">
+                    <span class="icon has-text-success">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    </td>
+                    <td v-else-if="file.current">
+                        <a class="icon has-text-danger" @click="remove(file.id)">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                <tbody>
+            </table>
+            <file-upload
+                    class="button"
+                    post-action="{% url 'filesproject_upload' object.id %}"
+                    :headers="{'X-CSRFToken': utils.cookie('csrftoken')}"
+                    :multiple="true"
+                    v-model="files"
+                    ref="upload"
+            >
+                <i class="fa fa-plus"></i>
+                Add files
+            </file-upload>
+            <button type="button" class="button" :disabled="$refs.upload && $refs.upload.active"
+                    @click.prevent="$refs.upload.active = true">
+                <i class="fa fa-arrow-up" aria-hidden="true"></i>
+                Upload
+            </button>
+        </div>
+        <nav class="level">
+            <div class="level-left">
+                <p class="level-item">
+                    <a class="button" href="{% url 'project_archive' object.id %}">
+                        <span class="icon"><i class="fas fa-download"></i></span>
+                        <span>Download</span>
+                    </a>
+                </p>
+            </div>
+            <div class="level-right">
+                <p class="level-item">
+                    <a class="button is-success" href="{% url 'checkout_create' %}?project={{ object.id }}"
+                       target="_blank">
+                        <span class="icon"><i class="fas fa-edit"></i></span>
+                        <span>Open</span>
+                    </a>
+                </p>
+            </div>
+        </nav>
+        <script type="text/javascript">
+            const g_fileReadUrl = '{% url 'filesproject_read' object.id %}';
+
+            window.vue = new Vue({
+                el: '#filesproject',
+                delimiters: ['[[', ']]'],
+                components: {
+                    FileUpload: VueUploadComponent,
+                },
+                data: {
+                    instance: {},
+                    files: []
+                },
+                methods: {
+                    read: function () {
+                        fetch(g_fileReadUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin'
+                        })
+                            .then(response => response.json())
+                            .then(instance => {
+                                this.instance = instance
+                                this.$refs.upload.add(instance.files)
+                            })
+                    },
+                    remove: function (fileId) {
+                        fetch(`/projects/files/${this.instance.id}/remove/${fileId}/`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRFToken': utils.cookie('csrftoken')
+                            },
+                            credentials: 'same-origin'
+                        })
+                            .then(response => response.json())
+                            .then(instance => {
+                                this.instance = instance
+                                this.$refs.upload.remove(fileId)
+                            })
+                    }
+                },
+                mounted: function () {
+                    if (g_fileReadUrl !== '')
+                        this.read()
+                }
+            })
+        </script>
+    {% else %}
+        <p>Save the Files Source above to begin adding files.</p>
+    {% endif %}
+{% endblock %}

@@ -1,6 +1,22 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
-
+{% block title %}Project{% endblock %}
 {% block content %}
     {% crispy form %}
+    <script>
+        (function () {
+            var keyInput = document.getElementById('id_key');
+            var oldKey = '';
+            document.getElementById('id_generate_key').addEventListener('change', function () {
+                if (this.checked) {
+                    oldKey = keyInput.value;
+                    keyInput.setAttribute('disabled', 'disabled');
+                    keyInput.value = '';
+                } else {
+                    keyInput.removeAttribute('disabled');
+                    keyInput.value = oldKey;
+                }
+            });
+        })()
+    </script>
 {% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <ul>
+        <li><a href="{% url 'source_list' %}">Data Sources</a></li>
+        {% if object %}<li><a href="#">{{ object.id }}</a></li>{% endif %}
+        <li class="is-active"><a href="#" aria-current="page">{% if object %}Update{% else %}Create{% endif %}</a></li>
+    </ul>
+</nav>
+{% block source_content %}{% endblock %}
+{% endblock %}

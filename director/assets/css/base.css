@@ -10,3 +10,7 @@ See https://vuejs.org/v2/api/#v-cloak
 [v-cloak] {
 	display: none;
 }
+
+.is-top-padding {
+    padding-top: 2vh;
+}
