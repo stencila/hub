@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Project{% endblock %}
+{% block content %}
+    <div id="project-tabs">
+        <div class="tabs">
+            <ul>
+                {% for form in forms %}
+                    {% if form.is_base %}
+                        <li v-bind:class="{'is-active': tab == '{{ form.id }}'}" @click="setTab('{{ form.id }}')"><a
+                                {% if form.form.is_bound and not form.form.is_valid %}class="has-text-danger"{% endif %}>{{ form.name }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        <form method="POST">
+            {% with forms.general as form %}
+                <div class="content" v-show="tab == '{{ form.id }}'">
+                    {% crispy form.form %}
+                </div>
+            {% endwith %}
+
+            {% with forms.session_parameters as form %}
+                <div class="content" v-show="tab == '{{ form.id }}'">
+                    {% crispy forms.sessions.form %}
+                    <div v-if="systemSessionParams.length">
+                        <h5 class="subtitle is-5">Default Session Parameters</h5>
+                        <p>You can assign one of the default Session Parameters, and then change the values to suit your particular need.</p>
+                        <div class="field is-grouped">
+                            <p v-for="sessionParameters in systemSessionParams" class="control">
+                                <a class="button is-small" @click="setSystemParameterWithPk(sessionParameters.pk)">
+                                    [[ sessionParameters.name ]]
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    {% crispy form.form %}
+                </div>
+            {% endwith %}
+
+            {% with forms.access as form %}
+                <div class="content" v-show="tab == '{{ form.id }}'">
+                    {% crispy form.form %}
+                </div>
+            {% endwith %}
+
+            <div class="content">
+                <button class="button is-primary" type="submit">
+                    <span>Save *</span>
+                </button>
+            </div>
+            <div class="content">
+                <small>*Saves forms in all tabs</small>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript">
+        (function () {
+            const g_systemSessionParams = JSON.parse('{{ system_session_parameters|safe }}');
+
+            new Vue({
+                el: '#project-tabs',
+                delimiters: ['[[', ']]'],
+                data: {
+                    tab: "general",
+                    sessionParametersId: "",
+                    systemSessionParams: g_systemSessionParams,
+                    spMemory: {{ session_parameters.memory|default:"null" }},
+                    spCpu: {{ session_parameters.cpu|default:"null" }},
+                    spNetwork: {{ session_parameters.network|default:"null" }},
+                    spLifetime: {{ session_parameters.lifetime|default:"null" }},
+                    spTimeout: {{ session_parameters.timeout|default:"null" }}
+                },
+                methods: {
+                    setTab(tab) {
+                        this.tab = tab
+                    },
+                    setSystemParameterWithPk(pk) {
+                        this.applySessionParameters(this.findSystemSessionParameters(pk));
+                    },
+                    findSystemSessionParameters(parameterId) {
+                        for (let i = 0; i < g_systemSessionParams.length; ++i) {
+                            if (g_systemSessionParams[i].pk == parameterId)
+                                return g_systemSessionParams[i]
+                        }
+
+                        return null;
+                    },
+                    applySessionParameters(sessionParameters) {
+                        if (sessionParameters == null) {
+                            return
+                        }
+
+                        this.spMemory = sessionParameters.memory
+                        this.spCpu = sessionParameters.cpu
+                        this.spNetwork = sessionParameters.network
+                        this.spLifetime = sessionParameters.lifetime
+                        this.spTimeout = sessionParameters.timeout
+                    }
+                }
+            })
+        })();
+    </script>
+{% endblock %}

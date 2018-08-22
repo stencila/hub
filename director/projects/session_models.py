@@ -175,3 +175,14 @@ class SessionParameters(models.Model):
 
     def get_absolute_url(self):
         return reverse('sessionparameters_update', args=[self.pk])
+
+    def serialize(self) -> dict:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "memory": self.memory,
+            "cpu": self.cpu,
+            "network": self.network,
+            "lifetime": self.lifetime,
+            "timeout": self.timeout
+        }

@@ -1,11 +1,13 @@
+import json
 import typing
 
 from django import forms
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
-from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpRequest, QueryDict
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     View,
@@ -24,7 +26,8 @@ from .models import (
     SessionParameters)
 from .forms import (
     ProjectCreateForm,
-    ProjectForm, get_initial_form_data_from_project, update_project_from_form_data, ProjectUpdateForm)
+    ProjectForm, get_initial_form_data_from_project, update_project_from_form_data, ProjectUpdateForm,
+    ProjectAccessForm, ProjectSessionParametersForm, ProjectGeneralForm, ProjectSessionsForm)
 
 
 class ProjectListView(View):
@@ -52,11 +55,41 @@ class ProjectListView(View):
         })
 
 
+class FormContext(typing.NamedTuple):
+    id: str
+    name: str
+    form: forms.Form
+    is_base: bool = True
+
+
+class ProjectGeneralFormContext(FormContext):
+    form: ProjectGeneralForm
+
+
+class ProjectSessionsFormContext(FormContext):
+    form: ProjectSessionsForm
+
+
+class ProjectSessionParametersFormContext(FormContext):
+    form: ProjectSessionParametersForm
+
+
+class ProjectAccessFormContext(FormContext):
+    form: ProjectAccessForm
+
+
+class ProjectForms(typing.NamedTuple):
+    general: ProjectGeneralFormContext
+    sessions: ProjectSessionsFormContext
+    session_parameters: ProjectSessionParametersFormContext
+    access: ProjectAccessFormContext
+
+
 class ProjectDetailView(DetailView):
     model = Project
     create_form_class = ProjectCreateForm
     edit_form_class = ProjectUpdateForm
-    template = "projects/project_create.html"
+    template = "projects/project_detail.html"
     model_name = "Project"
     save_redirect_reverse = "project_list"
 
@@ -76,6 +109,74 @@ class ProjectDetailView(DetailView):
     def check_instance_ownership(self, instance: Project):
         if not (instance.public or owner_access_check(self.request, instance, 'creator')):
             raise PermissionDenied
+
+    @staticmethod
+    def get_system_session_parameters() -> QuerySet:
+        return SessionParameters.objects.filter(is_system=True)
+
+    def get_predefined_parameters_choices(self) -> typing.Iterable[typing.Tuple[typing.Optional[int], str]]:
+        return [(None, "----")] + list(map(lambda p: (p.pk, p.name), self.get_system_session_parameters()))
+
+    def get_json_system_session_parameters(self) -> str:
+        return json.dumps(list(map(lambda sp: sp.serialize(), self.get_system_session_parameters())))
+
+    def get_forms(self, project: typing.Optional[Project], data: typing.Optional[QueryDict] = None) -> ProjectForms:
+        general_form = ProjectGeneralForm(data, initial=ProjectGeneralForm.initial_data_from_project(project))
+        general_form.helper.form_tag = False
+        general_form_context = ProjectGeneralFormContext("general", "General", general_form)
+
+        session_form = ProjectSessionsForm(data, initial=ProjectSessionsForm.initial_data_from_project(project))
+        session_form.helper.form_tag = False
+        session_form_context = ProjectSessionsFormContext("sessions", "Sessions", session_form, False)
+
+        parameters_form = ProjectSessionParametersForm(data,
+                                                       initial=ProjectSessionParametersForm.initial_data_from_project(
+                                                           project))
+        parameters_form.helper.form_tag = False
+        parameters_form_context = ProjectSessionParametersFormContext("session-parameters", "Session Parameters",
+                                                                      parameters_form)
+
+        access_form = ProjectAccessForm(data, initial=ProjectAccessForm.initial_data_from_project(project))
+        access_form.helper.form_tag = False
+        access_form_context = ProjectAccessFormContext("access", "Access", access_form)
+
+        return ProjectForms(
+            general_form_context,
+            session_form_context,
+            parameters_form_context,
+            access_form_context
+        )
+
+    def get(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
+        project = self.get_instance(pk)
+
+        project_forms = self.get_forms(project)
+
+        return render(request, self.template, {
+            'forms': project_forms,
+            'session_parameters': project.session_parameters,
+            'system_session_parameters': self.get_json_system_session_parameters()
+        })
+
+    def post(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
+        project = self.get_instance(pk)
+
+        project_forms = self.get_forms(project, request.POST)
+
+        if all(map(lambda fc: fc.form.is_valid(), project_forms)):
+            update_project_from_form_data(request, project, project_forms.general.form.cleaned_data,
+                                          project_forms.sessions.form.cleaned_data,
+                                          project_forms.session_parameters.form.cleaned_data,
+                                          project_forms.access.form.cleaned_data)
+            return redirect(reverse("project_update", args=(project.pk,)))
+        else:
+            messages.error(request, "Please correct all form errors to Save.")
+
+        return render(request, self.template, {
+            'forms': project_forms,
+            'session_parameters': project.session_parameters,
+            'system_session_parameters': self.get_json_system_session_parameters()
+        })
 
 
 class ProjectCreateView(LoginRequiredMixin, FormView):

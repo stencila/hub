@@ -3,8 +3,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from polymorphic.admin import (
     PolymorphicParentModelAdmin,
-    PolymorphicChildModelAdmin,
-    PolymorphicChildModelFilter
+    PolymorphicChildModelAdmin
 )
 
 from .models import (
