@@ -25,6 +25,7 @@ from projects.views import (
     ProjectArchiveView,
 
     ProjectDetailView, ProjectSessionsListView)
+from projects.host_views import ProjectHostManifestView, ProjectHostSessionsView
 from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, FilesSourceUploadView, \
     FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
 from views import (
@@ -42,6 +43,17 @@ urlpatterns = [
         path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
         path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
         path('<int:pk>/sessions/', ProjectSessionsListView.as_view(), name='project_sessions'),
+        # Per project Host API
+        path('<str:token>/host/', include([
+            path('v0/', include([
+                path('manifest', ProjectHostManifestView.as_view()),
+                path('environ/<str:environ>', ProjectHostSessionsView.as_view())
+            ])),
+            path('v1/', include([
+                path('manifest', ProjectHostManifestView.as_view()),
+                path('sessions/<str:environ>', ProjectHostSessionsView.as_view())
+            ]))
+        ])),
         # Type-specific views
         path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
         path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),

@@ -1,8 +1,12 @@
 import enum
+import time
 
-import django.db.models as models
+import jwt
+from django.conf import settings
+from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+import requests
 
 
 class SessionStatus(enum.Enum):
@@ -42,6 +46,35 @@ class Session(models.Model):
         null=True,
         help_text='The last time the status of this Session was checked'
     )
+
+    @staticmethod
+    def create(project):
+        # TODO check the total number and number of concurrent sessions for project
+
+        host_url = 'http://cloud.stenci.la/v1' # settings.NATIVE_HOST_URL
+
+        jwt_payload = dict(iat=time.time())
+        jwt_token = jwt.encode(jwt_payload, settings.JWT_SECRET, algorithm='HS256').decode("utf-8")
+
+        # TODO: add session parameters to the POST
+        # TODO: a better way to determine which environment to use?
+        environ_id = 'stencila/core'
+        response = requests.post(host_url + '/sessions/' + environ_id, headers={
+            'Authorization': 'Bearer ' + jwt_token
+        })
+        result = response.json()
+
+        url = result.get('url')
+        if url is None:
+            path = result.get('path')
+            assert path is not None
+            url = host_url + path
+
+        # TODO set the started time
+        return Session.objects.create(
+            project=project,
+            url=url
+        )
 
     @property
     def status(self) -> SessionStatus:
