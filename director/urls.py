@@ -46,12 +46,12 @@ urlpatterns = [
         # Per project Host API
         path('<str:token>/host/', include([
             path('v0/', include([
-                path('manifest', ProjectHostManifestView.as_view()),
-                path('environ/<str:environ>', ProjectHostSessionsView.as_view())
+                path('manifest', ProjectHostManifestView.as_view(), {'version': 0}),
+                re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view())
             ])),
             path('v1/', include([
-                path('manifest', ProjectHostManifestView.as_view()),
-                path('sessions/<str:environ>', ProjectHostSessionsView.as_view())
+                path('manifest', ProjectHostManifestView.as_view(), {'version': 1}),
+                re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view())
             ]))
         ])),
         # Type-specific views

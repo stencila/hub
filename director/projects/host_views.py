@@ -1,5 +1,6 @@
 """
-A model
+Views that implement some of the Stencila Host API endpoints
+for a project
 """
 
 from django.http import JsonResponse
@@ -25,31 +26,43 @@ class ProjectHostBaseView(View):
 
 class ProjectHostManifestView(ProjectHostBaseView):
 
-    def get(self, request, token):
+    def get(self, request, token, version=1):
         project = get_object_or_404(Project, token=token)
 
-        return JsonResponse({
-            'id': 'stencila-hub-project-{}'.format(project.id),
+        manifest = {
+            'id': 'hub-project-host-{}'.format(project.id),
             'stencila': {
                 'package': 'hub',
-                'version': '0.0'
+                'version': '0.1'
             },
             'environs': [
+                # TODO: this should come from the list of environments
+                # available for this project.
                 {
-                    'id': 'project-{}'.format(project.id),
-                    'name': 'project',
-                    'version': 'project'
+                    'id': 'stencila/core',
+                    'name': 'stencila/core',
+                    'version': '0.1'
                 }
             ],
             'services': []
-        })
+        }
+
+        # Modifications to manifest depending upon API version
+        if version == 0:
+            manifest['types'] = manifest['services']
+            del manifest['services']
+
+        return JsonResponse(manifest)
 
 
 class ProjectHostSessionsView(ProjectHostBaseView):
 
     def post(self, request, token, environ):
         project = get_object_or_404(Project, token=token)
-        session = Session.create(project=project)
+        session = Session.create(
+            project=project,
+            environ=environ
+        )
 
         return JsonResponse({
             'url': session.url
