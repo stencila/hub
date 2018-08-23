@@ -2,13 +2,14 @@
 Views that implement some of the Stencila Host API endpoints
 for a project
 """
-
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
+from projects.cloud_session_controller import CloudClient, CloudSessionFacade
 from projects.models import Project, Session
 
 
@@ -56,13 +57,18 @@ class ProjectHostManifestView(ProjectHostBaseView):
 
 
 class ProjectHostSessionsView(ProjectHostBaseView):
-
-    def post(self, request, token, environ):
+    def post(self, request, token: str, environ: str) -> JsonResponse:
         project = get_object_or_404(Project, token=token)
-        session = Session.create(
-            project=project,
-            environ=environ
-        )
+
+        # TODO: This will eventually come from the `SessionParameters` for this project
+        host_url = settings.NATIVE_HOST_URL
+        jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
+
+        cloud_client = CloudClient(host_url, jwt_secret)
+
+        session_facade = CloudSessionFacade(project, cloud_client)
+
+        session = session_facade.create_session(environ)
 
         return JsonResponse({
             'url': session.url

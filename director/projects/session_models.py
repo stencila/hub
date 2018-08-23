@@ -1,12 +1,8 @@
 import enum
-import time
 
-import jwt
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-import requests
 
 
 class SessionStatus(enum.Enum):
@@ -46,47 +42,6 @@ class Session(models.Model):
         null=True,
         help_text='The last time the status of this Session was checked'
     )
-
-    @staticmethod
-    def create(project, environ):
-        """
-        Create a session for a project on a remote Stencila execution Host (usually
-        an instance of `stencila/cloud` but could even be a user's local machine)
-        """
-        # TODO check the total number and number of concurrent sessions for project
-
-        # TODO: This will eventually come from the `SessionParameters` for this project
-        host_url = settings.NATIVE_HOST_URL
-
-        # Create a JWT token for the host
-        jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
-        jwt_payload = dict(iat=time.time())
-        jwt_token = jwt.encode(jwt_payload, jwt_secret, algorithm='HS256').decode("utf-8")
-
-        # TODO: add `SessionParameters` to the POST body (currently they won't do anything anyway)
-        response = requests.post(host_url + '/sessions/' + environ, headers={
-            'Authorization': 'Bearer ' + jwt_token
-        })
-        response.raise_for_status()
-
-        try:
-            result = response.json()
-        except Exception as exc:
-            raise Exception('Error parsing body: ' + response.text)
-
-        url = result.get('url')
-        if url is None:
-            path = result.get('path')
-            assert path is not None
-            url = host_url + path
-
-        # TODO set the started time
-        # TODO should we record some of the request
-        # headers e.g. `REMOTE_ADDR`, `HTTP_USER_AGENT`, `HTTP_REFERER` for analytics?
-        return Session.objects.create(
-            project=project,
-            url=url
-        )
 
     @property
     def status(self) -> SessionStatus:
