@@ -60,25 +60,6 @@ def update_project_from_form_data(request: HttpRequest, project: Project, genera
         project.save()
 
 
-
-def old_update_project_from_form_data(project: Project, form_data: QueryDict) -> None:
-    project.max_concurrent = form_data['max_concurrent']
-    project.max_sessions = form_data['max_sessions']
-    project.session_parameters = form_data['session_parameters']
-    project.public = form_data['public']
-
-    # at this stage assume a 1:1 mapping Project:Source even though the DB support multiple sources
-    # update this when allowing for 1:n mapping in the UI
-    project.sources.clear()
-    if form_data['source']:
-        project.sources.add(form_data['source'])
-
-    if form_data['generate_key']:
-        project.key = generate_project_key()
-    else:
-        project.key = form_data['key']
-
-
 class OldProjectCreateForm(forms.Form):
     """
     Form for selecting the type of project to create
@@ -145,12 +126,14 @@ class ProjectForm(FormWithSubmit):
         label="Access Key",
         required=False,
         max_length=128,
-        help_text="This key needs to be used when creating a Session. Leave blank to not require a key."
+        help_text="This key needs to be used when creating a Session. Leave blank to not require a key.",
+        widget=forms.TextInput(attrs={"v-model": "key"})
     )
 
     generate_key = forms.BooleanField(
         required=False,
-        help_text="Automatically generate an access key when saved."
+        help_text="Automatically generate an access key when saved.",
+        widget=forms.CheckboxInput(attrs={"v-model": "generateKey", "@change": "generateKeyChange()"})
     )
 
     max_concurrent = forms.IntegerField(
@@ -282,6 +265,9 @@ class ProjectGeneralForm(forms.Form):
             "source": project.sources.first()
         }
 
+    def populate_source_choices(self, request: HttpRequest) -> None:
+        self.fields['source'].queryset = Source.objects.filter(creator=request.user)
+
 
 class ProjectSessionsForm(forms.Form):
     helper = FormHelper()
@@ -382,12 +368,14 @@ class ProjectAccessForm(forms.Form):
         label="Access Key",
         required=False,
         max_length=128,
-        help_text="This key needs to be used when creating a Session. Leave blank to not require a key."
+        help_text="This key needs to be used when creating a Session. Leave blank to not require a key.",
+        widget=forms.TextInput(attrs={"v-model": "key", ":disabled": "generateKey"})
     )
 
     generate_key = forms.BooleanField(
         required=False,
-        help_text="Automatically generate an access key on save."
+        help_text="Automatically generate an access key on save.",
+        widget=forms.CheckboxInput(attrs={"v-model": "generateKey", "@change": "generateKeyChange()"})
     )
 
     @staticmethod

@@ -161,17 +161,24 @@ class Project(Model):
         """
         return 'Unnamed'
 
-    def pull(self):
+    def get_first_source(self) -> "Source":
+        source = self.sources.first()  # TODO: Update this when UI supports multiple sources
+        if not source:
+            raise ValueError("This project has no sources")
+
+        return source
+
+    def pull(self) -> BytesIO:
         """
         Pull files from the project source
         """
-        raise NotImplementedError('Pull is not implemented for class {}'.format(self.__class__.__name__))
+        return self.get_first_source().pull()
 
-    def push(self, archive):
+    def push(self, archive: typing.IO) -> None:
         """
         Push files to the project source
         """
-        raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
+        self.get_first_source().push(archive)
 
     def save(self, *args, **kwargs) -> None:
         if not self.token:
@@ -236,6 +243,12 @@ class Source(PolymorphicModel):
     def get_absolute_url(self):
         return reverse('source_detail', args=[self.type_id, self.pk])
 
+    def pull(self) -> BytesIO:
+        raise NotImplementedError('Pull is not implemented for class {}'.format(self.__class__.__name__))
+
+    def push(self, archive: typing.Union[str, typing.IO]) -> None:
+        raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
+
 
 class BitbucketSource(Source):
     """
@@ -283,7 +296,7 @@ class FilesSource(Source):
     def get_name(self):
         return self.name if self.name else 'Unnamed'
 
-    def pull(self):
+    def pull(self) -> BytesIO:
         """
         Pull files from the Django storage into an archive
         """
@@ -297,7 +310,7 @@ class FilesSource(Source):
                 zipfile.writestr(file.name, file.file.read())
         return archive
 
-    def push(self, archive):
+    def push(self, archive: typing.Union[str, typing.IO]) -> None:
         """
         Push files in the archive to the Django storage
         """

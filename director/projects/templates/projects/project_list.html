@@ -28,8 +28,7 @@
         </div>
         <div class="level-right">
             <p class="level-item">
-                <a class="button is-success" {% if not session_parameters %}disabled="disabled"
-                   title="Please create Session Parameters first."{% endif %} href="{% url 'project_create' %}">
+                <a class="button is-success">
                     <span class="icon"><i class="fas fa-plus"></i></span>
                     <span>New</span>
                 </a>
@@ -75,80 +74,5 @@
         {% empty %}
             <p>No projects yet.</p>
         {% endfor %}
-    </div>`
-    {% if request.user.is_authenticated %}
-        <h4 class="subtitle is-4">Session Parameters</h4>
-
-        <nav class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    <p class="subtitle is-5">
-                        <strong>{{ session_parameters|length }}</strong> session parameters object{{ session_paramaters|length|pluralize }}
-                    </p>
-                </div>
-                {% comment %}
-    <div class="level-item">
-      <div class="field has-addons">
-        <p class="control">
-          <input class="input" type="text" placeholder="Search projects">
-        </p>
-        <p class="control">
-          <button class="button">
-            Search
-          </button>
-        </p>
-      </div>
     </div>
-    {% endcomment %}
-            </div>
-            <div class="level-right">
-                <p class="level-item">
-                    <a class="button is-success" href="{% url 'sessionparameters_create' %}">
-                        <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New</span>
-                    </a>
-                </p>
-            </div>
-        </nav>
-
-        {% if session_parameters %}
-            <table class="table is-fullwidth">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th class="has-text-right">Memory</th>
-                    <th class="has-text-right">CPU</th>
-                    <th class="has-text-right">Network</th>
-                    <th class="has-text-right">Lifetime</th>
-                    <th class="has-text-right">Timeout</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for session_parameters_object in session_parameters %}
-                    <tr>
-                        <td>{{ session_parameters_object.name }}</td>
-                        <td>{{ session_parameters_object.description }}</td>
-                        <td class="has-text-right">{{ session_parameters_object.memory }}</td>
-                        <td class="has-text-right">{{ session_parameters_object.cpu }}</td>
-                        <td class="has-text-right">{{ session_parameters_object.network|default:"Unlimited" }}</td>
-                        <td class="has-text-right">{{ session_parameters_object.lifetime|default:"Unlimited" }}</td>
-                        <td class="has-text-right">{{ session_parameters_object.timeout }}</td>
-                        <td class="has-text-right">
-                            <a href="{{ session_parameters_object.get_absolute_url }}">
-                                <span class="icon">
-                                    <i class="fas fa-edit"></i>
-                                </span>
-                                <span>Edit</span>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No session parameters objects yet.</p>
-        {% endif %}
-    {% endif %}
 {% endblock %}

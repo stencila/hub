@@ -178,6 +178,7 @@ class SessionParameters(models.Model):
 
     def serialize(self) -> dict:
         return {
+            "pk": self.pk,
             "name": self.name,
             "description": self.description,
             "memory": self.memory,

@@ -25,24 +25,50 @@
             {% with forms.session_parameters as form %}
                 <div class="content" v-show="tab == '{{ form.id }}'">
                     {% crispy forms.sessions.form %}
-                    <div v-if="systemSessionParams.length">
-                        <h5 class="subtitle is-5">Default Session Parameters</h5>
-                        <p>You can assign one of the default Session Parameters, and then change the values to suit your particular need.</p>
-                        <div class="field is-grouped">
-                            <p v-for="sessionParameters in systemSessionParams" class="control">
-                                <a class="button is-small" @click="setSystemParameterWithPk(sessionParameters.pk)">
-                                    [[ sessionParameters.name ]]
-                                </a>
-                            </p>
-                        </div>
-                    </div>
                     {% crispy form.form %}
+                    <div v-if="systemSessionParams.length" class="box">
+                        <article class="media">
+                            <div class="media-content">
+                                <div class="content">
+                                    <p><strong>Preset Session Parameters</strong></p>
+                                    <p>You can assign one of the preset Session Parameters, and then change the values to suit your particular need.</p>
+                                    <div class="field is-grouped">
+                                        <p v-for="sessionParameters in systemSessionParams" class="control">
+                                            <a class="button is-small" @click="setSystemParameterWithPk(sessionParameters.pk)">
+                                                [[ sessionParameters.name ]]
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
                 </div>
             {% endwith %}
 
             {% with forms.access as form %}
                 <div class="content" v-show="tab == '{{ form.id }}'">
                     {% crispy form.form %}
+                </div>
+            {% endwith %}
+
+            {% with forms.sessions as form %}
+                <div class="content" v-show="tab == '{{ form.id }}'">
+                    {% crispy form.form %}
+                    <h4 class="subtitle is-4">Sessions</h4>
+                    <table class="table is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Start Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="2">No current sessions<td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             {% endwith %}
 
@@ -71,7 +97,10 @@
                     spCpu: {{ session_parameters.cpu|default:"null" }},
                     spNetwork: {{ session_parameters.network|default:"null" }},
                     spLifetime: {{ session_parameters.lifetime|default:"null" }},
-                    spTimeout: {{ session_parameters.timeout|default:"null" }}
+                    spTimeout: {{ session_parameters.timeout|default:"null" }},
+                    key: "{{ project.key|default:"" }}",
+                    previousKey: null,
+                    generateKey: false
                 },
                 methods: {
                     setTab(tab) {
@@ -98,6 +127,14 @@
                         this.spNetwork = sessionParameters.network
                         this.spLifetime = sessionParameters.lifetime
                         this.spTimeout = sessionParameters.timeout
+                    },
+                    generateKeyChange() {
+                        if(this.generateKey) {
+                            this.previousKey = this.key
+                            this.key = ""
+                        } else {
+                            this.key = this.previousKey
+                        }
                     }
                 }
             })

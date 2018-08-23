@@ -80,9 +80,9 @@ class ProjectAccessFormContext(FormContext):
 
 class ProjectForms(typing.NamedTuple):
     general: ProjectGeneralFormContext
-    sessions: ProjectSessionsFormContext
     session_parameters: ProjectSessionParametersFormContext
     access: ProjectAccessFormContext
+    sessions: ProjectSessionsFormContext
 
 
 class ProjectDetailView(DetailView):
@@ -114,20 +114,20 @@ class ProjectDetailView(DetailView):
     def get_system_session_parameters() -> QuerySet:
         return SessionParameters.objects.filter(is_system=True)
 
-    def get_predefined_parameters_choices(self) -> typing.Iterable[typing.Tuple[typing.Optional[int], str]]:
-        return [(None, "----")] + list(map(lambda p: (p.pk, p.name), self.get_system_session_parameters()))
-
     def get_json_system_session_parameters(self) -> str:
         return json.dumps(list(map(lambda sp: sp.serialize(), self.get_system_session_parameters())))
 
-    def get_forms(self, project: typing.Optional[Project], data: typing.Optional[QueryDict] = None) -> ProjectForms:
+    @staticmethod
+    def get_forms(request: HttpRequest, project: typing.Optional[Project],
+                  data: typing.Optional[QueryDict] = None) -> ProjectForms:
         general_form = ProjectGeneralForm(data, initial=ProjectGeneralForm.initial_data_from_project(project))
         general_form.helper.form_tag = False
+        general_form.populate_source_choices(request)
         general_form_context = ProjectGeneralFormContext("general", "General", general_form)
 
-        session_form = ProjectSessionsForm(data, initial=ProjectSessionsForm.initial_data_from_project(project))
-        session_form.helper.form_tag = False
-        session_form_context = ProjectSessionsFormContext("sessions", "Sessions", session_form, False)
+        sessions_form = ProjectSessionsForm(data, initial=ProjectSessionsForm.initial_data_from_project(project))
+        sessions_form.helper.form_tag = False
+        sessions_form_context = ProjectSessionsFormContext("sessions", "Sessions", sessions_form, False)
 
         parameters_form = ProjectSessionParametersForm(data,
                                                        initial=ProjectSessionParametersForm.initial_data_from_project(
@@ -142,26 +142,31 @@ class ProjectDetailView(DetailView):
 
         return ProjectForms(
             general_form_context,
-            session_form_context,
             parameters_form_context,
-            access_form_context
+            access_form_context,
+            sessions_form_context
         )
+
+    def get_response(self, request: HttpRequest, project: typing.Optional[Project],
+                     project_forms: ProjectForms) -> HttpResponse:
+        return render(request, self.template, {
+            'project': project,
+            'forms': project_forms,
+            'session_parameters': project.session_parameters if project else None,
+            'system_session_parameters': self.get_json_system_session_parameters()
+        })
 
     def get(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
         project = self.get_instance(pk)
 
-        project_forms = self.get_forms(project)
+        project_forms = self.get_forms(request, project)
 
-        return render(request, self.template, {
-            'forms': project_forms,
-            'session_parameters': project.session_parameters,
-            'system_session_parameters': self.get_json_system_session_parameters()
-        })
+        return self.get_response(request, project, project_forms)
 
     def post(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
         project = self.get_instance(pk)
 
-        project_forms = self.get_forms(project, request.POST)
+        project_forms = self.get_forms(request, project, request.POST)
 
         if all(map(lambda fc: fc.form.is_valid(), project_forms)):
             update_project_from_form_data(request, project, project_forms.general.form.cleaned_data,
@@ -172,32 +177,7 @@ class ProjectDetailView(DetailView):
         else:
             messages.error(request, "Please correct all form errors to Save.")
 
-        return render(request, self.template, {
-            'forms': project_forms,
-            'session_parameters': project.session_parameters,
-            'system_session_parameters': self.get_json_system_session_parameters()
-        })
-
-
-class ProjectCreateView(LoginRequiredMixin, FormView):
-    form_class = ProjectCreateForm
-    template_name = 'projects/project_create.html'
-
-    def get_success_url(self):
-        return reverse('project_update', args=[self.project.id])
-
-    def form_valid(self, form):
-        self.project = Project.create(
-            project_type=form.cleaned_data['type'],
-            creator=self.request.user
-        )
-        return super().form_valid(form)
-
-
-class ProjectReadView(LoginRequiredMixin, DjangoDetailView):
-    model = Project
-    fields = ['address']
-    template_name = 'projects/project_read.html'
+        return self.get_response(request, project, project_forms)
 
 
 class ProjectUpdateView(LoginRequiredMixin, RedirectView):

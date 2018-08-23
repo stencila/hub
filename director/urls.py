@@ -20,7 +20,6 @@ from checkouts.views import (
 from projects.session_parameters_views import SessionParametersListView, SessionParametersDetailView
 from projects.views import (
     ProjectListView,
-    ProjectReadView,
     ProjectDeleteView,
     ProjectArchiveView,
 
@@ -38,7 +37,6 @@ urlpatterns = [
         # Generic views
         path('', ProjectListView.as_view(), name='project_list'),
         path('create/', ProjectDetailView.as_view(), name='project_create'),
-        path('<int:pk>/', ProjectReadView.as_view(), name='project_read'),
         path('<int:pk>/update/', ProjectDetailView.as_view(), name='project_update'),
         path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
         path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
@@ -73,23 +71,6 @@ urlpatterns = [
         path('<project_type>/create/', SourceDetailView.as_view(), name='source_create'),
         path('<project_type>/<int:pk>/', SourceDetailView.as_view(), name='source_detail'),
     ])),
-
-    # Publisher views
-
-    # path('publisher/', include([
-    #     path('', PublisherMainView.as_view(), name='publisher_main'),
-    #     path('session-groups/', SessionGroupListView.as_view(), name="session_group_list"),
-    #     path('session-groups/create/', SessionGroupDetail.as_view(), name="session_group_create"),
-    #     path('session-groups/<int:pk>/', SessionGroupDetail.as_view(), name="session_group_edit"),
-    #     path('session-groups/<int:session_group_pk>/sessions/', SessionListView.as_view(), name="session_list"),
-    #
-    #     re_path(r'session-groups/(?P<token>[0-9a-f]+)/start-session', SessionStartView.as_view(),
-    #             name="session_token_start"),
-    #
-    #     path('session-templates/', SessionTemplateListView.as_view(), name="session_template_list"),
-    #     path('session-templates/create/', SessionTemplateDetailView.as_view(), name="session_template_create"),
-    #     path('session-templates/<int:pk>/', SessionTemplateDetailView.as_view(), name="session_template_detail"),
-    # ])),
 
     # Checkout CRUD
     path('checkouts/', include([
