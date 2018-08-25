@@ -3,6 +3,7 @@ Views that implement some of the Stencila Host API endpoints
 for a project
 """
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -10,7 +11,9 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from projects.cloud_session_controller import CloudClient, CloudSessionFacade
-from projects.models import Project, Session
+from projects.models import Project
+
+SESSION_URL_SESSION_KEY_FORMAT = 'CLOUD_SESSION_URL_{}_{}'
 
 
 class ProjectHostBaseView(View):
@@ -19,7 +22,6 @@ class ProjectHostBaseView(View):
     def dispatch(self, *args, **kwargs):
         response = super().dispatch(*args, **kwargs)
         origin = self.request.META.get('HTTP_ORIGIN')
-        #referer = self.request.META.get('HTTP_REFERER')
         response['Access-Control-Allow-Origin'] = origin
         response['Access-Control-Allow-Credentials'] = 'true'
         return response
@@ -60,16 +62,26 @@ class ProjectHostSessionsView(ProjectHostBaseView):
     def post(self, request, token: str, environ: str) -> JsonResponse:
         project = get_object_or_404(Project, token=token)
 
-        # TODO: This will eventually come from the `SessionParameters` for this project
-        host_url = settings.NATIVE_HOST_URL
-        jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
+        if project.key and request.POST.get("key") != project.key:
+            raise PermissionDenied("The key in the POST request does not match that of the Project")
 
-        cloud_client = CloudClient(host_url, jwt_secret)
+        session_key = SESSION_URL_SESSION_KEY_FORMAT.format(token, environ)
 
-        session_facade = CloudSessionFacade(project, cloud_client)
+        if session_key in request.session:
+            session_url = request.session[session_key]  # TODO: check if this session is still active
+        else:
+            # TODO: This will eventually come from the `SessionParameters` for this project
+            host_url = settings.NATIVE_HOST_URL
+            jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
 
-        session = session_facade.create_session(environ)
+            cloud_client = CloudClient(host_url, jwt_secret)
+
+            session_facade = CloudSessionFacade(project, cloud_client)
+
+            session = session_facade.create_session(environ)
+            session_url = session.url
+            request.session[session_key] = session_url
 
         return JsonResponse({
-            'url': session.url
+            'url': session_url
         })

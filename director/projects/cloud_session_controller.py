@@ -55,6 +55,7 @@ class CloudClient(object):
         return self.get_full_url(SESSION_CREATE_PATH_FORMAT.format(environ))
 
     def start_session(self, environ: str) -> str:
+        """Start a cloud session and return a its URL"""
         result = self.make_request(HttpMethod.POST, self.get_session_create_url(environ))
 
         session_url = result.get('url')
