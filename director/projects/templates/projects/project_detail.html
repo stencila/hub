@@ -54,7 +54,6 @@
 
             {% with forms.sessions as form %}
                 <div class="content" v-show="tab == '{{ form.id }}'">
-                    {% crispy form.form %}
                     <h4 class="subtitle is-4">Sessions</h4>
                     <table class="table is-fullwidth">
                         <thead>

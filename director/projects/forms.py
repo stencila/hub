@@ -298,6 +298,16 @@ class ProjectSessionsForm(forms.Form):
             "max_sessions": project.max_sessions
         }
 
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+
+        if cleaned_data['max_sessions'] is not None and (
+                cleaned_data['max_concurrent'] is None
+                or cleaned_data['max_concurrent'] > cleaned_data['max_sessions']):
+            self.add_error('max_concurrent',
+                           'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
+        return cleaned_data
+
 
 class ProjectSessionParametersForm(forms.Form):
     helper = FormHelper()
