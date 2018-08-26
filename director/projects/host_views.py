@@ -67,9 +67,13 @@ class ProjectHostSessionsView(ProjectHostBaseView):
 
         session_key = SESSION_URL_SESSION_KEY_FORMAT.format(token, environ)
 
-        if session_key in request.session:
-            session_url = request.session[session_key]  # TODO: check if this session is still active
-        else:
+        # Until we have a robust implementation of session checking logic we skip the following and
+        # just create a new session for each request (otherwise the client can get sent back a URL to a
+        # dead session)
+        ## if session_key in request.session:
+        ##    session_url = request.session[session_key]  # TODO: check if this session is still active
+        ## else:
+        if True:
             # TODO: This will eventually come from the `SessionParameters` for this project
             host_url = settings.NATIVE_HOST_URL
             jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
