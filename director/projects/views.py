@@ -166,6 +166,9 @@ class ProjectDetailView(DetailView):
     def post(self, request: HttpRequest, pk: typing.Optional[int] = None) -> HttpResponse:
         project = self.get_instance(pk)
 
+        if project is None:
+            project = Project(creator=request.user)
+
         project_forms = self.get_forms(request, project, request.POST)
 
         if all(map(lambda fc: fc.form.is_valid(), project_forms)):
@@ -173,6 +176,7 @@ class ProjectDetailView(DetailView):
                                           project_forms.sessions.form.cleaned_data,
                                           project_forms.session_parameters.form.cleaned_data,
                                           project_forms.access.form.cleaned_data)
+            messages.success(request, "Project saved.")
             return redirect(reverse("project_update", args=(project.pk,)))
         else:
             messages.error(request, "Please correct all form errors to Save.")

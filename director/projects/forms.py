@@ -260,10 +260,17 @@ class ProjectGeneralForm(forms.Form):
 
     @staticmethod
     def initial_data_from_project(project: typing.Optional[Project]) -> dict:
-        return {} if project is None else {
-            "public": project.public,
-            "source": project.sources.first()
+        if project is None:
+            return {}
+
+        initial = {
+            key: getattr(project, key) for key in
+            ('max_concurrent', 'max_sessions', 'session_parameters', 'public')
         }
+
+        initial['source'] = project.sources.first()
+
+        return initial
 
     def populate_source_choices(self, request: HttpRequest) -> None:
         self.fields['source'].queryset = Source.objects.filter(creator=request.user)
