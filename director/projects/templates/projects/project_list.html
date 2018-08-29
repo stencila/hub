@@ -3,7 +3,6 @@
 {% block title %}Projects{% endblock %}
 
 {% block content %}
-    <h4 class="subtitle is-4">Projects</h4>
     <nav class="level">
         <div class="level-left">
             <div class="level-item">
@@ -12,19 +11,19 @@
                 </p>
             </div>
             {% comment %}
-    <div class="level-item">
-      <div class="field has-addons">
-        <p class="control">
-          <input class="input" type="text" placeholder="Search projects">
-        </p>
-        <p class="control">
-          <button class="button">
-            Search
-          </button>
-        </p>
-      </div>
-    </div>
-    {% endcomment %}
+            <div class="level-item">
+              <div class="field has-addons">
+                <p class="control">
+                  <input class="input" type="text" placeholder="Search projects">
+                </p>
+                <p class="control">
+                  <button class="button">
+                    Search
+                  </button>
+                </p>
+              </div>
+            </div>
+            {% endcomment %}
         </div>
         <div class="level-right">
             <p class="level-item">
@@ -36,9 +35,35 @@
         </div>
     </nav>
 
+    <table class="table is-fullwidth">
+        <tbody>
+            {% for project in projects %}
+                <div class="level">
+                    <div class="level-left">
+                        <a href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
+                            <span>{{ project.id }} {{ project.get_name }}</span>
+                        </a>
+                    </div>
+                    <div class="level-right" style="text-align: right">
+                        <a href="{% url 'project_update' project.id %}" title="Settings">
+                            <span class="icon"><i class="fas fa-cog"></i></span>
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div>
+                    <td colspan="3">No project exist.</td>
+                </div>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% comment %}
+    Disabled card-based 'gallery' view
+
     <div class="columns is-multiline">
         {% for project in projects %}
-            <div class="column is-half">
+            <div class="column">
                 <div class="card">
                     <header class="card-header">
                         <p class="card-header-title">
@@ -70,4 +95,6 @@
             <p>No projects yet.</p>
         {% endfor %}
     </div>
+    {% endcomment %}
+
 {% endblock %}
