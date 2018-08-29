@@ -6,8 +6,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.forms import ChoiceField, FloatField, IntegerField
-from django.http import QueryDict, HttpRequest
+from django.forms import FloatField, IntegerField
+from django.http import HttpRequest
 
 from .models import FilesSource, SessionParameters, Source, Project, generate_project_key
 
@@ -75,25 +75,6 @@ def update_project_from_form_data(request: HttpRequest, project: Project, genera
     update_general_project_data(project, general_data)
     update_access_project_data(project, access_data)
     update_session_parameters_project_data(project, request, parameters_data, session_data)
-
-
-class OldProjectCreateForm(forms.Form):
-    """
-    Form for selecting the type of project to create
-    """
-
-    type = forms.ChoiceField(
-        label='Project type',
-        help_text='Select the type of project you would like to create',
-        choices=[
-            ('files', 'Uploaded files')
-        ]
-    )
-
-    helper = FormHelper()
-    helper.add_input(
-        Submit('submit', 'Create', css_class='button is-primary')
-    )
 
 
 def form_add_submit_button(form: typing.Any) -> None:
@@ -212,18 +193,6 @@ class ProjectUpdateForm(SaveButtonMixin, ProjectForm):
 class SessionParametersForm(ModelFormWithSubmit):
     submit_button_label = None
 
-    max_concurrent = forms.IntegerField(
-        required=False,
-        min_value=1,
-        help_text='The maximum number of sessions to run at one time. Leave blank for unlimited.'
-    )
-
-    max_sessions = forms.IntegerField(
-        required=False,
-        min_value=1,
-        help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
-    )
-
     class Meta:
         model = SessionParameters
         fields = ['name', 'description', 'memory', 'cpu', 'network', 'lifetime', 'timeout']
@@ -249,12 +218,6 @@ class SessionParametersForm(ModelFormWithSubmit):
                 cleaned_data['timeout'] is None
                 or cleaned_data['timeout'] > cleaned_data['lifetime']):
             self.add_error('timeout', 'The idle timeout must be less that the maximum lifetime of the Session.')
-
-        if cleaned_data['max_sessions'] is not None and (
-                cleaned_data['max_concurrent'] is None
-                or cleaned_data['max_concurrent'] > cleaned_data['max_sessions']):
-            self.add_error('max_concurrent',
-                           'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
 
         return cleaned_data
 

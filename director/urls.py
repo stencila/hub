@@ -17,7 +17,10 @@ from checkouts.views import (
     CheckoutSaveView,
     CheckoutCloseView
 )
+from projects.host_views import ProjectHostManifestView, ProjectHostSessionsView
 from projects.session_parameters_views import SessionParametersListView, SessionParametersDetailView
+from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, FilesSourceUploadView, \
+    FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
 from projects.views import (
     ProjectListView,
     ProjectDeleteView,
@@ -25,9 +28,6 @@ from projects.views import (
 
     ProjectDetailView, ProjectSessionsListView, ProjectGeneralSaveView, ProjectSessionParametersSaveView,
     ProjectAccessSaveView)
-from projects.host_views import ProjectHostManifestView, ProjectHostSessionsView
-from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, FilesSourceUploadView, \
-    FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
 from views import (
     HomeView
 )

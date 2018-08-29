@@ -1,8 +1,6 @@
 import json
 import typing
 
-from crispy_forms.utils import render_crispy_form
-
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,22 +9,12 @@ from django.db.models import Q, QuerySet
 from django.http import HttpResponse, HttpRequest, QueryDict, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import (
-    View,
-    ListView,
-    RedirectView,
-    DetailView as DjangoDetailView
-)
-from django.views.generic.edit import (
-    DeleteView,
-    FormView
-)
+from django.views.generic import View
+from django.views.generic.edit import DeleteView
 
 from accounts.views import BetaTokenRequiredMixin
 from projects.view_base import DetailView, owner_access_check
-from .models import (
-    Project,
-    SessionParameters)
+from .models import SessionParameters
 from .forms import (
     ProjectCreateForm,
     ProjectForm, get_initial_form_data_from_project, update_project_from_form_data, ProjectUpdateForm,
@@ -34,7 +22,7 @@ from .forms import (
     update_general_project_data, update_session_parameters_project_data, update_access_project_data)
 
 
-class ProjectListView(BetaTokenRequiredMixin,View):
+class ProjectListView(BetaTokenRequiredMixin, View):
     def get_project_queryset(self) -> QuerySet:
         if self.request.user.is_authenticated:
             return Project.objects.filter(
@@ -245,17 +233,6 @@ class ProjectAccessSaveView(ProjectFormSaveView):
 
     def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
         update_access_project_data(project, form.cleaned_data, True)
-
-
-class ProjectUpdateView(LoginRequiredMixin, RedirectView):
-    """
-    Generic view for updating a project which redirects to
-    the type-specific update view.
-    """
-
-    def get_redirect_url(self, *args, **kwargs):
-        project = get_object_or_404(Project, pk=kwargs['pk'])
-        return reverse('%s_update' % project.type, args=[kwargs['pk']])
 
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):

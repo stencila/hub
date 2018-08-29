@@ -1,5 +1,4 @@
 import datetime
-import enum
 import hashlib
 import secrets
 from io import BytesIO
@@ -16,11 +15,8 @@ from django.db.models import (
     ForeignKey,
     FileField,
     TextField,
-    CASCADE, SET_NULL,
-    FloatField, PROTECT, URLField)
+    CASCADE, SET_NULL)
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
-from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 
 from .session_models import *
