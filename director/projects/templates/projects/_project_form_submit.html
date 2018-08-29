@@ -1,0 +1,6 @@
+<p v-if="formSaveSuccess['{{ form_id }}']" class="has-text-success">{{ form_name }} settings saved.</p>
+<p v-if="formSaveError['{{ form_id }}']" class="has-text-danger">There was an error saving {{ form_name }} settings.</p>
+<button class="button is-primary" type="submit">
+    <span v-if="formSaving['{{ form_id }}'] != true">Save {{ form_name }} Settings</span>
+    <span v-if="formSaving['{{ form_id }}'] == true">Saving&hellip;</span>
+</button>

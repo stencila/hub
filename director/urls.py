@@ -23,7 +23,8 @@ from projects.views import (
     ProjectDeleteView,
     ProjectArchiveView,
 
-    ProjectDetailView, ProjectSessionsListView)
+    ProjectDetailView, ProjectSessionsListView, ProjectGeneralSaveView, ProjectSessionParametersSaveView,
+    ProjectAccessSaveView)
 from projects.host_views import ProjectHostManifestView, ProjectHostSessionsView
 from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, FilesSourceUploadView, \
     FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
@@ -38,6 +39,10 @@ urlpatterns = [
         path('', ProjectListView.as_view(), name='project_list'),
         path('create/', ProjectDetailView.as_view(), name='project_create'),
         path('<int:pk>/update/', ProjectDetailView.as_view(), name='project_update'),
+        path('update/save-general', ProjectGeneralSaveView.as_view(), name='project_general_save'),
+        path('update/save-session-parameters', ProjectSessionParametersSaveView.as_view(),
+             name='project_session_parameters_save'),
+        path('update/save-access', ProjectAccessSaveView.as_view(), name='project_access_save'),
         path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
         path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
         path('<int:pk>/sessions/', ProjectSessionsListView.as_view(), name='project_sessions'),

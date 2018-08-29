@@ -26,25 +26,26 @@ def get_initial_form_data_from_project(project: typing.Optional[Project]) -> dic
     return initial
 
 
-def update_project_from_form_data(request: HttpRequest, project: Project, general_data: dict, session_data: dict,
-                                  parameters_data: dict, access_data: dict) -> None:
+def update_general_project_data(project: Project, general_data: dict, save: bool = False) -> None:
+    project.name = general_data['name']
     project.public = general_data['public']
-
     # at this stage assume a 1:1 mapping Project:Source even though the DB support multiple sources
     # update this when allowing for 1:n mapping in the UI
     project.sources.clear()
     if general_data['source']:
         project.sources.add(general_data['source'])
 
+    if save:
+        project.save()
+
+
+def update_session_parameters_project_data(project: Project, request: HttpRequest, parameters_data: dict,
+                                           session_data: dict, save: bool = False) -> None:
     project.max_concurrent = session_data['max_concurrent']
     project.max_sessions = session_data['max_sessions']
 
-    if access_data['generate_key']:
-        project.key = generate_project_key()
-    else:
-        project.key = access_data['key']
-
-    project.save()
+    if save:
+        project.save()
 
     session_parameters = project.session_parameters or SessionParameters(owner=request.user)
     session_parameters.memory = parameters_data['memory']
@@ -52,12 +53,28 @@ def update_project_from_form_data(request: HttpRequest, project: Project, genera
     session_parameters.network = parameters_data['network']
     session_parameters.lifetime = parameters_data['lifetime']
     session_parameters.timeout = parameters_data['timeout']
-
     session_parameters.save()
 
     if project.session_parameters != session_parameters:
         project.session_parameters = session_parameters
         project.save()
+
+
+def update_access_project_data(project: Project, access_data: dict, save: bool = False) -> None:
+    if access_data['generate_key']:
+        project.key = generate_project_key()
+    else:
+        project.key = access_data['key']
+
+    if save:
+        project.save()
+
+
+def update_project_from_form_data(request: HttpRequest, project: Project, general_data: dict, session_data: dict,
+                                  parameters_data: dict, access_data: dict) -> None:
+    update_general_project_data(project, general_data)
+    update_access_project_data(project, access_data)
+    update_session_parameters_project_data(project, request, parameters_data, session_data)
 
 
 class OldProjectCreateForm(forms.Form):
@@ -119,7 +136,8 @@ class ProjectForm(FormWithSubmit):
     token = forms.CharField(
         required=False,
         disabled=True,
-        help_text='Unique token identifying this group. This will be generated when first saved.'
+        help_text='Unique token identifying this group. This will be generated when first saved.',
+        widget=forms.TextInput(attrs={"v-model": "token"})
     )
 
     key = forms.CharField(
@@ -194,6 +212,18 @@ class ProjectUpdateForm(SaveButtonMixin, ProjectForm):
 class SessionParametersForm(ModelFormWithSubmit):
     submit_button_label = None
 
+    max_concurrent = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='The maximum number of sessions to run at one time. Leave blank for unlimited.'
+    )
+
+    max_sessions = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
+    )
+
     class Meta:
         model = SessionParameters
         fields = ['name', 'description', 'memory', 'cpu', 'network', 'lifetime', 'timeout']
@@ -219,6 +249,13 @@ class SessionParametersForm(ModelFormWithSubmit):
                 cleaned_data['timeout'] is None
                 or cleaned_data['timeout'] > cleaned_data['lifetime']):
             self.add_error('timeout', 'The idle timeout must be less that the maximum lifetime of the Session.')
+
+        if cleaned_data['max_sessions'] is not None and (
+                cleaned_data['max_concurrent'] is None
+                or cleaned_data['max_concurrent'] > cleaned_data['max_sessions']):
+            self.add_error('max_concurrent',
+                           'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
+
         return cleaned_data
 
 
@@ -247,6 +284,11 @@ class FilesSourceCreateForm(CreateButtonMixin, FilesSourceForm):
 class ProjectGeneralForm(forms.Form):
     helper = FormHelper()
 
+    name = forms.CharField(
+        required=False,
+        widget=forms.TextInput
+    )
+
     public = forms.BooleanField(
         required=False,
         help_text="Make this project available to anyone."
@@ -265,7 +307,7 @@ class ProjectGeneralForm(forms.Form):
 
         initial = {
             key: getattr(project, key) for key in
-            ('max_concurrent', 'max_sessions', 'session_parameters', 'public')
+            ('name', 'max_concurrent', 'max_sessions', 'session_parameters', 'public')
         }
 
         initial['source'] = project.sources.first()
@@ -311,6 +353,18 @@ class ProjectSessionsForm(forms.Form):
 
 class ProjectSessionParametersForm(forms.Form):
     helper = FormHelper()
+
+    max_concurrent = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='The maximum number of sessions to run at one time. Leave blank for unlimited.'
+    )
+
+    max_sessions = forms.IntegerField(
+        required=False,
+        min_value=1,
+        help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
+    )
 
     memory = FloatField(
         # default=1,
@@ -359,17 +413,32 @@ class ProjectSessionParametersForm(forms.Form):
                 cleaned_data['timeout'] is None
                 or cleaned_data['timeout'] > cleaned_data['lifetime']):
             self.add_error('timeout', 'The idle timeout must be less that the maximum lifetime of the Session.')
+
+        if cleaned_data['max_sessions'] is not None and (
+                cleaned_data['max_concurrent'] is None
+                or cleaned_data['max_concurrent'] > cleaned_data['max_sessions']):
+            self.add_error('max_concurrent',
+                           'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
         return cleaned_data
 
     @staticmethod
-    def initial_data_from_project(project: Project) -> dict:
-        return {} if (project is None or project.session_parameters is None) else {
-            "memory": project.session_parameters.memory,
-            "cpu": project.session_parameters.cpu,
-            "network": project.session_parameters.network,
-            "lifetime": project.session_parameters.lifetime,
-            "timeout": project.session_parameters.timeout
-        }
+    def initial_data_from_project(project: typing.Optional[Project]) -> dict:
+        initial = {}
+
+        if project is None:
+            return {}
+
+        initial['max_sessions'] = project.max_sessions
+        initial['max_concurrent'] = project.max_concurrent
+
+        if project.session_parameters:
+            initial['memory'] = project.session_parameters.memory
+            initial['cpu'] = project.session_parameters.cpu
+            initial['network'] = project.session_parameters.network
+            initial['lifetime'] = project.session_parameters.lifetime
+            initial['timeout'] = project.session_parameters.timeout
+
+        return initial
 
 
 class ProjectAccessForm(forms.Form):
@@ -378,7 +447,8 @@ class ProjectAccessForm(forms.Form):
     token = forms.CharField(
         required=False,
         disabled=True,
-        help_text='Unique token identifying this group. This will be generated when first saved.'
+        help_text='Unique token identifying this group. This will be generated when first saved.',
+        widget=forms.TextInput(attrs={"v-model": "token", ":disabled": "generateKey"})
     )
 
     key = forms.CharField(
@@ -398,6 +468,6 @@ class ProjectAccessForm(forms.Form):
     @staticmethod
     def initial_data_from_project(project: Project) -> dict:
         return {} if project is None else {
-            "token": project.token,
-            "key": project.key
+            'token': project.token,
+            'key': project.key
         }

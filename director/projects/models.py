@@ -46,6 +46,12 @@ class Project(Model):
     """
     A project
     """
+    name = TextField(
+        null=True,
+        blank=True,
+        help_text="The name of the project"
+    )
+
     creator = ForeignKey(
         'auth.User',
         null=True,  # Should only be null if the creator is deleted
@@ -159,7 +165,7 @@ class Project(Model):
         A temporary implementation of a name property
         which is likely to be replaced by a db field in future
         """
-        return 'Unnamed'
+        return self.name or 'Unnamed'
 
     def get_first_source(self) -> "Source":
         source = self.sources.first()  # TODO: Update this when UI supports multiple sources

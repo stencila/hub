@@ -8,6 +8,7 @@
   "dependencies": {
     "moment": "^2.22.2",
     "vue": "^2.5.16",
+    "vue-resource": "^1.5.1",
     "vue-upload-component": "^2.8.10"
   }
 }

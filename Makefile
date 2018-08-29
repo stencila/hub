@@ -61,6 +61,7 @@ director/extern: director/package.json
 	cp director/node_modules/vue/dist/vue.min.js $@/js
 	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js $@/js
 	cp director/node_modules/moment/min/moment.min.js $@/js
+	cp director/node_modules/vue-resource/dist/vue-resource.min.js $@/js
 	touch $@
 
 # Build any static files

@@ -1,12 +1,14 @@
 import json
 import typing
 
+from crispy_forms.utils import render_crispy_form
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, QuerySet
-from django.http import HttpResponse, HttpRequest, QueryDict
+from django.http import HttpResponse, HttpRequest, QueryDict, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -28,7 +30,8 @@ from .models import (
 from .forms import (
     ProjectCreateForm,
     ProjectForm, get_initial_form_data_from_project, update_project_from_form_data, ProjectUpdateForm,
-    ProjectAccessForm, ProjectSessionParametersForm, ProjectGeneralForm, ProjectSessionsForm)
+    ProjectAccessForm, ProjectSessionParametersForm, Project, ProjectSessionsForm, ProjectGeneralForm,
+    update_general_project_data, update_session_parameters_project_data, update_access_project_data)
 
 
 class ProjectListView(BetaTokenRequiredMixin,View):
@@ -183,6 +186,65 @@ class ProjectDetailView(LoginRequiredMixin, DetailView):
             messages.error(request, "Please correct all form errors to Save.")
 
         return self.get_response(request, project, project_forms)
+
+
+class ProjectFormSaveView(DetailView):
+    model = Project
+    form_class: forms.Form
+
+    def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
+        raise NotImplementedError("Subclasses must implement update_project method")
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        pk = request.POST.get('pk') or None
+        project = self.get_instance(pk)
+
+        if project is None:
+            project = Project(creator=request.user)
+
+        form = self.form_class(request.POST, initial=self.form_class.initial_data_from_project(project))
+        form.helper.form_tag = False
+
+        success = False
+
+        if form.is_valid():
+            success = True
+            self.update_project(request, project, form)
+
+        return self.build_response(project, form, success)
+
+    @staticmethod
+    def build_response(project: Project, form: forms.Form, success: bool) -> JsonResponse:
+        return JsonResponse({
+            'success': success,
+            'errors': form.errors.get_json_data(),
+            'project_id': project.pk,
+            'project': {
+                'key': project.key,
+                'token': project.token
+            }
+        })
+
+
+class ProjectGeneralSaveView(ProjectFormSaveView):
+    form_class = ProjectGeneralForm
+
+    def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
+        update_general_project_data(project, form.cleaned_data, True)
+
+
+class ProjectSessionParametersSaveView(ProjectFormSaveView):
+    form_class = ProjectSessionParametersForm
+
+    def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
+        update_session_parameters_project_data(project, request, form.cleaned_data, form.cleaned_data, True)
+
+
+class ProjectAccessSaveView(ProjectFormSaveView):
+    form_class = ProjectAccessForm
+
+    def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
+        update_access_project_data(project, form.cleaned_data, True)
 
 
 class ProjectUpdateView(LoginRequiredMixin, RedirectView):
