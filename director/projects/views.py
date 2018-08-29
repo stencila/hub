@@ -20,6 +20,7 @@ from django.views.generic.edit import (
     FormView
 )
 
+from accounts.views import BetaTokenRequiredMixin
 from projects.view_base import DetailView, owner_access_check
 from .models import (
     Project,
@@ -30,7 +31,7 @@ from .forms import (
     ProjectAccessForm, ProjectSessionParametersForm, ProjectGeneralForm, ProjectSessionsForm)
 
 
-class ProjectListView(View):
+class ProjectListView(BetaTokenRequiredMixin,View):
     def get_project_queryset(self) -> QuerySet:
         if self.request.user.is_authenticated:
             return Project.objects.filter(
@@ -85,7 +86,7 @@ class ProjectForms(typing.NamedTuple):
     sessions: ProjectSessionsFormContext
 
 
-class ProjectDetailView(DetailView):
+class ProjectDetailView(LoginRequiredMixin, DetailView):
     model = Project
     create_form_class = ProjectCreateForm
     edit_form_class = ProjectUpdateForm
