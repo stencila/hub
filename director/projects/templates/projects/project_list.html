@@ -35,28 +35,26 @@
         </div>
     </nav>
 
-    <table class="table is-fullwidth">
-        <tbody>
-            {% for project in projects %}
-                <div class="level">
-                    <div class="level-left">
-                        <a href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
-                            <span>{{ project.id }} {{ project.get_name }}</span>
-                        </a>
-                    </div>
-                    <div class="level-right" style="text-align: right">
-                        <a href="{% url 'project_update' project.id %}" title="Settings">
-                            <span class="icon"><i class="fas fa-cog"></i></span>
-                        </a>
-                    </div>
+    <div class="section">
+        {% for project in projects %}
+            <div class="level">
+                <div class="level-left">
+                    <a href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
+                        <span>{{ project.id }} {{ project.get_name }}</span>
+                    </a>
                 </div>
-            {% empty %}
-                <div>
-                    <td colspan="3">No project exist.</td>
+                <div class="level-right" style="text-align: right">
+                    <a href="{% url 'project_update' project.id %}" title="Settings">
+                        <span class="icon"><i class="fas fa-cog"></i></span>
+                    </a>
                 </div>
-            {% endfor %}
-        </tbody>
-    </table>
+            </div>
+        {% empty %}
+            <div>
+                <td colspan="3">No project exist.</td>
+            </div>
+        {% endfor %}
+    </div>
 
     {% comment %}
     Disabled card-based 'gallery' view
