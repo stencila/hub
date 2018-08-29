@@ -22,15 +22,14 @@ class BetaTokenRequiredMixin(AccessMixin):
     """
 
     def get_login_url(self):
-        return 'beta_token'
+        return 'user_beta'
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return super().dispatch(request, *args, **kwargs)
-        if request.GET.get('token') == settings.BETA_TOKEN:
-            request.session['beta_token'] = request.GET['token']
-        if not request.session.get('beta_token') == settings.BETA_TOKEN:
-            return self.handle_no_permission()
+        if not request.user.is_authenticated:
+            if request.GET.get('token') == settings.BETA_TOKEN:
+                request.session['beta_token'] = request.GET['token']
+            elif not request.session.get('beta_token') == settings.BETA_TOKEN:
+                return self.handle_no_permission()
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -38,12 +37,13 @@ class BetaTokenView(FormView):
     """
     View for user to enter a beta token
     """
+
     template_name = 'beta_token.html'
     form_class = BetaTokenForm
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        if form.is_valid() and form.cleaned_data['token'] in settings.BETA_TOKEN:
+        if form.is_valid() and form.cleaned_data['token'] == settings.BETA_TOKEN:
             request.session['beta_token'] = form.cleaned_data['token']
             url = request.GET.get('next', reverse('user_signin'))
             return redirect(url)

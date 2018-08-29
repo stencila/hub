@@ -1,10 +1,9 @@
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views.generic import View
 
-from accounts.views import BetaTokenView
 
-
-class HomeView(BetaTokenView):
+class HomeView(View):
     """
     Home page view.
 
@@ -17,4 +16,8 @@ class HomeView(BetaTokenView):
         if self.request.user.is_authenticated:
             return redirect(reverse('project_list'))
         else:
-            return super().get(*args, **kwargs)
+            url = reverse('user_signin')
+            token = self.request.GET.get('token')
+            if token:
+                url += '?token={}'.format(token)
+            return redirect(url)
