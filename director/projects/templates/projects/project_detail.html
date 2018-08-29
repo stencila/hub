@@ -139,7 +139,9 @@
             })
         })();
     </script>
+    {% if project.id %}
     <a class="button is-danger" href="{% url 'project_delete' project.id %}" title="Delete">
         <span>Delete</span>
     </a>
+    {% endif %}
 {% endblock %}
