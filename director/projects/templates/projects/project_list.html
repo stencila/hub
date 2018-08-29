@@ -52,21 +52,16 @@
                     <footer class="card-footer">
                         <a class="card-footer-item" href="{% url 'checkout_create' %}?project={{ project.id }}"
                            target="_blank" title="Open">
-                <span class="icon">
-                    <i class="fas fa-edit"></i>
-                </span>
+                            <span class="icon">
+                                <i class="fas fa-edit"></i>
+                            </span>
                             <span>Open</span>
                         </a>
                         <a class="card-footer-item" href="{% url 'project_update' project.id %}" title="Settings">
-                <span class="icon">
-                    <i class="fas fa-cog"></i>
-                </span>
+                            <span class="icon">
+                                <i class="fas fa-cog"></i>
+                            </span>
                             <span>Settings</span>
-                        </a>
-                        <a class="card-footer-item" href="{% url 'project_delete' project.id %}" title="Delete">
-                <span class="icon has-text-danger">
-                    <i class="fas fa-trash"></i>
-                </span>
                         </a>
                     </footer>
                 </div>
