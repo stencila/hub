@@ -3,10 +3,10 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 
 from users.views import (
-    AccountSettingsView,
-    AccountSignupView,
-    AccountSigninView,
-    AccountSignoutView,
+    UserSettingsView,
+    UserSignupView,
+    UserSigninView,
+    UserSignoutView,
     BetaTokenView
 )
 from checkouts.views import (
@@ -91,10 +91,10 @@ urlpatterns = [
 
     # User sign in, settings etc
     path('beta/', BetaTokenView.as_view(), name='user_beta'),
-    path('me/', AccountSettingsView.as_view(), name='user_settings'),
-    path('me/signup/', AccountSignupView.as_view(), name='user_signup'),
-    path('me/signin/', AccountSigninView.as_view(), name='user_signin'),
-    path('me/signout/', AccountSignoutView.as_view(), name='user_signout'),
+    path('me/', UserSettingsView.as_view(), name='user_settings'),
+    path('me/signup/', UserSignupView.as_view(), name='user_signup'),
+    path('me/signin/', UserSigninView.as_view(), name='user_signin'),
+    path('me/signout/', UserSignoutView.as_view(), name='user_signout'),
     path('me/', include('allauth.urls')),
 
     # Staff admin

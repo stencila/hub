@@ -52,7 +52,7 @@ class BetaTokenView(FormView):
         return self.render_to_response(dict(form=form))
 
 
-class AccountSettingsView(LoginRequiredMixin, TemplateView):
+class UserSettingsView(LoginRequiredMixin, TemplateView):
     """
     Dashboard of settings available to the user
     """
@@ -60,7 +60,7 @@ class AccountSettingsView(LoginRequiredMixin, TemplateView):
     template_name = "users/settings.html"
 
 
-class AccountSignupView(BetaTokenRequiredMixin, SignupView):
+class UserSignupView(BetaTokenRequiredMixin, SignupView):
     """
     Override of allauth SignupView to allow for custom
     URL and template name (and perhaps more later)
@@ -69,7 +69,7 @@ class AccountSignupView(BetaTokenRequiredMixin, SignupView):
     template_name = 'users/signup.html'
 
 
-class AccountSigninView(BetaTokenRequiredMixin, LoginView):
+class UserSigninView(BetaTokenRequiredMixin, LoginView):
     """
     Override of allauth LoginView to allow for custom
     URL and template name (and perhaps more later)
@@ -78,7 +78,7 @@ class AccountSigninView(BetaTokenRequiredMixin, LoginView):
     template_name = 'users/signin.html'
 
 
-class AccountSignoutView(LogoutView):
+class UserSignoutView(LogoutView):
     """
     Override of allauth LogoutView to allow for custom
     URL and template name (and perhaps more later)
