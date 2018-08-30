@@ -1,14 +1,13 @@
 import typing
 
-from django import forms
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.forms import FloatField, IntegerField
 from django.http import HttpRequest
 
+from lib.forms import FormWithSubmit, ModelFormWithSubmit
 from .models import FilesSource, SessionParameters, Source, Project, generate_project_key
 
 
@@ -75,25 +74,6 @@ def update_project_from_form_data(request: HttpRequest, project: Project, genera
     update_general_project_data(project, general_data)
     update_access_project_data(project, access_data)
     update_session_parameters_project_data(project, request, parameters_data, session_data)
-
-
-def form_add_submit_button(form: typing.Any) -> None:
-    form.helper = FormHelper()
-    form.helper.add_input(
-        Submit('submit', form.submit_button_label, css_class='button is-primary')
-    )
-
-
-class FormWithSubmit(forms.Form):
-    def __init__(self, *args, **kwargs) -> None:
-        super(FormWithSubmit, self).__init__(*args, **kwargs)
-        form_add_submit_button(self)
-
-
-class ModelFormWithSubmit(forms.ModelForm):
-    def __init__(self, *args, **kwargs) -> None:
-        super(ModelFormWithSubmit, self).__init__(*args, **kwargs)
-        form_add_submit_button(self)
 
 
 class SaveButtonMixin:
@@ -329,7 +309,7 @@ class ProjectSessionParametersForm(forms.Form):
         help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
     )
 
-    memory = FloatField(
+    memory = forms.FloatField(
         # default=1,
         min_value=0,
         required=True,
@@ -337,7 +317,7 @@ class ProjectSessionParametersForm(forms.Form):
         widget=forms.NumberInput(attrs={"v-model": "spMemory"})
     )
 
-    cpu = FloatField(
+    cpu = forms.FloatField(
         label="CPU",
         required=True,
         min_value=1,
@@ -347,21 +327,21 @@ class ProjectSessionParametersForm(forms.Form):
         widget=forms.NumberInput(attrs={"v-model": "spCpu"})
     )
 
-    network = FloatField(
+    network = forms.FloatField(
         min_value=0,
         required=False,
         help_text='Gigabytes (GB) of network transfer allocated. Leave blank for unlimited.',
         widget=forms.NumberInput(attrs={"v-model": "spNetwork"})
     )
 
-    lifetime = IntegerField(
+    lifetime = forms.IntegerField(
         min_value=0,
         required=False,
         help_text='Minutes before the session is terminated (even if active). Leave blank for unlimited.',
         widget=forms.NumberInput(attrs={"v-model": "spLifetime"})
     )
 
-    timeout = IntegerField(
+    timeout = forms.IntegerField(
         # default=60,
         min_value=0,
         required=True,
