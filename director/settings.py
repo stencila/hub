@@ -59,6 +59,7 @@ class Common(Configuration):
         # Our apps
 
         'users',
+        'accounts',
         'projects',
         'editors',
         'hosts',

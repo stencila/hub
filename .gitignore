@@ -12,3 +12,6 @@ storage
 
 # Ignore Pycharm/IntelliJ Project Dir
 .idea
+
+# Ignore macOS .DS_Store
+.DS_Store
