@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import View
 from django.views.generic.edit import DeleteView
 
-from accounts.views import BetaTokenRequiredMixin
+from users.views import BetaTokenRequiredMixin
 from projects.view_base import DetailView, owner_access_check
 from .models import SessionParameters
 from .forms import (

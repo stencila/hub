@@ -58,7 +58,7 @@ class Common(Configuration):
 
         # Our apps
 
-        'accounts',
+        'users',
         'projects',
         'editors',
         'hosts',
@@ -83,7 +83,7 @@ class Common(Configuration):
             'DIRS': [
                 os.path.join(BASE_DIR, 'templates'),
                 # Needed to ensure that allauth templates are overidden by ours
-                os.path.join(BASE_DIR, 'accounts', 'templates')
+                os.path.join(BASE_DIR, 'users', 'templates')
             ],
             'APP_DIRS': True,
             'OPTIONS': {
