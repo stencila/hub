@@ -1,3 +1,8 @@
+"""
+Models implementing Stencila Hub Accounts against which the usage of the computational
+resources is metered.
+"""
+
 import typing
 
 from django.contrib.auth.models import User
@@ -8,11 +13,25 @@ from lib.enum_choice import EnumChoice
 
 
 class AccountPermissionType(EnumChoice):
+    """
+    Modification allows to link a new project to the account,
+    to create, update and delete teams related to the account.
+
+    Administration is a higher level of permission type. It allows to
+    delete the account; update the billing details for the account and
+    give other account members administrative perimission.
+    """
+
     MODIFY = 'modify'
     ADMINISTER = 'administer'
 
 
 class Account(models.Model):
+    """
+    Accounts are the entity against which resource usage is metered, and
+    can be billed if it exceeds the free allocation. Every user has their
+    own Account. 
+    """
     name = models.TextField()
 
     def get_administrators(self) -> typing.Iterable[User]:
