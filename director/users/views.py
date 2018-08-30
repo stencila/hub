@@ -57,7 +57,7 @@ class AccountSettingsView(LoginRequiredMixin, TemplateView):
     Dashboard of settings available to the user
     """
 
-    template_name = "account/settings.html"
+    template_name = "users/settings.html"
 
 
 class AccountSignupView(BetaTokenRequiredMixin, SignupView):
@@ -66,7 +66,7 @@ class AccountSignupView(BetaTokenRequiredMixin, SignupView):
     URL and template name (and perhaps more later)
     """
 
-    template_name = 'account/signup.html'
+    template_name = 'users/signup.html'
 
 
 class AccountSigninView(BetaTokenRequiredMixin, LoginView):
@@ -75,7 +75,7 @@ class AccountSigninView(BetaTokenRequiredMixin, LoginView):
     URL and template name (and perhaps more later)
     """
 
-    template_name = 'account/signin.html'
+    template_name = 'users/signin.html'
 
 
 class AccountSignoutView(LogoutView):
@@ -84,4 +84,4 @@ class AccountSignoutView(LogoutView):
     URL and template name (and perhaps more later)
     """
 
-    template_name = 'account/signout.html'
+    template_name = 'users/signout.html'
