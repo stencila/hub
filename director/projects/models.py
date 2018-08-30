@@ -20,7 +20,6 @@ from django.contrib.contenttypes.models import ContentType
 from polymorphic.models import PolymorphicModel
 
 from accounts.models import Account
-from .permission_models import ProjectPermission, ProjectRole, UserProjectRole
 from .session_models import *
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -108,7 +107,7 @@ class Project(Model):
         Account,
         on_delete=PROTECT,
         related_name='projects',
-        null=False
+        null=True
     )
 
     def __str__(self):

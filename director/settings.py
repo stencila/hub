@@ -59,6 +59,7 @@ class Common(Configuration):
         # Our apps
 
         'users',
+        'permissions',
         'accounts',
         'projects',
         'editors',
@@ -254,7 +255,7 @@ class Dev(Common):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
     # JWT secret can be set but has a default value
-    # when in development which is shared with stencila/cloud
+    # when in development which is lib with stencila/cloud
     JWT_SECRET = values.Value('not-a-secret')
 
 
