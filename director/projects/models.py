@@ -15,10 +15,11 @@ from django.db.models import (
     ForeignKey,
     FileField,
     TextField,
-    CASCADE, SET_NULL)
+    CASCADE, SET_NULL, PROTECT)
 from django.contrib.contenttypes.models import ContentType
 from polymorphic.models import PolymorphicModel
 
+from accounts.models import Account
 from .session_models import *
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -100,6 +101,13 @@ class Project(Model):
         null=True,
         on_delete=CASCADE,
         help_text='The SessionParameters that defines resources and other parameters of new sessions for this Project.'
+    )
+
+    account = ForeignKey(
+        Account,
+        on_delete=PROTECT,
+        related_name='projects',
+        null=True
     )
 
     def __str__(self):
