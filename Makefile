@@ -14,6 +14,7 @@ static: director-static editor-static
 
 deploy: router-deploy director-deploy editor-deploy
 
+diagrams: director-models router-models editor-models
 
 ####################################################################################
 # Router
@@ -167,3 +168,10 @@ secrets-decrypt:
 	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
 	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
 	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
+
+
+	####################################################################################
+	# UML diagrams
+
+director-models: director/venv
+	$(DJ) graph_models -a -o models.png
