@@ -20,7 +20,6 @@ from django.contrib.contenttypes.models import ContentType
 from polymorphic.models import PolymorphicModel
 
 from accounts.models import Account
-from .permission_models import ProjectPermission, ProjectRole, UserProjectRole
 from .session_models import *
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -116,6 +115,7 @@ class Project(Model):
         on_delete=CASCADE,
         help_text='The SessionParameters that defines resources and other parameters of new sessions for this Project.'
     )
+
 
     def __str__(self):
         return 'Project #{}'.format(self.id)
