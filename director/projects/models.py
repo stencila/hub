@@ -44,6 +44,14 @@ class Project(Model):
     """
     A project
     """
+
+    account = ForeignKey(
+        Account,
+        on_delete=PROTECT,
+        related_name='projects',
+        null=False
+    )
+
     name = TextField(
         null=True,
         blank=True,
@@ -70,6 +78,7 @@ class Project(Model):
 
     token = TextField(
         null=True,
+        blank=True,
         unique=True,
         help_text='A token to publicly identify the SessionGroup (in URLs etc)'
     )
@@ -82,16 +91,19 @@ class Project(Model):
 
     max_sessions = IntegerField(
         null=True,
+        blank=True,
         help_text='Maximum total number of sessions that can be created in this SessionGroup (null = unlimited)'
     )
 
     max_concurrent = IntegerField(
         null=True,
+        blank=True,
         help_text='Maximum number of sessions allowed to run at one time for this SessionGroup (null = unlimited)',
     )
 
     max_queue = IntegerField(
         null=True,
+        blank=True,
         help_text='Maximum number of users waiting for a new Session to be created in this Session Group '
                   '(null = unlimited)'
     )
@@ -100,15 +112,9 @@ class Project(Model):
         'SessionParameters',
         related_name='projects',
         null=True,
+        blank=True,
         on_delete=CASCADE,
         help_text='The SessionParameters that defines resources and other parameters of new sessions for this Project.'
-    )
-
-    account = ForeignKey(
-        Account,
-        on_delete=PROTECT,
-        related_name='projects',
-        null=False
     )
 
     def __str__(self):
