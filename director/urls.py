@@ -23,6 +23,7 @@ from projects.source_views import FilesSourceReadView, FilesSourceUpdateView, Fi
     FilesProjectRemoveView, SourceListView, SourceDetailRouteView, SourceDetailView
 from projects.views import (
     ProjectListView,
+    ProjectCreateView,
     ProjectDeleteView,
     ProjectArchiveView,
 
@@ -37,7 +38,7 @@ urlpatterns = [
     path('projects/', include([
         # Generic views
         path('', ProjectListView.as_view(), name='project_list'),
-        path('create/', ProjectDetailView.as_view(), name='project_create'),
+        path('create/', ProjectCreateView.as_view(), name='project_create'),
         path('<int:pk>/update/', ProjectDetailView.as_view(), name='project_update'),
         path('update/save-general', ProjectGeneralSaveView.as_view(), name='project_general_save'),
         path('update/save-session-parameters', ProjectSessionParametersSaveView.as_view(),

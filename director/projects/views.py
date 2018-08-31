@@ -11,28 +11,18 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View
 from django.views.generic.list import ListView
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import CreateView, DeleteView
 
 from users.views import BetaTokenRequiredMixin
 from projects.view_base import DetailView, owner_access_check
 from .models import SessionParameters
 from .forms import (
-    ProjectCreateForm,
     ProjectForm, get_initial_form_data_from_project, update_project_from_form_data, ProjectUpdateForm,
     ProjectAccessForm, ProjectSessionParametersForm, Project, ProjectSessionsForm, ProjectGeneralForm,
     update_general_project_data, update_session_parameters_project_data, update_access_project_data)
 
 
-class ProjectListView(BetaTokenRequiredMixin, ListView):
-    template = "projects/project_list.html"
-
-    def get_queryset(self) -> QuerySet:
-        if self.request.user.is_authenticated:
-            return Project.objects.filter(
-                Q(creator=self.request.user) | Q(public=True)
-            )
-        else:
-            return Project.objects.filter(public=True)
+from .project_views import *
 
 
 class FormContext(typing.NamedTuple):
@@ -221,27 +211,6 @@ class ProjectAccessSaveView(ProjectFormSaveView):
 
     def update_project(self, request: HttpRequest, project: Project, form: forms.Form) -> None:
         update_access_project_data(project, form.cleaned_data, True)
-
-
-class ProjectDeleteView(LoginRequiredMixin, DeleteView):
-    model = Project
-    template_name = 'projects/project_delete.html'
-    success_url = reverse_lazy('project_list')
-
-
-class ProjectArchiveView(LoginRequiredMixin, View):
-    @staticmethod
-    def get(request: HttpRequest, pk: typing.Optional[int]) -> HttpResponse:
-        project = get_object_or_404(Project, pk=pk)
-        if not owner_access_check(request, project, "creator"):
-            raise PermissionDenied
-
-        archive = project.pull()
-        body = archive.getvalue()
-
-        response = HttpResponse(body, content_type='application/x-zip-compressed')
-        response['Content-Disposition'] = 'attachment; filename={}.zip'.format('project.name')
-        return response
 
 
 class ProjectSessionsListView(LoginRequiredMixin, View):

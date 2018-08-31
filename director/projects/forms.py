@@ -162,10 +162,6 @@ class ProjectForm(FormWithSubmit):
         return cleaned_data
 
 
-class ProjectCreateForm(CreateButtonMixin, ProjectForm):
-    pass
-
-
 class ProjectUpdateForm(SaveButtonMixin, ProjectForm):
     pass
 
