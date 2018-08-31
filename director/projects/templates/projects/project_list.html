@@ -7,7 +7,7 @@
         <div class="level-left">
             <div class="level-item">
                 <p class="subtitle is-5">
-                    <strong>{{ projects|length }}</strong> project{{ projects|length|pluralize }}
+                    <strong>{{ object_list|length }}</strong> project{{ object_list|length|pluralize }}
                 </p>
             </div>
             {% comment %}
@@ -36,7 +36,7 @@
     </nav>
 
     <div class="section">
-        {% for project in projects %}
+        {% for project in object_list %}
             <div class="level">
                 <div class="level-left">
                     <a href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
@@ -60,7 +60,7 @@
     Disabled card-based 'gallery' view
 
     <div class="columns is-multiline">
-        {% for project in projects %}
+        {% for project in object_list %}
             <div class="column">
                 <div class="card">
                     <header class="card-header">

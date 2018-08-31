@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpRequest, QueryDict, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View
+from django.views.generic.list import ListView
 from django.views.generic.edit import DeleteView
 
 from users.views import BetaTokenRequiredMixin
@@ -22,29 +23,16 @@ from .forms import (
     update_general_project_data, update_session_parameters_project_data, update_access_project_data)
 
 
-class ProjectListView(BetaTokenRequiredMixin, View):
-    def get_project_queryset(self) -> QuerySet:
+class ProjectListView(BetaTokenRequiredMixin, ListView):
+    template = "projects/project_list.html"
+
+    def get_queryset(self) -> QuerySet:
         if self.request.user.is_authenticated:
             return Project.objects.filter(
                 Q(creator=self.request.user) | Q(public=True)
             )
         else:
             return Project.objects.filter(public=True)
-
-    def get_session_parameters_queryset(self) -> QuerySet:
-        if self.request.user.is_authenticated:
-            return SessionParameters.objects.filter(owner=self.request.user)
-
-        return SessionParameters.objects.none()
-
-    def get(self, request) -> HttpResponse:
-        projects = self.get_project_queryset()
-        session_parameters = self.get_session_parameters_queryset()
-
-        return render(request, "projects/project_list.html", {
-            "projects": projects,
-            "session_parameters": session_parameters
-        })
 
 
 class FormContext(typing.NamedTuple):
