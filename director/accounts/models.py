@@ -30,18 +30,25 @@ class Account(models.Model):
     """
     Accounts are the entity against which resource usage is metered, and
     can be billed if it exceeds the free allocation. Every user has their
-    own Account. 
+    own Account.
     """
-    name = models.TextField()
+    name = models.TextField(){
+        null=True,
+        blank=True,
+        help_text= 'The name of the account (required).'
+    }
 
     def get_administrators(self) -> typing.Iterable[User]:
-        ownership_roles = set()  # cache the roles that have ownership perms
+        """
+        Returns users who have administrative and modification permissions on the account.
+        """
+        ownership_roles = set()  # cache the roles that have administrative perms
         users = set()
 
         for user_role in self.user_roles:
             user_has_role = False
 
-            if user_role.role.pk in ownership_roles:
+            if user_role.role.pk in ownership_roles:       #does this catch also users with Modification permission? (AP)
                 user_has_role = True
             elif AccountPermissionType.ADMINISTER in user_role.role.permissions_types():
                 ownership_roles.add(user_role.role.pk)
@@ -61,11 +68,14 @@ class Team(models.Model):
 
     name = models.TextField(
         blank=False,
-        null=False
+        null=False,
+        help_text = 'The name of the team (required).'
     )
 
     description = models.TextField(
-        blank=True, null=True
+        blank=True,
+        null=True,
+        help_text= 'Team description (optional).'
     )
 
     members = models.ManyToManyField(
@@ -78,14 +88,17 @@ class AccountPermission(models.Model):
         null=False,
         blank=False,
         choices=AccountPermissionType.as_choices(),
-        unique=True
+        unique=True,
+        help_text= 'Permissions to the Account: Administer or Modify (required).'
     )
 
 
 class AccountRole(models.Model):
     name = models.TextField()
     permissions = models.ManyToManyField(
-        AccountPermission, related_name='roles'
+        AccountPermission,
+        related_name='roles',
+        help_text = 'User role in the Account: Administrator or Account Member.'
     )
 
     def permissions_text(self) -> typing.Set[str]:
