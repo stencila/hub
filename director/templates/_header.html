@@ -22,14 +22,19 @@
             <a class="navbar-item" href="{% url 'user_signin' %}">Sign in</a>
             <a class="navbar-item" href="{% url 'user_signup' %}">Sign up</a>
           {% else %}
-            <div class="navbar-item">{{ user.username }}</div>
-            {% if user.is_staff %}
-              <a class="navbar-item" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin</a>
-            {% endif %}
-            <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
-            <a class="navbar-item" href="{% url 'source_list' %}">Sources</a>
-            <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
-            <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
+            <div class="navbar-item has-dropdown is-hoverable">
+              <div class="navbar-link">
+                {{ user.username }}
+              </div>
+              <div class="navbar-dropdown is-boxed">
+                <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
+                {% if user.is_staff %}
+                  <a class="navbar-item" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin site</a>
+                {% endif %}
+                <a class="navbar-item" href="{% url 'user_settings' %}">Settings</a>
+                <a class="navbar-item" href="{% url 'user_signout' %}">Sign out</a>
+              </div>
+            </div>
           {% endif %}
         </div>
       </div>
