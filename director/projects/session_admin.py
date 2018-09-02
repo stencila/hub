@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    Session, SessionParameters)
+from .models import Session, SessionParameters
 
 
 @admin.register(Session)
