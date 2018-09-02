@@ -6,11 +6,11 @@ from django.db.models import QuerySet
 from django.forms import ModelForm, forms
 from django.http import HttpResponseRedirect, HttpRequest
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from projects.forms import SessionParametersForm, SessionParametersUpdateForm, SessionParametersCreateForm
 from projects.models import SessionParameters
-from projects.view_base import DetailView, owner_access_check
+#from projects.view_base import DetailView, owner_access_check
 
 
 class SessionParametersListView(ListView, LoginRequiredMixin):

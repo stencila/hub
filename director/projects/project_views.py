@@ -4,9 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import View
-from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic import View, ListView, CreateView, UpdateView, DeleteView
 
 from users.views import BetaTokenRequiredMixin
 from .models import Project
@@ -49,6 +47,12 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         successfully created
         """
         return reverse("project_update", kwargs={'pk': self.object.pk})
+
+
+class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    model = Project
+    fields = '__all__'
+    template_name = 'projects/project_update.html'
 
 
 class ProjectDeleteView(LoginRequiredMixin, DeleteView):

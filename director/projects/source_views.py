@@ -9,14 +9,15 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.views import View
-from django.views.generic import DetailView as DjangoDetailView, UpdateView, ListView
+from django.views.generic import DetailView, UpdateView, ListView
 
-from projects.forms import FilesSourceUpdateForm, FilesSourceCreateForm
-from projects.models import FilesSource, FilesSourceFile, Source, AvailableSourceType, Project
-from projects.view_base import owner_access_check, DetailView, T
+from .source_forms import FilesSourceUpdateForm, FilesSourceCreateForm
+from .source_models import FilesSource, FilesSourceFile, Source, AvailableSourceType
+
+T = typing.TypeVar('T')
 
 
-class FilesSourceReadView(LoginRequiredMixin, DjangoDetailView):
+class FilesSourceReadView(LoginRequiredMixin, DetailView):
     model = FilesSource
     template_name = 'projects/filesproject_update.html'
 
