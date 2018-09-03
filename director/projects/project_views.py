@@ -13,6 +13,7 @@ from .project_forms import (
     ProjectCreateForm,
     ProjectGeneralForm,
     ProjectSettingsMetadataForm,
+    ProjectSettingsAccessForm,
     ProjectSettingsSessionsForm
 )
 
@@ -89,9 +90,11 @@ class ProjectSettingsMetadataView(LoginRequiredMixin, UpdateView):
 
 class ProjectSettingsAccessView(LoginRequiredMixin, UpdateView):
     model = Project
-    fields = []
-    #form_class = ProjectSettingsGeneralForm
+    form_class = ProjectSettingsAccessForm
     template_name = 'projects/project_settings_access.html'
+
+    def get_success_url(self) -> str:
+        return reverse("project_settings_access", kwargs={'pk': self.object.pk})
 
 
 class ProjectSettingsSessionsView(LoginRequiredMixin, UpdateView):

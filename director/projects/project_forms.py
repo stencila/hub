@@ -38,6 +38,49 @@ class ProjectSettingsMetadataForm(ModelFormWithSubmit):
         }
 
 
+class ProjectSettingsAccessForm(ModelFormWithSubmit):
+
+    class Meta:
+        model = Project
+        fields = ['public', 'token', 'key']
+        widgets = {
+            'token': forms.TextInput(),
+            'key': forms.TextInput()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                HTML(
+                    '<p class="title is-5">Public access</p>'
+                    '<p class="subtitle is-6">Make this project readable by everyone!</p>'
+                ),
+                'public',
+                css_class="section"
+            ),
+            Div(
+                HTML(
+                    '<p class="title is-5">Collaborator access</p>'
+                    '<p class="subtitle is-6">Add collaborators to this project</p>'
+                ),
+                css_class="section"
+            ),
+            Div(
+                HTML(
+                    '<p class="title is-5">API access</p>'
+                    '<p class="subtitle is-6">Set tokens and keys for API access to this project</p>'
+                ),
+                'token',
+                'key',
+                css_class="section"
+            ),
+            Submit('submit', 'Update', css_class="button is-primary")
+        )
+
+
 class ProjectSettingsSessionsForm(forms.ModelForm):
 
     class Meta:
