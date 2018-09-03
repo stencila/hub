@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags static %}
+
+{% block title %}Project {{project.pk}} : Overview{% endblock %}
+
+{% block content %}
+	{% include "projects/_project_tabs.html" with project=project tab="overview" %}
+    <div class="section">
+        <div class="columns">
+            <div class="column is-9">
+                <p class="title is-3">{{ project.name|default:"Unnamed project" }}</p>
+            
+                {% if project.description %}
+                    <p>{{ project.description }}</p>
+                {% else %}
+                    <p class="has-text-grey-light">No description yet</p>
+                {% endif %}
+            </div>
+            <div class="column is-2">
+                <div class="buttons">
+                    <a class="button is-fullwidth is-primary" href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
+                        <span class="icon is-small">
+                          <i class="fa fa-rocket"></i>
+                        </span>
+                        <span>Open</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

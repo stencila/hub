@@ -37,21 +37,16 @@
 
     <div class="section">
         {% for project in object_list %}
-            <div class="level">
-                <div class="level-left">
-                    <a href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
-                        <span>{{ project.id }} {{ project.get_name }}</span>
-                    </a>
-                </div>
-                <div class="level-right" style="text-align: right">
-                    <a href="{% url 'project_update' project.id %}" title="Settings">
-                        <span class="icon"><i class="fas fa-cog"></i></span>
+            <div class="card">
+                <div class="card-content">
+                    <a href="{% url 'project_overview' project.id %}" title="Open">
+                        <span>{{ project.get_name }}</span>
                     </a>
                 </div>
             </div>
         {% empty %}
             <div>
-                <td colspan="3">No project exist.</td>
+                <td colspan="3">No projects exist.</td>
             </div>
         {% endfor %}
     </div>

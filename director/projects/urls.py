@@ -5,7 +5,7 @@ from .views import (
 
     ProjectCreateView,
 
-    ProjectGeneralView,
+    ProjectOverviewView,
     ProjectFilesView,
     ProjectActivityView,
     ProjectSharingView,
@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('create/', ProjectCreateView.as_view(), name='project_create'),
 
-    path('<int:pk>/general/', ProjectGeneralView.as_view(), name='project_update'),
+    path('<int:pk>/', ProjectOverviewView.as_view(), name='project_overview'),
     path('<int:pk>/files/', ProjectFilesView.as_view(), name='project_files'),
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),

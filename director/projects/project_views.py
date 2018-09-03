@@ -5,13 +5,12 @@ from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic import View, ListView, CreateView, UpdateView, FormView, DeleteView
+from django.views.generic import View, ListView, CreateView, UpdateView, DetailView, FormView, DeleteView
 
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
     ProjectCreateForm,
-    ProjectGeneralForm,
     ProjectSharingForm,
     ProjectSettingsMetadataForm,
     ProjectSettingsAccessForm,
@@ -53,13 +52,9 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return reverse("project_update", kwargs={'pk': self.object.pk})
 
 
-class ProjectGeneralView(LoginRequiredMixin, UpdateView):
+class ProjectOverviewView(LoginRequiredMixin, DetailView):
     model = Project
-    form_class = ProjectGeneralForm
-    template_name = 'projects/project_general.html'
-
-    def get_success_url(self) -> str:
-        return reverse("project_update", kwargs={'pk': self.object.pk})
+    template_name = 'projects/project_overview.html'
 
 
 class ProjectFilesView(LoginRequiredMixin, UpdateView):

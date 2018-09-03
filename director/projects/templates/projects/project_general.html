@@ -1,9 +1,0 @@
-{% extends 'base.html' %}
-{% load crispy_forms_tags static %}
-
-{% block title %}Project {{project.pk}}: General{% endblock %}
-
-{% block content %}
-	{% include "projects/_project_tabs.html" with project=project tab="general" %}
-    {% crispy form %}
-{% endblock %}
