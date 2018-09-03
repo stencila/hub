@@ -199,7 +199,8 @@ class Common(Configuration):
     CRISPY_ALLOWED_TEMPLATE_PACKS = ['bulma']
     CRISPY_TEMPLATE_PACK = 'bulma'
     CRISPY_CLASS_CONVERTERS = {
-        "checkboxinput": "checkbox"
+        "checkboxinput": "checkbox",
+        "numberinput": "input",
     }
 
     # Stencila settings

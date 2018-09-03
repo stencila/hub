@@ -1,5 +1,7 @@
 import typing
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Div, Field, HTML, Layout, Submit
 from django import forms
 
 from lib.forms import FormWithSubmit, ModelFormWithSubmit
@@ -36,7 +38,7 @@ class ProjectSettingsMetadataForm(ModelFormWithSubmit):
         }
 
 
-class ProjectSettingsSessionsForm(ModelFormWithSubmit):
+class ProjectSettingsSessionsForm(forms.ModelForm):
 
     class Meta:
         model = Project
@@ -45,19 +47,22 @@ class ProjectSettingsSessionsForm(ModelFormWithSubmit):
     sessions_total = forms.IntegerField(
         required=False,
         min_value=1,
-        help_text='The maximum number of sessions to run at one time. Leave blank for unlimited.'
+        label='Total',
+        help_text='Maximum total number of sessions that can be created for this project. Leave blank for unlimited.'
     )
 
     sessions_concurrent = forms.IntegerField(
         required=False,
         min_value=1,
-        help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
+        label='Concurrent',
+        help_text='Maximum number of sessions allowed to run at one time for this project. Leave blank for unlimited.'
     )
 
     sessions_queued = forms.IntegerField(
         required=False,
         min_value=1,
-        help_text='The total maximum number of sessions allowed to create. Leave blank for unlimited.'
+        label='Queued',
+        help_text='Maximum number of queued requests for a session for this project. Leave blank for unlimited.'
     )
 
     memory = forms.FloatField(
@@ -96,6 +101,39 @@ class ProjectSettingsSessionsForm(ModelFormWithSubmit):
         help_text='Minutes of inactivity before the session is terminated. Leave blank for unlimited.',
         widget=forms.NumberInput()
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    HTML(
+                        '<p class="title is-5">Session numbers</p>'
+                        '<p class="subtitle is-6">Control the number of sessions for this project</p>'
+                    ),
+                    'sessions_concurrent',
+                    'sessions_queued',
+                    'sessions_total',
+                    css_class="column is-half section"
+                ),
+                Div(
+                    HTML(
+                        '<p class="title is-5">Session parameters</p>'
+                        '<p class="subtitle is-6">Control the parameters for each session</p>'
+                    ),
+                    'memory',
+                    'cpu',
+                    'network',
+                    'lifetime',
+                    'timeout',
+                    css_class="column is-half section"
+                ),
+                css_class="columns"
+            ),
+            Submit('submit', 'Update', css_class="button is-primary")
+        )
 
     @staticmethod
     def initial(project):
