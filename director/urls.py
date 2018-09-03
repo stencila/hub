@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 from users.views import (
     UserSettingsView,
@@ -17,49 +17,13 @@ from checkouts.views import (
     CheckoutSaveView,
     CheckoutCloseView)
 
-from projects.views import (
-    ProjectListView,
-    ProjectCreateView,
-    ProjectUpdateView,
-    ProjectDeleteView,
-    ProjectArchiveView,
-
-    ProjectHostManifestView,
-    ProjectHostSessionsView)
+import projects.urls
 
 from views import HomeView
 
 urlpatterns = [
     # Project CRUD
-    path('projects/', include([
-        # Generic views
-        path('', ProjectListView.as_view(), name='project_list'),
-        path('create/', ProjectCreateView.as_view(), name='project_create'),
-        path('<int:pk>/update/', ProjectUpdateView.as_view(), name='project_update'),
-        #path('update/save-general', ProjectGeneralSaveView.as_view(), name='project_general_save'),
-        #path('update/save-session-parameters', ProjectSessionParametersSaveView.as_view(),
-        #     name='project_session_parameters_save'),
-        #path('update/save-access', ProjectAccessSaveView.as_view(), name='project_access_save'),
-        path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
-        path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
-        #path('<int:pk>/sessions/', ProjectSessionsListView.as_view(), name='project_sessions'),
-        # Per project Host API
-        path('<str:token>/host/', include([
-            path('v0/', include([
-                path('manifest', ProjectHostManifestView.as_view(), {'version': 0}),
-                re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view())
-            ])),
-            path('v1/', include([
-                path('manifest', ProjectHostManifestView.as_view(), {'version': 1}),
-                re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view())
-            ]))
-        ])),
-        # Type-specific views
-        #path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
-        #path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),
-        #path('files/<int:pk>/upload/', FilesSourceUploadView.as_view(), name='filesproject_upload'),
-        #path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
-    ])),
+    path('projects/', include(projects.urls)),
 
     # Checkout CRUD
     path('checkouts/', include([

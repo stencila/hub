@@ -66,6 +66,12 @@ class Project(models.Model):
         help_text='Should this project be publicly visible?'
     )
 
+    description = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Brief description of the project"
+    )
+
     token = models.TextField(
         null=True,
         blank=True,

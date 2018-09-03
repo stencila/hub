@@ -1,0 +1,40 @@
+<div class="tabs is-right">
+  <ul>
+
+    {% if tab == "metadata" %}
+    <li class="is-active">
+      <a>
+    {% else %}
+    <li>
+      <a href="{% url 'project_settings_metadata' project.pk %}">
+    {% endif %}
+        <span class="icon is-small"><i class="fas fa-inbox" aria-hidden="true"></i></span>
+        <span>Meta-data</span>
+      </a>
+    </li>
+
+    {% if tab == "access" %}
+    <li class="is-active">
+      <a>
+    {% else %}
+    <li>
+      <a href="{% url 'project_settings_access' project.pk %}">
+    {% endif %}
+        <span class="icon is-small"><i class="fas fa-user" aria-hidden="true"></i></span>
+        <span>Access</span>
+      </a>
+    </li>
+
+    {% if tab == "sessions" %}
+    <li class="is-active">
+      <a>
+    {% else %}
+    <li>
+      <a href="{% url 'project_settings_sessions' project.pk %}">
+    {% endif %}
+        <span class="icon is-small"><i class="fas fa-desktop" aria-hidden="true"></i></span>
+        <span>Sessions</span>
+      </a>
+    </li>
+  </ul>
+</div>

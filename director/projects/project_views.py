@@ -8,7 +8,11 @@ from django.views.generic import View, ListView, CreateView, UpdateView, DeleteV
 
 from users.views import BetaTokenRequiredMixin
 from .models import Project
-from .project_forms import ProjectCreateForm
+from .project_forms import (
+    ProjectCreateForm,
+    ProjectGeneralForm,
+    ProjectSettingsMetadataForm
+)
 
 
 class ProjectListView(BetaTokenRequiredMixin, ListView):
@@ -46,19 +50,57 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         Redirect to the project update page when it has bee
         successfully created
         """
+        return reverse("project_general", kwargs={'pk': self.object.pk})
+
+
+class ProjectGeneralView(LoginRequiredMixin, UpdateView):
+    model = Project
+    form_class = ProjectGeneralForm
+    template_name = 'projects/project_general.html'
+
+    def get_success_url(self) -> str:
         return reverse("project_update", kwargs={'pk': self.object.pk})
 
 
-class ProjectUpdateView(LoginRequiredMixin, UpdateView):
+class ProjectFilesView(LoginRequiredMixin, UpdateView):
     model = Project
-    fields = '__all__'
-    template_name = 'projects/project_update.html'
+    fields = []
+    template_name = 'projects/project_files.html'
 
 
-class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+class ProjectActivityView(LoginRequiredMixin, UpdateView):
     model = Project
-    template_name = 'projects/project_delete.html'
-    success_url = reverse_lazy('project_list')
+    fields = []
+    template_name = 'projects/project_activity.html'
+
+
+class ProjectSettingsView(LoginRequiredMixin, UpdateView):
+    model = Project
+    fields = []
+    template_name = 'projects/project_settings.html'
+
+
+class ProjectSettingsMetadataView(LoginRequiredMixin, UpdateView):
+    model = Project
+    form_class = ProjectSettingsMetadataForm
+    template_name = 'projects/project_settings_metadata.html'
+
+    def get_success_url(self) -> str:
+        return reverse("project_settings_metadata", kwargs={'pk': self.object.pk})
+
+
+class ProjectSettingsAccessView(LoginRequiredMixin, UpdateView):
+    model = Project
+    fields = []
+    #form_class = ProjectSettingsGeneralForm
+    template_name = 'projects/project_settings_access.html'
+
+
+class ProjectSettingsSessionsView(LoginRequiredMixin, UpdateView):
+    model = Project
+    fields = []
+    #form_class = ProjectSettingsGeneralForm
+    template_name = 'projects/project_settings_sessions.html'
 
 
 class ProjectArchiveView(LoginRequiredMixin, View):
@@ -75,3 +117,9 @@ class ProjectArchiveView(LoginRequiredMixin, View):
         response = HttpResponse(body, content_type='application/x-zip-compressed')
         response['Content-Disposition'] = 'attachment; filename={}.zip'.format('project.name')
         return response
+
+
+class ProjectDeleteView(LoginRequiredMixin, DeleteView):
+    model = Project
+    template_name = 'projects/project_delete.html'
+    success_url = reverse_lazy('project_list')

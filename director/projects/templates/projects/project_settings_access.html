@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags static %}
+
+{% block title %}Project {{ project.pk }}: Settings: {{ menu_item|title }}{% endblock %}
+
+{% block content %}
+	{% include "projects/_project_tabs.html" with project=project tab="settings" %}
+	{% include "projects/_project_settings_tabs.html" with project=project tab="access" %}
+    {% crispy form %}
+{% endblock %}
