@@ -61,29 +61,10 @@ class SessionParameters(models.Model):
     """
     Defines the parameters for new Sessions created in a Project
     """
-    owner = models.ForeignKey(
-        'auth.User',
-        null=True,  # Should only be null if the creator is deleted
-        on_delete=models.SET_NULL,
-        related_name='session_templates',
-        help_text='User who owns the SessionParameters'
-    )
-
-    is_system = models.BooleanField(
-        default=False,
-        help_text='If True, this SessionParameters can be used by any user'
-    )
-
-    display_order = models.IntegerField(
-        null=False,
-        blank=True,
-        default=0,
-        help_text="The order this SessionParameter should be displayed in list/tables"
-    )
 
     name = models.TextField(
-        null=False,
-        blank=False
+        null=True,
+        blank=True
     )
 
     description = models.TextField(
@@ -94,15 +75,15 @@ class SessionParameters(models.Model):
 
     memory = models.FloatField(
         default=1,
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         help_text='Gigabytes (GB) of memory allocated'
     )
 
     cpu = models.FloatField(
         default=1,
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         help_text='CPU shares (out of 100 per CPU) allocated'
     )
 
@@ -120,13 +101,13 @@ class SessionParameters(models.Model):
 
     timeout = models.IntegerField(
         default=60,
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         help_text='Minutes of inactivity before the session is terminated'
     )
 
     def __str__(self) -> str:
-        return self.name
+        return self.name if self.name else 'SessionParameters #{}'.format(self.id)
 
     def get_absolute_url(self):
         return reverse('sessionparameters_update', args=[self.pk])

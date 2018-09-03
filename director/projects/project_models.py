@@ -85,7 +85,7 @@ class Project(models.Model):
         help_text='Key required to create sessions for this project'
     )
 
-    sessions_max = models.IntegerField(
+    sessions_total = models.IntegerField(
         null=True,
         blank=True,
         help_text='Maximum total number of sessions that can be created for this project (null = unlimited)'
@@ -196,7 +196,10 @@ class Project(models.Model):
         if not self.token:
             self.token = generate_project_token(self)
 
-        super(Project, self).save(*args, **kwargs)
+        if not self.session_parameters:
+            self.session_parameters = SessionParameters.objects.create()
+
+        super().save(*args, **kwargs)
 
     @property
     def truncated_token(self) -> str:

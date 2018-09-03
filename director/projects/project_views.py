@@ -3,15 +3,17 @@ import typing
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic import View, ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import View, ListView, CreateView, UpdateView, FormView, DeleteView
 
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
     ProjectCreateForm,
     ProjectGeneralForm,
-    ProjectSettingsMetadataForm
+    ProjectSettingsMetadataForm,
+    ProjectSettingsSessionsForm
 )
 
 
@@ -46,11 +48,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        """
-        Redirect to the project update page when it has bee
-        successfully created
-        """
-        return reverse("project_general", kwargs={'pk': self.object.pk})
+        return reverse("project_update", kwargs={'pk': self.object.pk})
 
 
 class ProjectGeneralView(LoginRequiredMixin, UpdateView):
@@ -98,9 +96,14 @@ class ProjectSettingsAccessView(LoginRequiredMixin, UpdateView):
 
 class ProjectSettingsSessionsView(LoginRequiredMixin, UpdateView):
     model = Project
-    fields = []
-    #form_class = ProjectSettingsGeneralForm
+    form_class = ProjectSettingsSessionsForm
     template_name = 'projects/project_settings_sessions.html'
+
+    def get_initial(self):
+        return self.form_class.initial(self.object)
+
+    def get_success_url(self) -> str:
+        return reverse("project_settings_sessions", kwargs={'pk': self.object.pk})
 
 
 class ProjectArchiveView(LoginRequiredMixin, View):
