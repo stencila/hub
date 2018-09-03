@@ -8,6 +8,7 @@ from .views import (
     ProjectGeneralView,
     ProjectFilesView,
     ProjectActivityView,
+    ProjectSharingView,
 
     ProjectSettingsMetadataView,
     ProjectSettingsAccessView,
@@ -29,6 +30,7 @@ urlpatterns = [
     path('<int:pk>/general/', ProjectGeneralView.as_view(), name='project_update'),
     path('<int:pk>/files/', ProjectFilesView.as_view(), name='project_files'),
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
+    path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),
     path('<int:pk>/settings/metadata', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
     path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions'),

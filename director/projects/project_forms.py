@@ -28,17 +28,7 @@ class ProjectGeneralForm(ModelFormWithSubmit):
         }
 
 
-class ProjectSettingsMetadataForm(ModelFormWithSubmit):
-
-    class Meta:
-        model = Project
-        fields = ['name', 'description']
-        widgets = {
-            'name': forms.TextInput()
-        }
-
-
-class ProjectSettingsAccessForm(ModelFormWithSubmit):
+class ProjectSharingForm(ModelFormWithSubmit):
 
     class Meta:
         model = Project
@@ -68,9 +58,38 @@ class ProjectSettingsAccessForm(ModelFormWithSubmit):
                 ),
                 css_class="section"
             ),
+            Submit('submit', 'Update', css_class="button is-primary")
+        )
+
+
+class ProjectSettingsMetadataForm(ModelFormWithSubmit):
+
+    class Meta:
+        model = Project
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput()
+        }
+
+
+class ProjectSettingsAccessForm(ModelFormWithSubmit):
+
+    class Meta:
+        model = Project
+        fields = ['token', 'key']
+        widgets = {
+            'token': forms.TextInput(),
+            'key': forms.TextInput()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
             Div(
                 HTML(
-                    '<p class="title is-5">API access</p>'
+                    '<p class="title is-5">API tokens and keys</p>'
                     '<p class="subtitle is-6">Set tokens and keys for API access to this project</p>'
                 ),
                 'token',

@@ -12,6 +12,7 @@ from .models import Project
 from .project_forms import (
     ProjectCreateForm,
     ProjectGeneralForm,
+    ProjectSharingForm,
     ProjectSettingsMetadataForm,
     ProjectSettingsAccessForm,
     ProjectSettingsSessionsForm
@@ -71,6 +72,15 @@ class ProjectActivityView(LoginRequiredMixin, UpdateView):
     model = Project
     fields = []
     template_name = 'projects/project_activity.html'
+
+
+class ProjectSharingView(LoginRequiredMixin, UpdateView):
+    model = Project
+    form_class = ProjectSharingForm
+    template_name = 'projects/project_sharing.html'
+
+    def get_success_url(self) -> str:
+        return reverse("project_sharing", kwargs={'pk': self.object.pk})
 
 
 class ProjectSettingsView(LoginRequiredMixin, UpdateView):
