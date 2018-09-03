@@ -78,6 +78,7 @@ director-create-devdb: director/venv
 	rm -f director/db.sqlite3
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
+	$(DJ) runscript create_dev_accounts
 
 # Build a development database
 director-migrate-devdb: director/venv
