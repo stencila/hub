@@ -4,7 +4,7 @@ OS := $(shell uname -s)
 
 all: setup run
 
-setup: director-setup director-env
+setup: director-venv
 
 run: director-run
 

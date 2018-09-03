@@ -1,3 +1,7 @@
+"""
+
+"""
+
 import typing
 
 from django.contrib.auth.models import User
@@ -18,7 +22,11 @@ class ProjectPermissionType(EnumChoice):
 
 
 class ProjectPermission(models.Model):
-    type = models.TextField(null=False, blank=False, choices=ProjectPermissionType.as_choices(), unique=True)
+    type = models.TextField(
+         null=False,
+         blank=False,
+         choices=ProjectPermissionType.as_choices(),
+         unique=True)
 
     def as_enum(self) -> ProjectPermissionType:
         return ProjectPermissionType(self.type)
