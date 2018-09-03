@@ -4,9 +4,7 @@
 {% block title %}Project {{ project.pk }} : Settings : Sessions{% endblock %}
 
 {% block content %}
-{% include "projects/_project_tabs.html" with project=project tab="settings" %}
-{% include "projects/_project_settings_tabs.html" with project=project tab="sessions" %}
-
-{% crispy form %}
-
+    {% include "projects/_project_tabs.html" with project=project tab="settings" %}
+    {% include "projects/_project_settings_tabs.html" with project=project tab="sessions" %}
+    {% crispy form %}
 {% endblock %}
