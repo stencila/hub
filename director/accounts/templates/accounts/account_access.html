@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Account Access {{ account.name }}{% endblock %}
+{% block title %}Account {{ account.name }} : Members{% endblock %}
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
 {% endblock %}
 {% block content %}
-    <h3 class="title">{{ account.name }} Access</h3>
+    {% include "accounts/_account_nav.html" with account=account tab="members" %}
     <template id="user-autocomplete-template">
         <b-field>
             <b-autocomplete

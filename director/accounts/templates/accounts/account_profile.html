@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block title %}Account {{account.pk}}{% endblock %}
+{% block content %}
+	{% include "accounts/_account_nav.html" with account=account tab="profile" %}
+{% endblock %}

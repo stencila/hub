@@ -5,13 +5,18 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.base import View
+from django.views.generic import View, DetailView, TemplateView, UpdateView
 
 from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
 
 User = get_user_model()
 
 USER_ROLE_ID_PREFIX = 'user_role_id_'
+
+
+class AccountProfileView(LoginRequiredMixin, DetailView):
+    model = Account
+    template_name = 'accounts/account_profile.html'
 
 
 class AccountAccessView(LoginRequiredMixin, View):
@@ -90,3 +95,14 @@ class AccountAccessView(LoginRequiredMixin, View):
                         messages.success(request, "Role updated for user {}".format(account_user_role.user.username))
 
         return redirect(reverse('account_access', args=(pk,)))
+
+
+class AccountTeamsView(LoginRequiredMixin, DetailView):
+    model = Account
+    template_name = 'accounts/account_teams.html'
+
+
+class AccountSettingsView(LoginRequiredMixin, UpdateView):
+    model = Account
+    fields = ['name']
+    template_name = 'accounts/account_settings.html'

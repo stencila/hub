@@ -33,6 +33,9 @@ class Account(models.Model):
 
         return users
 
+    def __str__(self) -> str:
+        return self.name if self.name else 'Account #{}'.format(self.pk)
+
 
 class Team(models.Model):
     account = models.ForeignKey(
@@ -53,6 +56,9 @@ class Team(models.Model):
         'auth.User'
     )
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class AccountPermission(models.Model):
     type = models.TextField(
@@ -62,9 +68,13 @@ class AccountPermission(models.Model):
         unique=True
     )
 
+    def __str__(self) -> str:
+        return self.type
+
 
 class AccountRole(models.Model):
     name = models.TextField()
+
     permissions = models.ManyToManyField(
         AccountPermission, related_name='roles'
     )
@@ -80,6 +90,9 @@ class AccountRole(models.Model):
         """Query for a list of `AccountRole`s that have the given permission_type `AccountPermissionType`."""
         permission = AccountPermission.objects.get(type=permission_type.value)
         return cls.objects.filter(permissions=permission)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class AccountUserRole(models.Model):
