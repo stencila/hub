@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags static %}
 
 {% block title %}Project {{project.pk}} : Overview{% endblock %}
 
@@ -23,6 +22,10 @@
                           <i class="fa fa-rocket"></i>
                         </span>
                         <span>Open</span>
+                    </a>
+                    <a class="button is-fullwidth" href="{% url 'project_archive' object.id %}">
+                        <span class="icon"><i class="fas fa-download"></i></span>
+                        <span>Download</span>
                     </a>
                 </div>
             </div>

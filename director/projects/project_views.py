@@ -19,7 +19,7 @@ from .project_forms import (
 
 
 class ProjectListView(BetaTokenRequiredMixin, ListView):
-    template = "projects/project_list.html"
+    template_name = "projects/project_list.html"
 
     def get_queryset(self) -> QuerySet:
         """
@@ -49,7 +49,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return reverse("project_update", kwargs={'pk': self.object.pk})
+        return reverse("project_overview", kwargs={'pk': self.object.pk})
 
 
 class ProjectOverviewView(LoginRequiredMixin, DetailView):
