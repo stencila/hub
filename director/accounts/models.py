@@ -25,6 +25,7 @@ class AccountPermissionType(EnumChoice):
     ADMINISTER = 'administer'
 
 
+
 class Account(models.Model):
     """
     Accounts are the entity against which resource usage is metered, and
@@ -101,7 +102,10 @@ class AccountPermission(models.Model):
 
 
 class AccountRole(models.Model):
-    name = models.TextField()
+    name = models.TextField(
+        null=False,
+        unique=True
+    )
 
     permissions = models.ManyToManyField(
         AccountPermission,
