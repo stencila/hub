@@ -2,8 +2,8 @@ import typing
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import QuerySet
 
-# Create your models here.
 from lib.enum_choice import EnumChoice
 
 
@@ -74,6 +74,12 @@ class AccountRole(models.Model):
 
     def permissions_types(self) -> typing.Set[AccountPermissionType]:
         return set(map(lambda p: AccountPermissionType(p.type), self.permissions_text()))
+
+    @classmethod
+    def roles_with_permission(cls, permission_type: AccountPermissionType) -> QuerySet:
+        """Query for a list of `AccountRole`s that have the given permission_type `AccountPermissionType`."""
+        permission = AccountPermission.objects.get(type=permission_type.value)
+        return cls.objects.filter(permissions=permission)
 
 
 class AccountUserRole(models.Model):

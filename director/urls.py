@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from accounts.urls import urlpatterns as accounts_patterns
+from api_urls import urlpatterns as api_patterns
 
 from users.views import (
     UserSettingsView,
@@ -50,6 +52,12 @@ urlpatterns = [
 
     # Home page
     path('', HomeView.as_view(), name='home'),
+
+    # Accounts App
+    path('accounts/', include(accounts_patterns)),
+
+    # API
+    path('api/', include(api_patterns))
 ]
 
 if settings.DEBUG:

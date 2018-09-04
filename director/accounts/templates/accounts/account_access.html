@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Account Access {{ account.name }}{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
+{% endblock %}
+{% block content %}
+    <h3 class="title">{{ account.name }} Access</h3>
+    <template id="user-autocomplete-template">
+        <b-field>
+            <b-autocomplete
+                    v-model.lazy="nameSearch"
+                    :data="data"
+                    placeholder="Begin typing name"
+                    icon="magnify"
+                    name="name"
+                    @select="option => selected = option">
+                <template slot="empty">No results found</template>
+            </b-autocomplete>
+        </b-field>
+    </template>
+    <section id="account-access">
+        <b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Delete this access?</p>
+            </header>
+            <section class="modal-card-body">
+                Are you sure you want to remove access to this account for user [[ deleteRoleUsername ]]?
+            </section>
+            <footer class="modal-card-foot">
+                <form class="form" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_role_id" value="" v-model="deleteRoleId">
+                    <button class="button is-danger" type="submit" name="action" value="delete_access">
+                        Delete
+                    </button>
+                    <a class="button" href="#" @click.prevent="hideDeleteModal()">Cancel</a>
+                </form>
+            </footer>
+        </b-modal>
+        <div class="box">
+            <h4 class="subtitle is-4">Add User Access</h4>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="columns is-marginless">
+                    <div class="column">
+                        <label class="label">Search Username</label>
+                    </div>
+                    <div class="column">
+                        <label class="label">Role</label>
+                    </div>
+                    <div class="column"></div>
+                </div>
+                <div class="columns">
+                    <div class="column">
+                        <user-autocomplete></user-autocomplete>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="role_id">
+                                        {% for role in all_roles %}
+                                            <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <button class="button is-success" name="action" value="add_access" type="submit">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="box">
+                <table class="table table-bordered is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Access</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for access_role in access_roles %}
+                        <tr>
+                            <td>{{ access_role.user.username }}</td>
+                            <td>
+                                {% include "accounts/_role_select.html" with user_role=access_role.role %}
+                            </td>
+                            <td>
+                                {% if access_role.user != request.user %}
+                                    <button class="button is-danger"
+                                            @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
+                                        Delete&hellip;
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">No one has access to this account. You should not be seeing this.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="has-text-right">
+                    <button class="button is-success" type="submit">Save Access</button>
+                </div>
+            </div>
+        </form>
+    </section>
+    <script>
+        Vue.use(Buefy.default)
+
+        Vue.component('user-autocomplete', {
+            template: "#user-autocomplete-template",
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    data: [],
+                    nameSearch: '',
+                    selected: null,
+                    searchTimeout: null,
+                }
+            },
+            watch: {
+                nameSearch() {
+                    if (this.searchTimeout) {
+                        clearTimeout(this.searchTimeout)
+                    }
+
+                    if (this.nameSearch.length >= 3) {
+                        let query = this.nameSearch
+                        this.searchTimeout = setTimeout(() => {
+                            this.performSearch(query)
+                        }, 500)
+                    }
+                }
+            },
+            methods: {
+                performSearch(query) {
+                    fetch(`/api/v1/users/search?q=${query}`).then(response => {
+                        return response.json()
+                    }, (response) => {
+                        console.error(response)
+                    }).then(data => {
+                        this.data = data.map((item) => {
+                            return item.username
+                        })
+                    })
+                },
+            }
+        })
+
+        new Vue({
+            el: '#account-access',
+            delimiters: ['[[', ']]'],
+            data: {
+                deleteModalVisible: false,
+                deleteRoleId: null,
+                deleteRoleUsername: null
+            },
+            methods: {
+                showDeleteModal(roleId, roleUsername) {
+                    this.deleteModalVisible = true
+                    this.deleteRoleId = roleId
+                    this.deleteRoleUsername = roleUsername
+                },
+                hideDeleteModal() {
+                    this.deleteModalVisible = false
+                    this.deleteRoleId = null
+                    this.deleteRoleUsername = null
+                }
+            }
+        })
+    </script>
+{% endblock %}
