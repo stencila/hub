@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Team{% endblock %}
+{% block content %}
+    <form method="POST">
+        {% crispy form %}
+        <div class="field">
+            <div class="control">
+                <input type="submit" class="button is-primary" value="Save">
+            </div>
+        </div>
+    </form>
+{% endblock %}
