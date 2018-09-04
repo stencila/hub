@@ -26,13 +26,8 @@
       </a>
     </li>
 
-    {% if tab == "teams" %}
-    <li class="is-active">
-      <a>
-    {% else %}
-    <li>
-      <a href="{% url 'account_teams' account.pk %}">
-    {% endif %}
+    <li {% if tab == "teams" %}class="is-active"{% endif %}>
+      <a href="{% url 'account_team_list' account.pk %}">
         <span class="icon is-small"><i class="fa fa-users" aria-hidden="true"></i></span>
         <span>Teams</span>
       </a>

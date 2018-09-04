@@ -18,22 +18,7 @@ User = get_user_model()
 USER_ROLE_ID_PREFIX = 'user_role_id_'
 
 
-class AccountListView(LoginRequiredMixin, ListView):
-    template_name = "accounts/account_list.html"
-
-    def get_queryset(self) -> QuerySet:
-        """
-        Only list those accounts that the user is a member of
-        """
-        return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
-
-
-class AccountProfileView(LoginRequiredMixin, DetailView):
-    model = Account
-    template_name = 'accounts/account_profile.html'
-
-
-def fetch_account(user: User, account_pk: int) -> Account:
+def fetch_admin_account(user: User, account_pk: int) -> Account:
     """
     Fetches an account, raising exceptions: 404 if account does not exist, or PermissionDenied if user does not have
     administrative permissions for the Account.
@@ -65,9 +50,24 @@ def fetch_team_for_account(account: Account, team_pk: typing.Optional[int]) -> T
     return team
 
 
+class AccountListView(LoginRequiredMixin, ListView):
+    template_name = "accounts/account_list.html"
+
+    def get_queryset(self) -> QuerySet:
+        """
+        Only list those accounts that the user is a member of
+        """
+        return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
+
+
+class AccountProfileView(LoginRequiredMixin, DetailView):
+    model = Account
+    template_name = 'accounts/account_profile.html'
+
+
 class AccountAccessView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-        account = fetch_account(request.user, pk)
+        account = fetch_admin_account(request.user, pk)
 
         access_roles = AccountUserRole.objects.filter(account=account)
         all_roles = AccountRole.objects.all()
@@ -80,7 +80,7 @@ class AccountAccessView(LoginRequiredMixin, View):
         })
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
-        account = fetch_account(request.user, pk)
+        account = fetch_admin_account(request.user, pk)
 
         all_roles = AccountRole.objects.all()
 
@@ -145,17 +145,21 @@ class AccountSettingsView(LoginRequiredMixin, UpdateView):
 
 class TeamDetailView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        account = fetch_account(request.user, account_pk)  # if account is retrieved then user must have admin access
+        account = fetch_admin_account(request.user, account_pk)
+        # if account is retrieved then user must have admin access
         team = fetch_team_for_account(account, team_pk)
 
         form = TeamForm(instance=team)
 
         return render(request, "accounts/team_detail.html", {
+            "team": team,
+            "account": account,
             "form": form
         })
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        account = fetch_account(request.user, account_pk)  # if account is retrieved then user must have admin access
+        account = fetch_admin_account(request.user, account_pk)
+        # if account is retrieved then user must have admin access
         team = fetch_team_for_account(account, team_pk)
 
         form = TeamForm(request.POST, instance=team)
@@ -168,12 +172,37 @@ class TeamDetailView(LoginRequiredMixin, View):
                 update_verb = "updated"
 
             messages.success(request, "Team '{}' was {} successfully".format(team.name, update_verb))
-            return redirect(reverse('team_list', args=(account.id,)))
+            return redirect(reverse('account_team_list', args=(account.id,)))
 
         return render(request, "accounts/team_detail.html", {
+            "team": team,
+            "account": account,
             "form": form
         })
 
 
 class TeamListView(LoginRequiredMixin, View):
-    pass
+    def get(self, request: HttpRequest, account_pk: int) -> HttpResponse:
+        account = get_object_or_404(Account, pk=account_pk)
+        if AccountUserRole.objects.filter(user=request.user, account=account).count() == 0:
+            raise PermissionDenied
+        # Assume if they have any Roles for the Account they have access
+
+        return render(request, "accounts/account_teams.html", {
+            "account": account,
+            "teams": account.teams.all
+        })
+
+
+class TeamMembersView(LoginRequiredMixin, View):
+    def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
+        account = get_object_or_404(Account, pk=account_pk)
+        if AccountUserRole.objects.filter(user=request.user, account=account).count() == 0:
+            raise PermissionDenied
+        # Assume if they have any Roles for the Account they have access
+        team = fetch_team_for_account(account, team_pk)
+
+        return render(request, "accounts/team_members.html", {
+            "account": account,
+            "team": team
+        })

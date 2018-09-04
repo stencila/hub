@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Team {{ team.id }} : Members {% endblock %}
+{% block content %}
+    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_team_nav.html" with account=account team=team team_tab="members" %}
+    <table class="table is-fullwidth">
+        <thead>
+            <tr>
+                <th>Member</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in team.members.all %}
+                <tr>
+                    <td>{{ member }}</td>
+                </tr>
+            {% empty  %}
+                <tr>
+                    <td>No members.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

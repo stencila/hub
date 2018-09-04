@@ -2,6 +2,8 @@
 {% load crispy_forms_tags %}
 {% block title %}Team{% endblock %}
 {% block content %}
+    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_team_nav.html" with account=account team=team team_tab="metadata" %}
     <form method="POST">
         {% crispy form %}
         <div class="field">
