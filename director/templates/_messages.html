@@ -1,5 +1,10 @@
-{% for message in messages %}
-<div class="notification is-{% if message.tags == "error" %}danger{% else %}{{ message.tags }}{% endif %}">
-  {{ message }}
-</div>
-{% endfor %}
+<script>
+    var vue = new Vue()
+    {% for message in messages %}
+        vue.$toast.open({
+            message: '{{ message }}',
+            type: {% if message.tags == "error" %}'is-danger'{% else %}'is-{{ message.tags }}'{% endif %},
+            position: 'is-bottom'
+        })
+    {% endfor %}
+</script>
