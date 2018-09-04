@@ -5,6 +5,7 @@ from crispy_forms.layout import Div, Field, HTML, Layout, Submit
 from django import forms
 
 from lib.forms import FormWithSubmit, ModelFormWithSubmit
+from accounts.models import Account
 from .project_models import Project, SessionParameters
 
 
@@ -16,6 +17,13 @@ class ProjectCreateForm(ModelFormWithSubmit):
         widgets = {
             'name': forms.TextInput()
         }
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+        accounts = Account.objects.filter(user_roles__user=request.user)
+        self.fields['account'].queryset = accounts
 
 
 class ProjectGeneralForm(ModelFormWithSubmit):

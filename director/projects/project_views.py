@@ -38,6 +38,15 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     form_class = ProjectCreateForm
     template_name = "projects/project_create.html"
 
+    def get_form_kwargs(self):
+        """
+        Pass to request through to the form so it can generate
+        a set of accounts the user can use
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def form_valid(self, form):
         """
         If the project creation form is valid them make the current user the
