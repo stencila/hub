@@ -3,6 +3,7 @@ import typing
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import QuerySet
+from django.db.models.signals import post_save
 
 from lib.enum_choice import EnumChoice
 
@@ -35,7 +36,6 @@ class Account(models.Model):
 
     def __str__(self) -> str:
         return self.name if self.name else 'Account #{}'.format(self.pk)
-
 
 class Team(models.Model):
     account = models.ForeignKey(
@@ -116,3 +116,17 @@ class AccountUserRole(models.Model):
         on_delete=models.CASCADE,
         related_name='+'
     )
+
+
+def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
+    """
+    Called when a `User` is saved. Make sure each user has a personal `Account` that
+    they are an `Account admin` on so that their `Project`s can be linked to
+    an `Account`.
+    """
+    if sender is User and created:
+        account = Account.objects.create(name='{}\'s Personal Account'.format(instance.username))
+        admin_role = AccountRole.objects.get(name='Account admin')
+        AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
+
+post_save.connect(create_personal_account_for_user, sender=User)

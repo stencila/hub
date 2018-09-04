@@ -28,6 +28,7 @@
               </div>
               <div class="navbar-dropdown is-boxed">
                 <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>
+                <a class="navbar-item" href="{% url 'account_list' %}">Accounts</a>
                 {% if user.is_staff %}
                   <a class="navbar-item" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin site</a>
                 {% endif %}
