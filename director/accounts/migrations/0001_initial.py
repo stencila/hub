@@ -64,7 +64,7 @@ def create_account_for_users(apps, schema_editor):
         if account_user_role.count() != 0:
             continue
 
-        account = Account.objects.create(name='{} User Account'.format(user.username))
+        account = Account.objects.create(name='{}\'s Personal Account'.format(user.username))
 
         AccountUserRole.objects.create(role=admin_role, account=account, user=user)
         # set project ownership
