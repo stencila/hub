@@ -32,11 +32,11 @@ class Account(models.Model):
     can be billed if it exceeds the free allocation. Every user has their
     own Account.
     """
-    name = models.TextField(){
+    name = models.TextField(
         null=True,
         blank=True,
         help_text= 'The name of the account (required).'
-    }
+    )
 
     def get_administrators(self) -> typing.Iterable[User]:
         """
