@@ -2,16 +2,27 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import View, DetailView, TemplateView, UpdateView
+from django.views.generic import View, ListView, DetailView, TemplateView, UpdateView
 
 from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
 
 User = get_user_model()
 
 USER_ROLE_ID_PREFIX = 'user_role_id_'
+
+
+class AccountListView(LoginRequiredMixin, ListView):
+    template_name = "accounts/account_list.html"
+
+    def get_queryset(self) -> QuerySet:
+        """
+        Only list those accounts that the user is a member of
+        """
+        return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
 
 
 class AccountProfileView(LoginRequiredMixin, DetailView):

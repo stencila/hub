@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Account {{account.pk}} : Teams{% endblock %}
+{% block content %}
+    <div class="section">
+        {% for account_role in object_list %}
+        <div class="column">
+            <div class="card">
+                <div class="card-content">
+                    <a href="{% url 'account_profile' account_role.account.id %}" title="Open">
+                        <span>{{ account_role.account }}</span>
+                    </a>
+                    <span class="is-pulled-right">{{ account_role.role }}</span>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="column">
+            <div class="notification is-warning">You are not a member of any accounts</div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
