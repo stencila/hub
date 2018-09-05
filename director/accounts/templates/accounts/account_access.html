@@ -9,19 +9,6 @@
 {% endblock %}
 {% block content %}
     {% include "accounts/_account_nav.html" with account=account tab="members" %}
-    <template id="user-autocomplete-template">
-        <b-field>
-            <b-autocomplete
-                    v-model.lazy="nameSearch"
-                    :data="data"
-                    placeholder="Search users"
-                    icon="search"
-                    name="name"
-                    @select="option => selected = option">
-                <template slot="empty">No users found</template>
-            </b-autocomplete>
-        </b-field>
-    </template>
     <section id="account-access">
         <b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">
             <header class="modal-card-head">
@@ -105,47 +92,8 @@
             </div>
         </form>
     </section>
+    <script src="{% static "js/user-search.js" %}"></script>
     <script>
-        Vue.component('user-autocomplete', {
-            template: "#user-autocomplete-template",
-            delimiters: ['[[', ']]'],
-            data() {
-                return {
-                    data: [],
-                    nameSearch: '',
-                    selected: null,
-                    searchTimeout: null,
-                }
-            },
-            watch: {
-                nameSearch() {
-                    if (this.searchTimeout) {
-                        clearTimeout(this.searchTimeout)
-                    }
-
-                    if (this.nameSearch.length >= 3) {
-                        let query = this.nameSearch
-                        this.searchTimeout = setTimeout(() => {
-                            this.performSearch(query)
-                        }, 500)
-                    }
-                }
-            },
-            methods: {
-                performSearch(query) {
-                    fetch(`/api/v1/users/search?q=${query}`).then(response => {
-                        return response.json()
-                    }, (response) => {
-                        console.error(response)
-                    }).then(data => {
-                        this.data = data.map((item) => {
-                            return item.username
-                        })
-                    })
-                },
-            }
-        })
-
         new Vue({
             el: '#account-access',
             delimiters: ['[[', ']]'],

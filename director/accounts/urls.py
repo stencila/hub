@@ -1,9 +1,9 @@
 from django.urls import path
 
 from accounts.views import (
-    AccountListView, AccountProfileView, AccountAccessView, AccountSettingsView, TeamDetailView, TeamListView,
-    TeamMembersView
+    AccountListView, AccountProfileView, AccountAccessView, AccountSettingsView
 )
+from accounts.team_views import TeamDetailView, TeamListView, TeamMembersView
 
 urlpatterns = [
     path('', AccountListView.as_view(), name="account_list"),
