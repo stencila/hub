@@ -67,7 +67,6 @@ def create_account_for_users(apps, schema_editor):
         account = Account.objects.create(name='{}\'s Personal Account'.format(user.username))
 
         AccountUserRole.objects.create(role=admin_role, account=account, user=user)
-        # set project ownership
 
 
 class Migration(migrations.Migration):

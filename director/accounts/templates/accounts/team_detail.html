@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Team{% endblock %}
+{% block content %}
+    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_team_nav.html" with account=account team=team team_tab="metadata" %}
+    <form method="POST">
+        {% crispy form %}
+        {% if is_admin %}
+            <div class="field">
+                <div class="control">
+                    <input type="submit" class="button is-primary" value="Save">
+                </div>
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}

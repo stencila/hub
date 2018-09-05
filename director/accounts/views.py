@@ -4,11 +4,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import View, ListView, DetailView, TemplateView, UpdateView
+from django.views.generic import View, ListView, DetailView, UpdateView
 
-from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
+from accounts.db_facade import fetch_admin_account
+from accounts.models import Account, AccountUserRole, AccountRole
 
 User = get_user_model()
 
@@ -31,19 +32,8 @@ class AccountProfileView(LoginRequiredMixin, DetailView):
 
 
 class AccountAccessView(LoginRequiredMixin, View):
-    @staticmethod
-    def fetch_account(request: HttpRequest, pk: int) -> Account:
-        account = get_object_or_404(Account, pk=pk)
-
-        admin_roles = AccountRole.roles_with_permission(AccountPermissionType.ADMINISTER)
-
-        if AccountUserRole.objects.filter(user=request.user, account=account, role__in=admin_roles).count() == 0:
-            raise PermissionDenied
-
-        return account
-
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-        account = self.fetch_account(request, pk)
+        account = fetch_admin_account(request.user, pk)
 
         access_roles = AccountUserRole.objects.filter(account=account)
         all_roles = AccountRole.objects.all()
@@ -56,7 +46,7 @@ class AccountAccessView(LoginRequiredMixin, View):
         })
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
-        account = self.fetch_account(request, pk)
+        account = fetch_admin_account(request.user, pk)
 
         all_roles = AccountRole.objects.all()
 
@@ -64,17 +54,18 @@ class AccountAccessView(LoginRequiredMixin, View):
 
         if request.POST.get('action') == 'add_access':
             username = request.POST['name']
-            user = User.objects.get(username=username)
+            if username:
+                user = User.objects.get(username=username)
 
-            if user == request.user:
-                messages.error(request, "You can not alter your own access.")
-            else:
-                role = AccountRole.objects.get(pk=request.POST['role_id'])
+                if user == request.user:
+                    messages.error(request, "You can not alter your own access.")
+                else:
+                    role = AccountRole.objects.get(pk=request.POST['role_id'])
 
-                AccountUserRole.objects.update_or_create({
-                    'role': role
-                }, user=user, account=account)
-                messages.success(request, "Account access updated.")
+                    AccountUserRole.objects.update_or_create({
+                        'role': role
+                    }, user=user, account=account)
+                    messages.success(request, "Account access updated.")
         elif request.POST.get('action') == 'delete_access':
             account_user_role = AccountUserRole.objects.get(pk=request.POST['user_role_id'])
             if account_user_role.account != account:

@@ -76,7 +76,8 @@ class Team(models.Model):
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
-        help_text = 'Account to which the Team is linked to. Each Team can be linked to only one account.'
+        help_text = 'Account to which the Team is linked to. Each Team can be linked to only one account.',
+        related_name='teams'
     )
 
     name = models.TextField(

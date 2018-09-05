@@ -1,5 +1,19 @@
 {% extends 'base.html' %}
 {% block title %}Account {{account.pk}} : Teams{% endblock %}
 {% block content %}
-	{% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    <table class="table is-fullwidth">
+        <thead>
+            <tr>
+                <th>Team</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+                <tr>
+                    <td><a href="{% url "account_team_detail" account.id team.id %}">{{ team.name }}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
