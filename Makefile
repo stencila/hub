@@ -48,9 +48,10 @@ DJ ?= $(VE) $(EV) python3 director/manage.py
 
 
 # Setup virtual environment
-director/venv: director/requirements.txt
+director/venv: director/requirements-dev.txt director/requirements.txt
 	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
+	$(VE) pip3 install -r director/requirements-dev.txt
 	touch director/venv
 director-venv: director/venv
 
@@ -173,3 +174,10 @@ secrets-decrypt:
 	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
 	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
 	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
+
+
+	####################################################################################
+	# UML diagrams
+
+director-models: director/venv
+	$(DJ) graph_models -a -o models.png
