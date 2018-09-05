@@ -42,6 +42,9 @@ class ProjectPermission(models.Model):
     def as_enum(self) -> ProjectPermissionType:
         return ProjectPermissionType(self.type)
 
+    def __str__(self):
+        return self.type
+
 
 class ProjectRole(models.Model):
     name = models.TextField(null=False, unique=True)
@@ -53,6 +56,8 @@ class ProjectRole(models.Model):
     def permissions_types(self) -> typing.Set[ProjectPermissionType]:
         return set(map(lambda p: ProjectPermissionType(p.type), self.permissions_text()))
 
+    def __str__(self):
+        return self.name
 
 class UserProjectRole(models.Model):
     user = models.ForeignKey(
