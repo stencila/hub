@@ -35,10 +35,10 @@
                 </div>
                 <div class="columns">
                     <div class="column">
-                        <user-autocomplete></user-autocomplete>
+                        <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
                     </div>
                     <div class="column">
-                        <button class="button is-success" name="action" value="add_member" type="submit">Add</button>
+                        <button class="button is-success" name="action" value="add_member" type="submit" :disabled="selectedUsername == ''">Add</button>
                     </div>
                 </div>
             </form>
@@ -58,7 +58,7 @@
                         {% if is_admin %}
                             <button class="button is-danger"
                                     @click.prevent="showDeleteModal('{{ member.username }}')">
-                                Remove&hellip;
+                                Remove From Team&hellip;
                             </button>
                         {% endif %}
                     </td>
@@ -79,7 +79,8 @@
                 delimiters: ['[[', ']]'],
                 data: {
                     deleteModalVisible: false,
-                    removeUserName: null
+                    removeUserName: null,
+                    selectedUsername: ""
                 },
                 methods: {
                     showDeleteModal(username) {
@@ -89,6 +90,9 @@
                     hideDeleteModal() {
                         this.deleteModalVisible = false
                         this.removeUserName = null
+                    },
+                        usernameSelected(username) {
+                        this.selectedUsername = username
                     }
                 }
             })

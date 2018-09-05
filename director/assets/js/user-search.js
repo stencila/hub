@@ -6,8 +6,9 @@ Vue.component('user-autocomplete', {
         '                    placeholder="Search for a user..."\n' +
         '                    icon="search"\n' +
         '                    name="name"\n' +
-        '                    @select="option => selected = option">\n' +
-        '                <template slot="empty">No user found</template>\n' +
+        '                    @select="usernameSelected()"\n' +
+        '                    @input="usernameSelected()">\n' +
+        '                <template slot="empty">[[ noResultsMessage ]]</template>\n' +
         '            </b-autocomplete>\n' +
         '        </b-field>',
     delimiters: ['[[', ']]'],
@@ -17,6 +18,7 @@ Vue.component('user-autocomplete', {
             nameSearch: '',
             selected: null,
             searchTimeout: null,
+            noResultsMessage: "No results found"
         }
     },
     watch: {
@@ -26,10 +28,13 @@ Vue.component('user-autocomplete', {
             }
 
             if (this.nameSearch.length >= 3) {
+                this.noResultsMessage = "No results found"
                 let query = this.nameSearch
                 this.searchTimeout = setTimeout(() => {
                     this.performSearch(query)
                 }, 500)
+            } else {
+                this.noResultsMessage = "Please type at least 3 characters."
             }
         }
     },
@@ -45,5 +50,10 @@ Vue.component('user-autocomplete', {
                 })
             })
         },
+        usernameSelected(username) {
+            if (typeof username === "undefined")
+                username = this.nameSearch
+            this.$emit('username-selected', username)
+        }
     }
 })
