@@ -74,7 +74,7 @@ class SessionParameters(models.Model):
 
     name = models.TextField(
         null=True,
-        blank=True
+        blank=True,
         help_text='Names for the set of session parameters (optional). This can be used if you want to save a pre-set Session Parameters'
     )
 
