@@ -1,5 +1,16 @@
 """
-
+Permission models implementing permission which a user can have in a project.
+viev --  Can read, but not change, the content of project documents.
+         Can update ‘variables’ in the document e.g. input boxes, range sliders and see the resulting updates.
+         This is the permission for a public project for an unauthenticated (aka anonymous) user.
+comment -- Can add a comment to project documents.
+           This is the permission for a public project for an authenticated user (i.e. a user needs to be logged in to leave a comment on a public project).
+suggest -- Can suggest changes to project documents (all content including code).
+edit -- Can change the content of project documents.
+manage -- Can add/remove collaborators and change their permissions for a project.
+          But can not give any collaborators the ‘owner’ permission.
+own -- Can delete the project.
+      Can give the ‘owner’ permission to a collaborator on the project.
 """
 
 import typing
