@@ -7,7 +7,7 @@
 
     <section id="member-access">
         {% if is_admin %}
-            <b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">
+            <b-modal v-cloak :active.sync="deleteModalVisible" :width="640" scroll="keep">
                 <header class="modal-card-head">
                     <p class="modal-card-title">Remove this user?</p>
                 </header>
