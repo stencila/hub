@@ -48,7 +48,7 @@ DJ ?= $(VE) $(EV) python3 director/manage.py
 
 
 # Setup virtual environment
-director/venv: director/requirements-dev.txt
+director/venv: director/requirements-dev.txt director/requirements.txt
 	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
 	$(VE) pip3 install -r director/requirements-dev.txt
