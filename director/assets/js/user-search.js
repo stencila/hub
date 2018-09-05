@@ -3,11 +3,11 @@ Vue.component('user-autocomplete', {
         '            <b-autocomplete\n' +
         '                    v-model.lazy="nameSearch"\n' +
         '                    :data="data"\n' +
-        '                    placeholder="Begin typing name"\n' +
-        '                    icon="magnify"\n' +
+        '                    placeholder="Search for a user..."\n' +
+        '                    icon="search"\n' +
         '                    name="name"\n' +
         '                    @select="option => selected = option">\n' +
-        '                <template slot="empty">No results found</template>\n' +
+        '                <template slot="empty">No user found</template>\n' +
         '            </b-autocomplete>\n' +
         '        </b-field>',
     delimiters: ['[[', ']]'],
