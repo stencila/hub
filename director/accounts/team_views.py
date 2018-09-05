@@ -90,15 +90,17 @@ class TeamMembersView(LoginRequiredMixin, View):
 
         if action in ('add_member', 'remove_member'):
             username = request.POST['name']
-            user = User.objects.get(username=username)
 
-            if action == 'add_member':
-                if user not in team.members.all():
-                    team.members.add(user)
-                    messages.success(request, "{} was added to team {}.".format(user.username, team))
-            elif action == 'remove_member':
-                if user in team.members.all():
-                    team.members.remove(user)
-                    messages.success(request, "{} was removed from team {}.".format(user.username, team))
+            if username:
+                user = User.objects.get(username=username)
+
+                if action == 'add_member':
+                    if user not in team.members.all():
+                        team.members.add(user)
+                        messages.success(request, "{} was added to team {}.".format(user.username, team))
+                elif action == 'remove_member':
+                    if user in team.members.all():
+                        team.members.remove(user)
+                        messages.success(request, "{} was removed from team {}.".format(user.username, team))
 
         return redirect(reverse('account_team_members', args=(account_pk, team_pk)))

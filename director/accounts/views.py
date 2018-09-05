@@ -54,17 +54,18 @@ class AccountAccessView(LoginRequiredMixin, View):
 
         if request.POST.get('action') == 'add_access':
             username = request.POST['name']
-            user = User.objects.get(username=username)
+            if username:
+                user = User.objects.get(username=username)
 
-            if user == request.user:
-                messages.error(request, "You can not alter your own access.")
-            else:
-                role = AccountRole.objects.get(pk=request.POST['role_id'])
+                if user == request.user:
+                    messages.error(request, "You can not alter your own access.")
+                else:
+                    role = AccountRole.objects.get(pk=request.POST['role_id'])
 
-                AccountUserRole.objects.update_or_create({
-                    'role': role
-                }, user=user, account=account)
-                messages.success(request, "Account access updated.")
+                    AccountUserRole.objects.update_or_create({
+                        'role': role
+                    }, user=user, account=account)
+                    messages.success(request, "Account access updated.")
         elif request.POST.get('action') == 'delete_access':
             account_user_role = AccountUserRole.objects.get(pk=request.POST['user_role_id'])
             if account_user_role.account != account:

@@ -15,7 +15,7 @@
                 <p class="modal-card-title">Delete this access?</p>
             </header>
             <section class="modal-card-body">
-                Are you sure you want to remove access to this account for user [[ deleteRoleUsername ]]?
+                Are you sure you want to remove access to this account for user <em>[[ deleteRoleUsername ]]</em>?
             </section>
             <footer class="modal-card-foot">
                 <form class="form" method="POST">
@@ -33,7 +33,7 @@
                 {% csrf_token %}
                 <div class="columns">
                     <div class="column">
-                        <user-autocomplete></user-autocomplete>
+                        <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
                     </div>
                     <div class="column">
                         <div class="field">
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="column">
-                        <button class="button is-success" name="action" value="add_access" type="submit">Add</button>
+                        <button class="button is-success" name="action" value="add_access" type="submit" :disabled="selectedUsername==''">Add</button>
                     </div>
                 </div>
             </form>
@@ -100,9 +100,13 @@
             data: {
                 deleteModalVisible: false,
                 deleteRoleId: null,
-                deleteRoleUsername: null
+                deleteRoleUsername: null,
+                selectedUsername: ""
             },
             methods: {
+                usernameSelected(username) {
+                    this.selectedUsername = username
+                },
                 showDeleteModal(roleId, roleUsername) {
                     this.deleteModalVisible = true
                     this.deleteRoleId = roleId
