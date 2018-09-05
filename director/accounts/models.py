@@ -120,6 +120,11 @@ class AccountRole(models.Model):
     """
     Roles linked to the Account, depending on their `AccountPermissionType`.
     """
+    name = models.TextField(
+       null = False,
+       blank = False,
+       help_text = 'Roles which users can have assigned to the Account: Admin and Member (required).'
+    )
 
     permissions = models.ManyToManyField(
         AccountPermission,
