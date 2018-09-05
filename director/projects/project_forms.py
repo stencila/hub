@@ -36,7 +36,7 @@ class ProjectGeneralForm(ModelFormWithSubmit):
         }
 
 
-class ProjectSharingForm(ModelFormWithSubmit):
+class ProjectSharingForm(forms.ModelForm):
 
     class Meta:
         model = Project
@@ -80,7 +80,7 @@ class ProjectSettingsMetadataForm(ModelFormWithSubmit):
         }
 
 
-class ProjectSettingsAccessForm(ModelFormWithSubmit):
+class ProjectSettingsAccessForm(forms.ModelForm):
 
     class Meta:
         model = Project
