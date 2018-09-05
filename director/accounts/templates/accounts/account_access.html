@@ -14,11 +14,11 @@
             <b-autocomplete
                     v-model.lazy="nameSearch"
                     :data="data"
-                    placeholder="Begin typing name"
-                    icon="magnify"
+                    placeholder="Search users"
+                    icon="search"
                     name="name"
                     @select="option => selected = option">
-                <template slot="empty">No results found</template>
+                <template slot="empty">No users found</template>
             </b-autocomplete>
         </b-field>
     </template>
@@ -41,19 +41,9 @@
                 </form>
             </footer>
         </b-modal>
-        <div class="box">
-            <h4 class="subtitle is-4">Add User Access</h4>
+        <div class="section">
             <form method="POST">
                 {% csrf_token %}
-                <div class="columns is-marginless">
-                    <div class="column">
-                        <label class="label">Search Username</label>
-                    </div>
-                    <div class="column">
-                        <label class="label">Role</label>
-                    </div>
-                    <div class="column"></div>
-                </div>
                 <div class="columns">
                     <div class="column">
                         <user-autocomplete></user-autocomplete>
@@ -79,47 +69,43 @@
         </div>
         <form method="POST">
             {% csrf_token %}
-            <div class="box">
-                <table class="table table-bordered is-fullwidth">
-                    <thead>
+            <table class="table table-bordered is-fullwidth">
+                <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Access</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for access_role in access_roles %}
                     <tr>
-                        <th>User</th>
-                        <th>Access</th>
-                        <th>Actions</th>
+                        <td>{{ access_role.user.username }}</td>
+                        <td>
+                            {% include "accounts/_role_select.html" with user_role=access_role.role %}
+                        </td>
+                        <td>
+                            {% if access_role.user != request.user %}
+                                <button class="button is-danger"
+                                        @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
+                                    Delete&hellip;
+                                </button>
+                            {% endif %}
+                        </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for access_role in access_roles %}
-                        <tr>
-                            <td>{{ access_role.user.username }}</td>
-                            <td>
-                                {% include "accounts/_role_select.html" with user_role=access_role.role %}
-                            </td>
-                            <td>
-                                {% if access_role.user != request.user %}
-                                    <button class="button is-danger"
-                                            @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
-                                        Delete&hellip;
-                                    </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">No one has access to this account. You should not be seeing this.</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div class="has-text-right">
-                    <button class="button is-success" type="submit">Save Access</button>
-                </div>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No one has access to this account. You should not be seeing this.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="has-text-right">
+                <button class="button is-success" type="submit">Save</button>
             </div>
         </form>
     </section>
     <script>
-        Vue.use(Buefy.default)
-
         Vue.component('user-autocomplete', {
             template: "#user-autocomplete-template",
             delimiters: ['[[', ']]'],
