@@ -1,12 +1,14 @@
-<div class="section">
-  <div class="media">
-    <div class="media-left">
-      <figure class="image is-48x48">
-        <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+<div class="level">
+  <div class="level-left">
+    {% if account.logo %}
+    <div class="level-item">
+      <figure class="image is-96x96">
+        <img src="{{ MEDIA_URL }}{{ account.logo.url }}">
       </figure>
     </div>
-    <div class="media-content">
-      <p class="title is-4">{{ account.name }}</p>
+    {% endif %}
+    <div class="level-item">
+      <p class="title is-2">{{ account.name }}</p>
     </div>
   </div>
 </div>
