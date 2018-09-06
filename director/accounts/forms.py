@@ -9,12 +9,13 @@ class AccountSettingsForm(forms.ModelForm):
     helper = FormHelper()
     helper.layout = Layout(
         'name',
+        'logo',
         Submit('submit', 'Update', css_class="button is-primary")
     )
 
     class Meta:
         model = Account
-        fields = ('name',)
+        fields = ('name', 'logo')
         widgets = {
             'name': forms.TextInput
         }

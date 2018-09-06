@@ -169,6 +169,7 @@ class Common(Configuration):
     # https://docs.djangoproject.com/en/2.0/topics/files/
 
     MEDIA_ROOT = os.path.join(BASE_DIR, 'storage')
+    MEDIA_URL = '/media/'
 
     # Logging
     LOGGING = {

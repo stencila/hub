@@ -28,7 +28,6 @@ class AccountPermissionType(EnumChoice):
     ADMINISTER = 'administer'
 
 
-
 class Account(models.Model):
     """
     `Accounts` are the entity against which resource usage is metered, and
@@ -41,7 +40,13 @@ class Account(models.Model):
     name = models.TextField(
         null=True,
         blank=True,
-        help_text= 'The name of the account (required).'
+        help_text='The name of the account (required).'
+    )
+
+    logo = models.ImageField(
+        null=True,
+        blank=True,
+        help_text='A logo for the acccount'
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
@@ -67,6 +72,7 @@ class Account(models.Model):
 
     def __str__(self) -> str:
         return self.name if self.name else 'Account #{}'.format(self.pk)
+
 
 class Team(models.Model):
     """

@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+from django.conf.urls.static import static
+
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
 
@@ -64,5 +66,5 @@ if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns = [
-                      path('debug/', include(debug_toolbar.urls)),
-                  ] + urlpatterns
+        path('debug/', include(debug_toolbar.urls)),
+    ] + urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
