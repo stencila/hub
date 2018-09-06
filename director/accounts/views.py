@@ -30,15 +30,24 @@ class AccountListView(LoginRequiredMixin, ListView):
 class AccountProfileView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
         account = get_object_or_404(Account, pk=pk)
+        # The role that the request user has for the account (could be None)
+        # TODO: get the request user's role for the account
+        user_role = 'admin'
+
         projects = account.projects.all()
-        users = [userrole.user for userrole in account.user_roles.all()]
-        is_member = True
+
+        if user_role == 'member' or user_role == 'admin':
+            # Members get to see who is on account
+            users = [userrole.user for userrole in account.user_roles.all()]
+        else:
+            # Non-members don't get to see who is on account
+            users = []
 
         return render(request, 'accounts/account_profile.html', {
             'account': account,
+            'user_role': user_role,
             'projects': projects,
-            'users': users,
-            'is_member': is_member
+            'users': users
         })
 
 
