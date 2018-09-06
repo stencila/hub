@@ -28,3 +28,12 @@ class Error404View(TemplateView):
 
 class Error500View(TemplateView):
     template_name = 'error500.html'
+
+#TODO Make sure this is only available for logged in staff/admin
+class Test500View(View):
+    """
+
+    """
+    #TODO add constructor with the message that this is just a test
+    def get(self, request):
+        raise RuntimeError()

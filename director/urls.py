@@ -2,19 +2,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
+from django.views.defaults import page_not_found, server_error
+from django.template.response import TemplateResponse
 
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
-
-from views import HomeView, Error404View, Error500View
-
-from users.views import (
-    UserSettingsView,
-    UserSignupView,
-    UserSigninView,
-    UserSignoutView,
-    BetaTokenView)
-
 from checkouts.views import (
     CheckoutListView,
     CheckoutCreateView,
@@ -22,8 +14,26 @@ from checkouts.views import (
     CheckoutOpenView,
     CheckoutSaveView,
     CheckoutCloseView)
-
 import projects.urls
+from users.views import (
+    UserSettingsView,
+    UserSignupView,
+    UserSigninView,
+    UserSignoutView,
+    BetaTokenView)
+from views import HomeView, Error404View, Error500View, Test500View
+
+
+
+def handler500(request):
+    """500 error handler which includes ``request`` in the context.
+
+    Templates: `template500.html`
+    Context: None
+    """
+    context = {'request': request}
+    template_name = 'template500.html'
+    return TemplateResponse(request, template_name, context, status=500)
 
 
 
@@ -62,7 +72,10 @@ urlpatterns = [
     path('accounts/', include(accounts_patterns)),
 
     # API
-    path('api/', include(api_patterns))
+    path('api/', include(api_patterns)),
+
+    #Testing Errors
+    path('test/500', Test500View.as_view())
 ]
 
 

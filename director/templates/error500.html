@@ -13,6 +13,10 @@
         </header>
         <section class="modal-card-body">
             <p>...something has gone wrong on the website's server.</p>
+            {% if request.sentry.id %}
+                <p>If you need assistance, you may reference this error as
+                <strong>{{ request.sentry.id }}</strong>.</p>
+            {% endif %}
         </section>
         <footer class="modal-card-foot">
             <form method="post">
