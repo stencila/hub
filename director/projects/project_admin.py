@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Project, ProjectPermission, ProjectRole, UserProjectRole
+from .models import Project, ProjectPermission, ProjectRole, ProjectAgentRole
 
 
 @admin.register(Project)
@@ -31,8 +31,8 @@ class ProjectPermissionAdmin(admin.ModelAdmin):
 class ProjectRoleAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(UserProjectRole)
-class UserProjectRoleAdmin(admin.ModelAdmin):
+@admin.register(ProjectAgentRole)
+class ProjectAgentRoleAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'project', 'user', 'role'
     ]

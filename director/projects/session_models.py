@@ -1,3 +1,13 @@
+"""
+Models implementing Stencila Hub Sessions.
+
+Whenever a user is accessing a project and running the code in the interactive cells, Stencila Hub creates a Session which connects
+to a Stencila Cloud instance which provides the environment for running the code. Each Session has parameters related to computational
+resources.
+
+Each Project can have a number of Sessions related to it. These Sessions are grouped in a Session Group.
+"""
+
 import enum
 
 from django.db import models
@@ -30,12 +40,12 @@ class Session(models.Model):
 
     started = models.DateTimeField(
         null=True,
-        help_text='DateTime this Session was started'
+        help_text='DateTime this Session was started.'
     )
 
     stopped = models.DateTimeField(
         null=True,
-        help_text='DateTime this Session was stopped (or that we detected it had stopped)'
+        help_text='DateTime this Session was stopped (or that we detected it had stopped).'
     )
 
     last_check = models.DateTimeField(
@@ -64,7 +74,8 @@ class SessionParameters(models.Model):
 
     name = models.TextField(
         null=True,
-        blank=True
+        blank=True,
+        help_text='Names for the set of session parameters (optional). This can be used if you want to save a pre-set Session Parameters'
     )
 
     description = models.TextField(

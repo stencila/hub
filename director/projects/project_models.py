@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from polymorphic.models import PolymorphicModel
 
 from accounts.models import Account
-from .permission_models import ProjectPermission, ProjectRole, UserProjectRole
+from .permission_models import ProjectPermission, ProjectRole, ProjectAgentRole
 from .session_models import *
 
 TOKEN_HASH_FUNCTION = hashlib.sha256

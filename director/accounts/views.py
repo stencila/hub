@@ -35,6 +35,8 @@ class AccountProfileView(LoginRequiredMixin, View):
         user_role = 'admin'
 
         projects = account.projects.all()
+        teams = account.teams.all()
+
 
         if user_role == 'member' or user_role == 'admin':
             # Members get to see who is on account
@@ -47,7 +49,8 @@ class AccountProfileView(LoginRequiredMixin, View):
             'account': account,
             'user_role': user_role,
             'projects': projects,
-            'users': users
+            'users': users,
+            'teams': teams
         })
 
 

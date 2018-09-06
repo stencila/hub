@@ -1,8 +1,10 @@
 import typing
+from operator import attrgetter
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,9 +13,13 @@ from django.views import View
 
 from accounts.db_facade import fetch_admin_account, fetch_team_for_account, fetch_member_account
 from accounts.forms import TeamForm
-from accounts.models import Account, AccountUserRole
+from accounts.models import Account, AccountUserRole, Team
+from projects.permission_models import ProjectRole, ProjectAgentRole
+from projects.project_models import Project
 
 User = get_user_model()
+
+AGENT_ROLE_ID_PREFIX = 'agent_role_id_'
 
 
 class TeamDetailView(LoginRequiredMixin, View):
@@ -83,7 +89,6 @@ class TeamMembersView(LoginRequiredMixin, View):
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
         account = fetch_admin_account(request.user, account_pk)
-
         team = fetch_team_for_account(account, team_pk)
 
         action = request.POST.get('action')
@@ -104,3 +109,66 @@ class TeamMembersView(LoginRequiredMixin, View):
                         messages.success(request, "{} was removed from team {}.".format(user.username, team))
 
         return redirect(reverse('account_team_members', args=(account_pk, team_pk)))
+
+
+class TeamProjectsView(LoginRequiredMixin, View):
+    def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
+        account_result = fetch_member_account(request.user, account_pk)
+        team = fetch_team_for_account(account_result.account, team_pk)
+        project_roles = ProjectRole.objects.all()
+        all_projects = account_result.account.projects.all()
+        existing_project_roles = ProjectAgentRole.objects.filter(project__in=all_projects, agent_id=team.pk,
+                                                                 content_type=ContentType.objects.get_for_model(Team))
+        assigned_projects = list(map(attrgetter('project'), existing_project_roles))
+
+        unassigned_projects = filter(lambda p: p not in assigned_projects, all_projects)
+        # this filtering can't be done by the ORM due to using GenericForeignKey
+        # Shouldn't be dealing with millions of projects per account so should be OK
+
+        return render(request, "accounts/team_projects.html", {
+            "account": account_result.account,
+            "team": team,
+            "existing_project_roles": existing_project_roles,
+            "unassigned_projects": unassigned_projects,
+            "is_admin": account_result.is_admin,
+            "project_roles": project_roles,
+            "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
+        })
+
+    def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
+        account = fetch_admin_account(request.user, account_pk)
+        team = fetch_team_for_account(account, team_pk)
+
+        all_roles = ProjectRole.objects.all()
+
+        role_lookup = {role.pk: role for role in all_roles}
+
+        if request.POST.get('action') == 'add_project':
+            role = role_lookup[int(request.POST['role_id'])]
+            project = Project.objects.get(pk=request.POST['project_id'])
+            ProjectAgentRole.objects.update_or_create({
+                'role': role
+            }, agent_id=team.pk, content_type=ContentType.objects.get_for_model(Team), project=project)
+            messages.success(request, "Project access to {} for {} was saved.".format(project.name, team.name))
+        elif request.POST.get('action') == 'remove_project':
+            project_agent_role = ProjectAgentRole.objects.get(pk=request.POST['agent_role_id'])
+            project = project_agent_role.project
+            project_agent_role.delete()
+            messages.success(request, "Project access to {} for {} was removed.".format(project.name, team.name))
+        else:
+            for post_key, value in request.POST.items():
+                if post_key.startswith(AGENT_ROLE_ID_PREFIX):
+                    project_agent_role_id = post_key[len(AGENT_ROLE_ID_PREFIX):]
+                    project_agent_role = ProjectAgentRole.objects.get(pk=project_agent_role_id)
+
+                    if project_agent_role.team != team or project_agent_role.project.account != account:
+                        raise PermissionDenied
+
+                    new_role = role_lookup[int(value)]
+
+                    if new_role != project_agent_role.role:
+                        project_agent_role.role = new_role
+                        project_agent_role.save()
+                        messages.success(request, "Role updated for project {}".format(project_agent_role.project.name))
+
+        return redirect(reverse("account_team_projects", args=(account.pk, team.pk)))

@@ -7,24 +7,17 @@
 
     <section id="member-access">
         {% if is_admin %}
-            <b-modal v-cloak :active.sync="deleteModalVisible" :width="640" scroll="keep">
-                <header class="modal-card-head">
-                    <p class="modal-card-title">Remove this user?</p>
-                </header>
-                <section class="modal-card-body">
-                    Are you sure you want to remove <em>[[ removeUserName ]]</em> from <em>{{ team.name }}</em>?
-                </section>
-                <footer class="modal-card-foot">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="name" value="" v-model="removeUserName">
-                        <button class="button is-danger" type="submit" name="action" value="remove_member">
-                            Remove
-                        </button>
-                    </form>
-                    <a class="button" href="#" @click.prevent="hideDeleteModal()">Cancel</a>
-                </footer>
-            </b-modal>
+            <delete-confirm-modal
+                    :delete-modal-visible="deleteModalVisible"
+                    delete-action="remove_member"
+                    delete-id-name="name"
+                    :delete-id-value="removeUserName"
+                    delete-button-label="Remove"
+                    @modal-hide="hideDeleteModal()">
+                <template slot="title">Remove this user?</template>
+                <template slot="csrf_token">{% csrf_token %}</template>
+                <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from <em>{{ team.name }}</em>?</template>
+            </delete-confirm-modal>
             <form method="post">
                 {% csrf_token %}
                 <div class="columns is-marginless">
@@ -73,6 +66,7 @@
     </section>
     {% if is_admin %}
         <script src="{% static "js/user-search.js" %}"></script>
+        <script src="{% static "js/delete-confirm-modal.js" %}"></script>
         <script>
             new Vue({
                 el: '#member-access',
@@ -91,7 +85,7 @@
                         this.deleteModalVisible = false
                         this.removeUserName = null
                     },
-                        usernameSelected(username) {
+                    usernameSelected(username) {
                         this.selectedUsername = username
                     }
                 }
