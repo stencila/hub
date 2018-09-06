@@ -1,6 +1,7 @@
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import View
+from django.views.generic import View, TemplateView
+from django.http import Http404
 
 
 class HomeView(View):
@@ -21,3 +22,9 @@ class HomeView(View):
             if token:
                 url += '?token={}'.format(token)
             return redirect(url)
+
+class Error404View(TemplateView):
+    template_name = 'error404.html'
+
+class Error500View(TemplateView):
+    template_name = 'error500.html'

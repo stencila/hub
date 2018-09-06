@@ -6,6 +6,8 @@ from django.conf.urls.static import static
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
 
+from views import HomeView, Error404View, Error500View
+
 from users.views import (
     UserSettingsView,
     UserSignupView,
@@ -23,7 +25,7 @@ from checkouts.views import (
 
 import projects.urls
 
-from views import HomeView
+
 
 urlpatterns = [
     # Project CRUD
@@ -62,6 +64,11 @@ urlpatterns = [
     # API
     path('api/', include(api_patterns))
 ]
+
+
+handler404 = Error404View.as_view()
+handler500 = Error500View.as_view()
+
 
 if settings.DEBUG:
     import debug_toolbar
