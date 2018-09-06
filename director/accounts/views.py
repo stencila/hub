@@ -10,6 +10,7 @@ from django.views.generic import View, ListView, DetailView, UpdateView
 
 from accounts.db_facade import fetch_admin_account
 from accounts.models import Account, AccountUserRole, AccountRole
+from accounts.forms import AccountSettingsForm
 
 User = get_user_model()
 
@@ -106,5 +107,8 @@ class AccountTeamsView(LoginRequiredMixin, DetailView):
 
 class AccountSettingsView(LoginRequiredMixin, UpdateView):
     model = Account
-    fields = ['name']
+    form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
+
+    def get_success_url(self) -> str:
+        return reverse("account_profile", kwargs={'pk': self.object.pk})

@@ -3,8 +3,8 @@ Vue.component('user-autocomplete', {
         '            <b-autocomplete\n' +
         '                    v-model.lazy="nameSearch"\n' +
         '                    :data="data"\n' +
-        '                    placeholder="Begin typing name"\n' +
-        '                    icon="magnify"\n' +
+        '                    placeholder="Search for a user..."\n' +
+        '                    icon="search"\n' +
         '                    name="name"\n' +
         '                    @select="usernameSelected()"\n' +
         '                    @input="usernameSelected()">\n' +

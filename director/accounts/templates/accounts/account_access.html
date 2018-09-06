@@ -10,7 +10,7 @@
 {% block content %}
     {% include "accounts/_account_nav.html" with account=account tab="members" %}
     <section id="account-access">
-        <b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">
+        <b-modal v-cloak :active.sync="deleteModalVisible" :width="640" scroll="keep">
             <header class="modal-card-head">
                 <p class="modal-card-title">Delete this access?</p>
             </header>
