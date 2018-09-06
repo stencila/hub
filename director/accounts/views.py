@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import View, ListView, DetailView, UpdateView
 
@@ -27,9 +27,19 @@ class AccountListView(LoginRequiredMixin, ListView):
         return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
 
 
-class AccountProfileView(LoginRequiredMixin, DetailView):
-    model = Account
-    template_name = 'accounts/account_profile.html'
+class AccountProfileView(LoginRequiredMixin, View):
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+        account = get_object_or_404(Account, pk=pk)
+        projects = account.projects.all()
+        users = [userrole.user for userrole in account.user_roles.all()]
+        is_member = True
+
+        return render(request, 'accounts/account_profile.html', {
+            'account': account,
+            'projects': projects,
+            'users': users,
+            'is_member': is_member
+        })
 
 
 class AccountAccessView(LoginRequiredMixin, View):
