@@ -23,7 +23,7 @@ from checkouts.views import (
 
 import projects.urls
 
-from views import HomeView, Error403View
+from views import HomeView, Error403View,
 
 urlpatterns = [
     # Project CRUD
