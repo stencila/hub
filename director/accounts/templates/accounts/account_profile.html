@@ -3,7 +3,7 @@
 {% block content %}
   {% include "accounts/_account_nav.html" with account=account tab="profile" %}
   <div class="columns">
-    <div class="column">
+    <div class="column is-two-thirds">
       <h1 class="title">Projects</h1>
       {% for project in projects %}
         <div class="card">
@@ -32,8 +32,11 @@
         </div>
       {% endfor %}
     </div>
+
     {% if users %}
-      <div class="column is-one-third">
+    <div class="rows">
+    <div class="row">
+      <div class="column">
         <h1 class="title">Users</h1>
         {% for user in users %}
           <div class="card">
@@ -49,12 +52,39 @@
                 </div>
               </div>
               <div class="content">
-                
+
               </div>
             </div>
           </div>
         {% endfor %}
       </div>
+    </div>
+
+    <div class="row">
+      <div class="column">
+        <h1 class="title">Teams</h1>
+        {% for team in teams %}
+          <div class="card">
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-48x48">
+                    <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <p class="title is-4">{{ team.name }}</p>
+                </div>
+              </div>
+              <div class="content">
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
     {% endif %}
   </div>
 {% endblock %}
