@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
+from views import HomeView, Error403View
 
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
@@ -23,7 +24,7 @@ from checkouts.views import (
 
 import projects.urls
 
-from views import HomeView
+
 
 urlpatterns = [
     # Project CRUD
@@ -62,6 +63,8 @@ urlpatterns = [
     # API
     path('api/', include(api_patterns))
 ]
+
+handler403 = Error403View.as_view()
 
 if settings.DEBUG:
     import debug_toolbar
