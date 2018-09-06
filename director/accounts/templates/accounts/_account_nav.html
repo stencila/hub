@@ -1,7 +1,19 @@
-<h4 class="title is-4">{{ account.name }}</h4>
+<div class="section">
+  <div class="media">
+    <div class="media-left">
+      <figure class="image is-48x48">
+        <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+      </figure>
+    </div>
+    <div class="media-content">
+      <p class="title is-4">{{ account.name }}</p>
+    </div>
+  </div>
+</div>
+
+{% if True %} {# Should be... user_role == 'admin' #}
 <div class="tabs is-toggle is-fullwidth">
   <ul>
-
     {% if tab == "profile" %}
     <li class="is-active">
       <a>
@@ -46,3 +58,4 @@
     </li>
   </ul>
 </div>
+{% endif %}
