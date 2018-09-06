@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Account {{account.pk}}{% endblock %}
 {% block content %}
-{% include "accounts/_account_nav.html" with account=account tab="profile" %}
+{% include "accounts/_account_header.html" with account=account tab="profile" %}
 
 
 <div class="columns" >

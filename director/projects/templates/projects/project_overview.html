@@ -3,11 +3,11 @@
 {% block title %}Project {{project.pk}} : Overview{% endblock %}
 
 {% block content %}
-	{% include "projects/_project_tabs.html" with project=project tab="overview" %}
+	{% include "projects/_project_header.html" with project=project tab="overview" %}
     <div class="section">
         <div class="columns">
             <div class="column is-9">
-                
+
                 {% if project.description %}
                     <p>{{ project.description }}</p>
                 {% else %}

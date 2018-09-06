@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
 {% endblock %}
 {% block content %}
-    {% include "accounts/_account_nav.html" with account=account tab="members" %}
+    {% include "accounts/_account_header.html" with account=account tab="members" %}
     <section id="account-access">
         <delete-confirm-modal
                 :delete-modal-visible="deleteModalVisible"

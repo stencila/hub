@@ -4,7 +4,7 @@
 {% block title %}Project {{ project.pk }} : Settings : Metadata{% endblock %}
 
 {% block content %}
-	{% include "projects/_project_tabs.html" with project=project tab="settings" %}
+	{% include "projects/_project_header.html" with project=project tab="settings" %}
 	{% include "projects/_project_settings_tabs.html" with project=project tab="metadata" %}
     {% crispy form %}
 {% endblock %}

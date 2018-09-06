@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Team {{ team.id }} : Members {% endblock %}
 {% block content %}
-    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_account_header.html" with account=account tab="teams" %}
     {% include "accounts/_team_nav.html" with account=account team=team team_tab="members" %}
 
     <section id="member-access">

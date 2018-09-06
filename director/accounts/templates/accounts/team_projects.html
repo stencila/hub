@@ -2,7 +2,7 @@
 {% load static escape_extras %}
 {% block title %}{{ team }} : Projects {% endblock %}
 {% block content %}
-    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    {% include "accounts/_account_header.html" with account=account tab="teams" %}
     {% include "accounts/_team_nav.html" with account=account team=team team_tab="projects" %}
     <section id="team-projects">
         {% if is_admin %}

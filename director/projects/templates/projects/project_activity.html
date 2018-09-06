@@ -4,6 +4,6 @@
 {% block title %}Project {{project.pk}}: Activity{% endblock %}
 
 {% block content %}
-	{% include "projects/_project_tabs.html" with project=project tab="activity" %}
+	{% include "projects/_project_header.html" with project=project tab="activity" %}
     {% crispy form %}
 {% endblock %}
