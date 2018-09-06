@@ -3,7 +3,7 @@ from django.urls import path
 from accounts.views import (
     AccountListView, AccountProfileView, AccountAccessView, AccountSettingsView
 )
-from accounts.team_views import TeamDetailView, TeamListView, TeamMembersView
+from accounts.team_views import TeamDetailView, TeamListView, TeamMembersView, TeamProjectsView
 
 urlpatterns = [
     path('', AccountListView.as_view(), name="account_list"),
@@ -13,5 +13,7 @@ urlpatterns = [
     path('<int:account_pk>/teams/create', TeamDetailView.as_view(), name="account_team_create"),
     path('<int:account_pk>/teams/<int:team_pk>', TeamDetailView.as_view(), name="account_team_detail"),
     path('<int:account_pk>/teams/<int:team_pk>/members', TeamMembersView.as_view(), name="account_team_members"),
-    path('<int:account_pk>/teams', TeamListView.as_view(), name="account_team_list")
+    path('<int:account_pk>/teams/<int:team_pk>/projects', TeamProjectsView.as_view(), name="account_team_projects"),
+    path('<int:account_pk>/teams', TeamListView.as_view(), name="account_team_list"),
+
 ]

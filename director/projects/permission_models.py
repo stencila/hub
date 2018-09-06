@@ -20,6 +20,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from accounts.models import Team
 from lib.enum_choice import EnumChoice
 
 
@@ -59,21 +60,13 @@ class ProjectRole(models.Model):
     def __str__(self):
         return self.name
 
-class UserProjectRole(models.Model):
-    user = models.ForeignKey(
-        'auth.User',
-        on_delete=models.CASCADE,
-        null=False,
-        related_name='project_roles',
-        db_index=True
-    )
-
+class ProjectAgentRole(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.DO_NOTHING
     )
 
-    agent_id = models.PositiveIntegerField()  # ID of the Team or User
+    agent_id = models.PositiveIntegerField(db_index=True)  # ID of the Team or User
     agent = GenericForeignKey('content_type', 'agent_id')  # Team or User
 
     project = models.ForeignKey(
@@ -89,6 +82,18 @@ class UserProjectRole(models.Model):
         on_delete=models.CASCADE,
         related_name='+'
     )
+
+    @property
+    def team(self) -> Team:
+        if self.content_type != ContentType.objects.get_for_model(Team):
+            raise ValueError("Agent for this role mapping is not a Team")
+        return Team.objects.get(pk=self.agent_id)
+
+    @property
+    def user(self) -> User:
+        if self.content_type != ContentType.objects.get_for_model(User):
+            raise ValueError("Agent for this role mapping is not a User")
+        return User.objects.get(pk=self.agent_id)
 
 
 def user_has_project_permission(user: User, project: 'Project', permission_type: ProjectPermissionType) -> bool:

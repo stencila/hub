@@ -10,24 +10,17 @@
 {% block content %}
     {% include "accounts/_account_nav.html" with account=account tab="members" %}
     <section id="account-access">
-        <b-modal v-cloak :active.sync="deleteModalVisible" :width="640" scroll="keep">
-            <header class="modal-card-head">
-                <p class="modal-card-title">Delete this access?</p>
-            </header>
-            <section class="modal-card-body">
-                Are you sure you want to remove access to this account for user <em>[[ deleteRoleUsername ]]</em>?
-            </section>
-            <footer class="modal-card-foot">
-                <form class="form" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="user_role_id" value="" v-model="deleteRoleId">
-                    <button class="button is-danger" type="submit" name="action" value="delete_access">
-                        Delete
-                    </button>
-                    <a class="button" href="#" @click.prevent="hideDeleteModal()">Cancel</a>
-                </form>
-            </footer>
-        </b-modal>
+        <delete-confirm-modal
+                :delete-modal-visible="deleteModalVisible"
+                delete-action="delete_access"
+                delete-id-name="user_role_id"
+                :delete-id-value="deleteRoleId"
+                delete-button-label="Delete"
+                @modal-hide="hideDeleteModal()">
+            <template slot="title">Delete this access?</template>
+            <template slot="csrf_token">{% csrf_token %}</template>
+            <template slot="body">Are you sure you want to remove access to this account for user <em>[[ deleteRoleUsername ]]</em>?</template>
+        </delete-confirm-modal>
         <div class="section">
             <form method="POST">
                 {% csrf_token %}
@@ -69,7 +62,7 @@
                     <tr>
                         <td>{{ access_role.user.username }}</td>
                         <td>
-                            {% include "accounts/_role_select.html" with user_role=access_role.role %}
+                            {% include "accounts/_account_role_select.html" with user_role=access_role.role %}
                         </td>
                         <td>
                             {% if access_role.user != request.user %}
@@ -93,6 +86,7 @@
         </form>
     </section>
     <script src="{% static "js/user-search.js" %}"></script>
+    <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     <script>
         new Vue({
             el: '#account-access',
