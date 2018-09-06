@@ -2,7 +2,9 @@
 {% block title %}Account {{account.pk}}{% endblock %}
 {% block content %}
   {% include "accounts/_account_nav.html" with account=account tab="profile" %}
+
   <div class="columns">
+    {% if projects %}
     <div class="column is-two-thirds">
       <h1 class="title">Projects</h1>
       {% for project in projects %}
@@ -31,10 +33,27 @@
           </div>
         </div>
       {% endfor %}
+      {% else %}
+      <div class="card">
+        <div class="card-content">
+          <div class="media">
+            <div class="media-left">
+               <p> There are no teams linked to this account. </p>
+            </div>
+            <div class="media-content">
+              <p class="title is-4">{{ team.name }}</p>
+            </div>
+          </div>
+          <div class="content">
+          </div>
+        </div>
+      </div>
     </div>
+  {% endif %}
+  </div>
 
-    {% if users %}
     <div class="rows">
+      {% if users %}
     <div class="row">
       <div class="column">
         <h1 class="title">Users</h1>
@@ -57,12 +76,32 @@
             </div>
           </div>
         {% endfor %}
+        {% else %}
+        <div class="card">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                 <p> There are no users linked to this account. </p>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">{{ user.username }}</p>
+              </div>
+            </div>
+            <div class="content">
+
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
+
 
     <div class="row">
       <div class="column">
         <h1 class="title">Teams</h1>
+
+        {% if teams %}
         {% for team in teams %}
           <div class="card">
             <div class="card-content">
@@ -82,9 +121,26 @@
             </div>
           </div>
         {% endfor %}
+        {% else %}
+        <div class="card">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                 <p> There are no teams linked to this account. </p>
+              </div>
+              <div class="media-content">
+                <p class="title is-4">{{ team.name }}</p>
+              </div>
+            </div>
+            <div class="content">
+
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
-    {% endif %}
+
   </div>
 {% endblock %}
