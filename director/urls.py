@@ -23,7 +23,7 @@ from checkouts.views import (
 
 import projects.urls
 
-from views import HomeView
+from views import HomeView, Error403View
 
 urlpatterns = [
     # Project CRUD
@@ -62,6 +62,8 @@ urlpatterns = [
     # API
     path('api/', include(api_patterns))
 ]
+
+handler403 = Error403View.as_view()
 
 if settings.DEBUG:
     import debug_toolbar
