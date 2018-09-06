@@ -19,9 +19,16 @@ def run(*args):
     admin.is_superuser = True
     admin.save()
 
-    for user in ['joe', 'jane', 'mike', 'mary']:
+    for user in [
+        ('joe', 'Joe', 'Blogs'),
+        ('jane', 'Jane', 'Doe'),
+        ('mike', 'Mike', 'Morris'),
+        ('mary', 'Mary', 'Jones')
+    ]:
         User.objects.create_user(
-            username=user,
-            password=user,
-            email=user+'@example.com',
+            username=user[0],
+            password=user[0],
+            first_name=user[1],
+            last_name=user[2],
+            email=user[0]+'@example.com',
         )
