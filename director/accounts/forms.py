@@ -8,7 +8,7 @@ from accounts.models import Account, Team
 class AccountSettingsForm(forms.ModelForm):
     helper = FormHelper()
     helper.layout = Layout(
-    	'name',
+        'name',
         Submit('submit', 'Update', css_class="button is-primary")
     )
 
