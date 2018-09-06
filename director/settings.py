@@ -50,6 +50,7 @@ class Common(Configuration):
         'allauth.socialaccount.providers.orcid',
         'allauth.socialaccount.providers.twitter',
 
+        'avatar',
         'crispy_forms',
         'crispy_forms_bulma',
         'polymorphic',
@@ -203,6 +204,8 @@ class Common(Configuration):
         "checkboxinput": "checkbox",
         "numberinput": "input",
     }
+
+    AVATAR_GRAVATAR_DEFAULT = 'identicon'
 
     # Stencila settings
 

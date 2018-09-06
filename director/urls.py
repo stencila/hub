@@ -47,6 +47,7 @@ urlpatterns = [
     path('me/signup/', UserSignupView.as_view(), name='user_signup'),
     path('me/signin/', UserSigninView.as_view(), name='user_signin'),
     path('me/signout/', UserSignoutView.as_view(), name='user_signout'),
+    path('me/avatar/', include('avatar.urls')),
     path('me/', include('allauth.urls')),
 
     # Staff admin
