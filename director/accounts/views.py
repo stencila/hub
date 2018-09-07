@@ -181,19 +181,5 @@ class AccountSettingsView(LoginRequiredMixin, UpdateView):
         return reverse("account_profile", kwargs={'pk': self.object.pk})
 
 
-class AccountCreateView(LoginRequiredMixin, CreateView):
-    form_class = AccountCreateForm
-    template_name = "accounts/accounts_create.html"
-
-    def form_valid(self, form):
-        """
-        If the account creation form is valid them make the current user the
-        account creator (and owner)
-        """
-        self.object = form.save(commit=False)
-        #self.object.creator = self.request.user
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        return reverse("account_profile", kwargs={'pk': self.object.pk})
+class AccountCreateView(LoginRequiredMixin, View):
+    pass
