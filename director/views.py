@@ -29,7 +29,7 @@ class Error404View(TemplateView):
 class Error500View(TemplateView):
     template_name = 'error500.html'
 
-#TODO Make sure this is only available for logged in staff/admin
+#TODO Make sure this is only available for logged in staff/admin https://django-braces.readthedocs.io/en/latest/access.html
 class Test500View(View):
     """
 
