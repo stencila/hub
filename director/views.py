@@ -1,7 +1,10 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 
@@ -26,15 +29,20 @@ class HomeView(View):
 
 
 class Error500View(View):
+    """
+    A custom 500 view which pass the request into the template context
+    so that the Sentry id is available for rendering.
+    See https://docs.sentry.io/clients/python/integrations/django/
+    """
 
     def get(self, *args, **kwargs):
-        return render(self.request, '500.html')
+        return TemplateResponse(self.request, '500.html', context={'request': self.request}, status=500)
 
 
 class Test403View(View):
     """
     This view allows testing of 403 error handling in production
-    (ie. that custom 403 page is displayed)
+    (ie. test that custom 403 page is displayed)
     """
     def get(self, request):
         raise PermissionDenied("This is a test 403 error")
@@ -43,7 +51,7 @@ class Test403View(View):
 class Test404View(View):
     """
     This view allows testing of 404 error handling in production
-    (ie. that custom 404 page is displayed)
+    (ie. test that custom 404 page is displayed)
     """
     def get(self, request):
         raise Http404("This is a test 404 error")
@@ -52,9 +60,8 @@ class Test404View(View):
 class Test500View(View):
     """
     This view allows testing of 500 error handling in production (e.g that stack traces are
-    being sent to Sentry)
-
-    TODO Make sure this is only available for staff/admin https://django-braces.readthedocs.io/en/latest/access.html
+    being sent to Sentry). Can only be run by staff.
     """
+    @method_decorator(staff_member_required)
     def get(self, request):
         raise RuntimeError("This is a test error")

@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
 from django.views.defaults import permission_denied, page_not_found
-from django.template.response import TemplateResponse
 
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
