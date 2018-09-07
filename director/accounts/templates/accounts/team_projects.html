@@ -3,7 +3,7 @@
 {% block title %}{{ team }} : Projects {% endblock %}
 {% block content %}
     {% include "accounts/_account_header.html" with account=account tab="teams" %}
-    {% include "accounts/_team_nav.html" with account=account team=team team_tab="projects" %}
+    {% include "accounts/_team_header.html" with account=account team=team team_tab="projects" %}
     <section id="team-projects">
         {% if account_permissions|permissions_contain:'administer' %}
             <delete-confirm-modal
