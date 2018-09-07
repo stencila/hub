@@ -7,6 +7,7 @@ from accounts.team_views import TeamDetailView, TeamListView, TeamMembersView, T
 
 urlpatterns = [
     path('', AccountListView.as_view(), name="account_list"),
+    path('create', AccountCreateView.as_view(), name="account_create"),
     path('<int:pk>/', AccountProfileView.as_view(), name="account_profile"),
     path('<int:pk>/members/', AccountAccessView.as_view(), name="account_access"),
     path('<int:pk>/settings/', AccountSettingsView.as_view(), name="account_settings"),
