@@ -82,25 +82,25 @@ class Team(models.Model):
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
-        help_text = 'Account to which the Team is linked to. Each Team can be linked to only one account.',
+        help_text='Account to which the Team is linked to. Each Team can be linked to only one account.',
         related_name='teams'
     )
 
     name = models.TextField(
         blank=False,
         null=False,
-        help_text = 'The name of the team (required).'
+        help_text='The name of the team (required).'
     )
 
     description = models.TextField(
         blank=True,
         null=True,
-        help_text= 'Team description (optional).'
+        help_text='Team description (optional).'
     )
 
     members = models.ManyToManyField(
         'auth.User',
-        help_text = 'Team members. Each User can be a member of multiple Teams.'
+        help_text='Team members. Each User can be a member of multiple Teams.'
     )
 
     def __str__(self) -> str:
@@ -116,7 +116,7 @@ class AccountPermission(models.Model):
         blank=False,
         choices=AccountPermissionType.as_choices(),
         unique=True,
-        help_text= 'Permissions to the Account: Administer or Modify (required).'
+        help_text='Permissions to the Account: Administer or Modify (required).'
     )
 
     def __str__(self) -> str:
@@ -128,22 +128,22 @@ class AccountRole(models.Model):
     Roles linked to the Account, depending on their `AccountPermissionType`.
     """
     name = models.TextField(
-       null = False,
-       blank = False,
-       help_text = 'Roles which users can have assigned to the Account: Admin and Member (required).'
+        null=False,
+        blank=False,
+        help_text='Roles which users can have assigned to the Account: Admin and Member (required).'
     )
 
     permissions = models.ManyToManyField(
         AccountPermission,
         related_name='roles',
-        help_text = 'User Permissions to the Account: Administrator or Account Member.'
+        help_text='User Permissions to the Account: Administrator or Account Member.'
     )
 
     def permissions_text(self) -> typing.Set[str]:
         return {permission.type for permission in self.permissions.all()}
 
     def permissions_types(self) -> typing.Set[AccountPermissionType]:
-        return set(map(lambda p: AccountPermissionType(p.type), self.permissions_text()))
+        return set(map(lambda p: AccountPermissionType(p), self.permissions_text()))
 
     @classmethod
     def roles_with_permission(cls, permission_type: AccountPermissionType) -> QuerySet:
@@ -191,5 +191,6 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
         account = Account.objects.create(name='{}\'s Personal Account'.format(instance.username))
         admin_role = AccountRole.objects.get(name='Account admin')
         AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
+
 
 post_save.connect(create_personal_account_for_user, sender=User)

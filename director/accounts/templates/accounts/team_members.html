@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static account_permissions %}
 {% block title %}Team {{ team.id }} : Members {% endblock %}
 {% block content %}
     {% include "accounts/_account_header.html" with account=account tab="teams" %}
     {% include "accounts/_team_nav.html" with account=account team=team team_tab="members" %}
 
     <section id="member-access">
-        {% if is_admin %}
+        {% if account_permissions|permissions_contain:'administer' %}
             <delete-confirm-modal
                     :delete-modal-visible="deleteModalVisible"
                     delete-action="remove_member"
@@ -16,7 +16,9 @@
                     @modal-hide="hideDeleteModal()">
                 <template slot="title">Remove this user?</template>
                 <template slot="csrf_token">{% csrf_token %}</template>
-                <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from <em>{{ team.name }}</em>?</template>
+                <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from
+                    <em>{{ team.name }}</em>?
+                </template>
             </delete-confirm-modal>
             <form method="post">
                 {% csrf_token %}
@@ -31,7 +33,9 @@
                         <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
                     </div>
                     <div class="column">
-                        <button class="button is-success" name="action" value="add_member" type="submit" :disabled="selectedUsername == ''">Add</button>
+                        <button class="button is-success" name="action" value="add_member" type="submit"
+                                :disabled="selectedUsername == ''">Add
+                        </button>
                     </div>
                 </div>
             </form>
@@ -48,7 +52,7 @@
                 <tr>
                     <td>{{ member }}</td>
                     <td class="has-text-right">
-                        {% if is_admin %}
+                        {% if account_permissions|permissions_contain:'administer' %}
                             <button class="button is-danger"
                                     @click.prevent="showDeleteModal('{{ member.username }}')">
                                 Remove From Team&hellip;
@@ -64,7 +68,7 @@
             </tbody>
         </table>
     </section>
-    {% if is_admin %}
+    {% if account_permissions|permissions_contain:'administer' %}
         <script src="{% static "js/user-search.js" %}"></script>
         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
         <script>
