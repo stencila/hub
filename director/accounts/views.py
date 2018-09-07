@@ -8,7 +8,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import View, ListView, DetailView, UpdateView
+from django.views.generic import View, ListView, DetailView, UpdateView, CreateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm
@@ -176,6 +176,24 @@ class AccountSettingsView(LoginRequiredMixin, UpdateView):
     model = Account
     form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
+
+    def get_success_url(self) -> str:
+        return reverse("account_profile", kwargs={'pk': self.object.pk})
+
+
+class AccountCreateView(LoginRequiredMixin, CreateView):
+    form_class = AccountCreateForm
+    template_name = "accounts/accounts_create.html"
+
+    def form_valid(self, form):
+        """
+        If the account creation form is valid them make the current user the
+        account creator (and owner)
+        """
+        self.object = form.save(commit=False)
+        #self.object.creator = self.request.user
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
         return reverse("account_profile", kwargs={'pk': self.object.pk})

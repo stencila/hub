@@ -2,18 +2,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
-from views import HomeView, Error403View
+from django.views.defaults import page_not_found, server_error
+from django.template.response import TemplateResponse
 
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
-
-from users.views import (
-    UserSettingsView,
-    UserSignupView,
-    UserSigninView,
-    UserSignoutView,
-    BetaTokenView)
-
 from checkouts.views import (
     CheckoutListView,
     CheckoutCreateView,
@@ -21,10 +14,14 @@ from checkouts.views import (
     CheckoutOpenView,
     CheckoutSaveView,
     CheckoutCloseView)
-
 import projects.urls
-
-
+from users.views import (
+    UserSettingsView,
+    UserSignupView,
+    UserSigninView,
+    UserSignoutView,
+    BetaTokenView)
+from views import HomeView, Error404View, Error500View, Test500View
 
 urlpatterns = [
     # Project CRUD
@@ -61,10 +58,23 @@ urlpatterns = [
     path('accounts/', include(accounts_patterns)),
 
     # API
-    path('api/', include(api_patterns))
+    path('api/', include(api_patterns)),
+
+    #Testing Errors
+    path('test/500', Test500View.as_view())
 ]
 
 handler403 = Error403View.as_view()
+handler404 = Error404View.as_view()
+
+def handler500(request):
+    """
+    500 error handler which includes ``request`` in the context
+    """
+    context = {'request': request}
+    template_name = 'template500.html'
+    return TemplateResponse(request, template_name, context, status=500)
+
 
 if settings.DEBUG:
     import debug_toolbar

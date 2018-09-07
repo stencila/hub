@@ -23,6 +23,21 @@ class HomeView(View):
                 url += '?token={}'.format(token)
             return redirect(url)
 
-
 class Error403View(TemplateView):
     template_name = 'error403.html'
+
+class Error404View(TemplateView):
+    template_name = 'error404.html'
+
+class Error500View(TemplateView):
+    template_name = 'error500.html'
+
+class Test500View(View):
+    """
+    This view allows us to test 500 error handling in production (e.g that stack traces are
+    being stent to Sentry)
+
+    TODO Make sure this is only available for staff/admin https://django-braces.readthedocs.io/en/latest/access.html
+    """
+    def get(self, request):
+        raise RuntimeError("This is just a test error)

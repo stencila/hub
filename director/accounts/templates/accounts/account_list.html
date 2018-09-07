@@ -18,5 +18,13 @@
             <div class="notification is-warning">You are not a member of any accounts</div>
         </div>
         {% endfor %}
+        <div class="level-right">
+            <p class="level-item">
+                <a class="button is-success" href="{% url 'accounts_create' %}">
+                    <span class="icon"><i class="fas fa-plus"></i></span>
+                    <span>New</span>
+                </a>
+            </p>
+        </div>
     </div>
 {% endblock %}
