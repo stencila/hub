@@ -1,3 +1,4 @@
+{% if messages %}
 <script>
     var vue = new Vue()
     {% for message in messages %}
@@ -8,3 +9,4 @@
         })
     {% endfor %}
 </script>
+{% endif %}
