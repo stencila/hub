@@ -2,18 +2,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from django.conf.urls.static import static
-from views import HomeView, Error403View
+from django.views.defaults import permission_denied, page_not_found
+from django.template.response import TemplateResponse
 
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
-
-from users.views import (
-    UserSettingsView,
-    UserSignupView,
-    UserSigninView,
-    UserSignoutView,
-    BetaTokenView)
-
 from checkouts.views import (
     CheckoutListView,
     CheckoutCreateView,
@@ -21,10 +14,14 @@ from checkouts.views import (
     CheckoutOpenView,
     CheckoutSaveView,
     CheckoutCloseView)
-
 import projects.urls
-
-
+from users.views import (
+    UserSettingsView,
+    UserSignupView,
+    UserSigninView,
+    UserSignoutView,
+    BetaTokenView)
+from views import HomeView, Error500View, Test403View, Test404View, Test500View
 
 urlpatterns = [
     # Project CRUD
@@ -61,10 +58,17 @@ urlpatterns = [
     path('accounts/', include(accounts_patterns)),
 
     # API
-    path('api/', include(api_patterns))
+    path('api/', include(api_patterns)),
+
+    # Testing errors
+    path('test/403', Test403View.as_view()),
+    path('test/404', Test404View.as_view()),
+    path('test/500', Test500View.as_view())
 ]
 
-handler403 = Error403View.as_view()
+handler403 = permission_denied
+handler404 = page_not_found
+handler500 = Error500View.as_view()
 
 if settings.DEBUG:
     import debug_toolbar

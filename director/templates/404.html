@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container has-centred" style="max-width: 25em">
+    <div class="modal is-active">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon"><i class="fas fa-frown"></i></span>
+            <span>Sorry but...</span>
+          </p>
+        </header>
+        <section class="modal-card-body">
+            <p>...the page you are looking for doesn't exist</p>
+        </section>
+        <footer class="modal-card-foot">
+            <form method="post">
+                {% csrf_token %}
+                <a class="button is-danger" onclick="history.back()">OK</a>
+            </form>
+        </footer>
+      </div>
+    </div>
+</div>
+{% endblock %}
