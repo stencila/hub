@@ -95,6 +95,12 @@ director-migrate-devdb: director/venv
 director-run: director/venv director/extern
 	$(DJ) runserver
 
+# Run development server with production settings
+director-runprod: director/venv director/extern
+	$(EV) \
+	export DJANGO_CONFIGURATION=Prod; \
+	$(DJ) runserver
+
 # Run tests
 director-test: director/venv
 	$(DJ) test
