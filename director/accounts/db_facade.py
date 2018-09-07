@@ -15,7 +15,31 @@ class AccountFetchResult(typing.NamedTuple):
     account.
     """
     account: Account
-    is_admin: bool
+    user_roles: typing.Set[AccountRole]
+    user_permissions: typing.Set[AccountPermissionType]
+
+
+def fetch_account(user: User, account_pk: int) -> AccountFetchResult:
+    """
+    Fetch an `Account` raising a 404 if the `Account` with `account_pk` does not exist. Returns an
+    `AccountFetchResult`. If the `user` does not have access to the `Account` then `AccountFetchResult.user_roles` and
+    `AccountFetchResult.user_permissions` will be empty sets.
+    """
+    account = get_object_or_404(Account, pk=account_pk)
+    account_user_roles = AccountUserRole.objects.filter(account=account, user=user)
+
+    user_roles = set()
+    user_permissions = set()
+
+    for account_user_role in account_user_roles:
+        if account_user_role.role in user_roles:
+            continue
+
+        user_roles.add(account_user_role.role)
+
+        user_permissions |= account_user_role.role.permissions_types()
+
+    return AccountFetchResult(account, user_roles, user_permissions)
 
 
 def fetch_admin_account(user: User, account_pk: int) -> Account:

@@ -3,17 +3,17 @@ from operator import attrgetter
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
-from accounts.db_facade import fetch_admin_account, fetch_team_for_account, fetch_member_account
+from accounts.db_facade import fetch_team_for_account
 from accounts.forms import TeamForm
-from accounts.models import Account, AccountUserRole, Team
+from accounts.models import Team, AccountPermissionType
+from accounts.views import AccountPermissionsMixin
 from projects.permission_models import ProjectRole, ProjectAgentRole
 from projects.project_models import Project
 
@@ -22,27 +22,29 @@ User = get_user_model()
 AGENT_ROLE_ID_PREFIX = 'agent_role_id_'
 
 
-class TeamDetailView(LoginRequiredMixin, View):
+class TeamDetailView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        account_result = fetch_member_account(request.user, account_pk)
-        team = fetch_team_for_account(account_result.account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+        team = fetch_team_for_account(self.account_fetch_result.account, team_pk)
 
         form = TeamForm(instance=team)
-        if not account_result.is_admin:
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
             for field in form.fields.values():
                 field.disabled = True
 
-        return render(request, "accounts/team_detail.html", {
-            "is_admin": account_result.is_admin,
+        return render(request, "accounts/team_detail.html", self.get_render_context({
             "team": team,
-            "account": account_result.account,
+            "account": self.account,
             "form": form
-        })
+        }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        account = fetch_admin_account(request.user, account_pk)
-        # if account is retrieved then user must have admin access
-        team = fetch_team_for_account(account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
+
+        team = fetch_team_for_account(self.account, team_pk)
 
         form = TeamForm(request.POST, instance=team)
 
@@ -54,42 +56,46 @@ class TeamDetailView(LoginRequiredMixin, View):
                 update_verb = "updated"
 
             messages.success(request, "Team '{}' was {} successfully".format(team.name, update_verb))
-            return redirect(reverse('account_team_list', args=(account.id,)))
+            return redirect(reverse('account_team_list', args=(self.account.id,)))
 
-        return render(request, "accounts/team_detail.html", {
+        return render(request, "accounts/team_detail.html", self.get_render_context({
             "team": team,
-            "account": account,
+            "account": self.account,
             "form": form
-        })
+        }))
 
 
-class TeamListView(LoginRequiredMixin, View):
+class TeamListView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int) -> HttpResponse:
-        account = get_object_or_404(Account, pk=account_pk)
-        if AccountUserRole.objects.filter(user=request.user, account=account).count() == 0:
+        self.perform_account_fetch(request, account_pk)
+
+        if not self.account_permissions:
             raise PermissionDenied
-        # Assume if they have any Roles for the Account they have access
+        # Assume if they have any Roles for the Account they have access to this page
 
-        return render(request, "accounts/account_teams.html", {
-            "account": account,
-            "teams": account.teams.all
-        })
+        return render(request, "accounts/account_teams.html", self.get_render_context({
+            "account": self.account,
+            "teams": self.account.teams.all
+        }))
 
 
-class TeamMembersView(LoginRequiredMixin, View):
+class TeamMembersView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        account_result = fetch_member_account(request.user, account_pk)
-        team = fetch_team_for_account(account_result.account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+        team = fetch_team_for_account(self.account, team_pk)
 
-        return render(request, "accounts/team_members.html", {
-            "is_admin": account_result.is_admin,
-            "account": account_result.account,
+        return render(request, "accounts/team_members.html", self.get_render_context({
+            "account": self.account,
             "team": team
-        })
+        }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        account = fetch_admin_account(request.user, account_pk)
-        team = fetch_team_for_account(account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
+
+        team = fetch_team_for_account(self.account, team_pk)
 
         action = request.POST.get('action')
 
@@ -111,12 +117,12 @@ class TeamMembersView(LoginRequiredMixin, View):
         return redirect(reverse('account_team_members', args=(account_pk, team_pk)))
 
 
-class TeamProjectsView(LoginRequiredMixin, View):
+class TeamProjectsView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        account_result = fetch_member_account(request.user, account_pk)
-        team = fetch_team_for_account(account_result.account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+        team = fetch_team_for_account(self.account, team_pk)
         project_roles = ProjectRole.objects.all()
-        all_projects = account_result.account.projects.all()
+        all_projects = self.account.projects.all()
         existing_project_roles = ProjectAgentRole.objects.filter(project__in=all_projects, agent_id=team.pk,
                                                                  content_type=ContentType.objects.get_for_model(Team))
         assigned_projects = list(map(attrgetter('project'), existing_project_roles))
@@ -125,19 +131,22 @@ class TeamProjectsView(LoginRequiredMixin, View):
         # this filtering can't be done by the ORM due to using GenericForeignKey
         # Shouldn't be dealing with millions of projects per account so should be OK
 
-        return render(request, "accounts/team_projects.html", {
-            "account": account_result.account,
+        return render(request, "accounts/team_projects.html", self.get_render_context({
+            "account": self.account,
             "team": team,
             "existing_project_roles": existing_project_roles,
             "unassigned_projects": unassigned_projects,
-            "is_admin": account_result.is_admin,
             "project_roles": project_roles,
             "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
-        })
+        }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        account = fetch_admin_account(request.user, account_pk)
-        team = fetch_team_for_account(account, team_pk)
+        self.perform_account_fetch(request, account_pk)
+
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
+
+        team = fetch_team_for_account(self.account, team_pk)
 
         all_roles = ProjectRole.objects.all()
 
@@ -161,7 +170,7 @@ class TeamProjectsView(LoginRequiredMixin, View):
                     project_agent_role_id = post_key[len(AGENT_ROLE_ID_PREFIX):]
                     project_agent_role = ProjectAgentRole.objects.get(pk=project_agent_role_id)
 
-                    if project_agent_role.team != team or project_agent_role.project.account != account:
+                    if project_agent_role.team != team or project_agent_role.project.account != self.account:
                         raise PermissionDenied
 
                     new_role = role_lookup[int(value)]
@@ -171,4 +180,4 @@ class TeamProjectsView(LoginRequiredMixin, View):
                         project_agent_role.save()
                         messages.success(request, "Role updated for project {}".format(project_agent_role.project.name))
 
-        return redirect(reverse("account_team_projects", args=(account.pk, team.pk)))
+        return redirect(reverse("account_team_projects", args=(self.account.pk, team.pk)))

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static avatar_tags %}
 
 <header class="header">
   <nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
@@ -24,7 +24,10 @@
           {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
               <div class="navbar-link">
-                {{ user.username }}
+                <figure class="image is-24x24">
+                  {% avatar user 24 class="is-rounded" %}
+                </figure>
+                <span style="margin: 0 0.5em">{{ user.username }}</span>
               </div>
               <div class="navbar-dropdown is-boxed">
                 <a class="navbar-item" href="{% url 'project_list' %}">Projects</a>

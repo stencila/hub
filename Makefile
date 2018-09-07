@@ -83,6 +83,7 @@ director-create-devdb: director/venv
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
 	$(DJ) runscript create_dev_accounts
+	$(DJ) runscript create_dev_account_roles
 	$(DJ) runscript create_dev_projects
 	$(DJ) runscript create_dev_project_roles
 

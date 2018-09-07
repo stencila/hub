@@ -1,3 +1,5 @@
+{% load account_permissions %}
+
 <div class="level">
   <div class="level-left">
     {% if account.logo %}
@@ -13,7 +15,7 @@
   </div>
 </div>
 
-{% if True %} {# Should be... user_role == 'admin' #}
+{% if account_permissions|permissions_contain:'administer' %}
 <div class="tabs is-toggle is-fullwidth">
   <ul>
     {% if tab == "profile" %}

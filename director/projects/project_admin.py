@@ -23,13 +23,16 @@ class ProjectAdmin(admin.ModelAdmin):
 
     archive.short_description = 'Archive'
 
+
 @admin.register(ProjectPermission)
 class ProjectPermissionAdmin(admin.ModelAdmin):
     pass
 
+
 @admin.register(ProjectRole)
 class ProjectRoleAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(ProjectAgentRole)
 class ProjectAgentRoleAdmin(admin.ModelAdmin):

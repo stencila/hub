@@ -23,20 +23,6 @@ from users.views import (
     BetaTokenView)
 from views import HomeView, Error404View, Error500View, Test500View
 
-
-
-def handler500(request):
-    """500 error handler which includes ``request`` in the context.
-
-    Templates: `template500.html`
-    Context: None
-    """
-    context = {'request': request}
-    template_name = 'template500.html'
-    return TemplateResponse(request, template_name, context, status=500)
-
-
-
 urlpatterns = [
     # Project CRUD
     path('projects/', include(projects.urls)),
@@ -78,9 +64,16 @@ urlpatterns = [
     path('test/500', Test500View.as_view())
 ]
 
-
+handler403 = Error403View.as_view()
 handler404 = Error404View.as_view()
-handler500 = Error500View.as_view()
+
+def handler500(request):
+    """
+    500 error handler which includes ``request`` in the context
+    """
+    context = {'request': request}
+    template_name = 'template500.html'
+    return TemplateResponse(request, template_name, context, status=500)
 
 
 if settings.DEBUG:
