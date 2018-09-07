@@ -16,4 +16,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="has-text-right">
+        <a href="{% url "account_team_create" account.id %}" class="button is-success">Create Team&hellip;</a>
+    </div>
 {% endblock %}

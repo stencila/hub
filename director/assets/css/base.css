@@ -3,6 +3,11 @@ main {
     min-height: 90vh;
 }
 
+.tabs a.is-disabled:hover {
+    border-bottom: 1px solid transparent;
+    cursor: default;
+}
+
 /*
 Hide uncompiled Vue elements 
 See https://vuejs.org/v2/api/#v-cloak
@@ -29,3 +34,4 @@ scrollbar
     margin-left: auto;
   }
 }
+
