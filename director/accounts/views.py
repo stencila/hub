@@ -5,13 +5,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import View, ListView, DetailView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
-from accounts.forms import AccountSettingsForm
+from accounts.forms import AccountSettingsForm, AccountCreateForm
 from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
 
 User = get_user_model()
@@ -178,6 +178,25 @@ class AccountSettingsView(LoginRequiredMixin, UpdateView):
     model = Account
     form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
+
+    def get_success_url(self) -> str:
+        return reverse("account_profile", kwargs={'pk': self.object.pk})
+
+
+class AccountCreateView(AccountPermissionsMixin, CreateView):
+    model = Account
+    form_class = AccountCreateForm
+    template_name = 'accounts/account_create.html'
+
+    def form_valid(self, form):
+        """
+        If the account creation form is valid them make the current user the
+        account creator
+        """
+        self.object = form.save()
+        admin_role = AccountRole.objects.get(name='Account admin')
+        AccountUserRole.objects.create(role=admin_role, account=self.object, user=self.request.user)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
         return reverse("account_profile", kwargs={'pk': self.object.pk})
