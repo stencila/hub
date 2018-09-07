@@ -2,7 +2,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
 
-from accounts.models import Account, Team
+from lib.forms import FormWithSubmit, ModelFormWithSubmit
+
+from accounts.models import Account, Team, AccountUserRole
 
 
 class AccountSettingsForm(forms.ModelForm):
@@ -16,6 +18,16 @@ class AccountSettingsForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ('name', 'logo')
+        widgets = {
+            'name': forms.TextInput
+        }
+
+
+class AccountCreateForm(ModelFormWithSubmit):
+
+    class Meta:
+        model = Account
+        fields = ('name',)
         widgets = {
             'name': forms.TextInput
         }
