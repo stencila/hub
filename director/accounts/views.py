@@ -119,7 +119,7 @@ class AccountAccessView(AccountPermissionsMixin, View):
         all_roles = AccountRole.objects.all()
 
         account = self.account
-        
+
         role_lookup = {role.pk: role for role in all_roles}
 
         if request.POST.get('action') == 'add_access':
@@ -169,18 +169,17 @@ class AccountAccessView(AccountPermissionsMixin, View):
         return redirect(reverse('account_access', args=(pk,)))
 
 
-class AccountTeamsView(LoginRequiredMixin, DetailView):
-    model = Account
-    template_name = 'accounts/account_teams.html'
-
-
-class AccountSettingsView(LoginRequiredMixin, UpdateView):
+class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     model = Account
     form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
 
     def get_success_url(self) -> str:
         return reverse("account_profile", kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        self.perform_account_fetch(self.request, self.object.pk)
+        return self.get_render_context(super(AccountSettingsView, self).get_context_data(**kwargs))
 
 
 class AccountCreateView(AccountPermissionsMixin, CreateView):

@@ -7,7 +7,9 @@ main {
     border-bottom: 1px solid transparent;
     cursor: default;
 }
-
+.tabs li.is-active > a.is-disabled:hover {
+    border-bottom: 1px solid #7957d5;
+}
 /*
 Hide uncompiled Vue elements 
 See https://vuejs.org/v2/api/#v-cloak
