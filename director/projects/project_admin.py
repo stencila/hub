@@ -37,7 +37,7 @@ class ProjectRoleAdmin(admin.ModelAdmin):
 @admin.register(ProjectAgentRole)
 class ProjectAgentRoleAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'project', 'user', 'role'
+        'id', 'project', 'role', 'content_type', 'agent_id'
     ]
     list_filter = [
         'role'

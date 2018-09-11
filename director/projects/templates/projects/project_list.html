@@ -7,7 +7,7 @@
         <div class="level-left">
             <div class="level-item">
                 <p class="subtitle is-5">
-                    <strong>{{ object_list|length }}</strong> project{{ object_list|length|pluralize }}
+                    <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
                 </p>
             </div>
             {% comment %}
@@ -25,13 +25,32 @@
             </div>
             {% endcomment %}
         </div>
+
         <div class="level-right">
-            <p class="level-item">
-                <a class="button is-success" href="{% url 'project_create' %}">
-                    <span class="icon"><i class="fas fa-plus"></i></span>
-                    <span>New</span>
-                </a>
-            </p>
+            {% for filter_option in filter_options %}
+                <p class="level-item">
+                    {% if filter_option.key == filter_key %}
+                        <strong>
+                    {% else %}
+                        <a href="{{ request.path }}?filter={{ filter_option.key }}">
+                    {% endif %}
+                    {{ filter_option.label }}
+                    {% if filter_option.key == filter_key %}
+                        </strong>
+                    {% else %}
+                        </a>
+                    {% endif %}
+                </p>
+            {% endfor %}
+
+            {% if request.user.is_authenticated %}
+                <p class="level-item">
+                    <a class="button is-success" href="{% url 'project_create' %}">
+                        <span class="icon"><i class="fas fa-plus"></i></span>
+                        <span>New</span>
+                    </a>
+                </p>
+            {% endif %}
         </div>
     </nav>
 
@@ -46,7 +65,9 @@
             </div>
         {% empty %}
             <div>
-                <td colspan="3">No projects exist.</td>
+                <div class="card-content">
+                    No projects exist.
+                </div>
             </div>
         {% endfor %}
     </div>

@@ -1,6 +1,6 @@
 """
 Permission models implementing permission which a user can have in a project.
-viev --  Can read, but not change, the content of project documents.
+view--  Can read, but not change, the content of project documents.
          Can update ‘variables’ in the document e.g. input boxes, range sliders and see the resulting updates.
          This is the permission for a public project for an unauthenticated (aka anonymous) user.
 comment -- Can add a comment to project documents.
@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.db.models import QuerySet, Q
 
 from accounts.models import Team
 from lib.enum_choice import EnumChoice
@@ -35,10 +36,10 @@ class ProjectPermissionType(EnumChoice):
 
 class ProjectPermission(models.Model):
     type = models.TextField(
-         null=False,
-         blank=False,
-         choices=ProjectPermissionType.as_choices(),
-         unique=True)
+        null=False,
+        blank=False,
+        choices=ProjectPermissionType.as_choices(),
+        unique=True)
 
     def as_enum(self) -> ProjectPermissionType:
         return ProjectPermissionType(self.type)
@@ -55,10 +56,11 @@ class ProjectRole(models.Model):
         return {permission.type for permission in self.permissions.all()}
 
     def permissions_types(self) -> typing.Set[ProjectPermissionType]:
-        return set(map(lambda p: ProjectPermissionType(p.type), self.permissions_text()))
+        return set(map(lambda p: ProjectPermissionType(p), self.permissions_text()))
 
     def __str__(self):
         return self.name
+
 
 class ProjectAgentRole(models.Model):
     content_type = models.ForeignKey(
@@ -83,6 +85,55 @@ class ProjectAgentRole(models.Model):
         related_name='+'
     )
 
+    @classmethod
+    def filter_with_agent(cls, agent: typing.Union[User, Team], **kwargs) -> QuerySet:
+        """
+        Since this model users `GenericForeignKey` we can't filter on `agent` using built in filter(), so this is a
+        helper method to transform agent into id/content type
+        """
+        kwargs['agent_id'] = agent.pk
+        kwargs['content_type'] = ContentType.objects.get_for_model(agent)
+        return cls.objects.filter(**kwargs)
+
+    @classmethod
+    def filter_with_user_teams(cls, user: typing.Optional[User] = None,
+                               teams: typing.Optional[typing.Iterable[Team]] = None, **kwargs) -> QuerySet:
+        """
+        Filter for all `ProjectAgentRole` for the `user` or any of the `teams`.
+        """
+        if user:
+            user_query = Q(agent_id=user.pk, content_type=ContentType.objects.get_for_model(User))
+        else:
+            user_query = None
+
+        if teams:
+            team_query = None
+            for team in teams:
+                single_team_query = Q(agent_id=team.pk, content_type=ContentType.objects.get_for_model(Team))
+                if team_query:
+                    team_query = team_query | single_team_query
+                else:
+                    team_query = single_team_query
+        else:
+            team_query = None
+
+        if team_query and user_query:
+            agent_query = user_query | team_query
+        elif team_query:
+            agent_query = team_query
+        elif user_query:
+            agent_query = user_query
+        else:
+            agent_query = None
+
+        if not kwargs and not agent_query:
+            raise ValueError("Can't query for ProjectAgentRole because there are no filters.")
+
+        if agent_query:
+            return cls.objects.filter(agent_query, **kwargs)
+
+        return cls.objects.filter(**kwargs)
+
     @property
     def team(self) -> Team:
         if self.content_type != ContentType.objects.get_for_model(Team):
@@ -96,16 +147,4 @@ class ProjectAgentRole(models.Model):
         return User.objects.get(pk=self.agent_id)
 
 
-def user_has_project_permission(user: User, project: 'Project', permission_type: ProjectPermissionType) -> bool:
-    """Example implementation of checking for a specific permission on a `Project` for a `User`"""
-    project_roles = ProjectRole.objects.filter(user=user, project=project)
 
-    for project_role in project_roles:
-        if permission_type in project_role.role.permissions_types():
-            return True
-
-    return False
-
-
-def user_can_edit_project(user: User, project: 'Project') -> bool:
-    return user_has_project_permission(user, project, ProjectPermissionType.EDIT)

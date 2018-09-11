@@ -22,33 +22,31 @@ USER_ROLE_ID_PREFIX = 'user_role_id_'
 class AccountPermissionsMixin(LoginRequiredMixin):
     account_fetch_result: typing.Optional[AccountFetchResult] = None
 
-    def perform_account_fetch(self, request: HttpRequest, account_pk: int) -> None:
-        self.account_fetch_result = fetch_account(request.user, account_pk)
+    def perform_account_fetch(self, user: User, account_pk: int) -> None:
+        self.account_fetch_result = fetch_account(user, account_pk)
 
     def get_render_context(self, context: dict) -> dict:
         context['account_permissions'] = self.account_permissions
         context['account_roles'] = self.account_roles
         return context
 
-    @property
-    def account(self) -> Account:
+    def _test_account_fetch_result_set(self) -> None:
         if not self.account_fetch_result:
             raise ValueError("account_fetch_result not set")
 
+    @property
+    def account(self) -> Account:
+        self._test_account_fetch_result_set()
         return self.account_fetch_result.account
 
     @property
     def account_permissions(self) -> typing.Set[AccountPermissionType]:
-        if not self.account_fetch_result:
-            raise ValueError("account_fetch_result not set")
-
+        self._test_account_fetch_result_set()
         return self.account_fetch_result.user_permissions
 
     @property
     def account_roles(self) -> typing.Set[AccountRole]:
-        if not self.account_fetch_result:
-            raise ValueError("account_fetch_result not set")
-
+        self._test_account_fetch_result_set()
         return self.account_fetch_result.user_roles
 
     def has_permission(self, permission: AccountPermissionType) -> bool:
@@ -74,7 +72,7 @@ class AccountListView(LoginRequiredMixin, ListView):
 
 class AccountProfileView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, pk)
+        self.perform_account_fetch(request.user, pk)
 
         teams = self.account.teams.all()
 
@@ -95,7 +93,7 @@ class AccountProfileView(AccountPermissionsMixin, View):
 
 class AccountAccessView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, pk)
+        self.perform_account_fetch(request.user, pk)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -111,7 +109,7 @@ class AccountAccessView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, pk)
+        self.perform_account_fetch(request.user, pk)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -178,7 +176,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
         return reverse("account_profile", kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        self.perform_account_fetch(self.request, self.object.pk)
+        self.perform_account_fetch(self.request.user, self.object.pk)
         return self.get_render_context(super(AccountSettingsView, self).get_context_data(**kwargs))
 
 

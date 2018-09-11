@@ -1,16 +1,10 @@
 import datetime
 import hashlib
 import secrets
-from io import BytesIO
 import typing
-from zipfile import ZipFile
-
-from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from polymorphic.models import PolymorphicModel
+from io import BytesIO
 
 from accounts.models import Account
-from .permission_models import ProjectPermission, ProjectRole, ProjectAgentRole
 from .session_models import *
 
 TOKEN_HASH_FUNCTION = hashlib.sha256

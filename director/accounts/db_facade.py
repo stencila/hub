@@ -11,8 +11,9 @@ User = get_user_model()
 
 class AccountFetchResult(typing.NamedTuple):
     """
-    Represents the result of an account fetch, includes the account for a flag for if the User has admin access to the
-    account.
+    Represents the result of an account fetch for a `User`, includes:
+    -- user_roles: roles the current user has for the `Account`
+    -- user_permissions: all permissions the current user has for the `Account`, i.e. combined permissions of all roles
     """
     account: Account
     user_roles: typing.Set[AccountRole]
@@ -96,3 +97,10 @@ def fetch_team_for_account(account: Account, team_pk: typing.Optional[int]) -> T
         team.account = account
 
     return team
+
+
+def fetch_accounts_for_user(user: User) -> typing.Iterable[Account]:
+    """
+    Get an Iterable (map) of  `Account`s the `user` has access to (has any permissions).
+    """
+    return map(lambda aur: aur.account, AccountUserRole.objects.filter(user=user).select_related('account'))

@@ -24,7 +24,7 @@ AGENT_ROLE_ID_PREFIX = 'agent_role_id_'
 
 class TeamDetailView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
         team = fetch_team_for_account(self.account_fetch_result.account, team_pk)
 
         form = TeamForm(instance=team)
@@ -39,7 +39,7 @@ class TeamDetailView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -67,7 +67,7 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
 class TeamListView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
 
         if not self.account_permissions:
             raise PermissionDenied
@@ -81,7 +81,7 @@ class TeamListView(AccountPermissionsMixin, View):
 
 class TeamMembersView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
         team = fetch_team_for_account(self.account, team_pk)
 
         return render(request, "accounts/team_members.html", self.get_render_context({
@@ -90,7 +90,7 @@ class TeamMembersView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -119,7 +119,7 @@ class TeamMembersView(AccountPermissionsMixin, View):
 
 class TeamProjectsView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
         team = fetch_team_for_account(self.account, team_pk)
         project_roles = ProjectRole.objects.all()
         all_projects = self.account.projects.all()
@@ -141,7 +141,7 @@ class TeamProjectsView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request, account_pk)
+        self.perform_account_fetch(request.user, account_pk)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied

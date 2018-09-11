@@ -2,6 +2,7 @@ import enum
 from io import BytesIO
 import typing
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from polymorphic.models import PolymorphicModel
 
