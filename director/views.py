@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 
 
 class HomeView(View):
