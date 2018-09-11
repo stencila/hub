@@ -53,6 +53,9 @@ urlpatterns = [
     # Home page
     path('', HomeView.as_view(), name='home'),
 
+    # Privacy policy
+    path('privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
+
     # Accounts App
     path('accounts/', include(accounts_patterns)),
 
