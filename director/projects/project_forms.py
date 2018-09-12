@@ -139,37 +139,37 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
         min_value=0,
         required=False,
         help_text='Gigabytes (GB) of memory allocated.',
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(attrs={'v-model': 'memory'})
     )
 
     cpu = forms.FloatField(
-        label="CPU",
+        label='CPU',
         required=False,
         min_value=1,
         max_value=100,
         help_text='CPU shares (out of 100 per CPU) allocated.',
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(attrs={'v-model': 'cpu'})
     )
 
     network = forms.FloatField(
         min_value=0,
         required=False,
         help_text='Gigabytes (GB) of network transfer allocated. Leave blank for unlimited.',
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(attrs={'v-model': 'network'})
     )
 
     lifetime = forms.IntegerField(
         min_value=0,
         required=False,
         help_text='Minutes before the session is terminated (even if active). Leave blank for unlimited.',
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(attrs={'v-model': 'lifetime'})
     )
 
     timeout = forms.IntegerField(
         min_value=0,
         required=False,
         help_text='Minutes of inactivity before the session is terminated. Leave blank for unlimited.',
-        widget=forms.NumberInput()
+        widget=forms.NumberInput(attrs={'v-model': 'timeout'})
     )
 
     def __init__(self, *args, **kwargs):
@@ -198,6 +198,7 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                     'network',
                     'lifetime',
                     'timeout',
+                    HTML('<preset-parameters @select-preset="selectPreset"></preset-parameters>'),
                     css_class="column is-half section"
                 ),
                 css_class="columns"
@@ -241,6 +242,10 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
         project.sessions_concurrent = self.cleaned_data['sessions_concurrent']
         project.sessions_queued = self.cleaned_data['sessions_queued']
         project.session_parameters.memory = self.cleaned_data['memory']
+        project.session_parameters.cpu = self.cleaned_data['cpu']
+        project.session_parameters.network = self.cleaned_data['network']
+        project.session_parameters.lifetime = self.cleaned_data['lifetime']
+        project.session_parameters.timeout = self.cleaned_data['timeout']
 
         if commit:
             project.session_parameters.save()

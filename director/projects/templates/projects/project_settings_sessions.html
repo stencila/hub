@@ -6,5 +6,57 @@
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="settings" %}
     {% include "projects/_project_settings_tabs.html" with project=project tab="sessions" %}
+    <div id="project-session-settings-form">
     {% crispy form %}
+    </div>
+    <script>
+        (function () {
+            const g_presetParameters = JSON.parse("{{ parameters_presets|escapejs }}");
+
+            Vue.component('preset-parameters', {
+                delimiters: ['[[',']]'],
+                template: '<div class="field has-addons">\n' +
+                    '  <p v-for="(item, index) in presetParameters" class="control">\n' +
+                    '    <a class="button" @click="selectPreset(index)">\n' +
+                    '      <span>[[ item.name ]]</span>\n' +
+                    '    </a>\n' +
+                    '  </p>\n' +
+                    '</div>',
+                data() {
+                    return {
+                        presetParameters: g_presetParameters
+                    }
+                },
+                methods: {
+                    selectPreset(presetIndex) {
+                        this.$emit('select-preset', presetIndex);
+                    }
+                }
+            });
+
+            new Vue({
+                el: '#project-session-settings-form',
+                delimiters: ['[[',']]'],
+                data: {
+                    memory: {{ form.memory.value|default:"null" }},
+                    cpu: {{ form.cpu.value|default:"null" }},
+                    network: {{ form.network.value|default:"null" }},
+                    lifetime: {{ form.lifetime.value|default:"null" }},
+                    timeout: {{ form.timeout.value|default:"null" }}
+                },
+                methods: {
+                    selectPreset(presetIndex) {
+                        this.applyPreset(g_presetParameters[presetIndex]);
+                    },
+                    applyPreset(presetData) {
+                        for(let key in presetData) {
+                            if (presetData.hasOwnProperty(key)) {
+                                Vue.set(this, key, presetData[key])
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+    </script>
 {% endblock %}

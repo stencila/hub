@@ -1,3 +1,4 @@
+import json
 import typing
 
 from django.contrib.auth import get_user_model
@@ -9,6 +10,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
 
 from accounts.db_facade import fetch_accounts_for_user
+from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole
 from users.views import BetaTokenRequiredMixin
@@ -206,6 +208,11 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
     form_class = ProjectSettingsSessionsForm
     template_name = 'projects/project_settings_sessions.html'
     project_permission_required = ProjectPermissionType.MANAGE
+
+    def get_context_data(self, **kwargs):
+        context_data = super(ProjectSettingsSessionsView, self).get_context_data(**kwargs)
+        context_data['parameters_presets'] = json.dumps(parameters_presets.parameters_presets)
+        return context_data
 
     def get_initial(self):
         return self.form_class.initial(self.object)
