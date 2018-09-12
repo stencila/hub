@@ -102,9 +102,9 @@ class ProjectSettingsAccessForm(forms.ModelForm):
                 ),
                 'token',
                 'key',
-                css_class="section"
+                css_class='section'
             ),
-            Submit('submit', 'Update', css_class="button is-primary")
+            Submit('submit', 'Update', css_class='button is-primary')
         )
 
 

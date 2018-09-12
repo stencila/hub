@@ -1,18 +1,22 @@
 """
 Models implementing Stencila Hub Sessions.
 
-Whenever a user is accessing a project and running the code in the interactive cells, Stencila Hub creates a Session which connects
-to a Stencila Cloud instance which provides the environment for running the code. Each Session has parameters related to computational
-resources.
+Whenever a user is accessing a project and running the code in the interactive cells, Stencila Hub creates a Session
+which connects to a Stencila Cloud instance which provides the environment for running the code. Each Session has
+parameters related to computational resources.
 
 Each Project can have a number of Sessions related to it. These Sessions are grouped in a Session Group.
 """
 
 import enum
+from datetime import timedelta
 
 from django.db import models
+from django.db.models import QuerySet, Q
 from django.urls import reverse
 from django.utils import timezone
+
+SESSION_POLL_TIMEOUT = 60  # default for number of seconds since update that Session info is out of date
 
 
 class SessionStatus(enum.Enum):
@@ -22,20 +26,61 @@ class SessionStatus(enum.Enum):
     STOPPED = 'Stopped'
 
 
+class SessionManager(models.Manager):
+    def filter_project_and_status(self, project: 'Project', status: SessionStatus) -> QuerySet:
+        """
+        Helper method for retrieving `Session`s with a particular `SessionStatus`, since the `status` attribute is
+        dynamically updated based on when the `Session` was polled, stopped or started.
+        """
+        filter_kwargs = {'project': project}
+
+        if status == SessionStatus.UNKNOWN:
+            filter_kwargs['last_check'] = None
+        elif status == SessionStatus.NOT_STARTED:
+            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['started'] = None
+        elif status == SessionStatus.RUNNING:
+            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['started__lt'] = timezone.now()
+            filter_kwargs['stopped'] = None
+        elif status == SessionStatus.STOPPED:
+            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['stopped__lt'] = timezone.now()
+
+        return super().get_queryset().filter(**filter_kwargs)
+
+    def filter_stale_status(self) -> QuerySet:
+        """
+        Filter `Session`s to those that are "stale": their `last_check` is null (never checked) or more than
+        `SESSION_POLL_TIMEOUT` seconds ago, and are not stopped (`stopped` is null).
+
+        Generally the methods that call this should add extra filters to this return value, e.g:
+        `Session.objects.filter_stale_status().filter(project=project)`
+        """
+        last_check_filter = Q(last_check=None) | Q(
+            last_check__lt=timezone.now() - timedelta(seconds=SESSION_POLL_TIMEOUT))
+
+        return super().get_queryset().filter(last_check_filter, stopped=None)
+
+
 class Session(models.Model):
     """
     An execution Session
     """
+    manager = SessionManager()
+
     project = models.ForeignKey(
         'Project',
         null=False,
-        on_delete=models.PROTECT,  # Don't want to delete references if the container is running and we need control still
+        on_delete=models.PROTECT,
+        # Don't want to delete references if the container is running and we need control still
         related_name='sessions',
         help_text='The Project that this Session belongs to.'
     )
 
     url = models.URLField(
-        help_text='URL for API access to administrate this Session'
+        help_text='URL for API access to administrate this Session',
+        db_index=True
     )
 
     started = models.DateTimeField(
@@ -75,7 +120,8 @@ class SessionParameters(models.Model):
     name = models.TextField(
         null=True,
         blank=True,
-        help_text='Names for the set of session parameters (optional). This can be used if you want to save a pre-set Session Parameters'
+        help_text='Names for the set of session parameters (optional). This can be used if you want to save a pre-set '
+                  'Session Parameters'
     )
 
     description = models.TextField(
