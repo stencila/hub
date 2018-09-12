@@ -1,6 +1,8 @@
+import datetime
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -28,6 +30,19 @@ class HomeView(View):
             return redirect(url)
 
 
+class StatusView(View):
+    """
+    A view that returns the current date for health checker purposes
+    """
+    def get(self, request: HttpRequest) -> HttpResponse:
+        resp = HttpResponse(datetime.datetime.utcnow().isoformat())
+        resp['Content-Type'] = 'text/plain'
+        resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        resp['Pragma'] = 'no-cache'
+        resp['Expires'] = '0'
+        return resp
+
+
 class Error500View(View):
     """
     A custom 500 view which pass the request into the template context
@@ -44,6 +59,7 @@ class Test403View(View):
     This view allows testing of 403 error handling in production
     (ie. test that custom 403 page is displayed)
     """
+
     def get(self, request):
         raise PermissionDenied("This is a test 403 error")
 
@@ -53,6 +69,7 @@ class Test404View(View):
     This view allows testing of 404 error handling in production
     (ie. test that custom 404 page is displayed)
     """
+
     def get(self, request):
         raise Http404("This is a test 404 error")
 
@@ -62,6 +79,7 @@ class Test500View(View):
     This view allows testing of 500 error handling in production (e.g that stack traces are
     being sent to Sentry). Can only be run by staff.
     """
+
     @method_decorator(staff_member_required)
     def get(self, request):
         raise RuntimeError("This is a test error")

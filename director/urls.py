@@ -20,7 +20,7 @@ from users.views import (
     UserSigninView,
     UserSignoutView,
     BetaTokenView)
-from views import HomeView, Error500View, Test403View, Test404View, Test500View
+from views import HomeView, Error500View, Test403View, Test404View, Test500View, StatusView
 
 urlpatterns = [
     # Project CRUD
@@ -62,7 +62,10 @@ urlpatterns = [
     # Testing errors
     path('test/403', Test403View.as_view()),
     path('test/404', Test404View.as_view()),
-    path('test/500', Test500View.as_view())
+    path('test/500', Test500View.as_view()),
+
+    # status
+    path('status/', StatusView.as_view())
 ]
 
 handler403 = permission_denied
