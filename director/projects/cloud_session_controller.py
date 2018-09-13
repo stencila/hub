@@ -1,6 +1,7 @@
 import enum
 import time
 import typing
+from datetime import timedelta
 from urllib.parse import urljoin
 
 import jwt
@@ -8,7 +9,7 @@ import requests
 from django.utils import timezone
 
 from projects.models import Project, Session
-from projects.session_models import SessionStatus
+from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT
 
 JWT_ALGORITHM = "HS256"
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
@@ -98,37 +99,109 @@ class CloudClient(object):
 
 class SessionException(Exception):
     """Generic exception for problems with Session, in particular that there are already enough session running."""
-    pass
+
+
+class ActiveSessionsExceededException(SessionException):
+    """Raised if there are already too many active `Session`s."""
 
 
 class CloudSessionFacade(object):
     """Wrap interaction with the Stencila Cloud in a project-centric and Django-reliant way."""
 
-    def __init__(self, project: Project, client: CloudClient):
+    def __init__(self, project: Project, client: CloudClient) -> None:
         self.project = project
         self.client = client
 
-    def create_session(self, environ: str) -> Session:
-        """
-        Create a session for a project on a remote Stencila execution Host (usually
-        an instance of `stencila/cloud` but could even be a user's local machine)
-        """
-        self.poll_sessions()  # make sure there is an up to date picture of Sessions before proceeding
+    def session_requests_exist(self) -> bool:
+        return self.project.session_requests.count() > 0
 
-        active_session_count = self.get_active_session_count()
+    def check_session_queue_full(self) -> None:
+        """
+        Check if we are allowed to create a new `SessionRequest` for the `Project`. This method will either complete
+        successfully if we are, or raise a `SessionException` if not.
+        """
+        if self.project.sessions_queued is None:  # no limit set so always return (success)
+            return
+
+        queued_request_count = self.project.session_requests.count()
+        if queued_request_count >= self.project.sessions_queued:
+            raise SessionException("There are already {}/{} requests for sessions for this project.".format(
+                queued_request_count, self.project.sessions_queued))
+
+    def check_total_sessions_exceeded(self) -> None:
+        """
+        Check if we are allowed to create a new `Session` for the `Project`. This checks on the total number of
+        `Session`s that have every been created, not just the active ones. This method will either complete successfully
+        if a `Session` can be created, or raise a `SessionException` if not.
+        """
+        if self.project.sessions_total is None:
+            return  # success
+
         total_session_count = self.get_total_session_count()
-
-        if self.project.sessions_total is not None and self.project.sessions_total <= total_session_count:
+        if self.project.sessions_total <= total_session_count:
             raise SessionException(
                 "Unable to create new sessions for the project. {}/{} have already been created.".format(
                     total_session_count, self.project.sessions_total))
 
-        if self.project.sessions_concurrent is not None and self.project.sessions_concurrent <= active_session_count:
-            raise SessionException(
+    def check_active_sessions_exceeded(self) -> None:
+        """
+        Check if we are allowed to create a new `Session` for the `Project`. This checks the number of active
+        `Session`s. This method will either complete successfully if a `Session` can be created, or raise a
+        `ActiveSessionsExceededException` if not.
+        """
+        if self.project.sessions_concurrent is None:
+            return
+
+        active_session_count = self.get_active_session_count()
+
+        if self.project.sessions_concurrent <= active_session_count:
+            raise ActiveSessionsExceededException(
                 "Unable to start session for the project. {}/{} are already active.".format(
                     active_session_count, self.project.sessions_concurrent))
 
-        session_url = self.client.start_session(environ, self.project.session_parameters.serialize())
+    def check_session_requests_exist(self, session_request_to_use: typing.Optional[SessionRequest]) -> None:
+        """
+        Check if the `Project` has any `SessionRequest`s, in which case a new `Session` should not be started
+        (an `ActiveSessionsExceededException` is raised); unless `session_request_to_use` is passed in, in which case
+        the `Session` can be created and that `SessionRequest` is "used up".
+
+        This method should only be called after the other checks for total sessions and active sessions being exceeded
+        have been executed.
+        """
+        if session_request_to_use:
+            session_request_to_use.delete()  # consider this `SessionRequest` to be used up, so remove it
+            return
+
+        if self.session_requests_exist():
+            # other users are waiting and the current user is not first in queue so queue them up
+            raise ActiveSessionsExceededException(
+                "Unable to start session for the project as there are already requests queued")
+
+    def create_session_request(self, environ: str) -> SessionRequest:
+        self.expire_stale_session_requests()
+
+        self.check_session_queue_full()
+
+        return self.project.session_requests.create(environ=environ)
+
+    def expire_stale_session_requests(self) -> None:
+        """Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds."""
+        last_check_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CHECK_TIMEOUT)
+
+        SessionRequest.objects.filter(project=self.project, last_check__lte=last_check_before).delete()
+
+    def check_session_can_start(self, session_request_to_use: typing.Optional[SessionRequest]):
+        """Wrapper around the checks that must be done before allowing a Session to start."""
+        self.check_total_sessions_exceeded()
+        self.check_active_sessions_exceeded()
+        self.check_session_requests_exist(session_request_to_use)
+
+    def perform_session_create(self, environ: str, session_parameters: dict) -> Session:
+        """
+        Do the actual Session creation without checking if the `Project` limits it (i.e. don't call this method unless
+        the check_* methods have already been called.
+        """
+        session_url = self.client.start_session(environ, session_parameters)
 
         # TODO should we record some of the request
         # headers e.g. `REMOTE_ADDR`, `HTTP_USER_AGENT`, `HTTP_REFERER` for analytics?
@@ -140,11 +213,20 @@ class CloudSessionFacade(object):
             url=session_url
         )
 
+    def create_session(self, environ: str, session_request_to_use: typing.Optional[SessionRequest] = None) -> Session:
+        """
+        Create a session for a project on a remote Stencila execution Host (usually
+        an instance of `stencila/cloud` but could even be a user's local machine)
+        """
+        self.poll_sessions()  # make sure there is an up to date picture of Sessions before proceeding
+        self.check_session_can_start(session_request_to_use)
+        return self.perform_session_create(environ, self.project.session_parameters.serialize())
+
     def get_active_session_count(self) -> int:
         return Session.objects.filter_project_and_status(self.project, SessionStatus.RUNNING)
 
     def get_total_session_count(self) -> int:
-        return Session.objects.filter(project=self.project)
+        return self.project.sessions.count()
 
     def update_session_info(self, session: Session) -> None:
         session_info = self.client.get_session_info(session.url)

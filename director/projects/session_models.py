@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 SESSION_POLL_TIMEOUT = 60  # default for number of seconds since update that Session info is out of date
+SESSION_QUEUE_CHECK_TIMEOUT = 120  # remove a `SessionQueue` if it hasn't been checked for this many seconds
 
 
 class SessionStatus(enum.Enum):
@@ -75,6 +76,7 @@ class Session(models.Model):
         on_delete=models.PROTECT,
         # Don't want to delete references if the container is running and we need control still
         related_name='sessions',
+        db_index=True,
         help_text='The Project that this Session belongs to.'
     )
 
@@ -180,3 +182,36 @@ class SessionParameters(models.Model):
             "lifetime": self.lifetime,
             "timeout": self.timeout
         }
+
+
+class SessionRequest(models.Model):
+    """
+    A request to queue the creation of  a `Session` for when the `Project` already has the maximum number of sessions
+    running (`sessions_concurrent`).
+    """
+
+    project = models.ForeignKey(
+        'Project',
+        null=False,
+        on_delete=models.CASCADE,
+        related_name='session_requests',
+        db_index=True,
+        help_text='The project this request is for'
+    )
+
+    created = models.DateTimeField(
+        null=False,
+        auto_now_add=True,
+        help_text='The date and time the request for a session was created.'
+    )
+
+    last_check = models.DateTimeField(
+        null=False,
+        auto_now=True,
+        help_text='The last time that a client queried against this request'
+    )
+
+    environ = models.TextField(
+        null=False,
+        help_text='The environment in which to create the Session'
+    )

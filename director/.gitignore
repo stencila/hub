@@ -14,3 +14,7 @@
 
 # Ignore dev sqlite3 db file
 /db.sqlite3
+
+# Ignore coverage reports
+.coverage
+cover

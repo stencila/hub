@@ -24,7 +24,8 @@ class ProjectFetchResult(typing.NamedTuple):
     agent_permissions: typing.Set[ProjectPermissionType]
 
 
-def add_roles_to_permissions_sets(roles_set: set, permissions_set: set, role: ProjectRole) -> None:
+def add_roles_to_permissions_sets(roles_set: typing.Set[ProjectRole],
+                                  permissions_set: typing.Set[ProjectPermissionType], role: ProjectRole) -> None:
     if role not in roles_set:
         roles_set.add(role)
         for permission_type in role.permissions_types():
@@ -37,8 +38,8 @@ def fetch_project_for_user(user: User, project_pk: int) -> ProjectFetchResult:
 
     project_agent_roles = ProjectAgentRole.filter_with_user_teams(user, user_teams, project=project)
 
-    roles = set()
-    permissions = set()
+    roles: typing.Set[ProjectRole] = set()
+    permissions: typing.Set[ProjectPermissionType] = set()
 
     if project_agent_roles.count():
         for project_agent_role in project_agent_roles:

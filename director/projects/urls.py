@@ -19,7 +19,7 @@ from .views import (
     ProjectArchiveView,
 
     ProjectDeleteView,
-)
+    ProjectSessionRequestView)
 
 urlpatterns = [
     # Generic views
@@ -39,11 +39,15 @@ urlpatterns = [
     path('<str:token>/host/', include([
         path('v0/', include([
             path('manifest', ProjectHostManifestView.as_view(), {'version': 0}),
-            re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view())
+            re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view(api_version=0),
+                    name='session_start_v0'),
+            path('session-queue', ProjectSessionRequestView.as_view(api_version=0), name='session_queue_v0')
         ])),
         path('v1/', include([
             path('manifest', ProjectHostManifestView.as_view(), {'version': 1}),
-            re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view())
+            re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view(api_version=1),
+                    name='session_start_v1'),
+            path('session-queue', ProjectSessionRequestView.as_view(api_version=0), name='session_queue_v1')
         ]))
     ])),
 
