@@ -42,6 +42,18 @@ class StatusView(View):
         resp['Expires'] = '0'
         return resp
 
+class PrivacyView(TemplateView):
+    """
+    Page displaying the details of the Privacy Policy.
+    """
+    template_name = 'privacy.html'
+
+class TermsView(TemplateView):
+    """
+    Page displaying the details of the Terms and Conditions.
+    """
+    template_name = 'terms-conditions.html'
+
 
 class Error500View(View):
     """

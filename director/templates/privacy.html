@@ -1,111 +1,67 @@
+{% extends 'base.html' %}
+<!-- html class="iubenda_fixed_policy"> -->
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-{% load static %}
-<html id="iubenda_policy" class="iubenda_fixed_policy">
-<head>
+{% block scripts %}
+{{ block.super }}
+<script src="https://www.iubenda.com//assets/privacy_policy-474d8657e20b2d06a569c0471da4c0c6.js" type="text/javascript"></script>
+<script type="text/javascript">
+  function tryFunc(fName,args){
+    if(typeof window[fName]==='function'){
+      window[fName](args);
+    }else{
+      if(args){
+        /* default behaviour is link */
+        if(args.href){
+          /* default link is target='_blank' */
+          window.open(args.href)
+        }
+      }
+    }
+    return false; /* inhibit default behaviour */
+  }
+</script>
+{% endblock %}
 
-	<title>{% block title %}{% endblock %} : Stencila</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
-	{% block styles %}
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-	<link rel="stylesheet" href="{% static 'css/base.css' %}">
-	{% endblock %}
-	{% block scripts %}
-	<script type="text/javascript" src="{% static 'js/base.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
-	<script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
-	<script>
-			Vue.use(Buefy.default, {
-					defaultIconPack: 'fas'
-			})
-	</script>
-	<link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
-	{% endblock %}
+{% block styles %}
+{{ block.super }}
+<link href="https://www.iubenda.com/assets/privacy_policy-9c48f81f3e4ab1916759292b967b4c60.css"  rel="stylesheet" type="text/css" />
+{% endblock %}
 
+{% block title %} Privacy Policy {% endblock %}
 
-
-  <title>Privacy Policy of Stencila Hub</title>
-
-	<meta content="Stencila Hub collects some Personal Data from its Users." name="description" />
-	<meta content="privacy policy" name="keywords" />
-
-  <meta http-equiv="Content-Language" content="en" />
-  <meta name="robots" content="noindex, follow">
-
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta http-equiv="date" content="2018-09-10">
-	<meta http-equiv="last-modified" content="2018-09-11">
-	<meta property="og:title" content="Privacy Policy of Stencila Hub" />
-	<meta property="og:type" content="website" />
-	<meta property="og:image" content="https://www.iubenda.com/images/site/fb-image.png" />
-	<meta property="og:site_name" content="iubenda" />
-	<meta property="fb:app_id" content="190131204371223"/>
-	<link rel="image_src" href="https://www.iubenda.com/images/site/fb-image.png"/>
-
-  <meta name="viewport" content="width=device-width">
-
-  <link href="https://www.iubenda.com/assets/privacy_policy-9c48f81f3e4ab1916759292b967b4c60.css" media="screen" rel="stylesheet" type="text/css" />
-  <script src="https://www.iubenda.com/assets/privacy_policy-474d8657e20b2d06a569c0471da4c0c6.js" type="text/javascript"></script>
-
-</head>
-<body>
-
-
-
+{% block content %}
+<div id="iubenda_policy" class="iubenda_fixed_policy">
   <div id="wbars_all">
 	  <div class="iub_container iub_base_container">
 	    <div id="wbars">
 	      <div class="iub_content legal_pp">
+					<div class="iub_header">
+    				<h1>Privacy Policy of <strong>Stencila Hub</strong></h1>
+      			<p>Stencila Hub collects some Personal Data from its Users.</p>
+          </div> <!-- /header -->
 
+					<div class="one_line_col">
+  					<h2 id="owner_of_the_data">Owner and Data Controller</h2>
+			      <p>Stencila Ltd<br/>Kaikoura, New Zealand</p>
+			      <p><b>Owner contact email:</b> privacy@stenci.la</p>
+					</div> <!-- /one_line_col -->
 
-
-<div class="iub_header">
-
-    <h1>Privacy Policy of <strong>Stencila Hub</strong></h1>
-
-      <p>Stencila Hub collects some Personal Data from its Users.</p>
-</div> <!-- /header -->
-
-
-<div class="one_line_col">
-
-  <h2 id="owner_of_the_data">Owner and Data Controller</h2>
-
-      <p>Stencila Ltd<br/>Kaikoura, New Zealand</p>
-      <p><b>Owner contact email:</b> privacy@stenci.la</p>
-
-</div> <!-- /one_line_col -->
-
-
-<div class="one_line_col">
+					<div class="one_line_col">
 
   <h2 id="types_of_data">Types of Data collected</h2>
-
     <p>
       Among the types of Personal Data that Stencila Hub collects, by itself or through third parties, there are:
        Cookies, Usage Data, first name, last name, email address, various types of Data, username and company name.
     </p>
-
-
-  <p>Complete details on each type of Personal Data collected are provided in the dedicated sections of this privacy policy or by specific explanation texts displayed prior to the Data collection.<br />Personal Data may be freely provided by the User, or, in case of Usage Data, collected automatically when using Stencila Hub.<br />Unless specified otherwise, all Data requested by Stencila Hub is mandatory and failure to provide this Data may make it impossible for Stencila Hub to provide its services. In cases where Stencila Hub specifically states that some Data is not mandatory, Users are free not to communicate this Data without consequences to the availability or the functioning of the Service.<br />Users who are uncertain about which Personal Data is mandatory are welcome to contact the Owner.<br />Any use of Cookies – or of other tracking tools – by Stencila Hub or by the owners of third-party services used by Stencila Hub serves the purpose of providing the Service required by the User, in addition to any other purposes described in the present document and in the Cookie Policy, if available.</p>
-  <p>Users are responsible for any third-party Personal Data obtained, published or shared through Stencila Hub and confirm that they have the third party's consent to provide the Data to the Owner.</p>
-
+	  <p>Complete details on each type of Personal Data collected are provided in the dedicated sections of this privacy policy or by specific explanation texts displayed prior to the Data collection.<br />Personal Data may be freely provided by the User, or, in case of Usage Data, collected automatically when using Stencila Hub.<br />Unless specified otherwise, all Data requested by Stencila Hub is mandatory and failure to provide this Data may make it impossible for Stencila Hub to provide its services. In cases where Stencila Hub specifically states that some Data is not mandatory, Users are free not to communicate this Data without consequences to the availability or the functioning of the Service.<br />Users who are uncertain about which Personal Data is mandatory are welcome to contact the Owner.<br />Any use of Cookies – or of other tracking tools – by Stencila Hub or by the owners of third-party services used by Stencila Hub serves the purpose of providing the Service required by the User, in addition to any other purposes described in the present document and in the Cookie Policy, if available.</p>
+	  <p>Users are responsible for any third-party Personal Data obtained, published or shared through Stencila Hub and confirm that they have the third party's consent to provide the Data to the Owner.</p>
 </div> <!-- /one_line_col -->
 
-
 <div class="one_line_col">
-
   <h2 id="place_of_processing">Mode and place of processing the Data</h2>
-
   <h3>Methods of processing</h3>
-
   <p>The Owner takes appropriate security measures to prevent unauthorized access, disclosure, modification, or unauthorized destruction of the Data.<br />The Data processing is carried out using computers and/or IT enabled tools, following organizational procedures and modes strictly related to the purposes indicated. In addition to the Owner, in some cases, the Data may be accessible to certain types of persons in charge, involved with the operation of Stencila Hub (administration, sales, marketing, legal, system administration) or external parties (such as third-party technical service providers, mail carriers, hosting providers, IT companies, communications agencies) appointed, if necessary, as Data Processors by the Owner. The updated list of these parties may be requested from the Owner at any time.</p>
-
   <h3>Legal basis of processing</h3>
-
   <p>The Owner may process Personal Data relating to Users if one of the following applies:</p>
   <ul>
     <li>Users have given their consent for one or more specific purposes. Note: Under some legislations the Owner may be allowed to process Personal Data until the User objects to such processing (“opt-out”), without having to rely on consent or any other of the following legal bases. This, however, does not apply, whenever the processing of Personal Data is subject to European data protection law;</li>
@@ -117,14 +73,12 @@
   <p>In any case, the Owner will gladly help to clarify the specific legal basis that applies to the processing, and in particular whether the provision of Personal Data is a statutory or contractual requirement, or a requirement necessary to enter into a contract. </p>
 
   <h3>Place</h3>
-
   <p>The Data is processed at the Owner's operating offices and in any other places where the parties involved in the processing are located.<br /><br />
 Depending on the User's location, data transfers may involve transferring the User's Data to a country other than their own. To find out more about the place of processing of such transferred Data, Users can check the section containing details about the processing of Personal Data.</p>
   <p>Users are also entitled to learn about the legal basis of Data transfers to a country outside the European Union or to any international organization governed by public international law or set up by two or more countries, such as the UN, and about the security measures taken by the Owner to safeguard their Data.<br /><br />
 If any such transfer takes place, Users can find out more by checking the relevant sections of this document or inquire with the Owner using the information provided in the contact section.</p>
 
   <h3>Retention time</h3>
-
   <p>Personal Data shall be processed and stored for as long as required by the purpose they have been collected for.</p>
   <p>Therefore:</p>
   <ul>
@@ -133,15 +87,10 @@ If any such transfer takes place, Users can find out more by checking the releva
   </ul>
   <p>The Owner may be allowed to retain Personal Data for a longer period whenever the User has given consent to such processing, as long as such consent is not withdrawn. Furthermore, the Owner may be obliged to retain Personal Data for a longer period whenever required to do so for the performance of a legal obligation or upon order of an authority.<br /><br />
 Once the retention period expires, Personal Data shall be deleted. Therefore, the right to access, the right to erasure, the right to rectification and the right to data portability cannot be enforced after expiration of the retention period.</p>
-
 </div> <!-- /one_line_col -->
 
-
-
   <div class="one_line_col">
-
     <h2 id="use_collected_data">The purposes of processing</h2>
-
       <p>
       The Data concerning the User is collected to allow the Owner to provide its Services, as well as for the following purposes:
          Access to third-party accounts, Analytics, Backup saving and management, Contacting the User, Content commenting, Data transfer outside the EU, Displaying content from external platforms, Hosting and backend infrastructure, Infrastructure monitoring, Interaction with external social networks and platforms, User database management, Social features and Registration and authentication.
@@ -149,16 +98,7 @@ Once the retention period expires, Personal Data shall be deleted. Therefore, th
 
 
     <p>Users can find further detailed information about such purposes of processing and about the specific Personal Data used for each purpose in the respective sections of this document.</p>
-
-
   </div> <!-- /one_line_col -->
-
-
-
-
-
-
-
 
     <div class="one_line_col">
 
@@ -166,8 +106,6 @@ Once the retention period expires, Personal Data shall be deleted. Therefore, th
       <p>Personal Data is collected for the following purposes and using the following services:</p>
 
       <ul class="for_boxes">
-
-
            <li>
             <div class="box_primary box_10 expand">
                <h3 class="expand-click w_icon_24 policyicon_purpose_5538824">Access to third-party accounts</h3>
@@ -175,47 +113,21 @@ Once the retention period expires, Personal Data shall be deleted. Therefore, th
 
                    <p>This type of service allows Stencila Hub to access Data from your account on a third-party service and perform actions with it.<br/>
 These services are not activated automatically, but require explicit authorization by the User.</p>
-
-
                    <h4>Dropbox account access (Dropbox, Inc.)</h4>
-
                    <div class="wrap">
                      <p>This service allows Stencila Hub to connect with the User's account on Dropbox, provided by Dropbox, Inc.</p>
                    </div>
-
-
-                     <p>
-                      Personal Data collected:
-                       various types of Data as specified in the privacy policy of the service.
+                     <p> Personal Data collected:  various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
-<p>
-Place of processing:
-United States
-&ndash;
+<p> Place of processing: United States
 <a href="https://www.dropbox.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-Privacy Shield participant.
-</p>
-
-
-                                    <h4>Google Drive account access (Google LLC)</h4>
-
+Privacy Shield participant. </p>
+        <h4>Google Drive account access (Google LLC)</h4>
                    <div class="wrap">
                      <p>This service allows Stencila Hub to connect with the User's account on Google Drive, provided by Google LLC.</p>
                    </div>
-
-
-                     <p>
-                      Personal Data collected:
-                       various types of Data as specified in the privacy policy of the service.
+                     <p> Personal Data collected: various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -236,10 +148,6 @@ Privacy Shield participant.
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -247,10 +155,6 @@ United States
 <a href="https://twitter.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -276,10 +180,6 @@ Google may use the Data collected to contextualize and personalize the ads of it
                       Personal Data collected:
                        Cookies and Usage Data.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -287,10 +187,6 @@ United States
 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> &ndash; <a href="https://tools.google.com/dlpage/gaoptout?hl=en" onClick="javascript:return tryFunc('tryGaOptOut',{href:'https://tools.google.com/dlpage/gaoptout?hl=en'})" target="_blank">Opt Out</a>.
 Privacy Shield participant.
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -315,10 +211,6 @@ Privacy Shield participant.
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -326,8 +218,6 @@ United States
 <a href="https://www.dropbox.com/privacy#privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
                                     <h4>Backup on Google Drive (Google LLC)</h4>
 
                    <div class="wrap">
@@ -339,10 +229,6 @@ Privacy Shield participant.
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -350,10 +236,6 @@ United States
 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -363,10 +245,6 @@ Privacy Shield participant.
             <div class="box_primary box_10 expand">
                <h3 class="expand-click w_icon_24 policyicon_purpose_5538832">Contacting the User</h3>
                <div class="expand-content">
-
-
-
-
                    <h4>Contact form (Stencila Hub)</h4>
 
                    <div class="wrap">
@@ -378,19 +256,9 @@ Privacy Shield participant.
                       Personal Data collected:
                        email address, first name and last name.
                      </p>
-
-
-
-
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
-
-
            <li>
             <div class="box_primary box_10 expand">
                <h3 class="expand-click w_icon_24 policyicon_purpose_5538833">Content commenting</h3>
@@ -412,10 +280,6 @@ If a content commenting service provided by third parties is installed, it may s
                       Personal Data collected:
                        Cookies, Usage Data and various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -423,10 +287,6 @@ United States
 <a href="https://help.disqus.com/customer/portal/articles/466259-privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> &ndash; <a href="https://help.disqus.com/customer/portal/articles/1657951">Opt out</a>.
 
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -455,12 +315,6 @@ Personal Data may be transferred from within the EU or Switzerland to the U.S. t
                       Personal Data collected:
                        various types of Data.
                      </p>
-
-
-
-
-
-
                                     <h4>Data transfer abroad based on standard contractual clauses (Stencila Hub)</h4>
 
                    <div class="wrap">
@@ -473,12 +327,6 @@ This means that Data recipients have committed to process Personal Data in compl
                       Personal Data collected:
                        various types of Data.
                      </p>
-
-
-
-
-
-
                                     <h4>Other legal basis for Data transfer abroad (Stencila Hub)</h4>
 
                    <div class="wrap">
@@ -501,11 +349,6 @@ In such cases, the Owner shall inform the User about the legal bases the transfe
                        various types of Data.
                      </p>
 
-
-
-
-
-
                                     <h4>Data transfer abroad based on consent (Stencila Hub)</h4>
 
                    <div class="wrap">
@@ -518,12 +361,6 @@ In such cases, the Owner shall inform Users appropriately and collect their expl
                       Personal Data collected:
                        various types of Data.
                      </p>
-
-
-
-
-
-
                                     <h4>Data transfer to countries that guarantee European standards (Stencila Hub)</h4>
 
                    <div class="wrap">
@@ -536,14 +373,6 @@ The European Commission adopts adequacy decisions for specific countries wheneve
                       Personal Data collected:
                        various types of Data.
                      </p>
-
-
-
-
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -570,10 +399,6 @@ Please note that if Gravatar images are used for comment forms, the commenter's 
                       Personal Data collected:
                        email address and Usage Data.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -581,10 +406,6 @@ United States
 <a href="https://automattic.com/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -610,10 +431,6 @@ Some of these services work through geographically distributed servers, making i
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -640,10 +457,6 @@ Privacy Shield participant.
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -651,23 +464,15 @@ United States
 <a href="https://help.github.com/articles/github-privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
                                     <h4>Google Cloud Storage (Google LLC)</h4>
 
                    <div class="wrap">
                      <p>Google Cloud Storage is a hosting service provided by Google LLC.</p>
                    </div>
-
-
                      <p>
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -675,15 +480,9 @@ United States
 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
-
-
            <li>
             <div class="box_primary box_10 expand">
                <h3 class="expand-click w_icon_24 policyicon_purpose_5538845">Infrastructure monitoring</h3>
@@ -704,10 +503,6 @@ Which Personal Data are processed depends on the characteristics and mode of imp
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -715,10 +510,6 @@ United States
 <a href="https://www.getsentry.com/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -745,10 +536,6 @@ This type of service might still collect traffic data for the pages where the se
                       Personal Data collected:
                        Cookies and Usage Data.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -756,34 +543,6 @@ United States
 <a href="https://twitter.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 Privacy Shield participant.
 </p>
-
-
-                                    <h4>VK Like button and social widgets (VKontakte Ltd)</h4>
-
-                   <div class="wrap">
-                     <p>The VK Like button and social widgets are services allowing interaction with the VK social network provided by VKontakte Ltd.</p>
-                   </div>
-
-
-                     <p>
-                      Personal Data collected:
-                       Cookies and Usage Data.
-                     </p>
-
-
-
-
-<p>
-Place of processing:
-Russian Federation
-&ndash;
-<a href="https://vk.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
-
-</p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -809,10 +568,6 @@ Depending on what is described below, third parties may provide registration and
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -833,10 +588,6 @@ Privacy Shield participant.
                       Personal Data collected:
                        various types of Data as specified in the privacy policy of the service.
                      </p>
-
-
-
-
 <p>
 Place of processing:
 United States
@@ -982,10 +733,6 @@ United States
 <a href="https://docs.intercom.io/pricing-and-terms/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
 
 </p>
-
-
-
-
                </div> <!-- /expand-content -->
              </div> <!-- /expand -->
            </li>
@@ -995,14 +742,6 @@ United States
       </ul>
 
     </div> <!-- /one_line_col -->
-
-
-
-
-
-
-
-
   <div class="one_line_col">
 
     <h2 id="further_data">Further information about Personal Data</h2>
@@ -1054,9 +793,6 @@ United States
     </ul>
 
   </div> <!-- /one_line_col -->
-
-
-
 <div class="one_line_col">
 
   <h2>The rights of Users</h2>
@@ -1188,77 +924,14 @@ Should the changes affect processing activities performed on the basis of the Us
 
 
 
-<div class="iub_footer">
-
-  <p>
-    Latest update: September 11, 2018
-  </p>
-
-
-		<p>
-			<a href="//www.iubenda.com" title="iubenda - Privacy Policy generator">iubenda</a> hosts this content and only collects
-			<a href="//www.iubenda.com/privacy-policy/877900">the Personal Data strictly necessary</a> for it to be provided
-		</p>
-
-                <a href="//www.iubenda.com/privacy-policy/34273942" title="Show the simplified Privacy Policy" class="show_comp_link iframe-preserve an-preserve">Show the simplified Privacy Policy</a>
-
-</div> <!-- /footer -->
-
-<script type="text/javascript">
-  function tryFunc(fName,args){
-    if(typeof window[fName]==='function'){
-      window[fName](args);
-    }else{
-      if(args){
-        /* default behaviour is link */
-        if(args.href){
-          /* default link is target='_blank' */
-          window.open(args.href)
-        }
-      }
-    }
-    return false; /* inhibit default behaviour */
-  }
-</script>
-
-
 
 	      </div> <!-- /content -->
 	    </div> <!-- /wbars -->
 
-{% include '_footer.html' %}
+
 
 	  </div> <!-- /container base_container -->
 	</div> <!-- /wbars_wrapper -->
-
-
-
-
-  <script type="text/javascript">
-
-    var privacyPolicy = new PrivacyPolicy({
-      id:1350097,
-      noBrand:false
-    })
-
-    $(document).ready(function() {
-
-      privacyPolicy.start();
-
-			$(".expand-content").hide();
-			$(".expand").addClass("collapsed");
-			$(".expand .expand-click").click(function () {
-				$(this).parents(".expand").toggleClass("collapsed");
-				$(this).parents(".expand").toggleClass("expanded");
-				$(this).parents(".expand-item").toggleClass("hover");
-				$(this).children('.icon-17').toggleClass("icon-expand");
-				$(this).children('.icon-17').toggleClass("icon-collapse");
-				$(this).parents('.expand').children('.expand-content').slideToggle("fast");
-			});
-
-    });
-
-  </script>
-
-</body>
-</html>
+</div>
+{% endblock %}
+{% include '_footer.html' %}
