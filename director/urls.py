@@ -19,8 +19,16 @@ from users.views import (
     UserSignupView,
     UserSigninView,
     UserSignoutView,
-    BetaTokenView, UsernameChangeView)
-from views import HomeView, Error500View, Test403View, Test404View, Test500View, StatusView
+    BetaTokenView)
+from views import (
+    HomeView,
+    Error500View,
+    Test403View,
+    Test404View,
+    Test500View,
+    PrivacyView,
+    StatusView,
+    TermsView)
 
 urlpatterns = [
     # Project CRUD
@@ -56,6 +64,7 @@ urlpatterns = [
 
     # Privacy policy
     path('privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
+    path('terms-and-conditions/', TermsView.as_view(), name='terms-and-conditions'),
 
     # Accounts App
     path('accounts/', include(accounts_patterns)),
