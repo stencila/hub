@@ -22,7 +22,7 @@ class ProjectCreateForm(ModelFormWithSubmit):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
 
-        accounts = Account.objects.filter(user_roles__user=request.user)
+        accounts = Account.objects.filter(user_roles__user=request.user).distinct()
         self.fields['account'].queryset = accounts
 
 
