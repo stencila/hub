@@ -20,8 +20,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet, Q
+from django.db.models.signals import post_save
 
 from accounts.models import Team
+from projects.models import Project
 from lib.enum_choice import EnumChoice
 
 
@@ -63,6 +65,9 @@ class ProjectRole(models.Model):
 
 
 class ProjectAgentRole(models.Model):
+    """
+    Model connecting `Users` or `Teams` (`Agents`) with their `Roles` (permissions) in the `Project`
+    """
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.DO_NOTHING
@@ -147,4 +152,12 @@ class ProjectAgentRole(models.Model):
         return User.objects.get(pk=self.agent_id)
 
 
+    def record_permission(sender, instance, created, *args, **kwargs):
+        content_type = instance.creator
+        project = instance
+        owner_role = ProjectRole.objects.get(name='Owner')
+        if sender is Project and created:
+            ProjectAgentRole.objects.create(content_type, project, role=owner_role)
 
+
+    post_save.connect(record_permission, sender=Project)
