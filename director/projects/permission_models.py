@@ -152,12 +152,16 @@ class ProjectAgentRole(models.Model):
         return User.objects.get(pk=self.agent_id)
 
 
-    def record_permission(sender, instance, created, *args, **kwargs):
-        content_type = instance.creator
-        project = instance
-        owner_role = ProjectRole.objects.get(name='Owner')
-        if sender is Project and created:
-            ProjectAgentRole.objects.create(content_type, project, role=owner_role)
+def record_creator_as_owner(sender, instance, created, *args, **kwargs):
+    """
+    This method is called when the Project is created and saved to record `Owner`
+    role of the user who created the Project.
+    """
+    owner_role = ProjectRole.objects.get(name='Owner')
+    ct = ContentType.objects.get(model="user")
+    if sender is Project and created:
+        ProjectAgentRole.objects.create(agent_id=instance.creator.pk,
+        content_type=ct, project=instance, role=owner_role)
 
 
-    post_save.connect(record_permission, sender=Project)
+post_save.connect(record_creator_as_owner, sender=Project)
