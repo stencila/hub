@@ -36,16 +36,16 @@ class SessionManager(models.Manager):
         filter_kwargs = {'project': project}
 
         if status == SessionStatus.UNKNOWN:
-            filter_kwargs['last_check'] = None
+            filter_kwargs['last_check__isnull'] = True
         elif status == SessionStatus.NOT_STARTED:
-            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['last_check__isnull'] = False
             filter_kwargs['started'] = None
         elif status == SessionStatus.RUNNING:
-            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['last_check__isnull'] = False
             filter_kwargs['started__lt'] = timezone.now()
-            filter_kwargs['stopped'] = None
+            filter_kwargs['stopped__isnull'] = True
         elif status == SessionStatus.STOPPED:
-            filter_kwargs['last_check__ne'] = None
+            filter_kwargs['last_check__isnull'] = False
             filter_kwargs['stopped__lt'] = timezone.now()
 
         return super().get_queryset().filter(**filter_kwargs)
@@ -68,7 +68,7 @@ class Session(models.Model):
     """
     An execution Session
     """
-    manager = SessionManager()
+    objects = SessionManager()
 
     project = models.ForeignKey(
         'Project',
@@ -87,16 +87,19 @@ class Session(models.Model):
 
     started = models.DateTimeField(
         null=True,
+        blank=True,
         help_text='DateTime this Session was started.'
     )
 
     stopped = models.DateTimeField(
         null=True,
+        blank=True,
         help_text='DateTime this Session was stopped (or that we detected it had stopped).'
     )
 
     last_check = models.DateTimeField(
         null=True,
+        blank=True,
         help_text='The last time the status of this Session was checked'
     )
 

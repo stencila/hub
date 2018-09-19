@@ -135,7 +135,7 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view.session_facade.create_session_request.assert_called_with(self.environ)
         self.assertEqual(response, mock_redirect.return_value)
         mock_redirect.assert_called_with(mock_reverse.return_value)
-        mock_reverse.assert_called_with('session_queue_v0')
+        mock_reverse.assert_called_with('session_queue_v0', args=(self.token,))
 
         self.assertEqual(self.request.session["SESSION_REQUEST_ID_token"],
                          self.view.session_facade.create_session_request.return_value.pk)

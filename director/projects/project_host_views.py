@@ -171,7 +171,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
     def create_session_request(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
         session_request = self.session_facade.create_session_request(environ)
         request.session[SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)] = session_request.pk
-        return redirect(reverse('session_queue_v{}'.format(self.api_version)))
+        return redirect(reverse('session_queue_v{}'.format(self.api_version), args=(token,)))
 
     def create_session(self, request: HttpRequest, environ: str, session_key: str,
                        session_request_to_use: typing.Optional[SessionRequest]) -> str:

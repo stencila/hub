@@ -223,7 +223,7 @@ class CloudSessionFacade(object):
         return self.perform_session_create(environ, self.project.session_parameters.serialize())
 
     def get_active_session_count(self) -> int:
-        return Session.objects.filter_project_and_status(self.project, SessionStatus.RUNNING)
+        return Session.objects.filter_project_and_status(self.project, SessionStatus.RUNNING).count()
 
     def get_total_session_count(self) -> int:
         return self.project.sessions.count()
