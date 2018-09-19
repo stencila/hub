@@ -2,10 +2,13 @@
 Views that implement some of the Stencila Host API endpoints
 for a project
 """
+import typing
+
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -107,59 +110,83 @@ class ProjectSessionRequestView(View):
 
 class ProjectHostSessionsView(ProjectHostBaseView):
     api_version: int = 0
+    session_facade: CloudSessionFacade
 
-    def post(self, request: HttpRequest, token: str, environ: str) -> JsonResponse:
-        project = get_object_or_404(Project, token=token)
-
-        if project.key and request.POST.get("key") != project.key:
-            raise PermissionDenied("The key in the POST request does not match that of the Project")
-
-        session_key = SESSION_URL_SESSION_KEY_FORMAT.format(token, environ)
-
+    def setup_cloud_client(self, project: Project) -> None:
         # TODO: This will eventually come from the `SessionParameters` for this project
         host_url = settings.NATIVE_HOST_URL
         jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
 
         cloud_client = CloudClient(host_url, jwt_secret)
+        self.session_facade = CloudSessionFacade(project, cloud_client)
 
-        session_facade = CloudSessionFacade(project, cloud_client)
+    def get_session_url_from_request_session(self, request: HttpRequest, session_key: str) -> typing.Optional[str]:
+        if session_key not in request.session:
+            return None
 
-        session_url = None
+        session_url = request.session[session_key]
+        try:
+            session = Session.objects.get(url=session_url)
+        except Session.DoesNotExist:
+            return None
 
-        if session_key in request.session:
-            session_url = request.session[session_key]
-            try:
-                session = Session.objects.get(url=session_url)
-            except Session.DoesNotExist:
-                session_url = None
-            else:
-                if session.stopped is None:
-                    session_facade.update_session_info(session)
+        if session.stopped is None:
+            self.session_facade.update_session_info(session)
 
-                if session.stopped is not None and session.stopped <= timezone.now():
-                    session_url = None
+        if session.stopped is not None and session.stopped <= timezone.now():
+            return None
 
+        return session_url
+
+    @staticmethod
+    def get_session_request_to_use(request: HttpRequest, token: str) -> typing.Optional[SessionRequest]:
+        is_next_key = SESSION_REQUEST_IS_NEXT_KEY_FORMAT.format(token)
+
+        if request.session.get(is_next_key) is not True:
+            return None
+
+        session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
+        session_request_to_use = SessionRequest.objects.get(pk=request.session[session_request_key])
+        del request.session[is_next_key]
+        del request.session[session_request_key]
+
+        return session_request_to_use
+
+    def create_session_request(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
+        session_request = self.session_facade.create_session_request(environ)
+        request.session[SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)] = session_request.pk
+        return redirect(reverse('session_queue_v{}'.format(self.api_version)))
+
+    def create_session(self, request: HttpRequest, environ: str, session_key: str,
+                       session_request_to_use: typing.Optional[SessionRequest]) -> str:
+        session = self.session_facade.create_session(environ, session_request_to_use)
+        session_url = session.url
+        request.session[session_key] = session_url
+        return session_url
+
+    def generate_response(self, request: HttpRequest, environ: str, session_key: str, token: str,
+                          session_url: typing.Optional[str]) -> HttpResponse:
         if not session_url:
-            is_next_key = SESSION_REQUEST_IS_NEXT_KEY_FORMAT.format(token)
-
-            if is_next_key in request.session and request.session[is_next_key]:
-                session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
-                session_request_to_use = SessionRequest.objects.get(pk=request.session[session_request_key])
-                del request.session[is_next_key]
-                del request.session[session_request_key]
-            else:
-                session_request_to_use = None
+            session_request_to_use = self.get_session_request_to_use(request, token)
 
             try:
-                session = session_facade.create_session(environ, session_request_to_use)
+                session_url = self.create_session(request, environ, session_key, session_request_to_use)
             except ActiveSessionsExceededException:
-                session_request = session_facade.create_session_request(environ)
-                request.session[SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)] = session_request.pk
-                return redirect()
-            else:
-                session_url = session.url
-                request.session[session_key] = session_url
+                return self.create_session_request(request, token, environ)
 
         return JsonResponse({
             'url': session_url
         })
+
+    def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
+        project = get_object_or_404(Project, token=token)
+
+        if project.key and request.POST.get("key") != project.key:
+            raise PermissionDenied("The key in the POST request does not match that of the Project")
+
+        self.setup_cloud_client(project)
+
+        session_key = SESSION_URL_SESSION_KEY_FORMAT.format(token, environ)
+        session_url = self.get_session_url_from_request_session(request, session_key)
+
+        return self.generate_response(request, environ, session_key, token, session_url)

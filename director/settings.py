@@ -268,8 +268,10 @@ class Dev(Common):
     NOSE_ARGS = [
         '--with-coverage',
         '--cover-package=projects.cloud_session_controller',
+        '--cover-package=projects.project_host_views',
         '--cover-html'
     ]
+
 
 class Prod(Common):
     """
