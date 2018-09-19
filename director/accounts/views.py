@@ -177,6 +177,8 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         self.perform_account_fetch(self.request.user, self.object.pk)
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
         return self.get_render_context(super(AccountSettingsView, self).get_context_data(**kwargs))
 
 
