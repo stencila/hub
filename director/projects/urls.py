@@ -47,7 +47,7 @@ urlpatterns = [
             path('manifest', ProjectHostManifestView.as_view(), {'version': 1}),
             re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view(api_version=1),
                     name='session_start_v1'),
-            path('session-queue', ProjectSessionRequestView.as_view(api_version=0), name='session_queue_v1')
+            path('session-queue', ProjectSessionRequestView.as_view(api_version=1), name='session_queue_v1')
         ]))
     ])),
 

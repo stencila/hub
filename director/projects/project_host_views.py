@@ -6,7 +6,7 @@ import typing
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, HttpRequest, HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -65,51 +65,7 @@ class ProjectHostManifestView(ProjectHostBaseView):
         return JsonResponse(manifest)
 
 
-class ProjectSessionRequestView(View):
-    api_version: int = 0
-
-    def get(self, request: HttpRequest, token: str) -> HttpResponse:
-        project = get_object_or_404(Project, token=token)
-
-        session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
-
-        if session_request_key not in request.session:
-            return HttpResponseBadRequest("No session is currently queued for you for this project token.")
-
-        session_request_pk = request.session[session_request_key]
-
-        try:
-            session_request = SessionRequest.objects.get(pk=session_request_pk)
-        except SessionRequest.DoesNotExist:
-            del request.session[session_request_key]
-            return JsonResponse({'invalid_session': True})  # TODO: work out what a sensible response is
-            # client should stop checking if they receive this
-
-        host_url = settings.NATIVE_HOST_URL
-        jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
-
-        cloud_client = CloudClient(host_url, jwt_secret)
-
-        session_facade = CloudSessionFacade(project, cloud_client)
-
-        if project.sessions_concurrent is not None and \
-                project.sessions_concurrent <= session_facade.get_active_session_count():
-            # still too many running sessions
-            return JsonResponse({'waiting': True})  # TODO: work out what a sensible response is
-
-        # there are available session spots, but is this request first in the queue?
-        first_session_request = SessionRequest.objects.filter(project=project).order_by('created').first()
-
-        if first_session_request == session_request:
-            request.session[SESSION_REQUEST_IS_NEXT_KEY_FORMAT.format(token)] = True  # semaphore to shortcut checks
-            return JsonResponse({'start_session': True})  # TODO: work out what a sensible response is
-            # client should attempt the POST again and we let them through
-
-        return JsonResponse({'start_session': False})
-
-
-class ProjectHostSessionsView(ProjectHostBaseView):
-    api_version: int = 0
+class CloudClientMixin(object):
     session_facade: CloudSessionFacade
 
     def setup_cloud_client(self, project: Project) -> None:
@@ -119,6 +75,66 @@ class ProjectHostSessionsView(ProjectHostBaseView):
 
         cloud_client = CloudClient(host_url, jwt_secret)
         self.session_facade = CloudSessionFacade(project, cloud_client)
+
+
+class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
+    api_version: int = 0
+
+    @staticmethod
+    def get_session_request(request: HttpRequest, token: str) -> typing.Optional[SessionRequest]:
+        session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
+
+        if session_request_key not in request.session:
+            return None
+
+        session_request_pk = request.session[session_request_key]
+
+        try:
+            return SessionRequest.objects.get(pk=session_request_pk)
+        except SessionRequest.DoesNotExist:
+            del request.session[session_request_key]
+
+    @staticmethod
+    def get_first_session_request(project: Project) -> typing.Optional[SessionRequest]:
+        return SessionRequest.objects.filter(project=project).order_by('created').first()
+
+    def project_has_sessions_available(self, project: Project) -> bool:
+        if project.sessions_concurrent is None:
+            return True
+
+        return project.sessions_concurrent > self.session_facade.get_active_session_count()
+
+    def session_can_start(self, request: HttpRequest, project: Project, token: str,
+                          session_request: SessionRequest) -> bool:
+        if not self.project_has_sessions_available(project):
+            return False
+
+        # there are available session spots, but is this request first in the queue?
+        if self.get_first_session_request(project) != session_request:
+            return False
+
+        request.session[SESSION_REQUEST_IS_NEXT_KEY_FORMAT.format(token)] = True  # semaphore to shortcut checks
+        # client should attempt the session start POST again and we let them through
+        return True
+
+    def get(self, request: HttpRequest, token: str) -> HttpResponse:
+        project = get_object_or_404(Project, token=token)
+
+        session_request = self.get_session_request(request, token)
+
+        if not session_request:
+            # client should stop checking if they receive this
+            return JsonResponse({'invalid_session': True})  # TODO: work out what a sensible response is
+
+        self.setup_cloud_client(project)
+
+        return JsonResponse({
+            'start_session': self.session_can_start(request, project, token, session_request)
+        })  # TODO: work out what a sensible response is
+
+
+class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
+    api_version: int = 0
 
     def get_session_url_from_request_session(self, request: HttpRequest, session_key: str) -> typing.Optional[str]:
         if session_key not in request.session:
