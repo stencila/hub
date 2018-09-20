@@ -14,8 +14,9 @@ def run(*args):
 
     for user in User.objects.all():
         for account in Account.objects.all():
-            AccountUserRole.objects.create(
-              account=account,
-              user=user,
-              role=AccountRole.objects.order_by('?').first()
-            )
+            if user not in account.get_administrators():
+               AccountUserRole.objects.create(
+                  account=account,
+                  user=user,
+                  role=AccountRole.objects.order_by('?').first()
+               )

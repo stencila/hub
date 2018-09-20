@@ -51,12 +51,12 @@ class Account(models.Model):
 
     def get_administrators(self) -> typing.Iterable[User]:
         """
-        Returns users who have administrative and modification permissions on the account.
+        Returns users who have administrative permissions on the account.
         """
         ownership_roles = set()  # cache the roles that have ownership perms
         users = set()
 
-        for user_role in self.user_roles:
+        for user_role in self.user_roles.all():
             user_has_role = False
 
             if user_role.role.pk in ownership_roles:
