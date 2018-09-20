@@ -247,7 +247,8 @@ class Dev(Common):
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + [
         'debug_toolbar',
-        'django_extensions'
+        'django_extensions',
+        'django_nose'
     ]
 
     # Additional middleware only used in development
@@ -261,6 +262,15 @@ class Dev(Common):
     # JWT secret can be set but has a default value
     # when in development which is shared with stencila/cloud
     JWT_SECRET = values.Value('not-a-secret')
+
+    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+    NOSE_ARGS = [
+        '--with-coverage',
+        '--cover-package=projects.cloud_session_controller',
+        '--cover-package=projects.project_host_views',
+        '--cover-html'
+    ]
 
 
 class Prod(Common):

@@ -19,7 +19,7 @@ from .views import (
     ProjectArchiveView,
 
     ProjectDeleteView,
-)
+    ProjectSessionRequestView)
 
 urlpatterns = [
     # Generic views
@@ -35,34 +35,29 @@ urlpatterns = [
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
     path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions'),
 
-
-    #path('update/save-general', ProjectGeneralSaveView.as_view(), name='project_general_save'),
-    #path('update/save-session-parameters', ProjectSessionParametersSaveView.as_view(),
-    #     name='project_session_parameters_save'),
-    #path('update/save-access', ProjectAccessSaveView.as_view(), name='project_access_save'),
-
-    #path('<int:pk>/sessions/', ProjectSessionsListView.as_view(), name='project_sessions'),
-
     # Per project Host API
     path('<str:token>/host/', include([
         path('v0/', include([
             path('manifest', ProjectHostManifestView.as_view(), {'version': 0}),
-            re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view())
+            re_path(r'^environ/(?P<environ>.*)', ProjectHostSessionsView.as_view(api_version=0),
+                    name='session_start_v0'),
+            path('session-queue', ProjectSessionRequestView.as_view(api_version=0), name='session_queue_v0')
         ])),
         path('v1/', include([
             path('manifest', ProjectHostManifestView.as_view(), {'version': 1}),
-            re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view())
+            re_path(r'^sessions/(?P<environ>.*)', ProjectHostSessionsView.as_view(api_version=1),
+                    name='session_start_v1'),
+            path('session-queue', ProjectSessionRequestView.as_view(api_version=1), name='session_queue_v1')
         ]))
     ])),
 
     path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
 
-
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
 
     # Type-specific views
-    #path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
-    #path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),
-    #path('files/<int:pk>/upload/', FilesSourceUploadView.as_view(), name='filesproject_upload'),
-    #path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
+    # path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),
+    # path('files/<int:pk>/update/', FilesSourceUpdateView.as_view(), name='filesproject_update'),
+    # path('files/<int:pk>/upload/', FilesSourceUploadView.as_view(), name='filesproject_upload'),
+    # path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
 ]
