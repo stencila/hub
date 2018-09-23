@@ -1,5 +1,5 @@
 <div class="select">
-    <select {% if access_role.user == request.user %} disabled="disabled" {% else %} name="{{ USER_ROLE_ID_PREFIX }}{{ access_role.id }}" {% endif %}>
+    <select @change="accessChanged({{ access_role.id }})" v-model="accessRoles[{{ access_role.id }}]" {% if access_role.user == request.user %} disabled="disabled" {% else %} name="{{ USER_ROLE_ID_PREFIX }}{{ access_role.id }}" {% endif %}>
         {% for role in all_roles %}
             <option value="{{ role.id }}" {% if role == user_role %}selected{% endif %}>{{ role.name }}</option>
         {% endfor %}

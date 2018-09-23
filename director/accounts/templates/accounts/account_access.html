@@ -19,7 +19,9 @@
                 @modal-hide="hideDeleteModal()">
             <template slot="title">Delete this access?</template>
             <template slot="csrf_token">{% csrf_token %}</template>
-            <template slot="body">Are you sure you want to remove access to this account for user <em>[[ deleteRoleUsername ]]</em>?</template>
+            <template slot="body">Are you sure you want to remove access to this account for user <em>[[
+                deleteRoleUsername ]]</em>?
+            </template>
         </delete-confirm-modal>
         <div class="section">
             <form method="POST">
@@ -42,48 +44,44 @@
                         </div>
                     </div>
                     <div class="column">
-                        <button class="button is-success" name="action" value="add_access" type="submit" :disabled="selectedUsername==''">Add</button>
+                        <button class="button is-success" name="action" value="add_access" type="submit"
+                                :disabled="selectedUsername==''">Add
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
-        <form method="POST">
-            {% csrf_token %}
-            <table class="table table-bordered is-fullwidth">
-                <thead>
+        <table class="table table-bordered is-fullwidth">
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Access</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for access_role in access_roles %}
                 <tr>
-                    <th>User</th>
-                    <th>Access</th>
-                    <th></th>
+                    <td>{{ access_role.user.username }}</td>
+                    <td>
+                        {% include "accounts/_account_role_select.html" with user_role=access_role.role %}
+                    </td>
+                    <td>
+                        {% if access_role.user != request.user %}
+                            <button class="button is-danger"
+                                    @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
+                                Delete&hellip;
+                            </button>
+                        {% endif %}
+                    </td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for access_role in access_roles %}
-                    <tr>
-                        <td>{{ access_role.user.username }}</td>
-                        <td>
-                            {% include "accounts/_account_role_select.html" with user_role=access_role.role %}
-                        </td>
-                        <td>
-                            {% if access_role.user != request.user %}
-                                <button class="button is-danger"
-                                        @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
-                                    Delete&hellip;
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="3">No one has access to this account. You should not be seeing this.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            <div class="has-text-right">
-                <button class="button is-success" type="submit">Save</button>
-            </div>
-        </form>
+            {% empty %}
+                <tr>
+                    <td colspan="3">No one has access to this account. You should not be seeing this.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </section>
     <script src="{% static "js/user-search.js" %}"></script>
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
@@ -95,7 +93,8 @@
                 deleteModalVisible: false,
                 deleteRoleId: null,
                 deleteRoleUsername: null,
-                selectedUsername: ""
+                selectedUsername: "",
+                accessRoles: JSON.parse("{{ access_roles_map|escapejs }}")
             },
             methods: {
                 usernameSelected(username) {
@@ -110,6 +109,28 @@
                     this.deleteModalVisible = false
                     this.deleteRoleId = null
                     this.deleteRoleUsername = null
+                },
+                accessChanged(accountUserRoleId) {
+                    let updateData = new FormData()
+                    updateData.set('action', 'set_role')
+                    updateData.set('account_user_role_id', accountUserRoleId)
+                    updateData.set('role_id', this.accessRoles[accountUserRoleId])
+
+                    fetch(`{% url 'account_access' account.id %}`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRFToken': utils.cookie('csrftoken'),
+                        },
+                        credentials: 'same-origin',
+                        body: updateData
+                    }).then(response => response.json()
+                        , failureResponse => {
+                            console.log(failureResponse)
+                        }).then(responseBody => {
+                            displayToast(responseBody.message, 'is-success')
+                        }
+                    )
                 }
             }
         })

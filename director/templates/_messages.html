@@ -1,12 +1,17 @@
-{% if messages %}
 <script>
-    var vue = new Vue()
-    {% for message in messages %}
+    let vue = new Vue()
+    function displayToast(message, type) {
         vue.$toast.open({
-            message: '{{ message }}',
-            type: {% if message.tags == "error" %}'is-danger'{% else %}'is-{{ message.tags }}'{% endif %},
+            message: message,
+            type: type,
             position: 'is-bottom'
         })
+    }
+</script>
+{% if messages %}
+<script>
+    {% for message in messages %}
+        displayToast('{{ message }}', {% if message.tags == "error" %}'is-danger'{% else %}'is-{{ message.tags }}'{% endif %})
     {% endfor %}
 </script>
 {% endif %}

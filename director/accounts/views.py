@@ -1,3 +1,4 @@
+import json
 import typing
 
 from django.contrib import messages
@@ -5,9 +6,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import View, ListView, CreateView, DetailView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
@@ -101,9 +104,12 @@ class AccountAccessView(AccountPermissionsMixin, View):
         access_roles = AccountUserRole.objects.filter(account=self.account)
         all_roles = AccountRole.objects.all()
 
+        access_roles_map = {access_role.pk: access_role.role.pk for access_role in access_roles}
+
         return render(request, 'accounts/account_access.html', self.get_render_context({
             'account': self.account,
             'access_roles': access_roles,
+            'access_roles_map': json.dumps(access_roles_map),
             'all_roles': all_roles,
             'USER_ROLE_ID_PREFIX': USER_ROLE_ID_PREFIX
         }))
@@ -120,7 +126,24 @@ class AccountAccessView(AccountPermissionsMixin, View):
 
         role_lookup = {role.pk: role for role in all_roles}
 
-        if request.POST.get('action') == 'add_access':
+        if request.POST.get('action') == 'set_role':
+            account_user_role = AccountUserRole.objects.get(pk=request.POST['account_user_role_id'])
+
+            if account_user_role.user == request.user:
+                raise ValueError('Can not set access to active user.')
+            if account_user_role.account != account:
+                raise PermissionDenied
+
+            new_role = role_lookup[int(request.POST['role_id'])]
+
+            if new_role != account_user_role.role:
+                account_user_role.role = new_role
+                account_user_role.save()
+
+            return JsonResponse(
+                {'success': True, 'message': 'Access for {} updated.'.format(account_user_role.user.username)})
+
+        elif request.POST.get('action') == 'add_access':
             username = request.POST['name']
             if username:
                 user = User.objects.get(username=username)
