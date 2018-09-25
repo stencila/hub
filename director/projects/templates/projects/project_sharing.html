@@ -1,16 +1,50 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load crispy_forms_tags static %}
 
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
-
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
+{% endblock %}
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="sharing" %}
     {% crispy form %}
+
     <section id="project-role">
+        <div class="section">
+            <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
+                {% csrf_token %}
+                <div class="columns">
+                    <div class="column">
+                        <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
+                    </div>
+                    <div class="column">
+                        <div class="field">
+                            <div class="control">
+                                <div class="select is-fullwidth">
+                                    <select name="role_id">
+                                        {% for role in all_roles %}
+                                            <option value="{{ role.id }}">{{ role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <button class="button is-success" name="action" value="add_user_role" type="submit"
+                                :disabled="selectedUsername==''">Add
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <table class="table is-fullwidth">
             <thead>
             <tr>
-                <th>Agent</th>
+                <th>Name</th>
                 <th>Type</th>
                 <th>Access</th>
             </tr>
@@ -31,12 +65,15 @@
             </tbody>
         </table>
     </section>
+    <script src="{% static "js/user-search.js" %}"></script>
+    <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     <script>
         new Vue({
             el: "#project-role",
             delimiters: ['[[', ']]'],
             data: {
-                agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}")
+                agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}"),
+                selectedUsername: ''
             },
             methods: {
                 roleChanged(projectAgentRoleId) {
@@ -55,9 +92,13 @@
                     }).then(response => response.json()
                         , failureResponse => {
                             console.log(failureResponse)
-                    }).then(responseBody => {
-                        displayToast(responseBody.message, 'is-success')
+                        }).then(responseBody => {
+                        let toastClass = responseBody.success ? 'is-success' : 'is-danger'
+                        displayToast(responseBody.message, toastClass)
                     })
+                },
+                usernameSelected(username) {
+                    this.selectedUsername = username
                 }
             }
         })

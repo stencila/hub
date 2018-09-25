@@ -1,12 +1,13 @@
 import json
 import typing
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
 
@@ -196,10 +197,17 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
 
 
 class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, pk: int) -> JsonResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         self.perform_project_fetch(request.user, pk)
         if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied
+
+        new_role = get_object_or_404(ProjectRole, pk=request.POST['role_id'])
+
+        available_roles = get_roles_under_permission(self.highest_permission)
+
+        if new_role not in available_roles:
+            raise PermissionDenied  # user can not set this role as it has permissions higher than what they have
 
         if request.POST.get('action') == 'set_role':
             project_agent_role = get_object_or_404(ProjectAgentRole, pk=request.POST['project_agent_role_id'])
@@ -207,13 +215,6 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
                 # user has permission on this Project but is trying to change the ProjectAgentRole on a different
                 # Project
                 raise PermissionDenied
-
-            new_role = get_object_or_404(ProjectRole, pk=request.POST['role_id'])
-
-            available_roles = get_roles_under_permission(self.highest_permission)
-
-            if new_role not in available_roles:
-                raise PermissionDenied  # user can not set this role as it has permissions higher than what they have
 
             if project_agent_role.agent_type == AgentType.USER and project_agent_role.agent_id == request.user.pk:
                 raise PermissionDenied  # user can not change their own access
@@ -223,8 +224,23 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
                 project_agent_role.save()
                 return JsonResponse(
                     {'success': True, 'message': 'Access updated for {}'.format(project_agent_role.agent_description)})
+        elif request.POST.get('action') == 'add_user_role':
+            username = request.POST['name']
+            if username:
+                user = User.objects.get(username=username)
 
-        return JsonResponse({'success': False})
+                if user == request.user:
+                    messages.error(request, "You can not alter your own access.")
+                else:
+                    project_agent_role, created = ProjectAgentRole.objects.update_or_create({
+                        'role': new_role
+                    }, project=self.project, agent_id=user.pk, content_type=ContentType.objects.get_for_model(User))
+                    messages.success(request,
+                                     "Account access added for {}.".format(project_agent_role.agent_description))
+
+            return redirect(reverse('project_sharing', args=(self.project.id,)))
+
+        return JsonResponse({'success': False, 'message': 'Unknown action.'})
 
 
 class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
