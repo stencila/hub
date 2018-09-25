@@ -12,7 +12,7 @@ manage -- Can add/remove collaborators and change their permissions for a projec
 own -- Can delete the project.
       Can give the ‘owner’ permission to a collaborator on the project.
 """
-
+import enum
 import typing
 
 from django.contrib.auth.models import User
@@ -34,6 +34,48 @@ class ProjectPermissionType(EnumChoice):
     EDIT = 'edit'
     MANAGE = 'manage'
     OWN = 'own'
+
+    @classmethod
+    def ordered_permissions(cls) -> typing.Iterable['ProjectPermissionType']:
+        """Get a tuple of permissions in order from least to most permissive."""
+        return cls.VIEW, cls.COMMENT, cls.SUGGEST, cls.EDIT, cls.MANAGE, cls.OWN
+
+    def get_comparison_ordering(self, other: typing.Any) -> int:
+        if type(other) != type(self):
+            raise TypeError("Can not compare ProjectPermissionType with other object types.")
+        ordered_permissions = list(self.ordered_permissions())
+        self_index = ordered_permissions.index(self)
+        other_index = ordered_permissions.index(other)
+        return self_index - other_index
+
+    def __lt__(self, other):
+        """Compare `ProjectPermissionType`s, the one with less access will be ranked less."""
+        return self.get_comparison_ordering(other) < 0
+
+    def __le__(self, other):
+        """Compare using == or `__lt__`"""
+        return self == other or self < other
+
+    def __gt__(self, other):
+        """Compare `ProjectPermissionType`s, the one with more access will be ranked higher."""
+        return self.get_comparison_ordering(other) > 0
+
+    def __ge__(self, other):
+        """Compare using == or `__gt__`"""
+        return self == other or self > other
+
+
+def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) -> \
+        typing.Optional[ProjectPermissionType]:
+    """
+    Iterate over eacho `ProjectPermissionType` in order for highest to lowest until one is found in the passed in
+    `permissions`, then return it.
+    """
+    for permission in reversed(ProjectPermissionType.ordered_permissions()):
+        if permission in permissions:
+            return permission
+
+    return None
 
 
 class ProjectPermission(models.Model):
@@ -60,8 +102,18 @@ class ProjectRole(models.Model):
     def permissions_types(self) -> typing.Set[ProjectPermissionType]:
         return set(map(lambda p: ProjectPermissionType(p), self.permissions_text()))
 
+    @property
+    def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
+        """Get the highest permission that this `ProjectRole` grants."""
+        return get_highest_permission(self.permissions_types())
+
     def __str__(self):
         return self.name
+
+
+class AgentType(enum.Enum):
+    USER = enum.auto()
+    TEAM = enum.auto()
 
 
 class ProjectAgentRole(models.Model):
@@ -151,6 +203,17 @@ class ProjectAgentRole(models.Model):
             raise ValueError("Agent for this role mapping is not a User")
         return User.objects.get(pk=self.agent_id)
 
+    @property
+    def agent_description(self) -> str:
+        if self.content_type == ContentType.objects.get_for_model(User):
+            return self.user.username
+
+        return self.team.name
+
+    @property
+    def agent_type(self):
+        return AgentType.USER if self.content_type == ContentType.objects.get_for_model(User) else AgentType.TEAM
+
 
 def record_creator_as_owner(sender, instance, created, *args, **kwargs):
     """
@@ -161,7 +224,20 @@ def record_creator_as_owner(sender, instance, created, *args, **kwargs):
     ct = ContentType.objects.get(model="user")
     if sender is Project and created:
         ProjectAgentRole.objects.create(agent_id=instance.creator.pk,
-        content_type=ct, project=instance, role=owner_role)
+                                        content_type=ct, project=instance, role=owner_role)
 
 
 post_save.connect(record_creator_as_owner, sender=Project)
+
+
+def get_roles_under_permission(highest_permission: ProjectPermissionType) -> typing.List[ProjectRole]:
+    """Return a list of `ProjectRole`s that have permissions less or equal to the given permission. """
+    roles = []
+
+    for role in ProjectRole.objects.all():
+        role_highest_permission = get_highest_permission(role.permissions_types())
+
+        if role_highest_permission <= highest_permission:
+            roles.append(role)
+
+    return roles

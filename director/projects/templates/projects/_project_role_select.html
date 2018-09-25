@@ -1,0 +1,12 @@
+{% if current_role not in roles or agent_type == user_content_type and agent_id == request.user.id %}
+    {{ current_role }}
+{% else %}
+    <div class="select">
+        <select @change="roleChanged({{ project_agent_role_id }})" v-model="agentRoles[{{ project_agent_role_id }}]">
+            {% for role in roles %}
+                <option value="{{ role.id }}"
+                        {% if current_role == role %}selected="selected"{% endif %}>{{ role }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}

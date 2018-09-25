@@ -1,9 +1,65 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Project {{project.pk}} : Sharing{% endblock %}
+{% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 
 {% block content %}
-	{% include "projects/_project_header.html" with project=project tab="sharing" %}
+    {% include "projects/_project_header.html" with project=project tab="sharing" %}
     {% crispy form %}
+    <section id="project-role">
+        <table class="table is-fullwidth">
+            <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Type</th>
+                <th>Access</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for project_agent_role in project_agent_roles %}
+                <tr>
+                    <td>{{ project_agent_role.agent_description }}</td>
+                    <td>
+                        {% if project_agent_role.content_type == user_content_type %}User{% endif %}
+                        {% if project_agent_role.content_type == team_content_type %}Team{% endif %}
+                    </td>
+                    <td>
+                        {% include "projects/_project_role_select.html" with project_agent_role_id=project_agent_role.id roles=all_roles current_role=project_agent_role.role agent_type=project_agent_role.content_type agent_id=project_agent_role.agent_id %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    <script>
+        new Vue({
+            el: "#project-role",
+            delimiters: ['[[', ']]'],
+            data: {
+                agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}")
+            },
+            methods: {
+                roleChanged(projectAgentRoleId) {
+                    let roleData = new FormData()
+                    roleData.set('action', 'set_role')
+                    roleData.set('project_agent_role_id', projectAgentRoleId)
+                    roleData.set('role_id', this.agentRoles[projectAgentRoleId])
+                    fetch(`{% url 'project_sharing_roles' object.id %}`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRFToken': utils.cookie('csrftoken'),
+                        },
+                        credentials: 'same-origin',
+                        body: roleData
+                    }).then(response => response.json()
+                        , failureResponse => {
+                            console.log(failureResponse)
+                    }).then(responseBody => {
+                        displayToast(responseBody.message, 'is-success')
+                    })
+                }
+            }
+        })
+    </script>
 {% endblock %}
