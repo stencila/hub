@@ -59,13 +59,6 @@ class ProjectSharingForm(forms.ModelForm):
                 'public',
                 css_class="section"
             ),
-            Div(
-                HTML(
-                    '<p class="title is-5">Collaborator access</p>'
-                    '<p class="subtitle is-6">Add collaborators to this project</p>'
-                ),
-                css_class="section"
-            ),
             Submit('submit', 'Update', css_class="button is-primary")
         )
 

@@ -185,14 +185,24 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        project_agent_roles = ProjectAgentRole.objects.filter(project=self.get_object())
+        project_agent_roles = ProjectAgentRole.objects.filter(project=self.get_object()).order_by('content_type')
+        # ordering by content_type SHOULD end up with Users first because it being a built in Django model should be
+        # created before Team
+
         context_data['project_agent_roles'] = project_agent_roles
         context_data['project_agent_role_map'] = json.dumps({project_agent_role.pk: project_agent_role.role_id for
                                                              project_agent_role in project_agent_roles})
 
         context_data['all_roles'] = get_roles_under_permission(self.highest_permission)
+
+        team_content_type = ContentType.objects.get_for_model(Team)
+
         context_data['user_content_type'] = ContentType.objects.get_for_model(User)
-        context_data['team_content_type'] = ContentType.objects.get_for_model(Team)
+        context_data['team_content_type'] = team_content_type
+        existing_teams = filter(lambda r: r.content_type == team_content_type, project_agent_roles)
+        context_data['teams'] = Team.objects.filter(account=self.project.account).exclude(
+                                                    pk__in=map(lambda r: r.agent_id, existing_teams))
+
         return context_data
 
 
@@ -224,19 +234,43 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
                 project_agent_role.save()
                 return JsonResponse(
                     {'success': True, 'message': 'Access updated for {}'.format(project_agent_role.agent_description)})
-        elif request.POST.get('action') == 'add_user_role':
-            username = request.POST['name']
-            if username:
+        elif request.POST.get('action') in ('add_user_role', 'add_team_role'):
+            content_type_class = None
+            agent_id = None
+
+            if request.POST['action'] == 'add_user_role':
+                username = request.POST['name']
+
+                if not username:
+                    raise ValueError("Blank username provided")
+
                 user = User.objects.get(username=username)
 
                 if user == request.user:
-                    messages.error(request, "You can not alter your own access.")
+                    messages.error(request, 'You can not alter your own access.')
                 else:
-                    project_agent_role, created = ProjectAgentRole.objects.update_or_create({
-                        'role': new_role
-                    }, project=self.project, agent_id=user.pk, content_type=ContentType.objects.get_for_model(User))
-                    messages.success(request,
-                                     "Account access added for {}.".format(project_agent_role.agent_description))
+                    agent_id = user.pk
+                    content_type_class = User
+            else:  # action == add_team_roles
+                team_id = request.POST['team_id']
+                try:
+                    team = Team.objects.get(pk=team_id)
+                except Team.DoesNotExist:
+                    messages.error(request, "Team with PK {} does not exist.".format(team_id))
+                else:
+                    if team.account != self.project.account:
+                        messages.error(request, "The selected Team does not belong to this account.")
+                    else:
+                        agent_id = team_id
+                        content_type_class = Team
+
+            if agent_id and content_type_class:
+                project_agent_role, created = ProjectAgentRole.objects.update_or_create({
+                    'role': new_role
+                }, project=self.project, agent_id=agent_id,
+                    content_type=ContentType.objects.get_for_model(content_type_class))
+                messages.success(request,
+                                 'Account access added for {}.'.format(project_agent_role.agent_description))
 
             return redirect(reverse('project_sharing', args=(self.project.id,)))
 
