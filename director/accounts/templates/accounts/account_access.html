@@ -15,9 +15,9 @@
                 delete-action="delete_access"
                 delete-id-name="user_role_id"
                 :delete-id-value="deleteRoleId"
-                delete-button-label="Delete"
+                delete-button-label="Remove"
                 @modal-hide="hideDeleteModal()">
-            <template slot="title">Delete this access?</template>
+            <template slot="title">Remove this access?</template>
             <template slot="csrf_token">{% csrf_token %}</template>
             <template slot="body">Are you sure you want to remove access to this account for user <em>[[
                 deleteRoleUsername ]]</em>?
@@ -70,7 +70,7 @@
                         {% if access_role.user != request.user %}
                             <button class="button is-danger"
                                     @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
-                                Delete&hellip;
+                                Remove&hellip;
                             </button>
                         {% endif %}
                     </td>
