@@ -22,12 +22,6 @@
             </delete-confirm-modal>
             <form method="post">
                 {% csrf_token %}
-                <div class="columns is-marginless">
-                    <div class="column">
-                        <label class="label">Search Username</label>
-                    </div>
-                    <div class="column"></div>
-                </div>
                 <div class="columns">
                     <div class="column">
                         <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
