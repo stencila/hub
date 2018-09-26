@@ -7,20 +7,24 @@
     {% include "projects/_project_header.html" with project=project tab="settings" %}
     {% include "projects/_project_settings_tabs.html" with project=project tab="sessions" %}
     <div id="project-session-settings-form">
-    {% crispy form %}
+        {% crispy form %}
     </div>
     <script>
         (function () {
             const g_presetParameters = JSON.parse("{{ parameters_presets|escapejs }}");
 
             Vue.component('preset-parameters', {
-                delimiters: ['[[',']]'],
-                template: '<div class="field has-addons">\n' +
-                    '  <p v-for="(item, index) in presetParameters" class="control">\n' +
-                    '    <a class="button" @click="selectPreset(index)">\n' +
-                    '      <span>[[ item.name ]]</span>\n' +
-                    '    </a>\n' +
-                    '  </p>\n' +
+                delimiters: ['[[', ']]'],
+                template: '<div style="margin-bottom: 15px">' +
+                    '    <label class="label">Presets</label>' +
+                    '    <div class="field has-addons">' +
+                    '       <p v-for="(item, index) in presetParameters" class="control">' +
+                    '           <a class="button" @click="selectPreset(index)">' +
+                    '               <span>[[ item.name ]]</span>' +
+                    '           </a>' +
+                    '       </p>' +
+                    '    </div>' +
+                    '    <p class="help">Select a preset then customise it below.</p>' +
                     '</div>',
                 data() {
                     return {
@@ -36,7 +40,7 @@
 
             new Vue({
                 el: '#project-session-settings-form',
-                delimiters: ['[[',']]'],
+                delimiters: ['[[', ']]'],
                 data: {
                     memory: {{ form.memory.value|default:"null" }},
                     cpu: {{ form.cpu.value|default:"null" }},
@@ -49,7 +53,7 @@
                         this.applyPreset(g_presetParameters[presetIndex]);
                     },
                     applyPreset(presetData) {
-                        for(let key in presetData) {
+                        for (let key in presetData) {
                             if (presetData.hasOwnProperty(key)) {
                                 Vue.set(this, key, presetData[key])
                             }

@@ -10,7 +10,6 @@ from .project_models import Project, SessionParameters
 
 
 class ProjectCreateForm(ModelFormWithSubmit):
-
     class Meta:
         model = Project
         fields = ['account', 'name', 'description', 'public']
@@ -27,7 +26,6 @@ class ProjectCreateForm(ModelFormWithSubmit):
 
 
 class ProjectGeneralForm(ModelFormWithSubmit):
-
     class Meta:
         model = Project
         fields = ['name', 'description', 'public']
@@ -37,7 +35,6 @@ class ProjectGeneralForm(ModelFormWithSubmit):
 
 
 class ProjectSharingForm(forms.ModelForm):
-
     class Meta:
         model = Project
         fields = ['public', 'token', 'key']
@@ -64,7 +61,6 @@ class ProjectSharingForm(forms.ModelForm):
 
 
 class ProjectSettingsMetadataForm(ModelFormWithSubmit):
-
     class Meta:
         model = Project
         fields = ['name', 'description']
@@ -74,7 +70,6 @@ class ProjectSettingsMetadataForm(ModelFormWithSubmit):
 
 
 class ProjectSettingsAccessForm(forms.ModelForm):
-
     class Meta:
         model = Project
         fields = ['token', 'key']
@@ -102,7 +97,6 @@ class ProjectSettingsAccessForm(forms.ModelForm):
 
 
 class ProjectSettingsSessionsForm(forms.ModelForm):
-
     class Meta:
         model = Project
         fields = []
@@ -185,13 +179,13 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                     HTML(
                         '<p class="title is-5">Session parameters</p>'
                         '<p class="subtitle is-6">Control the parameters for each session</p>'
+                        '<preset-parameters @select-preset="selectPreset"></preset-parameters>'
                     ),
                     'memory',
                     'cpu',
                     'network',
                     'lifetime',
                     'timeout',
-                    HTML('<preset-parameters @select-preset="selectPreset"></preset-parameters>'),
                     css_class="column is-half section"
                 ),
                 css_class="columns"
@@ -200,24 +194,24 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
         )
 
     @staticmethod
-    def initial(project):
-        initial = {}
-        initial['sessions_total'] = project.sessions_total
-        initial['sessions_concurrent'] = project.sessions_concurrent
-        initial['sessions_queued'] = project.sessions_queued
-        initial['memory'] = project.session_parameters.memory
-        initial['cpu'] = project.session_parameters.cpu
-        initial['network'] = project.session_parameters.network
-        initial['lifetime'] = project.session_parameters.lifetime
-        initial['timeout'] = project.session_parameters.timeout
-        return initial
+    def initial(project: Project) -> dict:
+        return {
+            'sessions_total': project.sessions_total,
+            'sessions_concurrent': project.sessions_concurrent,
+            'sessions_queued': project.sessions_queued,
+            'memory': project.session_parameters.memory,
+            'cpu': project.session_parameters.cpu,
+            'network': project.session_parameters.network,
+            'lifetime': project.session_parameters.lifetime,
+            'timeout': project.session_parameters.timeout
+        }
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
 
         if cleaned_data['sessions_total'] is not None and \
-           cleaned_data['sessions_concurrent'] is not None and \
-           cleaned_data['sessions_concurrent'] > cleaned_data['sessions_total']:
+                cleaned_data['sessions_concurrent'] is not None and \
+                cleaned_data['sessions_concurrent'] > cleaned_data['sessions_total']:
             self.add_error('sessions_concurrent',
                            'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
 
