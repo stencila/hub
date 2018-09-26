@@ -1,7 +1,50 @@
 {% extends 'base.html' %}
-{% block title %}Account {{account.pk}} : Teams{% endblock %}
+{% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
     {% include "accounts/_account_header.html" with account=account tab="teams" %}
+    <nav class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <p class="subtitle is-5">
+                    <strong>{{ teams.count }}</strong> team{{ object_list.count|pluralize }}
+                </p>
+            </div>
+        </div>
+
+        <div class="level-right">
+            <p class="level-item">
+                <a class="button is-success" href="{% url 'account_team_create' account.id %}">
+                    <span class="icon"><i class="fas fa-plus"></i></span>
+                    <span>New</span>
+                </a>
+            </p>
+        </div>
+    </nav>
+
+    <div class="section">
+        {% for team in teams %}
+            <div class="card">
+                <div class="card-content">
+                    <a href="{% url 'account_team_detail' account.id team.id %}" title="Open">
+                        <span>{{ team.name }}</span>
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div>
+                <div class="card-content">
+                    No teams exist.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% comment %}
+    <div class="has-text-right">
+        <a class="button is-success" href="{% url 'account_team_create' account.id %}">
+            <span class="icon"><i class="fas fa-plus"></i></span>
+            <span>New</span>
+        </a>
+    </div>
     <table class="table is-fullwidth">
         <thead>
             <tr>
@@ -16,7 +59,5 @@
             {% endfor %}
         </tbody>
     </table>
-    <div class="has-text-right">
-        <a href="{% url "account_team_create" account.id %}" class="button is-success">Create Team&hellip;</a>
-    </div>
+    {% endcomment %}
 {% endblock %}
