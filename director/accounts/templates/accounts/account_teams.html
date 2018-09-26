@@ -6,7 +6,7 @@
         <div class="level-left">
             <div class="level-item">
                 <p class="subtitle is-5">
-                    <strong>{{ teams.count }}</strong> team{{ object_list.count|pluralize }}
+                    <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
                 </p>
             </div>
         </div>
@@ -38,26 +38,4 @@
             </div>
         {% endfor %}
     </div>
-    {% comment %}
-    <div class="has-text-right">
-        <a class="button is-success" href="{% url 'account_team_create' account.id %}">
-            <span class="icon"><i class="fas fa-plus"></i></span>
-            <span>New</span>
-        </a>
-    </div>
-    <table class="table is-fullwidth">
-        <thead>
-            <tr>
-                <th>Team</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for team in teams %}
-                <tr>
-                    <td><a href="{% url "account_team_detail" account.id team.id %}">{{ team.name }}</a></td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% endcomment %}
 {% endblock %}
