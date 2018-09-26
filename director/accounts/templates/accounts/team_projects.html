@@ -5,7 +5,7 @@
     {% include "accounts/_account_header.html" with account=account tab="teams" %}
     {% include "accounts/_team_header.html" with account=account team=team team_tab="projects" %}
     <section id="team-projects">
-        {% if account_permissions|permissions_contain:'administer' %}
+        {% if account_permissions|account_permissions_contain:'administer' %}
             <delete-confirm-modal
                     :delete-modal-visible="deleteModalVisible"
                     delete-action="remove_project"
@@ -81,14 +81,14 @@
                     <tr>
                         <td>{{ project_agent_role.project.name }}</td>
                         <td>
-                            {% if account_permissions|permissions_contain:'administer' %}
+                            {% if account_permissions|account_permissions_contain:'administer' %}
                              {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
                             {% else %}
                                 {{ project_agent_role.role.name }}
                             {% endif %}
                         </td>
                         <td class="has-text-right">
-                            {% if account_permissions|permissions_contain:'administer' %}
+                            {% if account_permissions|account_permissions_contain:'administer' %}
                                 <button class="button is-danger"
                                         @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
                                     Remove Access&hellip;
@@ -108,7 +108,7 @@
             </div>
         </form>
     </section>
-    {% if account_permissions|permissions_contain:'administer' %}
+    {% if account_permissions|account_permissions_contain:'administer' %}
         <script src="{% static "js/user-search.js" %}"></script>
         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
         <script>

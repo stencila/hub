@@ -15,7 +15,7 @@
   </div>
 </div>
 
-{% if account_permissions|permissions_contain:'administer' %}
+{% if account_permissions|account_permissions_contain:'administer' %}
 <div class="tabs is-toggle is-fullwidth">
   <ul>
     {% if tab == "profile" %}

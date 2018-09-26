@@ -6,7 +6,7 @@
     {% include "accounts/_team_header.html" with account=account team=team team_tab="metadata" %}
     <form method="POST">
         {% crispy form %}
-        {% if account_permissions|permissions_contain:'administer' %}
+        {% if account_permissions|account_permissions_contain:'administer' %}
             <div class="field">
                 <div class="control">
                     <input type="submit" class="button is-primary" value="Save">
