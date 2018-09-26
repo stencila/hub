@@ -201,7 +201,7 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
         context_data['team_content_type'] = team_content_type
         existing_teams = filter(lambda r: r.content_type == team_content_type, project_agent_roles)
         context_data['teams'] = Team.objects.filter(account=self.project.account).exclude(
-                                                    pk__in=map(lambda r: r.agent_id, existing_teams))
+            pk__in=map(lambda r: r.agent_id, existing_teams))
 
         return context_data
 
@@ -212,25 +212,38 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied
 
-        new_role = get_object_or_404(ProjectRole, pk=request.POST['role_id'])
+        project_agent_role = None
+
+        if request.POST.get('action') in ('set_role', 'remove_role'):
+            project_agent_role = get_object_or_404(ProjectAgentRole, pk=request.POST['project_agent_role_id'])
+
+        if project_agent_role and project_agent_role.agent_type == AgentType.USER and \
+                project_agent_role.agent_id == request.user.pk:
+            raise PermissionDenied  # user can not change their own access
+
+        if request.POST.get('action') == 'remove_role':
+            target_role = project_agent_role.role
+        else:
+            target_role = get_object_or_404(ProjectRole, pk=request.POST['role_id'])
 
         available_roles = get_roles_under_permission(self.highest_permission)
 
-        if new_role not in available_roles:
-            raise PermissionDenied  # user can not set this role as it has permissions higher than what they have
+        if target_role not in available_roles:
+            raise PermissionDenied  # user can not set/remove this role as it has permissions higher than what they have
 
-        if request.POST.get('action') == 'set_role':
+        if request.POST.get('action') == 'remove_role':
+            agent_description = project_agent_role.agent_description
+            project_agent_role.delete()
+            messages.success(request, "Access to the project was removed from {}".format(agent_description))
+        elif request.POST.get('action') == 'set_role':
             project_agent_role = get_object_or_404(ProjectAgentRole, pk=request.POST['project_agent_role_id'])
             if project_agent_role.project != self.project:
                 # user has permission on this Project but is trying to change the ProjectAgentRole on a different
                 # Project
                 raise PermissionDenied
 
-            if project_agent_role.agent_type == AgentType.USER and project_agent_role.agent_id == request.user.pk:
-                raise PermissionDenied  # user can not change their own access
-
-            if project_agent_role.role != new_role:
-                project_agent_role.role = new_role
+            if project_agent_role.role != target_role:
+                project_agent_role.role = target_role
                 project_agent_role.save()
                 return JsonResponse(
                     {'success': True, 'message': 'Access updated for {}'.format(project_agent_role.agent_description)})
@@ -266,15 +279,13 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
 
             if agent_id and content_type_class:
                 project_agent_role, created = ProjectAgentRole.objects.update_or_create({
-                    'role': new_role
+                    'role': target_role
                 }, project=self.project, agent_id=agent_id,
                     content_type=ContentType.objects.get_for_model(content_type_class))
                 messages.success(request,
                                  'Account access added for {}.'.format(project_agent_role.agent_description))
 
-            return redirect(reverse('project_sharing', args=(self.project.id,)))
-
-        return JsonResponse({'success': False, 'message': 'Unknown action.'})
+        return redirect(reverse('project_sharing', args=(self.project.id,)))
 
 
 class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):

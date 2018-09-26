@@ -7,7 +7,7 @@ Vue.component('delete-confirm-modal', {
         '                <slot name="body"></slot>' +
         '            </section>\n' +
         '            <footer class="modal-card-foot">\n' +
-        '                <form class="form" method="POST">\n' +
+        '                <form class="form" method="POST" :action="formAction">\n' +
         '                    <slot name="csrf_token"></slot>\n' +
         '                    <input type="hidden" :name="deleteIdName" value="" v-model="deleteIdValue">\n' +
         '                    <button class="button is-danger" type="submit" name="action" :value="deleteAction">\n' +
@@ -19,7 +19,9 @@ Vue.component('delete-confirm-modal', {
         '        </b-modal>',
     delimiters: ['[[', ']]'],
     data() {
-        return {}
+        return {
+            formAction: ''
+        }
     },
     props: {
         deleteModalVisible: {
@@ -40,6 +42,10 @@ Vue.component('delete-confirm-modal', {
         },
         deleteIdValue: {
             required: true
+        },
+        formAction: {
+            required: false,
+            type: String
         }
     },
     methods: {

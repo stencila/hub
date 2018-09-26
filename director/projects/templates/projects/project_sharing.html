@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags static %}
+{% load crispy_forms_tags static escape_extras %}
 
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block scripts %}
@@ -13,6 +13,19 @@
     {% crispy form %}
 
     <section id="project-role" class="section" style="padding-left: 0; padding-right: 0">
+        <delete-confirm-modal
+                form-action="{% url 'project_sharing_roles' object.id %}"
+                :delete-modal-visible="deleteModalVisible"
+                delete-action="remove_role"
+                delete-id-name="project_agent_role_id"
+                :delete-id-value="deleteRoleId"
+                delete-button-label="Remove"
+                @modal-hide="hideDeleteModal()">
+            <template slot="title">Remove project access?</template>
+            <template slot="csrf_token">{% csrf_token %}</template>
+            <template slot="body">Are you sure you want to remove access to <em>{{ object.name }}</em> from
+                <em>[[ agentName]]</em>?</template>
+        </delete-confirm-modal>
         <div class="card">
             <header class="card-header">
                 <p class="card-header-title">
@@ -28,6 +41,7 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Access</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -40,6 +54,16 @@
                                     </td>
                                     <td>
                                         {% include "projects/_project_role_select.html" with project_agent_role_id=project_agent_role.id roles=all_roles current_role=project_agent_role.role agent_type=project_agent_role.content_type agent_id=project_agent_role.agent_id %}
+                                    </td>
+                                    <td class="has-text-right">
+                                        {% if project_agent_role.role not in roles or project_agent_role.content_type == user_content_type and project_agent_role.agent_id == request.user.id %}
+                                            {# show nothing, this is easier than trying to negate the if condition with django template's limited parsing #}
+                                        {% else %}
+                                            <button class="button is-danger"
+                                                    @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.agent_description|escape_single_quotes }}')">
+                                                Remove Access&hellip;
+                                            </button>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -125,7 +149,10 @@
             delimiters: ['[[', ']]'],
             data: {
                 agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}"),
-                selectedUsername: ''
+                selectedUsername: '',
+                deleteModalVisible: false,
+                deleteRoleId: null,
+                agentName: ''
             },
             methods: {
                 roleChanged(projectAgentRoleId) {
@@ -151,6 +178,16 @@
                 },
                 usernameSelected(username) {
                     this.selectedUsername = username
+                },
+                showDeleteModal(projectAgentRoleId, agentName) {
+                    this.deleteModalVisible = true
+                    this.deleteRoleId = projectAgentRoleId
+                    this.agentName = agentName
+                },
+                hideDeleteModal() {
+                    this.deleteModalVisible = false
+                    this.deleteRoleId = null
+                    this.agentName = ''
                 }
             }
         })
