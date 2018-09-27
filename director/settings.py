@@ -224,6 +224,8 @@ class Common(Configuration):
     # Token to restrict signins and singups while beta testing
     BETA_TOKEN = values.Value('abc123')
 
+    GS_PUBLIC_READABLE_PATHS = ['avatars/*']  # these paths will be made publicly readable in the Google Storage bucket
+
 
 class Dev(Common):
     """
@@ -302,7 +304,7 @@ class Prod(Common):
     BETA_TOKEN = values.SecretValue()
 
     # Use GoogleCloudStorage for uploads
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    DEFAULT_FILE_STORAGE = 'lib.storage.CustomPublicGoogleCloudStorage'
     GS_PROJECT_ID = values.Value()
     GS_BUCKET_NAME = values.Value()
 
