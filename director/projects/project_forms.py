@@ -19,10 +19,29 @@ class ProjectCreateForm(ModelFormWithSubmit):
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
+        accounts = Account.objects.filter(user_roles__user=request.user).distinct()
+
+        initial = kwargs.get('initial', {})
+
+        if 'account' not in initial:
+            # set the user's personal account as the default in the form for the new Project
+
+            if accounts.count() == 1:
+                initial['account'] = accounts[0].pk
+            elif accounts.count() > 1:
+                personal_account_name = "{}'s Personal Account".format(request.user.username)
+
+                for account in accounts:
+                    if account.name == personal_account_name:
+                        initial['account'] = account.pk
+                        break
+
+            kwargs['initial'] = initial
+
         super().__init__(*args, **kwargs)
 
-        accounts = Account.objects.filter(user_roles__user=request.user).distinct()
         self.fields['account'].queryset = accounts
+        self.fields['account'].empty_label = None  # remove the blank/"-----" option from select
 
 
 class ProjectGeneralForm(ModelFormWithSubmit):
