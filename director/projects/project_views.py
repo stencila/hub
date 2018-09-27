@@ -138,6 +138,13 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         """
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
+
+        if 'account_id' in self.request.GET:
+            # set the initial account if passed in through a GET request (e.g. the link on the Account profile page)
+            initial = kwargs.get('initial', {})
+            initial['account'] = self.request.GET['account_id']
+            kwargs['initial'] = initial
+
         return kwargs
 
     def form_valid(self, form):
