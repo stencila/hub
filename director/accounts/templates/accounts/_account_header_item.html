@@ -1,0 +1,9 @@
+{% load account_permissions %}
+{% if account_permissions|account_permissions_contain:permission_required %}
+    <li{% if tab == tab_id %} class="is-active"{% endif %}>
+        <a{% if tab != tab_id %} href="{% url url_name account.pk %}"{% endif %}>
+            <span class="icon is-small"><i class="fas fa-{{ icon_class }}" aria-hidden="true"></i></span>
+            <span>{{ tab_name }}</span>
+        </a>
+    </li>
+{% endif %}

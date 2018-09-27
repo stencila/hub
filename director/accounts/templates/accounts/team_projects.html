@@ -60,7 +60,8 @@
                         </div>
                     </div>
                     <div class="column">
-                        <button class="button is-success" type="submit" name="action" value="add_project">Add Project Access
+                        <button class="button is-success" type="submit" name="action" value="add_project">Add Project
+                            Access
                         </button>
                     </div>
                 </div>
@@ -82,7 +83,7 @@
                         <td>{{ project_agent_role.project.name }}</td>
                         <td>
                             {% if account_permissions|account_permissions_contain:'administer' %}
-                             {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
+                                {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
                             {% else %}
                                 {{ project_agent_role.role.name }}
                             {% endif %}
@@ -103,9 +104,11 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <div class="has-text-right">
-                <button class="button is-success" type="submit">Save</button>
-            </div>
+            {% if account_permissions|account_permissions_contain:'administer' %}
+                <div class="has-text-right">
+                    <button class="button is-success" type="submit">Save</button>
+                </div>
+            {% endif %}
         </form>
     </section>
     {% if account_permissions|account_permissions_contain:'administer' %}
