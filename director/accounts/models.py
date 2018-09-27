@@ -38,8 +38,9 @@ class Account(models.Model):
     Users can create additional Accounts linking them to multiple Projects and Teams.
     """
     name = models.TextField(
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
+        unique=True,
         help_text='The name of the account (required).'
     )
 
