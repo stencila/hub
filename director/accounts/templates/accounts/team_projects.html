@@ -6,110 +6,126 @@
     {% include "accounts/_team_header.html" with account=account team=team team_tab="projects" %}
     <section id="team-projects">
         {% if account_permissions|account_permissions_contain:'administer' %}
-            <delete-confirm-modal
-                    :delete-modal-visible="deleteModalVisible"
-                    delete-action="remove_project"
-                    delete-id-name="agent_role_id"
-                    :delete-id-value="deleteRoleId"
-                    delete-button-label="Remove"
-                    @modal-hide="hideDeleteModal()">
-                <template slot="title">Remove project access?</template>
-                <template slot="csrf_token">{% csrf_token %}</template>
-                <template slot="body">Are you sure you want to remove access to <em>[[ removeProjectName ]]</em> from
-                    <em>{{ team.name }}</em>?
-                </template>
-            </delete-confirm-modal>
+            <section class="section">
+                <h5 class="subtitle is-5">Add Project Access</h5>
+                <delete-confirm-modal
+                        :delete-modal-visible="deleteModalVisible"
+                        delete-action="remove_project"
+                        delete-id-name="agent_role_id"
+                        :delete-id-value="deleteRoleId"
+                        delete-button-label="Remove"
+                        @modal-hide="hideDeleteModal()">
+                    <template slot="title">Remove project access?</template>
+                    <template slot="csrf_token">{% csrf_token %}</template>
+                    <template slot="body">Are you sure you want to remove access to <em>[[ removeProjectName ]]</em>
+                        from
+                        <em>{{ team.name }}</em>?
+                    </template>
+                </delete-confirm-modal>
+                {% if total_project_count == 0 or unassigned_projects|length == 0 %}
+                    {% if total_project_count == 0 %}
+                        <p>There are no Projects for this account, please <a href="{% url 'project_create' %}">create a
+                            Project</a>, then come back here to grant this Team access to it.</p>
+                    {% else %}
+                        <p>This Team already has access to all projects in this Account.</p>
+                    {% endif %}
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="columns">
+                            <div class="column">
+                                <label class="label">Project</label>
+                            </div>
+                            <div class="column">
+                                <label class="label">Role</label>
+                            </div>
+                            <div class="column">
+
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <div class="control">
+                                        <div class="select">
+                                            <select name="project_id">
+                                                {% for project in unassigned_projects %}
+                                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <div class="control">
+                                        <div class="select">
+                                            <select name="role_id">
+                                                {% for project_role in project_roles %}
+                                                    <option value="{{ project_role.id }}">{{ project_role.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <button class="button is-success" type="submit" name="action" value="add_project">Add
+                                    Project
+                                    Access
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+            </section>
+        {% endif %}
+        {% if total_project_count != 0 %}
             <form method="post">
                 {% csrf_token %}
-                <div class="columns">
-                    <div class="column">
-                        <label class="label">Project</label>
+                <table class="table is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Role</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for project_agent_role in existing_project_roles %}
+                        <tr>
+                            <td>{{ project_agent_role.project.name }}</td>
+                            <td>
+                                {% if account_permissions|account_permissions_contain:'administer' %}
+                                    {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
+                                {% else %}
+                                    {{ project_agent_role.role.name }}
+                                {% endif %}
+                            </td>
+                            <td class="has-text-right">
+                                {% if account_permissions|account_permissions_contain:'administer' %}
+                                    <button class="button is-danger"
+                                            @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
+                                        Remove Access&hellip;
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="3">This team does not have access to any projects.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if account_permissions|account_permissions_contain:'administer' %}
+                    <div class="has-text-right">
+                        <button class="button is-success" type="submit">Save</button>
                     </div>
-                    <div class="column">
-                        <label class="label">Role</label>
-                    </div>
-                    <div class="column">
-
-                    </div>
-                </div>
-                <div class="columns">
-                    <div class="column">
-                        <div class="field">
-                            <div class="control">
-                                <div class="select">
-                                    <select name="project_id">
-                                        {% for project in unassigned_projects %}
-                                            <option value="{{ project.id }}">{{ project.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <div class="field">
-                            <div class="control">
-                                <div class="select">
-                                    <select name="role_id">
-                                        {% for project_role in project_roles %}
-                                            <option value="{{ project_role.id }}">{{ project_role.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="column">
-                        <button class="button is-success" type="submit" name="action" value="add_project">Add Project
-                            Access
-                        </button>
-                    </div>
-                </div>
+                {% endif %}
             </form>
         {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            <table class="table is-fullwidth">
-                <thead>
-                <tr>
-                    <th>Project</th>
-                    <th>Role</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for project_agent_role in existing_project_roles %}
-                    <tr>
-                        <td>{{ project_agent_role.project.name }}</td>
-                        <td>
-                            {% if account_permissions|account_permissions_contain:'administer' %}
-                                {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
-                            {% else %}
-                                {{ project_agent_role.role.name }}
-                            {% endif %}
-                        </td>
-                        <td class="has-text-right">
-                            {% if account_permissions|account_permissions_contain:'administer' %}
-                                <button class="button is-danger"
-                                        @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
-                                    Remove Access&hellip;
-                                </button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="3">This team does not have access to any projects.</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% if account_permissions|account_permissions_contain:'administer' %}
-                <div class="has-text-right">
-                    <button class="button is-success" type="submit">Save</button>
-                </div>
-            {% endif %}
-        </form>
     </section>
     {% if account_permissions|account_permissions_contain:'administer' %}
         <script src="{% static "js/user-search.js" %}"></script>

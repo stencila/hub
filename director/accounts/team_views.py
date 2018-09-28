@@ -134,8 +134,9 @@ class TeamProjectsView(AccountPermissionsMixin, View):
         return render(request, "accounts/team_projects.html", self.get_render_context({
             "account": self.account,
             "team": team,
+            "total_project_count": all_projects.count(),
             "existing_project_roles": existing_project_roles,
-            "unassigned_projects": unassigned_projects,
+            "unassigned_projects": list(unassigned_projects),
             "project_roles": project_roles,
             "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
         }))
