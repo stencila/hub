@@ -1,5 +1,5 @@
 <div class="select">
-    <select name="{{ AGENT_ROLE_ID_PREFIX }}{{ project_agent_role.id }}">
+    <select v-model="teamRoles[{{ project_agent_role.pk  }}]" @change="roleChanged({{ project_agent_role.pk }})">
         {% for role in project_roles %}
             <option value="{{ role.id }}" {% if role == project_agent_role.role %}selected{% endif %}>{{ role.name }}</option>
         {% endfor %}

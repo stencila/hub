@@ -1,3 +1,4 @@
+import json
 import typing
 from operator import attrgetter
 
@@ -5,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -14,7 +15,7 @@ from accounts.db_facade import fetch_team_for_account
 from accounts.forms import TeamForm
 from accounts.models import Team, AccountPermissionType
 from accounts.views import AccountPermissionsMixin
-from projects.permission_models import ProjectRole, ProjectAgentRole
+from projects.permission_models import ProjectRole, ProjectAgentRole, AgentType
 from projects.project_models import Project
 
 User = get_user_model()
@@ -138,6 +139,9 @@ class TeamProjectsView(AccountPermissionsMixin, View):
             "existing_project_roles": existing_project_roles,
             "unassigned_projects": list(unassigned_projects),
             "project_roles": project_roles,
+            "project_roles_map": json.dumps(
+                {existing_project_role.pk: existing_project_role.role_id for existing_project_role in
+                 existing_project_roles}),
             "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
         }))
 
@@ -165,20 +169,21 @@ class TeamProjectsView(AccountPermissionsMixin, View):
             project = project_agent_role.project
             project_agent_role.delete()
             messages.success(request, "Project access to {} for {} was removed.".format(project.name, team.name))
-        else:
-            for post_key, value in request.POST.items():
-                if post_key.startswith(AGENT_ROLE_ID_PREFIX):
-                    project_agent_role_id = post_key[len(AGENT_ROLE_ID_PREFIX):]
-                    project_agent_role = ProjectAgentRole.objects.get(pk=project_agent_role_id)
+        elif request.POST.get('action') == 'set_role':
+            role = role_lookup[int(request.POST['role_id'])]
+            project_agent_role = ProjectAgentRole.objects.get(pk=request.POST['project_agent_role_id'])
 
-                    if project_agent_role.team != team or project_agent_role.project.account != self.account:
-                        raise PermissionDenied
+            if project_agent_role.agent_type != AgentType.TEAM:
+                return JsonResponse({'success': False, 'message': 'The role you trying to update is not for a team.'})
 
-                    new_role = role_lookup[int(value)]
+            if project_agent_role.team != team:
+                return JsonResponse(
+                    {'success': False, 'message': 'The role you trying to update is not for this team.'})
 
-                    if new_role != project_agent_role.role:
-                        project_agent_role.role = new_role
-                        project_agent_role.save()
-                        messages.success(request, "Role updated for project {}".format(project_agent_role.project.name))
+            project_agent_role.role = role
+            project_agent_role.save()
+            return JsonResponse({'success': True,
+                                 'message': "Access to the project '{}' was updated for this team.".format(
+                                     project_agent_role.project.get_name())})
 
         return redirect(reverse("account_team_projects", args=(self.account.pk, team.pk)))

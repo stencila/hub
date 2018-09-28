@@ -82,49 +82,41 @@
             </section>
         {% endif %}
         {% if total_project_count != 0 %}
-            <form method="post">
-                {% csrf_token %}
-                <table class="table is-fullwidth">
-                    <thead>
+            <table class="table is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Role</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project_agent_role in existing_project_roles %}
                     <tr>
-                        <th>Project</th>
-                        <th>Role</th>
-                        <th></th>
+                        <td>{{ project_agent_role.project.name }}</td>
+                        <td>
+                            {% if account_permissions|account_permissions_contain:'administer' %}
+                                {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
+                            {% else %}
+                                {{ project_agent_role.role.name }}
+                            {% endif %}
+                        </td>
+                        <td class="has-text-right">
+                            {% if account_permissions|account_permissions_contain:'administer' %}
+                                <button class="button is-danger"
+                                        @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
+                                    Remove Access&hellip;
+                                </button>
+                            {% endif %}
+                        </td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for project_agent_role in existing_project_roles %}
-                        <tr>
-                            <td>{{ project_agent_role.project.name }}</td>
-                            <td>
-                                {% if account_permissions|account_permissions_contain:'administer' %}
-                                    {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
-                                {% else %}
-                                    {{ project_agent_role.role.name }}
-                                {% endif %}
-                            </td>
-                            <td class="has-text-right">
-                                {% if account_permissions|account_permissions_contain:'administer' %}
-                                    <button class="button is-danger"
-                                            @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
-                                        Remove Access&hellip;
-                                    </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">This team does not have access to any projects.</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {% if account_permissions|account_permissions_contain:'administer' %}
-                    <div class="has-text-right">
-                        <button class="button is-success" type="submit">Save</button>
-                    </div>
-                {% endif %}
-            </form>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">This team does not have access to any projects.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         {% endif %}
     </section>
     {% if account_permissions|account_permissions_contain:'administer' %}
@@ -138,6 +130,7 @@
                     deleteModalVisible: false,
                     deleteRoleId: null,
                     removeProjectName: null,
+                    teamRoles: JSON.parse('{{ project_roles_map|escapejs }}')
                 },
                 methods: {
                     showDeleteModal(roleId, projectName) {
@@ -149,6 +142,28 @@
                         this.deleteModalVisible = false
                         this.deleteRoleId = null
                         this.removeProjectName = null
+                    },
+                    roleChanged(agentRoleId) {
+                        let roleId = this.teamRoles[agentRoleId]
+                        let roleData = new FormData()
+                        roleData.set('action', 'set_role')
+                        roleData.set('project_agent_role_id', agentRoleId)
+                        roleData.set('role_id', roleId)
+                        fetch(`{% url 'account_team_projects' account.pk team.pk %}`, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRFToken': utils.cookie('csrftoken'),
+                            },
+                            credentials: 'same-origin',
+                            body: roleData
+                        }).then(response => response.json()
+                            , failureResponse => {
+                                console.log(failureResponse)
+                            }).then(responseBody => {
+                            let toastClass = responseBody.success ? 'is-success' : 'is-danger'
+                            displayToast(responseBody.message, toastClass)
+                        })
                     }
                 }
             })
