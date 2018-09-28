@@ -181,6 +181,9 @@ class AccountUserRole(models.Model):
         related_name='+'
     )
 
+    class Meta:
+        unique_together = (('user', 'account'),)
+
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
     """
