@@ -121,6 +121,8 @@ class Common(Configuration):
         'allauth.account.auth_backends.AuthenticationBackend',
     )
 
+    ACCOUNT_EMAIL_REQUIRED = True  # tell allauth to require an email address when signing up
+
     AUTH_PASSWORD_VALIDATORS = [
         {
             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -224,7 +226,8 @@ class Common(Configuration):
     # Token to restrict signins and singups while beta testing
     BETA_TOKEN = values.Value('abc123')
 
-    GS_PUBLIC_READABLE_PATHS = ['avatars/*']  # these paths will be made publicly readable in the Google Storage bucket
+    GS_PUBLIC_READABLE_PATHS = ['avatars/*']
+    # these paths will be made publicly readable in the Google Storage bucket after being written to
 
 
 class Dev(Common):
