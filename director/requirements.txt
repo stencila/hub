@@ -1,5 +1,5 @@
 crispy-forms-bulma==1.1.4
-Django>2.0,<2.1
+Django==2.1.1
 django-avatar==4.1.0
 django-allauth==0.36.0
 django-configurations==2.0
