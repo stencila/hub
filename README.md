@@ -2,6 +2,8 @@
 	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:200px">
 </div>
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/0d6cbfb262152e2b9242/maintainability)](https://codeclimate.com/github/stencila/hub/maintainability)
+
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 The Hub is the gateway to using Stencila on the web. The Hub allows users to access the full functionality of Stencila without having to configure anything on their local machines.
 
