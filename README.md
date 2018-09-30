@@ -3,6 +3,7 @@
 </div>
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/0d6cbfb262152e2b9242/maintainability)](https://codeclimate.com/github/stencila/hub/maintainability)
+[![Updates](https://pyup.io/repos/github/stencila/hub/shield.svg)](https://pyup.io/repos/github/stencila/hub/)
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 The Hub is the gateway to using Stencila on the web. The Hub allows users to access the full functionality of Stencila without having to configure anything on their local machines.
@@ -86,3 +87,14 @@ Currently, checkouts use a primitive locking (well actually just a warning) to a
 ## Development setup
 
 If you would like to contribute to Stencila Hub, please see the [developer guidelines](CONTRIBUTING.md).
+
+
+### Code maintainability
+
+We use Codeclimate for monitoring code quality and maintainability. See [here](https://codeclimate.com/github/stencila/hub) for current status.
+
+### Test coverage
+
+### Dependency updates
+
+We use PyUp to keep track of security and regular updates to packages this repo depends upon. See [here](https://pyup.io/repos/github/stencila/hub) for current status. PyUp is currently configured to create an automatic pull request each week with any new updates that are necessary.
