@@ -51,6 +51,14 @@
                 </div>
             </form>
         </div>
+        <div class="container">
+          <p> You can add users to {{ account.name }} and assign two different roles to them: <em>Admin</em> or <em>Member</em>.</p>
+          <br/>
+          <p> <strong>Account admin</strong> can: delete {{ account.name }}; update the billing details; give other users access
+            to the account (including giving them administrative permission); create and add teams to the account.</p>
+          <p> <strong>Account member</strong> can only add projects to {{ account.name }}.</p>
+          <br/>
+        </div>
         <table class="table table-bordered is-fullwidth">
             <thead>
             <tr>

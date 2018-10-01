@@ -17,8 +17,7 @@ class AccountPermissionType(EnumChoice):
     """
     There are two types of `Permissions` to the `Account`:
 
-    1) Modification allows to link a new Project to the Account,
-    to create, update and delete Teams related to the Account.
+    1) Modification (this is the type of permission given to Account Member) allows to link a new Project to the Account.
 
     2) Administration is a higher level of permission type. It allows to
     delete Accounts; update the billing details for the Account and
