@@ -4,15 +4,19 @@ from allauth.account.views import (
     LogoutView
 )
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.mixins import (
     AccessMixin, LoginRequiredMixin
 )
+from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import reverse, redirect
+from django.urls import reverse_lazy
 from django.views.generic import (
     FormView, TemplateView
 )
 
-from .forms import BetaTokenForm
+from .forms import BetaTokenForm, UsernameForm
 
 
 class BetaTokenRequiredMixin(AccessMixin):
@@ -85,3 +89,26 @@ class UserSignoutView(LogoutView):
     """
 
     template_name = 'users/signout.html'
+
+
+class UsernameChangeView(LoginRequiredMixin, FormView):
+    template_name = 'users/username_change.html'
+    form_class = UsernameForm
+    success_url = reverse_lazy('user_settings')
+
+    def get_initial(self) -> dict:
+        return {
+            'username': self.request.user.username
+        }
+
+    def form_valid(self, form: UsernameForm) -> HttpResponse:
+        self.request.user.username = form.cleaned_data['username']
+        try:
+            self.request.user.save()
+        except IntegrityError:
+            messages.error(self.request, "Username can not be changed to '{}' as it is already in use.".format(
+                form.cleaned_data['username']))
+            return redirect(reverse('user_change_username'))
+
+        messages.success(self.request, "Your username was changed to '{}'.".format(form.cleaned_data['username']))
+        return super(UsernameChangeView, self).form_valid(form)

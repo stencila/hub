@@ -19,7 +19,7 @@ from users.views import (
     UserSignupView,
     UserSigninView,
     UserSignoutView,
-    BetaTokenView)
+    BetaTokenView, UsernameChangeView)
 from views import HomeView, Error500View, Test403View, Test404View, Test500View, StatusView
 
 urlpatterns = [
@@ -44,6 +44,7 @@ urlpatterns = [
     path('me/signup/', UserSignupView.as_view(), name='user_signup'),
     path('me/signin/', UserSigninView.as_view(), name='user_signin'),
     path('me/signout/', UserSignoutView.as_view(), name='user_signout'),
+    path('me/username/', UsernameChangeView.as_view(), name='user_change_username'),
     path('me/avatar/', include('avatar.urls')),
     path('me/', include('allauth.urls')),
 
