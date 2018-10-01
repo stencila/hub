@@ -48,9 +48,10 @@ DJ ?= $(VE) $(EV) python3 director/manage.py
 
 
 # Setup virtual environment
-director/venv: director/requirements.txt
+director/venv: director/requirements.txt director/requirements-dev.txt
 	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
+	$(VE) pip3 install -r director/requirements-dev.txt
 	touch director/venv
 director-venv: director/venv
 
@@ -66,6 +67,10 @@ director/extern: director/package.json
 	mkdir -p $@/css
 	cp director/node_modules/buefy/lib/buefy.min.css $@/css
 	touch $@
+
+# Create UML models
+director-models: director/venv
+	$(DJ) graph_models -a -o director/models.png
 
 # Build any static files
 # Needs `director/venv` to setup virtualenv for Django collectstatic
@@ -180,10 +185,3 @@ secrets-decrypt:
 	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
 	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
 	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
-
-
-	####################################################################################
-	# UML diagrams
-
-director-models: director/venv
-	$(DJ) graph_models -a -o models.png

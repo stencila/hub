@@ -9,9 +9,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import View, ListView, CreateView, DetailView, UpdateView
+from django.views.generic import View, ListView, CreateView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm, AccountCreateForm

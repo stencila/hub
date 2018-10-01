@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Change Username : Stencila{% endblock %}
+
+{% block content %}
+    <div class="container" style="max-width: 30em">
+        {% crispy form %}
+    </div>
+{% endblock %}

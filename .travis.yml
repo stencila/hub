@@ -1,0 +1,31 @@
+sudo: required
+
+language: python
+
+python:
+  - 3.6
+
+services:
+  - docker
+
+install:
+  # Setup a development virtual environment
+  - make director-venv
+
+before_script:
+  # Download Codeclimate test reporter
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+script:
+  # Run tests in a development virtual environment
+  - make director-test
+  # Build production Docker image
+  - make director-build
+
+after_script:
+  # Run Codeclimate test reporter
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --prefix $TRAVIS_BUILD_DIR/director
+  # Run Codecov tet reporter
+  - curl -s https://codecov.io/bash | bash

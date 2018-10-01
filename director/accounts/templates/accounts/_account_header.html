@@ -1,65 +1,23 @@
-{% load account_permissions %}
-
 <div class="level">
-  <div class="level-left">
-    {% if account.logo %}
-    <div class="level-item">
-      <figure class="image is-96x96">
-        <img src="{{ MEDIA_URL }}{{ account.logo.url }}">
-      </figure>
+    <div class="level-left">
+        {% if account.logo %}
+            <div class="level-item">
+                <figure class="image is-96x96">
+                    <img src="{{ MEDIA_URL }}{{ account.logo.url }}">
+                </figure>
+            </div>
+        {% endif %}
+        <div class="level-item">
+            <p class="title is-2">{{ account.name }}</p>
+        </div>
     </div>
-    {% endif %}
-    <div class="level-item">
-      <p class="title is-2">{{ account.name }}</p>
-    </div>
-  </div>
 </div>
 
-{% if account_permissions|account_permissions_contain:'administer' %}
 <div class="tabs is-toggle is-fullwidth">
-  <ul>
-    {% if tab == "profile" %}
-    <li class="is-active">
-      <a>
-    {% else %}
-    <li>
-      <a href="{% url 'account_profile' account.pk %}">
-    {% endif %}
-        <span class="icon is-small"><i class="fas fa-inbox" aria-hidden="true"></i></span>
-        <span>Profile</span>
-      </a>
-    </li>
-
-    {% if tab == "members" %}
-    <li class="is-active">
-      <a>
-    {% else %}
-    <li>
-      <a href="{% url 'account_access' account.pk %}">
-    {% endif %}
-        <span class="icon is-small"><i class="fa fa-user" aria-hidden="true"></i></span>
-        <span>Members</span>
-      </a>
-    </li>
-
-    <li {% if tab == "teams" %}class="is-active"{% endif %}>
-      <a href="{% url 'account_team_list' account.pk %}">
-        <span class="icon is-small"><i class="fa fa-users" aria-hidden="true"></i></span>
-        <span>Teams</span>
-      </a>
-    </li>
-
-    {% if tab == "settings" %}
-    <li class="is-active">
-      <a>
-    {% else %}
-    <li>
-      <a href="{% url 'account_settings' account.pk %}">
-    {% endif %}
-        <span class="icon is-small"><i class="fa fa-cog" aria-hidden="true"></i></span>
-        <span>Settings</span>
-      </a>
-    </li>
-  </ul>
+    <ul>
+        {% include "accounts/_account_header_item.html" with permission_required='modify' tab_id='profile' url_name='account_profile' icon_class='inbox' tab_name='Profile' %}
+        {% include "accounts/_account_header_item.html" with permission_required='administer' tab_id='members' url_name='account_access' icon_class='user' tab_name='Members' %}
+        {% include "accounts/_account_header_item.html" with permission_required='modify' tab_id='teams' url_name='account_team_list' icon_class='users' tab_name='Teams' %}
+        {% include "accounts/_account_header_item.html" with permission_required='administer' tab_id='settings' url_name='account_settings' icon_class='cog' tab_name='Settings' %}
+    </ul>
 </div>
-{% endif %}

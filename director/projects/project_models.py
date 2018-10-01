@@ -33,7 +33,8 @@ class Project(models.Model):
         Account,
         on_delete=models.PROTECT,
         related_name='projects',
-        null=False
+        null=False,
+        blank=False
     )
 
     name = models.TextField(

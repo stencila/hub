@@ -17,11 +17,12 @@ class AccountPermissionType(EnumChoice):
     """
     There are two types of `Permissions` to the `Account`:
 
-    1) Modification (this is the type of permission given to Account Member) allows to link a new Project to the Account.
+    1) Modification allows to link a new Project to the Account.
 
     2) Administration is a higher level of permission type. It allows to
-    delete Accounts; update the billing details for the Account and
-    give other Account Members administrative permission.
+    manage teams (create and alter membership), delete Accounts; update
+    the billing details for the Account and give other Account Members
+    administrative permission.
     """
     MODIFY = 'modify'
     ADMINISTER = 'administer'
@@ -37,15 +38,16 @@ class Account(models.Model):
     Users can create additional Accounts linking them to multiple Projects and Teams.
     """
     name = models.TextField(
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
+        unique=True,
         help_text='The name of the account (required).'
     )
 
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text='A logo for the acccount'
+        help_text='A logo for the account'
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
@@ -178,6 +180,9 @@ class AccountUserRole(models.Model):
         on_delete=models.CASCADE,
         related_name='+'
     )
+
+    class Meta:
+        unique_together = (('user', 'account'),)
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
