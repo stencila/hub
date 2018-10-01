@@ -17,6 +17,10 @@ urlpatterns = [
     path('<int:pk>/files/', ProjectFilesView.as_view(), name='project_files'),
     path('<int:pk>/files/create', FileSourceCreateView.as_view(), name='filesource_create'),
     path('<int:pk>/files/upload', FileSourceUploadView.as_view(), name='filesource_upload'),
+
+    path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
+    path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
+
     path('<int:project_pk>/files/<int:pk>/update', SourceUpdateView.as_view(), name='source_update'),
     path('<int:project_pk>/files/<int:pk>/delete', SourceDeleteView.as_view(), name='source_delete'),
 

@@ -6,37 +6,53 @@
 {% block content %}
 	{% include "projects/_project_header.html" with project=project tab="files" %}
 
-  <a class="button" href="{% url 'filesource_create' project.pk %}">
-      Create
-  </a>
-  <a class="button" href="{% url 'filesource_upload' project.pk %}">
-      Upload
-  </a>
-  {% comment %}
-  <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
-    <div class="dropdown-trigger">
-      <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
-        <span>Link</span>
-        <span class="icon is-small">
-          <i class="fas fa-angle-down" aria-hidden="true"></i>
-        </span>
-      </button>
-    </div>
-    <div class="dropdown-menu" id="dropdown-menu" role="menu">
-      <div class="dropdown-content">
-        <a href="{% url 'project_files_dat' project.pk %}" class="dropdown-item">
-          Dat
+  <div class="level">
+    <div class="level-right">
+      <div class="level-item">
+        <a class="button" href="{% url 'filesource_create' project.pk %}">
+            <span class="icon is-small">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+            </span>
+            <span>Create</span>
         </a>
-        <a href="{% url 'project_files_dropbox' project.pk %}" class="dropdown-item">
-          Dropbox
+        <a class="button" href="{% url 'filesource_upload' project.pk %}">
+            <span class="icon is-small">
+              <i class="fas fa-upload" aria-hidden="true"></i>
+            </span>
+            <span>Upload</span>
         </a>
-        <a href="{% url 'project_files_github' project.pk %}" class="dropdown-item">
-          Github
-        </a>
+        <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
+          <div class="dropdown-trigger">
+            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+              <span class="icon is-small">
+                <i class="fas fa-link" aria-hidden="true"></i>
+              </span>
+              <span>Link</span>
+              <span class="icon is-small">
+                <i class="fas fa-angle-down" aria-hidden="true"></i>
+              </span>
+            </button>
+          </div>
+          <div class="dropdown-menu" id="dropdown-menu" role="menu">
+            <div class="dropdown-content">
+              <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
+                <span class="icon is-small">
+                  <i class="fab fa-dropbox" aria-hidden="true"></i>
+                </span>
+                <span>Dropbox</span>
+              </a>
+              <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                <span class="icon is-small">
+                  <i class="fab fa-github" aria-hidden="true"></i>
+                </span>
+                <span>Github</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  {% endcomment %}
 
   <table class="table is-fullwidth">
       <thead>

@@ -12,28 +12,25 @@ from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView, DeleteView, ListView, TemplateView
 
 
-from .models import Project, Source, FileSource
+from .models import Project, Source, FileSource, DropboxSource, GithubSource
 from .source_forms import FileSourceForm
 
 
-class FileSourceCreateView(LoginRequiredMixin, CreateView):
+class SourceCreateView(LoginRequiredMixin, CreateView):
+    """A base class for view for creating new project sources"""
+
     model = FileSource
     form_class = FileSourceForm
     template_name = 'projects/filesource_create.html'
 
     def get_context_data(self, *args, **kwargs):
-        """
-        Override to add project to the template context
-        """
+        """Override to add project to the template context"""
         data = super().get_context_data(*args, **kwargs)
         data['project'] = get_object_or_404(Project, pk=self.kwargs['pk'])
         return data
 
     def form_valid(self, form):
-        """
-        Override to set the project for the `FileSource` and redirect
-        back to that project
-        """
+        """Override to set the project for the `Source` and redirect back to that project"""
         pk = self.kwargs['pk']
         filesource = form.save(commit=False)
         filesource.project = get_object_or_404(Project, pk=pk)
@@ -43,7 +40,31 @@ class FileSourceCreateView(LoginRequiredMixin, CreateView):
         )
 
 
+class FileSourceCreateView(SourceCreateView):
+    """A view for creating a new, emtpy local file in the project"""
+
+    model = FileSource
+    form_class = FileSourceForm
+    template_name = 'projects/filesource_create.html'
+
+
+class DropboxSourceCreateView(SourceCreateView):
+    """A view for creating a Dropbox project source"""
+
+    model = DropboxSource
+    template_name = 'projects/dropboxsource_create.html'
+
+
+class GithubSourceCreateView(SourceCreateView):
+    """A view for creating a Github project source"""
+
+    model = GithubSource
+    template_name = 'projects/githubsource_create.html'
+
+
 class FileSourceUploadView(LoginRequiredMixin, DetailView):
+    """A view for uploading one or more files into the project"""
+
     model = Project
     template_name = 'projects/filesource_upload.html'
 
@@ -63,8 +84,13 @@ class FileSourceUploadView(LoginRequiredMixin, DetailView):
         return HttpResponse()
 
 
-class SourceUpdateView(LoginRequiredMixin, CreateView):
-    pass
+class SourceUpdateView(LoginRequiredMixin, UpdateView):
+    model = Source
+    fields = ['path']
+    template_name = 'projects/source_update.html'
+
+    def get_success_url(self) -> str:
+        return reverse("project_files", kwargs={'pk': self.kwargs['project_pk']})
 
 
 class SourceDeleteView(LoginRequiredMixin, DeleteView):

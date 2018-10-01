@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container has-centred" style="max-width: 25em">
+    <div class="modal is-active">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon"><i class="fas fa-trash"></i></span>
+            <span>Delete</span>
+          </p>
+        </header>
+        <section class="modal-card-body">
+            <p>Are you sure you want to delete "{{ object }}"?</p>
+        </section>
+        <footer class="modal-card-foot">
+            <form method="post">
+                {% csrf_token %}
+                <button class="button is-danger" type="submit">Delete</button>
+                <a class="button" onclick="history.back()">Cancel</a>
+            </form>
+        </footer>
+      </div>
+    </div>
+</div>
+{% endblock %}
