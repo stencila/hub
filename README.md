@@ -2,8 +2,11 @@
 	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:200px">
 </div>
 
+[![Build](https://travis-ci.org/stencila/hub.svg?branch=master)](https://travis-ci.org/stencila/hub)
+[![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0d6cbfb262152e2b9242/maintainability)](https://codeclimate.com/github/stencila/hub/maintainability)
 [![Updates](https://pyup.io/repos/github/stencila/hub/shield.svg)](https://pyup.io/repos/github/stencila/hub/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 The Hub is the gateway to using Stencila on the web. The Hub allows users to access the full functionality of Stencila without having to configure anything on their local machines.
@@ -89,12 +92,18 @@ Currently, checkouts use a primitive locking (well actually just a warning) to a
 If you would like to contribute to Stencila Hub, please see the [developer guidelines](CONTRIBUTING.md).
 
 
-### Code maintainability
+### Continuous integration
 
-We use Codeclimate for monitoring code quality and maintainability. See [here](https://codeclimate.com/github/stencila/hub) for current status.
+We use Travis as a continuous integration server. Currently, the Travis configuration will do linting, run tests and build the production Docker image. See [here](https://travis-ci.org/stencila/hub) for the latest build and [`travis.yml`](travis.yml) for the configuration.
 
-### Test coverage
+### Test coverage reporting
+
+Test coverage reports, generated on Travis, are available on Codecov [here](https://codecov.io/gh/stencila/hub).
+
+### Code maintainability reporting
+
+We use Codeclimate for additional monitoring code quality and maintainability, beyond that provided by Pyllama. See [here](https://codeclimate.com/github/stencila/hub) for current status.
 
 ### Dependency updates
 
-We use PyUp to keep track of security and regular updates to packages this repo depends upon. See [here](https://pyup.io/repos/github/stencila/hub) for current status. PyUp is currently configured to create an automatic pull request each week with any new updates that are necessary.
+We use PyUp to keep track of security and regular updates to packages this repo depends upon. See [here](https://pyup.io/repos/github/stencila/hub) for current status and [`pyup.yml`](pyup.yml) for the configuration. PyUp is currently configured to create an automatic pull request each week with any new updates that are necessary.
