@@ -67,6 +67,10 @@ director/extern: director/package.json
 	cp director/node_modules/buefy/lib/buefy.min.css $@/css
 	touch $@
 
+# Create UML models
+director-models: director/venv
+	$(DJ) graph_models -a -o director/models.png
+
 # Build any static files
 # Needs `director/venv` to setup virtualenv for Django collectstatic
 director-static: director/venv director/extern
@@ -180,10 +184,3 @@ secrets-decrypt:
 	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
 	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
 	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
-
-
-	####################################################################################
-	# UML diagrams
-
-director-models: director/venv
-	$(DJ) graph_models -a -o models.png

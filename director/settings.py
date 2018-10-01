@@ -274,7 +274,10 @@ class Dev(Common):
         '--with-coverage',
         '--cover-package=projects.cloud_session_controller',
         '--cover-package=projects.project_host_views',
-        '--cover-html'
+        '--cover-html',
+        '--cover-html-dir=' + os.path.join(Common.BASE_DIR, 'coverage'),
+        '--cover-xml',
+        '--cover-xml-file=' + os.path.join(Common.BASE_DIR, 'coverage.xml')
     ]
 
 

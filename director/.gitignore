@@ -17,4 +17,9 @@
 
 # Ignore coverage reports
 .coverage
-cover
+coverage
+coverage.xml
+
+# Ignore the UML diagram auto-generated from Django models
+models.png
+
