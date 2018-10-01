@@ -2,8 +2,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit
 from django import forms
 
-from accounts.models import Account, Team, AccountUserRole
-from lib.forms import FormWithSubmit, ModelFormWithSubmit, ModelFormWithCreate
+from accounts.models import Account, Team
+from lib.forms import ModelFormWithCreate
 
 
 class AccountSettingsForm(forms.ModelForm):
@@ -21,18 +21,21 @@ class AccountSettingsForm(forms.ModelForm):
             'name': forms.TextInput,
         }
 
+
 class AccountCreateForm(ModelFormWithCreate):
     helper = FormHelper()
     helper.layout = Layout(
         'name',
         'logo',
     )
+
     class Meta:
         model = Account
         fields = ('name', 'logo')
         widgets = {
             'name': forms.TextInput,
         }
+
 
 class TeamForm(forms.ModelForm):
     helper = FormHelper()

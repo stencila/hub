@@ -18,6 +18,7 @@ def form_add_create_button(form: typing.Any) -> None:
         Submit('create', getattr(form, 'create_button_label', 'Create'), css_class='button is-primary')
     )
 
+
 class FormWithSubmit(forms.Form):
     def __init__(self, *args, **kwargs) -> None:
         super(FormWithSubmit, self).__init__(*args, **kwargs)

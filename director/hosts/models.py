@@ -1,8 +1,7 @@
 import time
 
-from django.conf import settings
-from django.db import models
 import jwt
+from django.conf import settings
 from polymorphic.models import PolymorphicModel
 
 

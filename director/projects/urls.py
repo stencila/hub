@@ -1,26 +1,10 @@
 from django.urls import include, path, re_path
 
-from .views import (
-    ProjectListView,
-
-    ProjectCreateView,
-
-    ProjectOverviewView,
-    ProjectFilesView,
-    ProjectActivityView,
-    ProjectSharingView,
-
-    ProjectSettingsMetadataView,
-    ProjectSettingsAccessView,
-    ProjectSettingsSessionsView,
-
-    ProjectHostManifestView,
-    ProjectHostSessionsView,
-    ProjectArchiveView,
-
-    ProjectDeleteView,
-    ProjectSessionRequestView,
-    ProjectRoleUpdateView)
+from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView)
+from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
+                                    ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
+                                    ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
+                                    ProjectArchiveView, ProjectDeleteView)
 
 urlpatterns = [
     # Generic views

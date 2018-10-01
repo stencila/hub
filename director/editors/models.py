@@ -1,24 +1,18 @@
-from io import BytesIO
 import os
-import requests
 import secrets
-import sh
 import shutil
 import string
 import tempfile
+from io import BytesIO
 from zipfile import ZipFile
 
-from django.db.models import (
-    Model,
-
-    CharField,
-    ForeignKey,
-    FileField,
-    TextField, URLField,
-
-    CASCADE
-)
+import requests
+import sh
 from django.conf import settings
+from django.db.models import (
+    CharField,
+    URLField
+)
 from polymorphic.models import PolymorphicModel
 
 

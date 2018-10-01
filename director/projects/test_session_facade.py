@@ -127,7 +127,7 @@ class SessionFacadeTests(TestCase):
 
         self.project.sessions.count.return_value = 99
         self.cs_facade.check_total_sessions_exceeded()  # no exception raised
-        
+
     def test_check_active_sessions_exceeded_none_success(self):
         """
         If the `Project` has `sessions_active` of `None` then `check_active_sessions_exceeded` should always succeed

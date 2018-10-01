@@ -7,6 +7,7 @@ from zipfile import ZipFile
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 

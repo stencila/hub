@@ -4,6 +4,7 @@ import typing
 
 class EnumChoice(enum.Enum):
     """Adds as_choices for use with Django choice field."""
+
     @classmethod
     def as_choices(cls) -> typing.List[typing.Tuple[str, str]]:
         """

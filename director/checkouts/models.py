@@ -1,21 +1,21 @@
 import datetime
 import logging
-logger = logging.getLogger(__name__)
 
+from django.conf import settings
 from django.db.models import (
     Model, OneToOneField, ForeignKey,
-    CharField, DateTimeField, IntegerField, TextField,
+    CharField, DateTimeField, TextField,
     CASCADE, SET_NULL,
     Q
 )
-from django.conf import settings
 from django.shortcuts import reverse
 from django.utils import timezone
 
-from projects.models import Project
 from editors.models import Editor
 from hosts.models import Host
+from projects.models import Project
 
+logger = logging.getLogger(__name__)
 
 # Checkout status types
 LAUNCHING = 'L'
