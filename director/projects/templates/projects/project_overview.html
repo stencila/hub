@@ -5,6 +5,10 @@
 {% block content %}
 	{% include "projects/_project_header.html" with project=project tab="overview" %}
     <div class="section">
+			<div class="container">
+				<p >This project is connected to the account: <strong> {{project.account.name}}</strong></p>
+				<br/>
+			</div>
         <div class="columns">
             <div class="column is-9">
                 {% if project.description %}
