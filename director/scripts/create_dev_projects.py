@@ -4,8 +4,12 @@ Create projects for the development database
 
 from django.conf import settings
 
-from accounts.models import Account
+from accounts.models import Account, AccountUserRole
 from projects.models import Project
+
+
+def random_account_member(account):
+    return AccountUserRole.objects.filter(account=account).order_by('?').first().user
 
 
 def run(*args):
@@ -17,6 +21,7 @@ def run(*args):
 
     Project.objects.create(
         account=accounts[0],
+        creator=random_account_member(accounts[0]),
         public=True,
         name='The project name',
         description='''
@@ -29,10 +34,12 @@ roident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
     Project.objects.create(
         account=accounts[1],
+        creator=random_account_member(accounts[1]),
         public=True
     )
 
     Project.objects.create(
         account=accounts[2],
+        creator=random_account_member(accounts[2]),
         public=False
     )
