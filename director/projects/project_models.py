@@ -7,7 +7,7 @@ from io import BytesIO
 from django.db import models
 
 from accounts.models import Account
-from projects.source_models import FilesSource, Source
+from projects.source_models import Source
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
 PROJECT_KEY_LENGTH = 32
@@ -115,12 +115,11 @@ class Project(models.Model):
     @staticmethod
     def create(project_type, creator):
         """
-        Create a new editor of the given project_type
+        Create a new editor of the given project_type.
+
+        TODO: is this, and the following few methods, necessary?
         """
-        if project_type == 'files':
-            return FilesSource.objects.create(creator=creator)
-        else:
-            raise RuntimeError('Unhandled project type "{}" when attempting to create project'.format(project_type))
+        raise NotImplementedError()
 
     @staticmethod
     def get_or_create(project_type, address, creator):
