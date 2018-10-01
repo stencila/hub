@@ -5,6 +5,8 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveView, ProjectDeleteView)
+from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView, GithubSourceCreateView,
+                                   SourceUpdateView, SourceDeleteView)
 
 urlpatterns = [
     # Generic views
