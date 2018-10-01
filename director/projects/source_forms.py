@@ -1,12 +1,22 @@
+from django import forms
+
 from lib.forms import ModelFormWithSubmit
-from .source_models import FilesSource
+from .source_models import FileSource
+
+FILE_TYPES = [
+    ('text/rmarkdown', 'RMarkdown'),
+    ('text/ipynb', 'Jupyter Notebook')
+]
 
 
-class FilesSourceForm(ModelFormWithSubmit):
+class FileSourceForm(ModelFormWithSubmit):
+    type = forms.ChoiceField(choices=FILE_TYPES)
+    path = forms.RegexField(regex=r'[A-Za-z\-/]+')
+
     class Meta:
-        model = FilesSource
-        fields = ["project"]
-
-
-FilesSourceUpdateForm = FilesSourceForm
-FilesSourceCreateForm = FilesSourceForm
+        model = FileSource
+        fields = ('path',)
+        widgets = {
+            'type': forms.Select(),
+            'path': forms.TextInput()
+        }

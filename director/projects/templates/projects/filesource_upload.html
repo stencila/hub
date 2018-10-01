@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Project{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'js/vue-upload-component.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="filesproject" class="section">
+    <h1 class="title is-4">{{ project }}: Upload file</h1>
+    <table class="table is-fullwidth">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Modified</th>
+                <th><th>
+            </tr>
+        </thead>
+        <tbody v-if="files.length">
+            <tr v-for="(file, index) in files" :key="file.id" :file-id="file.id">
+                <td>[[ file.name ]]</td>
+                <td>[[ file.size ]]</td>
+                <td v-if="file.error">
+                    <span class="icon">
+                        <i class="fas fa-error"></i>
+                    </span>
+                    <span>[[file.error]]</span>
+                </td>
+                <td v-else-if="file.active">
+                    <span class="icon">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                    </span>
+                </td>
+                <td v-else-if="file.success">
+                    <span class="icon has-text-success">
+                        <i class="fas fa-check"></i>
+                    </span>
+                </td>
+                <td v-else-if="file.current">
+                    <a class="icon has-text-danger" @click="remove(file.id)">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        <tbody>
+    </table>
+
+    <file-upload
+      class="button is-primary"
+      post-action="{% url 'filesource_upload' project.id %}"
+      :headers="{'X-CSRFToken': utils.cookie('csrftoken')}"
+      :multiple="true"
+      v-model="files"
+      ref="upload"
+    >
+      <span class="icon"><i class="fa fa-plus"></i></span>
+      <span>Add files</span>
+    </file-upload>
+    <button class="button is-primary" :disabled="$refs.upload && $refs.upload.active" @click.prevent="$refs.upload.active = true">
+      <span class="icon"><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
+      <span>Upload files</span>
+    </button>
+    <a class="button" href="{% url 'project_files' project.id %}">
+      <span class="icon"><i class="fa fa-sign-out-alt" aria-hidden="true"></i></span>
+      <span>Done</span>
+    </a>
+</div>
+
+<script type="text/javascript">
+window.vue = new Vue({
+    el: '#filesproject',
+    delimiters: ['[[', ']]'],
+    components: {
+        FileUpload: VueUploadComponent,
+    },
+    data: {
+        files: []
+    }
+})
+</script>
+{% endblock %}

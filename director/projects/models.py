@@ -2,6 +2,6 @@
 
 from .project_models import Project
 from .session_models import Session, SessionParameters
-from .source_models import Source, BitbucketSource, DatSource, DropboxSource, FilesSource, FilesSourceFile, \
+from .source_models import Source, BitbucketSource, DatSource, DropboxSource, FileSource, \
     GithubSource, GitlabSource, OSFSource, files_source_file_path
 from .permission_models import ProjectRole, ProjectAgentRole, ProjectPermission, ProjectPermissionType

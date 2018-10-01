@@ -13,12 +13,26 @@ from polymorphic.models import PolymorphicModel
 
 class Source(PolymorphicModel):
     project = models.ForeignKey(
-        'projects.Project',
+        'Project',
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name='sources'
     )
+
+    path = models.TextField(
+        null=False,
+        default='.',
+        help_text='The path that the file or directory from the source is mapped to in the project'
+    )
+
+    updated = models.DateTimeField(
+        auto_now=True,
+        help_text='Time this model instance was last updated'
+    )
+
+    def __str__(self):
+        return self.path
 
     @property
     def type(self) -> typing.Type['Source']:
@@ -81,81 +95,15 @@ class DropboxSource(Source):
         abstract = True
 
 
-class FilesSource(Source):
-    """
-    A project hosted on Stencila Hub consisting of a set of files
-    """
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'files': [file.serialize() for file in self.files.all()],
-        }
-
-    def save(self, *args, **kwargs):
-        if not self.address:
-            self.address = 'files://{}'.format(self.id)
-        super().save(*args, **kwargs)
-
-    def get_name(self):
-        return self.name if self.name else 'Unnamed'
-
-    def pull(self) -> BytesIO:
-        """
-        Pull files from the Django storage into an archive
-        """
-
-        # Write all the files into a zip archive
-        archive = BytesIO()
-        with ZipFile(archive, 'w') as zipfile:
-            for file in self.files.all():
-                # For remote storages (e.g. Google Cloud Storage buckets)
-                # `file.file.path` is not available, so use `file.file.read()`
-                zipfile.writestr(file.name, file.file.read())
-        return archive
-
-    def push(self, archive: typing.Union[str, typing.IO]) -> None:
-        """
-        Push files in the archive to the Django storage
-        """
-
-        # Unzip all the files and add to this project
-        zipfile = ZipFile(archive, 'r')
-        for name in zipfile.namelist():
-            # Replace existing file or create a new one
-            instance = FilesSourceFile.objects.get_or_create(project=self, name=name)
-
-            # Read the file from the zipfile
-            content = BytesIO()
-            content.write(zipfile.read(name))
-            content.seek(0)
-            # Create a new file with contents and name
-            instance.file.save(name, content, save=False)
-            instance.modified = datetime.datetime.now(tz=timezone.utc)  # type: ignore
-            instance.save()
-
-
-def files_source_file_path(instance: "FilesSourceFile", filename: str):
+def files_source_file_path(instance: "FileSource", filename: str):
     # File will be uploaded to MEDIA_ROOT/files_projects/<id>/<filename>
-    return 'files_projects/{0}/{1}'.format(instance.source.id, filename)
+    return 'projects/{0}/{1}'.format(instance.id, filename)
 
 
-class FilesSourceFile(models.Model):
+class FileSource(Source):
     """
-    A file residing in a `FilesProject`
+    A file uploaded to the Hub
     """
-
-    source = models.ForeignKey(
-        FilesSource,
-        related_name='files',
-        on_delete=models.CASCADE
-    )
-
-    name = models.CharField(
-        max_length=1024,
-        default='unnamed',
-        help_text='Name of the file (a path relative to the project root)'
-    )
 
     size = models.IntegerField(
         null=True,
@@ -170,40 +118,13 @@ class FilesSourceFile(models.Model):
         help_text='The actual file stored'
     )
 
-    updated = models.DateTimeField(
-        auto_now=True,
-        help_text='Time this model instance was last updated'
-    )
-
-    modified = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text='Time the file was last modified'
-    )
-
-    class Meta:
-        pass
-        # unique_together = ['source', 'name']  # this constraint is not necessary
-
-    def serialize(self):
-        """
-        Serialize to a dict for conversion
-        to JSON
-        """
-        return {
-            'id': self.id,
-            'name': self.name,
-            'size': self.size,
-            'modified': self.modified,
-            'current': True  # Used to distinguish already uploaded files in UI
-        }
-
     def save(self, *args, **kwargs):
         """
         Override of save() to update the size
         property from the file size
         """
-        self.size = self.file.size
+        if self.file:
+            self.size = self.file.size
         super().save(*args, **kwargs)
 
 
@@ -243,7 +164,7 @@ class SourceType(typing.NamedTuple):
 
 
 class AvailableSourceType(enum.Enum):
-    FILE = SourceType('files', 'Files', FilesSource)
+    FILE = SourceType('file', 'File', FileSource)
 
     # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
     # doesn't understand this

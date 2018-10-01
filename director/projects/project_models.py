@@ -204,3 +204,37 @@ class Project(models.Model):
         """Chop out the middle of the token for short display."""
         return "{}...{}".format(self.token[:TRUNCATED_TOKEN_SHOW_CHARACTERS],
                                 self.token[-TRUNCATED_TOKEN_SHOW_CHARACTERS:])
+
+    def _pull(self) -> BytesIO:
+        """
+        Pull files from the Django storage into an archive
+        """
+
+        # Write all the files into a zip archive
+        archive = BytesIO()
+        with ZipFile(archive, 'w') as zipfile:
+            for file in self.files.all():
+                # For remote storages (e.g. Google Cloud Storage buckets)
+                # `file.file.path` is not available, so use `file.file.read()`
+                zipfile.writestr(file.name, file.file.read())
+        return archive
+
+    def _push(self, archive: typing.Union[str, typing.IO]) -> None:
+        """
+        Push files in the archive to the Django storage
+        """
+
+        # Unzip all the files and add to this project
+        zipfile = ZipFile(archive, 'r')
+        for name in zipfile.namelist():
+            # Replace existing file or create a new one
+            instance = FilesSourceFile.objects.get_or_create(project=self, name=name)
+
+            # Read the file from the zipfile
+            content = BytesIO()
+            content.write(zipfile.read(name))
+            content.seek(0)
+            # Create a new file with contents and name
+            instance.file.save(name, content, save=False)
+            instance.modified = datetime.datetime.now(tz=timezone.utc)
+            instance.save()

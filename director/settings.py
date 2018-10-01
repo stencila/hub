@@ -33,6 +33,7 @@ class Common(Configuration):
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django.contrib.sites',  # Required by allauth
+        'django.contrib.humanize',
 
         # Third party apps
 

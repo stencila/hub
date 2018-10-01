@@ -13,7 +13,13 @@ urlpatterns = [
     path('create/', ProjectCreateView.as_view(), name='project_create'),
 
     path('<int:pk>/', ProjectOverviewView.as_view(), name='project_overview'),
+
     path('<int:pk>/files/', ProjectFilesView.as_view(), name='project_files'),
+    path('<int:pk>/files/create', FileSourceCreateView.as_view(), name='filesource_create'),
+    path('<int:pk>/files/upload', FileSourceUploadView.as_view(), name='filesource_upload'),
+    path('<int:project_pk>/files/<int:pk>/update', SourceUpdateView.as_view(), name='source_update'),
+    path('<int:project_pk>/files/<int:pk>/delete', SourceDeleteView.as_view(), name='source_delete'),
+
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),
     path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
