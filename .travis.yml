@@ -26,4 +26,6 @@ script:
 
 after_script:
   # Run Codeclimate test reporter
-  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --prefix $TRAVIS_BUILD_DIR/director
+  # Run Codecov tet reporter
+  - curl -s https://codecov.io/bash | bash
