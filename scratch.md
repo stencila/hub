@@ -1,4 +1,0 @@
-
-We want to avoid reinventing the wheel and instead provide a way of connecting existing services. There are already plenty of places to store files (e.g. Dropbox, Google Drive, Github) and tools for editing files (e.g. Texture, Google Docs, Microsoft Office Online).
-
-As far as possible we want to connect these providers with each other and with Stencila’s execution contexts for languages like R and Python as provided by the Stencila Cloud. We’ll do this by using providers’ APIs, Stencila’s document converters (e.g. to convert a Markdown doc on Github into a Google Doc), and Stencila’s plugins (e.g. to execute Python code from within that Google Doc).
