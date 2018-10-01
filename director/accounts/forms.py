@@ -18,16 +18,21 @@ class AccountSettingsForm(forms.ModelForm):
         model = Account
         fields = ('name', 'logo')
         widgets = {
-            'name': forms.TextInput
+            'name': forms.TextInput,
         }
 
-class AccountCreateForm(ModelFormWithSubmit):
-
+class AccountCreateForm(forms.ModelForm):
+    helper = FormHelper()
+    helper.layout = Layout(
+        'name',
+        'logo',
+        Submit('submit', 'Upload', css_class="button is-primary")
+    )
     class Meta:
         model = Account
-        fields = ('name',)
+        fields = ('name', 'logo')
         widgets = {
-            'name': forms.TextInput
+            'name': forms.TextInput,
         }
 
 class TeamForm(forms.ModelForm):
