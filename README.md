@@ -1,6 +1,7 @@
 <div align="center">
-	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:200px">
+	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:150px">
 </div>
+<br>
 
 [![Build](https://travis-ci.org/stencila/hub.svg?branch=master)](https://travis-ci.org/stencila/hub)
 [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
@@ -10,10 +11,6 @@
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 The Hub is the gateway to using Stencila on the web. The Hub allows users to access the full functionality of Stencila without having to configure anything on their local machines.
-
-We want to avoid reinventing the wheel and instead provide a way of connecting existing services. There are already plenty of places to store files (e.g. Dropbox, Google Drive, Github) and places to edit files (e.g. Google Docs, Microsoft Office Online).
-
-As far as possible we want to connect these providers with each other and with Stencila’s execution contexts for languages like R and Python as provided by the Stencila Cloud. We’ll do this by using providers’ APIs, Stencila’s document converters (e.g. to convert a Markdown doc on Github into a Google Doc), and Stencila’s plugins (e.g. to execute Python code from within that Google Doc).
 
 
 ## Implementation
