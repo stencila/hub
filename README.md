@@ -6,7 +6,7 @@
 [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0d6cbfb262152e2b9242/maintainability)](https://codeclimate.com/github/stencila/hub/maintainability)
 [![Updates](https://pyup.io/repos/github/stencila/hub/shield.svg)](https://pyup.io/repos/github/stencila/hub/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-3262eb.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the repository for the Stencila Hub.
 The Hub is the gateway to using Stencila on the web. The Hub allows users to access the full functionality of Stencila without having to configure anything on their local machines.
@@ -91,18 +91,27 @@ Currently, checkouts use a primitive locking (well actually just a warning) to a
 
 If you would like to contribute to Stencila Hub, please see the [developer guidelines](CONTRIBUTING.md).
 
-
 ### Continuous integration
 
 We use Travis as a continuous integration server. Currently, the Travis configuration will do linting, run tests and build the production Docker image. See [here](https://travis-ci.org/stencila/hub) for the latest build and [`travis.yml`](travis.yml) for the configuration.
 
-### Test coverage reporting
+### Linting
+
+Three forms of code quality analysis are currently available. 
+
+- `make director-code` runs [`flake8`](http://flake8.pycqa.org) for code style checking.
+
+- `make director-types` runs [`mypy`](http://mypy-lang.org/) for static type checking using the [`director/mypy.ini`](director/mypy.ini) config file.
+
+- `make director-docs` runs [`pydocstyle`](http://www.pydocstyle.org) for checks on docstrings.
+
+Running `make director-lint` will perform all three checks.
+
+We use Codeclimate for additional monitoring code quality and maintainability, beyond that provided by running the linting commands described above. See [here](https://codeclimate.com/github/stencila/hub) for current status.
+
+### Testing
 
 Test coverage reports, generated on Travis, are available on Codecov [here](https://codecov.io/gh/stencila/hub).
-
-### Code maintainability reporting
-
-We use Codeclimate for additional monitoring code quality and maintainability, beyond that provided by Pyllama. See [here](https://codeclimate.com/github/stencila/hub) for current status.
 
 ### Dependency updates
 

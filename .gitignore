@@ -12,5 +12,6 @@ storage
 # Ignore macOS .DS_Store
 .DS_Store
 
-# Ignore the coverage.py data file
+# Ignore the caches
 .coverage
+.mypy_cache

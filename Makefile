@@ -8,6 +8,10 @@ setup: director-venv
 
 run: director-run
 
+lint: director-lint
+
+test: director-test
+
 build: router-build director-build editor-build
 
 static: director-static editor-static
@@ -105,9 +109,27 @@ director-runprod: director/venv director/extern
 	export DJANGO_CONFIGURATION=Prod; \
 	$(DJ) runserver
 
+
+# Lint everything
+director-lint: director-lint-code director-lint-types director-lint-docs
+	
+# Lint code
+director-lint-code:
+	$(VE) flake8 --exclude=venv,migrations --max-line-length=120 director
+
+# Lint types
+director-lint-types:
+	$(VE) mypy --config-file director/mypy.ini director
+
+# Lint docs
+director-lint-docs:
+	$(VE) pydocstyle --match-dir='^(?!venv|\\.).*' director
+
+
 # Run tests
 director-test: director/venv
 	$(DJ) test
+
 
 # Build Docker image
 director-build: director/Dockerfile
