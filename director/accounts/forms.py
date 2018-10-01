@@ -3,7 +3,7 @@ from crispy_forms.layout import Layout, Submit
 from django import forms
 
 from accounts.models import Account, Team, AccountUserRole
-from lib.forms import FormWithSubmit, ModelFormWithSubmit
+from lib.forms import FormWithSubmit, ModelFormWithSubmit, ModelFormWithCreate
 
 
 class AccountSettingsForm(forms.ModelForm):
@@ -21,12 +21,11 @@ class AccountSettingsForm(forms.ModelForm):
             'name': forms.TextInput,
         }
 
-class AccountCreateForm(forms.ModelForm):
+class AccountCreateForm(ModelFormWithCreate):
     helper = FormHelper()
     helper.layout = Layout(
         'name',
         'logo',
-        Submit('submit', 'Upload', css_class="button is-primary")
     )
     class Meta:
         model = Account
