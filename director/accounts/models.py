@@ -41,13 +41,13 @@ class Account(models.Model):
         null=False,
         blank=False,
         unique=True,
-        help_text='The name of the account (required).'
+        help_text='Name of the account (required).'
     )
 
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text='A logo for the account'
+        help_text='Logo for the account (optional). Please use an image that is 100 x 100 px or smaller. '
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
