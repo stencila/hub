@@ -21,7 +21,7 @@ before_script:
 script:
   # Run linting checks without failing build
   - make director-lint-code || true
-  - make director-lint-types || true
+  - make director-lint-types
   - make director-lint-docs || true
   # Run tests in a development virtual environment
   - make director-test

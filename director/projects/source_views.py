@@ -4,6 +4,7 @@ import typing
 from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import Model
 from django.http import JsonResponse, HttpRequest, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy, reverse
@@ -11,10 +12,9 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import DetailView, UpdateView, ListView
 
+from projects.project_models import Project
 from .source_forms import FilesSourceUpdateForm, FilesSourceCreateForm
 from .source_models import FilesSource, FilesSourceFile, Source, AvailableSourceType
-
-T = typing.TypeVar('T')
 
 
 class FilesSourceReadView(LoginRequiredMixin, DetailView):
@@ -41,7 +41,8 @@ class FilesSourceUploadView(LoginRequiredMixin, View):
     def post(request: HttpRequest, pk: int) -> HttpResponse:
         files_source = get_object_or_404(FilesSource, pk=pk)
 
-        if not owner_access_check(request, files_source, 'creator'):
+        # if not owner_access_check(request, files_source, 'creator'):
+        if True:  # TODO: re-implement the above permissions check with new Permissions for Project
             raise PermissionDenied
 
         files = request.FILES.getlist('file')
@@ -61,8 +62,10 @@ class FilesProjectRemoveView(LoginRequiredMixin, View):
     def delete(request: HttpRequest, pk: int, file: int) -> HttpResponse:
         files_source = get_object_or_404(FilesSource, pk=pk)
 
-        if not owner_access_check(request, files_source, 'creator'):
+        # if not owner_access_check(request, files_source, 'creator'):
+        if True:  # TODO: re-implement the above permissions check with new Permissions for Project
             raise PermissionDenied
+
         file = get_object_or_404(FilesSourceFile, source=files_source, pk=file)
         file.delete()
         return JsonResponse(files_source.serialize())
@@ -101,7 +104,7 @@ class DetailViewParameters(typing.NamedTuple):
 
 
 class SourceDetailView(DetailView):
-    current_project_type: str = None
+    current_project_type: str
 
     parameter_lookup = {
         "files": DetailViewParameters(
@@ -138,16 +141,16 @@ class SourceDetailView(DetailView):
     def form_post_create(self, request: HttpRequest, form: forms.Form):
         form.fields['project'].queryset = Project.objects.filter(creator=request.user)
 
-    def get_post_save_redirect_url(self, instance: T, was_create: bool) -> str:
+    def get_post_save_redirect_url(self, instance: Model, was_create: bool) -> str:
         if was_create:
             return reverse("source_detail", args=(self.current_project_type, instance.pk,))
 
         return super().get_post_save_redirect_url(instance, was_create)
 
-    def get_initial_instance(self, request: HttpRequest) -> T:
+    def get_initial_instance(self, request: HttpRequest) -> Model:
         return self.model(creator=request.user)
 
-    def update_and_save_instance(self, instance: T, form: forms.Form):
+    def update_and_save_instance(self, instance: Model, form: forms.Form):
         form.save()
 
     def get(self, request: HttpRequest, project_type: str, pk: typing.Optional[int] = None) -> HttpResponse:

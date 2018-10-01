@@ -5,7 +5,7 @@ resources is metered.
 
 import typing
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -54,8 +54,8 @@ class Account(models.Model):
         """
         Returns users who have administrative permissions on the account.
         """
-        ownership_roles = set()  # cache the roles that have ownership perms
-        users = set()
+        ownership_roles: typing.Set[AccountUserRole] = set()  # cache the roles that have ownership perms
+        users: typing.Set[AbstractUser] = set()
 
         for user_role in self.user_roles.all():
             user_has_role = False

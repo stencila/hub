@@ -1,6 +1,9 @@
+import datetime
 import enum
 from io import BytesIO
 import typing
+from time import timezone
+from zipfile import ZipFile
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -127,7 +130,7 @@ class FilesSource(Source):
             content.seek(0)
             # Create a new file with contents and name
             instance.file.save(name, content, save=False)
-            instance.modified = datetime.datetime.now(tz=timezone.utc)
+            instance.modified = datetime.datetime.now(tz=timezone.utc)  # type: ignore
             instance.save()
 
 
@@ -241,19 +244,22 @@ class SourceType(typing.NamedTuple):
 class AvailableSourceType(enum.Enum):
     FILE = SourceType('files', 'Files', FilesSource)
 
+    # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
+    # doesn't understand this
+
     @classmethod
     def setup_type_lookup(cls) -> None:
         if not hasattr(cls, "_type_lookup"):
-            cls._type_lookup = {
+            cls._type_lookup = {  # type: ignore
                 source_type.value.model: source_type.value for source_type in cls
             }
 
     @classmethod
     def get_project_type_name(cls, model: typing.Type[Source]) -> str:
         cls.setup_type_lookup()
-        return cls._type_lookup[model].name
+        return cls._type_lookup[model].name  # type: ignore
 
     @classmethod
     def get_project_type_id(cls, model: typing.Type[Source]) -> str:
         cls.setup_type_lookup()
-        return cls._type_lookup[model].id
+        return cls._type_lookup[model].id  # type: ignore

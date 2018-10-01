@@ -1,12 +1,12 @@
 import typing
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Div, Field, HTML, Layout, Submit
+from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
 
-from lib.forms import FormWithSubmit, ModelFormWithSubmit
 from accounts.models import Account
-from .project_models import Project, SessionParameters
+from lib.forms import ModelFormWithSubmit
+from .project_models import Project
 
 
 class ProjectCreateForm(ModelFormWithSubmit):
@@ -118,7 +118,7 @@ class ProjectSettingsAccessForm(forms.ModelForm):
 class ProjectSettingsSessionsForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = []
+        fields: typing.List[str] = []
 
     sessions_total = forms.IntegerField(
         required=False,

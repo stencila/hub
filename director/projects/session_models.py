@@ -16,6 +16,8 @@ from django.db.models import QuerySet, Q
 from django.urls import reverse
 from django.utils import timezone
 
+from projects.project_models import Project
+
 SESSION_POLL_TIMEOUT = 60  # default for number of seconds since update that Session info is out of date
 SESSION_QUEUE_CHECK_TIMEOUT = 120  # remove a `SessionQueue` if it hasn't been checked for this many seconds
 
@@ -28,7 +30,7 @@ class SessionStatus(enum.Enum):
 
 
 class SessionManager(models.Manager):
-    def filter_project_and_status(self, project: 'Project', status: SessionStatus) -> QuerySet:
+    def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
         """
         Helper method for retrieving `Session`s with a particular `SessionStatus`, since the `status` attribute is
         dynamically updated based on when the `Session` was polled, stopped or started.

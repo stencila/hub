@@ -4,6 +4,7 @@ import typing
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
@@ -23,7 +24,7 @@ USER_ROLE_ID_PREFIX = 'user_role_id_'
 class AccountPermissionsMixin(LoginRequiredMixin):
     account_fetch_result: typing.Optional[AccountFetchResult] = None
 
-    def perform_account_fetch(self, user: User, account_pk: int) -> None:
+    def perform_account_fetch(self, user: AbstractUser, account_pk: int) -> None:
         self.account_fetch_result = fetch_account(user, account_pk)
 
     def get_render_context(self, context: dict) -> dict:
@@ -35,20 +36,23 @@ class AccountPermissionsMixin(LoginRequiredMixin):
         if not self.account_fetch_result:
             raise ValueError("account_fetch_result not set")
 
+    # mypy is told to ignore type checking on these property returns as it doesn't understand that
+    # `_test_account_fetch_result_set` checks for None
+
     @property
     def account(self) -> Account:
         self._test_account_fetch_result_set()
-        return self.account_fetch_result.account
+        return self.account_fetch_result.account  # type: ignore
 
     @property
     def account_permissions(self) -> typing.Set[AccountPermissionType]:
         self._test_account_fetch_result_set()
-        return self.account_fetch_result.user_permissions
+        return self.account_fetch_result.user_permissions  # type: ignore
 
     @property
     def account_roles(self) -> typing.Set[AccountRole]:
         self._test_account_fetch_result_set()
-        return self.account_fetch_result.user_roles
+        return self.account_fetch_result.user_roles  # type: ignore
 
     def has_permission(self, permission: AccountPermissionType) -> bool:
         return self.has_any_permissions((permission,))

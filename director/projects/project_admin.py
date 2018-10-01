@@ -21,7 +21,7 @@ class ProjectAdmin(admin.ModelAdmin):
         url = reverse('project_archive', args=[project.id])
         return format_html('<a href="{}">Archive</a>'.format(url))
 
-    archive.short_description = 'Archive'
+    archive.short_description = 'Archive'  # type: ignore
 
 
 @admin.register(ProjectPermission)

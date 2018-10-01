@@ -15,7 +15,7 @@ own -- Can delete the project.
 import enum
 import typing
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -23,8 +23,8 @@ from django.db.models import QuerySet, Q
 from django.db.models.signals import post_save
 
 from accounts.models import Team
-from projects.models import Project
 from lib.enum_choice import EnumChoice
+from projects.models import Project
 
 
 class ProjectPermissionType(EnumChoice):
@@ -38,7 +38,8 @@ class ProjectPermissionType(EnumChoice):
     @classmethod
     def ordered_permissions(cls) -> typing.Iterable['ProjectPermissionType']:
         """Get a tuple of permissions in order from least to most permissive."""
-        return cls.VIEW, cls.COMMENT, cls.SUGGEST, cls.EDIT, cls.MANAGE, cls.OWN
+        return cls.VIEW, cls.COMMENT, cls.SUGGEST, cls.EDIT, cls.MANAGE, cls.OWN  # type: ignore
+        #  mypy does not understand enums
 
     def get_comparison_ordering(self, other: typing.Any) -> int:
         if type(other) != type(self):
@@ -71,7 +72,7 @@ def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) 
     Iterate over eacho `ProjectPermissionType` in order for highest to lowest until one is found in the passed in
     `permissions`, then return it.
     """
-    for permission in reversed(ProjectPermissionType.ordered_permissions()):
+    for permission in reversed(list(ProjectPermissionType.ordered_permissions())):
         if permission in permissions:
             return permission
 
@@ -153,7 +154,7 @@ class ProjectAgentRole(models.Model):
         return cls.objects.filter(**kwargs)
 
     @classmethod
-    def filter_with_user_teams(cls, user: typing.Optional[User] = None,
+    def filter_with_user_teams(cls, user: typing.Optional[AbstractUser] = None,
                                teams: typing.Optional[typing.Iterable[Team]] = None, **kwargs) -> QuerySet:
         """
         Filter for all `ProjectAgentRole` for the `user` or any of the `teams`.

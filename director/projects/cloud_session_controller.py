@@ -47,7 +47,7 @@ class SessionInformation(typing.NamedTuple):
 class CloudClient(object):
     """Client for interaction with Stencila Cloud"""
 
-    def __init__(self, host_url: str, jwt_secret: str):
+    def __init__(self, host_url: str, jwt_secret: str) -> None:
         self.host_url = host_url + "/" if not host_url.endswith("/") else host_url  # ensure trailing /
         self.jwt_secret = jwt_secret
 

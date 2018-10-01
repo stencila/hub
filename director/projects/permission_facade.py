@@ -1,6 +1,7 @@
 import typing
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.shortcuts import get_object_or_404
 
 from accounts.models import Team
@@ -32,7 +33,7 @@ def add_roles_to_permissions_sets(roles_set: typing.Set[ProjectRole],
             permissions_set.add(permission_type)
 
 
-def fetch_project_for_user(user: User, project_pk: int) -> ProjectFetchResult:
+def fetch_project_for_user(user: AbstractUser, project_pk: int) -> ProjectFetchResult:
     project = get_object_or_404(Project, pk=project_pk)
     user_teams = Team.objects.filter(members=user) if user.is_authenticated else []
 

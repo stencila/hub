@@ -4,8 +4,10 @@ import secrets
 import typing
 from io import BytesIO
 
+from django.db import models
+
 from accounts.models import Account
-from .session_models import *
+from projects.source_models import FilesSource, Source
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
 PROJECT_KEY_LENGTH = 32
@@ -168,7 +170,7 @@ class Project(models.Model):
         """
         return self.name or 'Unnamed'
 
-    def get_first_source(self) -> "Source":
+    def get_first_source(self) -> Source:
         source = self.sources.first()  # TODO: Update this when UI supports multiple sources
         if not source:
             raise ValueError("This project has no sources")
@@ -192,6 +194,7 @@ class Project(models.Model):
             self.token = generate_project_token(self)
 
         if not self.session_parameters:
+            from projects.session_models import SessionParameters
             self.session_parameters = SessionParameters.objects.create()
 
         super().save(*args, **kwargs)

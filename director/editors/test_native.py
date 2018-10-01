@@ -12,12 +12,12 @@ class NativeEditorTestCase(TestCase):
     def setUp(self):
         self.editor = NativeEditor.objects.create()
 
-    @skip
+    @skip("Test disabled while sources are being refactored")
     def test_push(self):
         with open(os.path.join(FIXTURES, 'archive1.zip'), 'rb') as archive:
             self.editor.push(archive)
 
-    @skip
+    @skip("Test disabled while sources are being refactored")
     def test_pull(self):
         archive = self.editor.pull()
         with open(os.path.join(FIXTURES, 'archive1-got.zip'), 'wb') as file:

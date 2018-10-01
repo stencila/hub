@@ -1,6 +1,7 @@
 import typing
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
@@ -20,7 +21,7 @@ class AccountFetchResult(typing.NamedTuple):
     user_permissions: typing.Set[AccountPermissionType]
 
 
-def fetch_account(user: User, account_pk: int) -> AccountFetchResult:
+def fetch_account(user: AbstractUser, account_pk: int) -> AccountFetchResult:
     """
     Fetch an `Account` raising a 404 if the `Account` with `account_pk` does not exist. Returns an
     `AccountFetchResult`. If the `user` does not have access to the `Account` then `AccountFetchResult.user_roles` and
@@ -29,8 +30,8 @@ def fetch_account(user: User, account_pk: int) -> AccountFetchResult:
     account = get_object_or_404(Account, pk=account_pk)
     account_user_roles = AccountUserRole.objects.filter(account=account, user=user)
 
-    user_roles = set()
-    user_permissions = set()
+    user_roles: typing.Set[AccountUserRole] = set()
+    user_permissions: typing.Set[AccountPermissionType] = set()
 
     for account_user_role in account_user_roles:
         if account_user_role.role in user_roles:
@@ -43,7 +44,7 @@ def fetch_account(user: User, account_pk: int) -> AccountFetchResult:
     return AccountFetchResult(account, user_roles, user_permissions)
 
 
-def fetch_admin_account(user: User, account_pk: int) -> Account:
+def fetch_admin_account(user: AbstractUser, account_pk: int) -> Account:
     """
     Fetches an account, raising exceptions: 404 if account does not exist, or PermissionDenied if user does not have
     administrative permissions for the Account.
@@ -58,7 +59,7 @@ def fetch_admin_account(user: User, account_pk: int) -> Account:
     return account
 
 
-def fetch_member_account(user: User, account_pk: int) -> AccountFetchResult:
+def fetch_member_account(user: AbstractUser, account_pk: int) -> AccountFetchResult:
     """
     Fetches an account, raising exceptions: 404 if account does not exist, or PermissionDenied if user does not have
     any permissions for the account.
@@ -79,7 +80,7 @@ def fetch_member_account(user: User, account_pk: int) -> AccountFetchResult:
             has_admin_role = True
             break
 
-    return AccountFetchResult(account, has_admin_role)
+    return AccountFetchResult(account, has_admin_role)  # type: ignore # mypy does not understand typed namedtuples
 
 
 def fetch_team_for_account(account: Account, team_pk: typing.Optional[int]) -> Team:
@@ -99,7 +100,7 @@ def fetch_team_for_account(account: Account, team_pk: typing.Optional[int]) -> T
     return team
 
 
-def fetch_accounts_for_user(user: User) -> typing.Iterable[Account]:
+def fetch_accounts_for_user(user: AbstractUser) -> typing.Iterable[Account]:
     """
     Get an Iterable (map) of  `Account`s the `user` has access to (has any permissions).
     """

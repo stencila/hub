@@ -94,6 +94,8 @@ class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
         except SessionRequest.DoesNotExist:
             del request.session[session_request_key]
 
+        return None
+
     @staticmethod
     def get_first_session_request(project: Project) -> typing.Optional[SessionRequest]:
         return SessionRequest.objects.filter(project=project).order_by('created').first()

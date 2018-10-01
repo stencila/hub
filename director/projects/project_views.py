@@ -4,6 +4,7 @@ import typing
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
@@ -34,7 +35,7 @@ class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
-    def perform_project_fetch(self, user: User, pk: int) -> None:
+    def perform_project_fetch(self, user: AbstractUser, pk: int) -> None:
         self.project_fetch_result = fetch_project_for_user(user, pk)
 
     def get_render_context(self, context: dict) -> dict:
@@ -50,20 +51,23 @@ class ProjectPermissionsMixin(object):
         if not self.project_fetch_result:
             raise ValueError("project_fetch_result not set")
 
+    # mypy is told to ignore the return from these properties as it doesn't understand that
+    # _test_project_fetch_result_set does a None check
+
     @property
     def project(self) -> Project:
         self._test_project_fetch_result_set()
-        return self.project_fetch_result.project
+        return self.project_fetch_result.project  # type: ignore
 
     @property
     def project_permissions(self) -> typing.Set[ProjectPermissionType]:
         self._test_project_fetch_result_set()
-        return self.project_fetch_result.agent_permissions
+        return self.project_fetch_result.agent_permissions  # type: ignore
 
     @property
     def project_roles(self) -> typing.Set[ProjectRole]:
         self._test_project_fetch_result_set()
-        return self.project_fetch_result.agent_roles
+        return self.project_fetch_result.agent_roles  # type: ignore
 
     def has_permission(self, permission: ProjectPermissionType) -> bool:
         return self.has_any_permissions((permission,))
@@ -75,7 +79,7 @@ class ProjectPermissionsMixin(object):
 
         return False
 
-    def get_project(self, user: User, project_pk: int) -> Project:
+    def get_project(self, user: AbstractUser, project_pk: int) -> Project:
         self.perform_project_fetch(user, project_pk)
 
         if self.project_permission_required is not None and not self.has_permission(self.project_permission_required):
@@ -101,7 +105,7 @@ class ProjectListView(BetaTokenRequiredMixin, View):
         if not request.user.is_authenticated:
             projects = Project.objects.filter(public=True)
             filter_key = 'public'
-            filter_options = []
+            filter_options: typing.Iterable[FilterOption] = []
         else:
             filter_key = request.GET.get('filter')
 
@@ -169,14 +173,14 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
 
 class ProjectFilesView(ProjectPermissionsMixin, UpdateView):
     model = Project
-    fields = []
+    fields: typing.List[str] = []
     template_name = 'projects/project_files.html'
     project_permission_required = ProjectPermissionType.VIEW
 
 
 class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     model = Project
-    fields = []
+    fields: typing.List[str] = []
     template_name = 'projects/project_activity.html'
     project_permission_required = ProjectPermissionType.VIEW
 
@@ -229,6 +233,8 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
             raise PermissionDenied  # user can not change their own access
 
         if request.POST.get('action') == 'remove_role':
+            # mypy hint, only get here if project_agent_role is not None
+            project_agent_role = typing.cast(ProjectAgentRole, project_agent_role)
             target_role = project_agent_role.role
         else:
             target_role = get_object_or_404(ProjectRole, pk=request.POST['role_id'])
@@ -239,6 +245,8 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
             raise PermissionDenied  # user can not set/remove this role as it has permissions higher than what they have
 
         if request.POST.get('action') == 'remove_role':
+            # mypy hint, only get here if project_agent_role is not None
+            project_agent_role = typing.cast(ProjectAgentRole, project_agent_role)
             agent_description = project_agent_role.agent_description
             project_agent_role.delete()
             messages.success(request, "Access to the project was removed from {}".format(agent_description))
@@ -297,7 +305,7 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
 
 class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
     model = Project
-    fields = []
+    fields: typing.List[str] = []
     template_name = 'projects/project_settings.html'
     project_permission_required = ProjectPermissionType.MANAGE
 
@@ -343,7 +351,7 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
 class ProjectArchiveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, pk: typing.Optional[int]) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
         project = self.get_project(request.user, pk)
 
         archive = project.pull()
