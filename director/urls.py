@@ -15,6 +15,7 @@ from checkouts.views import (
     CheckoutCloseView)
 import projects.urls
 from users.views import (
+    UsernameChangeView,
     UserSettingsView,
     UserSignupView,
     UserSigninView,
@@ -63,8 +64,8 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
 
     # Privacy policy
-    path('privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
-    path('terms-and-conditions/', TermsView.as_view(), name='terms-and-conditions'),
+    path('about/privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
+    path('about/terms-and-conditions/', TermsView.as_view(), name='terms-and-conditions'),
 
     # Accounts App
     path('accounts/', include(accounts_patterns)),

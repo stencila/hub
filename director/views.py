@@ -46,13 +46,13 @@ class PrivacyView(TemplateView):
     """
     Page displaying the details of the Privacy Policy.
     """
-    template_name = 'privacy.html'
+    template_name = 'about/privacy.html'
 
 class TermsView(TemplateView):
     """
     Page displaying the details of the Terms and Conditions.
     """
-    template_name = 'terms-conditions.html'
+    template_name = 'about/terms-conditions.html'
 
 
 class Error500View(View):
