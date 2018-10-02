@@ -1,0 +1,9 @@
+<span>
+  {% if type == 'filesource' %}
+    <i class="fa fa-cloud" title="New or uploaded file"></i>
+  {% elif type == 'githubsource' %}
+    <i class="fab fa-github" title="Github"></i>
+  {% elif type == 'dropboxsource' %}
+    <i class="fab fa-dropbox" title="Dropbox"></i>
+  {% endif %}
+</span>

@@ -6,7 +6,7 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveView, ProjectDeleteView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
-                                   GithubSourceCreateView, SourceUpdateView, SourceDeleteView)
+                                   GithubSourceCreateView, SourceOpenView, SourceUpdateView, SourceDeleteView)
 
 urlpatterns = [
     # Generic views
@@ -23,6 +23,7 @@ urlpatterns = [
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
 
+    path('<int:project_pk>/files/<int:pk>/open', SourceOpenView.as_view(), name='source_open'),
     path('<int:project_pk>/files/<int:pk>/update', SourceUpdateView.as_view(), name='source_update'),
     path('<int:project_pk>/files/<int:pk>/delete', SourceDeleteView.as_view(), name='source_delete'),
 

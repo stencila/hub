@@ -8,14 +8,14 @@
 
   <div class="level">
     <div class="level-right">
-      <div class="level-item">
-        <a class="button" href="{% url 'filesource_create' project.pk %}">
+      <div class="level-item buttons">
+        <a class="button is-primary" href="{% url 'filesource_create' project.pk %}">
             <span class="icon is-small">
               <i class="fas fa-plus" aria-hidden="true"></i>
             </span>
-            <span>Create</span>
+            <span>New</span>
         </a>
-        <a class="button" href="{% url 'filesource_upload' project.pk %}">
+        <a class="button is-primary" href="{% url 'filesource_upload' project.pk %}">
             <span class="icon is-small">
               <i class="fas fa-upload" aria-hidden="true"></i>
             </span>
@@ -23,7 +23,7 @@
         </a>
         <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
           <div class="dropdown-trigger">
-            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+            <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
               <span class="icon is-small">
                 <i class="fas fa-link" aria-hidden="true"></i>
               </span>
@@ -57,9 +57,10 @@
   <table class="table is-fullwidth">
       <thead>
           <tr>
+              <th>Type</th>
               <th>Path</th>
               <th>Source</th>
-              <th>Type</th>
+              <th>Open with...</th>
               <th>Updated</th>
               <th><th>
           </tr>
@@ -67,10 +68,29 @@
       <tbody>
           {% for source in project.sources.all %}
           <tr>
-              <td>{{ source.path }}</td>                  
-              <td>{{ source.type }}</td>
-              <td>{{ source.mimetype }}</td>
+              <td>
+                {{ source.mimetype }}
+              </td>
+              
+              <td>
+                <a href="{% url 'source_open' project.pk source.id %}" target="_blank">{{ source.path }}</a>
+              </td>                  
+              
+              <td>
+                {% include 'projects/_source_type_icon.html' with type=source.type %}
+              </td>
+
+              <td>
+                <div class="select">
+                  <select>
+                    <option>Code editor</option>
+                    <option>Texture+</option>
+                  </select>
+                </div>
+              </td>
+
               <td>{{ source.updated|naturaltime }}</td>
+              
               <td>
                   <a class="icon" href="{% url 'source_update' project.pk source.id %}">
                       <i class="fas fa-cog"></i>
