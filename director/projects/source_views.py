@@ -1,15 +1,8 @@
-import datetime
-import typing
-
-from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, HttpRequest, HttpResponse, Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.views import View
-from django.views.generic import CreateView, DetailView, UpdateView, DeleteView, ListView, TemplateView
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
 
 
 from .models import Project, Source, FileSource, DropboxSource, GithubSource

@@ -42,11 +42,13 @@ class StatusView(View):
         resp['Expires'] = '0'
         return resp
 
+
 class PrivacyView(TemplateView):
     """
     Page displaying the details of the Privacy Policy.
     """
     template_name = 'about/privacy.html'
+
 
 class TermsView(TemplateView):
     """

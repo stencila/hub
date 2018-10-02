@@ -7,7 +7,7 @@ from io import BytesIO
 from django.db import models
 
 from accounts.models import Account
-from projects.source_models import Source
+from projects.source_models import Source, FileSource
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
 PROJECT_KEY_LENGTH = 32
@@ -204,10 +204,14 @@ class Project(models.Model):
         return "{}...{}".format(self.token[:TRUNCATED_TOKEN_SHOW_CHARACTERS],
                                 self.token[-TRUNCATED_TOKEN_SHOW_CHARACTERS:])
 
+    # TODO: the `_pull` and `_push` methods below are just saved from a previous
+    # iteration of FilesSource, not sure we'll want to keep them.
+
     def _pull(self) -> BytesIO:
         """
         Pull files from the Django storage into an archive
         """
+        from zipfile import ZipFile
 
         # Write all the files into a zip archive
         archive = BytesIO()
@@ -222,12 +226,14 @@ class Project(models.Model):
         """
         Push files in the archive to the Django storage
         """
+        import timezone
+        from zipfile import ZipFile
 
         # Unzip all the files and add to this project
         zipfile = ZipFile(archive, 'r')
         for name in zipfile.namelist():
             # Replace existing file or create a new one
-            instance = FilesSourceFile.objects.get_or_create(project=self, name=name)
+            instance = FileSource.objects.get_or_create(project=self, name=name)
 
             # Read the file from the zipfile
             content = BytesIO()
