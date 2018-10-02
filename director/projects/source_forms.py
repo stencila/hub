@@ -5,7 +5,7 @@ from .source_models import FileSource, GithubSource
 
 # TODO: these should be proper mime types!
 FILE_TYPES = [
-    #('text/folder', 'Folder'),
+    # ('text/folder', 'Folder'),
     ('text/dar', 'Dar'),
     ('text/dockerfile', 'Dockerfile'),
     ('text/ipynb', 'Jupyter Notebook'),
