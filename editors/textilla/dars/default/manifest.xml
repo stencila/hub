@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest PUBLIC "RDC-Manifest 1.0" "//Manifest-1.0.dtd">
+<dar id="dar-1">
+  <documents id="documents-1">
+    <document id="article1" name="Article1" type="article" path="article.xml" />
+    <document id="sheet1" name="Sheet1"  type="sheet" path="sheet.xml" />
+  </documents>
+  <assets id="assets-1" />
+</dar>

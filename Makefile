@@ -12,11 +12,11 @@ lint: director-lint
 
 test: director-test
 
-build: router-build director-build editor-build
+build: router-build director-build editors-build
 
-static: director-static editor-static
+static: director-static editors-static
 
-deploy: router-deploy director-deploy editor-deploy
+deploy: router-deploy director-deploy editors-deploy
 
 
 ####################################################################################
@@ -27,7 +27,7 @@ router-build: router/Dockerfile
 	docker build --tag stencila/hub-router router
 
 # Run Docker image
-router-rundocker:
+router-rundocker: router-build
 	docker run -it --rm --net=host \
 	           -v $$PWD/router/nginx.conf:/etc/nginx/conf.d/default.conf:ro stencila/hub-router
 
@@ -161,38 +161,47 @@ director-deploy: director-build
 
 
 ####################################################################################
-# Editor
+# Editors
 
-editor-setup:
-	# Setup directories
-	mkdir -p storage
-	ln -sfT ../storage editor/storage
+editors-static: textilla-static
+
+editors-build: textilla-build
+
+editors-deploy: textilla-deploy
+
+
+# Textilla
 
 # Setup locally
-editor/node_modules: editor/package.json
-	cd editor && npm install
+editors/textilla/node_modules: editors/textilla/package.json
+	cd editors/textilla && npm install
 	touch $@
+textilla-setup: editors/textilla/node_modules
 
 # Collect static files
-editor-static: editor/node_modules
-	mkdir -p editor/static/dist/
-	rsync --verbose --archive --recursive --delete editor/node_modules/stencila/dist/ editor/static/dist/
+editors/textilla/static/dist/: editors/textilla/node_modules editors/textilla/node_modules/stencila/dist/
+	mkdir -p $@
+	rsync --verbose --archive --recursive --delete editors/textilla/node_modules/stencila/dist/ $@
+	touch $@
+textilla-static: editors/textilla/static/dist/
 
 # Run locally
-editor-run: editor-static
-	cd editor && npm start
+textilla-run: textilla-static
+	cd editors/textilla && npm start
 
 # Build Docker image
-editor-build: editor/Dockerfile editor-static
-	docker build --tag stencila/hub-editor editor
+# This copies static JS, CSS & HTML into the image to be served from there
+textilla-build: editors/textilla/Dockerfile textilla-static
+	docker build --tag stencila/hub-textilla editors/textilla
 
 # Run Docker image
-editor-rundocker:
-	docker run -it --rm -p 4000:4000 -v $$PWD/storage:/home/editor/storage:rw stencila/hub-editor
+# This mounts the `editors/textilla/dars` folder into the Docker container
+textilla-rundocker: textilla-build
+	docker run -it --rm -p 4000:4000 -v $$PWD/editors/textilla/dars:/home/textilla/dars:rw stencila/hub-textilla
 
 # Push Docker image to Docker hub
-editor-deploy: editor-build
-	docker push stencila/hub-editor
+textilla-deploy: textilla-build
+	docker push stencila/hub-textilla
 
 
 ####################################################################################
