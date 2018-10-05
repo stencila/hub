@@ -1,33 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Contact{% endblock %}
+{% block title %}About{% endblock %}
 
 {% block content %}
        <div class="container">
-         <div class="columns">
-
-           <div class="column">
-             <h1 class="title is-2">Contact</h1>
-             <p>
-               Stencila is a community-driven project and we want to hear back from you. You can
-               comment, ask for help, make suggestions about the project or report your experiences
-               through our <a href="http://community.stenci.la/">Community Forum</a>.
-               <br>
-               <br>
-             </p>
-             <p>
-               Join us also on <a href="https://gitter.im/stencila/stencila">Stencila Gitter chat</a>
-                 This chat channel is open to anyone who wants to or already
-               uses Stencila, would like to develop Stencila or is already a contributor. Come and say hello!
-               <br>
-               <br>
-             </p>
-             <p>
-                 You can <a href="https://twitter.com/stencila">find us on Twitter</a> too or
-                   simply talk to us via <a mailto="community@stenci.la">email</a>.
-             </p>
-
-           </div>
-         </div>
+            <h1 class="title is-2">About</h1>
+            Stencila Hub brings you <a href="https://stenci.la/">Stencila</a> with its all available feature
+            without the need to install anything on your machine. All you need is an up-to-date
+            browser and stable internet connection.
+            <br/>
+            Stencila Hub provides you with the native Stencila editor and the standard Stencila
+            execution engines for various programming languages. This means you can start your
+            data analysis straight away. By setting up an account on Stencila Hub, you will be able
+            to set up projects which you can share with your collaborators (as long as they have
+            an account on the Hub), add data and analysis files from different sources and track
+            the changes done to the project.
+            <br/>
+            You can chose whether your projects on Stencila Hub are publicly visible or only
+            accessible to those who collaborate on them. Public projects are a great way to turn
+            your reports into interactive publications.
+            <br />
+            Learn more on <a href="{% url 'help' %}">how to use Stencila Hub.</a>
        </div>
 {% endblock %}
