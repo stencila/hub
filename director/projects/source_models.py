@@ -1,8 +1,11 @@
 import enum
+import mimetypes
 from io import BytesIO
 import typing
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.files import File
+from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
@@ -52,12 +55,17 @@ class Source(PolymorphicModel):
     def push(self, archive: typing.Union[str, typing.IO]) -> None:
         raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
 
+    @property
+    def mimetype(self) -> str:
+        mimetype, encoding = mimetypes.guess_type(self.path, False)
+        return mimetype or 'Unknown'
+
 
 # Source classes in alphabetical order
 #
 # Note: many of these are, obviously, not implemented, but have
 # been added here as placeholders, to sketch out the different types of
-# project sources that might be avilable
+# project sources that might be available
 #
 # Note: where these derived classes do not need any additional
 # fields you can use `class Meta: abstract = True`
@@ -121,9 +129,20 @@ class FileSource(Source):
         else:
             return ''
 
+    def push(self, archive: typing.Union[str, typing.IO]):
+        if isinstance(archive, str):
+            f = ContentFile(archive)
+        else:
+            f = File(archive)
+        self.file.save(self.path, f)
+        self.size = self.file.size
+
 
 class GithubSource(Source):
     """A project hosted on Github."""
+
+    class Meta:
+        abstract = True
 
     repo = models.TextField(
         null=False,

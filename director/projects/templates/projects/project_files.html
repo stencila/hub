@@ -1,113 +1,147 @@
 {% extends 'base.html' %}
 {% load humanize %}
 
-{% block title %}Project {{project.pk}}: Files{% endblock %}
+{% block title %}Project {{ project.pk }}: Files{% endblock %}
 
 {% block content %}
-	{% include "projects/_project_header.html" with project=project tab="files" %}
+    {% include "projects/_project_header.html" with project=project tab="files" %}
 
-  <div class="level">
-    <div class="level-right">
-      <div class="level-item buttons">
-        <a class="button is-primary" href="{% url 'filesource_create' project.pk %}">
+    <div class="level">
+        <div class="level-right">
+            <div class="level-item buttons">
+                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}">
             <span class="icon is-small">
               <i class="fas fa-plus" aria-hidden="true"></i>
             </span>
-            <span>New</span>
-        </a>
-        <a class="button is-primary" href="{% url 'filesource_upload' project.pk %}">
+                    <span>New</span>
+                </a>
+                <a class="button is-primary" href="{% url 'filesource_upload' project.pk %}">
             <span class="icon is-small">
               <i class="fas fa-upload" aria-hidden="true"></i>
             </span>
-            <span>Upload</span>
-        </a>
-        <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
-          <div class="dropdown-trigger">
-            <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+                    <span>Upload</span>
+                </a>
+                <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
+                    <div class="dropdown-trigger">
+                        <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
               <span class="icon is-small">
                 <i class="fas fa-link" aria-hidden="true"></i>
               </span>
-              <span>Link</span>
-              <span class="icon is-small">
+                            <span>Link</span>
+                            <span class="icon is-small">
                 <i class="fas fa-angle-down" aria-hidden="true"></i>
               </span>
-            </button>
-          </div>
-          <div class="dropdown-menu" id="dropdown-menu" role="menu">
-            <div class="dropdown-content">
-              <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
+                        </button>
+                    </div>
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
                 <span class="icon is-small">
                   <i class="fab fa-dropbox" aria-hidden="true"></i>
                 </span>
-                <span>Dropbox</span>
-              </a>
-              <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                                <span>Dropbox</span>
+                            </a>
+                            <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
                 <span class="icon is-small">
                   <i class="fab fa-github" aria-hidden="true"></i>
                 </span>
-                <span>Github</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <table class="table is-fullwidth">
-      <thead>
-          <tr>
-              <th>Type</th>
-              <th>Path</th>
-              <th>Source</th>
-              <th>Open with...</th>
-              <th>Updated</th>
-              <th><th>
-          </tr>
-      </thead>
-      <tbody>
-          {% for source in project.sources.all %}
-          <tr>
-              <td>
-                {{ source.mimetype }}
-              </td>
-              
-              <td>
-                <a href="{% url 'source_open' project.pk source.id %}" target="_blank">{{ source.path }}</a>
-              </td>                  
-              
-              <td>
-                {% include 'projects/_source_type_icon.html' with type=source.type %}
-              </td>
-
-              <td>
-                <div class="select">
-                  <select>
-                    <option>Code editor</option>
-                    <option>Texture+</option>
-                  </select>
+                                <span>Github</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-              </td>
+            </div>
+        </div>
+    </div>
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th colspan="6">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul>
+                        {% for breadcrumb in breadcrumbs %}
+                            <li {% if forloop.last %}class="is-active"{% endif %}>
+                                <a href="{% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
+                                    {% if forloop.first %}
+                                        <span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
+                                    {% endif %}
+                                    <span>
+                                        {{ breadcrumb.name }}
+                                    </span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </th>
+        </tr>
+        <tr>
+            <th>Type</th>
+            <th>Path</th>
+            <th>Source</th>
+            <th>Open with&hellip;</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for source_path in items %}
+            <tr>
+                <td>
+                    {% if source_path.is_directory %}
+                        Directory
+                    {% else %}
+                        {{ source_path.source.mimetype }}
+                    {% endif %}
+                </td>
 
-              <td>{{ source.updated|naturaltime }}</td>
-              
-              <td>
-                  <a class="icon" href="{% url 'source_update' project.pk source.id %}">
-                      <i class="fas fa-cog"></i>
-                  </a>
-                  <a class="icon has-text-danger" href="{% url 'source_delete' project.pk source.id %}">
-                      <i class="fas fa-trash"></i>
-                  </a>
-              </td>
-          </tr>
-          {% endfor %}
-      <tbody>
-  </table>
+                <td>
+                    {% if source_path.is_directory %}
+                        <a href="
 
-  <script type="text/javascript">
-      new Vue({
-        el: '#link',
-        data: { active: false }
-      })
-  </script>
+                                {% if current_directory %}{% url 'project_files_path' project.pk current_directory %}{% else %}{% url 'project_files' project.pk %}{% endif %}{{ source_path.name }}">
+                    {% else %}
+                        <a href="{% url 'source_open' project.pk source_path.source.id %}"
+                           target="_blank" rel="noopener">
+                    {% endif %}
+                    {{ source_path.name }}
+                    </a>
+                </td>
+
+                <td>
+                    {% if not source_path.is_directory %}
+                        {% include 'projects/_source_type_icon.html' with type=source_path.source.type %}
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div class="select">
+                        <select>
+                            <option>Code editor</option>
+                            <option>Texture+</option>
+                        </select>
+                    </div>
+                </td>
+
+                <td>{{ source_path.source.updated|naturaltime }}</td>
+
+                <td>
+                    <a class="icon" href="{% url 'source_update' project.pk source_path.source.id %}">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                    <a class="icon has-text-danger"
+                       href="{% url 'source_delete' project.pk source_path.source.id %}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        <tbody>
+    </table>
+    <script type="text/javascript">
+        new Vue({
+            el: '#link',
+            data: {active: false}
+        })
+    </script>
 {% endblock %}

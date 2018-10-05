@@ -8,6 +8,7 @@
   "dependencies": {
     "buefy": "^0.6.6",
     "moment": "^2.22.2",
+    "monaco-editor": "^0.14.3",
     "vue": "^2.5.16",
     "vue-resource": "^1.5.1",
     "vue-upload-component": "^2.8.10"

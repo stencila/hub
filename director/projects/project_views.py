@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
@@ -18,6 +18,8 @@ from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
+from projects.source_models import Source
+from projects.source_operations import list_project_virtual_directory, path_entry_iterator
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -35,10 +37,31 @@ class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
+    @staticmethod
+    def get_project_pk(url_kwargs: dict):
+        return url_kwargs.get('project_pk', url_kwargs.get('pk'))
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.perform_project_fetch(request.user, self.get_project_pk(kwargs))
+        self.test_required_project_permission()
+        return super(ProjectPermissionsMixin, self).get(request, *args, **kwargs)
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        self.perform_project_fetch(request.user, self.get_project_pk(kwargs))
+        self.test_required_project_permission()
+        return super(ProjectPermissionsMixin, self).post(request, *args, **kwargs)
+
+    def delete(self, request: HttpRequest, *args, **kwargs):
+        self.perform_project_fetch(request.user, kwargs['pk'])
+        self.test_required_project_permission()
+        return super(ProjectPermissionsMixin, self).delete(request, *args, **kwargs)
+
     def perform_project_fetch(self, user: AbstractUser, pk: int) -> None:
-        self.project_fetch_result = fetch_project_for_user(user, pk)
+        if self.project_fetch_result is None:
+            self.project_fetch_result = fetch_project_for_user(user, pk)
 
     def get_render_context(self, context: dict) -> dict:
+        context['project'] = self.project
         context['project_roles'] = self.project_roles
         context['project_permissions'] = self.project_permissions
         return context
@@ -79,13 +102,22 @@ class ProjectPermissionsMixin(object):
 
         return False
 
-    def get_project(self, user: AbstractUser, project_pk: int) -> Project:
-        self.perform_project_fetch(user, project_pk)
-
+    def test_required_project_permission(self) -> None:
         if self.project_permission_required is not None and not self.has_permission(self.project_permission_required):
             raise PermissionDenied
 
+    def get_project(self, user: AbstractUser, project_pk: int) -> Project:
+        self.perform_project_fetch(user, project_pk)
+        self.test_required_project_permission()
         return self.project
+
+    def get_source(self, user: AbstractUser, project_pk: int, source_pk: int) -> Source:
+        self.perform_project_fetch(user, project_pk)
+        self.test_required_project_permission()
+        try:
+            return self.project.sources.get(pk=source_pk)
+        except Source.DoesNotExist:
+            raise Http404
 
     def get_object(self, *args, **kwargs):
         return self.get_project(self.request.user, self.kwargs['pk'])
@@ -171,11 +203,23 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
     project_permission_required = ProjectPermissionType.VIEW
 
 
-class ProjectFilesView(ProjectPermissionsMixin, UpdateView):
-    model = Project
-    fields: typing.List[str] = []
-    template_name = 'projects/project_files.html'
+class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_project_fetch(request.user, pk)
+
+        self.test_required_project_permission()
+
+        directory_items = list_project_virtual_directory(self.project, path)
+
+        return render(request, 'projects/project_files.html', self.get_render_context(
+            {
+                'current_directory': path or '',
+                'breadcrumbs': path_entry_iterator(path),
+                'items': directory_items
+            })
+                      )
 
 
 class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
