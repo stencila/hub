@@ -10,9 +10,8 @@
     <form class="form" method="post" action="{% url 'user_signup' %}">
         {% csrf_token %}
         {{ form|crispy }}
+        <br/>
         <button class="button is-primary" type="submit">Sign me up!</button>
     </form>
 </div>
 {% endblock %}
-
-

@@ -16,7 +16,7 @@ from django.views.generic import (
     FormView, TemplateView
 )
 
-from .forms import BetaTokenForm, UsernameForm
+from .forms import BetaTokenForm, UsernameForm, UserSignupForm
 
 
 class BetaTokenRequiredMixin(AccessMixin):
@@ -71,6 +71,7 @@ class UserSignupView(BetaTokenRequiredMixin, SignupView):
     """
 
     template_name = 'users/signup.html'
+    form_class = UserSignupForm
 
 
 class UserSigninView(BetaTokenRequiredMixin, LoginView):
@@ -80,6 +81,7 @@ class UserSigninView(BetaTokenRequiredMixin, LoginView):
     """
 
     template_name = 'users/signin.html'
+
 
 
 class UserSignoutView(LogoutView):
