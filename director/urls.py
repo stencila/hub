@@ -22,14 +22,18 @@ from users.views import (
     UserSignoutView,
     BetaTokenView)
 from views import (
-    HomeView,
+    AboutView,
+    ContactView,
     Error500View,
+    HelpView,
+    HomeView,
     Test403View,
     Test404View,
     Test500View,
     PrivacyView,
     StatusView,
-    TermsView)
+    TermsView
+    )
 
 urlpatterns = [
     # Project CRUD
@@ -63,7 +67,10 @@ urlpatterns = [
     # Home page
     path('', HomeView.as_view(), name='home'),
 
-    # Privacy policy
+    # About pages etc
+    path('about/', AboutView.as_view(), name='about'),
+    path('about/contact/', ContactView.as_view(), name='contact'),
+    path('about/help/', HelpView.as_view(), name='help'),
     path('about/privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
     path('about/terms-and-conditions/', TermsView.as_view(), name='terms-and-conditions'),
 
