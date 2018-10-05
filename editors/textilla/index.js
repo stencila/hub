@@ -6,22 +6,24 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const rimraf = require('rimraf')
 
-const port = 4000
-const url = `http://localhost:${port}`
-const storage = path.join(__dirname, 'storage', 'dars')
+const PORT = 4000
+const HOST = `http://localhost:${PORT}`
+const PATH = '/edit/textilla'
+const STATIC = path.join(__dirname, 'static')
+const DARS = path.join(__dirname, 'dars')
 
 const app = express()
 
 // HTML served in development
 const indexFile = path.join(__dirname, 'index.html')
 app.use('/', function (req, res, next) {
-  if(req.path === '/edit' || req.path === '/edit/') return res.sendFile(indexFile)
+  if(req.path === PATH || req.path === `${PATH}/`) return res.sendFile(indexFile)
   next()
 })
 
 // In development, serve CSS and JS from local filesystem
 // In production, this is served from elsewhere (e.g. a Google Storage bucket)
-app.use('/edit/static', express.static(path.join(__dirname, 'static')))
+app.use(`${PATH}/static`, express.static(STATIC))
 
 // Provide endpoints to create (POST) DARs
 // Currently, creating DARs is not provided by darServer so
@@ -29,7 +31,7 @@ app.use('/edit/static', express.static(path.join(__dirname, 'static')))
 const upload = multer({
 	storage: multer.diskStorage({
     destination: function (req, file, cb) {
-      const dest = path.join(storage, req.params.id)
+      const dest = path.join(DARS, req.params.id)
       if (fs.existsSync()) rimraf.sync(dest)
       mkdirp.sync(dest)
       cb(null, dest)
@@ -39,18 +41,18 @@ const upload = multer({
     }
   })
 })
-app.post('/edit/storage/:id', upload.any(), (req, res) => {
+app.post(`${PATH}/dars/:id`, upload.any(), (req, res) => {
 	res.send()
 })
 
 // Provide endpoints to read (GET) and write (PUT) DARs
 darServer.serve(app, {
-  port,
-  serverUrl: url,
-  apiUrl: '/edit/storage',
-  rootDir: storage
+  port: PORT,
+  serverUrl: HOST,
+  apiUrl: `${PATH}/dars`,
+  rootDir: DARS
 })
 
-app.listen(port, () => {
-  console.log(`Serving at ${url}/edit`)
+app.listen(PORT, () => {
+  console.log(`Serving at ${HOST}${PATH}`)
 })

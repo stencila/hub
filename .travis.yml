@@ -19,10 +19,10 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  # Run linting checks without failing build
+  # Run linting checks
   - make director-lint-code
   - make director-lint-types
-  - make director-lint-docs || true
+  - make director-lint-docs || true # without failing build
   # Run tests in a development virtual environment
   - make director-test
   # Build production Docker image

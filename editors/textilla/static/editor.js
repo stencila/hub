@@ -2,14 +2,16 @@ var app
 
 var project
 var checkout
-var key
+var dar
 var host
 var session
 
+const PATH = '/edit/textilla'
+
 window.addEventListener('load', () => {
-  project = substance.getQueryStringParam('project');
+  project = substance.getQueryStringParam('project') || '';
   checkout = substance.getQueryStringParam('checkout');
-  key = substance.getQueryStringParam('key');
+  dar = substance.getQueryStringParam('dar') || 'default';
   host = substance.getQueryStringParam('host');
   session = substance.getQueryStringParam('session');
 
@@ -24,14 +26,14 @@ window.addEventListener('load', () => {
   // Mount the app
   substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
   app = stencila.StencilaWebApp.mount({
-    archiveId: key,
+    archiveId: dar,
     storageType: 'fs',
-    storageUrl: '/edit/storage'
+    storageUrl: `${PATH}/dars`
   }, window.document.body);
 
   // Set the project name
   var projectEl = document.getElementById('project')
-  projectEl.innerHTML = project || ''
+  projectEl.innerHTML = project
 
   // Remove the loading
   var loading = document.getElementById('loading');

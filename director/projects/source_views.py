@@ -6,15 +6,11 @@ from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
 
 
 from .models import Project, Source, FileSource, DropboxSource, GithubSource
-from .source_forms import FileSourceForm
+from .source_forms import FileSourceForm, GithubSourceForm
 
 
 class SourceCreateView(LoginRequiredMixin, CreateView):
     """A base class for view for creating new project sources"""
-
-    model = FileSource
-    form_class = FileSourceForm
-    template_name = 'projects/filesource_create.html'
 
     def get_context_data(self, *args, **kwargs):
         """Override to add project to the template context"""
@@ -52,6 +48,7 @@ class GithubSourceCreateView(SourceCreateView):
     """A view for creating a Github project source"""
 
     model = GithubSource
+    form_class = GithubSourceForm
     template_name = 'projects/githubsource_create.html'
 
 
@@ -75,6 +72,16 @@ class FileSourceUploadView(LoginRequiredMixin, DetailView):
             source.save()
 
         return HttpResponse()
+
+
+class SourceOpenView(LoginRequiredMixin, DetailView):
+    model = Source
+    template_name = 'projects/source_open.html'
+
+    def get_context_data(self, *args, **kwargs):
+        data = super().get_context_data(*args, **kwargs)
+        data['file_content'] = self.object.pull()
+        return data
 
 
 class SourceUpdateView(LoginRequiredMixin, UpdateView):

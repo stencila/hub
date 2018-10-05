@@ -124,14 +124,31 @@ class FileSource(Source):
             self.size = self.file.size
         super().save(*args, **kwargs)
 
+    def pull(self):
+        """Pull the file content"""
+        if self.file:
+            with self.file.open() as file:
+                return file.read().decode()
+        else:
+            return ''
+
 
 class GithubSource(Source):
     """
     A project hosted on Github
     """
 
-    class Meta:
-        abstract = True
+    repo = models.TextField(
+        null=False,
+        blank=False,
+        help_text='The Github repository identifier i.e. org/repo'
+    )
+
+    subpath = models.TextField(
+        null=True,
+        blank=True,
+        help_text='Path to file or folder withing the repository'
+    )
 
 
 class GitlabSource(Source):
