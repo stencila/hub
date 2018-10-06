@@ -11,15 +11,28 @@
     </form>
     <script src="{% static 'js/monaco-editor/min/vs/loader.js' %}"></script>
     <script>
+
         var editor;
         require.config({paths: {'vs': '{% static 'js/monaco-editor/min/vs' %}'}});
         let editorTextArea = document.getElementById('file_content');
         require(['vs/editor/editor.main'], function () {
             editor = monaco.editor.create(document.getElementById('editor_container'), {
-                language: '{{ file_language }}'
+                language: editorLanguageFromExtension('{{ file_extension }}')
             });
             editor.setValue(editorTextArea.value);
         });
+        function editorLanguageFromExtension(extension) {
+            var languages = monaco.languages.getLanguages();
+            var languagesCount = languages.length;
+            for(var i = 0; i < languagesCount; ++i) {
+                var languageInfo = languages[i];
+                if(languageInfo.extensions.indexOf(extension) !== -1)
+                    return languageInfo.id;
+            }
+
+            return null;
+        }
+
         function sourceEditSubmit() {
             editorTextArea.value = editor.getValue();
             return true;

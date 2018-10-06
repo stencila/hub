@@ -35,7 +35,7 @@ def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterab
         split_directory = directory.split('/')
         directory_depth = len(split_directory)
     else:
-        split_directory = None
+        split_directory = []
         directory_depth = 0
 
     for source in sources:

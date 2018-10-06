@@ -12,6 +12,7 @@
 {% block content %}
 <div id="filesproject" class="section">
     <h1 class="title is-4">{{ project }}: Upload file</h1>
+    <h5 class="subtitle is-5">Uploading to: {{ upload_directory }}</h5>
     <table class="table is-fullwidth">
         <thead>
             <tr>
@@ -52,7 +53,7 @@
 
     <file-upload
       class="button is-primary"
-      post-action="{% url 'filesource_upload' project.id %}"
+      post-action="{% url 'filesource_upload' project.id %}?directory={{ upload_directory }}"
       :headers="{'X-CSRFToken': utils.cookie('csrftoken')}"
       :multiple="true"
       v-model="files"

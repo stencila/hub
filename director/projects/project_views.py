@@ -44,17 +44,17 @@ class ProjectPermissionsMixin(object):
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.perform_project_fetch(request.user, self.get_project_pk(kwargs))
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).get(request, *args, **kwargs)
+        return super(ProjectPermissionsMixin, self).get(request, *args, **kwargs)  # type: ignore
 
     def post(self, request: HttpRequest, *args, **kwargs):
         self.perform_project_fetch(request.user, self.get_project_pk(kwargs))
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).post(request, *args, **kwargs)
+        return super(ProjectPermissionsMixin, self).post(request, *args, **kwargs)  # type: ignore
 
     def delete(self, request: HttpRequest, *args, **kwargs):
         self.perform_project_fetch(request.user, kwargs['pk'])
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).delete(request, *args, **kwargs)
+        return super(ProjectPermissionsMixin, self).delete(request, *args, **kwargs)  # type: ignore
 
     def perform_project_fetch(self, user: AbstractUser, pk: int) -> None:
         if self.project_fetch_result is None:
@@ -206,7 +206,7 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
 class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
 
         self.test_required_project_permission()
@@ -262,7 +262,7 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
 
 
 class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
         self.perform_project_fetch(request.user, pk)
         if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied
@@ -395,7 +395,7 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
 class ProjectArchiveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
         project = self.get_project(request.user, pk)
 
         archive = project.pull()

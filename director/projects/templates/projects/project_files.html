@@ -15,7 +15,7 @@
             </span>
                     <span>New</span>
                 </a>
-                <a class="button is-primary" href="{% url 'filesource_upload' project.pk %}">
+                <a class="button is-primary" href="{% url 'filesource_upload' project.pk %}?directory={{ current_directory }}">
             <span class="icon is-small">
               <i class="fas fa-upload" aria-hidden="true"></i>
             </span>
@@ -63,7 +63,8 @@
                             <li {% if forloop.last %}class="is-active"{% endif %}>
                                 <a href="{% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
                                     {% if forloop.first %}
-                                        <span class="icon is-small"><i class="fas fa-home" aria-hidden="true"></i></span>
+                                        <span class="icon is-small"><i class="fas fa-home"
+                                                                       aria-hidden="true"></i></span>
                                     {% endif %}
                                     <span>
                                         {{ breadcrumb.name }}
@@ -97,12 +98,9 @@
 
                 <td>
                     {% if source_path.is_directory %}
-                        <a href="
-
-                                {% if current_directory %}{% url 'project_files_path' project.pk current_directory %}{% else %}{% url 'project_files' project.pk %}{% endif %}{{ source_path.name }}">
+                        <a href="{% if current_directory %}{% url 'project_files_path' project.pk current_directory %}{% else %}{% url 'project_files' project.pk %}{% endif %}{{ source_path.name }}">
                     {% else %}
-                        <a href="{% url 'source_open' project.pk source_path.source.id %}"
-                           target="_blank" rel="noopener">
+                        <a href="{% url 'source_open' project.pk source_path.source.id %}">
                     {% endif %}
                     {{ source_path.name }}
                     </a>
@@ -115,24 +113,28 @@
                 </td>
 
                 <td>
-                    <div class="select">
-                        <select>
-                            <option>Code editor</option>
-                            <option>Texture+</option>
-                        </select>
-                    </div>
+                    {% if not source_path.is_directory %}
+                        <div class="select">
+                            <select>
+                                <option>Code editor</option>
+                                <option>Texture+</option>
+                            </select>
+                        </div>
+                    {% endif %}
                 </td>
 
                 <td>{{ source_path.source.updated|naturaltime }}</td>
 
                 <td>
-                    <a class="icon" href="{% url 'source_update' project.pk source_path.source.id %}">
-                        <i class="fas fa-cog"></i>
-                    </a>
-                    <a class="icon has-text-danger"
-                       href="{% url 'source_delete' project.pk source_path.source.id %}">
-                        <i class="fas fa-trash"></i>
-                    </a>
+                    {% if not source_path.is_directory %}
+                        <a class="icon" href="{% url 'source_update' project.pk source_path.source.id %}">
+                            <i class="fas fa-cog"></i>
+                        </a>
+                        <a class="icon has-text-danger"
+                           href="{% url 'source_delete' project.pk source_path.source.id %}">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}

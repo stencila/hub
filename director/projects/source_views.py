@@ -1,5 +1,4 @@
-import mimetypes
-from os.path import dirname
+from os.path import dirname, splitext
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -59,12 +58,30 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
     template_name = 'projects/filesource_upload.html'
     project_permission_required = ProjectPermissionType.EDIT
 
+    def get_context_data(self, **kwargs):
+        self.perform_project_fetch(self.request.user, self.kwargs['pk'])
+        context_data = super().get_context_data(**kwargs)
+        context_data['upload_directory'] = self.request.GET.get('directory', '')
+        return context_data
+
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        self.perform_project_fetch(request.user, pk)
+        self.test_required_project_permission()
+
+        directory = request.GET.get('directory', '')
+        while directory.endswith('/'):
+            directory = directory[:-1]
+
         files = request.FILES.getlist('file')
         for file in files:
+            if directory:
+                file_path = '{}/{}'.format(directory, file.name)
+            else:
+                file_path = file.name
+
             source = FileSource.objects.create(
                 project=self.project,
-                path=file,
+                path=file_path,
                 file=file
             )
             source.save()
@@ -84,32 +101,28 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
 
     def get(self, request: HttpRequest, project_pk: int, pk: int) -> HttpResponse:
         source = self.get_source(request.user, project_pk, pk)
-        mimetype, encoding = mimetypes.guess_type(source.path, False)
 
-        if mimetype:
-            file_language = mimetype.split('/')[1]
-        else:
-            file_language = ''
+        name, ext = splitext(source.path.lower())
 
         return render(request, 'projects/source_open.html', self.get_render_context({
             'file_path': source.path,
-            'file_language': file_language,
+            'file_extension': ext,
             'file_content': source.pull()
         }))
 
     def post(self, request: HttpRequest, project_pk: int, pk: int) -> HttpResponse:
         source = self.get_source(request.user, project_pk, pk)
         source.push(request.POST['file_content'])
-        messages.success(request, 'Content updated.')
+        messages.success(request, 'Content of {} updated.'.format(source.path))
 
         directory = dirname(source.path)
 
         if directory:
             reverse_name = 'project_files_path'
-            args = (project_pk, directory,)
+            args = (project_pk, directory,)  # type: ignore
         else:
             reverse_name = 'project_files'
-            args = (project_pk,)
+            args = (project_pk,)  # type: ignore
 
         return redirect(reverse(reverse_name, args=args))
 
