@@ -123,8 +123,7 @@ director-lint-types:
 
 # Lint docs
 director-lint-docs:
-	$(VE) pydocstyle --match-dir='^(?!venv|\\.).*' director
-
+	$(VE) pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts).*' director
 
 # Run tests
 director-test: director/venv
