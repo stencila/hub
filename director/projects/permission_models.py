@@ -1,6 +1,7 @@
 """
 Permission models implementing permission which a user can have in a project.
-view--  Can read, but not change, the content of project documents.
+
+view --  Can read, but not change, the content of project documents.
          Can update ‘variables’ in the document e.g. input boxes, range sliders and see the resulting updates.
          This is the permission for a public project for an unauthenticated (aka anonymous) user.
 comment -- Can add a comment to project documents.
@@ -11,7 +12,7 @@ edit -- Can change the content of project documents.
 manage -- Can add/remove collaborators and change their permissions for a project.
           But can not give any collaborators the ‘owner’ permission.
 own -- Can delete the project.
-      Can give the ‘owner’ permission to a collaborator on the project.
+       Can give the ‘owner’ permission to a collaborator on the project.
 """
 import enum
 import typing
@@ -55,7 +56,7 @@ class ProjectPermissionType(EnumChoice):
         return self.get_comparison_ordering(other) < 0
 
     def __le__(self, other):
-        """Compare using == or `__lt__`"""
+        """Compare using == or `__lt__`."""
         return self == other or self < other
 
     def __gt__(self, other):
@@ -63,15 +64,16 @@ class ProjectPermissionType(EnumChoice):
         return self.get_comparison_ordering(other) > 0
 
     def __ge__(self, other):
-        """Compare using == or `__gt__`"""
+        """Compare using == or `__gt__`."""
         return self == other or self > other
 
 
 def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) -> \
         typing.Optional[ProjectPermissionType]:
     """
-    Iterate over eacho `ProjectPermissionType` in order for highest to lowest until one is found in the passed in
-    `permissions`, then return it.
+    Iterate over each `ProjectPermissionType` in order for highest to lowest.
+    
+    Until one is found in the passed in `permissions`, then return it.
     """
     for permission in reversed(list(ProjectPermissionType.ordered_permissions())):
         if permission in permissions:
@@ -119,9 +121,7 @@ class AgentType(enum.Enum):
 
 
 class ProjectAgentRole(models.Model):
-    """
-    Model connecting `Users` or `Teams` (`Agents`) with their `Roles` (permissions) in the `Project`
-    """
+    """Model connecting `Users` or `Teams` (`Agents`) with their `Roles` (permissions) in the `Project`."""
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.DO_NOTHING
@@ -147,8 +147,9 @@ class ProjectAgentRole(models.Model):
     @classmethod
     def filter_with_agent(cls, agent: typing.Union[User, Team], **kwargs) -> QuerySet:
         """
-        Since this model users `GenericForeignKey` we can't filter on `agent` using built in filter(), so this is a
-        helper method to transform agent into id/content type
+        Since this model users `GenericForeignKey` we can't filter on `agent` using built in filter().
+        
+        So this is a helper method to transform agent into id/content type.
         """
         kwargs['agent_id'] = agent.pk
         kwargs['content_type'] = ContentType.objects.get_for_model(agent)
@@ -158,7 +159,9 @@ class ProjectAgentRole(models.Model):
     def filter_with_user_teams(cls, user: typing.Optional[AbstractUser] = None,
                                teams: typing.Optional[typing.Iterable[Team]] = None, **kwargs) -> QuerySet:
         """
-        Filter for all `ProjectAgentRole` for the `user` or any of the `teams`.
+        Filter for all `ProjectAgentRole`.
+        
+        For the `user` or any of the `teams`.
         """
         if user:
             user_query = Q(agent_id=user.pk, content_type=ContentType.objects.get_for_model(User))
@@ -219,8 +222,9 @@ class ProjectAgentRole(models.Model):
 
 def record_creator_as_owner(sender, instance, created, *args, **kwargs):
     """
-    This method is called when the Project is created and saved to record `Owner`
-    role of the user who created the Project.
+    Record the creator like a Owner role.
+
+    This method is called when the Project is created and saved to record `Owner` role of the user who created the Project.
     """
     owner_role = ProjectRole.objects.get(name='Owner')
     ct = ContentType.objects.get(model="user")
@@ -233,7 +237,7 @@ post_save.connect(record_creator_as_owner, sender=Project)
 
 
 def get_roles_under_permission(highest_permission: ProjectPermissionType) -> typing.List[ProjectRole]:
-    """Return a list of `ProjectRole`s that have permissions less or equal to the given permission. """
+    """Return a list of `ProjectRole`s that have permissions less or equal to the given permission."""
     roles = []
 
     for role in ProjectRole.objects.all():
