@@ -31,9 +31,8 @@ class HomeView(View):
 
 
 class StatusView(View):
-    """
-    A view that returns the current date for health checker purposes
-    """
+    """A view that returns the current date for health checker purposes."""
+
     def get(self, request: HttpRequest) -> HttpResponse:
         resp = HttpResponse(datetime.datetime.utcnow().isoformat())
         resp['Content-Type'] = 'text/plain'
@@ -44,39 +43,31 @@ class StatusView(View):
 
 
 class AboutView(TemplateView):
-    """
-    Page displaying short overview of the Hub.
-    """
+    """Page displaying short overview of the Hub."""
     template_name = 'about/about.html'
 
 class ContactView(TemplateView):
-    """
-    Page displaying contact information.
-    """
+    """Page displaying contact information."""
     template_name = 'about/contact.html'
 
 class HelpView(TemplateView):
-    """
-    Page displaying help.
-    """
+    """Page displaying help."""
     template_name = 'about/help.html'
 
 class PrivacyView(TemplateView):
-    """
-    Page displaying the details of the Privacy Policy.
-    """
+    """Page displaying the details of the Privacy Policy."""
     template_name = 'about/privacy.html'
 
 
 class TermsView(TemplateView):
-    """
-    Page displaying the details of the Terms and Conditions.
-    """
+    """Page displaying the details of the Terms and Conditions."""
     template_name = 'about/terms-conditions.html'
 
 
 class Error500View(View):
     """
+    Custom view to handling 500 error.
+
     A custom 500 view which pass the request into the template context
     so that the Sentry id is available for rendering.
     See https://docs.sentry.io/clients/python/integrations/django/
@@ -88,6 +79,8 @@ class Error500View(View):
 
 class Test403View(View):
     """
+    A 403 view to test 403 error.
+
     This view allows testing of 403 error handling in production
     (ie. test that custom 403 page is displayed)
     """
@@ -98,6 +91,8 @@ class Test403View(View):
 
 class Test404View(View):
     """
+    A 404 view to test 404 error.
+
     This view allows testing of 404 error handling in production
     (ie. test that custom 404 page is displayed)
     """
@@ -108,6 +103,8 @@ class Test404View(View):
 
 class Test500View(View):
     """
+    A 500 view to test 500 error.
+
     This view allows testing of 500 error handling in production (e.g that stack traces are
     being sent to Sentry). Can only be run by staff.
     """
