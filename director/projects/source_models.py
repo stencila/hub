@@ -66,27 +66,21 @@ class Source(PolymorphicModel):
 
 
 class BitbucketSource(Source):
-    """
-    A project hosted on Bitbucket
-    """
+    """A project hosted on Bitbucket."""
 
     class Meta:
         abstract = True
 
 
 class DatSource(Source):
-    """
-    A project hosted on Dat
-    """
+    """A project hosted on Dat."""
 
     class Meta:
         abstract = True
 
 
 class DropboxSource(Source):
-    """
-    A project hosted on Dropbox
-    """
+    """A project hosted on Dropbox."""
 
     class Meta:
         abstract = True
@@ -98,9 +92,7 @@ def files_source_file_path(instance: "FileSource", filename: str):
 
 
 class FileSource(Source):
-    """
-    A file uploaded to the Hub
-    """
+    """A file uploaded to the Hub."""
 
     size = models.IntegerField(
         null=True,
@@ -116,16 +108,13 @@ class FileSource(Source):
     )
 
     def save(self, *args, **kwargs):
-        """
-        Override of save() to update the size
-        property from the file size
-        """
+        """Override of save() to update the size property from the file size."""
         if self.file:
             self.size = self.file.size
         super().save(*args, **kwargs)
 
     def pull(self):
-        """Pull the file content"""
+        """Pull the file content."""
         if self.file:
             with self.file.open() as file:
                 return file.read().decode()
@@ -134,9 +123,7 @@ class FileSource(Source):
 
 
 class GithubSource(Source):
-    """
-    A project hosted on Github
-    """
+    """A project hosted on Github."""
 
     repo = models.TextField(
         null=False,
@@ -152,9 +139,7 @@ class GithubSource(Source):
 
 
 class GitlabSource(Source):
-    """
-    A project hosted on Gitlab
-    """
+    """A project hosted on Gitlab."""
 
     class Meta:
         abstract = True
@@ -162,9 +147,9 @@ class GitlabSource(Source):
 
 class OSFSource(Source):
     """
-    A project hosted on the Open Science Framework
+    A project hosted on the Open Science Framework.
 
-    See https://developer.osf.io/ for API documentation
+    See https://developer.osf.io/ for API documentation.
     """
 
     class Meta:
