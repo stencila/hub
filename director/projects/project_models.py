@@ -27,9 +27,7 @@ def generate_project_token(project: 'Project') -> str:
 
 
 class Project(models.Model):
-    """
-    A project
-    """
+    """A project."""
 
     account = models.ForeignKey(
         Account,
@@ -123,9 +121,7 @@ class Project(models.Model):
 
     @staticmethod
     def get_or_create(project_type, address, creator):
-        """
-        Get, or create, a project
-        """
+        """Get, or create, a project."""
         return Project.objects.get_or_create(
             address=address,
             creator=creator
@@ -133,9 +129,7 @@ class Project(models.Model):
 
     @staticmethod
     def get_or_create_from_address(address, creator):
-        """
-        Get, or create, a project from an address.
-        """
+        """Get, or create, a project from an address."""
         # TODO Transform the address into type etc
         return Project.get_or_create(
             type=None,
@@ -150,7 +144,7 @@ class Project(models.Model):
 
         This method enables users to specify a project
         by copying a third party URL from the browser address bar.
-        Converts the URL into an address.For example,
+        Converts the URL into an address. For example,
 
         https://github.com/stencila/examples/tree/master/mtcars
 
@@ -163,10 +157,7 @@ class Project(models.Model):
         return Project.get_or_create_from_address(address, creator)
 
     def get_name(self):
-        """
-        A temporary implementation of a name property
-        which is likely to be replaced by a db field in future
-        """
+        """A temporary implementation of a name property which is likely to be replaced by a db field in future."""
         return self.name or 'Unnamed'
 
     def get_first_source(self) -> Source:
@@ -177,15 +168,11 @@ class Project(models.Model):
         return source
 
     def pull(self) -> BytesIO:
-        """
-        Pull files from the project source
-        """
+        """Pull files from the project source."""
         return self.get_first_source().pull()
 
     def push(self, archive: typing.IO) -> None:
-        """
-        Push files to the project source
-        """
+        """Push files to the project source."""
         self.get_first_source().push(archive)
 
     def save(self, *args, **kwargs) -> None:
@@ -208,9 +195,7 @@ class Project(models.Model):
     # iteration of FilesSource, not sure we'll want to keep them.
 
     def _pull(self) -> BytesIO:
-        """
-        Pull files from the Django storage into an archive
-        """
+        """Pull files from the Django storage into an archive."""
         from zipfile import ZipFile
 
         # Write all the files into a zip archive
@@ -223,9 +208,7 @@ class Project(models.Model):
         return archive
 
     def _push(self, archive: typing.Union[str, typing.IO]) -> None:
-        """
-        Push files in the archive to the Django storage
-        """
+        """Push files in the archive to the Django storage."""
         import timezone
         from zipfile import ZipFile
 
