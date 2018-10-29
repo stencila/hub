@@ -33,10 +33,7 @@ ERROR = 'E'
 
 
 class Checkout(Model):
-    """
-    A checkout of a project using a particular editor and
-    execution host (if any).
-    """
+    """Project checkout using an editor and execution host (if any)."""
 
     creator = ForeignKey(
         'auth.User',
@@ -148,9 +145,7 @@ class Checkout(Model):
 
     @staticmethod
     def obtain(pk, user):
-        """
-        TODO: Check that the user has access to this checkout
-        """
+        """TODO: Check that the user has access to this checkout."""
         return Checkout.objects.get(pk=pk)
 
     def json(self):
@@ -171,8 +166,7 @@ class Checkout(Model):
         return settings.CALLBACK_URL + self.get_absolute_url()
 
     def event(self, type, topic, message, data=None):
-        """
-        """
+        """"""
         # Format the message using the data
         if data:
             message = message.format(**data)
@@ -195,10 +189,7 @@ class Checkout(Model):
             self.save()
 
     def open(self):
-        """
-        Open the checkout by pulling from the project and
-        pushing to the editor.
-        """
+        """Open the checkout by pulling from the project and pushing to the editor."""
         self.status = LAUNCHING
         self.save()
 
@@ -221,9 +212,9 @@ class Checkout(Model):
 
     def save_(self):
         """
-        Save the checkout by pulling from the editor and
-        pushing to the project. Underscore suffix to
-        avoid name clash.
+        Save the checkout by pulling from the editor and pushing to the project. 
+        
+        Underscore suffix to avoid name clash.
         """
         if self.status == OPEN:
             try:
@@ -237,10 +228,7 @@ class Checkout(Model):
                 return self.event(ERROR, 'save', 'Error saving checkout: ' + repr(error))
 
     def close(self):
-        """
-        Close the checkout, allowing the project to be opened
-        by others
-        """
+        """Close the checkout, allowing the project to be opened by others."""
         if self.status == OPEN:
             # Catch errors to ensure that this is always closed
             try:
@@ -272,8 +260,7 @@ class CheckoutEvent(Model):
     """
     An event ocurring on a checkout.
 
-    These are used to inform user of progress in launching
-    the checkout.
+    These are used to inform user of progress in launching the checkout.
     """
 
     checkout = ForeignKey(
