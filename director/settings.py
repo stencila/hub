@@ -16,9 +16,7 @@ from configurations import Configuration, values
 
 
 class Common(Configuration):
-    """
-    Configuration settings common to both development and production
-    """
+    """Configuration settings common to both development and production."""
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -232,9 +230,7 @@ class Common(Configuration):
 
 
 class Dev(Common):
-    """
-    Configuration settings used in development
-    """
+    """Configuration settings used in development."""
 
     # Ensure debug is always true in development
     DEBUG = True
@@ -283,9 +279,7 @@ class Dev(Common):
 
 
 class Prod(Common):
-    """
-    Configuration settings used in production
-    """
+    """Configuration settings used in production."""
 
     # Ensure debug is always false in production
     DEBUG = False

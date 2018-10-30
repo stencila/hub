@@ -1,6 +1,7 @@
 """
-Models implementing Stencila Hub `Accounts` against which the usage of the computational
-resources is metered.
+Models implementing Stencila Hub `Accounts`.
+
+Against which the usage of the computational resources is metered.
 """
 
 import typing
@@ -15,6 +16,8 @@ from lib.enum_choice import EnumChoice
 
 class AccountPermissionType(EnumChoice):
     """
+    Types of account permissions.
+
     There are two types of `Permissions` to the `Account`:
 
     1) Modification allows to link a new Project to the Account.
@@ -30,8 +33,10 @@ class AccountPermissionType(EnumChoice):
 
 class Account(models.Model):
     """
-    `Accounts` are the entity against which resource usage is metered, and
-    can be billed if it exceeds the free allocation.
+    Account model.
+
+    `Accounts` are the entity against which resource usage is metered.
+    And can be billed if it exceeds the free allocation.
 
     Every user has their own `Personal Account` - created by `create_personal_account_for_user`.
 
@@ -51,9 +56,7 @@ class Account(models.Model):
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
-        """
-        Returns users who have administrative permissions on the account.
-        """
+        """Returns users who have administrative permissions on the account."""
         ownership_roles: typing.Set[AccountUserRole] = set()  # cache the roles that have ownership perms
         users: typing.Set[AbstractUser] = set()
 
@@ -77,7 +80,10 @@ class Account(models.Model):
 
 class Team(models.Model):
     """
-    Team is can be formed by one or more Users. Each User can be a member of multiple Teams.
+    Team model.
+
+    Team is can be formed by one or more Users.
+    Each User can be a member of multiple Teams.
     Each Team is linked to exactly one Account.
     """
     account = models.ForeignKey(
@@ -109,9 +115,7 @@ class Team(models.Model):
 
 
 class AccountPermission(models.Model):
-    """
-    Model implementing types of the permissions to the `Account`.
-    """
+    """Model implementing types of the permissions to the `Account`."""
     type = models.TextField(
         null=False,
         blank=False,
@@ -125,9 +129,7 @@ class AccountPermission(models.Model):
 
 
 class AccountRole(models.Model):
-    """
-    Roles linked to the Account, depending on their `AccountPermissionType`.
-    """
+    """Roles linked to the Account, depending on their `AccountPermissionType`."""
     name = models.TextField(
         null=False,
         blank=False,
@@ -157,9 +159,7 @@ class AccountRole(models.Model):
 
 
 class AccountUserRole(models.Model):
-    """
-    Model connecting `Users` with their `Roles` in the `Accounts`.
-    """
+    """Model connecting `Users` with their `Roles` in the `Accounts`."""
     user = models.ForeignKey(
         'auth.User',
         on_delete=models.CASCADE,
@@ -187,9 +187,10 @@ class AccountUserRole(models.Model):
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
     """
-    Called when a new `User` is created and saved. Makes sure each user has a Personal `Account` that
-    they are an `Account admin` on so that their `Projects` can be linked to
-    an `Account`.
+    Create a user personal account.
+
+    Called when a new `User` is created and saved.
+    Makes sure each user has a Personal `Account` that they are an `Account admin` on so that their `Projects` can be linked to an `Account`.
     """
     if sender is User and created:
         account = Account.objects.create(name='{}\'s Personal Account'.format(instance.username))

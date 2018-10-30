@@ -37,9 +37,7 @@ class Editor(PolymorphicModel):
 
     @staticmethod
     def create(type):
-        """
-        Create a new editor of the given type
-        """
+        """Create a new editor of the given type."""
         if type == 'native':
             return NativeEditor.objects.create()
         else:
@@ -64,7 +62,8 @@ class Editor(PolymorphicModel):
 
 class NativeEditor(Editor):
     """
-    Stencila's native editor based on Substance/Texture editor
+    Stencila's native editor based on Substance/Texture editor.
+
     which operates on Reproducible Document Archives (Dar).
     """
 
@@ -80,10 +79,7 @@ class NativeEditor(Editor):
     )
 
     def save(self, *args, **kwargs):
-        """
-        Override of the Django Model.save() method
-        to create a unique key for the editor instance.
-        """
+        """Override of the Django Model.save() method to create a unique key for the editor instance."""
         if not self.key:
             self.key = ''.join(
                 secrets.choice(string.ascii_lowercase + string.digits) for _ in range(32)
@@ -92,7 +88,7 @@ class NativeEditor(Editor):
 
     def push(self, archive):
         """
-        Push a project archive to the editor
+        Push a project archive to the editor.
 
         :param archive: A zip archive of the project
         """
@@ -145,7 +141,7 @@ class NativeEditor(Editor):
 
     def pull(self):
         """
-        Pull the project archive from the editor
+        Pull the project archive from the editor.
 
         :return: A zip archive of the project
         """

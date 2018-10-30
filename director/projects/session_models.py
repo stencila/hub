@@ -32,8 +32,10 @@ class SessionStatus(enum.Enum):
 class SessionManager(models.Manager):
     def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
         """
-        Helper method for retrieving `Session`s with a particular `SessionStatus`, since the `status` attribute is
-        dynamically updated based on when the `Session` was polled, stopped or started.
+        Helper method for retrieving `Session`s with a particular `SessionStatus`.
+        
+        Since the `status` attribute is dynamically updated.
+        It is based on when the `Session` was polled, stopped or started.
         """
         filter_kwargs = {'project': project}
 
@@ -54,7 +56,9 @@ class SessionManager(models.Manager):
 
     def filter_stale_status(self) -> QuerySet:
         """
-        Filter `Session`s to those that are "stale": their `last_check` is null (never checked) or more than
+        Filter `Session`s to those that are "stale".
+
+        Their `last_check` is null (never checked) or more than
         `SESSION_POLL_TIMEOUT` seconds ago, and are not stopped (`stopped` is null).
 
         Generally the methods that call this should add extra filters to this return value, e.g:
@@ -67,9 +71,7 @@ class SessionManager(models.Manager):
 
 
 class Session(models.Model):
-    """
-    An execution Session
-    """
+    """An execution Session."""
     objects = SessionManager()
 
     project = models.ForeignKey(
@@ -120,9 +122,7 @@ class Session(models.Model):
 
 
 class SessionParameters(models.Model):
-    """
-    Defines the parameters for new Sessions created in a Project
-    """
+    """Defines the parameters for new Sessions created in a Project."""
 
     name = models.TextField(
         null=True,
@@ -190,9 +190,9 @@ class SessionParameters(models.Model):
 
 
 class SessionRequest(models.Model):
-    """
-    A request to queue the creation of  a `Session` for when the `Project` already has the maximum number of sessions
-    running (`sessions_concurrent`).
+    """A request to queue the creation of a `Session`.
+    
+    For when the `Project` already has the maximum number of sessions running (`sessions_concurrent`).
     """
 
     project = models.ForeignKey(

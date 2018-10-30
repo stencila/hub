@@ -20,10 +20,7 @@ from .forms import BetaTokenForm, UsernameForm, UserSignupForm
 
 
 class BetaTokenRequiredMixin(AccessMixin):
-    """
-    Token required for signin and signup during
-    beta testing phase
-    """
+    """Token required for signin and signup during beta testing phase."""
 
     def get_login_url(self):
         return 'user_beta'
@@ -38,9 +35,7 @@ class BetaTokenRequiredMixin(AccessMixin):
 
 
 class BetaTokenView(FormView):
-    """
-    View for user to enter a beta token
-    """
+    """View for user to enter a beta token."""
 
     template_name = 'beta_token.html'
     form_class = BetaTokenForm
@@ -57,38 +52,27 @@ class BetaTokenView(FormView):
 
 
 class UserSettingsView(LoginRequiredMixin, TemplateView):
-    """
-    Dashboard of settings available to the user
-    """
+    """Dashboard of settings available to the user."""
 
     template_name = "users/settings.html"
 
 
 class UserSignupView(BetaTokenRequiredMixin, SignupView):
-    """
-    Override of allauth SignupView to allow for custom
-    URL and template name (and perhaps more later)
-    """
+    """Override allauth SignupView to custom URL and template name."""
 
     template_name = 'users/signup.html'
     form_class = UserSignupForm
 
 
 class UserSigninView(BetaTokenRequiredMixin, LoginView):
-    """
-    Override of allauth LoginView to allow for custom
-    URL and template name (and perhaps more later)
-    """
+    """Override allauth LoginView to custom URL and template name."""
 
     template_name = 'users/signin.html'
 
 
 
 class UserSignoutView(LogoutView):
-    """
-    Override of allauth LogoutView to allow for custom
-    URL and template name (and perhaps more later)
-    """
+    """Override of allauth LogoutView to custom URL and template name."""
 
     template_name = 'users/signout.html'
 
