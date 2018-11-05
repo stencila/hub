@@ -5,4 +5,4 @@ mypy==0.641
 pydocstyle==3.0.0
 pydot==1.2.4
 pygraphviz==1.5
-pyparsing==2.2.2
+pyparsing==2.3.0
