@@ -202,6 +202,11 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
     template_name = 'projects/project_overview.html'
     project_permission_required = ProjectPermissionType.VIEW
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectOverviewView, self).get_context_data(**kwargs)
+        context['cloud_environ'] = 'stencila/core'
+        return context
+
 
 class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW

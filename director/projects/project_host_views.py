@@ -164,7 +164,10 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
             return None
 
         session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
-        session_request_to_use = SessionRequest.objects.get(pk=request.session[session_request_key])
+        try:
+            session_request_to_use = SessionRequest.objects.get(pk=request.session[session_request_key])
+        except SessionRequest.DoesNotExist:
+            session_request_to_use = None
         del request.session[is_next_key]
         del request.session[session_request_key]
 

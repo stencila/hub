@@ -190,7 +190,8 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
     Create a user personal account.
 
     Called when a new `User` is created and saved.
-    Makes sure each user has a Personal `Account` that they are an `Account admin` on so that their `Projects` can be linked to an `Account`.
+    Makes sure each user has a Personal `Account` that they are an `Account admin` on so that their `Projects` can be
+    linked to an `Account`.
     """
     if sender is User and created:
         account = Account.objects.create(name='{}\'s Personal Account'.format(instance.username))

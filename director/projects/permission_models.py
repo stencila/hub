@@ -72,7 +72,7 @@ def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) 
         typing.Optional[ProjectPermissionType]:
     """
     Iterate over each `ProjectPermissionType` in order for highest to lowest.
-    
+
     Until one is found in the passed in `permissions`, then return it.
     """
     for permission in reversed(list(ProjectPermissionType.ordered_permissions())):
@@ -148,7 +148,7 @@ class ProjectAgentRole(models.Model):
     def filter_with_agent(cls, agent: typing.Union[User, Team], **kwargs) -> QuerySet:
         """
         Since this model users `GenericForeignKey` we can't filter on `agent` using built in filter().
-        
+
         So this is a helper method to transform agent into id/content type.
         """
         kwargs['agent_id'] = agent.pk
@@ -160,7 +160,7 @@ class ProjectAgentRole(models.Model):
                                teams: typing.Optional[typing.Iterable[Team]] = None, **kwargs) -> QuerySet:
         """
         Filter for all `ProjectAgentRole`.
-        
+
         For the `user` or any of the `teams`.
         """
         if user:
@@ -224,7 +224,8 @@ def record_creator_as_owner(sender, instance, created, *args, **kwargs):
     """
     Record the creator like a Owner role.
 
-    This method is called when the Project is created and saved to record `Owner` role of the user who created the Project.
+    This method is called when the Project is created and saved to record `Owner` role of the user who created the
+    Project.
     """
     owner_role = ProjectRole.objects.get(name='Owner')
     ct = ContentType.objects.get(model="user")
