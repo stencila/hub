@@ -52,12 +52,19 @@ DJ ?= $(VE) $(EV) python3 director/manage.py
 
 
 # Setup virtual environment
-director/venv: director/requirements.txt director/requirements-dev.txt
+director/venv: director/requirements.txt
+	python3 -m venv director/venv
+	$(VE) pip3 install -r director/requirements.txt
+	touch director/venv
+director-venv: director/venv
+
+# Setup DEV virtual environment
+.PHONY: director-venv-dev
+director-venv-dev:
 	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
 	$(VE) pip3 install -r director/requirements-dev.txt
 	touch director/venv
-director-venv: director/venv
 
 # Build directory of external third party JS and CSS
 director/extern: director/package.json
