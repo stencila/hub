@@ -1,5 +1,4 @@
 import enum
-import logging
 import time
 import typing
 from datetime import timedelta
@@ -14,8 +13,6 @@ from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE
 
 JWT_ALGORITHM = "HS256"
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
-
-logger = logging.getLogger(__name__)
 
 
 class HttpMethod(enum.Enum):
@@ -238,20 +235,11 @@ class CloudSessionFacade(object):
     def update_session_info(self, session: Session) -> None:
         try:
             session_info = self.client.get_session_info(session.url)
-        # except requests.HTTPError as e:
-        #    logger.debug(e)
-        #    if e.response:
-        #        logger.debug(e.response)
-        #        logger.debug(e.response.status_code)
-        #    if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
-        #        session.stopped = timezone.now()
-        #    else:
-        #        raise
-        except Exception as e:
-            e_response = getattr(e, 'response', None)
-            e_status_code = getattr(e_response, 'status_code', None)
-            raise ValueError("Got an exception: {} / [{}] / {} {}", e_response, e_status_code, e,
-                             e.__module__ + "." + e.__class__.__qualname__)
+        except requests.exceptions.HTTPError as e:
+            if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
+                session.stopped = timezone.now()
+            else:
+                raise
         else:
             # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
             # if a session is stopped and then starts running again.
