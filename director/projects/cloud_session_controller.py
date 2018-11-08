@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 import jwt
 import requests
 from django.utils import timezone
+from requests import HTTPError
 
 from projects.models import Project, Session
 from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT
@@ -229,22 +230,26 @@ class CloudSessionFacade(object):
         return self.project.sessions.count()
 
     def update_session_info(self, session: Session) -> None:
-        session_info = self.client.get_session_info(session.url)
+        try:
+            session_info = self.client.get_session_info(session.url)
+        except HTTPError as e:
+            if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
+                session.stopped = timezone.now()
+        else:
+            # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
+            # if a session is stopped and then starts running again.
 
-        # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong if
-        # a session is stopped and then starts running again.
+            if session_info.status != SessionStatus.UNKNOWN:
+                # Don't update the last check if the status of the container is not known
+                session.last_check = timezone.now()
 
-        if session_info.status != SessionStatus.UNKNOWN:
-            # Don't update the last check if the status of the container is not known
-            session.last_check = timezone.now()
+            if not session.started and session_info.status == SessionStatus.RUNNING:
+                # Set Session start time if it is now stopped and we haven't previously recorded that
+                session.started = timezone.now()
 
-        if not session.started and session_info.status == SessionStatus.RUNNING:
-            # Set Session start time if it is now stopped and we haven't previously recorded that
-            session.started = timezone.now()
-
-        if not session.stopped and session_info.status == SessionStatus.STOPPED:
-            # Set Session stop time if it is now stopped and we haven't previously recorded that
-            session.stopped = timezone.now()
+            if not session.stopped and session_info.status == SessionStatus.STOPPED:
+                # Set Session stop time if it is now stopped and we haven't previously recorded that
+                session.stopped = timezone.now()
 
     def poll_sessions(self) -> None:
         for session in Session.objects.filter_stale_status().filter(project=self.project):
