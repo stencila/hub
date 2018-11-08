@@ -236,8 +236,7 @@ class CloudSessionFacade(object):
         try:
             session_info = self.client.get_session_info(session.url)
         except requests.exceptions.HTTPError as e:
-            raise ValueError("{}".format(vars(e)))
-            if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
+            if e.response.status_code == 404:  # Session info is missing - assume it has stopped
                 session.stopped = timezone.now()
             else:
                 raise
