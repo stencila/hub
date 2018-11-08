@@ -182,6 +182,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
     def create_session(self, request: HttpRequest, environ: str, session_key: str,
                        session_request_to_use: typing.Optional[SessionRequest]) -> str:
+        self.session_facade.expire_stale_session_requests()
         session = self.session_facade.create_session(environ, session_request_to_use)
         session_url = session.url
         request.session[session_key] = session_url
