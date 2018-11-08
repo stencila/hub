@@ -136,7 +136,9 @@ class CloudSessionFacade(object):
         if a `Session` can be created, or raise a `SessionException` if not.
         """
         if self.project.sessions_total is None:
-            return  # success
+            # non-failure, Session is not blocked from being created due to total Sessions being exceeded as there is no
+            # limit
+            return
 
         total_session_count = self.get_total_session_count()
         if self.project.sessions_total <= total_session_count:
@@ -151,6 +153,8 @@ class CloudSessionFacade(object):
         `ActiveSessionsExceededException` if not.
         """
         if self.project.sessions_concurrent is None:
+            # return non-failure. Session is not blocked from being created due to too many running Sessions as there is
+            # no limit
             return
 
         active_session_count = self.get_active_session_count()
@@ -235,6 +239,8 @@ class CloudSessionFacade(object):
         except HTTPError as e:
             if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
                 session.stopped = timezone.now()
+            else:
+                raise
         else:
             # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
             # if a session is stopped and then starts running again.
