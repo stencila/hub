@@ -33,7 +33,7 @@ def remove_duplicate_account_user_roles(apps, schema_editor):
         # based on the DB engine. SQL is bad, don't do this in real life kids
         delete_cursor.close()
 
-    result.close()
+    result_iterator.close()
 
 
 class Migration(migrations.Migration):
