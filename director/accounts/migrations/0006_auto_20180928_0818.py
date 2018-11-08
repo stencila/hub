@@ -15,7 +15,7 @@ def remove_duplicate_account_user_roles(apps, schema_editor):
         SELECT COUNT(*) as cnt, MIN(id) as id, account_id, user_id 
         FROM accounts_accountuserrole 
         GROUP BY account_id, user_id
-        HAVING cnt > 1
+        HAVING COUNT(*) > 1
         """)
 
     for row in result:
