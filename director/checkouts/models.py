@@ -212,8 +212,8 @@ class Checkout(Model):
 
     def save_(self):
         """
-        Save the checkout by pulling from the editor and pushing to the project. 
-        
+        Save the checkout by pulling from the editor and pushing to the project.
+
         Underscore suffix to avoid name clash.
         """
         if self.status == OPEN:

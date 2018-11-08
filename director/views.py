@@ -46,13 +46,16 @@ class AboutView(TemplateView):
     """Page displaying short overview of the Hub."""
     template_name = 'about/about.html'
 
+
 class ContactView(TemplateView):
     """Page displaying contact information."""
     template_name = 'about/contact.html'
 
+
 class HelpView(TemplateView):
     """Page displaying help."""
     template_name = 'about/help.html'
+
 
 class PrivacyView(TemplateView):
     """Page displaying the details of the Privacy Policy."""

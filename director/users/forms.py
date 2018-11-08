@@ -3,7 +3,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset
 from django import forms
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.utils.safestring import mark_safe
 
 from lib.forms import FormWithSubmit
 
@@ -18,11 +17,13 @@ class UsernameForm(FormWithSubmit):
         validators=[UnicodeUsernameValidator()],
         help_text='Enter your new username. It must not be in use by anyone else.')
 
+
 class UserSignupForm(SignupForm):
     termsconditions = forms.BooleanField(
-        label = "I have read and agree to the Terms and Conditions",
-        required = True,
-        help_text='Please read and agree to Stencila Hub <a href="http://hub.stenci.la/about/terms-and-conditions/">Terms and Conditions</a>'
+        label="I have read and agree to the Terms and Conditions",
+        required=True,
+        help_text='Please read and agree to Stencila Hub <a href="http://hub.stenci.la/about/terms-and-conditions/">'
+                  'Terms and Conditions</a>'
     )
 
     def __init__(self, *args, **kwargs):

@@ -70,7 +70,6 @@ class UserSigninView(BetaTokenRequiredMixin, LoginView):
     template_name = 'users/signin.html'
 
 
-
 class UserSignoutView(LogoutView):
     """Override of allauth LogoutView to custom URL and template name."""
 

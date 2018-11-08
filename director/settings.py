@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import sys
 from configurations import Configuration, values
 
 
@@ -154,6 +155,8 @@ class Common(Configuration):
 
     USE_TZ = True
 
+    TESTING = False
+
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
@@ -249,9 +252,13 @@ class Dev(Common):
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + [
         'debug_toolbar',
-        'django_extensions',
-        'django_nose'
+        'django_extensions'
     ]
+
+    TESTING = sys.argv[1:2] == ['test']
+
+    if TESTING:
+        INSTALLED_APPS.append('django_nose')
 
     # Additional middleware only used in development
     MIDDLEWARE = [
