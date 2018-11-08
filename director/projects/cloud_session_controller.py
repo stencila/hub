@@ -7,7 +7,6 @@ from urllib.parse import urljoin
 import jwt
 import requests
 from django.utils import timezone
-from requests import HTTPError
 
 from projects.models import Project, Session
 from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT
@@ -236,11 +235,20 @@ class CloudSessionFacade(object):
     def update_session_info(self, session: Session) -> None:
         try:
             session_info = self.client.get_session_info(session.url)
-        except HTTPError as e:
+        except requests.HTTPError as e:
+            print(e)
+            if e.response:
+                print(e.response)
+                print(e.response.status_code)
             if e.response and e.response.status_code == 404:  # Session info is missing - assume it has stopped
                 session.stopped = timezone.now()
             else:
                 raise
+        except Exception as e:
+            print("Unhandled exception")
+            print(e.__module__ + "." + e.__class__.__qualname__)
+            print(e)
+            raise
         else:
             # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
             # if a session is stopped and then starts running again.
