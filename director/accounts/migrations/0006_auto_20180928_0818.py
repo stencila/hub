@@ -18,7 +18,12 @@ def remove_duplicate_account_user_roles(apps, schema_editor):
         HAVING COUNT(*) > 1
         """)
 
-    for row in result:
+    if result:
+        result_iterator = result  # for SQLITE
+    else:
+        result_iterator = cursor  # for Postgres
+
+    for row in result_iterator:
         # since we are still in beta/testing phase for this, it does not matter which of the associations is removed
         delete_cursor = connection.cursor()
         delete_cursor.execute("""
