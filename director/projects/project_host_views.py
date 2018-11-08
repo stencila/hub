@@ -150,9 +150,9 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
         if session.stopped is None:
             self.session_facade.update_session_info(session)
+            session.save()
 
         if session.stopped is not None and session.stopped <= timezone.now():
-            session.save()
             return None
 
         return session_url
@@ -197,6 +197,8 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
             try:
                 session_url = self.create_session(request, environ, session_key, session_request_to_use)
             except ActiveSessionsExceededException:
+                project = get_object_or_404(Project, token=token)
+                raise ValueError("Active session exceeded!: {}".format(vars(project)))
                 return self.create_session_request(request, token, environ)
 
         return JsonResponse({

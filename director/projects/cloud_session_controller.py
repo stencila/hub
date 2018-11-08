@@ -159,7 +159,6 @@ class CloudSessionFacade(object):
         active_session_count = self.get_active_session_count()
 
         if self.project.sessions_concurrent <= active_session_count:
-            raise ValueError("{}".format(vars(self.project)))
             raise ActiveSessionsExceededException(
                 "Unable to start session for the project. {}/{} are already active.".format(
                     active_session_count, self.project.sessions_concurrent))
