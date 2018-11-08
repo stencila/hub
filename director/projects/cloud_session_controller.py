@@ -9,7 +9,8 @@ import requests
 from django.utils import timezone
 
 from projects.models import Project, Session
-from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT
+from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT, \
+    SESSION_QUEUE_CREATION_TIMEOUT
 
 JWT_ALGORITHM = "HS256"
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
@@ -189,10 +190,16 @@ class CloudSessionFacade(object):
         return self.project.session_requests.create(environ=environ)
 
     def expire_stale_session_requests(self) -> None:
-        """Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds."""
+        """
+        Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds, or were
+        created more than `SESSION_QUEUE_CREATION_TIMEOUT` seconds ago and have never been checked,.
+        """
         last_check_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CHECK_TIMEOUT)
-
         SessionRequest.objects.filter(project=self.project, last_check__lte=last_check_before).delete()
+
+        creation_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CREATION_TIMEOUT)
+        SessionRequest.objects.filter(project=self.project, created__lte=creation_before,
+                                      last_check__isnull=True).delete()
 
     def check_session_can_start(self, session_request_to_use: typing.Optional[SessionRequest]):
         """Wrapper around the checks that must be done before allowing a Session to start."""

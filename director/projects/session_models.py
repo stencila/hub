@@ -20,6 +20,7 @@ from projects.project_models import Project
 
 SESSION_POLL_TIMEOUT = 60  # default for number of seconds since update that Session info is out of date
 SESSION_QUEUE_CHECK_TIMEOUT = 120  # remove a `SessionQueue` if it hasn't been checked for this many seconds
+SESSION_QUEUE_CREATION_TIMEOUT = 300  # remove a `SessionQueue` if it is this old and has not been checked
 
 
 class SessionStatus(enum.Enum):
