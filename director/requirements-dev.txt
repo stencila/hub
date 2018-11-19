@@ -3,6 +3,6 @@ django-nose==1.4.6
 flake8==3.6.0
 mypy==0.641
 pydocstyle==3.0.0
-pydot==1.2.4
+pydot==1.3.0
 pygraphviz==1.5
 pyparsing==2.2.2
