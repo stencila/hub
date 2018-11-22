@@ -9,7 +9,8 @@ import requests
 from django.utils import timezone
 
 from projects.models import Project, Session
-from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT
+from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT, \
+    SESSION_QUEUE_CREATION_TIMEOUT
 
 JWT_ALGORITHM = "HS256"
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
@@ -135,7 +136,9 @@ class CloudSessionFacade(object):
         if a `Session` can be created, or raise a `SessionException` if not.
         """
         if self.project.sessions_total is None:
-            return  # success
+            # non-failure, Session is not blocked from being created due to total Sessions being exceeded as there is no
+            # limit
+            return
 
         total_session_count = self.get_total_session_count()
         if self.project.sessions_total <= total_session_count:
@@ -150,6 +153,8 @@ class CloudSessionFacade(object):
         `ActiveSessionsExceededException` if not.
         """
         if self.project.sessions_concurrent is None:
+            # return non-failure. Session is not blocked from being created due to too many running Sessions as there is
+            # no limit
             return
 
         active_session_count = self.get_active_session_count()
@@ -185,10 +190,16 @@ class CloudSessionFacade(object):
         return self.project.session_requests.create(environ=environ)
 
     def expire_stale_session_requests(self) -> None:
-        """Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds."""
+        """
+        Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds, or were
+        created more than `SESSION_QUEUE_CREATION_TIMEOUT` seconds ago and have never been checked,.
+        """
         last_check_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CHECK_TIMEOUT)
-
         SessionRequest.objects.filter(project=self.project, last_check__lte=last_check_before).delete()
+
+        creation_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CREATION_TIMEOUT)
+        SessionRequest.objects.filter(project=self.project, created__lte=creation_before,
+                                      last_check__isnull=True).delete()
 
     def check_session_can_start(self, session_request_to_use: typing.Optional[SessionRequest]):
         """Wrapper around the checks that must be done before allowing a Session to start."""
@@ -229,10 +240,18 @@ class CloudSessionFacade(object):
         return self.project.sessions.count()
 
     def update_session_info(self, session: Session) -> None:
-        session_info = self.client.get_session_info(session.url)
+        try:
+            session_info = self.client.get_session_info(session.url)
+        except requests.exceptions.HTTPError as e:
+            if e.response is not None and e.response.status_code == 404:
+                # Session info is missing - assume it has stopped
+                session.stopped = timezone.now()
+                return
+            else:
+                raise
 
-        # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong if
-        # a session is stopped and then starts running again.
+        # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
+        # if a session is stopped and then starts running again.
 
         if session_info.status != SessionStatus.UNKNOWN:
             # Don't update the last check if the status of the container is not known

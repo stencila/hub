@@ -2,10 +2,12 @@ from django.test import TestCase
 
 from unittest import mock
 
+from requests import HTTPError
+
 from projects.cloud_session_controller import CloudClient, CloudSessionFacade, SessionException, \
     ActiveSessionsExceededException
 from projects.project_models import Project
-from projects.session_models import SessionRequest
+from projects.session_models import SessionRequest, SessionStatus
 
 
 class SessionFacadeTests(TestCase):
@@ -250,3 +252,87 @@ class SessionFacadeTests(TestCase):
             last_check=mock_timezone.now.return_value,
             url=self.client.start_session.return_value
         )
+
+    @mock.patch('projects.cloud_session_controller.timezone')
+    def test_update_session_info_with_404(self, mock_timezone):
+        """
+        If the query to get Session information from the Cloud returns 404, an HttpError is raised, and we should assume
+        that the Session has stopped.
+        """
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 404
+        self.client.get_session_info.side_effect = HTTPError(response=mock_response)
+        mock_session = mock.MagicMock()
+
+        self.cs_facade.update_session_info(mock_session)
+
+        self.assertEqual(mock_session.stopped, mock_timezone.now.return_value)
+
+    def test_update_session_with_other_http_error(self):
+        """
+        If the query to get Session information from the Cloud raises an HttpError that does not have a 404 status, then
+        that exception should be raised.
+        """
+        mock_response = mock.MagicMock()
+        mock_response.status_code = 500
+        self.client.get_session_info.side_effect = HTTPError(response=mock_response)
+        mock_session = mock.MagicMock()
+
+        with self.assertRaises(HTTPError):
+            self.cs_facade.update_session_info(mock_session)
+
+    @staticmethod
+    def get_session_for_update():
+        mock_session = mock.MagicMock()
+        mock_session.last_check = None
+        mock_session.started = None
+        mock_session.stopped = None
+        return mock_session
+
+    def test_update_session_with_unknown(self):
+        """If client.get_session_info returns SessionStatus.UNKNOWN, no changes should be made to the Session."""
+        session_info = mock.MagicMock()
+        session_info.status = SessionStatus.UNKNOWN
+        self.client.get_session_info.return_value = session_info
+        mock_session = self.get_session_for_update()
+
+        self.cs_facade.update_session_info(mock_session)
+
+        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.assertIsNone(mock_session.last_check)
+        self.assertIsNone(mock_session.started)
+        self.assertIsNone(mock_session.stopped)
+
+    @mock.patch('projects.cloud_session_controller.timezone')
+    def test_update_session_with_running(self, mock_timezone):
+        """
+        If client.get_session_info returns SessionStatus.RUNNING, session.started should be set to the current time.
+        """
+        session_info = mock.MagicMock()
+        session_info.status = SessionStatus.RUNNING
+        self.client.get_session_info.return_value = session_info
+        mock_session = self.get_session_for_update()
+
+        self.cs_facade.update_session_info(mock_session)
+
+        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.assertEqual(mock_session.last_check, mock_timezone.now.return_value)
+        self.assertEqual(mock_session.started, mock_timezone.now.return_value)
+        self.assertIsNone(mock_session.stopped)
+
+    @mock.patch('projects.cloud_session_controller.timezone')
+    def test_update_session_with_stopped(self, mock_timezone):
+        """
+        If client.get_session_info returns SessionStatus.STOPPED, session.stopped should be set to the current time.
+        """
+        session_info = mock.MagicMock()
+        session_info.status = SessionStatus.STOPPED
+        self.client.get_session_info.return_value = session_info
+        mock_session = self.get_session_for_update()
+
+        self.cs_facade.update_session_info(mock_session)
+
+        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.assertEqual(mock_session.last_check, mock_timezone.now.return_value)
+        self.assertIsNone(mock_session.started)
+        self.assertEqual(mock_session.stopped, mock_timezone.now.return_value)

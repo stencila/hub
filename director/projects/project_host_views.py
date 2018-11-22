@@ -150,6 +150,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
         if session.stopped is None:
             self.session_facade.update_session_info(session)
+            session.save()
 
         if session.stopped is not None and session.stopped <= timezone.now():
             return None
@@ -161,7 +162,8 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         is_next_key = SESSION_REQUEST_IS_NEXT_KEY_FORMAT.format(token)
 
         if request.session.get(is_next_key) is not True:
-            return None
+            # SessionRequest in not next in the queue (checking previously set semaphore):
+            return None  # Indicates they can not use the SessionRequest
 
         session_request_key = SESSION_REQUEST_SESSION_KEY_FORMAT.format(token)
         try:
@@ -180,6 +182,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
     def create_session(self, request: HttpRequest, environ: str, session_key: str,
                        session_request_to_use: typing.Optional[SessionRequest]) -> str:
+        self.session_facade.expire_stale_session_requests()
         session = self.session_facade.create_session(environ, session_request_to_use)
         session_url = session.url
         request.session[session_key] = session_url
@@ -187,7 +190,9 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
     def generate_response(self, request: HttpRequest, environ: str, session_key: str, token: str,
                           session_url: typing.Optional[str]) -> HttpResponse:
+        # If the Session's URL was previously found in the request session, then it will not be None here
         if not session_url:
+            # session_url was not found in the request session, to get one for the project
             session_request_to_use = self.get_session_request_to_use(request, token)
 
             try:
@@ -207,7 +212,12 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
         self.setup_cloud_client(project)
 
+        # session_key is used to look up the current SessionRequest (if any) for a pending session the user might have
         session_key = SESSION_URL_SESSION_KEY_FORMAT.format(token, environ)
+
+        # session_url will be None if the user does not have a Session already created for them, or if they had one that
+        # has stopped. If we found a reference to a session that appear to be running then it will be a string with the
+        # Session's URL
         session_url = self.get_session_url_from_request_session(request, session_key)
 
         return self.generate_response(request, environ, session_key, token, session_url)
