@@ -5,7 +5,7 @@ django-allauth==0.38.0
 django-configurations==2.1
 django-crispy-forms==1.7.2
 django-polymorphic==2.0.3
-django-sendgrid-v5==0.6.893
+django-sendgrid-v5==0.7.0
 django-storages==1.7.1
 djangorestframework==3.8.2
 django-debug-toolbar==1.10.1
