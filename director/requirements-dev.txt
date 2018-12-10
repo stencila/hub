@@ -1,5 +1,5 @@
 coverage==4.5.2
-django-nose==1.4.5
+django-nose==1.4.6
 flake8==3.5.0
 mypy==0.630
 pydocstyle==2.1.1
