@@ -11,7 +11,16 @@ from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 
-class Source(PolymorphicModel):
+class MimeTypeFromPathMixin(object):
+    @property
+    def mimetype(self) -> str:
+        mimetype, encoding = mimetypes.guess_type(self.path, False)
+        return mimetype or 'Unknown'
+
+
+class Source(PolymorphicModel, MimeTypeFromPathMixin):
+    provider_name = ''
+
     project = models.ForeignKey(
         'Project',
         null=True,
@@ -55,11 +64,6 @@ class Source(PolymorphicModel):
     def push(self, archive: typing.Union[str, typing.IO]) -> None:
         raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
 
-    @property
-    def mimetype(self) -> str:
-        mimetype, encoding = mimetypes.guess_type(self.path, False)
-        return mimetype or 'Unknown'
-
 
 # Source classes in alphabetical order
 #
@@ -75,6 +79,7 @@ class Source(PolymorphicModel):
 
 class BitbucketSource(Source):
     """A project hosted on Bitbucket."""
+    provider_name = 'BitBucket'
 
     class Meta:
         abstract = True
@@ -82,6 +87,7 @@ class BitbucketSource(Source):
 
 class DatSource(Source):
     """A project hosted on Dat."""
+    provider_name = 'Dat'
 
     class Meta:
         abstract = True
@@ -89,6 +95,7 @@ class DatSource(Source):
 
 class DropboxSource(Source):
     """A project hosted on Dropbox."""
+    provider_name = 'Drop Box'
 
     class Meta:
         abstract = True
@@ -101,6 +108,7 @@ def files_source_file_path(instance: "FileSource", filename: str):
 
 class FileSource(Source):
     """A file uploaded to the Hub."""
+    provider_name = 'File'
 
     size = models.IntegerField(
         null=True,
@@ -140,9 +148,7 @@ class FileSource(Source):
 
 class GithubSource(Source):
     """A project hosted on Github."""
-
-    class Meta:
-        abstract = True
+    provider_name = 'GitHub'
 
     repo = models.TextField(
         null=False,
@@ -156,9 +162,13 @@ class GithubSource(Source):
         help_text='Path to file or folder withing the repository'
     )
 
+    def __str__(self) -> str:
+        return '{}/{}'.format(self.repo, self.subpath or '')
+
 
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
+    provider_name = 'GitLab'
 
     class Meta:
         abstract = True
@@ -170,6 +180,7 @@ class OSFSource(Source):
 
     See https://developer.osf.io/ for API documentation.
     """
+    provider_name = 'OSF'
 
     class Meta:
         abstract = True
@@ -183,6 +194,7 @@ class SourceType(typing.NamedTuple):
 
 class AvailableSourceType(enum.Enum):
     FILE = SourceType('file', 'File', FileSource)
+    GITHUB = SourceType('github', 'Github', GithubSource)
 
     # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
     # doesn't understand this

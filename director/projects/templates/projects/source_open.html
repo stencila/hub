@@ -3,39 +3,67 @@
 {% block title %}Edit {{ file_path }}{% endblock %}
 
 {% block content %}
+    {% if not file_editable %}
+        <article class="message is-warning">
+            <div class="message-header">
+                <p>Content not editable</p>
+            </div>
+            <div class="message-body">
+                This file is not editable because you do not have a {{ source.provider_name }} account connected. Add
+                one on the <a href="{% url 'socialaccount_connections' %}">Account Connections Page</a>.
+            </div>
+        </article>
+    {% endif %}
     <form method="post" onsubmit="return sourceEditSubmit();">
         {% csrf_token %}
         <textarea id="file_content" name="file_content" style="display: none;">{{ file_content }}</textarea>
         <div id="editor_container" style="width: 100%; height: 60vh;"></div>
-        <input type="submit" class="button is-success" value="Save">
+        {% if file_editable %}
+            {% if supports_commit_message %}
+                <div class="field">
+                    <div class="control">
+                        <label class="label" for="id_commit_message">Commit Message (Optional)</label>
+                        <input type="text" class="input" placeholder="{{ default_commit_message }}"
+                               id="id_commit_message"
+                               name="commit_message" value="{{ commit_message }}">
+                    </div>
+                </div>
+            {% endif %}
+            <div class="field">
+                <div class="control">
+                    <input type="submit" class="button is-success" value="Save">
+                </div>
+            </div>
+        {% endif %}
     </form>
     <script src="{% static 'js/monaco-editor/min/vs/loader.js' %}"></script>
     <script>
+      var editor
+      require.config({paths: {'vs': '{% static 'js/monaco-editor/min/vs' %}'}})
+      let editorTextArea = document.getElementById('file_content')
+      require(['vs/editor/editor.main'], function () {
+        editor = monaco.editor.create(document.getElementById('editor_container'), {
+          language: editorLanguageFromExtension('{{ file_extension }}'),
+          readOnly: {% if file_editable %}false{% else %}true{% endif %}
+        })
+        editor.setValue(editorTextArea.value)
+      })
 
-        var editor;
-        require.config({paths: {'vs': '{% static 'js/monaco-editor/min/vs' %}'}});
-        let editorTextArea = document.getElementById('file_content');
-        require(['vs/editor/editor.main'], function () {
-            editor = monaco.editor.create(document.getElementById('editor_container'), {
-                language: editorLanguageFromExtension('{{ file_extension }}')
-            });
-            editor.setValue(editorTextArea.value);
-        });
-        function editorLanguageFromExtension(extension) {
-            var languages = monaco.languages.getLanguages();
-            var languagesCount = languages.length;
-            for(var i = 0; i < languagesCount; ++i) {
-                var languageInfo = languages[i];
-                if(languageInfo.extensions.indexOf(extension) !== -1)
-                    return languageInfo.id;
-            }
-
-            return null;
+      function editorLanguageFromExtension (extension) {
+        var languages = monaco.languages.getLanguages()
+        var languagesCount = languages.length
+        for (var i = 0; i < languagesCount; ++i) {
+          var languageInfo = languages[i]
+          if (languageInfo.extensions.indexOf(extension) !== -1)
+            return languageInfo.id
         }
 
-        function sourceEditSubmit() {
-            editorTextArea.value = editor.getValue();
-            return true;
-        }
+        return null
+      }
+
+      function sourceEditSubmit () {
+        editorTextArea.value = editor.getValue()
+        return true
+      }
     </script>
 {% endblock %}

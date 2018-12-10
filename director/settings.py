@@ -231,6 +231,9 @@ class Common(Configuration):
     GS_PUBLIC_READABLE_PATHS = ['avatars/*']
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
+    STENCILA_GITHUB_APPLICATION_NAME = 'INSERT A REAL APP NAME HERE Stencila Github Integration'
+    STENCILA_GITHUB_APPLICATION_URL = 'INSERT A REAL URL HERE https://github.com/settings/apps/stencila/installations'
+
 
 class Dev(Common):
     """Configuration settings used in development."""
@@ -262,8 +265,8 @@ class Dev(Common):
 
     # Additional middleware only used in development
     MIDDLEWARE = [
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ] + Common.MIDDLEWARE
+                     'debug_toolbar.middleware.DebugToolbarMiddleware',
+                 ] + Common.MIDDLEWARE
 
     # During development just print emails to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
