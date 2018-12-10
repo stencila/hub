@@ -46,14 +46,14 @@ class SessionInformation(typing.NamedTuple):
 
 
 class CloudClient(object):
-    """Client for interaction with Stencila Cloud"""
+    """Client for interaction with Stencila Cloud."""
 
     def __init__(self, host_url: str, jwt_secret: str) -> None:
         self.host_url = host_url + "/" if not host_url.endswith("/") else host_url  # ensure trailing /
         self.jwt_secret = jwt_secret
 
     def generate_jwt_token(self) -> str:
-        """"Create a JWT token for the host"""
+        """Create a JWT token for the host."""
         jwt_payload = {"iat": time.time()}
         return jwt.encode(jwt_payload, self.jwt_secret, algorithm=JWT_ALGORITHM).decode("utf-8")
 
@@ -79,7 +79,7 @@ class CloudClient(object):
         return self.get_full_url(SESSION_CREATE_PATH_FORMAT.format(environ))
 
     def start_session(self, environ: str, session_parameters: dict) -> str:
-        """Start a cloud session and return its URL"""
+        """Start a cloud session and return its URL."""
         result = self.make_request(HttpMethod.POST, self.get_session_create_url(environ), session_parameters)
 
         session_url = result.get('url')
@@ -118,8 +118,9 @@ class CloudSessionFacade(object):
 
     def check_session_queue_full(self) -> None:
         """
-        Check if we are allowed to create a new `SessionRequest` for the `Project`. This method will either complete
-        successfully if we are, or raise a `SessionException` if not.
+        Check if we are allowed to create a new `SessionRequest` for the `Project`.
+
+        This method will either complete successfully if we are, or raise a `SessionException` if not.
         """
         if self.project.sessions_queued is None:  # no limit set so always return (success)
             return
@@ -131,9 +132,11 @@ class CloudSessionFacade(object):
 
     def check_total_sessions_exceeded(self) -> None:
         """
-        Check if we are allowed to create a new `Session` for the `Project`. This checks on the total number of
-        `Session`s that have every been created, not just the active ones. This method will either complete successfully
-        if a `Session` can be created, or raise a `SessionException` if not.
+        Check if we are allowed to create a new `Session` for the `Project`.
+
+        This checks on the total number of `Session`s that have every been created, not just the active ones.
+        This method will either complete successfully if a `Session` can be created, or raise a `SessionException` if
+        not.
         """
         if self.project.sessions_total is None:
             # non-failure, Session is not blocked from being created due to total Sessions being exceeded as there is no
@@ -148,9 +151,10 @@ class CloudSessionFacade(object):
 
     def check_active_sessions_exceeded(self) -> None:
         """
-        Check if we are allowed to create a new `Session` for the `Project`. This checks the number of active
-        `Session`s. This method will either complete successfully if a `Session` can be created, or raise a
-        `ActiveSessionsExceededException` if not.
+        Check if we are allowed to create a new `Session` for the `Project`.
+
+        This checks the number of active `Session`s. This method will either complete successfully if a `Session` can be
+        created, or raise a `ActiveSessionsExceededException` if not.
         """
         if self.project.sessions_concurrent is None:
             # return non-failure. Session is not blocked from being created due to too many running Sessions as there is
@@ -166,9 +170,11 @@ class CloudSessionFacade(object):
 
     def check_session_requests_exist(self, session_request_to_use: typing.Optional[SessionRequest]) -> None:
         """
-        Check if the `Project` has any `SessionRequest`s, in which case a new `Session` should not be started
-        (an `ActiveSessionsExceededException` is raised); unless `session_request_to_use` is passed in, in which case
-        the `Session` can be created and that `SessionRequest` is "used up".
+        Check if the `Project` has any `SessionRequest`s.
+
+        If so a new `Session` should not be started (an `ActiveSessionsExceededException` is raised); unless
+        `session_request_to_use` is passed in, in which case the `Session` can be created and that `SessionRequest`
+        is "used up".
 
         This method should only be called after the other checks for total sessions and active sessions being exceeded
         have been executed.
@@ -191,8 +197,10 @@ class CloudSessionFacade(object):
 
     def expire_stale_session_requests(self) -> None:
         """
+        Expire `SessionRequest`s that have not been checked recently.
+
         Remove `SessionRequest`s that have not been checked for `SESSION_QUEUE_CHECK_TIMEOUT` seconds, or were
-        created more than `SESSION_QUEUE_CREATION_TIMEOUT` seconds ago and have never been checked,.
+        created more than `SESSION_QUEUE_CREATION_TIMEOUT` seconds ago and have never been checked.
         """
         last_check_before = timezone.now() - timedelta(seconds=SESSION_QUEUE_CHECK_TIMEOUT)
         SessionRequest.objects.filter(project=self.project, last_check__lte=last_check_before).delete()
@@ -202,15 +210,16 @@ class CloudSessionFacade(object):
                                       last_check__isnull=True).delete()
 
     def check_session_can_start(self, session_request_to_use: typing.Optional[SessionRequest]):
-        """Wrapper around the checks that must be done before allowing a Session to start."""
+        """Wrap the checks that must be done before allowing a Session to start."""
         self.check_total_sessions_exceeded()
         self.check_active_sessions_exceeded()
         self.check_session_requests_exist(session_request_to_use)
 
     def perform_session_create(self, environ: str, session_parameters: dict) -> Session:
         """
-        Do the actual Session creation without checking if the `Project` limits it (i.e. don't call this method unless
-        the check_* methods have already been called.
+        Do the actual Session creation without checking if the `Project` limits it.
+
+        Don't call this method unless the check_* methods have already been called.
         """
         session_url = self.client.start_session(environ, session_parameters)
 
@@ -226,8 +235,9 @@ class CloudSessionFacade(object):
 
     def create_session(self, environ: str, session_request_to_use: typing.Optional[SessionRequest] = None) -> Session:
         """
-        Create a session for a project on a remote Stencila execution Host (usually
-        an instance of `stencila/cloud` but could even be a user's local machine)
+        Create a session for a project on a (remote) Stencila execution Host.
+
+        Usually an instance of `stencila/cloud` but could even be a user's local machine.
         """
         self.poll_sessions()  # make sure there is an up to date picture of Sessions before proceeding
         self.check_session_can_start(session_request_to_use)

@@ -170,10 +170,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_create.html"
 
     def get_form_kwargs(self):
-        """
-        Pass to request through to the form so it can generate
-        a set of accounts the user can use
-        """
+        """Pass the request through to the form so it can generate a set of accounts the user can use."""
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
 
@@ -186,10 +183,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        """
-        If the project creation form is valid them make the current user the
-        project creator
-        """
+        """If the project creation form is valid them make the current user the project creator."""
         self.object = form.save(commit=False)
         self.object.creator = self.request.user
         self.object.save()

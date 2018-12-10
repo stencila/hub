@@ -22,7 +22,7 @@ script:
   # Run linting checks
   - make director-lint-code
   - make director-lint-types
-  - make director-lint-docs || true # without failing build
+  - make director-lint-docs
   # Run tests in a development virtual environment
   - make director-test
   # Build production Docker image

@@ -90,10 +90,7 @@ def make_directory_entry(directory: str, source: Source):
 def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterable[Source],
                          auth_tokens: typing.Optional[dict] = None) \
         -> typing.Iterable[DirectoryListEntry]:
-    """
-    Yield a `DirectoryListEntry` for each `Source` passed in as `sources`, if the `Source` is inside the given
-    directory.
-    """
+    """Yield a `DirectoryListEntry` for each `Source` in `sources` if the `Source` is inside the `directory`."""
     directory = directory or ''
     auth_tokens = auth_tokens or {}
     seen_directories: typing.Set[str] = set()
@@ -127,6 +124,7 @@ def list_project_virtual_directory(project: Project, directory: typing.Optional[
                                    auth_tokens: typing.Optional[dict]) -> typing.List[DirectoryListEntry]:
     """
     Generate a list of `SourceItem`s for all the `Source`s that belong to a `Project`, in the given `directory`.
+
     If `directory` is `None` then list the 'root' directory.
     """
     sources = project.sources.all()
@@ -135,8 +133,10 @@ def list_project_virtual_directory(project: Project, directory: typing.Optional[
 
 def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[PathEntry]:
     """
-    Iterator to generate `PathEntry` objects, a tuple containing the current item name and the path to that item
-    (including the item). The first entry is always /.
+    Iterate each component of the `path` to generate `PathEntry` objects.
+
+    Each PathEntry is a tuple containing the current item name and the path to that item (including the item as the
+    last component). The first entry returned (yielded) is always /.
 
     For example, the path foo/bar/baz will yield:
     PathEntry('/', '')

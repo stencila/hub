@@ -27,6 +27,7 @@ class AccountPermissionType(EnumChoice):
     the billing details for the Account and give other Account Members
     administrative permission.
     """
+
     MODIFY = 'modify'
     ADMINISTER = 'administer'
 
@@ -42,6 +43,7 @@ class Account(models.Model):
 
     Users can create additional Accounts linking them to multiple Projects and Teams.
     """
+
     name = models.TextField(
         null=False,
         blank=False,
@@ -56,7 +58,7 @@ class Account(models.Model):
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
-        """Returns users who have administrative permissions on the account."""
+        """Return users who have administrative permissions on the account."""
         ownership_roles: typing.Set[AccountUserRole] = set()  # cache the roles that have ownership perms
         users: typing.Set[AbstractUser] = set()
 
@@ -86,6 +88,7 @@ class Team(models.Model):
     Each User can be a member of multiple Teams.
     Each Team is linked to exactly one Account.
     """
+
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
@@ -116,6 +119,7 @@ class Team(models.Model):
 
 class AccountPermission(models.Model):
     """Model implementing types of the permissions to the `Account`."""
+
     type = models.TextField(
         null=False,
         blank=False,
@@ -130,6 +134,7 @@ class AccountPermission(models.Model):
 
 class AccountRole(models.Model):
     """Roles linked to the Account, depending on their `AccountPermissionType`."""
+
     name = models.TextField(
         null=False,
         blank=False,
@@ -160,6 +165,7 @@ class AccountRole(models.Model):
 
 class AccountUserRole(models.Model):
     """Model connecting `Users` with their `Roles` in the `Accounts`."""
+
     user = models.ForeignKey(
         'auth.User',
         on_delete=models.CASCADE,
@@ -187,7 +193,7 @@ class AccountUserRole(models.Model):
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
     """
-    Create a user personal account.
+    Create a personal account for a user.
 
     Called when a new `User` is created and saved.
     Makes sure each user has a Personal `Account` that they are an `Account admin` on so that their `Projects` can be

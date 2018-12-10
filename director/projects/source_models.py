@@ -81,6 +81,7 @@ class Source(PolymorphicModel, MimeTypeFromPathMixin):
 
 class BitbucketSource(Source):
     """A project hosted on Bitbucket."""
+
     provider_name = 'BitBucket'
 
     class Meta:
@@ -89,6 +90,7 @@ class BitbucketSource(Source):
 
 class DatSource(Source):
     """A project hosted on Dat."""
+
     provider_name = 'Dat'
 
     class Meta:
@@ -97,6 +99,7 @@ class DatSource(Source):
 
 class DropboxSource(Source):
     """A project hosted on Dropbox."""
+
     provider_name = 'Drop Box'
 
     class Meta:
@@ -110,6 +113,7 @@ def files_source_file_path(instance: "FileSource", filename: str):
 
 class FileSource(Source):
     """A file uploaded to the Hub."""
+
     provider_name = 'File'
 
     size = models.IntegerField(
@@ -126,7 +130,7 @@ class FileSource(Source):
     )
 
     def save(self, *args, **kwargs):
-        """Override of save() to update the size property from the file size."""
+        """Override of base superclass `save` method to update the size property from the file size."""
         if self.file:
             self.size = self.file.size
         super().save(*args, **kwargs)
@@ -150,6 +154,7 @@ class FileSource(Source):
 
 class GithubSource(Source):
     """A project hosted on Github."""
+
     provider_name = 'GitHub'
 
     repo = models.TextField(
@@ -170,6 +175,7 @@ class GithubSource(Source):
 
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
+
     provider_name = 'GitLab'
 
     class Meta:
@@ -182,6 +188,7 @@ class OSFSource(Source):
 
     See https://developer.osf.io/ for API documentation.
     """
+
     provider_name = 'OSF'
 
     class Meta:

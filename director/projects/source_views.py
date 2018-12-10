@@ -20,10 +20,11 @@ from .source_forms import FileSourceForm, GithubSourceForm, SourceUpdateForm
 
 class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
     """A base class for view for creating new project sources."""
+
     project_permission_required = ProjectPermissionType.EDIT
 
     def form_valid(self, form):
-        """Override to set the project for the `Source` and redirect back to that project"""
+        """Override to set the project for the `Source` and redirect back to that project."""
         pk = self.kwargs['pk']
         file_source = form.save(commit=False)
         file_source.project = get_object_or_404(Project, pk=pk)
@@ -34,7 +35,7 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
 
 
 class FileSourceCreateView(SourceCreateView):
-    """A view for creating a new, emtpy local file in the project"""
+    """A view for creating a new, emtpy local file in the project."""
 
     model = FileSource
     form_class = FileSourceForm
@@ -42,14 +43,14 @@ class FileSourceCreateView(SourceCreateView):
 
 
 class DropboxSourceCreateView(SourceCreateView):
-    """A view for creating a Dropbox project source"""
+    """A view for creating a Dropbox project source."""
 
     model = DropboxSource
     template_name = 'projects/dropboxsource_create.html'
 
 
 class GithubSourceCreateView(SourceCreateView):
-    """A view for creating a Github project source"""
+    """A view for creating a Github project source."""
 
     model = GithubSource
     form_class = GithubSourceForm
@@ -57,7 +58,7 @@ class GithubSourceCreateView(SourceCreateView):
 
 
 class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
-    """A view for uploading one or more files into the project"""
+    """A view for uploading one or more files into the project."""
 
     model = Project
     template_name = 'projects/filesource_upload.html'

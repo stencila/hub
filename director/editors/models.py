@@ -79,7 +79,7 @@ class NativeEditor(Editor):
     )
 
     def save(self, *args, **kwargs):
-        """Override of the Django Model.save() method to create a unique key for the editor instance."""
+        """Override of the Django Model `save` method to create a unique key for the editor instance."""
         if not self.key:
             self.key = ''.join(
                 secrets.choice(string.ascii_lowercase + string.digits) for _ in range(32)
@@ -92,7 +92,6 @@ class NativeEditor(Editor):
 
         :param archive: A zip archive of the project
         """
-
         # Create some temporary folders
         tmp = tempfile.mkdtemp()
         src = os.path.join(tmp, 'src')
@@ -145,7 +144,6 @@ class NativeEditor(Editor):
 
         :return: A zip archive of the project
         """
-
         # Get the Dar from the editor
         response = requests.get(
             '{}/storage/{}'.format(self.base_url, self.key)

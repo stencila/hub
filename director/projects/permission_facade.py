@@ -15,11 +15,14 @@ READ_ONLY_PROJECT_ROLE_NAME = 'Viewer'
 
 class ProjectFetchResult(typing.NamedTuple):
     """
-    Represents the result of fetching a project for a particular agent (`User` or `Team`), includes:
+    Represents the result of fetching a project for a particular agent (`User` or `Team`).
+
+    The properties it includes are:
     -- agent_roles: roles the current agent (`User`/`Team`) has for the `Project``
     -- agent_permissions: all permissions the current agent (`User`/`Team`) has for the `Account`, i.e. combined
         permissions of all roles
     """
+
     project: Project
     agent_roles: typing.Set[ProjectRole]
     agent_permissions: typing.Set[ProjectPermissionType]
