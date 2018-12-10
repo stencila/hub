@@ -288,6 +288,10 @@ class Dev(Common):
         '--cover-xml-file=' + os.path.join(Common.BASE_DIR, 'coverage.xml')
     ]
 
+    STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration (Test)'
+    STENCILA_GITHUB_APPLICATION_URL = 'https://github.com/organizations/stencila/settings/apps/' \
+                                      'stencila-hub-integration-test/installations'
+
 
 class Prod(Common):
     """Configuration settings used in production."""

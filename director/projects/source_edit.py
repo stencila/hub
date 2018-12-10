@@ -28,7 +28,7 @@ class SourceContentFacade(object):
     access_token: typing.Optional[str] = None
     file_path: str
 
-    def __init__(self, source: Source, request: HttpRequest, file_path: str):
+    def __init__(self, source: Source, request: HttpRequest, file_path: str) -> None:
         self.source = source
         self.request = request
         self.file_path = file_path

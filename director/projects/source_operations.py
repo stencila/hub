@@ -96,7 +96,7 @@ def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterab
     """
     directory = directory or ''
     auth_tokens = auth_tokens or {}
-    seen_directories = set()
+    seen_directories: typing.Set[str] = set()
 
     for source in sources:
         if isinstance(source, GithubSource):
@@ -133,7 +133,7 @@ def list_project_virtual_directory(project: Project, directory: typing.Optional[
     return sorted(list(sources_in_directory(directory, sources, auth_tokens)))
 
 
-def path_entry_iterator(path: str = '') -> typing.Iterable[PathEntry]:
+def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[PathEntry]:
     """
     Iterator to generate `PathEntry` objects, a tuple containing the current item name and the path to that item
     (including the item). The first entry is always /.
@@ -144,6 +144,7 @@ def path_entry_iterator(path: str = '') -> typing.Iterable[PathEntry]:
     PathEntry('bar', 'foo/bar')
     PathEntry('baz', 'foo/bar/baz')
     """
+    path = path or ''
     yield PathEntry('Files', '')
 
     if path:

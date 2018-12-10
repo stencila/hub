@@ -1,5 +1,5 @@
 from operator import attrgetter
-from unittest import mock, SkipTest
+from unittest import mock
 
 from django.test import TestCase
 
@@ -330,26 +330,24 @@ class DirectoryListingTest(TestCase):
                           DirectoryEntryType.LINKED_SOURCE, DirectoryEntryType.FILE, DirectoryEntryType.FILE],
                          list(map(attrgetter('type'), sorted_entries)))
 
-    @SkipTest
     def test_path_entry_iterator_no_directory(self):
         """Calling `path_entry_iterator` with None or '' argument should yield just the root `PathEntry`."""
-        path_entries = list(path_entry_iterator())
+        path_entries = list(path_entry_iterator(None))
         self.assertEqual(1, len(path_entries))
         self.assertEqual('', path_entries[0].path)
         self.assertEqual('Files', path_entries[0].name)
 
-        path_entries = list(path_entry_iterator())
+        path_entries = list(path_entry_iterator(''))
         self.assertEqual(1, len(path_entries))
         self.assertEqual('', path_entries[0].path)
         self.assertEqual('Files', path_entries[0].name)
 
-    @SkipTest
     def test_path_entry_iterator_single_level(self):
         """
         Calling `path_entry_iterator` with a single directory argument should yield the root `PathEntry` and the one
         directory.
         """
-        path_entries = list(path_entry_iterator())
+        path_entries = list(path_entry_iterator('dir'))
         self.assertEqual(2, len(path_entries))
 
         self.assertEqual('', path_entries[0].path)
@@ -358,13 +356,12 @@ class DirectoryListingTest(TestCase):
         self.assertEqual('dir', path_entries[1].path)
         self.assertEqual('dir', path_entries[1].name)
 
-    @SkipTest
     def test_path_entry_iterator_multi_level(self):
         """
         Calling `path_entry_iterator` with a multi-level directory argument should yield the root `PathEntry` and all
         other directories.
         """
-        path_entries = list(path_entry_iterator())
+        path_entries = list(path_entry_iterator('dir/level2/level3/foo'))
         self.assertEqual(5, len(path_entries))
 
         self.assertEqual('', path_entries[0].path)

@@ -45,7 +45,7 @@ class GitHubFacade(object):
             self._repository = self.github_connector.get_repo(self.repository_path)
         return self._repository
 
-    def list_directory(self, relative_path: str) -> typing.List[typing.Tuple[str, bool]]:
+    def list_directory(self, relative_path: str) -> typing.Iterable[typing.Tuple[str, bool]]:
         while relative_path.endswith('/'):
             relative_path = relative_path[:-1]
 

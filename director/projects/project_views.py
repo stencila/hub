@@ -259,7 +259,7 @@ class ProjectFilesView(ProjectSourceBrowseBase):
 
 
 class ProjectSourceBrowse(ProjectSourceBrowseBase):
-    def get(self, request: HttpRequest, pk: int, source_id: int,
+    def get(self, request: HttpRequest, pk: int, source_id: int,  # type:ignore
             path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
 

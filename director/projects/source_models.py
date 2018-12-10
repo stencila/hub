@@ -12,6 +12,8 @@ from polymorphic.models import PolymorphicModel
 
 
 class MimeTypeFromPathMixin(object):
+    path: str
+
     @property
     def mimetype(self) -> str:
         mimetype, encoding = mimetypes.guess_type(self.path, False)
