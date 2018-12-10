@@ -10,7 +10,7 @@ services:
 
 install:
   # Setup a development virtual environment
-  - make director-venv
+  - make director-venv-dev
 
 before_script:
   # Download Codeclimate test reporter
