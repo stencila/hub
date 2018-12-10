@@ -134,19 +134,21 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
         return repo_path
 
     def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+        self.perform_project_fetch(request.user, project_pk)
+
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
         source = self.get_source(request.user, project_pk, pk)
 
         content_facade = SourceContentFacade(source, request, path)
-        commit_message = request.POST.get('commit_message', self.get_default_commit_message(request))
+        commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
         if not content_facade.update_github_source_content(request.POST['file_content'], commit_message):
             return self.render(request, content_facade.get_edit_context(), {
                 'default_commit_message': commit_message or self.get_default_commit_message(request)
             })
 
-        messages.success(request, 'Content of {} updated.'.format(source.path))
+        messages.success(request, 'Content of {} updated.'.format(os.path.basename(path)))
 
         directory = dirname(path)
 
