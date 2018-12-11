@@ -144,7 +144,7 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
 
         content_facade = SourceContentFacade(source, request, path)
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
-        if not content_facade.update_github_source_content(request.POST['file_content'], commit_message):
+        if not content_facade.update_content(request.POST['file_content'], commit_message):
             return self.render(request, content_facade.get_edit_context(), {
                 'default_commit_message': commit_message or self.get_default_commit_message(request)
             })

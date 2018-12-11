@@ -124,14 +124,14 @@
         </tr>
         <tr>
             <th>Type</th>
-            <th>Path</th>
+            <th>Browse</th>
             <th>Source</th>
-            <th>Open with&hellip;</th>
+            <th>Open</th>
             <th>Updated</th>
             <th></th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="file_list_body">
         {% for directory_entry in items %}
             <tr>
                 <td>
@@ -142,9 +142,13 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if directory_entry.is_directory %}
                     <a href="{% source_path project directory_entry %}">
+                    {% endif %}
                         {{ directory_entry.name }}
+                    {% if directory_entry.is_directory %}
                     </a>
+                    {% endif %}
                 </td>
 
                 <td>
@@ -156,9 +160,9 @@
                 <td>
                     {% if not directory_entry.is_directory %}
                         <div class="select">
-                            <select>
-                                <option>Code editor</option>
-                                <option>Texture+</option>
+                            <select @change="editorSelectChange">
+                                <option>Open with&hellip;</option>
+                                <option data-editor-url="{% source_path project directory_entry %}">Code editor</option>
                             </select>
                         </div>
                     {% endif %}
@@ -182,6 +186,24 @@
         <tbody>
     </table>
     <script type="text/javascript">
+      new Vue({
+        el: '#file_list_body',
+        methods: {
+          editorSelectChange(e) {
+            const select = e.target
+            const selectedIndex = select.selectedIndex
+
+            if (selectedIndex === 0)
+              return;
+
+            const selectedOption = select.options[selectedIndex];
+
+            window.location = selectedOption.getAttribute('data-editor-url');
+          }
+        }
+      })
+
+
       new Vue({
         el: '#link',
         data: {active: false}
