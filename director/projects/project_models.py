@@ -27,8 +27,6 @@ def generate_project_token(project: 'Project') -> str:
 
 
 class Project(models.Model):
-    """A project."""
-
     account = models.ForeignKey(
         Account,
         on_delete=models.PROTECT,
@@ -157,7 +155,7 @@ class Project(models.Model):
         return Project.get_or_create_from_address(address, creator)
 
     def get_name(self):
-        """A temporary implementation of a name property which is likely to be replaced by a db field in future."""
+        """Temporary implementation of a name property which is likely to be replaced by a db field in future."""
         return self.name or 'Unnamed'
 
     def get_first_source(self) -> Source:

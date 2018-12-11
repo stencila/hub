@@ -33,7 +33,7 @@ class SessionStatus(enum.Enum):
 class SessionManager(models.Manager):
     def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
         """
-        Helper method for retrieving `Session`s with a particular `SessionStatus`.
+        Retrieve `Session`s with a particular `SessionStatus`.
 
         Since the `status` attribute is dynamically updated.
         It is based on when the `Session` was polled, stopped or started.
@@ -72,7 +72,8 @@ class SessionManager(models.Manager):
 
 
 class Session(models.Model):
-    """An execution Session."""
+    """A session that is being executed on a (remote) Stencila host."""
+
     objects = SessionManager()
 
     project = models.ForeignKey(
@@ -191,7 +192,8 @@ class SessionParameters(models.Model):
 
 
 class SessionRequest(models.Model):
-    """A request to queue the creation of a `Session`.
+    """
+    A request to queue the creation of a `Session`.
 
     For when the `Project` already has the maximum number of sessions running (`sessions_concurrent`).
     """

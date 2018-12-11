@@ -3,7 +3,7 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="https://www.iubenda.com//assets/privacy_policy-474d8657e20b2d06a569c0471da4c0c6.js" type="text/javascript"></script>
+<script src="https://www.iubenda.com/assets/privacy_policy-474d8657e20b2d06a569c0471da4c0c6.js" type="text/javascript"></script>
 <script type="text/javascript">
   function tryFunc(fName,args){
     if(typeof window[fName]==='function'){
@@ -20,11 +20,36 @@
     return false; /* inhibit default behaviour */
   }
 </script>
+<script type="text/javascript">
+
+   var privacyPolicy = new PrivacyPolicy({
+     id:1350097,
+     noBrand:false
+   })
+
+   $(document).ready(function() {
+
+     privacyPolicy.start();
+
+     $(".expand-content").hide();
+     $(".expand").addClass("collapsed");
+     $(".expand .expand-click").click(function () {
+       $(this).parents(".expand").toggleClass("collapsed");
+       $(this).parents(".expand").toggleClass("expanded");
+       $(this).parents(".expand-item").toggleClass("hover");
+       $(this).children('.icon-17').toggleClass("icon-expand");
+       $(this).children('.icon-17').toggleClass("icon-collapse");
+       $(this).parents('.expand').children('.expand-content').slideToggle("fast");
+     });
+
+   });
+
+ </script>
 {% endblock %}
 
 {% block styles %}
 {{ block.super }}
-<link href="https://www.iubenda.com/assets/privacy_policy-9c48f81f3e4ab1916759292b967b4c60.css"  rel="stylesheet" type="text/css" />
+<link href="https://www.iubenda.com/assets/privacy_policy-9c48f81f3e4ab1916759292b967b4c60.css" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block title %} Privacy Policy {% endblock %}

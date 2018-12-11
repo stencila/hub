@@ -15,9 +15,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
 
     def archive(self, project):
-        """
-        Link to an archive of the project
-        """
+        """Link to an archive of the project."""
         url = reverse('project_archive', args=[project.id])
         return format_html('<a href="{}">Archive</a>'.format(url))
 

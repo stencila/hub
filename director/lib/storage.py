@@ -6,9 +6,12 @@ from storages.utils import setting
 
 class CustomPublicGoogleCloudStorage(GoogleCloudStorage):
     """
-    Override the `write` method of `GoogleCloudStorage` to set the paths that match a glob in the
-    `GS_PUBLIC_READABLE_PATHS` setting list to readable after upload
+    Override the `_save` method of `GoogleCloudStorage` to set readable permission after upload.
+
+    This is for objects that should be world readable, e.g. avatar images.
+    The paths are those that match the `GS_PUBLIC_READABLE_PATHS` setting  glob.:w
     """
+
     public_readable_paths = setting('GS_PUBLIC_READABLE_PATHS', [])
 
     def _save(self, name, content):

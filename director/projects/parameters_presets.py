@@ -1,6 +1,4 @@
-"""
-Simple method of defining presets for selection of `SessionParameters` of a `Project`
-"""
+"""Simple method of defining presets for selection of `SessionParameters` of a `Project`."""
 
 parameters_presets = [
     {

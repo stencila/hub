@@ -69,9 +69,7 @@ class AccountListView(LoginRequiredMixin, ListView):
     template_name = "accounts/account_list.html"
 
     def get_queryset(self) -> QuerySet:
-        """
-        Only list those accounts that the user is a member of
-        """
+        """Only list those accounts that the user is a member of."""
         return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
 
 
@@ -213,10 +211,7 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
     template_name = 'accounts/account_create.html'
 
     def form_valid(self, form):
-        """
-        If the account creation form is valid them make the current user the
-        account creator
-        """
+        """If the account creation form is valid them make the current user the account creator."""
         self.object = form.save()
         admin_role = AccountRole.objects.get(name='Account admin')
         AccountUserRole.objects.create(role=admin_role, account=self.object, user=self.request.user)

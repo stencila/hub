@@ -1,5 +1,6 @@
 import json
 import typing
+from os.path import join
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -14,11 +15,12 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
+from lib.github_facade import GitHubFacade, user_github_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
-from projects.source_models import Source
+from projects.source_models import Source, GithubSource, FileSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator
 from users.views import BetaTokenRequiredMixin
 from .models import Project
@@ -168,10 +170,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = "projects/project_create.html"
 
     def get_form_kwargs(self):
-        """
-        Pass to request through to the form so it can generate
-        a set of accounts the user can use
-        """
+        """Pass the request through to the form so it can generate a set of accounts the user can use."""
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
 
@@ -184,10 +183,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        """
-        If the project creation form is valid them make the current user the
-        project creator
-        """
+        """If the project creation form is valid them make the current user the project creator."""
         self.object = form.save(commit=False)
         self.object.creator = self.request.user
         self.object.save()
@@ -208,20 +204,79 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
         return context
 
 
-class ProjectFilesView(ProjectPermissionsMixin, View):
+def get_linked_sources_for_project(project: Project) -> typing.Iterable[Source]:
+    return filter(lambda s: not isinstance(s, FileSource), project.sources.all())
+
+
+class ProjectSourceBrowseBase(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
+    def post(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
+        self.perform_project_fetch(request.user, pk)
+        if not self.has_permission(ProjectPermissionType.EDIT):
+            raise PermissionDenied
+
+        if request.POST.get('action') == 'unlink_source':
+            source = self.get_source(request.user, pk, request.POST.get('source_id'))
+
+            if isinstance(source, FileSource):
+                raise TypeError("Can't unlink a File source")
+
+            source_description = str(source)
+
+            source.delete()
+
+            messages.success(request, "'{}' was unlinked.".format(source_description))
+
+        return redirect(request.path)
+
+
+class ProjectFilesView(ProjectSourceBrowseBase):
     def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
 
         self.test_required_project_permission()
 
-        directory_items = list_project_virtual_directory(self.project, path)
+        directory_items = list_project_virtual_directory(self.project, path, {
+            GithubSource.provider_name: user_github_token(request.user)
+        })
 
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
+                'linked_sources': get_linked_sources_for_project(self.project),
                 'current_directory': path or '',
                 'breadcrumbs': path_entry_iterator(path),
+                'items': directory_items,
+                'inside_remote_source': False
+            })
+                      )
+
+
+class ProjectSourceBrowse(ProjectSourceBrowseBase):
+    def get(self, request: HttpRequest, pk: int, source_id: int,  # type:ignore
+            path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
+        self.perform_project_fetch(request.user, pk)
+
+        self.test_required_project_permission()
+
+        source = get_object_or_404(Source, pk=source_id)
+        if self.project != source.project:
+            raise PermissionDenied
+
+        if isinstance(source, GithubSource):
+            github = GitHubFacade(source.repo, user_github_token(request.user))
+            directory_items = github.list_directory(join(source.subpath, path or ''))
+        else:
+            raise TypeError("Don't know how to list directory for {}".format(type(source)))
+
+        current_virtual_path = join(source.path, path) if path else source.path
+
+        return render(request, 'projects/project_files.html', self.get_render_context(
+            {
+                'linked_sources': get_linked_sources_for_project(self.project),
+                'inside_remote_source': True,
+                'current_directory': path or '',
+                'breadcrumbs': path_entry_iterator(current_virtual_path),
                 'items': directory_items
             })
                       )

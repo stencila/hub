@@ -1,7 +1,4 @@
-"""
-Views that implement some of the Stencila Host API endpoints
-for a project
-"""
+"""Views that implement some of the Stencila Host API endpoints for a project."""
 import typing
 
 from django.conf import settings

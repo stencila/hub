@@ -122,6 +122,7 @@ class AgentType(enum.Enum):
 
 class ProjectAgentRole(models.Model):
     """Model connecting `Users` or `Teams` (`Agents`) with their `Roles` (permissions) in the `Project`."""
+
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.DO_NOTHING

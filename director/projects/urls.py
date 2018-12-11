@@ -6,7 +6,8 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveView, ProjectDeleteView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
-                                   GithubSourceCreateView, SourceOpenView, SourceUpdateView, SourceDeleteView)
+                                   GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
+                                   FileSourceDeleteView)
 
 urlpatterns = [
     # Generic views
@@ -24,12 +25,13 @@ urlpatterns = [
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
 
-    path('<int:project_pk>/files/<int:pk>/open', SourceOpenView.as_view(), name='source_open'),
-    path('<int:project_pk>/files/<int:pk>/update', SourceUpdateView.as_view(), name='source_update'),
-    path('<int:project_pk>/files/<int:pk>/delete', SourceDeleteView.as_view(), name='source_delete'),
+    path('<int:project_pk>/files/<int:pk>/open/<path:path>', FileSourceOpenView.as_view(), name='file_source_open'),
+    path('<int:project_pk>/files/<int:pk>/update', FileSourceUpdateView.as_view(), name='source_update'),
+    path('<int:project_pk>/files/<int:pk>/delete', FileSourceDeleteView.as_view(), name='source_delete'),
 
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),
+    path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
     path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
     path('<int:pk>/settings/metadata', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
