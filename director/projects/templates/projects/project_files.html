@@ -171,7 +171,7 @@
                 <td>{{ directory_entry.source.updated|naturaltime }}</td>
 
                 <td>
-                    {% if not directory_entry.is_directory %}
+                    {% if directory_entry.source.type == 'filesource' and not directory_entry.is_directory %}
                         <a class="icon" href="{% url 'source_update' project.pk directory_entry.source.id %}">
                             <i class="fas fa-cog"></i>
                         </a>

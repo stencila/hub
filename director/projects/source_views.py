@@ -23,6 +23,11 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
 
     project_permission_required = ProjectPermissionType.EDIT
 
+    def get_initial(self):
+        return {
+            'project': get_object_or_404(Project, pk=self.kwargs['pk'])
+        }
+
     def form_valid(self, form):
         """Override to set the project for the `Source` and redirect back to that project."""
         pk = self.kwargs['pk']

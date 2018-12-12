@@ -42,6 +42,9 @@ class Source(PolymorphicModel, MimeTypeFromPathMixin):
         help_text='Time this model instance was last updated'
     )
 
+    class Meta:
+        unique_together = (('project', 'path'),)
+
     def __str__(self):
         return self.path
 
