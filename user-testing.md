@@ -20,9 +20,13 @@ performing the following tasks:
    * change the avatar (profile image)
    * connect third party accounts (GitHub, Google, ORCID, Twitter)
    * removing one of the connected third party account(s)
+   * change the username
 7. Logout   
 8. Reset password (using "forgot your password" option)
 9. Log back in with the new password
 10. Logout
 11. Log in with one of the still connected third party account
 
+
+Future testing:
+- Change the username and see how long it takes for the change to propagate
