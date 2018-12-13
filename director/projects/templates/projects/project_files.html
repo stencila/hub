@@ -172,15 +172,19 @@
 
                 <td>
                     {% if directory_entry.source.type == 'filesource' and not directory_entry.is_directory %}
-                        <a class="icon" href="{% url 'source_update' project.pk directory_entry.source.id %}">
+                        <a class="icon" href="{% url 'source_update' project.pk directory_entry.source.id %}?from={{ current_directory }}">
                             <i class="fas fa-cog"></i>
                         </a>
                         <a class="icon has-text-danger"
-                           href="{% url 'source_delete' project.pk directory_entry.source.id %}">
+                           href="{% url 'source_delete' project.pk directory_entry.source.id %}?from={{ current_directory }}">
                             <i class="fas fa-trash"></i>
                         </a>
                     {% endif %}
                 </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="6">There are no items in this directory.</td>
             </tr>
         {% endfor %}
         <tbody>
@@ -196,9 +200,9 @@
             if (selectedIndex === 0)
               return;
 
-            const selectedOption = select.options[selectedIndex];
+            const selectedOption = select.options[selectedIndex]
 
-            window.location = selectedOption.getAttribute('data-editor-url');
+            window.location = selectedOption.getAttribute('data-editor-url')
           }
         }
       })

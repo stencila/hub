@@ -46,7 +46,7 @@ class Source(PolymorphicModel, MimeTypeFromPathMixin):
         unique_together = (('project', 'path'),)
 
     def __str__(self):
-        return self.path
+        return "Source {}".format(self.path)
 
     @property
     def type(self) -> typing.Type['Source']:

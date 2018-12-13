@@ -175,7 +175,12 @@ class FileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, UpdateVi
     project_permission_required = ProjectPermissionType.EDIT
 
     def get_success_url(self) -> str:
-        return reverse("project_files", kwargs={'pk': self.kwargs['project_pk']})
+        path = self.request.GET.get('from')
+
+        if path:
+            return reverse('project_files_path', kwargs={'pk': self.kwargs['project_pk'], 'path': path})
+        else:
+            return reverse('project_files', kwargs={'pk': self.kwargs['project_pk']})
 
     def get_object(self, *args, **kwargs):
         return self.get_source(self.request.user, self.kwargs['project_pk'], self.kwargs['pk'])
@@ -186,5 +191,19 @@ class FileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, DeleteVi
     template_name = 'confirm_delete.html'
     project_permission_required = ProjectPermissionType.EDIT
 
+    def get_object(self, *args, **kwargs):
+        self.perform_project_fetch(self.request.user, self.kwargs['project_pk'])
+        source = Source.objects.get(pk=self.kwargs['pk'])
+
+        if source.project != self.project:
+            raise PermissionDenied
+
+        return source
+
     def get_success_url(self) -> str:
-        return reverse("project_files", kwargs={'pk': self.kwargs['project_pk']})
+        path = self.request.GET.get('from')
+
+        if path:
+            return reverse('project_files_path', kwargs={'pk': self.kwargs['project_pk'], 'path': path})
+        else:
+            return reverse('project_files', kwargs={'pk': self.kwargs['project_pk']})

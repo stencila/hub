@@ -1,6 +1,5 @@
 import json
 import typing
-from os.path import join
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -15,7 +14,7 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
-from lib.github_facade import GitHubFacade, user_github_token
+from lib.github_facade import user_github_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
@@ -208,30 +207,9 @@ def get_linked_sources_for_project(project: Project) -> typing.Iterable[Source]:
     return filter(lambda s: not isinstance(s, FileSource), project.sources.all())
 
 
-class ProjectSourceBrowseBase(ProjectPermissionsMixin, View):
+class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def post(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, pk)
-        if not self.has_permission(ProjectPermissionType.EDIT):
-            raise PermissionDenied
-
-        if request.POST.get('action') == 'unlink_source':
-            source = self.get_source(request.user, pk, request.POST.get('source_id'))
-
-            if isinstance(source, FileSource):
-                raise TypeError("Can't unlink a File source")
-
-            source_description = str(source)
-
-            source.delete()
-
-            messages.success(request, "'{}' was unlinked.".format(source_description))
-
-        return redirect(request.path)
-
-
-class ProjectFilesView(ProjectSourceBrowseBase):
     def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
 
@@ -251,35 +229,24 @@ class ProjectFilesView(ProjectSourceBrowseBase):
             })
                       )
 
-
-class ProjectSourceBrowse(ProjectSourceBrowseBase):
-    def get(self, request: HttpRequest, pk: int, source_id: int,  # type:ignore
-            path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
+    def post(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
-
-        self.test_required_project_permission()
-
-        source = get_object_or_404(Source, pk=source_id)
-        if self.project != source.project:
+        if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
-        if isinstance(source, GithubSource):
-            github = GitHubFacade(source.repo, user_github_token(request.user))
-            directory_items = github.list_directory(join(source.subpath, path or ''))
-        else:
-            raise TypeError("Don't know how to list directory for {}".format(type(source)))
+        if request.POST.get('action') == 'unlink_source':
+            source = self.get_source(request.user, pk, request.POST.get('source_id'))
 
-        current_virtual_path = join(source.path, path) if path else source.path
+            if isinstance(source, FileSource):
+                raise TypeError("Can't unlink a File source")
 
-        return render(request, 'projects/project_files.html', self.get_render_context(
-            {
-                'linked_sources': get_linked_sources_for_project(self.project),
-                'inside_remote_source': True,
-                'current_directory': path or '',
-                'breadcrumbs': path_entry_iterator(current_virtual_path),
-                'items': directory_items
-            })
-                      )
+            source_description = str(source)
+
+            source.delete()
+
+            messages.success(request, "'{}' was unlinked.".format(source_description))
+
+        return redirect(request.path)
 
 
 class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
