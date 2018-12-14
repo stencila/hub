@@ -77,6 +77,21 @@ Now, you should be able to access the the Hub at http://localhost:3000.
 Docker containers (`stencila/hub-director`, `stencila/hub-editor`, `stencila/hub-router`) are used for deployment.
 
 
+## GitHub Issue Workflow
+
+The general issues workflow is:
+
+- Issue is raised and has `Bug` label set
+- A developer is (self) assigned to the Issue
+- Issue is fixed, and when committed/merged to master, a `Awaiting Staging Release` label is added to the Issue
+- A release is done to staging (`hub-test`)
+- The Issue's `Awaiting Staging Release` is changed to `Staging Test Required`
+- The Issue raiser tests the Issue in staging and removes the `Staging Test Required` Label
+    - If the test is successful an `Awaiting Production Release` Label is applied
+    - If the test fails, the Issue is assigned back to the developer, and the process starts again
+- After a release to production takes place, the `Awaiting Production Release` Label is removed and the `Production Test Required` Label is applied
+- The tester tests in production and then closes the Issue
+
 ## Get in touch!
 
 You can chat with the team at our [community forum][community-forum],
