@@ -104,16 +104,19 @@ class TeamMembersView(AccountPermissionsMixin, View):
             username = request.POST['name']
 
             if username:
-                user = User.objects.get(username=username)
-
-                if action == 'add_member':
-                    if user not in team.members.all():
-                        team.members.add(user)
-                        messages.success(request, "{} was added to team {}.".format(user.username, team))
-                elif action == 'remove_member':
-                    if user in team.members.all():
-                        team.members.remove(user)
-                        messages.success(request, "{} was removed from team {}.".format(user.username, team))
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    messages.error(request, 'User "{}" does not exist.'.format(username))
+                else:
+                    if action == 'add_member':
+                        if user not in team.members.all():
+                            team.members.add(user)
+                            messages.success(request, "{} was added to team {}.".format(user.username, team))
+                    elif action == 'remove_member':
+                        if user in team.members.all():
+                            team.members.remove(user)
+                            messages.success(request, "{} was removed from team {}.".format(user.username, team))
 
         return redirect(reverse('account_team_members', args=(account_pk, team_pk)))
 
