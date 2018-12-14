@@ -282,6 +282,7 @@ class Dev(Common):
         '--cover-package=projects.cloud_session_controller',
         '--cover-package=projects.project_host_views',
         '--cover-package=projects.source_operations',
+        '--cover-package=projects.source_forms',
         '--cover-html',
         '--cover-html-dir=' + os.path.join(Common.BASE_DIR, 'coverage'),
         '--cover-xml',
