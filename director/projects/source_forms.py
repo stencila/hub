@@ -99,9 +99,9 @@ class GithubSourceForm(ModelFormWithSubmit):
         repo_match = re.match(r"^((github\.com/)|/)?([a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38})/([\w_-]+)/?$",
                               github_url.path, re.I)
 
-        repo_match = typing.cast(typing.Match, repo_match)
-
         if not repo_match:
             self.raise_repo_validation_error(repo)
+
+        repo_match = typing.cast(typing.Match, repo_match)
 
         return '{}/{}'.format(repo_match[3], repo_match[4])
