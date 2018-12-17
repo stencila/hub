@@ -81,7 +81,7 @@
                     <div class="panel-block">
                         <div class="media">
                             <div class="media-content">
-                                <p class="title is-6">{{ team.name }}</p>
+                                <p class="title is-6"><a href="{% url 'account_team_detail' account.pk team.pk %}">{{ team.name }}</a></p>
                             </div>
                         </div>
                     </div>
