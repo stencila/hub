@@ -85,9 +85,12 @@ class TeamMembersView(AccountPermissionsMixin, View):
         self.perform_account_fetch(request.user, account_pk)
         team = fetch_team_for_account(self.account, team_pk)
 
+        current_members = list(map(lambda u: u.username, team.members.all()))
+
         return render(request, "accounts/team_members.html", self.get_render_context({
             "account": self.account,
-            "team": team
+            "team": team,
+            "current_members": json.dumps(current_members)
         }))
 
     def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
