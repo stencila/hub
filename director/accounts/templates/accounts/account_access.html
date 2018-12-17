@@ -28,7 +28,7 @@
                 {% csrf_token %}
                 <div class="columns">
                     <div class="column">
-                        <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
+                        <user-autocomplete @username-selected="usernameSelected" :skip-results="currentUsers"></user-autocomplete>
                     </div>
                     <div class="column">
                         <div class="field">
@@ -102,6 +102,7 @@
                 deleteRoleId: null,
                 deleteRoleUsername: null,
                 selectedUsername: "",
+                currentUsers: JSON.parse("{{ current_usernames|escapejs }}"),
                 accessRoles: JSON.parse("{{ access_roles_map|escapejs }}")
             },
             methods: {

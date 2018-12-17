@@ -106,12 +106,15 @@ class AccountAccessView(AccountPermissionsMixin, View):
 
         access_roles_map = {access_role.pk: access_role.role.pk for access_role in access_roles}
 
+        current_usernames = list(map(lambda ar: ar.user.username, access_roles))
+
         return render(request, 'accounts/account_access.html', self.get_render_context({
             'account': self.account,
             'access_roles': access_roles,
             'access_roles_map': json.dumps(access_roles_map),
             'all_roles': all_roles,
-            'USER_ROLE_ID_PREFIX': USER_ROLE_ID_PREFIX
+            'USER_ROLE_ID_PREFIX': USER_ROLE_ID_PREFIX,
+            'current_usernames': json.dumps(current_usernames)
         }))
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:

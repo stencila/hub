@@ -12,8 +12,16 @@ Vue.component('user-autocomplete', {
         '            </b-autocomplete>\n' +
         '        </b-field>',
     delimiters: ['[[', ']]'],
+    props: {
+        'skipResults': {
+            type: Array,
+            required: false,
+            default: []
+        }
+    },
     data() {
         return {
+            skipResults: [],
             data: [],
             nameSearch: '',
             selected: null,
@@ -47,6 +55,8 @@ Vue.component('user-autocomplete', {
             }).then(data => {
                 this.data = data.map((item) => {
                     return item.username
+                }).filter((username) => {
+                    return this.skipResults.indexOf(username) === -1;
                 })
             })
         },
