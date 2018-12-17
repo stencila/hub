@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Project {{ project.pk }} : Overview{% endblock %}
+{% block title %}{{ project.name }} : Overview{% endblock %}
 
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="overview" %}

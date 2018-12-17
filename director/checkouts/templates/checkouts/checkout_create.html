@@ -1,14 +1,19 @@
 {% extends 'base.html' %}
-
+{% block title %}Checkout{% if project %} : {{ project.name }}{% endif %}{% endblock %}
 {% block content %}
 <div id="checkout" class="container" style="max-width: 30em">
     <form @submit.prevent>
+        {% if project %}
+            <h3 class="subtitle is-3">{{ project.name }}</h3>
+            <input class="input" type="hidden" v-model="project" @input="error = null">
+        {% else %}
         <div class="field">
             <div class="control">
                 <label class="label">Project</label>
                 <input class="input" type="text" placeholder="Project address e.g. github://user/repo/folder" v-model="project" @input="error = null">
             </div>
         </div>
+        {% endif %}
         <div class="notification is-danger" v-cloak="error" v-if="error">
             <p>[[ error.message ]].</p>
             <p v-if="error.type === 'exists'">

@@ -1,12 +1,15 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View, ListView
 
+from projects.permission_facade import fetch_project_for_user
+from projects.permission_models import ProjectPermissionType
 from .models import Checkout, CheckoutCreateError
 
 
@@ -20,7 +23,16 @@ class CheckoutCreateView(LoginRequiredMixin, View):
     template_name = 'checkouts/checkout_create.html'
 
     def get(self, request):
-        return render(request, self.template_name)
+        if 'project' in request.GET:
+            project_fetch_result = fetch_project_for_user(request.user, request.GET['project'])
+
+            if ProjectPermissionType.VIEW not in project_fetch_result.agent_permissions:
+                raise PermissionDenied
+            project = project_fetch_result.project
+        else:
+            project = None
+
+        return render(request, self.template_name, {'project': project})
 
     def post(self, request):
         data = json.loads(request.body)
