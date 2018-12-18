@@ -221,7 +221,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
-                'linked_sources': get_linked_sources_for_project(self.project),
+                'linked_sources': list(get_linked_sources_for_project(self.project)),
                 'current_directory': path or '',
                 'breadcrumbs': path_entry_iterator(path),
                 'items': directory_items,
