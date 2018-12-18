@@ -2,38 +2,41 @@
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>{% block title %}{% endblock %} : Stencila</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.png' %}">
-    {% block styles %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    {% endblock %}
-    {% block scripts %}
-    <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
-    <script>
-        Vue.use(Buefy.default, {
-            defaultIconPack: 'fas'
-        })
-    </script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
-    {% endblock %}
-  </head>
-  <body>
-    {% block header %}{% include "_header.html" %}{% endblock %}
-    {% block main %}
-    <main class="section">
-      <div class="container">
-        {% block content %}{% endblock %}
-      </div>
-    </main>
-    {% endblock %}
-    {% block footer %}{% include "_footer.html" %}{% endblock %}
-    {% include "_messages.html" %}
-  </body>
+
+    <head>
+        <title>{% block title %}{% endblock %} : Stencila</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+        {% block styles %}
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+        <!-- <link rel="stylesheet" href="{% static 'css/base.css' %}"> -->
+        {% endblock %}
+        {% block scripts %}
+        <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
+        <script>
+            Vue.use(Buefy.default, {
+                defaultIconPack: 'fas'
+            })
+        </script>
+        <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}"> -->
+        {% endblock %}
+    </head>
+
+    <body class="has-navbar-fixed-top has-navbar-fixed-top-touch">
+        {% block header %}{% include "_header.html" %}{% endblock %}
+        {% block main %}
+        <main class="section">
+            <div class="container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+        {% endblock %}
+        {% block footer %}{% include "_footer.html" %}{% endblock %}
+        {% include "_messages.html" %}
+    </body>
+
 </html>
