@@ -48,9 +48,10 @@ def list_linked_source_directory(source: Source, path_in_source: str, facade: ty
             raise TypeError("Can't list GitHub without a GitHubFacade passed in.")
 
         full_repository_path = os.path.join(source.subpath, path_in_source)
-        for name, is_directory in facade.list_directory(full_repository_path):
+        for name, is_directory, modification_date in facade.list_directory(full_repository_path):
             entry_type = DirectoryEntryType.DIRECTORY if is_directory else DirectoryEntryType.FILE
-            yield DirectoryListEntry(name, os.path.join(source.path, path_in_source, name), entry_type, source)
+            yield DirectoryListEntry(name, os.path.join(source.path, path_in_source, name), entry_type, source,
+                                     modification_date)
     else:
         raise TypeError("Don't know how to list directory for source type {}".format(type(source)))
 

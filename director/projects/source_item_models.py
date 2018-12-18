@@ -1,6 +1,7 @@
 import enum
 import functools
 import typing
+from datetime import datetime
 
 from projects.source_models import MimeTypeFromPathMixin, Source
 
@@ -32,12 +33,15 @@ class DirectoryListEntry(MimeTypeFromPathMixin):
     path: str
     type: DirectoryEntryType
     source: Source
+    _modification_date: typing.Optional[datetime]
 
-    def __init__(self, name: str, path: str, entry_type: DirectoryEntryType, source: Source) -> None:
+    def __init__(self, name: str, path: str, entry_type: DirectoryEntryType, source: Source,
+                 modification_date: typing.Optional[datetime] = None) -> None:
         self.name = name
         self.path = path
         self.type = entry_type
         self.source = source
+        self._modification_date = modification_date
 
     def __lt__(self, other) -> bool:
         if type(self) != type(other):
@@ -54,6 +58,12 @@ class DirectoryListEntry(MimeTypeFromPathMixin):
     @property
     def is_directory(self) -> bool:
         return self.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE)
+
+    @property
+    def modification_date(self) -> datetime:
+        if self._modification_date is not None:
+            return self._modification_date
+        return self.source.updated
 
 
 class PathEntry(typing.NamedTuple):

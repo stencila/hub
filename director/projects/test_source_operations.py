@@ -1,3 +1,4 @@
+import datetime
 from operator import attrgetter
 from unittest import mock
 
@@ -106,10 +107,13 @@ class LinkedSourceDirectoryListTest(TestCase):
         Listing a github source should create a `DirectoryListEntry` for each item returned by
         `GitHubFacade.list_directory`.
         """
+        file_edit_date = datetime.datetime(2019, 12, 25, 10, 5, 4)
+        directory_edit_date = datetime.datetime(2018, 10, 4, 6, 2, 1)
+
         facade = mock.MagicMock()
         facade.list_directory.return_value = [
-            ('file', False),
-            ('directory', True)
+            ('file', False, file_edit_date),
+            ('directory', True, directory_edit_date)
         ]
 
         source = GithubSource()
@@ -125,11 +129,13 @@ class LinkedSourceDirectoryListTest(TestCase):
         self.assertIsInstance(entries[0], DirectoryListEntry)
         self.assertEqual(DirectoryEntryType.FILE, entries[0].type)
         self.assertEqual('mapped/any/path/file', entries[0].path)
+        self.assertEqual(file_edit_date, entries[0].modification_date)
         self.assertEqual(source, entries[0].source)
 
         self.assertIsInstance(entries[1], DirectoryListEntry)
         self.assertEqual(DirectoryEntryType.DIRECTORY, entries[1].type)
         self.assertEqual('mapped/any/path/directory', entries[1].path)
+        self.assertEqual(directory_edit_date, entries[1].modification_date)
         self.assertEqual(source, entries[1].source)
 
 

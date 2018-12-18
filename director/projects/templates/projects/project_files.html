@@ -168,7 +168,7 @@
                     {% endif %}
                 </td>
 
-                <td>{{ directory_entry.source.updated|naturaltime }}</td>
+                <td>{{ directory_entry.modification_date|naturaltime }}</td>
 
                 <td>
                     {% if directory_entry.source.type == 'filesource' and not directory_entry.is_directory %}

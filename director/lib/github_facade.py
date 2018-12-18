@@ -1,5 +1,7 @@
 import typing
+from datetime import datetime
 
+import pytz
 from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from django.contrib.auth.models import User
 from github import Github
@@ -45,13 +47,14 @@ class GitHubFacade(object):
             self._repository = self.github_connector.get_repo(self.repository_path)
         return self._repository
 
-    def list_directory(self, relative_path: str) -> typing.Iterable[typing.Tuple[str, bool]]:
+    def list_directory(self, relative_path: str) -> typing.Iterable[typing.Tuple[str, bool, datetime]]:
         while relative_path.endswith('/'):
             relative_path = relative_path[:-1]
 
         contents = self.repository.get_contents(relative_path)
         for content in contents:
-            yield content.name, content.type == 'dir'
+            last_modified = datetime.strptime(content.last_modified, '%a, %d %b %Y %H:%M:%S GMT')
+            yield content.name, content.type == 'dir', last_modified.replace(tzinfo=pytz.UTC)
 
     def get_file_content(self, relative_path: str) -> str:
         f = self.repository.get_contents(relative_path)
