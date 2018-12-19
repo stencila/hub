@@ -295,7 +295,7 @@ class Dev(Common):
 
 
 class Prod(Common):
-    """Configuration settings used in production."""
+    """Configuration settings used in production (and staging)."""
 
     # Ensure debug is always false in production
     DEBUG = False
@@ -307,6 +307,12 @@ class Prod(Common):
     # In production, use wildcard because load balancers
     # perform health checks without host specific Host header value
     ALLOWED_HOSTS = ['*']
+
+    # It is being run behind Google Cloud Load Balancer, so look for this header
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    # enforce HTTPS
+    SECURE_SSL_REDIRECT = True
 
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
