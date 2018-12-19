@@ -55,7 +55,7 @@ class FileSourceForm(ModelFormWithSubmit):
 
 
 class SourceUpdateForm(ModelForm):
-    path = forms.RegexField(regex=r'^[^/][A-Za-z\-/\.]+[^/]$', widget=forms.TextInput,
+    path = forms.RegexField(regex=r'^[^/][A-Za-z0-9\-/\.]+[^/]$', widget=forms.TextInput,
                             error_messages={'invalid': 'The path must not contain spaces, or start or end with a /'})
 
     class Meta:
@@ -63,8 +63,10 @@ class SourceUpdateForm(ModelForm):
         fields = ('path',)
 
     def clean(self):
-        validate_unique_project_path(self.instance.project, self.cleaned_data['path'], self.instance.pk)
-        return super().clean()
+        cleaned_data = super().clean()
+        if 'path' in cleaned_data:  # it might not be, if the form is not valid then cleaned_data will be an empty dict
+            validate_unique_project_path(self.instance.project, cleaned_data['path'], self.instance.pk)
+        return cleaned_data
 
 
 class GithubSourceForm(ModelFormWithSubmit):
