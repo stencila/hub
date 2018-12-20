@@ -12,7 +12,66 @@
         
         .button
             margin-bottom: 0
+    
+    .container
+        @include until($desktop)
+            flex-direction: row
+    
+    .dropdown.is-new-menu
+        .dropdown-content
+            &:before
+                @include until($desktop)
+                    left: auto
+                    right: rem(7)
+                    transform: translate3d(0, 0, 0)
+                    
+                    
+        .dropdown-divider
+            margin-top: 0
+            
+            + .dropdown-item
+                padding-top: 2px
+                
+        .dropdown-item
+            &.no-hover
+                &:hover
+                    &:before
+                        display: none
+                        
+                    background-color: $white
+            .button
+                margin: auto
+                
+    .dropdown-menu
+        @include until($desktop)
+            left: auto
+            right: 0
+            transform: translate3d(0, 0, 0)
+            
+        &.is-active
+            display: block
             
     .hamburger
         &:focus
             outline: none
+            
+    .navbar-brand
+        @include until($desktop)
+            flex-grow: 1
+    
+    .navbar-end
+        @include until($desktop)
+            margin-bottom: 0
+            max-height: 100%
+
+    .navbar-menu
+        @include until($desktop)
+            box-shadow: none
+            display: flex
+            overflow: visible !important
+            max-height: 100% !important
+            height: auto
+            flex-grow: 1
+            justify-content: flex-end
+            margin-right: rem(20) !important
+            

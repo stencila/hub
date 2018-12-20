@@ -8,17 +8,12 @@
                     <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
                     <span style="margin: 0 0.5em; font-size: 1rem; line-height: 1em;">Beta</span>
                 </a>
-                <div class="navbar-burger" @click="active = !active" :class="{ 'is-active':active }">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
             </div>
             <div class="navbar-menu" :class="{ 'is-active':active }">
                 <div class="navbar-start">
                 </div>
                 <div class="navbar-end is-flex align-centre">
-                    <button class="button is-square is-rounded is-borderless has-background-primary has-text-white">
+                    <button class="button is-square is-rounded is-borderless is-light">
                         <span class="icon is-small">
                             <i class="fas fa-plus"></i>
                         </span>
@@ -32,13 +27,13 @@
                     <div class="has-dropdown">
                         <div class="dropdown is-new-menu">
                             <div class="dropdown-trigger">
-                                <button class="hamburger hamburger--squeeze" type="button">
+                                <button class="hamburger hamburger--minus" type="button">
                                     <span class="hamburger-box">
                                         <span class="hamburger-inner"></span>
                                     </span>
                                 </button>
                             </div>
-                            <div class="dropdown-menu" id="dropdown-menu is-active" role="menu">
+                            <div class="dropdown-menu" id="dropdown-menu" role="menu">
                                 <div class="dropdown-content">
                                     <header class="is-flex">
                                         <figure class="logo image is-24x24">
@@ -54,7 +49,11 @@
                                         <a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Admin site</a>
                                         {% endif %}
                                         <a class="dropdown-item" href="{% url 'user_settings' %}">Settings</a>
-                                        <a class="dropdown-item" href="{% url 'user_signout' %}">Sign out</a>
+                                        <hr class="dropdown-divider">
+                                        <div class="dropdown-item no-hover is-flex">
+                                            <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signout' %}">Sign out</a>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
