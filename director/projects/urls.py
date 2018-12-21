@@ -7,7 +7,7 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectArchiveView, ProjectDeleteView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
-                                   FileSourceDeleteView)
+                                   FileSourceDeleteView, TempCheckoutView)
 
 urlpatterns = [
     # Generic views
@@ -28,6 +28,7 @@ urlpatterns = [
     path('<int:project_pk>/files/<int:pk>/open/<path:path>', FileSourceOpenView.as_view(), name='file_source_open'),
     path('<int:project_pk>/files/<int:pk>/update', FileSourceUpdateView.as_view(), name='source_update'),
     path('<int:project_pk>/files/<int:pk>/delete', FileSourceDeleteView.as_view(), name='source_delete'),
+    path('<int:project_pk>/temp-checkout-view', TempCheckoutView.as_view(), name='temp_checkout_view'),
 
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),

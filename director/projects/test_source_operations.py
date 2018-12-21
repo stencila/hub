@@ -5,7 +5,7 @@ from unittest import mock
 from django.test import TestCase
 
 from projects.source_item_models import DirectoryListEntry, DirectoryEntryType
-from projects.source_models import Source, FileSource, GithubSource
+from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication
 from projects.source_operations import sources_in_directory, path_entry_iterator, normalise_path, \
     path_is_in_directory, strip_directory, determine_entry_type, list_linked_source_directory, \
     IncorrectDirectoryException, iterate_github_source, make_directory_entry
@@ -270,9 +270,7 @@ class SourcesInDirectoryTest(TestCase):
             github_source_1, file_source_1, github_source_2, file_source_2, github_source_3, file_source_3
         ]
 
-        dir_list = list(sources_in_directory('good/path', sources, {
-            GithubSource.provider_name: 'abc123'
-        }))
+        dir_list = list(sources_in_directory('good/path', sources, LinkedSourceAuthentication('abc123')))
 
         mock_igs.assert_any_call('good/path', github_source_1, mock_ghf_init.return_value)
         mock_igs.assert_any_call('good/path', github_source_2, mock_ghf_init.return_value)

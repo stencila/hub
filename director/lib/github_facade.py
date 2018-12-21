@@ -27,6 +27,12 @@ def user_github_token(user: User) -> typing.Optional[str]:
     return token.token
 
 
+class GithubDirectoryEntry(typing.NamedTuple):
+    name: str
+    is_directory: bool
+    last_modified: datetime
+
+
 class GitHubFacade(object):
     _github_connector: typing.Optional[Github] = None
     _repository: typing.Optional[Repository] = None
@@ -47,18 +53,21 @@ class GitHubFacade(object):
             self._repository = self.github_connector.get_repo(self.repository_path)
         return self._repository
 
-    def list_directory(self, relative_path: str) -> typing.Iterable[typing.Tuple[str, bool, datetime]]:
+    def list_directory(self, relative_path: str) -> typing.Iterable[GithubDirectoryEntry]:
         while relative_path.endswith('/'):
             relative_path = relative_path[:-1]
 
         contents = self.repository.get_contents(relative_path)
         for content in contents:
             last_modified = datetime.strptime(content.last_modified, '%a, %d %b %Y %H:%M:%S GMT')
-            yield content.name, content.type == 'dir', last_modified.replace(tzinfo=pytz.UTC)
+            yield GithubDirectoryEntry(content.name, content.type == 'dir', last_modified.replace(tzinfo=pytz.UTC))
 
     def get_file_content(self, relative_path: str) -> str:
+        return self.get_binary_file_content(relative_path).decode('utf8')
+
+    def get_binary_file_content(self, relative_path: str) -> bytearray:
         f = self.repository.get_contents(relative_path)
-        return f.decoded_content.decode('utf8')
+        return f.decoded_content
 
     def put_file_content(self, relative_path: str, content: str, commit_message: str) -> None:
         f = self.repository.get_contents(relative_path)

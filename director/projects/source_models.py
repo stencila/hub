@@ -143,6 +143,11 @@ class FileSource(Source):
         else:
             return ''
 
+    def pull_binary(self) -> typing.Optional[bytearray]:
+        if self.file:
+            return self.file.open('rb').read()
+        return None
+
     def push(self, archive: typing.Union[str, typing.IO]):
         if isinstance(archive, str):
             f = ContentFile(archive)
@@ -196,12 +201,22 @@ class OSFSource(Source):
 
 
 class SourceType(typing.NamedTuple):
+    """
+    Identifying information for a Source Type.
+
+    id: short unique identifier
+    name: display name
+    model: the Source subclass
+    """
+
     id: str
     name: str
     model: typing.Type
 
 
 class AvailableSourceType(enum.Enum):
+    """Enum for each available SourceType. For two-way lookup name to values etc."""
+
     FILE = SourceType('file', 'File', FileSource)
     GITHUB = SourceType('github', 'Github', GithubSource)
 
@@ -224,3 +239,12 @@ class AvailableSourceType(enum.Enum):
     def get_project_type_id(cls, model: typing.Type[Source]) -> str:
         cls.setup_type_lookup()
         return cls._type_lookup[model].id  # type: ignore
+
+
+class LinkedSourceAuthentication(object):
+    """Container for token(s) a user has for authenticating to remote sources."""
+
+    github_token: typing.Optional[str]
+
+    def __init__(self, github_token: typing.Optional[str] = None) -> None:
+        self.github_token = github_token

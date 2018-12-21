@@ -8,8 +8,8 @@ from django.contrib import messages
 from django.http import HttpRequest
 from github import GithubException
 
-from lib.github_facade import user_github_token, GitHubFacade
-from projects.source_models import Source, GithubSource, FileSource
+from lib.github_facade import GitHubFacade
+from projects.source_models import Source, GithubSource, FileSource, LinkedSourceAuthentication
 from projects.source_operations import strip_directory
 
 
@@ -25,15 +25,15 @@ class SourceEditContext(typing.NamedTuple):
 class SourceContentFacade(object):
     source: Source
     request: HttpRequest
-    access_token: typing.Optional[str] = None
+    authentication: LinkedSourceAuthentication
     file_path: str
 
-    def __init__(self, source: Source, request: HttpRequest, file_path: str) -> None:
+    def __init__(self, source: Source, authentication: LinkedSourceAuthentication, request: HttpRequest,
+                 file_path: str) -> None:
         self.source = source
+        self.authentication = authentication
         self.request = request
         self.file_path = file_path
-        if isinstance(source, GithubSource):
-            self.access_token = user_github_token(request.user)
 
     def get_content(self) -> typing.Union[str, BytesIO]:
         if isinstance(self.source, FileSource):
@@ -50,7 +50,7 @@ class SourceContentFacade(object):
         source = typing.cast(GithubSource, self.source)
         path_in_repo = self.get_github_repository_path()
 
-        gh = GitHubFacade(source.repo, self.access_token)
+        gh = GitHubFacade(source.repo, self.authentication.github_token)
         return gh.get_file_content(path_in_repo)
 
     def get_github_repository_path(self) -> str:
@@ -62,7 +62,7 @@ class SourceContentFacade(object):
             editable = True
             supports_commit_message = False
         elif isinstance(self.source, GithubSource):
-            editable = self.access_token is not None
+            editable = self.authentication.github_token is not None
             supports_commit_message = True
         else:
             raise TypeError("Don't know how to get EditContext for source type '{}'".format(type(self.source)))
@@ -84,7 +84,7 @@ class SourceContentFacade(object):
         return True
 
     def update_github_source_content(self, content: str, commit_message: typing.Optional[str]) -> bool:
-        if self.access_token is None:
+        if self.authentication.github_token is None:
             raise ValueError("Unable to save without a Github token.")  # user should not be able to post to here anyway
 
         if not commit_message:
@@ -93,7 +93,7 @@ class SourceContentFacade(object):
         path_in_repo = self.get_github_repository_path()
 
         source = typing.cast(GithubSource, self.source)
-        gh = GitHubFacade(source.repo, self.access_token)
+        gh = GitHubFacade(source.repo, self.authentication.github_token)
 
         try:
             gh.put_file_content(path_in_repo, content, commit_message)
@@ -105,7 +105,7 @@ class SourceContentFacade(object):
                                    settings.STENCILA_GITHUB_APPLICATION_NAME, settings.STENCILA_GITHUB_APPLICATION_URL)
                                )
             elif e.status == 404:
-                # this error usually will occur if the application is not set up with the correct access rights on the
+                # this error usually will occur if the application is not set up with the correct rights on the
                 # Stencila side, so the user can't really fix this
                 messages.error(self.request, 'Unable to save file. Please make sure the file exists, and if it does,'
                                              'make sure Github integrations are set up correctly.')

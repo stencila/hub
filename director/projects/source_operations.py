@@ -7,21 +7,23 @@ from lib.github_facade import GitHubFacade
 from projects.project_models import Project
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
-from projects.source_models import Source, FileSource, GithubSource
+from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication
 
 
 def normalise_path(path: str, append_slash: bool = False) -> str:
     if path == '.' or path == '':
         return ''
 
-    return path if (not append_slash or path.endswith('/')) else (path + '/')
+    append_slash = append_slash or path.endswith('/')
+
+    return os.path.normpath(path) + ('/' if append_slash else '')
 
 
 def path_is_in_directory(path: str, directory: str) -> bool:
     path = normalise_path(path)
     directory = normalise_path(directory, True)
 
-    return path[:len(directory)] == directory
+    return path.startswith(directory)
 
 
 def strip_directory(path: str, directory: str) -> str:
@@ -89,17 +91,14 @@ def make_directory_entry(directory: str, source: Source):
 
 
 def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterable[Source],
-                         auth_tokens: typing.Optional[dict] = None) \
-        -> typing.Iterable[DirectoryListEntry]:
+                         authentication: LinkedSourceAuthentication) -> typing.Iterable[DirectoryListEntry]:
     """Yield a `DirectoryListEntry` for each `Source` in `sources` if the `Source` is inside the `directory`."""
     directory = directory or ''
-    auth_tokens = auth_tokens or {}
     seen_directories: typing.Set[str] = set()
 
     for source in sources:
         if isinstance(source, GithubSource):
-            github_token = auth_tokens.get(GithubSource.provider_name)
-            facade = GitHubFacade(source.repo, github_token)
+            facade = GitHubFacade(source.repo, authentication.github_token)
             try:
                 for entry in iterate_github_source(directory, source, facade):
                     if entry.type == DirectoryEntryType.DIRECTORY or entry.type == DirectoryEntryType.LINKED_SOURCE:
@@ -122,14 +121,14 @@ def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterab
 
 
 def list_project_virtual_directory(project: Project, directory: typing.Optional[str],
-                                   auth_tokens: typing.Optional[dict]) -> typing.List[DirectoryListEntry]:
+                                   authentication: LinkedSourceAuthentication) -> typing.List[DirectoryListEntry]:
     """
     Generate a list of `SourceItem`s for all the `Source`s that belong to a `Project`, in the given `directory`.
 
     If `directory` is `None` then list the 'root' directory.
     """
     sources = project.sources.all()
-    return sorted(list(sources_in_directory(directory, sources, auth_tokens)))
+    return sorted(list(sources_in_directory(directory, sources, authentication)))
 
 
 def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[PathEntry]:

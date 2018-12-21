@@ -19,7 +19,7 @@ from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
-from projects.source_models import Source, GithubSource, FileSource
+from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator
 from users.views import BetaTokenRequiredMixin
 from .models import Project
@@ -215,9 +215,9 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
         self.test_required_project_permission()
 
-        directory_items = list_project_virtual_directory(self.project, path, {
-            GithubSource.provider_name: user_github_token(request.user)
-        })
+        authentication = LinkedSourceAuthentication(user_github_token(request.user))
+
+        directory_items = list_project_virtual_directory(self.project, path, authentication)
 
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
