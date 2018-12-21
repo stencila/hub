@@ -8,14 +8,14 @@ from django import forms
 def form_add_submit_button(form: typing.Any) -> None:
     form.helper = FormHelper()
     form.helper.add_input(
-        Submit('submit', getattr(form, 'submit_button_label', 'Submit'), css_class='button is-primary')
+        Submit('submit', getattr(form, 'submit_button_label', 'Submit'), css_class='')
     )
 
 
 def form_add_create_button(form: typing.Any) -> None:
     form.helper = FormHelper()
     form.helper.add_input(
-        Submit('create', getattr(form, 'create_button_label', 'Create'), css_class='button is-primary')
+        Submit('create', getattr(form, 'create_button_label', 'Create'), css_class='')
     )
 
 

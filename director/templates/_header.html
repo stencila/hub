@@ -13,17 +13,17 @@
                 <div class="navbar-start">
                 </div>
                 <div class="navbar-end is-flex align-centre">
-                    <button class="button is-square is-rounded is-borderless is-light">
-                        <span class="icon is-small">
-                            <i class="fas fa-plus"></i>
-                        </span>
-                    </button>
                     {% if user.is_anonymous %}
                     <div class="buttons">
                         <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signin' %}">Sign in</a>
                         <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signup' %}">Sign up</a>
                     </div>
                     {% else %}
+                    <button class="button is-square is-rounded is-borderless is-light">
+                        <span class="icon is-small">
+                            <i class="fas fa-plus"></i>
+                        </span>
+                    </button>
                     <div class="has-dropdown">
                         <div class="dropdown is-new-menu">
                             <div class="dropdown-trigger">
