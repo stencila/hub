@@ -314,6 +314,8 @@ class Prod(Common):
     # enforce HTTPS
     SECURE_SSL_REDIRECT = True
 
+    SECURE_REDIRECT_EXEMPT = [r'^status/$']
+
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
         'raven.contrib.django.raven_compat'
