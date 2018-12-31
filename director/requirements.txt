@@ -18,4 +18,4 @@ psycopg2==2.7.6.1
 raven==6.10.0
 requests==2.21.0
 sh==1.12.14
-PyGithub==1.43.3
+PyGithub==1.43.4
