@@ -12,7 +12,7 @@ django-debug-toolbar==1.11
 django-extensions==2.1.4
 dj_database_url==0.5.0
 google-cloud-storage==1.13.2
-Pillow==5.3.0
+Pillow==5.4.1
 pyjwt==1.7.1
 psycopg2==2.7.6.1
 raven==6.9.0
