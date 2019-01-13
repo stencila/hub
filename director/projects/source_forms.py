@@ -1,5 +1,6 @@
 import re
 import typing
+from pathlib import PurePosixPath
 from urllib.parse import urlparse
 
 from django import forms
@@ -36,10 +37,25 @@ def validate_unique_project_path(project: Project, path: str, existing_source_pk
         raise ValidationError("A source with path {} already exists for this project.".format(path))
 
 
+class VirtualPathField(forms.CharField):
+    """Field for validating paths to FileSource."""
+
+    def clean(self, value):
+        cleaned_value = super().clean(value)
+
+        if cleaned_value.startswith('/') or cleaned_value.endswith('/'):
+            raise ValidationError('The path must not start or end with a "/".')
+
+        path = PurePosixPath(cleaned_value)
+        for part in path.parts:
+            if re.match(r'^\.+$', part):
+                raise ValidationError('The path must not contain "." or ".." as components.')
+        return cleaned_value
+
+
 class FileSourceForm(ModelFormWithSubmit):
     type = forms.ChoiceField(choices=FILE_TYPES)
-    path = forms.RegexField(regex=r'^[^/][A-Za-z\-/\.]+[^/]$', widget=forms.TextInput,
-                            error_messages={'invalid': 'The path must not contain spaces, or start or end with a /'})
+    path = VirtualPathField(required=True)
 
     class Meta:
         model = FileSource
@@ -50,13 +66,14 @@ class FileSourceForm(ModelFormWithSubmit):
         }
 
     def clean(self):
-        validate_unique_project_path(self.initial['project'], self.cleaned_data['path'])
-        return super().clean()
+        cleaned_data = super().clean()
+        if self.is_valid():
+            validate_unique_project_path(self.initial['project'], cleaned_data['path'])
+        return cleaned_data
 
 
 class SourceUpdateForm(ModelForm):
-    path = forms.RegexField(regex=r'^[^/][A-Za-z0-9\-/\.]+[^/]$', widget=forms.TextInput,
-                            error_messages={'invalid': 'The path must not contain spaces, or start or end with a /'})
+    path = VirtualPathField(required=True)
 
     class Meta:
         model = Source
