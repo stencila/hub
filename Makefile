@@ -122,7 +122,7 @@ director-lint: director-lint-code director-lint-types director-lint-docs
 	
 # Lint code
 director-lint-code:
-	$(VE) flake8 --exclude=venv,migrations --max-line-length=120 director
+	$(VE) flake8 --exclude=venv,migrations,director/node_modules --max-line-length=120 director
 
 # Lint types
 director-lint-types:
@@ -130,7 +130,7 @@ director-lint-types:
 
 # Lint docs
 director-lint-docs:
-	$(VE) pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts).*' director
+	$(VE) pydocstyle --match-dir='^(?!venv|node_modules|\\.|migrations|tests|scripts).*' director
 
 # Run tests
 director-test: director/venv

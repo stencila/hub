@@ -19,7 +19,7 @@
             </div>
             <div class="column is-2">
                 <div class="row">
-                    <a class="button is-fullwidth is-primary"
+                    <a class="button is-rounded is-fullwidth is-primary"
                        href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
                         <span class="icon is-small">
                           <i class="fa fa-pencil-alt"></i>
@@ -28,7 +28,7 @@
                     </a>
                 </div>
                 <div class="row is-top-padding">
-                    <a class="button is-fullwidth" href="{% url 'project_archive' object.id %}">
+                    <a class="button is-rounded is-fullwidth" href="{% url 'project_archive' object.id %}">
                         <span class="icon"><i class="fas fa-download"></i></span>
                         <span>Download</span>
                     </a>
@@ -36,8 +36,8 @@
                 <div class="row is-top-padding">
                     <form method="post" action="{% url "session_start_v1"  project.token cloud_environ %}">
                         <button class="button is-fullwidth" type="submit">
-                            <span class="icon"><i class="fas fa-rocket"></i></span>
-                            <span>Launch Session</span>
+                            <span class="icon is-small"><i class="fas fa-rocket"></i></span>
+                            <span>Launch</span>
                         </button>
                     </form>
                 </div>
