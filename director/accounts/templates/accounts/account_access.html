@@ -137,7 +137,7 @@
                         , failureResponse => {
                             console.log(failureResponse)
                         }).then(responseBody => {
-                            displayToast(responseBody.message, 'is-success')
+                            alert(responseBody.message)
                         }
                     )
                 }

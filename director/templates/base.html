@@ -32,12 +32,12 @@
         {% block main %}
         <main class="section">
             <div class="container">
+                {% include "_messages.html" %}
                 {% block content %}{% endblock %}
             </div>
         </main>
         {% endblock %}
         {% block footer %}{% include "_footer.html" %}{% endblock %}
-        {% include "_messages.html" %}
         <script type="text/javascript" src="{% static 'js/hamburger.js' %}" defer></script>
     </body>
 

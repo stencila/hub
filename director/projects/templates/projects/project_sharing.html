@@ -172,8 +172,7 @@
                         , failureResponse => {
                             console.log(failureResponse)
                         }).then(responseBody => {
-                        let toastClass = responseBody.success ? 'is-success' : 'is-danger'
-                        displayToast(responseBody.message, toastClass)
+                        alert(responseBody.message)
                     })
                 },
                 usernameSelected(username) {

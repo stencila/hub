@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=Nunito:400,400i,600,600i,700,700i,800,800i");
+footer input[type="submit"],
+footer button[type="submit"] {
+  border-color: white !important; }
+
 /*! bulma.io v0.7.2 | MIT License | github.com/jgthms/bulma */
 @-webkit-keyframes spinAround {
   from {
@@ -8665,6 +8669,9 @@ label.panel-block {
 .is-full-width {
   width: 100%; }
 
+.is-borderless {
+  border: none; }
+
 .border-top-cobalt-blue {
   border-top: 1px solid #2568ef; }
 
@@ -10507,6 +10514,7 @@ button.call-to-action[type="submit"] {
   font-weight: 700;
   line-height: 1em;
   text-transform: uppercase;
+  padding: 1.25rem 2.5rem;
   margin-left: auto;
   margin-right: auto; }
   .call-to-action.button.is-large, input.call-to-action.is-large[type="submit"],
@@ -10520,6 +10528,11 @@ button.call-to-action[type="submit"] {
     border-color: #1c4fb5;
     color: #1c4fb5;
     background: transparent; }
+
+.buttons .call-to-action.button, .buttons input.call-to-action[type="submit"],
+.buttons button.call-to-action[type="submit"] {
+  margin-right: 0.625rem;
+  margin-left: 0; }
 
 .colour-swatch .tag + .tag {
   margin-top: 5px; }
@@ -10697,7 +10710,7 @@ hr.is-small {
     display: flex; }
 
 .modal-background {
-  background-color: rgba(50, 115, 220, 0.9); }
+  background-color: rgba(122, 122, 122, 0.9); }
 
 .modal-content,
 .modal-card {
@@ -12013,7 +12026,6 @@ a.navbar-item,
 .pagination-previous--icon .icon:first-child:last-child {
   margin-right: 0; }
 
-/* */
 .button, input[type="submit"],
 button[type="submit"] {
   transition: all 0.25s 0s ease; }
@@ -12069,6 +12081,23 @@ button[type="submit"] {
   button.is-mini[type="submit"] {
     font-size: 0.75rem;
     padding: 0.875rem 1.25rem; }
+  .button.is-square, input.is-square[type="submit"],
+  button.is-square[type="submit"] {
+    transition: border-radius 0.25s 0s ease;
+    height: 1.75rem;
+    width: 1.75rem;
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 0;
+    line-height: 0; }
+    .button.is-square.is-rounded, input.is-square[type="submit"],
+    button.is-square[type="submit"] {
+      border-radius: 50%; }
+    .button.is-square .icon, input.is-square[type="submit"] .icon, button.is-square[type="submit"] .icon {
+      font-size: 0.75rem;
+      line-height: 1em;
+      width: 1em;
+      height: 1em; }
 
 .content p,
 .content li {
@@ -12179,7 +12208,7 @@ button[type="submit"] {
       padding-left: 1.25rem;
       padding-right: 1.25rem; } }
 
-.section footer {
+.section .footer {
   margin-top: 2.5rem; }
 
 .number {
@@ -12294,14 +12323,14 @@ button[type="submit"] {
   z-index: 20; }
 
 .dropdown-content {
-  background-color: #3273dc;
+  background-color: #ffffff;
   border-radius: 4px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1);
   padding-bottom: 0.5rem;
   padding-top: 0.5rem; }
 
 .dropdown-item {
-  color: #ffffff;
+  color: #4a4a4a;
   display: block;
   font-size: 0.875rem;
   line-height: 1.5;
@@ -12316,12 +12345,12 @@ button.dropdown-item {
   width: 100%; }
   a.dropdown-item:hover,
   button.dropdown-item:hover {
-    background-color: #1c4fb5;
-    color: #ffffff; }
+    background-color: whitesmoke;
+    color: #000000; }
   a.dropdown-item.is-active,
   button.dropdown-item.is-active {
-    background-color: #1c4fb5;
-    color: #ffffff; }
+    background-color: #333333;
+    color: #0f6860; }
 
 .dropdown-divider {
   background-color: #dbdbdb;
@@ -12331,10 +12360,10 @@ button.dropdown-item {
   margin: 0.5rem 0; }
 
 .dropdown-content {
+  position: relative;
   padding-bottom: unset;
   padding-top: unset;
-  position: relative;
-  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.2); }
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1); }
   .dropdown-content:before {
     content: '';
     display: block;
@@ -12348,39 +12377,6 @@ button.dropdown-item {
     border-style: solid;
     border-width: 0 8px 8px 8px;
     border-color: transparent transparent #3273dc transparent; }
-
-a.dropdown-item {
-  border-bottom: 1px solid #1c4fb5;
-  position: relative;
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 0.625rem 1.25rem;
-  font-weight: 900;
-  font-size: 0.875rem;
-  line-height: 1em; }
-  a.dropdown-item:before {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 0;
-    height: 100%;
-    background: transparent;
-    content: '';
-    transition: all 0.1s 0s ease; }
-  a.dropdown-item:hover:before {
-    background: #66ff66;
-    width: 4px; }
-  a.dropdown-item:first-child {
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px; }
-  a.dropdown-item:last-child {
-    border-bottom: none;
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px; }
-  a.dropdown-item .icon {
-    margin-left: 2.5rem; }
 
 .dropdown-menu {
   left: 50%;
@@ -12429,10 +12425,13 @@ a.dropdown-item {
   border-top-right-radius: 3px;
   font-size: 0.875rem;
   line-height: 1em;
-  font-weight: 500;
+  font-weight: 300;
   padding: 0.625rem 1.25rem; }
   .dropdown.is-new-menu header:hover {
     background: #1c4fb5; }
+
+.dropdown.is-new-menu .dropdown-menu {
+  margin-top: -5px; }
 
 .dropdown.is-new-menu .close-button {
   color: #ffffff;
@@ -12454,19 +12453,81 @@ a.dropdown-item {
     background: #66ff66;
     width: 4px; }
 
-.dropdown.is-new-menu a.dropdown-item {
-  background: #f1f1f2;
-  border-bottom-color: #ffffff;
-  color: #3273dc;
-  font-weight: 900;
-  font-size: 1.125rem;
+.dropdown.is-new-menu .dropdown-content {
+  position: relative;
+  padding-bottom: unset;
+  padding-top: unset;
+  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.1); }
+  .dropdown.is-new-menu .dropdown-content:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 8px 8px 8px;
+    border-color: transparent transparent #3273dc transparent; }
+
+.dropdown.is-new-menu a.dropdown-item,
+.dropdown.is-new-menu .dropdown-item {
+  transition: background-color 0.25s 0.1s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
   line-height: 1em;
+  background: #ffffff;
+  border-bottom: 1px solid #ffffff;
+  color: #000000;
+  font-weight: 300;
   justify-content: flex-start; }
-  .dropdown.is-new-menu a.dropdown-item:hover, .dropdown.is-new-menu a.dropdown-item.is-active {
-    background: #ffffff; }
-  .dropdown.is-new-menu a.dropdown-item:first-child {
+  .dropdown.is-new-menu a.dropdown-item:hover, .dropdown.is-new-menu a.dropdown-item.is-active,
+  .dropdown.is-new-menu .dropdown-item:hover,
+  .dropdown.is-new-menu .dropdown-item.is-active {
+    background-color: #f1f1f2; }
+    .dropdown.is-new-menu a.dropdown-item:hover:before, .dropdown.is-new-menu a.dropdown-item.is-active:before,
+    .dropdown.is-new-menu .dropdown-item:hover:before,
+    .dropdown.is-new-menu .dropdown-item.is-active:before {
+      background-color: #3273dc;
+      height: 100%; }
+  .dropdown.is-new-menu a.dropdown-item:before,
+  .dropdown.is-new-menu .dropdown-item:before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 3px;
+    height: 0;
+    background: transparent;
+    content: '';
+    transition: all 0.25s 0.05s ease; }
+  .dropdown.is-new-menu a.dropdown-item:hover:before,
+  .dropdown.is-new-menu .dropdown-item:hover:before {
+    background: #66ff66;
+    height: 100%; }
+  .dropdown.is-new-menu a.dropdown-item:first-child,
+  .dropdown.is-new-menu .dropdown-item:first-child {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
     border-radius: unset; }
-  .dropdown.is-new-menu a.dropdown-item .logo {
+  .dropdown.is-new-menu a.dropdown-item:last-child,
+  .dropdown.is-new-menu .dropdown-item:last-child {
+    border-bottom: none;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px; }
+  .dropdown.is-new-menu a.dropdown-item.is-active,
+  .dropdown.is-new-menu .dropdown-item.is-active {
+    color: #3273dc; }
+  .dropdown.is-new-menu a.dropdown-item .icon,
+  .dropdown.is-new-menu .dropdown-item .icon {
+    margin-left: 2.5rem; }
+  .dropdown.is-new-menu a.dropdown-item .logo,
+  .dropdown.is-new-menu .dropdown-item .logo {
     margin-right: 0.625rem; }
 
 .tool-bar {
