@@ -74,9 +74,9 @@ director/extern: director/package.json
 	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js $@/js
 	cp director/node_modules/moment/min/moment.min.js $@/js
 	cp director/node_modules/vue-resource/dist/vue-resource.min.js $@/js
-	cp director/node_modules/buefy/lib/index.js $@/js/buefy.min.js
+	cp director/node_modules/buefy/dist/buefy.min.js $@/js/buefy.min.js
 	mkdir -p $@/css
-	cp director/node_modules/buefy/lib/buefy.min.css $@/css
+	cp director/node_modules/buefy/dist/buefy.min.css $@/css
 	touch $@
 
 # Create UML models
