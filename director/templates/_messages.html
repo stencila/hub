@@ -2,7 +2,7 @@
     {% for message in messages %}
         <article class="message {% if message.tags == "error" %}is-danger{% else %}is-{{ message.tags }}{% endif %}">
             <div class="message-header">
-                <p>{{ message.tags }}</p>
+                <p>{{ message.tags|capfirst }}</p>
                 <button class="delete" aria-label="delete" onclick="(function(){event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode)})();"></button>
             </div>
             <div class="message-body">
