@@ -109,6 +109,12 @@ class Session(models.Model):
         help_text='The last time the status of this Session was checked'
     )
 
+    execution_id = models.TextField(
+        null=True,
+        blank=True,
+        help_text='The ID used to identify this session on the execution host (e.g. Docker container ID).'
+    )
+
     @property
     def status(self) -> SessionStatus:
         if self.last_check is None:

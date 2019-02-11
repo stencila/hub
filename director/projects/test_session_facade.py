@@ -250,7 +250,8 @@ class SessionFacadeTests(TestCase):
             project=self.project,
             started=mock_timezone.now.return_value,
             last_check=mock_timezone.now.return_value,
-            url=self.client.start_session.return_value
+            url=self.client.start_session.return_value.url,
+            execution_id=self.client.start_session.return_value.execution_id
         )
 
     @mock.patch('projects.cloud_session_controller.timezone')

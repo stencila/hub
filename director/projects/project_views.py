@@ -1,6 +1,7 @@
 import json
 import typing
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -199,7 +200,10 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectOverviewView, self).get_context_data(**kwargs)
-        context['cloud_environ'] = 'stencila/core'
+        environ = {
+            'NIXSTER': 'multi-mega'
+        }.get(settings.EXECUTION_CLIENT, 'stencila/core')
+        context['cloud_environ'] = environ
         return context
 
 

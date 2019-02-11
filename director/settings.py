@@ -214,9 +214,11 @@ class Common(Configuration):
     # Stencila settings
 
     # URL of Stencila native execution host
-    # This default value is the local evelopment URL for
+    # This default value is the local development URL for
     # the `stencila/cloud` host
     NATIVE_HOST_URL = values.Value('http://localhost:2000')
+
+    EXECUTION_CLIENT = values.Value('CLOUD')
 
     # URL of this application. This is used by editors and other
     # external applications to callback to the director.
@@ -225,7 +227,7 @@ class Common(Configuration):
     # This default value is the usual value in development
     CALLBACK_URL = values.Value('http://localhost:3000')
 
-    # Token to restrict signins and singups while beta testing
+    # Token to restrict signins and signups while beta testing
     BETA_TOKEN = values.Value('abc123')
 
     GS_PUBLIC_READABLE_PATHS = ['avatars/*']

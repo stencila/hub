@@ -10,7 +10,7 @@
             <br/>
         </div>
         <div class="columns">
-            <div class="column is-9">
+            <div class="column is-10">
                 {% if project.description %}
                     <p>{{ project.description }}</p>
                 {% else %}
@@ -33,15 +33,79 @@
                         <span>Download</span>
                     </a>
                 </div>
-                <div class="row is-top-padding">
-                    <form method="post" action="{% url "session_start_v1"  project.token cloud_environ %}">
-                        <button class="button is-fullwidth" type="submit">
-                            <span class="icon is-small"><i class="fas fa-rocket"></i></span>
-                            <span>Launch Session</span>
-                        </button>
-                    </form>
+                <div class="row is-top-padding" id="launch-session-container">
+                    <button class="button is-rounded is-fullwidth" type="button" @click="startSession">
+                        <span class="icon is-small"><i class="fas fa-rocket"></i></span>
+                        <span>Launch Session</span>
+                    </button>
                 </div>
             </div>
         </div>
+        <div class="columns is-12">
+            <div id="terminal" style="display: none; width:100%; height:100%; padding: 0.5em; background: black"></div>
+        </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
+    <script src="https://unpkg.com/xterm@3.10.1/dist/xterm.js"></script>
+    <script src="https://unpkg.com/xterm@3.10.1/dist/addons/fit/fit.js"></script>
+    <script src="https://unpkg.com/xterm@3.10.1/dist/addons/attach/attach.js"></script>
+    <script src="https://unpkg.com/xterm@3.10.1/dist/addons/winptyCompat/winptyCompat.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@3.10.1/dist/xterm.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/xterm@3.10.1/dist/addons/fullscreen/fullscreen.css"/>
+    <script>
+      // Apply addons
+      Terminal.applyAddon(attach)
+      Terminal.applyAddon(fit)
+      Terminal.applyAddon(winptyCompat)
+
+      function setUpTerminal (url, authorization) {
+        const joiner = url.indexOf('?') === -1 ? '?' : '&'
+        const term = new Terminal()
+        term.winptyCompatInit()
+        const container = document.getElementById('terminal')
+        container.style.display = 'block';
+        term.open(container)
+        term.fit()
+        const socket = new WebSocket(url + joiner + `token=${authorization}`)
+        socket.onopen = (ev) => { term.attach(socket) }
+      }
+
+      new Vue(
+        {
+          el: '#launch-session-container',
+          delimiters: ['[[', ']]'],
+          data () {
+            return {
+              sessionStartUrl: '{% url "session_start_v1"  project.token cloud_environ %}',
+              terminalSetup: false
+            }
+          },
+          methods: {
+            startSession () {
+              if (this.terminalSetup) {
+                return
+              }
+              fetch(this.sessionStartUrl, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'X-CSRFToken': utils.cookie('csrftoken'),
+                },
+                credentials: 'same-origin',
+              }).then(response => {
+                  response.json().then(data => {
+                    setUpTerminal(data.url, data.auth)
+                    this.terminalSetup = true
+                  })
+                }, failureResponse => {
+                  console.log(failureResponse)
+                }
+              ).then(responseBody => {
+                alert(responseBody.message)
+              })
+            }
+          }
+        })
+    </script>
 {% endblock %}

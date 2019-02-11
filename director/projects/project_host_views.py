@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from projects.cloud_session_controller import CloudClient, CloudSessionFacade, ActiveSessionsExceededException
 from projects.models import Project
+from projects.nixster_client import NixsterClient
 from projects.session_models import Session, SessionRequest
 
 SESSION_URL_SESSION_KEY_FORMAT = 'CLOUD_SESSION_URL_{}_{}'
@@ -70,8 +71,12 @@ class CloudClientMixin(object):
         host_url = settings.NATIVE_HOST_URL
         jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
 
-        cloud_client = CloudClient(host_url, jwt_secret)
-        self.session_facade = CloudSessionFacade(project, cloud_client)
+        client_class = {
+            'NIXSTER': NixsterClient
+        }.get(settings.EXECUTION_CLIENT, CloudClient)
+
+        client = client_class(host_url, jwt_secret)
+        self.session_facade = CloudSessionFacade(project, client)
 
 
 class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
@@ -135,7 +140,7 @@ class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
 class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
     api_version: int = 0
 
-    def get_session_url_from_request_session(self, request: HttpRequest, session_key: str) -> typing.Optional[str]:
+    def get_session_from_request_session(self, request: HttpRequest, session_key: str) -> typing.Optional[Session]:
         if session_key not in request.session:
             return None
 
@@ -152,7 +157,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         if session.stopped is not None and session.stopped <= timezone.now():
             return None
 
-        return session_url
+        return session
 
     @staticmethod
     def get_session_request_to_use(request: HttpRequest, token: str) -> typing.Optional[SessionRequest]:
@@ -178,27 +183,27 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         return redirect(reverse('session_queue_v{}'.format(self.api_version), args=(token,)))
 
     def create_session(self, request: HttpRequest, environ: str, session_key: str,
-                       session_request_to_use: typing.Optional[SessionRequest]) -> str:
+                       session_request_to_use: typing.Optional[SessionRequest]) -> Session:
         self.session_facade.expire_stale_session_requests()
         session = self.session_facade.create_session(environ, session_request_to_use)
-        session_url = session.url
-        request.session[session_key] = session_url
-        return session_url
+        request.session[session_key] = session.url
+        return session
 
     def generate_response(self, request: HttpRequest, environ: str, session_key: str, token: str,
-                          session_url: typing.Optional[str]) -> HttpResponse:
+                          session: typing.Optional[Session]) -> HttpResponse:
         # If the Session's URL was previously found in the request session, then it will not be None here
-        if not session_url:
+        if not session:
             # session_url was not found in the request session, to get one for the project
             session_request_to_use = self.get_session_request_to_use(request, token)
 
             try:
-                session_url = self.create_session(request, environ, session_key, session_request_to_use)
+                session = self.create_session(request, environ, session_key, session_request_to_use)
             except ActiveSessionsExceededException:
                 return self.create_session_request(request, token, environ)
 
         return JsonResponse({
-            'url': session_url
+            'url': session.url,
+            'auth': self.session_facade.generate_authorization_token(session.execution_id)
         })
 
     def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
@@ -215,6 +220,6 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         # session_url will be None if the user does not have a Session already created for them, or if they had one that
         # has stopped. If we found a reference to a session that appear to be running then it will be a string with the
         # Session's URL
-        session_url = self.get_session_url_from_request_session(request, session_key)
+        session = self.get_session_from_request_session(request, session_key)
 
-        return self.generate_response(request, environ, session_key, token, session_url)
+        return self.generate_response(request, environ, session_key, token, session)

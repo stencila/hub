@@ -1,27 +1,16 @@
 import enum
-import time
 import typing
 from datetime import timedelta
-from urllib.parse import urljoin
 
-import jwt
 import requests
 from django.utils import timezone
 
+from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation
 from projects.models import Project, Session
 from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT, \
     SESSION_QUEUE_CREATION_TIMEOUT
 
-JWT_ALGORITHM = "HS256"
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
-
-
-class HttpMethod(enum.Enum):
-    GET = 'GET'
-    POST = 'POST'
-    PUT = 'PUT'
-    DELETE = 'DELETE'
-    OPTIONS = 'OPTIONS'
 
 
 class KubernetesPodStatus(enum.Enum):
@@ -41,46 +30,15 @@ SESSION_STATUS_LOOKUP = {
 }
 
 
-class SessionInformation(typing.NamedTuple):
-    status: SessionStatus  # This is probably only going to be RUNNING or STOPPED
-
-
-class CloudClient(object):
+class CloudClient(RestClientBase):
     """Client for interaction with Stencila Cloud."""
-
-    def __init__(self, host_url: str, jwt_secret: str) -> None:
-        self.host_url = host_url + "/" if not host_url.endswith("/") else host_url  # ensure trailing /
-        self.jwt_secret = jwt_secret
-
-    def generate_jwt_token(self) -> str:
-        """Create a JWT token for the host."""
-        jwt_payload = {"iat": time.time()}
-        return jwt.encode(jwt_payload, self.jwt_secret, algorithm=JWT_ALGORITHM).decode("utf-8")
-
-    def get_authorization_header(self) -> typing.Dict[str, str]:
-        return {
-            "Authorization": "Bearer {}".format(self.generate_jwt_token())
-        }
-
-    def make_request(self, method: HttpMethod, url: str, body_data: typing.Optional[dict] = None) -> dict:
-        # TODO: add `SessionParameters` to the POST body (currently they won't do anything anyway)
-        response = requests.request(method.value, url, headers=self.get_authorization_header(), json=body_data)
-        response.raise_for_status()
-
-        try:
-            return response.json()
-        except Exception:
-            raise Exception('Error parsing body: ' + response.text)
-
-    def get_full_url(self, path: str) -> str:
-        return urljoin(self.host_url, path)
 
     def get_session_create_url(self, environ: str) -> str:
         return self.get_full_url(SESSION_CREATE_PATH_FORMAT.format(environ))
 
-    def start_session(self, environ: str, session_parameters: dict) -> str:
+    def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         """Start a cloud session and return its URL."""
-        result = self.make_request(HttpMethod.POST, self.get_session_create_url(environ), session_parameters)
+        result = self.make_request(HttpMethod.POST, self.get_session_create_url(environ), body_data=session_parameters)
 
         session_url = result.get('url')
 
@@ -89,7 +47,7 @@ class CloudClient(object):
 
         path = result.get('path')
         assert path is not None
-        return self.get_full_url(path)
+        return SessionAttachContext(self.get_full_url(path))
 
     def get_session_info(self, session_url: str) -> SessionInformation:
         """Get a dictionary with information about the session. At this stage we are only interested in its status."""
@@ -109,7 +67,7 @@ class ActiveSessionsExceededException(SessionException):
 class CloudSessionFacade(object):
     """Wrap interaction with the Stencila Cloud in a project-centric and Django-reliant way."""
 
-    def __init__(self, project: Project, client: CloudClient) -> None:
+    def __init__(self, project: Project, client: RestClientBase) -> None:
         self.project = project
         self.client = client
 
@@ -221,7 +179,7 @@ class CloudSessionFacade(object):
 
         Don't call this method unless the check_* methods have already been called.
         """
-        session_url = self.client.start_session(environ, session_parameters)
+        attach_context = self.client.start_session(environ, session_parameters)
 
         # TODO should we record some of the request
         # headers e.g. `REMOTE_ADDR`, `HTTP_USER_AGENT`, `HTTP_REFERER` for analytics?
@@ -230,7 +188,8 @@ class CloudSessionFacade(object):
             project=self.project,
             started=timezone.now(),
             last_check=timezone.now(),
-            url=session_url
+            url=attach_context.url,
+            execution_id=attach_context.execution_id
         )
 
     def create_session(self, environ: str, session_request_to_use: typing.Optional[SessionRequest] = None) -> Session:
@@ -279,3 +238,6 @@ class CloudSessionFacade(object):
         for session in Session.objects.filter_stale_status().filter(project=self.project):
             self.update_session_info(session)
             session.save()
+
+    def generate_authorization_token(self, execution_id: typing.Optional[str]) -> str:
+        return self.client.generate_authorization_token(execution_id)
