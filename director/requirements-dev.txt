@@ -1,7 +1,7 @@
 coverage==4.5.2
 django-nose==1.4.6
 flake8==3.7.5
-mypy==0.660
+mypy==0.670
 pydocstyle==3.0.0
 pydot==1.4.1
 pygraphviz==1.5
