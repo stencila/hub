@@ -2,7 +2,7 @@ import typing
 from urllib.parse import urlparse, quote, urlunparse
 
 from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation
-from projects.session_models import SessionStatus
+from projects.session_models import SessionStatus, Session
 
 
 def safe_int(v: typing.Any) -> typing.Optional[int]:
@@ -50,9 +50,9 @@ class NixsterClient(RestClientBase):
             'command': command
         }
 
-        result = self.make_request(HttpMethod.POST, self.get_full_url('execute'),
-                                   extra_jwt_payload={'cid': container_id}, body_data=request_data)
-        return result['output']
+        response = self.make_request(HttpMethod.POST, self.get_full_url('execute'),
+                                     extra_jwt_payload={'cid': container_id}, body_data=request_data)
+        return response['output']
 
     def generate_attach_context(self, environment_id: str, container_id: str) -> SessionAttachContext:
         url_components = list(urlparse(self.get_full_url('interact')))
@@ -69,5 +69,19 @@ class NixsterClient(RestClientBase):
         """Intended to be overridden but a safe default."""
         return self.generate_jwt_token({'cid': execution_id})
 
-    def get_session_info(self, session_url: str) -> SessionInformation:
-        return SessionInformation(SessionStatus.STOPPED)  # TODO: implement this and the backend
+    def get_session_info(self, session: Session) -> SessionInformation:
+        request_data = {
+            'environmentId': 'multi-mega',  # TODO: this should not be required on front or backend
+            'containerId': session.execution_id
+        }
+
+        response = self.make_request(HttpMethod.POST, self.get_full_url('container-status'),
+                                     extra_jwt_payload={'cid': session.execution_id}, body_data=request_data)
+
+        if response['status'] == 'RUNNING':
+            return SessionInformation(SessionStatus.RUNNING)
+
+        if response['status'] == 'STOPPED':
+            return SessionInformation(SessionStatus.STOPPED)
+
+        return SessionInformation(SessionStatus.UNKNOWN)

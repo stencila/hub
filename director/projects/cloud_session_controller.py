@@ -49,9 +49,9 @@ class CloudClient(RestClientBase):
         assert path is not None
         return SessionAttachContext(self.get_full_url(path))
 
-    def get_session_info(self, session_url: str) -> SessionInformation:
+    def get_session_info(self, session: Session) -> SessionInformation:
         """Get a dictionary with information about the session. At this stage we are only interested in its status."""
-        session_info = self.make_request(HttpMethod.GET, session_url)
+        session_info = self.make_request(HttpMethod.GET, session.url)
         status = KubernetesPodStatus(session_info['status'].lower())
         return SessionInformation(SESSION_STATUS_LOOKUP[status])
 
@@ -210,7 +210,7 @@ class CloudSessionFacade(object):
 
     def update_session_info(self, session: Session) -> None:
         try:
-            session_info = self.client.get_session_info(session.url)
+            session_info = self.client.get_session_info(session)
         except requests.exceptions.HTTPError as e:
             if e.response is not None and e.response.status_code == 404:
                 # Session info is missing - assume it has stopped

@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import jwt
 import requests
 
-from projects.session_models import SessionStatus
+from projects.session_models import SessionStatus, Session
 
 JWT_ALGORITHM = "HS256"
 
@@ -75,6 +75,6 @@ class RestClientBase(object):
         """Intended to be overridden but a safe default."""
         return ''
 
-    def get_session_info(self, session_url: str) -> SessionInformation:
+    def get_session_info(self, session: Session) -> SessionInformation:
         """Get information about the session. At this stage we are only interested in its status."""
         raise NotImplementedError('Subclasses must implement get_session_info')

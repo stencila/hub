@@ -299,7 +299,7 @@ class SessionFacadeTests(TestCase):
 
         self.cs_facade.update_session_info(mock_session)
 
-        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.client.get_session_info.assert_called_with(mock_session)
         self.assertIsNone(mock_session.last_check)
         self.assertIsNone(mock_session.started)
         self.assertIsNone(mock_session.stopped)
@@ -316,7 +316,7 @@ class SessionFacadeTests(TestCase):
 
         self.cs_facade.update_session_info(mock_session)
 
-        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.client.get_session_info.assert_called_with(mock_session)
         self.assertEqual(mock_session.last_check, mock_timezone.now.return_value)
         self.assertEqual(mock_session.started, mock_timezone.now.return_value)
         self.assertIsNone(mock_session.stopped)
@@ -333,7 +333,7 @@ class SessionFacadeTests(TestCase):
 
         self.cs_facade.update_session_info(mock_session)
 
-        self.client.get_session_info.assert_called_with(mock_session.url)
+        self.client.get_session_info.assert_called_with(mock_session)
         self.assertEqual(mock_session.last_check, mock_timezone.now.return_value)
         self.assertIsNone(mock_session.started)
         self.assertEqual(mock_session.stopped, mock_timezone.now.return_value)
