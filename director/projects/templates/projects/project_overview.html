@@ -17,7 +17,7 @@
                     <p class="has-text-grey-light">No description yet</p>
                 {% endif %}
             </div>
-            <div class="column is-2">
+            <div class="column is-2" id="id-project-actions">
                 <div class="row">
                     <a class="button is-rounded is-fullwidth is-primary"
                        href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
@@ -33,10 +33,17 @@
                         <span>Download</span>
                     </a>
                 </div>
-                <div class="row is-top-padding" id="launch-session-container">
+                <div class="row is-top-padding">
                     <button class="button is-rounded is-fullwidth" type="button" @click="startSession">
                         <span class="icon is-small"><i class="fas fa-rocket"></i></span>
                         <span>Launch Session</span>
+                    </button>
+                </div>
+                <div class="row is-top-padding">
+                    <button class="button is-rounded is-fullwidth" type="button" @click="checkoutFiles">
+                        <span class="icon is-small"><i class="fas fa-file-export"></i></span>
+                        <span v-if="!checkoutInProgress">Checkout Files</span>
+                        <span v-if="checkoutInProgress">Checking out&hellip;</span>
                     </button>
                 </div>
             </div>
@@ -64,7 +71,7 @@
         const term = new Terminal()
         term.winptyCompatInit()
         const container = document.getElementById('terminal')
-        container.style.display = 'block';
+        container.style.display = 'block'
         term.open(container)
         term.fit()
         const socket = new WebSocket(url + joiner + `token=${authorization}`)
@@ -73,12 +80,14 @@
 
       new Vue(
         {
-          el: '#launch-session-container',
+          el: '#id-project-actions',
           delimiters: ['[[', ']]'],
           data () {
             return {
               sessionStartUrl: '{% url "session_start_v1"  project.token cloud_environ %}',
-              terminalSetup: false
+              fileCheckoutUrl: '{% url "project_checkout" project.id %}',
+              terminalSetup: false,
+              checkoutInProgress: false
             }
           },
           methods: {
@@ -92,18 +101,37 @@
                   'Accept': 'application/json',
                   'X-CSRFToken': utils.cookie('csrftoken'),
                 },
-                credentials: 'same-origin',
+                credentials: 'same-origin'
               }).then(response => {
                   response.json().then(data => {
                     setUpTerminal(data.url, data.auth)
                     this.terminalSetup = true
                   })
-                }, failureResponse => {
-                  console.log(failureResponse)
+                },
+                jsonFailure => {
+                  console.error(jsonFailure)
                 }
-              ).then(responseBody => {
-                alert(responseBody.message)
+              ).then(failureResponse => {
+                alert(failureResponse.message)
               })
+            },
+            checkoutFiles () {
+              this.checkoutInProgress = true
+              fetch(this.fileCheckoutUrl, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'X-CSRFToken': utils.cookie('csrftoken'),
+                },
+                credentials: 'same-origin'
+              }).then(
+                response => {
+                  this.checkoutInProgress = false
+                },
+                failureResponse => {
+                  this.checkoutInProgress = false
+                  alert(failureResponse)
+                })
             }
           }
         })

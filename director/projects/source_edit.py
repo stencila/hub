@@ -43,8 +43,20 @@ class SourceContentFacade(object):
         else:
             raise TypeError("Don't know how to get content for source type '{}'".format(type(self.source)))
 
+    def get_binary_content(self) -> BytesIO:
+        if isinstance(self.source, FileSource):
+            return self.get_file_source_binary_content()
+        elif isinstance(self.source, GithubSource):
+            return self.get_github_source_binary_content()
+        else:
+            raise TypeError("Don't know how to get content for source type '{}'".format(type(self.source)))
+
     def get_file_source_content(self) -> BytesIO:
         return self.source.pull()
+
+    def get_file_source_binary_content(self) -> BytesIO:
+        source = typing.cast(FileSource, self.source)
+        return BytesIO(source.pull_binary())
 
     def get_github_source_content(self) -> str:
         source = typing.cast(GithubSource, self.source)
@@ -52,6 +64,13 @@ class SourceContentFacade(object):
 
         gh = GitHubFacade(source.repo, self.authentication.github_token)
         return gh.get_file_content(path_in_repo)
+
+    def get_github_source_binary_content(self) -> BytesIO:
+        source = typing.cast(GithubSource, self.source)
+        path_in_repo = self.get_github_repository_path()
+
+        gh = GitHubFacade(source.repo, self.authentication.github_token)
+        return BytesIO(gh.get_binary_file_content(path_in_repo))
 
     def get_github_repository_path(self) -> str:
         source = typing.cast(GithubSource, self.source)

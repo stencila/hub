@@ -236,6 +236,8 @@ class Common(Configuration):
     STENCILA_GITHUB_APPLICATION_NAME = 'INSERT A REAL APP NAME HERE Stencila Github Integration'
     STENCILA_GITHUB_APPLICATION_URL = 'INSERT A REAL URL HERE https://github.com/settings/apps/stencila/installations'
 
+    STENCILA_CHECKOUT_DIRECTORY = values.Value('')
+
 
 class Dev(Common):
     """Configuration settings used in development."""

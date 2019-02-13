@@ -15,6 +15,7 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
+from lib.project_puller import ProjectSourcePuller
 from lib.github_facade import user_github_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
@@ -251,6 +252,24 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             messages.success(request, "'{}' was unlinked.".format(source_description))
 
         return redirect(request.path)
+
+
+class ProjectCheckoutView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        self.perform_project_fetch(request.user, pk)
+
+        self.test_required_project_permission()
+
+        if not settings.STENCILA_CHECKOUT_DIRECTORY:
+            raise RuntimeError('STENCILA_CHECKOUT_DIRECTORY setting must be set to check out Project files.')
+
+        authentication = LinkedSourceAuthentication(user_github_token(request.user))
+
+        cloner = ProjectSourcePuller(self.project, settings.STENCILA_CHECKOUT_DIRECTORY, authentication, request)
+        cloner.clone()
+        return JsonResponse({'success': True})
 
 
 class ProjectActivityView(ProjectPermissionsMixin, UpdateView):

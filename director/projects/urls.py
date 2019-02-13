@@ -4,7 +4,7 @@ from projects.project_host_views import (ProjectHostManifestView, ProjectHostSes
 from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
-                                    ProjectArchiveView, ProjectDeleteView)
+                                    ProjectArchiveView, ProjectDeleteView, ProjectCheckoutView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
                                    FileSourceDeleteView, TempCheckoutView)
@@ -21,6 +21,7 @@ urlpatterns = [
     path('<int:pk>/files/browse/<path:path>', ProjectFilesView.as_view(), name='project_files_path'),
     path('<int:pk>/files/create', FileSourceCreateView.as_view(), name='filesource_create'),
     path('<int:pk>/files/upload', FileSourceUploadView.as_view(), name='filesource_upload'),
+    path('<int:pk>/files/checkout', ProjectCheckoutView.as_view(), name='project_checkout'),
 
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
