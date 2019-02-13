@@ -85,7 +85,7 @@
           data () {
             return {
               sessionStartUrl: '{% url "session_start_v1"  project.token cloud_environ %}',
-              fileCheckoutUrl: '{% url "project_checkout" project.id %}',
+              fileCheckoutUrl: '{% url "project_pull" project.id %}',
               terminalSetup: false,
               checkoutInProgress: false
             }

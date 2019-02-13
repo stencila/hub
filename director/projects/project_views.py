@@ -15,7 +15,7 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
-from lib.project_puller import ProjectSourcePuller
+from projects.project_puller import ProjectSourcePuller
 from lib.github_facade import user_github_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
@@ -272,7 +272,7 @@ class ProjectPullView(ProjectPermissionsMixin, View):
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
         cloner = ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request)
-        cloner.clone()
+        cloner.pull()
         return JsonResponse({'success': True})
 
 

@@ -3,8 +3,9 @@ import shutil
 import typing
 
 from django.http import HttpRequest
+from django.utils import timezone
 
-from projects.project_models import Project
+from projects.project_models import Project, ProjectEvent, ProjectEventType
 from projects.source_edit import SourceContentFacade
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication
@@ -35,17 +36,29 @@ class ProjectSourcePuller(object):
         """Combine the `target_directory` and project ID."""
         return generate_project_storage_directory(self.target_directory, self.project)
 
-    def clone(self) -> None:
-        """Perform the clone of the project files."""
-        shutil.rmtree(self.project_directory)
+    def pull(self) -> None:
+        """Perform the pull of the project files."""
+        event = ProjectEvent(event_type=ProjectEventType.SOURCE_PULL.name, project=self.project)
+        event.save()
         os.makedirs(self.project_directory, exist_ok=True)
-        self.clone_directory()
+        try:
+            self.pull_directory()
+        except Exception as e:
+            event.message = str(e)
+            event.finished = timezone.now()
+            event.success = False
+            event.save()
+            raise
 
-    def clone_directory(self, sub_directory: typing.Optional[str] = None) -> None:
+        event.finished = timezone.now()
+        event.success = True
+        event.save()
+
+    def pull_directory(self, sub_directory: typing.Optional[str] = None) -> None:
         """
-        Clone one 'virtual' directory.
+        Pull one 'virtual' directory to disk.
 
-        Will create directories and files in `sub_directory`, then recurse into directories to repeat the clone.
+        Will create directories and files in `sub_directory`, then recurse into directories to repeat the pull.
         """
         dir_list = list_project_virtual_directory(self.project, sub_directory, self.authentication)
 
@@ -65,4 +78,4 @@ class ProjectSourcePuller(object):
         directory_entries = filter(lambda e: e.type == DirectoryEntryType.DIRECTORY, dir_list)
 
         for directory in directory_entries:
-            self.clone_directory(os.path.join(working_directory, directory.name))
+            self.pull_directory(os.path.join(working_directory, directory.name))

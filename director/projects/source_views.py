@@ -9,12 +9,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from django.views import View
 from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
 
 from lib.github_facade import user_github_token
 from projects.permission_models import ProjectPermissionType
-from projects.project_pull import ProjectPullHelper
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
 from projects.source_models import LinkedSourceAuthentication, DiskFileSource
@@ -145,7 +143,7 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
         return repo_path
 
     def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
-        self.pre_post(request, project_pk)
+        self.pre_post_check(request, project_pk)
 
         content_facade = self.get_content_facade(request, project_pk, pk, path)
         return self.perform_post(request, project_pk, path, content_facade)
@@ -237,24 +235,3 @@ class FileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, DeleteVi
             return reverse('project_files_path', kwargs={'pk': self.kwargs['project_pk'], 'path': path})
         else:
             return reverse('project_files', kwargs={'pk': self.kwargs['project_pk']})
-
-
-class TempCheckoutView(View, ProjectPermissionsMixin):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def post(self, request: HttpRequest, project_pk: int) -> HttpResponse:
-        if not request.user.is_superuser:
-            raise PermissionDenied
-
-        project = self.get_project(self.request.user, project_pk)
-
-        output_path = '/tmp/stencila-pull/{}/{}'.format(request.user.id, project_pk)
-        # todo make this safe and read from settings
-
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-
-        puller = ProjectPullHelper(project, authentication, output_path)
-
-        puller.pull()
-
-        return HttpResponse('Project Pulled')

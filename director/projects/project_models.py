@@ -7,6 +7,7 @@ from io import BytesIO
 from django.db import models
 
 from accounts.models import Account
+from lib.enum_choice import EnumChoice
 from projects.source_models import Source, FileSource
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -224,3 +225,59 @@ class Project(models.Model):
             instance.file.save(name, content, save=False)
             instance.modified = datetime.datetime.now(tz=timezone.utc)
             instance.save()
+
+
+class ProjectEventType(EnumChoice):
+    SOURCE_PULL = 'SOURCE_PULL'
+
+
+PROJECT_EVENT_LONG_TYPE_LOOKUP = {
+    ProjectEventType.SOURCE_PULL.name: 'Source Pull to Disk'  # type: ignore # mypy does not understand enums
+}
+
+
+class ProjectEvent(models.Model):
+    event_type = models.TextField(null=False,
+                                  blank=False,
+                                  choices=ProjectEventType.as_choices()
+                                  )
+
+    started = models.DateTimeField(
+        null=False,
+        blank=False,
+        auto_now_add=True,
+        help_text='DateTime this Event started.'
+    )
+
+    finished = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='DateTime this Event finished. If null assume it is still running.'
+    )
+
+    message = models.TextField(
+        null=True,
+        blank=True,
+        help_text='A message associated with this Event, may be an error message or some information or blank.'
+    )
+
+    success = models.BooleanField(
+        null=True,
+        blank=True,
+        help_text='Indicates if the event finished with success or not. If the Event is still in progress then success '
+                  'will be null.'
+    )
+
+    project = models.ForeignKey(Project,
+                                on_delete=models.CASCADE,
+                                null=False,
+                                related_name='events',
+                                help_text='The Project that this Event is for.'
+                                )
+
+    class Meta:
+        ordering = ['-started']
+
+    @property
+    def long_type(self) -> str:
+        return PROJECT_EVENT_LONG_TYPE_LOOKUP.get(self.event_type, 'Unknown')
