@@ -22,7 +22,8 @@ from projects.permission_facade import fetch_project_for_user, ProjectFetchResul
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
-from projects.source_operations import list_project_virtual_directory, path_entry_iterator
+from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
+    list_project_filesystem_directory, combine_virtual_and_real_entries
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -222,8 +223,11 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
-        directory_items = list_project_virtual_directory(self.project, path, authentication)
+        virtual_items = list_project_virtual_directory(self.project, path, authentication)
+        on_disk_items = list_project_filesystem_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self.project,
+                                                          path)
 
+        directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
                 'linked_sources': list(get_linked_sources_for_project(self.project)),
@@ -254,7 +258,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         return redirect(request.path)
 
 
-class ProjectCheckoutView(ProjectPermissionsMixin, View):
+class ProjectPullView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
@@ -262,12 +266,12 @@ class ProjectCheckoutView(ProjectPermissionsMixin, View):
 
         self.test_required_project_permission()
 
-        if not settings.STENCILA_CHECKOUT_DIRECTORY:
-            raise RuntimeError('STENCILA_CHECKOUT_DIRECTORY setting must be set to check out Project files.')
+        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
+            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to check out Project files.')
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
-        cloner = ProjectSourcePuller(self.project, settings.STENCILA_CHECKOUT_DIRECTORY, authentication, request)
+        cloner = ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request)
         cloner.clone()
         return JsonResponse({'success': True})
 

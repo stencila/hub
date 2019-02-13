@@ -2,6 +2,7 @@ import os
 import typing
 from os.path import dirname
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -16,8 +17,8 @@ from projects.permission_models import ProjectPermissionType
 from projects.project_pull import ProjectPullHelper
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
-from projects.source_models import LinkedSourceAuthentication
-from projects.source_operations import strip_directory
+from projects.source_models import LinkedSourceAuthentication, DiskFileSource
+from projects.source_operations import strip_directory, get_filesystem_project_path
 from .models import Project, Source, FileSource, DropboxSource, GithubSource
 from .source_forms import FileSourceForm, GithubSourceForm, SourceUpdateForm
 
@@ -129,16 +130,14 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
     def get_default_commit_message(request: HttpRequest):
         return 'Commit from Stencila Hub User {}'.format(request.user)
 
-    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
-        source = self.get_source(request.user, project_pk, pk)
-
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-
-        content_facade = SourceContentFacade(source, authentication, request, path)
-
+    def process_get(self, request: HttpRequest, content_facade: SourceContentFacade) -> HttpResponse:
         return self.render(request, content_facade.get_edit_context(), {
             'default_commit_message': self.get_default_commit_message(request)
         })
+
+    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+        content_facade = self.get_content_facade(request, project_pk, pk, path)
+        return self.process_get(request, content_facade)
 
     @staticmethod
     def get_github_repository_path(source, file_path):
@@ -146,35 +145,57 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
         return repo_path
 
     def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
-        self.perform_project_fetch(request.user, project_pk)
+        self.pre_post(request, project_pk)
 
+        content_facade = self.get_content_facade(request, project_pk, pk, path)
+        return self.perform_post(request, project_pk, path, content_facade)
+
+    def pre_post_check(self, request: HttpRequest, project_pk: int) -> None:
+        self.perform_project_fetch(request.user, project_pk)
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
-        source = self.get_source(request.user, project_pk, pk)
-
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-
-        content_facade = SourceContentFacade(source, authentication, request, path)
+    def perform_post(self, request: HttpRequest, project_pk: int, path: str, content_facade: SourceContentFacade):
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
         if not content_facade.update_content(request.POST['file_content'], commit_message):
             return self.render(request, content_facade.get_edit_context(), {
                 'commit_message': commit_message,
                 'default_commit_message': self.get_default_commit_message(request)
             })
-
         messages.success(request, 'Content of {} updated.'.format(os.path.basename(path)))
-
         directory = dirname(path)
-
         if directory:
             reverse_name = 'project_files_path'
             args = (project_pk, directory,)  # type: ignore
         else:
             reverse_name = 'project_files'
             args = (project_pk,)  # type: ignore
-
         return redirect(reverse(reverse_name, args=args))
+
+    def get_content_facade(self, request, project_pk, pk, path):
+        source = self.get_source(request.user, project_pk, pk)
+        authentication = LinkedSourceAuthentication(user_github_token(request.user))
+        return SourceContentFacade(source, authentication, request, path)
+
+
+class DiskFileSourceOpenView(FileSourceOpenView):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
+        fs_path = get_filesystem_project_path(settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
+                                              self.get_project(request.user, project_pk), path)
+        return SourceContentFacade(DiskFileSource(), None, request, fs_path)
+
+    def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, project_pk, -1, path)
+        return self.process_get(request, content_facade)
+
+    def post(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
+        self.pre_post_check(request, project_pk)
+
+        content_facade = self.get_content_facade(request, project_pk, -1, path)
+
+        return self.perform_post(request, project_pk, path, content_facade)
 
 
 class FileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, UpdateView):

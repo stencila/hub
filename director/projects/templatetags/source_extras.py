@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from projects.project_models import Project
 from projects.source_item_models import DirectoryListEntry, DirectoryEntryType
+from projects.source_models import DiskFileSource
 
 register = template.Library()
 
@@ -15,6 +16,9 @@ def source_path(project: Project, directory_entry: DirectoryListEntry):
         return reverse(view_name, args=view_args)
 
     if directory_entry.type == DirectoryEntryType.FILE:
-        return reverse('file_source_open', args=(project.pk, directory_entry.source.pk, directory_entry.path))
+        if isinstance(directory_entry.source, DiskFileSource):
+            return reverse('real_file_source_open', args=(project.pk, directory_entry.path))
+        else:
+            return reverse('file_source_open', args=(project.pk, directory_entry.source.pk, directory_entry.path))
 
     return ""

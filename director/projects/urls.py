@@ -4,10 +4,10 @@ from projects.project_host_views import (ProjectHostManifestView, ProjectHostSes
 from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
-                                    ProjectArchiveView, ProjectDeleteView, ProjectCheckoutView)
+                                    ProjectArchiveView, ProjectDeleteView, ProjectPullView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
-                                   FileSourceDeleteView, TempCheckoutView)
+                                   FileSourceDeleteView, TempCheckoutView, DiskFileSourceOpenView)
 
 urlpatterns = [
     # Generic views
@@ -21,12 +21,13 @@ urlpatterns = [
     path('<int:pk>/files/browse/<path:path>', ProjectFilesView.as_view(), name='project_files_path'),
     path('<int:pk>/files/create', FileSourceCreateView.as_view(), name='filesource_create'),
     path('<int:pk>/files/upload', FileSourceUploadView.as_view(), name='filesource_upload'),
-    path('<int:pk>/files/checkout', ProjectCheckoutView.as_view(), name='project_checkout'),
+    path('<int:pk>/files/checkout', ProjectPullView.as_view(), name='project_checkout'),
 
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
 
     path('<int:project_pk>/files/<int:pk>/open/<path:path>', FileSourceOpenView.as_view(), name='file_source_open'),
+    path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='real_file_source_open'),
     path('<int:project_pk>/files/<int:pk>/update', FileSourceUpdateView.as_view(), name='source_update'),
     path('<int:project_pk>/files/<int:pk>/delete', FileSourceDeleteView.as_view(), name='source_delete'),
     path('<int:project_pk>/temp-checkout-view', TempCheckoutView.as_view(), name='temp_checkout_view'),

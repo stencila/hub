@@ -8,7 +8,7 @@ from projects.project_models import Project
 from projects.source_edit import SourceContentFacade
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication
-from projects.source_operations import list_project_virtual_directory
+from projects.source_operations import list_project_virtual_directory, generate_project_storage_directory
 
 
 class ProjectSourcePuller(object):
@@ -33,7 +33,7 @@ class ProjectSourcePuller(object):
     @property
     def project_directory(self) -> str:
         """Combine the `target_directory` and project ID."""
-        return os.path.join(self.target_directory, '{}'.format(self.project.id))
+        return generate_project_storage_directory(self.target_directory, self.project)
 
     def clone(self) -> None:
         """Perform the clone of the project files."""

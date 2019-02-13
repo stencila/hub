@@ -1,5 +1,8 @@
+import datetime
+import functools
 import os
 import typing
+from operator import attrgetter
 
 from github import GithubException
 
@@ -7,7 +10,11 @@ from lib.github_facade import GitHubFacade
 from projects.project_models import Project
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
-from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication
+from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskFileSource
+
+
+def generate_project_storage_directory(project_storage_root: str, project: Project):
+    return os.path.join(project_storage_root, '{}'.format(project.id))
 
 
 def normalise_path(path: str, append_slash: bool = False) -> str:
@@ -19,11 +26,20 @@ def normalise_path(path: str, append_slash: bool = False) -> str:
     return os.path.normpath(path) + ('/' if append_slash else '')
 
 
-def path_is_in_directory(path: str, directory: str) -> bool:
+def path_is_in_directory(path: str, directory: str, allow_matching: bool = False) -> bool:
     path = normalise_path(path)
     directory = normalise_path(directory, True)
 
-    return path.startswith(directory)
+    if path.startswith(directory):
+        return True
+
+    if not allow_matching:
+        return False
+
+    if not path.endswith('/'):
+        path += '/'
+
+    return path == directory
 
 
 def strip_directory(path: str, directory: str) -> str:
@@ -129,6 +145,51 @@ def list_project_virtual_directory(project: Project, directory: typing.Optional[
     """
     sources = project.sources.all()
     return sorted(list(sources_in_directory(directory, sources, authentication)))
+
+
+def os_dir_entry_to_directory_list_entry(virtual_path: str, dir_entry: os.DirEntry) -> DirectoryListEntry:
+    """Convert an `os.DirEntry` instance to a `DirectoryListEntry`."""
+    s: os.stat_result = dir_entry.stat()
+
+    return DirectoryListEntry(dir_entry.name, os.path.join(virtual_path, dir_entry.name),
+                              DirectoryEntryType.DIRECTORY if dir_entry.is_dir() else DirectoryEntryType.FILE,
+                              DiskFileSource(), datetime.datetime.fromtimestamp(s.st_mtime))
+
+
+def list_project_filesystem_directory(project_storage_root: str, project: Project,
+                                      relative_directory: typing.Optional[str]) -> typing.List[DirectoryListEntry]:
+    relative_directory = relative_directory or ''
+    directory_to_list = get_filesystem_project_path(project_storage_root, project, relative_directory)
+
+    if not os.path.isdir(directory_to_list):
+        return []
+
+    return sorted(list(map(functools.partial(os_dir_entry_to_directory_list_entry, relative_directory),
+                           os.scandir(directory_to_list))))
+
+
+def get_filesystem_project_path(project_storage_root: str, project: Project, relative_path: str) -> str:
+    project_storage_directory = os.path.realpath(generate_project_storage_directory(project_storage_root, project))
+    project_path = os.path.realpath(os.path.join(project_storage_directory, relative_path))
+    if not path_is_in_directory(project_path, project_storage_directory, True):
+        raise ValueError("Attempting to access path outside of project root.")
+    return project_path
+
+
+def combine_virtual_and_real_entries(virtual_files: typing.List[DirectoryListEntry],
+                                     real_files: typing.List[DirectoryListEntry]) -> typing.List[DirectoryListEntry]:
+    """
+    Combine a list of virtual on real files with virtual files taking precedence over real.
+
+    A real file should only be show in the list of files if it is not already represented by a virtual file (`Source`).
+
+    The reason for this is that after a pull (e.g. from Github) the files will exist on disk but we won't know where
+    they come from unless we can relate back to the `Source`.
+    """
+    name_getter = attrgetter('name')
+    virtual_names = list(map(name_getter, virtual_files))
+
+    return sorted(virtual_files + list(filter(lambda e: name_getter(e) not in virtual_names, real_files)))
 
 
 def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[PathEntry]:
