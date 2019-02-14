@@ -3,12 +3,14 @@ import typing
 from datetime import timedelta
 
 import requests
+from django.conf import settings
 from django.utils import timezone
 
 from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation
 from projects.models import Project, Session
 from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT, \
     SESSION_QUEUE_CREATION_TIMEOUT
+from projects.source_operations import generate_project_storage_directory
 
 SESSION_CREATE_PATH_FORMAT = "sessions/{}"
 
@@ -179,6 +181,9 @@ class CloudSessionFacade(object):
 
         Don't call this method unless the check_* methods have already been called.
         """
+        session_parameters['mounts'] = [
+            self.generate_project_volume_mount()
+        ]
         attach_context = self.client.start_session(environ, session_parameters)
 
         # TODO should we record some of the request
@@ -241,3 +246,11 @@ class CloudSessionFacade(object):
 
     def generate_authorization_token(self, execution_id: typing.Optional[str]) -> str:
         return self.client.generate_authorization_token(execution_id)
+
+    def generate_project_volume_mount(self) -> dict:
+        return {
+            "destination": "/stencila-project",
+            "source": generate_project_storage_directory(settings.STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY,
+                                                         self.project),
+            "options": ["rw"]
+        }

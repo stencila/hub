@@ -236,7 +236,11 @@ class Common(Configuration):
     STENCILA_GITHUB_APPLICATION_NAME = 'INSERT A REAL APP NAME HERE Stencila Github Integration'
     STENCILA_GITHUB_APPLICATION_URL = 'INSERT A REAL URL HERE https://github.com/settings/apps/stencila/installations'
 
+    # Path to store project pulls for the hub
     STENCILA_PROJECT_STORAGE_DIRECTORY = values.Value('')
+
+    # Path where the remote executor can find the above Project pulls. By default this is the same as hub path
+    STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(STENCILA_PROJECT_STORAGE_DIRECTORY)
 
 
 class Dev(Common):

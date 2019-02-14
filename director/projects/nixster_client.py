@@ -32,6 +32,9 @@ class NixsterClient(RestClientBase):
             if memory_limit is not None:
                 request_data['memoryLimit'] = '{}'.format(memory_limit * 1024 * 1024 * 1024)  # bytes to GB
 
+            if 'mounts' in session_parameters:
+                request_data['mounts'] = session_parameters['mounts']
+
         result = self.make_request(HttpMethod.POST, self.get_full_url('start'), body_data=request_data)
         return result['containerId']
 
