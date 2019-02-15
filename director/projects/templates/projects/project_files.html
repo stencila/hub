@@ -5,6 +5,7 @@
 
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="files" %}
+    {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
 
     <div class="level">
         <div class="level-right">
@@ -99,7 +100,7 @@
             </div>
         </div>
     </div>
-    <table class="table is-fullwidth">
+    <table class="table is-fullwidth is-striped is-bordered">
         <thead>
         <tr>
             <th colspan="6">

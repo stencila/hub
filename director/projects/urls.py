@@ -4,7 +4,8 @@ from projects.project_host_views import (ProjectHostManifestView, ProjectHostSes
 from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
-                                    ProjectArchiveView, ProjectDeleteView, ProjectPullView)
+                                    ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
+                                    ProjectNamedArchiveDownloadView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
                                    FileSourceDeleteView, DiskFileSourceOpenView)
@@ -38,6 +39,8 @@ urlpatterns = [
     path('<int:pk>/settings/metadata', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
     path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions'),
+    path('<int:pk>/archives', ProjectArchiveView.as_view(), name='project_archives'),
+    path('<int:pk>/archives/<name>', ProjectNamedArchiveDownloadView.as_view(), name='project_named_archive_download'),
 
     # Per project Host API
     path('<str:token>/host/', include([
@@ -55,7 +58,7 @@ urlpatterns = [
         ]))
     ])),
 
-    path('<int:pk>/archive/', ProjectArchiveView.as_view(), name='project_archive'),
+    path('<int:pk>/archive/', ProjectArchiveDownloadView.as_view(), name='project_archive'),
 
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
 

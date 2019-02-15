@@ -14,7 +14,11 @@ from projects.source_models import Source, FileSource, GithubSource, LinkedSourc
 
 
 def generate_project_storage_directory(project_storage_root: str, project: Project):
-    return os.path.join(project_storage_root, '{}'.format(project.id))
+    return os.path.join(project_storage_root, 'projects', '{}'.format(project.id))
+
+
+def generate_project_archive_directory(project_storage_root: str, project: Project):
+    return os.path.join(project_storage_root, 'archives', '{}'.format(project.id))
 
 
 def normalise_path(path: str, append_slash: bool = False) -> str:
@@ -169,10 +173,15 @@ def list_project_filesystem_directory(project_storage_root: str, project: Projec
 
 
 def get_filesystem_project_path(project_storage_root: str, project: Project, relative_path: str) -> str:
+    """
+    Get the path of a file relative to the `Project`'s storage directory.
+
+    If path traversal is attempted (e.g. relative path contains '/../') then an OSError is raised.
+    """
     project_storage_directory = os.path.realpath(generate_project_storage_directory(project_storage_root, project))
     project_path = os.path.realpath(os.path.join(project_storage_directory, relative_path))
     if not path_is_in_directory(project_path, project_storage_directory, True):
-        raise ValueError("Attempting to access path outside of project root.")
+        raise OSError("Attempting to access path outside of project root.")
     return project_path
 
 

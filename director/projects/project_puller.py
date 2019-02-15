@@ -43,16 +43,14 @@ class ProjectSourcePuller(object):
         os.makedirs(self.project_directory, exist_ok=True)
         try:
             self.pull_directory()
+            event.success = True
         except Exception as e:
             event.message = str(e)
-            event.finished = timezone.now()
             event.success = False
-            event.save()
             raise
-
-        event.finished = timezone.now()
-        event.success = True
-        event.save()
+        finally:
+            event.finished = timezone.now()
+            event.save()
 
     def pull_directory(self, sub_directory: typing.Optional[str] = None) -> None:
         """

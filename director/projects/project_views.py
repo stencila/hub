@@ -1,5 +1,7 @@
 import json
+import os
 import typing
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -15,15 +17,17 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
-from projects.project_puller import ProjectSourcePuller
 from lib.github_facade import user_github_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
+from projects.project_archiver import ProjectArchiver
+from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
-    list_project_filesystem_directory, combine_virtual_and_real_entries
+    list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
+    path_is_in_directory
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -129,6 +133,18 @@ class ProjectPermissionsMixin(object):
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
         return get_highest_permission(self.project_permissions)
+
+    def get_project_puller(self, request: HttpRequest, pk: int) -> ProjectSourcePuller:
+        self.perform_project_fetch(request.user, pk)
+
+        self.test_required_project_permission()
+
+        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
+            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files.')
+
+        authentication = LinkedSourceAuthentication(user_github_token(request.user))
+
+        return ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request)
 
 
 class FilterOption(typing.NamedTuple):
@@ -262,17 +278,8 @@ class ProjectPullView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, pk)
-
-        self.test_required_project_permission()
-
-        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to check out Project files.')
-
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-
-        cloner = ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request)
-        cloner.pull()
+        puller = self.get_project_puller(request, pk)
+        puller.pull()
         return JsonResponse({'success': True})
 
 
@@ -446,7 +453,7 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
         return reverse("project_settings_sessions", kwargs={'pk': self.object.pk})
 
 
-class ProjectArchiveView(ProjectPermissionsMixin, View):
+class ProjectArchiveDownloadView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
@@ -456,7 +463,7 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
         body = archive.getvalue()
 
         response = HttpResponse(body, content_type='application/x-zip-compressed')
-        response['Content-Disposition'] = 'attachment; filename={}.zip'.format('project.name')
+        response['Content-Disposition'] = 'attachment; filename={}.zip'.format(project.name)
         return response
 
 
@@ -465,3 +472,62 @@ class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
     template_name = 'projects/project_delete.html'
     success_url = reverse_lazy('project_list')
     project_permission_required = ProjectPermissionType.MANAGE
+
+
+class ProjectArchiveView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+    template_name = 'projects/project_archives.html'
+
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
+        project = self.get_project(request.user, pk)
+
+        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        if os.path.isdir(archives_directory):
+            archives = map(lambda e: {
+                'name': e.name,
+                'size': e.stat().st_size,
+                'created': datetime.fromtimestamp(e.stat().st_ctime)
+            }, filter(lambda e: not e.name.startswith('.'),
+                      sorted(
+                          os.scandir(archives_directory), key=lambda e: e.stat().st_mtime, reverse=True)
+                      )
+                           )
+        else:
+            archives = []  # type: ignore
+
+        return render(request, self.template_name, self.get_render_context({'archives': archives}))
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        self.project_permission_required = ProjectPermissionType.EDIT
+        project = self.get_project(request.user, pk)
+        puller = self.get_project_puller(request, pk)
+
+        archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, puller)
+
+        try:
+            archiver.archive_project()
+        except Exception as e:
+            messages.error(request, 'Archive failed: {}'.format(e))
+        else:
+            messages.success(request, 'Archive created successfully.')
+
+        return redirect(reverse('project_archives', args=(pk,)))
+
+
+class ProjectNamedArchiveDownloadView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, pk: int, name: str) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, pk)
+
+        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        archive_path = os.path.realpath(os.path.join(archives_directory, name))
+
+        if not path_is_in_directory(archive_path, archives_directory):
+            raise PermissionDenied
+
+        with open(archive_path, 'rb') as archive_file:
+            response = HttpResponse(archive_file, content_type='application/x-zip-compressed')
+            response['Content-Disposition'] = 'attachment; filename={}'.format(name)
+            return response

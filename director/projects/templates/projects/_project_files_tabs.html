@@ -1,0 +1,29 @@
+<div class="tabs is-right">
+  <ul>
+
+    {% if tab == "files" %}
+    <li class="is-active">
+      <a>
+    {% else %}
+    <li>
+      <a href="{% url 'project_files' project.pk %}">
+    {% endif %}
+        <span class="icon is-small"><i class="fas fa-file" aria-hidden="true"></i></span>
+        <span>Current Files</span>
+      </a>
+    </li>
+
+    {% if tab == "archives" %}
+    <li class="is-active">
+      <a>
+    {% else %}
+    <li>
+      <a href="{% url 'project_archives' project.pk %}">
+    {% endif %}
+        <span class="icon is-small"><i class="fas fa-file-archive" aria-hidden="true"></i></span>
+        <span>Archives</span>
+      </a>
+    </li>
+
+  </ul>
+</div>

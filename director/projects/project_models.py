@@ -229,10 +229,12 @@ class Project(models.Model):
 
 class ProjectEventType(EnumChoice):
     SOURCE_PULL = 'SOURCE_PULL'
+    ARCHIVE = 'ARCHIVE'
 
 
 PROJECT_EVENT_LONG_TYPE_LOOKUP = {
-    ProjectEventType.SOURCE_PULL.name: 'Source Pull to Disk'  # type: ignore # mypy does not understand enums
+    ProjectEventType.SOURCE_PULL.name: 'Source Pull to Disk',  # type: ignore # mypy does not understand enums
+    ProjectEventType.ARCHIVE.name: 'Archive'  # type: ignore # mypy does not understand enums
 }
 
 
