@@ -18,7 +18,7 @@ from projects.source_edit import SourceEditContext, SourceContentFacade
 from projects.source_models import LinkedSourceAuthentication, DiskFileSource
 from projects.source_operations import strip_directory, get_filesystem_project_path
 from .models import Project, Source, FileSource, DropboxSource, GithubSource
-from .source_forms import FileSourceForm, GithubSourceForm, SourceUpdateForm
+from .source_forms import GithubSourceForm, SourceUpdateForm, RelativeFileSourceForm
 
 
 class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
@@ -37,17 +37,33 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
         file_source = form.save(commit=False)
         file_source.project = get_object_or_404(Project, pk=pk)
         file_source.save()
-        return HttpResponseRedirect(
-            reverse("project_files", kwargs={'pk': pk})
-        )
+
+        if self.request.GET.get('directory'):
+            reverse_path = reverse("project_files_path", args=(pk, self.request.GET['directory']))
+        else:
+            reverse_path = reverse("project_files", args=(pk,))
+
+        return HttpResponseRedirect(reverse_path)
 
 
 class FileSourceCreateView(SourceCreateView):
     """A view for creating a new, emtpy local file in the project."""
 
     model = FileSource
-    form_class = FileSourceForm
+    form_class = RelativeFileSourceForm
     template_name = 'projects/filesource_create.html'
+
+    @property
+    def current_directory(self) -> str:
+        return self.request.GET.get('directory', '')
+
+    def get_context_data(self, **kwargs):
+        return super(FileSourceCreateView, self).get_context_data(current_directory=self.current_directory)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['current_directory'] = self.current_directory
+        return kwargs
 
 
 class DropboxSourceCreateView(SourceCreateView):

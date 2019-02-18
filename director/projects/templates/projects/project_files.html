@@ -10,7 +10,7 @@
     <div class="level">
         <div class="level-right">
             <div class="level-item buttons">
-                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}">
+                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
                     <span class="icon is-small">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                     </span>
