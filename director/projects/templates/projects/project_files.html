@@ -159,7 +159,7 @@
                 </td>
 
                 <td>
-                    {% if not directory_entry.is_directory %}
+                    {% if directory_entry|is_text_editable %}
                         <div class="select">
                             <select @change="editorSelectChange">
                                 <option>Open with&hellip;</option>

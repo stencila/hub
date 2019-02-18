@@ -1,3 +1,5 @@
+import typing
+
 from django import template
 from django.urls import reverse
 
@@ -22,3 +24,17 @@ def source_path(project: Project, directory_entry: DirectoryListEntry):
             return reverse('file_source_open', args=(project.pk, directory_entry.source.pk, directory_entry.path))
 
     return ""
+
+
+@register.filter
+def is_text_editable(directory_entry: typing.Any):
+    if not isinstance(directory_entry, DirectoryListEntry):
+        return False
+
+    directory_entry = typing.cast(DirectoryListEntry, directory_entry)
+
+    if directory_entry.is_directory or not directory_entry.mimetype:
+        return False
+
+    return directory_entry.mimetype == 'Unknown' or (
+                '/' in directory_entry.mimetype and directory_entry.mimetype.split('/')[0] == 'text')
