@@ -1,39 +1,87 @@
 {% extends 'base.html' %}
-{% load humanize static escape_extras source_extras %}
+{% load humanize static escape_extras source_extras crispy_forms_tags %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 
 {% block content %}
+    <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     {% include "projects/_project_header.html" with project=project tab="files" %}
     {% include "projects/_project_files_tabs.html" with project=project tab="archives" %}
-    <table class="table is-fullwidth is-striped is-bordered">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Created</th>
-            <th>Size</th>
-            <th>Download</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for archive in archives %}
+    <section id="project_archives">
+    <delete-confirm-modal
+                        :delete-modal-visible="deleteModalVisible"
+                        delete-action="remove_archive"
+                        delete-id-name="archive_name"
+                        :delete-id-value="removeArchiveName"
+                        delete-button-label="Delete"
+                        @modal-hide="hideDeleteModal()">
+                    <template slot="title">Delete archive?</template>
+                    <template slot="csrf_token">{% csrf_token %}</template>
+                    <template slot="body">Are you sure you want to delete the archive <em>[[ removeArchiveName ]]</em>?
+                    </template>
+                </delete-confirm-modal>
+        <table class="table is-fullwidth is-striped is-bordered">
+            <thead>
             <tr>
-                <td>{{ archive.name }}</td>
-                <td>{{ archive.created|date:"SHORT_DATETIME_FORMAT" }}</td>
-                <td>{{ archive.size|filesizeformat }}</td>
-                <td><a href="{% url 'project_named_archive_download' project.pk archive.name %}" class="button is-rounded">Download</a></td>
+                <th>Name</th>
+                <th>Created</th>
+                <th>Size</th>
+                <th>Actions</th>
             </tr>
-        {% empty %}
-            <tr>
-                <td colspan="4">No archives.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <div class="container">
-        <form method="post">
-            {% csrf_token %}
-            <button class="button is-primary is-rounded"  type="submit">Create Archive</button>
-        </form>
-    </div>
+            </thead>
+            <tbody>
+            {% for archive in archives %}
+                <tr>
+                    <td>{{ archive.name }}</td>
+                    <td>{{ archive.created|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    <td>{{ archive.size|filesizeformat }}</td>
+                    <td>
+                        <a class="icon" href="{% url 'project_named_archive_download' project.pk archive.name %}"
+                           title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <a class="icon has-text-danger"
+                           href="#"
+                           title="Delete&hellip;" @click.prevent="showDeleteModal('{{ archive.name|escapejs }}')">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No archives.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="container" style="margin-bottom: 15px;">
+            <h4 class="subtitle is-4">Create Archive</h4>
+            <p>Create a zip file of the files in this project. The file name contains the date the archive was
+                created.</p>
+        </div>
+        <div class="container">
+            {% crispy form %}
+        </div>
+    </section>
+    <script>
+      new Vue({
+        el: '#project_archives',
+        delimiters: ['[[', ']]'],
+        data: {
+          deleteModalVisible: false,
+          removeArchiveName: null,
+        },
+        methods: {
+          showDeleteModal (archiveName) {
+            this.deleteModalVisible = true
+            this.removeArchiveName = archiveName
+          },
+          hideDeleteModal () {
+            this.deleteModalVisible = false
+            this.removeArchiveName = null
+          }
+        }
+      })
+
+    </script>
 {% endblock %}

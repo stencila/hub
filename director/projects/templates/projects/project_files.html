@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 {% if linked_sources %}
-                    <div class="dropdown" id="unlink" @click="active = !active" :class="{ 'is-active':active }">
+                    <div class="dropdown" style="margin-left: 0.5em" id="unlink" @click="active = !active" :class="{ 'is-active':active }">
                         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
                         <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
                                               delete-action="unlink_source"
