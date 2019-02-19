@@ -212,18 +212,19 @@ class Common(Configuration):
     AVATAR_GRAVATAR_DEFAULT = 'identicon'
 
     # Stencila settings
+    NIXSTER_URL = values.Value('')
 
     # URL of Stencila native execution host
     # This default value is the local development URL for
     # the `stencila/cloud` host
-    NATIVE_HOST_URL = values.Value('http://localhost:2000')
+    NATIVE_HOST_URL = values.Value(NIXSTER_URL)
 
-    EXECUTION_CLIENT = values.Value('CLOUD')
+    EXECUTION_CLIENT = values.Value('NIXSTER')
 
     # URL of this application. This is used by editors and other
     # external applications to callback to the director.
     # It needs to be the URL that the user is logged in to
-    # the hub so that credentails are sent.
+    # the hub so that credentils are sent.
     # This default value is the usual value in development
     CALLBACK_URL = values.Value('http://localhost:3000')
 
@@ -233,13 +234,15 @@ class Common(Configuration):
     GS_PUBLIC_READABLE_PATHS = ['avatars/*']
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
-    STENCILA_GITHUB_APPLICATION_NAME = 'INSERT A REAL APP NAME HERE Stencila Github Integration'
-    STENCILA_GITHUB_APPLICATION_URL = 'INSERT A REAL URL HERE https://github.com/settings/apps/stencila/installations'
+    STENCILA_GITHUB_APPLICATION_NAME = values.Value('INSERT A REAL APP NAME HERE Stencila Github Integration')
+    STENCILA_GITHUB_APPLICATION_URL = values.Value('INSERT A REAL URL HERE '
+                                                   'https://github.com/settings/apps/stencila/installations')
 
     # Path to store project pulls for the hub
     STENCILA_PROJECT_STORAGE_DIRECTORY = values.Value('')
 
-    # Path where the remote executor can find the above Project pulls. By default this is the same as hub path
+    # Path where the remote executor can find the above Project pulls.
+    # By default this is the same as the path in the hub
     STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(STENCILA_PROJECT_STORAGE_DIRECTORY)
 
 
