@@ -49,7 +49,14 @@ class RestClientBase(object):
         # TODO: add `SessionParameters` to the POST body (currently they won't do anything anyway)
         response = requests.request(method.value, url, headers=self.get_authorization_header(extra_jwt_payload),
                                     json=body_data)
-        response.raise_for_status()
+
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            response_body = response.content
+            if response_body == '':  # to satisfy flake8
+                pass
+            raise e
 
         try:
             return response.json()
