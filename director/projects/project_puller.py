@@ -66,14 +66,21 @@ class ProjectSourcePuller(object):
         for entry in dir_list:
             output_path = os.path.join(fs_working_directory, entry.name)
 
-            if entry.type == DirectoryEntryType.DIRECTORY:
+            if entry.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE):
+                if os.path.exists(output_path) and not os.path.isdir(output_path):
+                    os.unlink(output_path)  # remove path if is a file
+
                 os.makedirs(output_path, exist_ok=True)
-            elif entry.type == DirectoryEntryType.FILE:
+            else:
                 scf = SourceContentFacade(entry.source, self.authentication, self.request, entry.path)
+                if os.path.exists(output_path) and os.path.isdir(output_path):
+                    shutil.rmtree(output_path)  # remove path if it is a directory
+
                 with open(output_path, 'wb') as f:
                     shutil.copyfileobj(scf.get_binary_content(), f)
 
-        directory_entries = filter(lambda e: e.type == DirectoryEntryType.DIRECTORY, dir_list)
+        directory_entries = filter(lambda e: e.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE),
+                                   dir_list)
 
         for directory in directory_entries:
             self.pull_directory(os.path.join(working_directory, directory.name))
