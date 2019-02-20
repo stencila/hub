@@ -56,6 +56,7 @@ class Common(Configuration):
         'polymorphic',
         'storages',
         'rest_framework',
+        'django_intercom',
 
         # Our apps
 
@@ -211,6 +212,8 @@ class Common(Configuration):
 
     AVATAR_GRAVATAR_DEFAULT = 'identicon'
 
+    INTERCOM_APPID = values.Value('y554dhej')
+
     # Stencila settings
     NIXSTER_URL = values.Value('')
 
@@ -303,6 +306,7 @@ class Dev(Common):
     STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration (Test)'
     STENCILA_GITHUB_APPLICATION_URL = 'https://github.com/organizations/stencila/settings/apps/' \
                                       'stencila-hub-integration-test/installations'
+    INTERCOM_DISABLED = True
 
 
 class Prod(Common):
@@ -352,3 +356,7 @@ class Prod(Common):
     RAVEN_CONFIG = {
         'dsn': values.Value(environ_name='SENTRY_DSN')
     }
+
+    STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration'
+    STENCILA_GITHUB_APPLICATION_URL = 'https://github.com/organizations/stencila/settings/apps/' \
+                                      'stencila-hub-integration/installations'

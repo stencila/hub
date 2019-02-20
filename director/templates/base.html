@@ -1,4 +1,4 @@
-{% load static %}
+{% load static intercom %}
 
 <!DOCTYPE html>
 <html>
@@ -39,6 +39,9 @@
         {% endblock %}
         {% block footer %}{% include "_footer.html" %}{% endblock %}
         <script type="text/javascript" src="{% static 'js/hamburger.js' %}" defer></script>
+        {% if user.is_authenticated and not user.details.auto %}
+            {% intercom_tag %}
+        {% endif %}
     </body>
 
 </html>
