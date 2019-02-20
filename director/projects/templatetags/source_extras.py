@@ -26,8 +26,15 @@ def source_path(project: Project, directory_entry: DirectoryListEntry):
     return ""
 
 
+def mimetype_text_editable(mimetype: str) -> bool:
+    if mimetype in ('Unknown', 'application/javascript'):
+        return True
+
+    return '/' in mimetype and mimetype.split('/')[0] == 'text'
+
+
 @register.filter
-def is_text_editable(directory_entry: typing.Any):
+def is_text_editable(directory_entry: typing.Any) -> bool:
     if not isinstance(directory_entry, DirectoryListEntry):
         return False
 
@@ -36,5 +43,4 @@ def is_text_editable(directory_entry: typing.Any):
     if directory_entry.is_directory or not directory_entry.mimetype:
         return False
 
-    return directory_entry.mimetype == 'Unknown' or (
-                '/' in directory_entry.mimetype and directory_entry.mimetype.split('/')[0] == 'text')
+    return mimetype_text_editable(directory_entry.mimetype)
