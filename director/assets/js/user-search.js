@@ -12,6 +12,9 @@ Vue.component('user-autocomplete', {
         '            </b-autocomplete>\n' +
         '        </b-field>',
     delimiters: ['[[', ']]'],
+    beforeMount() {
+        this.$buefy.setOptions({defaultIconPack: 'fas'})
+    },
     props: {
         'skipResults': {
             type: Array,

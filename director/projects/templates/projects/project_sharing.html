@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags static escape_extras %}
-
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
+    {{ block.super }}
+{% endblock %}
 {% block scripts %}
     {{ block.super }}
     <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
 {% endblock %}
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="sharing" %}
