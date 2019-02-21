@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static account_permissions %}
 {% block title %}Team {{ team.id }} : Members {% endblock %}
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
+    {{ block.super }}
+{% endblock %}
 {% block content %}
     {% include "accounts/_account_header.html" with account=account tab="teams" %}
     {% include "accounts/_team_header.html" with account=account team=team team_tab="members" %}
@@ -20,21 +24,24 @@
                     <em>{{ team.name }}</em>?
                 </template>
             </delete-confirm-modal>
-            <form method="post">
-                {% csrf_token %}
-                <div class="columns">
-                    <div class="column">
-                        <user-autocomplete @username-selected="usernameSelected" :skip-results="currentMembers"></user-autocomplete>
+            <div class="section">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="columns">
+                        <div class="column">
+                            <user-autocomplete @username-selected="usernameSelected"
+                                               :skip-results="currentMembers"></user-autocomplete>
+                        </div>
+                        <div class="column">
+                            <button class="button is-success" name="action" value="add_member" type="submit"
+                                    :disabled="selectedUsername == ''">Add
+                            </button>
+                        </div>
                     </div>
-                    <div class="column">
-                        <button class="button is-success" name="action" value="add_member" type="submit"
-                                :disabled="selectedUsername == ''">Add
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         {% endif %}
-        <table class="table is-fullwidth">
+        <table class="table is-fullwidth is-striped is-bordered">
             <thead>
             <tr>
                 <th>User</th>
@@ -66,29 +73,29 @@
         <script src="{% static "js/user-search.js" %}"></script>
         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
         <script>
-            new Vue({
-                el: '#member-access',
-                delimiters: ['[[', ']]'],
-                data: {
-                    deleteModalVisible: false,
-                    removeUserName: null,
-                    selectedUsername: "",
-                    currentMembers: JSON.parse("{{ current_members|escapejs }}")
-                },
-                methods: {
-                    showDeleteModal(username) {
-                        this.deleteModalVisible = true
-                        this.removeUserName = username
-                    },
-                    hideDeleteModal() {
-                        this.deleteModalVisible = false
-                        this.removeUserName = null
-                    },
-                    usernameSelected(username) {
-                        this.selectedUsername = username
-                    }
-                }
-            })
+          new Vue({
+            el: '#member-access',
+            delimiters: ['[[', ']]'],
+            data: {
+              deleteModalVisible: false,
+              removeUserName: null,
+              selectedUsername: '',
+              currentMembers: JSON.parse("{{ current_members|escapejs }}")
+            },
+            methods: {
+              showDeleteModal (username) {
+                this.deleteModalVisible = true
+                this.removeUserName = username
+              },
+              hideDeleteModal () {
+                this.deleteModalVisible = false
+                this.removeUserName = null
+              },
+              usernameSelected (username) {
+                this.selectedUsername = username
+              }
+            }
+          })
         </script>
     {% endif %}
 {% endblock %}
