@@ -6,7 +6,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation
+from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation, SessionLocation
 from projects.models import Project, Session
 from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE_CHECK_TIMEOUT, \
     SESSION_QUEUE_CREATION_TIMEOUT
@@ -244,7 +244,7 @@ class CloudSessionFacade(object):
             self.update_session_info(session)
             session.save()
 
-    def generate_external_location(self, execution_id) -> dict:
+    def generate_external_location(self, execution_id: str) -> SessionLocation:
         return self.client.generate_location(execution_id)
 
     def generate_project_volume_mount(self) -> dict:

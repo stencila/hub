@@ -23,6 +23,14 @@ class SessionInformation(typing.NamedTuple):
     status: SessionStatus  # This is probably only going to be RUNNING or STOPPED
 
 
+class SessionLocation(typing.NamedTuple):
+    path: str
+    host: typing.Optional[str] = None
+
+    def to_dict(self) -> dict:
+        return {'path': self.path, 'host': self.host}
+
+
 class SessionAttachContext(typing.NamedTuple):
     url: str
     execution_id: str = ''
@@ -81,9 +89,9 @@ class RestClientBase(object):
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         raise NotImplementedError('Subclasses must implement start_session')
 
-    def generate_authorization_token(self, execution_id: typing.Optional[str]) -> str:
-        """Intended to be overridden but a safe default."""
-        return ''
+    def generate_location(self, execution_id: str) -> SessionLocation:
+        """Intended to be overridden."""
+        raise NotImplementedError("Subclasses must implement generate_location")
 
     def get_session_info(self, session: Session) -> SessionInformation:
         """Get information about the session. At this stage we are only interested in its status."""

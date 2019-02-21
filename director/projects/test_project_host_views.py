@@ -173,11 +173,10 @@ class ProjectHostSessionsViewTests(TestCase):
 
         self.view.get_session_request_to_use.assert_not_called()
         self.view.create_session.assert_not_called()
-        self.view.session_facade.generate_authorization_token.assert_called_with(mock_session.execution_id)
+        self.view.session_facade.generate_external_location.assert_called_with(mock_session.execution_id)
 
         mock_json_response_class.assert_called_with({
-            'url': session_url,
-            'auth': self.view.session_facade.generate_authorization_token.return_value
+            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
         })
 
     @mock.patch('projects.project_host_views.JsonResponse')
@@ -197,9 +196,10 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view.create_session.assert_called_with(self.request, self.environ, 'session_key',
                                                     self.view.get_session_request_to_use.return_value)
 
+        self.view.session_facade.generate_external_location.assert_called_with(
+            self.view.create_session.return_value.execution_id)
         mock_json_response_class.assert_called_with({
-            'url': self.view.create_session.return_value.url,
-            'auth': self.view.session_facade.generate_authorization_token.return_value
+            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
         })
         self.view.create_session_request.assert_not_called()
 
@@ -392,7 +392,12 @@ class TestProjectSessionRequestView(TestCase):
 
     @mock.patch('projects.project_host_views.get_object_or_404')
     @mock.patch('projects.project_host_views.JsonResponse')
-    def test_get_with_success(self, mock_json_response_class, mock_get_object):
+    @mock.patch('projects.project_host_views.settings')
+    def test_get_with_success(self, mock_settings, mock_json_response_class, mock_get_object):
+        mock_settings.EXECUTION_SERVER_HOST = 'server_host'
+        mock_settings.EXECUTION_SERVER_PROXY_PATH = '/proxy'
+        mock_settings.JWT_SECRET = 'abc123'
+
         project = mock.MagicMock(spec=Project, name='Project')
         mock_get_object.return_value = project
         self.view.get_session_request = mock.MagicMock(name='get_session_request')

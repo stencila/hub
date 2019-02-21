@@ -1,7 +1,7 @@
 import typing
 from urllib.parse import urlparse, quote, urlunparse
 
-from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation
+from projects.client_base import RestClientBase, HttpMethod, SessionAttachContext, SessionInformation, SessionLocation
 from projects.session_models import SessionStatus, Session
 
 
@@ -68,7 +68,7 @@ class NixsterClient(RestClientBase):
         container_id = self.start_container(environ, session_parameters)
         return self.generate_attach_context(environ, container_id)
 
-    def generate_location(self, execution_id: str) -> dict:
+    def generate_location(self, execution_id: str) -> SessionLocation:
         if self.server_proxy_path:
             host = None
             path = self.server_proxy_path
@@ -76,11 +76,14 @@ class NixsterClient(RestClientBase):
             host = self.server_host
             path = ''
 
-        path += '/interact?containerId={}&token={}'.format(
+        separator = '' if path.endswith('/') else ''
+
+        path += '{}interact?containerId={}&token={}'.format(
+            separator,
             quote(execution_id),
             self.generate_jwt_token({'cid': execution_id})
         )
-        return dict(host=host, path=path)
+        return SessionLocation(path, host)
 
     def get_session_info(self, session: Session) -> SessionInformation:
         container_id = session.execution_id
