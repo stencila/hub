@@ -68,16 +68,19 @@
       Terminal.applyAddon(fit)
       Terminal.applyAddon(winptyCompat)
 
-      function setUpTerminal (url, authorization) {
-        const joiner = url.indexOf('?') === -1 ? '?' : '&'
+      function setUpTerminal (location) {
         const term = new Terminal()
         term.winptyCompatInit()
         const container = document.getElementById('terminal')
         container.style.display = 'block'
         term.open(container)
         term.fit()
-        const socket = new WebSocket(url + joiner + `token=${authorization}`)
+        const protocol = (window.location.protocol === 'https:') ? 'wss:' : 'ws:'
+        const host = location.host ? location.host : window.location.host
+        const url = `${protocol}//${host}${location.path}`
+        const socket = new WebSocket(url)
         socket.onopen = (ev) => { term.attach(socket) }
+        socket.onerror = (ev) => console.error(ev)
       }
 
       new Vue(
@@ -106,14 +109,14 @@
                 credentials: 'same-origin'
               }).then(response => {
                   response.json().then(data => {
-                    setUpTerminal(data.url, data.auth)
+                    setUpTerminal(data.location)
                     this.terminalSetup = true
                   })
                 },
                 jsonFailure => {
                   console.error(jsonFailure)
                 }
-              ).then(failureResponse => {
+              ).catch(failureResponse => {
                 alert(failureResponse.message)
               })
             },

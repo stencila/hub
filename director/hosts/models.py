@@ -20,7 +20,7 @@ class Host(PolymorphicModel):
 class NativeHost(Host):
     """Stencila's native execution host based on stencila/cloud."""
 
-    base_url = settings.NATIVE_HOST_URL
+    base_url = None
 
     def url(self):
         """Get the URL for this host session."""

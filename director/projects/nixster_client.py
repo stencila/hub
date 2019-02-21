@@ -68,9 +68,19 @@ class NixsterClient(RestClientBase):
         container_id = self.start_container(environ, session_parameters)
         return self.generate_attach_context(environ, container_id)
 
-    def generate_authorization_token(self, execution_id: typing.Optional[str]) -> str:
-        """Intended to be overridden but a safe default."""
-        return self.generate_jwt_token({'cid': execution_id})
+    def generate_location(self, execution_id: str) -> str:
+        if self.server_proxy_path:
+            host = None
+            path = self.server_proxy_path
+        else:
+            host = self.server_host
+            path = ''
+        
+        path += '/interact?containerId={}&token={}'.format(
+            quote(execution_id), 
+            self.generate_jwt_token({'cid': execution_id})
+        )
+        return dict(host = host, path = path)
 
     def get_session_info(self, session: Session) -> SessionInformation:
         container_id = session.execution_id

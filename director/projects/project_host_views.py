@@ -67,15 +67,15 @@ class CloudClientMixin(object):
     session_facade: CloudSessionFacade
 
     def setup_cloud_client(self, project: Project) -> None:
-        # TODO: This will eventually come from the `SessionParameters` for this project
-        host_url = settings.NATIVE_HOST_URL
-        jwt_secret = settings.JWT_SECRET  # TODO: This will eventually come from the settings for the remote host
+        server_host = settings.EXECUTION_SERVER_HOST
+        server_proxy_path = settings.EXECUTION_SERVER_PROXY_PATH
+        jwt_secret = settings.JWT_SECRET
 
         client_class = {
             'NIXSTER': NixsterClient
         }.get(settings.EXECUTION_CLIENT, CloudClient)
 
-        client = client_class(host_url, jwt_secret)
+        client = client_class(server_host, server_proxy_path, jwt_secret)
         self.session_facade = CloudSessionFacade(project, client)
 
 
@@ -202,8 +202,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
                 return self.create_session_request(request, token, environ)
 
         return JsonResponse({
-            'url': session.url,
-            'auth': self.session_facade.generate_authorization_token(session.execution_id)
+            'location': self.session_facade.generate_external_location(session.execution_id)
         })
 
     def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:

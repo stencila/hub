@@ -244,8 +244,8 @@ class CloudSessionFacade(object):
             self.update_session_info(session)
             session.save()
 
-    def generate_authorization_token(self, execution_id: typing.Optional[str]) -> str:
-        return self.client.generate_authorization_token(execution_id)
+    def generate_external_location(self, execution_id) -> dict:
+        return self.client.generate_location(execution_id)
 
     def generate_project_volume_mount(self) -> dict:
         return {

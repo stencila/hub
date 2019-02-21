@@ -215,13 +215,9 @@ class Common(Configuration):
     INTERCOM_APPID = values.Value('y554dhej')
 
     # Stencila settings
-    NIXSTER_URL = values.Value('')
 
-    # URL of Stencila native execution host
-    # This default value is the local development URL for
-    # the `stencila/cloud` host
-    NATIVE_HOST_URL = values.Value(NIXSTER_URL)
-
+    EXECUTION_SERVER_HOST = values.Value()
+    EXECUTION_SERVER_PROXY_PATH = values.Value()
     EXECUTION_CLIENT = values.Value('NIXSTER')
 
     # URL of this application. This is used by editors and other

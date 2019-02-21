@@ -32,11 +32,14 @@ class SessionAttachContext(typing.NamedTuple):
 
 
 class RestClientBase(object):
-    host_url: str
+    server_host: str
+    server_proxy_path: str
     jwt_secret: str
 
-    def __init__(self, host_url: str, jwt_secret: str) -> None:
-        self.host_url = host_url + "/" if not host_url.endswith("/") else host_url  # ensure trailing /
+    def __init__(self, server_host: str, server_proxy_path: str, jwt_secret: str) -> None:
+        assert len(server_host)
+        self.server_host = server_host
+        self.server_proxy_path = server_proxy_path
         self.jwt_secret = jwt_secret
 
     def get_authorization_header(self, extra_payload: typing.Optional[dict] = None) -> typing.Dict[str, str]:
@@ -64,7 +67,7 @@ class RestClientBase(object):
             raise Exception('Error parsing body: ' + response.text)
 
     def get_full_url(self, path: str) -> str:
-        return urljoin(self.host_url, path)
+        return urljoin('http://' + self.server_host, path)
 
     def generate_jwt_token(self, extra_payload: typing.Optional[dict] = None) -> str:
         """Create a JWT token for the host."""
