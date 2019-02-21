@@ -115,6 +115,8 @@ class Common(Configuration):
         environ_prefix='DJANGO'  # For consistent naming with other env vars
     )
 
+    DEFAULT_FROM_EMAIL = values.Value('hello@stenci.la')
+
     # Authentication
 
     AUTHENTICATION_BACKENDS = (
