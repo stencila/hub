@@ -56,7 +56,7 @@ class Common(Configuration):
         'polymorphic',
         'storages',
         'rest_framework',
-
+        'django_intercom',
 
         # Our apps
 
@@ -329,12 +329,10 @@ class Prod(Common):
 
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
-        'raven.contrib.django.raven_compat',
-        'django_intercom'
+        'raven.contrib.django.raven_compat'
     ]
 
     INTERCOM_APPID = values.Value('')
-
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
