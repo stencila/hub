@@ -12,15 +12,6 @@ from lib.forms import ModelFormWithSubmit
 from projects.project_models import Project
 from .source_models import FileSource, GithubSource, Source
 
-# TODO: these should be proper mime types!
-FILE_TYPES = [
-    # ('text/folder', 'Folder'),
-    ('text/dar', 'Dar'),
-    ('text/dockerfile', 'Dockerfile'),
-    ('text/ipynb', 'Jupyter Notebook'),
-    ('text/rmarkdown', 'RMarkdown'),
-]
-
 
 def validate_unique_project_path(project: Project, path: str, existing_source_pk: typing.Optional[int] = None) -> None:
     """
@@ -55,7 +46,6 @@ class VirtualPathField(forms.CharField):
 
 
 class FileSourceForm(ModelFormWithSubmit):
-    type = forms.ChoiceField(choices=FILE_TYPES)
     path = VirtualPathField(required=True)
 
     current_directory: str = ''
@@ -63,10 +53,6 @@ class FileSourceForm(ModelFormWithSubmit):
     class Meta:
         model = FileSource
         fields = ('path',)
-        widgets = {
-            'type': forms.Select(),
-            'path': forms.TextInput()
-        }
 
     def __init__(self, *args, **kwargs):
         if 'current_directory' in kwargs:
