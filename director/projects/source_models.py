@@ -156,7 +156,7 @@ class FileSource(Source):
 
     def push(self, archive: typing.Union[str, typing.IO]):
         if isinstance(archive, str):
-            f = ContentFile(archive)
+            f = ContentFile(archive.encode('utf-8'))
         else:
             f = File(archive)
         self.file.save(self.path, f)

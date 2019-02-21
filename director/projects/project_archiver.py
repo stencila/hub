@@ -22,15 +22,17 @@ class ProjectArchiver(object):
         self.project = project
         self.puller = puller
 
-    def generate_archive_name(self) -> str:
-        prefix = slugify(self.project.name)[:32] if self.project.name else ''
+    def generate_archive_name(self, prefix: typing.Optional[str]) -> str:
+        prefix = '{}-'.format(prefix) if prefix else ''
 
-        if not prefix:
-            prefix = '{}'.format(self.project.id)
+        formatted_name = slugify(self.project.name)[:32] if self.project.name else ''
 
-        return '{}-{}'.format(prefix, datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+        if not formatted_name:
+            formatted_name = '{}'.format(self.project.id)
 
-    def archive_project(self, archive_name: typing.Optional[str] = None) -> None:
+        return '{}{}-{}'.format(prefix, formatted_name, datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+
+    def archive_project(self, name_prefix: typing.Optional[str] = None) -> None:
         self.puller.pull()
 
         project_dir = self.puller.project_directory
@@ -38,8 +40,7 @@ class ProjectArchiver(object):
         event = ProjectEvent(event_type=ProjectEventType.ARCHIVE.name, project=self.project)
         event.save()
 
-        if not archive_name:
-            archive_name = self.generate_archive_name()
+        archive_name = self.generate_archive_name(name_prefix)
 
         try:
             output_dir, output_path = self.build_archive_paths(archive_name)

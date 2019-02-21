@@ -10,7 +10,7 @@
     <div class="level">
         <div class="level-right">
             <div class="level-item buttons">
-                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}">
+                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
                     <span class="icon is-small">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                     </span>
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 {% if linked_sources %}
-                    <div class="dropdown" id="unlink" @click="active = !active" :class="{ 'is-active':active }">
+                    <div class="dropdown" style="margin-left: 0.5em" id="unlink" @click="active = !active" :class="{ 'is-active':active }">
                         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
                         <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
                                               delete-action="unlink_source"
@@ -159,7 +159,7 @@
                 </td>
 
                 <td>
-                    {% if not directory_entry.is_directory %}
+                    {% if directory_entry|is_text_editable %}
                         <div class="select">
                             <select @change="editorSelectChange">
                                 <option>Open with&hellip;</option>

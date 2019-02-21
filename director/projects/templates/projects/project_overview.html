@@ -10,14 +10,15 @@
             <br/>
         </div>
         <div class="columns">
-            <div class="column is-10">
+            <div class="column is-9">
                 {% if project.description %}
                     <p>{{ project.description }}</p>
                 {% else %}
                     <p class="has-text-grey-light">No description yet</p>
                 {% endif %}
             </div>
-            <div class="column is-2" id="id-project-actions">
+            <div class="column is-3" id="id-project-actions">
+                {% comment %}
                 <div class="row">
                     <a class="button is-rounded is-fullwidth is-primary"
                        href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
@@ -33,6 +34,7 @@
                         <span>Download</span>
                     </a>
                 </div>
+                {% endcomment %}
                 <div class="row is-top-padding">
                     <button class="button is-rounded is-fullwidth" type="button" @click="startSession">
                         <span class="icon is-small"><i class="fas fa-rocket"></i></span>
@@ -42,8 +44,8 @@
                 <div class="row is-top-padding">
                     <button class="button is-rounded is-fullwidth" type="button" @click="checkoutFiles">
                         <span class="icon is-small"><i class="fas fa-file-export"></i></span>
-                        <span v-if="!checkoutInProgress">Checkout Files</span>
-                        <span v-if="checkoutInProgress">Checking out&hellip;</span>
+                        <span v-if="!checkoutInProgress">Pull Files</span>
+                        <span v-if="checkoutInProgress">Pulling Files&hellip;</span>
                     </button>
                 </div>
             </div>

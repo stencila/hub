@@ -73,9 +73,14 @@ class NixsterClient(RestClientBase):
         return self.generate_jwt_token({'cid': execution_id})
 
     def get_session_info(self, session: Session) -> SessionInformation:
+        container_id = session.execution_id
+
+        if not container_id:
+            return SessionInformation(SessionStatus.STOPPED)  # If we have no container_id then it must not be running
+
         request_data = {
             'environmentId': 'multi-mega',  # TODO: this should not be required on front or backend
-            'containerId': session.execution_id
+            'containerId': container_id
         }
 
         response = self.make_request(HttpMethod.POST, self.get_full_url('container-status'),

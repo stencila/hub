@@ -1,3 +1,4 @@
+import os
 import re
 import typing
 from pathlib import PurePosixPath
@@ -57,6 +58,8 @@ class FileSourceForm(ModelFormWithSubmit):
     type = forms.ChoiceField(choices=FILE_TYPES)
     path = VirtualPathField(required=True)
 
+    current_directory: str = ''
+
     class Meta:
         model = FileSource
         fields = ('path',)
@@ -65,11 +68,25 @@ class FileSourceForm(ModelFormWithSubmit):
             'path': forms.TextInput()
         }
 
+    def __init__(self, *args, **kwargs):
+        if 'current_directory' in kwargs:
+            self.current_directory = kwargs.pop('current_directory')
+
+        super(FileSourceForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
+
+        if cleaned_data.get('path') is not None:
+            cleaned_data['path'] = os.path.join(self.current_directory, cleaned_data['path'])
+
         if self.is_valid():
             validate_unique_project_path(self.initial['project'], cleaned_data['path'])
         return cleaned_data
+
+
+class RelativeFileSourceForm(FileSourceForm):
+    path = VirtualPathField(label='File name', required=True)
 
 
 class SourceUpdateForm(ModelForm):

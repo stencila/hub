@@ -65,18 +65,18 @@ class SourceContentFacade(object):
         source = typing.cast(FileSource, self.source)
         return BytesIO(source.pull_binary())
 
-    def get_github_source_content(self) -> str:
+    def get_github_facade_and_path(self):
         source = typing.cast(GithubSource, self.source)
         path_in_repo = self.get_github_repository_path()
-
         gh = GitHubFacade(source.repo, self.authentication.github_token if self.authentication else None)
+        return gh, path_in_repo
+
+    def get_github_source_content(self) -> str:
+        gh, path_in_repo = self.get_github_facade_and_path()
         return gh.get_file_content(path_in_repo)
 
     def get_github_source_binary_content(self) -> BytesIO:
-        source = typing.cast(GithubSource, self.source)
-        path_in_repo = self.get_github_repository_path()
-
-        gh = GitHubFacade(source.repo, self.authentication.github_token if self.authentication else None)
+        gh, path_in_repo = self.get_github_facade_and_path()
         return BytesIO(gh.get_binary_file_content(path_in_repo))
 
     def get_github_repository_path(self) -> str:

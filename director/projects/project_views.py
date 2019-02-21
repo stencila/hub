@@ -35,8 +35,8 @@ from .project_forms import (
     ProjectSharingForm,
     ProjectSettingsMetadataForm,
     ProjectSettingsAccessForm,
-    ProjectSettingsSessionsForm
-)
+    ProjectSettingsSessionsForm,
+    ProjectArchiveForm)
 
 User = get_user_model()
 
@@ -481,8 +481,14 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
         project = self.get_project(request.user, pk)
 
-        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        archives = self.list_archives(project)
 
+        return render(request, self.template_name,
+                      self.get_render_context({'archives': archives, 'form': ProjectArchiveForm()}))
+
+    @staticmethod
+    def list_archives(project: Project):
+        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
         if os.path.isdir(archives_directory):
             archives = map(lambda e: {
                 'name': e.name,
@@ -495,18 +501,45 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
                            )
         else:
             archives = []  # type: ignore
-
-        return render(request, self.template_name, self.get_render_context({'archives': archives}))
+        return archives
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         self.project_permission_required = ProjectPermissionType.EDIT
         project = self.get_project(request.user, pk)
+
+        if request.POST.get('action') == 'remove_archive':
+            archive_name = request.POST.get('archive_name')
+
+            if archive_name and archive_name != '.':
+                archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
+                                                                        project)
+                archive_path = os.path.realpath(os.path.join(archives_directory, archive_name))
+
+                if not path_is_in_directory(archive_path, archives_directory):
+                    raise PermissionDenied
+
+                if os.path.exists(archive_path):
+                    os.unlink(archive_path)
+                    messages.success(request, 'Archive {} was deleted successfully.'.format(archive_name))
+                else:
+                    messages.warning(request, 'Archive {} does not exist.'.format(archive_name))
+
+            return redirect(reverse('project_archives', args=(pk,)))
+
+        form = ProjectArchiveForm(request.POST)
+
+        if not form.is_valid():
+            archives = self.list_archives(project)
+
+            return render(request, self.template_name,
+                          self.get_render_context({'archives': archives, 'form': form}))
+
         puller = self.get_project_puller(request, pk)
 
         archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, puller)
 
         try:
-            archiver.archive_project()
+            archiver.archive_project(form.cleaned_data['tag'])
         except Exception as e:
             messages.error(request, 'Archive failed: {}'.format(e))
         else:
