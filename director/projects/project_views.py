@@ -377,19 +377,22 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
                 if not username:
                     raise ValueError("Blank username provided")
 
-                user = User.objects.get(username=username)
-
-                if user == request.user:
-                    messages.error(request, 'You can not alter your own access.')
+                try:
+                    user = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    messages.error(request, 'User "{}" does not exist.'.format(username))
                 else:
-                    agent_id = user.pk
-                    content_type_class = User
+                    if user == request.user:
+                        messages.error(request, 'You can not alter your own access.')
+                    else:
+                        agent_id = user.pk
+                        content_type_class = User
             else:  # action == add_team_roles
                 team_id = request.POST['team_id']
                 try:
                     team = Team.objects.get(pk=team_id)
                 except Team.DoesNotExist:
-                    messages.error(request, "Team with PK {} does not exist.".format(team_id))
+                    messages.error(request, "Team with ID {} does not exist.".format(team_id))
                 else:
                     if team.account != self.project.account:
                         messages.error(request, "The selected Team does not belong to this account.")
