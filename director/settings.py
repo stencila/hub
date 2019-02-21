@@ -56,7 +56,7 @@ class Common(Configuration):
         'polymorphic',
         'storages',
         'rest_framework',
-        'django_intercom',
+
 
         # Our apps
 
@@ -115,7 +115,7 @@ class Common(Configuration):
         environ_prefix='DJANGO'  # For consistent naming with other env vars
     )
 
-    DEFAULT_FROM_EMAIL = values.Value('hello@stenci.la')
+    DEFAULT_FROM_EMAIL = values.Value('')
 
     # Authentication
 
@@ -213,8 +213,6 @@ class Common(Configuration):
     }
 
     AVATAR_GRAVATAR_DEFAULT = 'identicon'
-
-    INTERCOM_APPID = values.Value('y554dhej')
 
     # Stencila settings
 
@@ -331,8 +329,11 @@ class Prod(Common):
 
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
-        'raven.contrib.django.raven_compat'
+        'raven.contrib.django.raven_compat',
+        'django_intercom'
     ]
+
+    INTERCOM_APPID = values.Value('')
 
     # JWT secret must be set as environment
     # variable when in production
@@ -354,7 +355,3 @@ class Prod(Common):
     RAVEN_CONFIG = {
         'dsn': values.Value(environ_name='SENTRY_DSN')
     }
-
-    STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration'
-    STENCILA_GITHUB_APPLICATION_URL = 'https://github.com/organizations/stencila/settings/apps/' \
-                                      'stencila-hub-integration/installations'
