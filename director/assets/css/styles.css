@@ -14112,6 +14112,8 @@ body, html {
 #main_section {
   padding-bottom: 136px;
   height: 100%; }
+  #main_section > .container {
+    padding-bottom: 35px; }
 
 .footer {
   position: absolute;
