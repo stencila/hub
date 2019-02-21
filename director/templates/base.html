@@ -21,14 +21,20 @@
         <script>
             Vue.use(Buefy.default)
         </script>
+
+            <style>
+
+
+            </style>
         <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}"> -->
         {% endblock %}
     </head>
 
     <body class="has-navbar-fixed-top has-navbar-fixed-top-touch">
+        <div id="body">
         {% block header %}{% include "_header.html" %}{% endblock %}
         {% block main %}
-        <main class="section">
+        <main id="main_section" class="section">
             <div class="container">
                 {% include "_messages.html" %}
                 {% block content %}{% endblock %}
@@ -36,6 +42,7 @@
         </main>
         {% endblock %}
         {% block footer %}{% include "_footer.html" %}{% endblock %}
+        </div>
         <script type="text/javascript" src="{% static 'js/hamburger.js' %}" defer></script>
         {% if user.is_authenticated and not user.details.auto %}
             {% intercom_tag %}

@@ -39,3 +39,22 @@ $stencila-dropdown-font-weight: $weight-light
 
 /// Plugins
 @import 'hamburgers/_sass/hamburgers/hamburgers.scss'
+
+$footer-height: 136px
+
+body, html
+  height: 100%
+
+#body
+    min-height: 100%
+    position: relative
+
+#main_section
+    padding-bottom: $footer-height
+    height: 100%
+
+.footer
+    position: absolute
+    bottom: 0
+    height: $footer-height
+    width: 100%;

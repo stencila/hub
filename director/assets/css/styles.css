@@ -14101,3 +14101,20 @@ button.dropdown-item {
     bottom: 0;
     -webkit-transform: rotate(-90deg);
             transform: rotate(-90deg); }
+
+body, html {
+  height: 100%; }
+
+#body {
+  min-height: 100%;
+  position: relative; }
+
+#main_section {
+  padding-bottom: 136px;
+  height: 100%; }
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  height: 136px;
+  width: 100%; }
