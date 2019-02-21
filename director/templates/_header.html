@@ -37,7 +37,6 @@
                                         <span style="margin: 0 0.5em">{{ user.username }}</span>
                                     </header>
                                     <div class="dropdown-items">
-
                                         <a class="dropdown-item" href="{% url 'project_list' %}">Projects</a>
                                         <a class="dropdown-item" href="{% url 'account_list' %}">Accounts</a>
                                         {% if user.is_staff %}

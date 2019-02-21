@@ -12691,6 +12691,10 @@ button[type="submit"] {
   width: auto;
   max-width: 100%; }
 
+.tabs.is-toggle li.is-active a {
+  background-color: #d4d4d4;
+  border-color: #c4c4c4; }
+
 .footer {
   font-weight: 300;
   color: #ffffff;
