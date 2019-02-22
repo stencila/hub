@@ -76,7 +76,7 @@ class NixsterClient(RestClientBase):
             host = self.server_host
             path = ''
 
-        separator = '' if path.endswith('/') else ''
+        separator = '' if path.endswith('/') else '/'
 
         path += '{}interact?containerId={}&token={}'.format(
             separator,
