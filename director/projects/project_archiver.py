@@ -1,5 +1,6 @@
-import shutil
+import os
 import typing
+import zipfile
 from datetime import datetime
 
 from django.utils import timezone
@@ -8,7 +9,7 @@ from django.utils.text import slugify
 from projects.project_models import ProjectEvent, ProjectEventType
 from projects.project_puller import ProjectSourcePuller
 from projects.source_operations import generate_project_archive_directory, path_is_in_directory, utf8_makedirs, \
-    utf8_path_join
+    utf8_path_join, to_utf8
 from .models import Project
 
 
@@ -32,6 +33,15 @@ class ProjectArchiver(object):
 
         return '{}{}-{}'.format(prefix, formatted_name, datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
 
+    @staticmethod
+    def archive_directory(output_path: str, project_dir: str) -> None:
+        with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zip_handle:
+            for root, dirs, files in os.walk(to_utf8(project_dir)):
+                for file in files:
+                    file_path = utf8_path_join(root, file)
+                    relative_path = file_path[len(project_dir):]
+                    zip_handle.write(to_utf8(file_path), relative_path)
+
     def archive_project(self, name_prefix: typing.Optional[str] = None) -> None:
         self.puller.pull()
 
@@ -45,7 +55,7 @@ class ProjectArchiver(object):
         try:
             output_dir, output_path = self.build_archive_paths(archive_name)
             utf8_makedirs(output_dir, exist_ok=True)
-            shutil.make_archive(output_path, 'zip', project_dir)
+            self.archive_directory(output_path, project_dir)
             event.success = True
         except Exception as e:
             event.success = False
