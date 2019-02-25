@@ -166,7 +166,8 @@ class ProjectListView(BetaTokenRequiredMixin, View):
                 projects = Project.objects.filter(account__in=accounts)
             elif filter_key == 'shared':
                 roles = ProjectAgentRole.filter_with_user_teams(user=request.user)
-                projects = map(lambda par: par.project, roles)   
+                all_projects = map(lambda par: par.project, roles) 
+                projects = filter(lambda proj: proj.creator != request.user, all_projects)  
             elif filter_key == 'public':
                 projects = Project.objects.filter(public=True)
             else:
