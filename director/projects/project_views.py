@@ -238,6 +238,8 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
+        path = path or ''
+
         virtual_items = list_project_virtual_directory(self.project, path, authentication)
         on_disk_items = list_project_filesystem_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self.project,
                                                           path)
@@ -551,6 +553,7 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         try:
             archiver.archive_project(form.cleaned_data['tag'])
         except Exception as e:
+            raise
             messages.error(request, 'Archive failed: {}'.format(e))
         else:
             messages.success(request, 'Archive created successfully.')
