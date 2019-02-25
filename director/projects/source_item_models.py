@@ -35,11 +35,11 @@ class DirectoryListEntry(MimeTypeFromPathMixin):
     source: typing.Union[Source, DiskFileSource]
     _modification_date: typing.Optional[datetime]
 
-    def __init__(self, name: str, path: str, entry_type: DirectoryEntryType,
+    def __init__(self, name: typing.Union[str, bytes], path: typing.Union[str, bytes], entry_type: DirectoryEntryType,
                  source: typing.Union[Source, DiskFileSource],
                  modification_date: typing.Optional[datetime] = None) -> None:
-        self.name = name
-        self.path = path
+        self.name = name if isinstance(name, str) else name.decode('utf8')
+        self.path = path if isinstance(path, str) else path.decode('utf8')
         self.type = entry_type
         self.source = source
         self._modification_date = modification_date

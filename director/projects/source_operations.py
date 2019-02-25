@@ -3,6 +3,7 @@ import functools
 import os
 import typing
 from operator import attrgetter
+from os import DirEntry
 
 from github import GithubException
 
@@ -13,12 +14,54 @@ from projects.source_item_models import PathEntry, DirectoryListEntry, Directory
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskFileSource
 
 
-def generate_project_storage_directory(project_storage_root: str, project: Project):
-    return os.path.join(project_storage_root, 'projects', '{}'.format(project.id))
+def to_utf8(s: typing.Union[str, bytes]) -> bytes:
+    """If a `str` is passed in, return its utf8 encoding, ff `bytes`, assume it is already utf8 and just return it."""
+    return s.encode('utf8') if isinstance(s, str) else s
 
 
-def generate_project_archive_directory(project_storage_root: str, project: Project):
-    return os.path.join(project_storage_root, 'archives', '{}'.format(project.id))
+def utf8_path_join(*args: typing.Union[str, bytes]) -> str:
+    """Encode `str` typed args into `bytes` using utf8 then passes all to `os.path.join`."""
+    return os.path.join(*list(map(to_utf8, args))).decode('utf8')
+
+
+def utf8_normpath(path: typing.Union[str, bytes]) -> str:
+    return os.path.normpath(to_utf8(path)).decode('utf8')
+
+
+def utf8_isdir(path: typing.Union[str, bytes]) -> bool:
+    return os.path.isdir(to_utf8(path))
+
+
+def utf8_basename(path: typing.Union[str, bytes]) -> str:
+    return os.path.basename(to_utf8(path)).decode('utf8')
+
+
+def utf8_realpath(path: typing.Union[str, bytes]) -> str:
+    return os.path.realpath(to_utf8(path)).decode('utf8')
+
+
+def utf8_path_exists(path: typing.Union[str, bytes]) -> bool:
+    return os.path.exists(to_utf8(path))
+
+
+def utf8_unlink(path: typing.Union[str, bytes]) -> None:
+    os.unlink(to_utf8(path))
+
+
+def utf8_makedirs(path: typing.Union[str, bytes], *args, **kwargs) -> None:
+    os.makedirs(to_utf8(path), *args, **kwargs)
+
+
+def generate_project_storage_directory(project_storage_root: str, project: Project) -> str:
+    return utf8_path_join(project_storage_root, 'projects', '{}'.format(project.id))
+
+
+def generate_project_archive_directory(project_storage_root: str, project: Project) -> str:
+    return utf8_path_join(project_storage_root, 'archives', '{}'.format(project.id))
+
+
+def utf8_scandir(path: typing.Union[str, bytes]) -> typing.Iterable[DirEntry]:
+    yield from os.scandir(to_utf8(path))
 
 
 def normalise_path(path: str, append_slash: bool = False) -> str:
@@ -27,7 +70,7 @@ def normalise_path(path: str, append_slash: bool = False) -> str:
 
     append_slash = append_slash or path.endswith('/')
 
-    return os.path.normpath(path) + ('/' if append_slash else '')
+    return utf8_normpath(path) + ('/' if append_slash else '')
 
 
 def path_is_in_directory(path: str, directory: str, allow_matching: bool = False) -> bool:
@@ -69,10 +112,10 @@ def list_linked_source_directory(source: Source, path_in_source: str, facade: ty
         if facade is None:
             raise TypeError("Can't list GitHub without a GitHubFacade passed in.")
 
-        full_repository_path = os.path.join(source.subpath, path_in_source)
+        full_repository_path = utf8_path_join(source.subpath, path_in_source)
         for name, is_directory, modification_date in facade.list_directory(full_repository_path):
             entry_type = DirectoryEntryType.DIRECTORY if is_directory else DirectoryEntryType.FILE
-            yield DirectoryListEntry(name, os.path.join(source.path, path_in_source, name), entry_type, source,
+            yield DirectoryListEntry(name, utf8_path_join(source.path, path_in_source, name), entry_type, source,
                                      modification_date)
     else:
         raise TypeError("Don't know how to list directory for source type {}".format(type(source)))
@@ -103,10 +146,10 @@ def make_directory_entry(directory: str, source: Source):
     relative_path = strip_directory(source.path, directory)
     entry_type = determine_entry_type(source, relative_path)
     if entry_type == DirectoryEntryType.FILE:
-        name = os.path.basename(relative_path)
+        name = utf8_basename(relative_path)
     else:
         name = relative_path.split('/')[0]
-    full_path = os.path.join(directory, name)
+    full_path = utf8_path_join(directory, name)
     return DirectoryListEntry(name, full_path, entry_type, source)
 
 
@@ -155,7 +198,7 @@ def os_dir_entry_to_directory_list_entry(virtual_path: str, dir_entry: os.DirEnt
     """Convert an `os.DirEntry` instance to a `DirectoryListEntry`."""
     s: os.stat_result = dir_entry.stat()
 
-    return DirectoryListEntry(dir_entry.name, os.path.join(virtual_path, dir_entry.name),
+    return DirectoryListEntry(dir_entry.name.decode('utf8'), utf8_path_join(virtual_path, dir_entry.name),
                               DirectoryEntryType.DIRECTORY if dir_entry.is_dir() else DirectoryEntryType.FILE,
                               DiskFileSource(), datetime.datetime.fromtimestamp(s.st_mtime))
 
@@ -165,11 +208,11 @@ def list_project_filesystem_directory(project_storage_root: str, project: Projec
     relative_directory = relative_directory or ''
     directory_to_list = get_filesystem_project_path(project_storage_root, project, relative_directory)
 
-    if not os.path.isdir(directory_to_list):
+    if not utf8_isdir(directory_to_list):
         return []
 
     return sorted(list(map(functools.partial(os_dir_entry_to_directory_list_entry, relative_directory),
-                           os.scandir(directory_to_list))))
+                           utf8_scandir(directory_to_list))))
 
 
 def get_filesystem_project_path(project_storage_root: str, project: Project, relative_path: str) -> str:
@@ -178,8 +221,8 @@ def get_filesystem_project_path(project_storage_root: str, project: Project, rel
 
     If path traversal is attempted (e.g. relative path contains '/../') then an OSError is raised.
     """
-    project_storage_directory = os.path.realpath(generate_project_storage_directory(project_storage_root, project))
-    project_path = os.path.realpath(os.path.join(project_storage_directory, relative_path))
+    project_storage_directory = utf8_realpath(generate_project_storage_directory(project_storage_root, project))
+    project_path = utf8_realpath(utf8_path_join(project_storage_directory, relative_path))
     if not path_is_in_directory(project_path, project_storage_directory, True):
         raise OSError("Attempting to access path outside of project root.")
     return project_path

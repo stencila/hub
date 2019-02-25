@@ -1,4 +1,3 @@
-import os
 import typing
 from io import BytesIO
 from os.path import splitext
@@ -10,7 +9,7 @@ from github import GithubException
 
 from lib.github_facade import GitHubFacade
 from projects.source_models import Source, GithubSource, FileSource, LinkedSourceAuthentication, DiskFileSource
-from projects.source_operations import strip_directory
+from projects.source_operations import strip_directory, utf8_path_join
 
 
 class SourceEditContext(typing.NamedTuple):
@@ -81,7 +80,7 @@ class SourceContentFacade(object):
 
     def get_github_repository_path(self) -> str:
         source = typing.cast(GithubSource, self.source)
-        return os.path.join(source.subpath, strip_directory(self.file_path, source.path))
+        return utf8_path_join(source.subpath, strip_directory(self.file_path, source.path))
 
     def get_edit_context(self) -> SourceEditContext:
         supports_commit_message = False

@@ -1,5 +1,4 @@
 import json
-import os
 import typing
 from datetime import datetime
 
@@ -27,7 +26,7 @@ from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
-    path_is_in_directory
+    path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -247,7 +246,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
                 'linked_sources': list(get_linked_sources_for_project(self.project)),
-                'current_directory': path or '',
+                'current_directory': path,
                 'breadcrumbs': path_entry_iterator(path),
                 'items': directory_items,
                 'inside_remote_source': False
@@ -477,7 +476,17 @@ class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
     project_permission_required = ProjectPermissionType.MANAGE
 
 
-class ProjectArchiveView(ProjectPermissionsMixin, View):
+class ArchivesDirMixin(object):
+    @staticmethod
+    def get_archives_directory(project: Project) -> str:
+        return generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+    @staticmethod
+    def get_archive_path(archives_directory, name) -> str:
+        return utf8_realpath(utf8_path_join(archives_directory, name))
+
+
+class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
     template_name = 'projects/project_archives.html'
 
@@ -489,17 +498,16 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
         return render(request, self.template_name,
                       self.get_render_context({'archives': archives, 'form': ProjectArchiveForm()}))
 
-    @staticmethod
-    def list_archives(project: Project):
-        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-        if os.path.isdir(archives_directory):
+    def list_archives(self, project: Project):
+        archives_directory = self.get_archives_directory(project)
+        if utf8_isdir(archives_directory):
             archives = map(lambda e: {
-                'name': e.name,
+                'name': e.name.decode('utf8'),
                 'size': e.stat().st_size,
                 'created': datetime.fromtimestamp(e.stat().st_ctime)
-            }, filter(lambda e: not e.name.startswith('.'),
+            }, filter(lambda e: not e.name.startswith(b'.'),
                       sorted(
-                          os.scandir(archives_directory), key=lambda e: e.stat().st_mtime, reverse=True)
+                          utf8_scandir(archives_directory), key=lambda e: e.stat().st_mtime, reverse=True)
                       )
                            )
         else:
@@ -514,15 +522,14 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
             archive_name = request.POST.get('archive_name')
 
             if archive_name and archive_name != '.':
-                archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
-                                                                        project)
-                archive_path = os.path.realpath(os.path.join(archives_directory, archive_name))
+                archives_directory = self.get_archives_directory(project)
+                archive_path = self.get_archive_path(archives_directory, archive_name)
 
                 if not path_is_in_directory(archive_path, archives_directory):
                     raise PermissionDenied
 
-                if os.path.exists(archive_path):
-                    os.unlink(archive_path)
+                if utf8_path_exists(archive_path):
+                    utf8_unlink(archive_path)
                     messages.success(request, 'Archive {} was deleted successfully.'.format(archive_name))
                 else:
                     messages.warning(request, 'Archive {} does not exist.'.format(archive_name))
@@ -551,14 +558,14 @@ class ProjectArchiveView(ProjectPermissionsMixin, View):
         return redirect(reverse('project_archives', args=(pk,)))
 
 
-class ProjectNamedArchiveDownloadView(ProjectPermissionsMixin, View):
+class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get(self, request: HttpRequest, pk: int, name: str) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
-        archives_directory = generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-        archive_path = os.path.realpath(os.path.join(archives_directory, name))
+        archives_directory = self.get_archives_directory(project)
+        archive_path = self.get_archive_path(archives_directory, name)
 
         if not path_is_in_directory(archive_path, archives_directory):
             raise PermissionDenied

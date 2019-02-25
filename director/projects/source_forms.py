@@ -1,4 +1,3 @@
-import os
 import re
 import typing
 from pathlib import PurePosixPath
@@ -10,6 +9,7 @@ from django.forms import ModelForm
 
 from lib.forms import ModelFormWithSubmit
 from projects.project_models import Project
+from projects.source_operations import utf8_path_join
 from .source_models import FileSource, GithubSource, Source
 
 
@@ -64,7 +64,7 @@ class FileSourceForm(ModelFormWithSubmit):
         cleaned_data = super().clean()
 
         if cleaned_data.get('path') is not None:
-            cleaned_data['path'] = os.path.join(self.current_directory, cleaned_data['path'])
+            cleaned_data['path'] = utf8_path_join(self.current_directory, cleaned_data['path'])
 
         if self.is_valid():
             validate_unique_project_path(self.initial['project'], cleaned_data['path'])

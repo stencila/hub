@@ -1,6 +1,5 @@
 import os
 import typing
-from os.path import dirname
 
 from django.conf import settings
 from django.contrib import messages
@@ -16,7 +15,7 @@ from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
 from projects.source_models import LinkedSourceAuthentication, DiskFileSource
-from projects.source_operations import strip_directory, get_filesystem_project_path
+from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join
 from .models import Project, Source, FileSource, DropboxSource, GithubSource
 from .source_forms import GithubSourceForm, SourceUpdateForm, RelativeFileSourceForm
 
@@ -155,7 +154,7 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
 
     @staticmethod
     def get_github_repository_path(source, file_path):
-        repo_path = os.path.join(source.subpath, strip_directory(file_path, source.path))
+        repo_path = utf8_path_join(source.subpath, strip_directory(file_path, source.path))
         return repo_path
 
     def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
@@ -177,7 +176,7 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
                 'default_commit_message': self.get_default_commit_message(request)
             })
         messages.success(request, 'Content of {} updated.'.format(os.path.basename(path)))
-        directory = dirname(path)
+        directory = os.path.dirname(path)
         if directory:
             reverse_name = 'project_files_path'
             args = (project_pk, directory,)  # type: ignore
