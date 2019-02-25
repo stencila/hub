@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from projects.project_models import ProjectEvent, ProjectEventType
 from projects.project_puller import ProjectSourcePuller
 from projects.source_operations import generate_project_archive_directory, path_is_in_directory, utf8_makedirs, \
-    utf8_path_join, to_utf8
+    utf8_path_join
 from .models import Project
 
 
@@ -45,7 +45,7 @@ class ProjectArchiver(object):
         try:
             output_dir, output_path = self.build_archive_paths(archive_name)
             utf8_makedirs(output_dir, exist_ok=True)
-            shutil.make_archive(to_utf8(output_path), 'zip', project_dir)
+            shutil.make_archive(output_path, 'zip', project_dir)
             event.success = True
         except Exception as e:
             event.success = False
