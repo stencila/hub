@@ -26,7 +26,8 @@ from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
-    path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink
+    path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
+    to_utf8
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -573,7 +574,7 @@ class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin,
         if not path_is_in_directory(archive_path, archives_directory):
             raise PermissionDenied
 
-        with open(archive_path, 'rb') as archive_file:
+        with open(to_utf8(archive_path), 'rb') as archive_file:
             response = HttpResponse(archive_file, content_type='application/x-zip-compressed')
             response['Content-Disposition'] = 'attachment; filename={}'.format(name)
             return response

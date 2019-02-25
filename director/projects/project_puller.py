@@ -76,7 +76,7 @@ class ProjectSourcePuller(object):
                 if utf8_path_exists(output_path) and utf8_isdir(output_path):
                     shutil.rmtree(to_utf8(output_path))  # remove path if it is a directory
 
-                with open(output_path, 'wb') as f:
+                with open(to_utf8(output_path), 'wb') as f:
                     shutil.copyfileobj(scf.get_binary_content(), f)
 
         directory_entries = filter(lambda e: e.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE),
