@@ -554,7 +554,6 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         try:
             archiver.archive_project(form.cleaned_data['tag'])
         except Exception as e:
-            raise
             messages.error(request, 'Archive failed: {}'.format(e))
         else:
             messages.success(request, 'Archive created successfully.')
