@@ -173,7 +173,7 @@ class ProjectHostSessionsViewTests(TestCase):
 
         self.view.get_session_request_to_use.assert_not_called()
         self.view.create_session.assert_not_called()
-        self.view.session_facade.generate_external_location.assert_called_with(mock_session.execution_id)
+        self.view.session_facade.generate_external_location.assert_called_with(mock_session)
 
         mock_json_response_class.assert_called_with({
             'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
@@ -197,7 +197,7 @@ class ProjectHostSessionsViewTests(TestCase):
                                                     self.view.get_session_request_to_use.return_value)
 
         self.view.session_facade.generate_external_location.assert_called_with(
-            self.view.create_session.return_value.execution_id)
+            self.view.create_session.return_value)
         mock_json_response_class.assert_called_with({
             'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
         })

@@ -16,6 +16,8 @@ def safe_int(v: typing.Any) -> typing.Optional[int]:
 
 
 class NixsterClient(RestClientBase):
+    class_id = 'NIXSTER'
+
     def start_container(self, environment_id: str, session_parameters: typing.Optional[dict] = None,
                         command: typing.Optional[str] = None) -> str:
         request_data = {'environmentId': environment_id}
@@ -68,7 +70,9 @@ class NixsterClient(RestClientBase):
         container_id = self.start_container(environ, session_parameters)
         return self.generate_attach_context(environ, container_id)
 
-    def generate_location(self, execution_id: str) -> SessionLocation:
+    def generate_location(self, session: Session) -> SessionLocation:
+        execution_id = session.execution_id
+
         if self.server_proxy_path:
             host = None
             path = self.server_proxy_path

@@ -40,6 +40,7 @@ class SessionAttachContext(typing.NamedTuple):
 
 
 class RestClientBase(object):
+    class_id: typing.Optional[str] = None  # NOQA flake8 is dumb thinks I am defining a class here so gives E701
     server_host: str
     server_proxy_path: str
     jwt_secret: str
@@ -65,7 +66,7 @@ class RestClientBase(object):
             response.raise_for_status()
         except Exception as e:
             response_body = response.content
-            if response_body == '':  # to satisfy flake8
+            if response_body == '':  # to satisfy flake8 unused variable, but we can set a breakpoint here
                 pass
             raise e
 
@@ -89,7 +90,7 @@ class RestClientBase(object):
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         raise NotImplementedError('Subclasses must implement start_session')
 
-    def generate_location(self, execution_id: str) -> SessionLocation:
+    def generate_location(self, session: Session) -> SessionLocation:
         """Intended to be overridden."""
         raise NotImplementedError("Subclasses must implement generate_location")
 

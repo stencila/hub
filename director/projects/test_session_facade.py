@@ -7,7 +7,7 @@ from requests import HTTPError
 from projects.cloud_session_controller import CloudClient, CloudSessionFacade, SessionException, \
     ActiveSessionsExceededException
 from projects.project_models import Project
-from projects.session_models import SessionRequest, SessionStatus
+from projects.session_models import SessionRequest, SessionStatus, Session
 
 
 class SessionFacadeTests(TestCase):
@@ -240,7 +240,7 @@ class SessionFacadeTests(TestCase):
         environ = "environ"
         session_parameters = mock.MagicMock(spec=dict)
 
-        with mock.patch("projects.cloud_session_controller.Session") as mock_session_class:
+        with mock.patch("projects.cloud_session_controller.Session", autospec=True) as mock_session_class:
             with mock.patch("projects.cloud_session_controller.timezone") as mock_timezone:
                 session = self.cs_facade.perform_session_create(environ, session_parameters)
 
@@ -251,7 +251,8 @@ class SessionFacadeTests(TestCase):
             started=mock_timezone.now.return_value,
             last_check=mock_timezone.now.return_value,
             url=self.client.start_session.return_value.url,
-            execution_id=self.client.start_session.return_value.execution_id
+            execution_id=self.client.start_session.return_value.execution_id,
+            client_class_id=self.client.class_id
         )
 
     @mock.patch('projects.cloud_session_controller.timezone')
@@ -263,7 +264,8 @@ class SessionFacadeTests(TestCase):
         mock_response = mock.MagicMock()
         mock_response.status_code = 404
         self.client.get_session_info.side_effect = HTTPError(response=mock_response)
-        mock_session = mock.MagicMock()
+        mock_session = mock.MagicMock(spec=Session)
+        mock_session.client_class_id = self.client.class_id
 
         self.cs_facade.update_session_info(mock_session)
 
@@ -277,17 +279,18 @@ class SessionFacadeTests(TestCase):
         mock_response = mock.MagicMock()
         mock_response.status_code = 500
         self.client.get_session_info.side_effect = HTTPError(response=mock_response)
-        mock_session = mock.MagicMock()
+        mock_session = mock.MagicMock(spec=Session)
+        mock_session.client_class_id = self.client.class_id
 
         with self.assertRaises(HTTPError):
             self.cs_facade.update_session_info(mock_session)
 
-    @staticmethod
-    def get_session_for_update():
-        mock_session = mock.MagicMock()
+    def get_session_for_update(self):
+        mock_session = mock.MagicMock(spec=Session)
         mock_session.last_check = None
         mock_session.started = None
         mock_session.stopped = None
+        mock_session.client_class_id = self.client.class_id
         return mock_session
 
     def test_update_session_with_unknown(self):

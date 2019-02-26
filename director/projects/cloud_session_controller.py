@@ -1,6 +1,7 @@
 import enum
 import typing
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -12,7 +13,7 @@ from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE
     SESSION_QUEUE_CREATION_TIMEOUT
 from projects.source_operations import generate_project_storage_directory
 
-SESSION_CREATE_PATH_FORMAT = "sessions/{}"
+SESSION_CREATE_PATH_FORMAT = 'execute'
 
 
 class KubernetesPodStatus(enum.Enum):
@@ -35,17 +36,42 @@ SESSION_STATUS_LOOKUP = {
 class CloudClient(RestClientBase):
     """Client for interaction with Stencila Cloud."""
 
+    class_id = 'CLOUD'
+
     def get_session_create_url(self, environ: str) -> str:
         return self.get_full_url(SESSION_CREATE_PATH_FORMAT.format(environ))
 
+    @staticmethod
+    def transform_session_parameters(session_parameters: dict, environ: str) -> dict:
+        """Transform the Hub session parameters into a format that Cloud (Kubernetes) understands."""
+        transformed = {}
+
+        for key in ['description', 'lifetime', 'mounts', 'name', 'network', 'timeout']:
+            transformed[key] = session_parameters[key]
+
+        transformed['environment'] = {'id': environ}
+
+        if 'memory' in session_parameters:
+            transformed['ram'] = {'limit': session_parameters['memory']}
+
+        if 'cpu' in session_parameters:
+            transformed['cpu'] = {'shares': session_parameters['cpu'] * 1000}
+
+        return transformed
+
+    def generate_location(self, session: Session) -> SessionLocation:
+        url_components = urlparse(session.url)
+        return SessionLocation(url_components.path, url_components.scheme + '://' + url_components.netloc)
+
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         """Start a cloud session and return its URL."""
-        result = self.make_request(HttpMethod.POST, self.get_session_create_url(environ), body_data=session_parameters)
+        result = self.make_request(HttpMethod.PUT, self.get_full_url(SESSION_CREATE_PATH_FORMAT),
+                                   body_data=self.transform_session_parameters(session_parameters, environ))
 
-        session_url = result.get('url')
+        urls = result.get('urls')
 
-        if session_url is not None:
-            return session_url
+        if urls:
+            return SessionAttachContext(urls[0], result.get('executionId', ''))
 
         path = result.get('path')
         assert path is not None
@@ -194,7 +220,8 @@ class CloudSessionFacade(object):
             started=timezone.now(),
             last_check=timezone.now(),
             url=attach_context.url,
-            execution_id=attach_context.execution_id
+            execution_id=attach_context.execution_id,
+            client_class_id=self.client.class_id
         )
 
     def create_session(self, environ: str, session_request_to_use: typing.Optional[SessionRequest] = None) -> Session:
@@ -214,15 +241,19 @@ class CloudSessionFacade(object):
         return self.project.sessions.count()
 
     def update_session_info(self, session: Session) -> None:
-        try:
-            session_info = self.client.get_session_info(session)
-        except requests.exceptions.HTTPError as e:
-            if e.response is not None and e.response.status_code == 404:
-                # Session info is missing - assume it has stopped
-                session.stopped = timezone.now()
-                return
-            else:
-                raise
+        if session.client_class_id != self.client.class_id:
+            # if the session was started with a different client, assume it is lost and stopped.
+            session_info = SessionInformation(SessionStatus.STOPPED)
+        else:
+            try:
+                session_info = self.client.get_session_info(session)
+            except requests.exceptions.HTTPError as e:
+                if e.response is not None and e.response.status_code == 404:
+                    # Session info is missing - assume it has stopped
+                    session.stopped = timezone.now()
+                    return
+                else:
+                    raise
 
         # This assumes a one-way session flow, Unknown -> Not Started -> Running -> Stopped. Things might go wrong
         # if a session is stopped and then starts running again.
@@ -244,8 +275,8 @@ class CloudSessionFacade(object):
             self.update_session_info(session)
             session.save()
 
-    def generate_external_location(self, execution_id: str) -> SessionLocation:
-        return self.client.generate_location(execution_id)
+    def generate_external_location(self, session: Session) -> SessionLocation:
+        return self.client.generate_location(session)
 
     def generate_project_volume_mount(self) -> dict:
         return {
