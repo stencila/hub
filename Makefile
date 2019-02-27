@@ -12,11 +12,11 @@ lint: director-lint
 
 test: director-test
 
-build: router-build director-build editors-build
+build: router-build director-build desktop-build
 
-static: director-static editors-static
+static: director-static desktop-static
 
-deploy: router-deploy director-deploy editors-deploy
+deploy: router-deploy director-deploy desktop-deploy
 
 
 ####################################################################################
