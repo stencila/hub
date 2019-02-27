@@ -167,47 +167,38 @@ director-deploy: director-build
 
 
 ####################################################################################
-# Editors
-
-editors-static: textilla-static
-
-editors-build: textilla-build
-
-editors-deploy: textilla-deploy
-
-
-# Textilla
+# Desktop
 
 # Setup locally
-editors/textilla/node_modules: editors/textilla/package.json
-	cd editors/textilla && npm install
+desktop/node_modules: desktop/package.json
+	cd desktop && npm install
 	touch $@
-textilla-setup: editors/textilla/node_modules
+desktop-setup: desktop/node_modules
 
 # Collect static files
-editors/textilla/static/dist/: editors/textilla/node_modules editors/textilla/node_modules/stencila/dist/
+desktop/static/dist/: desktop/node_modules desktop/node_modules/stencila/dist/
 	mkdir -p $@
-	rsync --verbose --archive --recursive --delete editors/textilla/node_modules/stencila/dist/ $@
+	rsync --verbose --archive --recursive --delete desktop/node_modules/stencila/dist/ $@
 	touch $@
-textilla-static: editors/textilla/static/dist/
+desktop-static: desktop/static/dist/
 
 # Run locally
-textilla-run: textilla-static
-	cd editors/textilla && npm start
+desktop-run: desktop-static
+	cd desktop && npm start
 
 # Build Docker image
 # This copies static JS, CSS & HTML into the image to be served from there
-textilla-build: editors/textilla/Dockerfile textilla-static
-	docker build --tag stencila/hub-textilla editors/textilla
+desktop-build: desktop/Dockerfile desktop-static
+	docker build --tag stencila/hub-desktop desktop
 
 # Run Docker image
-# This mounts the `editors/textilla/dars` folder into the Docker container
-textilla-rundocker: textilla-build
-	docker run -it --rm -p 4000:4000 -v $$PWD/editors/textilla/dars:/home/textilla/dars:rw stencila/hub-textilla
+# This mounts the `desktop/dars` folder into the Docker container
+desktop-rundocker: desktop-build
+	docker run -it --rm -p 4000:4000 -v $$PWD/desktop/dars:/home/desktop/dars:rw stencila/hub-desktop
 
 # Push Docker image to Docker hub
-textilla-deploy: textilla-build
-	docker push stencila/hub-textilla
+desktop-deploy: desktop-build
+	docker push stencila/hub-desktop
 
 
 ####################################################################################
