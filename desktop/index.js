@@ -1,48 +1,40 @@
 const express = require('express')
 const fs = require('fs')
 const darServer = require('dar-server')
-const multer = require('multer')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const rimraf = require('rimraf')
 
 const PORT = 4000
 const HOST = `http://localhost:${PORT}`
 const PATH = '/desktop'
 const STATIC = path.join(__dirname, 'static')
+
+const PROJECTS = path.join(__dirname, 'projects')
 const DARS = path.join(__dirname, 'dars')
 
 const app = express()
 
-// HTML served in development
+// Index page
 const indexFile = path.join(__dirname, 'index.html')
 app.use('/', function (req, res, next) {
   if(req.path === PATH || req.path === `${PATH}/`) return res.sendFile(indexFile)
   next()
 })
 
-// In development, serve CSS and JS from local filesystem
-// In production, this is served from elsewhere (e.g. a Google Storage bucket)
+// CSS and JS
 app.use(`${PATH}/static`, express.static(STATIC))
 
-// Provide endpoints to create (POST) DARs
-// Currently, creating DARs is not provided by darServer so
-// we implement that here
-const upload = multer({
-	storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      const dest = path.join(DARS, req.params.id)
-      if (fs.existsSync()) rimraf.sync(dest)
-      mkdirp.sync(dest)
-      cb(null, dest)
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname)
-    }
-  })
-})
-app.post(`${PATH}/dars/:id`, upload.any(), (req, res) => {
-	res.send()
+// Initialization endpoint to check JWT and create a symlink in the `dars` folder.
+// This is necessary because `dar-serve` does not yet handle
+// DARs in sub-folders so we have to elevate to the top level somewhere.
+app.get(`${PATH}/init/*`, (req, res) => {
+  const pathToDar = req.params[0]
+  const linkToDar = pathToDar.replace('/', '-')
+  if (!fs.existsSync(linkToDar)) {
+    mkdirp.sync(DARS)
+    fs.symlinkSync(path.join(PROJECTS, pathToDar), path.join(DARS, linkToDar))
+  }
+  res.send(linkToDar)
 })
 
 // Provide endpoints to read (GET) and write (PUT) DARs
