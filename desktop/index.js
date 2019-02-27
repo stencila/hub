@@ -48,7 +48,7 @@ app.get(`${PATH}/init`,
     // Check the token is correct for the DAR path requested
     const path_ = req.query.path
     const token = req.query.token
-    if (req.user.path !== path_) {
+    if (!req.user || req.user.path !== path_) {
       return res.sendStatus(401)
     }
     // OK, so create a link to the DAR that the editor can use
