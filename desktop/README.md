@@ -1,6 +1,6 @@
 ## Stencila Desktop on Stencila Hub
 
-Stencila Desktop is our prototype of an office suite for reproducible research. It builds on top of Texture by adding reproducible elements like code cells, reproducible figures, and spreadsheets. This sub-folder provides a deployment of Stencila Desktop as a microservice within Stencila Hub.
+Stencila Desktop is our prototype of an office suite for reproducible research. It features a word processor built on top of Texture (adding reproducible elements like code cells, and reproducible figures), and a spreadsheet that can connect to R and Python sessions host on the Hub. This sub-folder provides a deployment of Stencila Desktop as a microservice within Stencila Hub.
 
 ### Run locally
 
