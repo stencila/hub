@@ -36,7 +36,7 @@
   </meta>
   <data id="data">
     <row id="row-1">
-      <cell id="cell-1">1</cell>
+      <cell id="cell-1">10</cell>
       <cell id="cell-2" />
       <cell id="cell-3" />
       <cell id="cell-4" />
@@ -64,7 +64,7 @@
       <cell id="cell-26" />
     </row>
     <row id="row-2">
-      <cell id="cell-27">2</cell>
+      <cell id="cell-27">11</cell>
       <cell id="cell-28" />
       <cell id="cell-29" />
       <cell id="cell-30" />
@@ -92,7 +92,7 @@
       <cell id="cell-52" />
     </row>
     <row id="row-3">
-      <cell id="cell-53">3</cell>
+      <cell id="cell-53">12</cell>
       <cell id="cell-54" />
       <cell id="cell-55" />
       <cell id="cell-56" />
@@ -120,7 +120,7 @@
       <cell id="cell-78" />
     </row>
     <row id="row-4">
-      <cell id="cell-79">=sum(A1:A3)</cell>
+      <cell id="cell-79" />
       <cell id="cell-80" />
       <cell id="cell-81" />
       <cell id="cell-82" />

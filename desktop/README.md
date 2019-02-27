@@ -15,7 +15,6 @@ You can then access the test Dar at http://localhost:4000/desktop
 
 ### Run within Docker
 
-
 ```bash
 make desktop-rundocker
 ```
@@ -29,6 +28,7 @@ The [`router`](../router) routes requests to Stencila Hub's various microservice
 
 ```bash
 make router-rundocker
+# Then, in a separate terminal
 make desktop-rundocker
 ```
 
