@@ -7,8 +7,14 @@ img.logo {
   height: 1.5em;
   vertical-align: middle;
 }
-#header #project {
+#header #path {
   font-weight: bold;
+  font-size: 1.1em;
+  margin-left: 0.5em;
+}
+#header #message {
+  font-weight: bold;
+  color: orangered;
   font-size: 1.1em;
   margin-left: 0.5em;
 }

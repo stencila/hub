@@ -184,7 +184,7 @@ desktop-static: desktop/static/dist/
 
 # Run locally
 desktop-run: desktop-static
-	cd desktop && npm start
+	cd desktop && JWT_SECRET='not-a-secret' npm start
 
 # Build Docker image
 # This copies static JS, CSS & HTML into the image to be served from there
@@ -194,7 +194,9 @@ desktop-build: desktop/Dockerfile desktop-static
 # Run Docker image
 # This mounts the `desktop/dars` folder into the Docker container
 desktop-rundocker: desktop-build
-	docker run -it --rm -p 4000:4000 -v $$PWD/desktop/dars:/home/desktop/dars:rw stencila/hub-desktop
+	docker run \
+		-e JWT_SECRET='not-a-secret' \
+		-it --rm -p 4000:4000 -v $$PWD/desktop/projects:/home/desktop/projects:rw stencila/hub-desktop
 
 # Push Docker image to Docker hub
 desktop-deploy: desktop-build
