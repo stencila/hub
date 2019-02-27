@@ -8,7 +8,7 @@ const rimraf = require('rimraf')
 
 const PORT = 4000
 const HOST = `http://localhost:${PORT}`
-const PATH = '/edit/textilla'
+const PATH = '/desktop'
 const STATIC = path.join(__dirname, 'static')
 const DARS = path.join(__dirname, 'dars')
 

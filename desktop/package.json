@@ -1,7 +1,7 @@
 {
-  "name": "stencila-hub-textilla",
+  "name": "stencila-hub-desktop",
   "version": "1.0.0",
-  "description": "Textilla editor provided at http://hub.stenci.la",
+  "description": "Stencila Desktop deployed to http://hub.stenci.la",
   "repository": "https://github.com/stencila/hub",
   "license": "Apache-2.0",
   "main": "index.js",

@@ -6,7 +6,7 @@ var dar
 var host
 var session
 
-const PATH = '/edit/textilla'
+const PATH = '/desktop'
 
 window.addEventListener('load', () => {
   project = substance.getQueryStringParam('project') || '';
