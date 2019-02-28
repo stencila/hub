@@ -1,12 +1,14 @@
 from datetime import timedelta
 from unittest import mock
 
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.test import TestCase
 from django.utils import timezone
 
 from projects.cloud_session_controller import CloudSessionFacade, ActiveSessionsExceededException
+from projects.permission_facade import ProjectFetchResult
 from projects.project_host_views import ProjectHostSessionsView, ProjectSessionRequestView
 from projects.project_models import Project
 from projects.session_models import Session, SessionRequest
@@ -19,6 +21,7 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view = ProjectHostSessionsView()
         self.view.session_facade = mock.MagicMock(spec=CloudSessionFacade, name='CloudSessionFacade')
         self.request = mock.MagicMock(spec=HttpRequest, name='request')
+        self.request.user = mock.MagicMock(spec=User)
         self.token = 'token'
         self.environ = 'environ'
 
@@ -163,17 +166,19 @@ class ProjectHostSessionsViewTests(TestCase):
         mock_session = mock.MagicMock(spec=Session, name='session')
         session_url = "http://session.url"
         mock_session.url = session_url
+        extra_auth_parameters = mock.MagicMock(spec=dict)
 
         self.view.get_session_request_to_use = mock.MagicMock(name='get_session_request_to_use')
         self.view.create_session = mock.MagicMock(name='create_session')
 
-        response = self.view.generate_response(self.request, self.environ, 'session_key', self.token, mock_session)
+        response = self.view.generate_response(self.request, self.environ, 'session_key', self.token, mock_session,
+                                               extra_auth_parameters)
 
         self.assertEqual(response, mock_json_response_class.return_value)
 
         self.view.get_session_request_to_use.assert_not_called()
         self.view.create_session.assert_not_called()
-        self.view.session_facade.generate_external_location.assert_called_with(mock_session)
+        self.view.session_facade.generate_external_location.assert_called_with(mock_session, extra_auth_parameters)
 
         mock_json_response_class.assert_called_with({
             'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
@@ -188,8 +193,10 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view.get_session_request_to_use = mock.MagicMock(name='get_session_request_to_use')
         self.view.create_session = mock.MagicMock(name='create_session')
         self.view.create_session_request = mock.MagicMock(name='self.create_session_request')
+        extra_auth_parameters = mock.MagicMock(spec=dict)
 
-        response = self.view.generate_response(self.request, self.environ, 'session_key', self.token, None)
+        response = self.view.generate_response(self.request, self.environ, 'session_key', self.token, None,
+                                               extra_auth_parameters)
 
         self.assertEqual(response, mock_json_response_class.return_value)
 
@@ -197,7 +204,7 @@ class ProjectHostSessionsViewTests(TestCase):
                                                     self.view.get_session_request_to_use.return_value)
 
         self.view.session_facade.generate_external_location.assert_called_with(
-            self.view.create_session.return_value)
+            self.view.create_session.return_value, extra_auth_parameters)
         mock_json_response_class.assert_called_with({
             'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
         })
@@ -224,11 +231,15 @@ class ProjectHostSessionsViewTests(TestCase):
         """
         project = mock.MagicMock(spec=Project)
         project.key = None
+        project.id = 47
         mock_get_object_or_404.return_value = project
 
         self.view.setup_cloud_client = mock.MagicMock(name='setup_cloud_client')
         self.view.get_session_from_request_session = mock.MagicMock(name='get_session_from_request_session')
         self.view.generate_response = mock.MagicMock(name='generate_response')
+        self.view.project_fetch_result = mock.MagicMock(spec=ProjectFetchResult, name='project_fetch_result')
+        self.view.perform_project_fetch = mock.MagicMock(name='perform_project_fetch')
+        self.request.GET = {'path': 'main.xml'}
 
         response = self.view.post(self.request, self.token, self.environ)
 
@@ -239,7 +250,8 @@ class ProjectHostSessionsViewTests(TestCase):
 
         self.view.generate_response.assert_called_with(self.request, self.environ, 'CLOUD_SESSION_URL_token_environ',
                                                        self.token,
-                                                       self.view.get_session_from_request_session.return_value)
+                                                       self.view.get_session_from_request_session.return_value,
+                                                       {'role': None, 'path': '47/main.xml'})
 
         self.assertEqual(response, self.view.generate_response.return_value)
 

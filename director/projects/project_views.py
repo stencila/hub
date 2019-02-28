@@ -77,12 +77,14 @@ class ProjectPermissionsMixin(object):
         context['project_permissions'] = self.project_permissions
         return context
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict:
+        context_data = super().get_context_data(**kwargs)  # type: ignore
+        # this should only be used as a mixin to a view that will have the get_context_data function
+
         return self.get_render_context(context_data)
 
     def _test_project_fetch_result_set(self) -> None:
-        if not self.project_fetch_result:
+        if self.project_fetch_result is None:
             raise ValueError("project_fetch_result not set")
 
     # mypy is told to ignore the return from these properties as it doesn't understand that
