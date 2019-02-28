@@ -46,16 +46,17 @@ app.get(`${PATH}/init`,
   }),
   (req, res) => {
     // Check the token is correct for the DAR path requested
-    const path_ = req.query.path
+    const file = req.query.path
     const token = req.query.token
-    if (!req.user || req.user.path !== path_) {
+    if (!req.user || req.user.path !== file) {
       return res.sendStatus(401)
     }
     // OK, so create a link to the DAR that the editor can use
     // to talk to the dar-serve. Currently the link is the token.
     if (!fs.existsSync(path.join(DARS, token))) {
       mkdirp.sync(DARS)
-      fs.symlinkSync(path.join(PROJECTS, path_), path.join(DARS, token))
+      const dir = path.basename(file) === 'manifest.xml' ? path.dirname(file) : file
+      fs.symlinkSync(path.join(PROJECTS, dir), path.join(DARS, token))
     }
     res.send(token)
   }

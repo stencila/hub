@@ -22,8 +22,7 @@ window.addEventListener('load', () => {
     if (response.status !== 200) {
       let message = document.getElementById('message');
       message.innerText = response.statusText
-    }
-    else {
+    } else {
       response.text().then(dar => {
         // Mount the app
         substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
