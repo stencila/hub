@@ -40,6 +40,8 @@ from .project_forms import (
 
 User = get_user_model()
 
+DEFAULT_ENVIRON = 'stencila/core'
+
 
 class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
@@ -69,6 +71,7 @@ class ProjectPermissionsMixin(object):
             self.project_fetch_result = fetch_project_for_user(user, pk)
 
     def get_render_context(self, context: dict) -> dict:
+        context['environ'] = DEFAULT_ENVIRON
         context['project'] = self.project
         context['project_roles'] = self.project_roles
         context['project_permissions'] = self.project_permissions

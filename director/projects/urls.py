@@ -1,6 +1,7 @@
 from django.urls import include, path, re_path
 
-from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView)
+from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView,
+                                         ProjectSessionSetupView)
 from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
@@ -57,6 +58,9 @@ urlpatterns = [
             path('session-queue', ProjectSessionRequestView.as_view(api_version=1), name='session_queue_v1')
         ]))
     ])),
+
+    path('<str:token>/session-setup/<path:environ>', ProjectSessionSetupView.as_view(),
+         name='project_session_setup'),
 
     path('<int:pk>/archive/', ProjectArchiveDownloadView.as_view(), name='project_archive'),
 

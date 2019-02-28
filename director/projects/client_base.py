@@ -26,9 +26,10 @@ class SessionInformation(typing.NamedTuple):
 class SessionLocation(typing.NamedTuple):
     path: str
     host: typing.Optional[str] = None
+    token: typing.Optional[str] = None
 
     def to_dict(self) -> dict:
-        return {'path': self.path, 'host': self.host}
+        return {'path': self.path, 'host': self.host, 'token': self.token}
 
 
 class SessionAttachContext(typing.NamedTuple):
@@ -40,7 +41,7 @@ class SessionAttachContext(typing.NamedTuple):
 
 
 class RestClientBase(object):
-    class_id: typing.Optional[str] = None  # NOQA flake8 is dumb thinks I am defining a class here so gives E701
+    class_id: typing.Optional[str] = None  # NOQA flake8 is dumb and thinks I am defining a class here so gives E701
     server_host: str
     server_proxy_path: str
     jwt_secret: str
@@ -90,7 +91,8 @@ class RestClientBase(object):
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         raise NotImplementedError('Subclasses must implement start_session')
 
-    def generate_location(self, session: Session) -> SessionLocation:
+    def generate_location(self, session: Session,
+                          authorization_extra_parameters: typing.Optional[dict] = None) -> SessionLocation:
         """Intended to be overridden."""
         raise NotImplementedError("Subclasses must implement generate_location")
 

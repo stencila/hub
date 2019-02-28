@@ -59,9 +59,11 @@ class CloudClient(RestClientBase):
 
         return transformed
 
-    def generate_location(self, session: Session) -> SessionLocation:
+    def generate_location(self, session: Session,
+                          authorization_extra_parameters: typing.Optional[dict] = None) -> SessionLocation:
         url_components = urlparse(session.url)
-        return SessionLocation(url_components.path, url_components.scheme + '://' + url_components.netloc)
+        return SessionLocation(url_components.path, url_components.scheme + '://' + url_components.netloc,
+                               self.generate_jwt_token(authorization_extra_parameters))
 
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         """Start a cloud session and return its URL."""
@@ -275,8 +277,9 @@ class CloudSessionFacade(object):
             self.update_session_info(session)
             session.save()
 
-    def generate_external_location(self, session: Session) -> SessionLocation:
-        return self.client.generate_location(session)
+    def generate_external_location(self, session: Session,
+                                   authorization_extra_parameters: typing.Optional[dict] = None) -> SessionLocation:
+        return self.client.generate_location(session, authorization_extra_parameters)
 
     def generate_project_volume_mount(self) -> dict:
         return {

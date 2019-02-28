@@ -27,7 +27,7 @@ def source_path(project: Project, directory_entry: DirectoryListEntry):
 
 
 def mimetype_text_editable(mimetype: str) -> bool:
-    if mimetype in ('Unknown', 'application/javascript'):
+    if mimetype in ('Unknown', 'application/javascript', 'application/json', 'application/xml'):
         return True
 
     return '/' in mimetype and mimetype.split('/')[0] == 'text'

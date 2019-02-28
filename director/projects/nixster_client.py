@@ -70,7 +70,8 @@ class NixsterClient(RestClientBase):
         container_id = self.start_container(environ, session_parameters)
         return self.generate_attach_context(environ, container_id)
 
-    def generate_location(self, session: Session) -> SessionLocation:
+    def generate_location(self, session: Session,
+                          authorization_extra_parameters: typing.Optional[dict] = None) -> SessionLocation:
         execution_id = session.execution_id
 
         if self.server_proxy_path:
@@ -82,12 +83,19 @@ class NixsterClient(RestClientBase):
 
         separator = '' if path.endswith('/') else '/'
 
+        if not authorization_extra_parameters:
+            authorization_extra_parameters = {}
+
+        authorization_extra_parameters['cide'] = execution_id
+
+        token = self.generate_jwt_token(authorization_extra_parameters)
+
         path += '{}interact?containerId={}&token={}'.format(
             separator,
             quote(execution_id),
-            self.generate_jwt_token({'cid': execution_id})
+            token
         )
-        return SessionLocation(path, host)
+        return SessionLocation(path, host, token)
 
     def get_session_info(self, session: Session) -> SessionInformation:
         container_id = session.execution_id

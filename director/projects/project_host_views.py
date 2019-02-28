@@ -4,24 +4,28 @@ import typing
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from projects.cloud_session_controller import CloudClient, CloudSessionFacade, ActiveSessionsExceededException
+from projects.cloud_session_controller import CloudClient, CloudSessionFacade, ActiveSessionsExceededException, \
+    SessionException
 from projects.models import Project
 from projects.nixster_client import NixsterClient
+from projects.project_views import ProjectPermissionsMixin
 from projects.session_models import Session, SessionRequest
+from projects.source_operations import utf8_path_join, utf8_normpath
+from users.views import BetaTokenRequiredMixin
 
 SESSION_URL_SESSION_KEY_FORMAT = 'CLOUD_SESSION_URL_{}_{}'
 SESSION_REQUEST_SESSION_KEY_FORMAT = 'SESSION_REQUEST_ID_{}'
 SESSION_REQUEST_IS_NEXT_KEY_FORMAT = 'SESSION_REQUEST_NEXT_{}'
 
 
-class ProjectHostBaseView(View):
+class ProjectHostBaseView(View, ProjectPermissionsMixin):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, *args, **kwargs):
@@ -113,6 +117,8 @@ class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
         if not self.project_has_sessions_available(project):
             return False
 
+        self.session_facade.expire_stale_session_requests()
+
         # there are available session spots, but is this request first in the queue?
         if self.get_first_session_request(project) != session_request:
             return False
@@ -135,6 +141,13 @@ class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
         return JsonResponse({
             'start_session': self.session_can_start(request, project, token, session_request)
         })  # TODO: work out what a sensible response is
+
+
+def generate_project_file_path(project: Project, file_path: typing.Optional[str]) -> typing.Optional[str]:
+    if not file_path:
+        return None
+
+    return utf8_path_join('{}'.format(project.id), utf8_normpath(file_path))
 
 
 class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
@@ -190,7 +203,8 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         return session
 
     def generate_response(self, request: HttpRequest, environ: str, session_key: str, token: str,
-                          session: typing.Optional[Session]) -> HttpResponse:
+                          session: typing.Optional[Session],
+                          authorization_extra_parameters: typing.Optional[dict] = None) -> HttpResponse:
         # If the Session's URL was previously found in the request session, then it will not be None here
         if not session:
             # session_url was not found in the request session, to get one for the project
@@ -200,9 +214,14 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
                 session = self.create_session(request, environ, session_key, session_request_to_use)
             except ActiveSessionsExceededException:
                 return self.create_session_request(request, token, environ)
+            except SessionException as e:
+                return JsonResponse({
+                    'error': str(e)
+                })
 
         return JsonResponse({
-            'location': self.session_facade.generate_external_location(session).to_dict()
+            'location': self.session_facade.generate_external_location(session,
+                                                                       authorization_extra_parameters).to_dict(),
         })
 
     def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
@@ -210,6 +229,9 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
         if project.key and request.POST.get("key") != project.key:
             raise PermissionDenied("The key in the POST request does not match that of the Project")
+
+        self.perform_project_fetch(request.user, project.pk)
+        # TODO: refactor so this doesn't have to be called so project isn't getting fetched twice
 
         self.setup_cloud_client(project)
 
@@ -221,4 +243,36 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         # Session's URL
         session = self.get_session_from_request_session(request, session_key)
 
-        return self.generate_response(request, environ, session_key, token, session)
+        highest_permission = self.highest_permission
+
+        highest_permission_name = highest_permission.value if highest_permission else None
+
+        extra_auth_params = {
+            'role': highest_permission_name,
+        }
+
+        file_path = generate_project_file_path(project, request.GET.get('path'))
+
+        if file_path:
+            extra_auth_params['path'] = file_path
+
+        return self.generate_response(request, environ, session_key, token, session, extra_auth_params)
+
+
+class ProjectSessionSetupView(View, BetaTokenRequiredMixin, ProjectPermissionsMixin):
+    def post(self, request: HttpRequest, token: str, environ: str):
+        project = get_object_or_404(Project, token=token)
+
+        if project.key and request.POST.get("key") != project.key:
+            raise PermissionDenied("The key in the POST request does not match that of the Project")
+
+        session_check_path = reverse('session_queue_v1', args=(token,))
+        session_start_path = reverse('session_start_v1', args=(token, environ))
+        return render(request, 'projects/project_wait.html', {
+            'path': request.GET.get('path'),
+            'key': project.key,
+            'token': token,
+            'project': project,
+            'session_check_path': session_check_path,
+            'session_start_path': session_start_path
+        })

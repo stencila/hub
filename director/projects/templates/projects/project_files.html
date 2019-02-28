@@ -10,7 +10,8 @@
     <div class="level">
         <div class="level-right">
             <div class="level-item buttons">
-                <a class="button is-primary" href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
+                <a class="button is-primary"
+                   href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
                     <span class="icon is-small">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                     </span>
@@ -55,7 +56,8 @@
                     </div>
                 </div>
                 {% if linked_sources %}
-                    <div class="dropdown" style="margin-left: 0.5em" id="unlink" @click="active = !active" :class="{ 'is-active':active }">
+                    <div class="dropdown" style="margin-left: 0.5em" id="unlink" @click="active = !active"
+                         :class="{ 'is-active':active }">
                         <script src="{% static "js/delete-confirm-modal.js" %}"></script>
                         <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
                                               delete-action="unlink_source"
@@ -108,12 +110,13 @@
                     <ul>
                         {% for breadcrumb in breadcrumbs %}
                             <li {% if forloop.last %}class="is-active"{% endif %}>
-                                    <a href="{% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
-                                {% if forloop.first %}
-                                    <span class="icon is-small"><i class="fas fa-home"
-                                                                   aria-hidden="true"></i></span>
-                                {% endif %}
-                                <span>
+                                <a href="
+                                        {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
+                                    {% if forloop.first %}
+                                        <span class="icon is-small"><i class="fas fa-home"
+                                                                       aria-hidden="true"></i></span>
+                                    {% endif %}
+                                    <span>
                                         {{ breadcrumb.name }}
                                     </span>
                                 </a>
@@ -144,11 +147,11 @@
                 </td>
                 <td>
                     {% if directory_entry.is_directory %}
-                    <a href="{% source_path project directory_entry %}">
+                        <a href="{% source_path project directory_entry %}">
                     {% endif %}
-                        {{ directory_entry.name }}
+                    {{ directory_entry.name }}
                     {% if directory_entry.is_directory %}
-                    </a>
+                        </a>
                     {% endif %}
                 </td>
 
@@ -160,12 +163,23 @@
 
                 <td>
                     {% if directory_entry|is_text_editable %}
-                        <div class="select">
-                            <select @change="editorSelectChange">
-                                <option>Open with&hellip;</option>
-                                <option data-editor-url="{% source_path project directory_entry %}">Code editor</option>
-                            </select>
-                        </div>
+                        <form method="post" action="{% url 'project_session_setup' project.token environ %}?path={{ directory_entry.path }}">
+                            {% csrf_token %}
+                            {% if project.key %}
+                                <input type="hidden" name="key" value="{{ project.key }}">
+                            {% endif %}
+                            <div class="select">
+                                <select @change="editorSelectChange">
+                                    <option>Open with&hellip;</option>
+                                    <option value="code-editor"
+                                            data-editor-url="{% source_path project directory_entry %}">Code editor
+                                    </option>
+                                    {% if directory_entry.name == 'manifest.xml' %}
+                                        <option value="desktop">Stencila Desktop</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </form>
                     {% endif %}
                 </td>
 
@@ -173,7 +187,8 @@
 
                 <td>
                     {% if directory_entry.source.type == 'filesource' and not directory_entry.is_directory %}
-                        <a class="icon" href="{% url 'source_update' project.pk directory_entry.source.id %}?from={{ current_directory }}">
+                        <a class="icon"
+                           href="{% url 'source_update' project.pk directory_entry.source.id %}?from={{ current_directory }}">
                             <i class="fas fa-cog"></i>
                         </a>
                         <a class="icon has-text-danger"
@@ -194,20 +209,29 @@
       new Vue({
         el: '#file_list_body',
         methods: {
-          editorSelectChange(e) {
+          editorSelectChange (e) {
             const select = e.target
             const selectedIndex = select.selectedIndex
 
-            if (selectedIndex === 0)
-              return;
-
             const selectedOption = select.options[selectedIndex]
 
-            window.location = selectedOption.getAttribute('data-editor-url')
+            const selectValue = selectedOption.getAttribute('value')
+
+            if (!selectValue) {
+              return
+            }
+
+            const editorUrl = selectedOption.getAttribute('data-editor-url')
+
+            if (editorUrl) {
+              window.location = editorUrl
+              return
+            }
+
+            select.form.submit()
           }
         }
       })
-
 
       new Vue({
         el: '#link',
