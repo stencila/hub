@@ -269,7 +269,8 @@ class ProjectSessionSetupView(View, BetaTokenRequiredMixin, ProjectPermissionsMi
         session_check_path = reverse('session_queue_v1', args=(token,))
         session_start_path = reverse('session_start_v1', args=(token, environ))
         return render(request, 'projects/project_wait.html', {
-            'path': request.GET.get('path'),
+            'path': generate_project_file_path(project, request.GET.get('path')),
+            'relative_path': request.GET.get('path'),
             'key': project.key,
             'token': token,
             'project': project,

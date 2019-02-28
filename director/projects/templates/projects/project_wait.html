@@ -56,7 +56,6 @@
         ERROR: 4
       }
 
-
       function dataIsSessionRequestResponse (data) {
         return data.hasOwnProperty('invalid_session') || data.hasOwnProperty('start_session')
       }
@@ -74,6 +73,7 @@
         delimiters: ['[[', ']]'],
         data: {
           editPath: '{{ path|escapejs }}',
+          relativePath: '{{ relative_path|escapejs }}',
           secondsToRecheck: TIME_BETWEEN_RECHECK_SECONDS,
           status: SESSION_SETUP_STATUS.CHECKING,
           sessionCheckPath: '{{ session_check_path|escapejs }}',
@@ -83,7 +83,7 @@
         },
         methods: {
           startSession () {
-            fetch(this.sessionStartPath + `?path=${this.editPath}`, {
+            fetch(this.sessionStartPath + `?path=${this.relativePath}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
