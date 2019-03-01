@@ -8,8 +8,8 @@
             <i class="fas fa-spinner fa-spin fa-5x"></i>
         </div>
         <div v-if="status == SESSION_SETUP_STATUS.REDIRECTING">
-            <i class="fas fa-spinner fa-spin fa-5x"></i>
             <h2 class="title is-2">Redirecting</h2>
+            <i class="fas fa-spinner fa-spin fa-5x"></i>
         </div>
         <div v-if="status == SESSION_SETUP_STATUS.QUEUED">
             <h2 class="title is-2">Waiting to check for available Session</h2>
@@ -23,28 +23,6 @@
         <div v-if="error" class="alert is-danger">
             <p>[[ error ]]</p>
         </div>
-
-        {% comment %}
-        <div v-if="!sessionCanStart &amp;&amp; !sessionCanQueue">
-            <h2 class="title is-2">Waiting for Session</h2>
-            <p v-if="secondsToRecheck > 0">Next check in [[secondsToRecheck]] seconds.</p>
-            <p v-if="secondsToRecheck == 0">Checking for session.</p>
-            <small class="small">[[ checkResult ]]</small>
-        </div>
-        <div v-if="sessionCanStart || sessionCanQueue">
-            <h2 class="title is-2" v-if="sessionCanStart">Session Can Start</h2>
-            <h2 class="title is-2" v-if="sessionCanQueue">No Session Queued</h2>
-            <div v-if="sessionCanQueue">There is no session currently queued, click <em>Start Session</em> to start a
-                session.
-            </div>
-            <div>
-                <form method="post" action="{{ session_start_path }}">
-                    {% csrf_token %}
-                    <button type="submit" class="button is-primary is-large">Start Session</button>
-                </form>
-            </div>
-        </div>
-        {% endcomment %}
     </section>
     <script>
       const TIME_BETWEEN_RECHECK_SECONDS = 60

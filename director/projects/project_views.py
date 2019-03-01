@@ -256,8 +256,14 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                                                           path)
 
         directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
+
+        session_check_path = reverse('session_queue_v1', args=(self.project.token,))
+        session_start_path = reverse('session_start_v1', args=(self.project.token, DEFAULT_ENVIRON))
+
         return render(request, 'projects/project_files.html', self.get_render_context(
             {
+                'session_check_path': session_check_path,
+                'session_start_path': session_start_path,
                 'linked_sources': list(get_linked_sources_for_project(self.project)),
                 'current_directory': path,
                 'breadcrumbs': path_entry_iterator(path),
