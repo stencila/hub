@@ -99,6 +99,11 @@
                         </div>
                     </div>
                 {% endif %}
+                <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
+                    <span class="icon is-small"><i class="fas fa-file-export"></i></span>
+                    <span v-if="!pullInProgress">Pull Files</span>
+                    <span v-if="pullInProgress">Pulling Files&hellip;</span>
+                </a>
             </div>
         </div>
     </div>
@@ -216,7 +221,7 @@
             <p v-if="secondsToRecheck > 0">Next check in [[secondsToRecheck]] seconds.</p>
         </div>
         <div v-if="status == SESSION_SETUP_STATUS.CHECKING_QUEUE">
-            <h5 class="subtitle is-5>Checking for available Session</h5>
+            <h5 class="subtitle is-5">Checking for available Session</h5>
             <i class="fas fa-spinner fa-spin"></i>
         </div>
         <div v-if="error" class="alert is-danger">
@@ -381,6 +386,34 @@
         el: '#link',
         data: {active: false}
       })
+
+      new Vue({
+        el: '#project-pull-button',
+        data: {
+            pullInProgress:false,
+            filePullUrl: '{% url "project_pull" project.id %}'
+        },
+        methods: {
+            pullFiles () {
+                this.pullInProgress = true
+                fetch(this.filePullUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRFToken': utils.cookie('csrftoken'),
+                    },
+                    credentials: 'same-origin'
+                }).then(
+                    response => {
+                        this.pullInProgress = false
+                    },
+                    failureResponse => {
+                        this.pullInProgress = false
+                        alert(failureResponse)
+                    })
+            }
+        }
+    })
 
       {% if linked_sources %}
         new Vue({
