@@ -1,10 +1,11 @@
 var PATH = '/desktop'
 
 var app
+var path
 
 window.addEventListener('load', () => {
   // The path of the Dar to edit, and a token to read/edit it
-  var path = substance.getQueryStringParam('path') || 'default/main.dar'
+  path = substance.getQueryStringParam('path') || 'default/main.dar'
   var token = substance.getQueryStringParam('token')
   // The URL of the execution session to use
   var session = substance.getQueryStringParam('session')
@@ -33,7 +34,7 @@ window.addEventListener('load', () => {
   var saveBtn = document.getElementById('save');
   saveBtn.addEventListener('click', () => {
     saveBtn.disabled = true;
-    app._save().then(() => {
+    save().then(() => {
       saveBtn.disabled = false;
     })
   })
@@ -42,5 +43,24 @@ window.addEventListener('load', () => {
 
 window.addEventListener('beforeunload', () => {
   // Save changes when window is closed
-  app._save();
+  save()
 })
+
+function save () {
+  return app._save().then(() => {
+    // Ping back for files to be refreshed from disk
+    const project = path.match(/^\d+/)
+    fetch(`/projects/${project}/files/refresh`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': cookie('csrftoken'),
+      },
+      credentials: 'same-origin'
+    })
+    function cookie(name) {
+      var value = "; " + document.cookie
+      var parts = value.split("; " + name + "=")
+      if (parts.length == 2) return parts.pop().split(";").shift()
+    }
+  })
+}
