@@ -285,7 +285,7 @@ class CloudSessionFacade(object):
 
     def generate_project_volume_mount(self) -> dict:
         return {
-            "destination": "/stencila-project",
+            "destination": "/work",
             "source": generate_project_storage_directory(settings.STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY,
                                                          self.project),
             "options": ["rw"]
