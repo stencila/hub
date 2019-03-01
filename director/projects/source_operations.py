@@ -194,6 +194,15 @@ def list_project_virtual_directory(project: Project, directory: typing.Optional[
     return sorted(list(sources_in_directory(directory, sources, authentication)))
 
 
+def recursive_directory_list(project: Project, directory: typing.Optional[str],
+                             authentication: LinkedSourceAuthentication) -> typing.Iterable[DirectoryListEntry]:
+    for entry in list_project_virtual_directory(project, directory, authentication):
+        path = utf8_path_join(directory or '', entry.name)
+        if entry.is_directory:
+            yield from recursive_directory_list(project, path, authentication)
+        yield entry
+
+
 def os_dir_entry_to_directory_list_entry(virtual_path: str, dir_entry: os.DirEntry) -> DirectoryListEntry:
     """Convert an `os.DirEntry` instance to a `DirectoryListEntry`."""
     s: os.stat_result = dir_entry.stat()
