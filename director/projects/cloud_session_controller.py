@@ -14,6 +14,7 @@ from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE
 from projects.source_operations import generate_project_storage_directory
 
 SESSION_CREATE_PATH_FORMAT = 'execute'
+SESSION_STATUS_PATH_FORMAT = 'status'
 
 
 class KubernetesPodStatus(enum.Enum):
@@ -81,7 +82,8 @@ class CloudClient(RestClientBase):
 
     def get_session_info(self, session: Session) -> SessionInformation:
         """Get a dictionary with information about the session. At this stage we are only interested in its status."""
-        session_info = self.make_request(HttpMethod.GET, session.url)
+        session_info = self.make_request(HttpMethod.PUT, self.get_full_url(SESSION_STATUS_PATH_FORMAT),
+                                         body_data={'id': session.execution_id})
         status = KubernetesPodStatus(session_info['status'].lower())
         return SessionInformation(SESSION_STATUS_LOOKUP[status])
 
