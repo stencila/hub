@@ -17,35 +17,25 @@ window.addEventListener('load', () => {
   var pathEl = document.getElementById('path')
   pathEl.innerHTML = path
 
-  // Initialize the editor session
-  fetch(PATH + '/init?path=' + path + '&token=' + token).then(response => {
-    if (response.status !== 200) {
-      let message = document.getElementById('message');
-      message.innerText = response.statusText
-    } else {
-      response.text().then(dar => {
-        // Mount the app
-        substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
-        app = stencila.StencilaWebApp.mount({
-          archiveId: dar,
-          storageType: 'fs',
-          storageUrl: PATH + '/dars'
-        }, window.document.body);
+  // Mount the app
+  substance.substanceGlobals.DEBUG_RENDERING = substance.platform.devtools;
+  app = stencila.StencilaWebApp.mount({
+    archiveId: token,
+    storageType: 'fs',
+    storageUrl: PATH + '/dars'
+  }, window.document.body);
 
-        // Remove the loading
-        var loading = document.getElementById('loading');
-        loading.parentNode.removeChild(loading)
+  // Remove the loading
+  var loading = document.getElementById('loading');
+  loading.parentNode.removeChild(loading)
 
-        // Initialize the save button
-        var saveBtn = document.getElementById('save');
-        saveBtn.addEventListener('click', () => {
-          saveBtn.disabled = true;
-          app._save().then(() => {
-            saveBtn.disabled = false;
-          })
-        })
-      })
-    }
+  // Initialize the save button
+  var saveBtn = document.getElementById('save');
+  saveBtn.addEventListener('click', () => {
+    saveBtn.disabled = true;
+    app._save().then(() => {
+      saveBtn.disabled = false;
+    })
   })
 
 });

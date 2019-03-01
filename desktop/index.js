@@ -28,37 +28,26 @@ app.use('/', function (req, res, next) {
 // CSS and JS
 app.use(`${PATH}/static`, express.static(STATIC))
 
-// Initialization endpoint to check JWT and create a symlink in the `dars` folder.
-// This is necessary because `dar-serve` does not yet handle
+// Middleware to check authorization and create a symlink in the `dars` folder.
+// This symlink is necessary because `dar-serve` does not yet handle
 // DARs in sub-folders so we have to elevate to the top level somewhere.
-app.get(`${PATH}/init`,
+app.all(`${PATH}/dars/(:token)`, 
   jwt({
     secret: JWT_SECRET,
     credentialsRequired: false,
-    getToken: function fromHeaderOrQuerystring (req) {
-      if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
-          return req.headers.authorization.split(' ')[1];
-      } else if (req.query && req.query.token) {
-        return req.query.token;
-      }
-      return null;
-    }
+    getToken: req => req.params.token
   }),
-  (req, res) => {
-    // Check the token is correct for the DAR path requested
-    const file = req.query.path
-    const token = req.query.token
-    if (!req.user || req.user.path !== file) {
-      return res.sendStatus(401)
-    }
-    // OK, so create a link to the DAR that the editor can use
-    // to talk to the dar-serve. Currently the link is the token.
-    if (!fs.existsSync(path.join(DARS, token))) {
+  (req, res, next) => {
+    const file = req.user.path
+    const token = req.params.token
+    try {
+      fs.lstatSync(path.join(DARS, token))
+    } catch (err) {
       mkdirp.sync(DARS)
       const dir = path.basename(file) === 'manifest.xml' ? path.dirname(file) : file
       fs.symlinkSync(path.join(PROJECTS, dir), path.join(DARS, token))
     }
-    res.send(token)
+    next()
   }
 )
 
