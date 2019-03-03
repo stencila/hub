@@ -307,8 +307,14 @@ class ProjectRefreshView(ProjectPermissionsMixin, View):
 
     project_permission_required = ProjectPermissionType.EDIT
 
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        self.perform_project_fetch(request.user, pk)
+        self.test_required_project_permission()
+        return render(request, 'projects/project_refresh.html')
+
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         self.perform_project_fetch(request.user, pk)
+        self.test_required_project_permission()
         if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
             raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to refresh Project files.')
         authentication = LinkedSourceAuthentication(user_github_token(request.user))

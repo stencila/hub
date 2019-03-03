@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="post">
+{% csrf_token %}
+<input type="submit" value="Refresh">
+</form>
+{% endblock %}

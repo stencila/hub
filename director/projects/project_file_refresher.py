@@ -42,13 +42,42 @@ class ProjectFileRefresher(object):
 
                         if isinstance(source_files[relative_disk_file_path].source, FileSource):
                             # only update contents if it is a FileSource, not if it came from GitHub etc
-                            s = FileSource.objects.get(project=self.project, path=relative_disk_file_path)
-                            with open(full_disk_file_path, 'rb') as disk_file:
-                                s.push(disk_file)
-                                s.save()
-                        # else: file came from linked source
+                            self.update_existing_file_sources(full_disk_file_path, relative_disk_file_path)
                 else:
-                    # Create a new FileSource as reference to this disk file and pull in the contents
-                    with open(full_disk_file_path, 'rb') as disk_file:
-                        FileSource.objects.create(project=self.project, path=relative_disk_file_path,
-                                                  file=File(disk_file))
+                    # just in case the sources listing missed it or something messed up, just try to update sources with
+                    # path
+                    source_exists = self.update_existing_file_sources(full_disk_file_path, relative_disk_file_path)
+
+                    if not source_exists:
+                        # Create a new FileSource as reference to this disk file and pull in the contents
+                        with open(full_disk_file_path, 'rb') as disk_file:
+                            FileSource.objects.create(project=self.project, path=relative_disk_file_path,
+                                                      file=File(disk_file))
+
+    def update_existing_file_sources(self, full_disk_file_path: str, relative_disk_file_path: str) -> bool:
+        existing_sources = FileSource.objects.filter(project=self.project,
+                                                     path=relative_disk_file_path)
+
+        sources_found = False
+
+        first_iteration = True
+        for existing_source in existing_sources:
+            sources_found = True
+
+            # why there are > 1 with the same path I don't know – should not happen
+            # update first one
+            if first_iteration:
+                self.update_source_from_disk(existing_source, full_disk_file_path)
+                first_iteration = False
+                continue
+            else:
+                # delete the rest
+                existing_source.delete()
+
+        return sources_found
+
+    @staticmethod
+    def update_source_from_disk(existing_source: FileSource, full_disk_file_path: str):
+        with open(full_disk_file_path, 'rb') as disk_file:
+            existing_source.push(disk_file)
+            existing_source.save()
