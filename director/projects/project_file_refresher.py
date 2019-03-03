@@ -50,7 +50,7 @@ class ProjectFileRefresher(object):
 
                     if not source_exists:
                         # Create a new FileSource as reference to this disk file and pull in the contents
-                        with open(full_disk_file_path, 'rb') as disk_file:
+                        with open(to_utf8(full_disk_file_path), 'rb') as disk_file:
                             FileSource.objects.create(project=self.project, path=relative_disk_file_path,
                                                       file=File(disk_file))
 
@@ -78,6 +78,6 @@ class ProjectFileRefresher(object):
 
     @staticmethod
     def update_source_from_disk(existing_source: FileSource, full_disk_file_path: str):
-        with open(full_disk_file_path, 'rb') as disk_file:
+        with open(to_utf8(full_disk_file_path), 'rb') as disk_file:
             existing_source.push(disk_file)
             existing_source.save()
