@@ -255,6 +255,7 @@
         return `/desktop/?path=${filePath}&session=/cloud${sessionPath}&token=${token}`
       }
 
+
       const sessionWaitController = new Vue({
         el: '#session-wait-info',
         delimiters: ['[[', ']]'],
@@ -277,12 +278,20 @@
                 'X-CSRFToken': utils.cookie('csrftoken'),
               },
               credentials: 'same-origin'
-            }).then((response) => {
-              return response.json()
-            }, () => {
-              this.status = SESSION_SETUP_STATUS.ERROR
-              this.error = 'Starting the session failed.'
-            }).then((data) => {
+            }).then(response => {
+              if(response.ok) {
+                return response.json()
+              }
+              if(response.status === 504) {
+                this.startSession()
+                return null
+              } else {
+                throw 'Error when trying to start session. ' + response.bodyText
+              }
+            }).then(data => {
+              if (data == null) {
+                return // 504 handled above
+              }
               if (dataIsErrorResponse(data)) {
                 this.error = data.error
                 return
@@ -301,9 +310,10 @@
               }
 
               this.status = SESSION_SETUP_STATUS.ERROR
-            }, (failureReason) => {
-
-            })
+            }).catch(reason => {
+              this.error = reason
+              this.status = SESSION_SETUP_STATUS.ERROR
+            });
           },
           handleSessionCheckResponse (response) {
             if (response.invalid_session) {
