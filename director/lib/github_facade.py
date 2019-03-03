@@ -9,6 +9,9 @@ from github.Repository import Repository
 
 
 def user_github_token(user: User) -> typing.Optional[str]:
+    if user.is_anonymous:
+        return None
+
     social_app = SocialApp.objects.filter(provider='github').first()  # assume just one github App is set up
 
     if social_app is None:
