@@ -45,6 +45,7 @@ class ProjectFileRefresher(object):
                             s = FileSource.objects.get(project=self.project, path=relative_disk_file_path)
                             with open(full_disk_file_path, 'rb') as disk_file:
                                 s.push(disk_file)
+                                s.save()
                         # else: file came from linked source
                 else:
                     # Create a new FileSource as reference to this disk file and pull in the contents
