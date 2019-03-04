@@ -1,7 +1,7 @@
 crispy-forms-bulma==1.1.4
 Django==2.1.7
 django-avatar==4.1.0
-django-allauth==0.38.0
+django-allauth==0.39.1
 django-configurations==2.1
 django-crispy-forms==1.7.2
 django-intercom==0.1.2
