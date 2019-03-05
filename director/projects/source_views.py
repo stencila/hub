@@ -5,19 +5,21 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
-from django.views.generic import CreateView, DetailView, UpdateView, DeleteView
+from django.views import View
+from django.views.generic import CreateView, DetailView
 
 from lib.github_facade import user_github_token
+from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
 from projects.source_models import LinkedSourceAuthentication, DiskFileSource
 from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join
-from .models import Project, Source, FileSource, DropboxSource, GithubSource
-from .source_forms import GithubSourceForm, SourceUpdateForm, RelativeFileSourceForm
+from .models import Project, DropboxSource, GithubSource
+from .source_forms import GithubSourceForm, DiskFileSourceForm
 
 
 class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
@@ -38,31 +40,52 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
         file_source.save()
 
         if self.request.GET.get('directory'):
-            reverse_path = reverse("project_files_path", args=(pk, self.request.GET['directory']))
+            redirect("project_files_path", args=(pk, self.request.GET['directory']))
         else:
-            reverse_path = reverse("project_files", args=(pk,))
-
-        return HttpResponseRedirect(reverse_path)
+            redirect("project_files", args=(pk,))
 
 
-class FileSourceCreateView(SourceCreateView):
+class FileSourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
     """A view for creating a new, emtpy local file in the project."""
 
-    model = FileSource
-    form_class = RelativeFileSourceForm
+    form_class = DiskFileSourceForm
     template_name = 'projects/filesource_create.html'
+    project_permission_required = ProjectPermissionType.EDIT
+
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+        self.get_project(request.user, pk)
+
+        return self.get_response(request, self.form_class())
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        project = self.get_project(request.user, pk)
+
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+            dff.create_file(utf8_path_join(self.current_directory, form.cleaned_data['path']))
+
+            if self.current_directory:
+                return redirect("project_files_path", pk, self.current_directory)
+            else:
+                return redirect("project_files", pk, )
+
+        return self.get_response(request, form)
+
+    def get_response(self, request: HttpRequest, form: DiskFileSourceForm) -> HttpResponse:
+        return render(request,
+                      self.template_name,
+                      self.get_render_context({
+                          'current_directory': self.current_directory,
+                          'form': form
+                      })
+                      )
 
     @property
     def current_directory(self) -> str:
         return self.request.GET.get('directory', '')
-
-    def get_context_data(self, **kwargs):
-        return super(FileSourceCreateView, self).get_context_data(current_directory=self.current_directory)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['current_directory'] = self.current_directory
-        return kwargs
 
 
 class DropboxSourceCreateView(SourceCreateView):
@@ -88,37 +111,29 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
     project_permission_required = ProjectPermissionType.EDIT
 
     def get_context_data(self, **kwargs):
-        self.perform_project_fetch(self.request.user, self.kwargs['pk'])
+        self.get_project(self.request.user, self.kwargs['pk'])
         context_data = super().get_context_data(**kwargs)
         context_data['upload_directory'] = self.request.GET.get('directory', '')
         return context_data
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.perform_project_fetch(request.user, pk)
-        self.test_required_project_permission()
+        project = self.get_project(request.user, pk)
 
         directory = request.GET.get('directory', '')
-        while directory.endswith('/'):
-            directory = directory[:-1]
-
         files = request.FILES.getlist('file')
-        for file in files:
-            if directory:
-                file_path = '{}/{}'.format(directory, file.name)
-            else:
-                file_path = file.name
 
-            source = FileSource.objects.create(
-                project=self.project,
-                path=file_path,
-                file=file
-            )
-            source.save()
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        if directory:
+            dff.create_directory(directory)
+
+        for file in files:
+            dff.write_file_content(utf8_path_join(directory, file.name), file.read())
 
         return HttpResponse()
 
 
-class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
+class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get_context_data(self, *args, **kwargs):
@@ -191,7 +206,7 @@ class FileSourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView
         return SourceContentFacade(source, authentication, request, path)
 
 
-class DiskFileSourceOpenView(FileSourceOpenView):
+class DiskFileSourceOpenView(SourceOpenView):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
@@ -211,42 +226,91 @@ class DiskFileSourceOpenView(FileSourceOpenView):
         return self.perform_post(request, project_pk, path, content_facade)
 
 
-class FileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, UpdateView):
-    model = Source
-    form_class = SourceUpdateForm
+class DiskFileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
+    form_class = DiskFileSourceForm
     template_name = 'projects/source_update.html'
     project_permission_required = ProjectPermissionType.EDIT
 
-    def get_success_url(self) -> str:
-        path = self.request.GET.get('from')
+    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+        project = self.get_project(request.user, pk)
 
-        if path:
-            return reverse('project_files_path', kwargs={'pk': self.kwargs['project_pk'], 'path': path})
-        else:
-            return reverse('project_files', kwargs={'pk': self.kwargs['project_pk']})
+        form = self.form_class(initial={'path': path})
 
-    def get_object(self, *args, **kwargs):
-        return self.get_source(self.request.user, self.kwargs['project_pk'], self.kwargs['pk'])
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        if not dff.item_exists(path):
+            raise Http404
+
+        return self.get_response(request, project, form, path)
+
+    def get_response(self, request: HttpRequest, project: Project, form: DiskFileSourceForm, path: str) -> HttpResponse:
+        return render(request, self.template_name, {
+            'project': project,
+            'current_path': path,
+            'form': form
+        })
+
+    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+        project = self.get_project(request.user, pk)
+
+        form = self.form_class(request.POST, initial={'path': path})
+
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        if not dff.item_exists(path):
+            raise Http404
+
+        if form.is_valid():
+            dff.move_file(path, form.cleaned_data['path'])
+            messages.success(request, '"{}" was moved to "{}".'.format(path, form.cleaned_data['path']))
+
+            directory = request.GET.get('from', '')
+
+            if directory:
+                return redirect('project_files_path', pk, directory)
+            else:
+                return redirect('project_files', pk)
+
+        return self.get_response(request, project, form, path)
 
 
-class FileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, DeleteView):
-    model = Source
+class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View):
     template_name = 'confirm_delete.html'
     project_permission_required = ProjectPermissionType.EDIT
 
-    def get_object(self, *args, **kwargs):
-        self.perform_project_fetch(self.request.user, self.kwargs['project_pk'])
-        source = Source.objects.get(pk=self.kwargs['pk'])
+    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+        project = self.get_project(request.user, pk)
 
-        if source.project != self.project:
-            raise PermissionDenied
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
-        return source
+        if not dff.item_exists(path):
+            messages.warning(request, '{} does not exist in this project.'.format(path))
+            return self.get_completion_redirect(pk)
 
-    def get_success_url(self) -> str:
-        path = self.request.GET.get('from')
+        return render(request, self.template_name, {
+            'object': path
+        })
 
-        if path:
-            return reverse('project_files_path', kwargs={'pk': self.kwargs['project_pk'], 'path': path})
-        else:
-            return reverse('project_files', kwargs={'pk': self.kwargs['project_pk']})
+    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+        project = self.get_project(request.user, pk)
+
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        if not dff.item_exists(path):
+            messages.warning(request, '{} does not exist in this project.'.format(path))
+            return self.get_completion_redirect(pk)
+
+        dff.remove_item(path)
+        messages.success(request, '{} was deleted.'.format(path))
+
+        return self.get_completion_redirect(pk)
+
+    def get_completion_redirect(self, pk: int) -> HttpResponse:
+        if self.current_directory:
+            return redirect('project_files_path', pk, self.current_directory)
+
+        return redirect('project_files', pk)
+
+    @property
+    def current_directory(self) -> str:
+        return self.request.GET.get('from', '')

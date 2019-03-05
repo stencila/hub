@@ -101,8 +101,8 @@
                 {% endif %}
                 <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
                     <span class="icon is-small"><i class="fas fa-file-export"></i></span>
-                    <span v-if="!pullInProgress">Pull Files</span>
-                    <span v-if="pullInProgress">Pulling Files&hellip;</span>
+                    <span v-if="!pullInProgress">Pull Linked Sources</span>
+                    <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
                 </a>
             </div>
         </div>
@@ -175,8 +175,8 @@
                                         data-editor-url="{% source_path project directory_entry %}">Code editor
                                 </option>
                                 {% if directory_entry.name == 'manifest.xml' %}
-                                    <option data-path="{{ directory_entry.path|escape }}" value="desktop">Stencila
-                                        Desktop
+                                    <option data-path="{{ directory_entry.path|escape }}" value="desktop">
+                                        Stencila Desktop
                                     </option>
                                 {% endif %}
                             </select>
@@ -187,13 +187,15 @@
                 <td>{{ directory_entry.modification_date|naturaltime }}</td>
 
                 <td>
-                    {% if directory_entry.source.type == 'filesource' and not directory_entry.is_directory %}
-                        <a class="icon"
-                           href="{% url 'source_update' project.pk directory_entry.source.id %}?from={{ current_directory }}">
-                            <i class="fas fa-cog"></i>
-                        </a>
+                    {% if directory_entry.source.type == 'disk' %}
+                        {% if not directory_entry.is_directory %}
+                            <a class="icon"
+                               href="{% url 'file_source_update' project.pk directory_entry.path %}?from={{ current_directory }}">
+                                <i class="fas fa-cog"></i>
+                            </a>
+                        {% endif %}
                         <a class="icon has-text-danger"
-                           href="{% url 'source_delete' project.pk directory_entry.source.id %}?from={{ current_directory }}">
+                           href="{% url 'file_source_delete' project.pk directory_entry.path %}?from={{ current_directory }}">
                             <i class="fas fa-trash"></i>
                         </a>
                     {% endif %}

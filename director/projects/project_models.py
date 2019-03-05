@@ -4,11 +4,13 @@ import secrets
 import typing
 from io import BytesIO
 
+from django.conf import settings
 from django.db import models
 
 from accounts.models import Account
 from lib.enum_choice import EnumChoice
-from projects.source_models import Source, FileSource
+
+from projects.source_models import Source
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
 PROJECT_KEY_LENGTH = 32
@@ -208,23 +210,15 @@ class Project(models.Model):
 
     def _push(self, archive: typing.Union[str, typing.IO]) -> None:
         """Push files in the archive to the Django storage."""
-        import timezone
+        from .disk_file_facade import DiskFileFacade  # late import to break dependency loop
         from zipfile import ZipFile
 
         # Unzip all the files and add to this project
         zipfile = ZipFile(archive, 'r')
         for name in zipfile.namelist():
             # Replace existing file or create a new one
-            instance = FileSource.objects.get_or_create(project=self, name=name)
-
-            # Read the file from the zipfile
-            content = BytesIO()
-            content.write(zipfile.read(name))
-            content.seek(0)
-            # Create a new file with contents and name
-            instance.file.save(name, content, save=False)
-            instance.modified = datetime.datetime.now(tz=timezone.utc)
-            instance.save()
+            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self)
+            dff.write_file_content(name, zipfile.read(name))
 
 
 class ProjectEventType(EnumChoice):

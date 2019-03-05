@@ -8,8 +8,8 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
                                     ProjectNamedArchiveDownloadView, ProjectRefreshView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
-                                   GithubSourceCreateView, FileSourceOpenView, FileSourceUpdateView,
-                                   FileSourceDeleteView, DiskFileSourceOpenView)
+                                   GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
+                                   DiskFileSourceDeleteView, DiskFileSourceOpenView)
 
 urlpatterns = [
     # Generic views
@@ -29,10 +29,10 @@ urlpatterns = [
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
 
-    path('<int:project_pk>/files/<int:pk>/open/<path:path>', FileSourceOpenView.as_view(), name='file_source_open'),
+    path('<int:project_pk>/files/<int:pk>/open/<path:path>', SourceOpenView.as_view(), name='file_source_open'),
     path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='real_file_source_open'),
-    path('<int:project_pk>/files/<int:pk>/update', FileSourceUpdateView.as_view(), name='source_update'),
-    path('<int:project_pk>/files/<int:pk>/delete', FileSourceDeleteView.as_view(), name='source_delete'),
+    path('<int:pk>/files/update/<path:path>', DiskFileSourceUpdateView.as_view(), name='file_source_update'),
+    path('<int:pk>/files/delete/<path:path>', DiskFileSourceDeleteView.as_view(), name='file_source_delete'),
 
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),

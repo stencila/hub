@@ -13,43 +13,53 @@ from projects.source_item_models import PathEntry, DirectoryListEntry, Directory
 
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskFileSource
 
+PathType = typing.Union[str, bytes]
 
-def to_utf8(s: typing.Union[str, bytes]) -> bytes:
+
+def to_utf8(s: PathType) -> bytes:
     """If a `str` is passed in, return its utf8 encoding, ff `bytes`, assume it is already utf8 and just return it."""
     return s.encode('utf8') if isinstance(s, str) else s
 
 
-def utf8_path_join(*args: typing.Union[str, bytes]) -> str:
+def utf8_path_join(*args: PathType) -> str:
     """Encode `str` typed args into `bytes` using utf8 then passes all to `os.path.join`."""
     return os.path.join(*list(map(to_utf8, args))).decode('utf8')
 
 
-def utf8_normpath(path: typing.Union[str, bytes]) -> str:
+def utf8_normpath(path: PathType) -> str:
     return os.path.normpath(to_utf8(path)).decode('utf8')
 
 
-def utf8_isdir(path: typing.Union[str, bytes]) -> bool:
+def utf8_isdir(path: PathType) -> bool:
     return os.path.isdir(to_utf8(path))
 
 
-def utf8_basename(path: typing.Union[str, bytes]) -> str:
+def utf8_basename(path: PathType) -> str:
     return os.path.basename(to_utf8(path)).decode('utf8')
 
 
-def utf8_realpath(path: typing.Union[str, bytes]) -> str:
+def utf8_dirname(path: PathType) -> str:
+    return os.path.dirname(to_utf8(path)).decode('utf8')
+
+
+def utf8_realpath(path: PathType) -> str:
     return os.path.realpath(to_utf8(path)).decode('utf8')
 
 
-def utf8_path_exists(path: typing.Union[str, bytes]) -> bool:
+def utf8_path_exists(path: PathType) -> bool:
     return os.path.exists(to_utf8(path))
 
 
-def utf8_unlink(path: typing.Union[str, bytes]) -> None:
+def utf8_unlink(path: PathType) -> None:
     os.unlink(to_utf8(path))
 
 
-def utf8_makedirs(path: typing.Union[str, bytes], *args, **kwargs) -> None:
+def utf8_makedirs(path: PathType, *args, **kwargs) -> None:
     os.makedirs(to_utf8(path), *args, **kwargs)
+
+
+def utf8_rename(src: PathType, dest: PathType):
+    os.rename(to_utf8(src), to_utf8(dest))
 
 
 def generate_project_storage_directory(project_storage_root: str, project: Project) -> str:
@@ -60,7 +70,7 @@ def generate_project_archive_directory(project_storage_root: str, project: Proje
     return utf8_path_join(project_storage_root, 'archives', '{}'.format(project.id))
 
 
-def utf8_scandir(path: typing.Union[str, bytes]) -> typing.Iterable[DirEntry]:
+def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:
     yield from os.scandir(to_utf8(path))
 
 
@@ -97,6 +107,21 @@ def strip_directory(path: str, directory: str) -> str:
         return path[len(directory):]
 
     raise ValueError("Path {} is not in directory {}".format(path, directory))
+
+
+def relative_path_join(directory: str, relative_path: str) -> str:
+    """
+    Join `relative_path` on to `directory`.
+
+    Then ensure that the generated path is inside the `director`y (i.e. relative_path does not contain path traversal
+    components).
+    """
+    full_path = utf8_realpath(utf8_path_join(directory, relative_path))
+
+    if path_is_in_directory(full_path, directory):
+        return full_path
+
+    raise ValueError("Path {} is not in directory {}".format(full_path, directory))
 
 
 def determine_entry_type(source: Source, relative_path: str) -> DirectoryEntryType:
@@ -184,13 +209,18 @@ def sources_in_directory(directory: typing.Optional[str], sources: typing.Iterab
 
 
 def list_project_virtual_directory(project: Project, directory: typing.Optional[str],
-                                   authentication: LinkedSourceAuthentication) -> typing.List[DirectoryListEntry]:
+                                   authentication: LinkedSourceAuthentication,
+                                   only_file_sources: bool = False) -> typing.List[DirectoryListEntry]:
     """
     Generate a list of `SourceItem`s for all the `Source`s that belong to a `Project`, in the given `directory`.
 
     If `directory` is `None` then list the 'root' directory.
     """
-    sources = project.sources.all()
+    if only_file_sources:
+        sources = project.sources.instance_of(FileSource)
+    else:
+        sources = project.sources.not_instance_of(FileSource)
+
     return sorted(list(sources_in_directory(directory, sources, authentication)))
 
 

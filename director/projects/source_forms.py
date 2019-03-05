@@ -5,31 +5,12 @@ from urllib.parse import urlparse
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm
 
-from lib.forms import ModelFormWithSubmit
-from projects.project_models import Project
-from projects.source_operations import utf8_path_join
-from .source_models import FileSource, GithubSource, Source
+from lib.forms import ModelFormWithSubmit, FormWithSubmit
+from .source_models import GithubSource
 
 
-def validate_unique_project_path(project: Project, path: str, existing_source_pk: typing.Optional[int] = None) -> None:
-    """
-    Check if a `FileSource` with a path already exists for a given `Project`.
-
-    If a path `FileSource` with path does exist raise a `ValidationError`.
-    """
-    # this check only matters for FileSource objects because linked sources can be mapped to the same path
-    existing_sources = FileSource.objects.filter(project=project, path=path)
-
-    if existing_source_pk:
-        existing_sources = existing_sources.exclude(pk=existing_source_pk)
-
-    if len(existing_sources):
-        raise ValidationError("A source with path {} already exists for this project.".format(path))
-
-
-class VirtualPathField(forms.CharField):
+class PathField(forms.CharField):
     """Field for validating paths to FileSource."""
 
     def clean(self, value):
@@ -45,48 +26,8 @@ class VirtualPathField(forms.CharField):
         return cleaned_value
 
 
-class FileSourceForm(ModelFormWithSubmit):
-    path = VirtualPathField(required=True)
-
-    current_directory: str = ''
-
-    class Meta:
-        model = FileSource
-        fields = ('path',)
-
-    def __init__(self, *args, **kwargs):
-        if 'current_directory' in kwargs:
-            self.current_directory = kwargs.pop('current_directory')
-
-        super(FileSourceForm, self).__init__(*args, **kwargs)
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        if cleaned_data.get('path') is not None:
-            cleaned_data['path'] = utf8_path_join(self.current_directory, cleaned_data['path'])
-
-        if self.is_valid():
-            validate_unique_project_path(self.initial['project'], cleaned_data['path'])
-        return cleaned_data
-
-
-class RelativeFileSourceForm(FileSourceForm):
-    path = VirtualPathField(label='File name', required=True)
-
-
-class SourceUpdateForm(ModelForm):
-    path = VirtualPathField(required=True)
-
-    class Meta:
-        model = Source
-        fields = ('path',)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if 'path' in cleaned_data:  # it might not be, if the form is not valid then cleaned_data will be an empty dict
-            validate_unique_project_path(self.instance.project, cleaned_data['path'], self.instance.pk)
-        return cleaned_data
+class DiskFileSourceForm(FormWithSubmit):
+    path = PathField(required=True)
 
 
 class GithubSourceForm(ModelFormWithSubmit):

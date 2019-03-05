@@ -5,6 +5,8 @@
 
 {% block content %}
 <div class="section">
+    <h1 class="title is-4">{{ project }}: Modify File</h1>
+    <h3 class="subtitle is-5">Current Path <em>{{ current_path }}</em></h3>
     <form method="post">
         {% csrf_token %}
         {{ form | crispy }}

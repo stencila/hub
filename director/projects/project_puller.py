@@ -36,13 +36,13 @@ class ProjectSourcePuller(object):
         """Combine the `target_directory` and project ID."""
         return generate_project_storage_directory(self.target_directory, self.project)
 
-    def pull(self) -> None:
+    def pull(self, only_file_sources: bool = False) -> None:
         """Perform the pull of the project files."""
         event = ProjectEvent(event_type=ProjectEventType.SOURCE_PULL.name, project=self.project)
         event.save()
         utf8_makedirs(self.project_directory, exist_ok=True)
         try:
-            self.pull_directory()
+            self.pull_directory(only_file_sources=only_file_sources)
             event.success = True
         except Exception as e:
             event.message = str(e)
@@ -52,13 +52,13 @@ class ProjectSourcePuller(object):
             event.finished = timezone.now()
             event.save()
 
-    def pull_directory(self, sub_directory: typing.Optional[str] = None) -> None:
+    def pull_directory(self, sub_directory: typing.Optional[str] = None, only_file_sources: bool = True) -> None:
         """
         Pull one 'virtual' directory to disk.
 
         Will create directories and files in `sub_directory`, then recurse into directories to repeat the pull.
         """
-        dir_list = list_project_virtual_directory(self.project, sub_directory, self.authentication)
+        dir_list = list_project_virtual_directory(self.project, sub_directory, self.authentication, only_file_sources)
 
         working_directory = sub_directory or ''
         fs_working_directory = utf8_path_join(self.project_directory, working_directory)
