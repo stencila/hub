@@ -302,6 +302,13 @@
                 return
               }
 
+              if (data.status && data.status == 'NOT_STARTED') {
+                this.status = SESSION_SETUP_STATUS.QUEUED
+                this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS
+                this.queueCheckTimerSetup()
+                return
+              }
+
               if (data.location) {
                 this.status = SESSION_SETUP_STATUS.REDIRECTING
                 window.location = buildDesktopPath(this.relativePath, data.location.path, data.location.token)
@@ -327,7 +334,7 @@
             } else {
               this.status = SESSION_SETUP_STATUS.QUEUED
               this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS
-              this.timerSetup()
+              this.queueCheckTimerSetup()
             }
           },
           checkSession () {
@@ -347,13 +354,23 @@
               this.error = `Checking for session failed: ${failureReason}.`
             })
           },
-          timerSetup () {
+          sessionCheckTimerSetup () {
             setTimeout(() => {
               --this.secondsToRecheck
               if (this.secondsToRecheck === 0) {
                 this.checkSession()
               } else {
-                this.timerSetup()
+                this.sessionCheckTimerSetup()
+              }
+            }, 1000)
+          },
+          queueCheckTimerSetup () {
+            setTimeout(() => {
+              --this.secondsToRecheck
+              if (this.secondsToRecheck === 0) {
+                this.startSession()
+              } else {
+                this.queueCheckTimerSetup()
               }
             }, 1000)
           },

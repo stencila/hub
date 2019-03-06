@@ -61,7 +61,7 @@ class RestClientBase(object):
                      body_data: typing.Optional[dict] = None) -> dict:
         # TODO: add `SessionParameters` to the POST body (currently they won't do anything anyway)
         response = requests.request(method.value, url, headers=self.get_authorization_header(extra_jwt_payload),
-                                    json=body_data, timeout=300)
+                                    json=body_data, timeout=25)
 
         try:
             response.raise_for_status()

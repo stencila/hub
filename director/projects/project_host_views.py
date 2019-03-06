@@ -222,6 +222,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         return JsonResponse({
             'location': self.session_facade.generate_external_location(session,
                                                                        authorization_extra_parameters).to_dict(),
+            'status': session.status.name
         })
 
     def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
