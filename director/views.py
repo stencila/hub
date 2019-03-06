@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import View, TemplateView
+from django.views.generic import View, TemplateView, RedirectView
 
 
 class HomeView(View):
@@ -70,6 +70,11 @@ class TermsView(TemplateView):
     """Page displaying the details of the Terms and Conditions."""
 
     template_name = 'about/terms-conditions.html'
+
+
+class IcoView(RedirectView):
+    permanent = True
+    url = '/static/img/favicon.ico'
 
 
 class Error500View(View):
