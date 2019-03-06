@@ -19,7 +19,6 @@
                 <th>Name</th>
                 <th>Size</th>
                 <th>Modified</th>
-                <th><th>
             </tr>
         </thead>
         <tbody v-if="files.length">
@@ -46,6 +45,8 @@
                     <a class="icon has-text-danger" @click="remove(file.id)">
                         <i class="fas fa-trash"></i>
                     </a>
+                </td>
+                <td v-else>
                 </td>
             </tr>
         <tbody>
