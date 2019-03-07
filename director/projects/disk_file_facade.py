@@ -42,6 +42,10 @@ class DiskFileFacade(object):
             utf8_unlink(full_path)
 
     def write_file_content(self, relative_path: str, content: typing.Union[str, bytes]) -> None:
+        if not self.item_exists(relative_path):
+            # takes care of creating the directories etc, even though it is an extra open call
+            self.create_file(relative_path)
+
         if isinstance(content, str):
             mode = 'w'
         else:

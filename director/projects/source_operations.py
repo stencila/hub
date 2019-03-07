@@ -11,7 +11,7 @@ from lib.github_facade import GitHubFacade
 from projects.project_models import Project
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
-from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskFileSource
+from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource
 
 PathType = typing.Union[str, bytes]
 
@@ -239,7 +239,7 @@ def os_dir_entry_to_directory_list_entry(virtual_path: str, dir_entry: os.DirEnt
 
     return DirectoryListEntry(dir_entry.name.decode('utf8'), utf8_path_join(virtual_path, dir_entry.name),
                               DirectoryEntryType.DIRECTORY if dir_entry.is_dir() else DirectoryEntryType.FILE,
-                              DiskFileSource(), datetime.datetime.fromtimestamp(s.st_mtime))
+                              DiskSource(), datetime.datetime.fromtimestamp(s.st_mtime))
 
 
 def list_project_filesystem_directory(project_storage_root: str, project: Project,

@@ -16,7 +16,7 @@ from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
-from projects.source_models import LinkedSourceAuthentication, DiskFileSource
+from projects.source_models import LinkedSourceAuthentication, DiskSource
 from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join
 from .models import Project, DropboxSource, GithubSource
 from .source_forms import GithubSourceForm, DiskFileSourceForm
@@ -212,7 +212,7 @@ class DiskFileSourceOpenView(SourceOpenView):
     def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
         fs_path = get_filesystem_project_path(settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
                                               self.get_project(request.user, project_pk), path)
-        return SourceContentFacade(DiskFileSource(), None, request, fs_path)
+        return SourceContentFacade(DiskSource(), None, request, fs_path)
 
     def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, -1, path)
