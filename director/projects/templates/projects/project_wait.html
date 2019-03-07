@@ -107,7 +107,7 @@
             } else {
               this.status = SESSION_SETUP_STATUS.QUEUED
               this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS
-              this.timerSetup()
+              this.queueCheckTimerSetup()
             }
           },
           checkSession () {
@@ -127,13 +127,13 @@
               this.error = `Checking for session failed: ${failureReason}.`
             })
           },
-          timerSetup () {
+          queueCheckTimerSetup () {
             setTimeout(() => {
               --this.secondsToRecheck
               if (this.secondsToRecheck === 0) {
                 this.checkSession()
               } else {
-                this.timerSetup()
+                this.queueCheckTimerSetup()
               }
             }, 1000)
           }

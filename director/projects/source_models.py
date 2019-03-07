@@ -20,7 +20,7 @@ class MimeTypeFromPathMixin(object):
         return mimetype or 'Unknown'
 
 
-class DiskFileSource(object):
+class DiskSource(object):
     """Not a Source that is stored in the database but used in directory listing for files that are already on disk."""
 
     type = 'disk'

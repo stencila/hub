@@ -181,7 +181,8 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view.session_facade.generate_external_location.assert_called_with(mock_session, extra_auth_parameters)
 
         mock_json_response_class.assert_called_with({
-            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
+            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value,
+            'status': mock_session.status.name
         })
 
     @mock.patch('projects.project_host_views.JsonResponse')
@@ -206,7 +207,8 @@ class ProjectHostSessionsViewTests(TestCase):
         self.view.session_facade.generate_external_location.assert_called_with(
             self.view.create_session.return_value, extra_auth_parameters)
         mock_json_response_class.assert_called_with({
-            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value
+            'location': self.view.session_facade.generate_external_location.return_value.to_dict.return_value,
+            'status': self.view.create_session.return_value.status.name
         })
         self.view.create_session_request.assert_not_called()
 

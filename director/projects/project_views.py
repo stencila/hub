@@ -236,10 +236,6 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
         return context
 
 
-def get_linked_sources_for_project(project: Project) -> typing.Iterable[Source]:
-    return filter(lambda s: not isinstance(s, FileSource), project.sources.all())
-
-
 class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
@@ -265,7 +261,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             {
                 'session_check_path': session_check_path,
                 'session_start_path': session_start_path,
-                'linked_sources': list(get_linked_sources_for_project(self.project)),
+                'linked_sources': list(self.project.sources.not_instance_of(FileSource)),
                 'current_directory': path,
                 'breadcrumbs': path_entry_iterator(path),
                 'items': directory_items,

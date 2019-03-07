@@ -8,7 +8,7 @@ from django.http import HttpRequest
 from github import GithubException
 
 from lib.github_facade import GitHubFacade
-from projects.source_models import Source, GithubSource, FileSource, LinkedSourceAuthentication, DiskFileSource
+from projects.source_models import Source, GithubSource, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import strip_directory, utf8_path_join
 
 
@@ -16,18 +16,18 @@ class SourceEditContext(typing.NamedTuple):
     path: str
     extension: str
     content: typing.Union[str, BytesIO]
-    source: typing.Union[Source, DiskFileSource]
+    source: typing.Union[Source, DiskSource]
     editable: bool
     supports_commit_message: bool
 
 
 class SourceContentFacade(object):
-    source: typing.Union[Source, DiskFileSource]
+    source: typing.Union[Source, DiskSource]
     request: HttpRequest
     authentication: typing.Optional[LinkedSourceAuthentication]
     file_path: str
 
-    def __init__(self, source: typing.Union[Source, DiskFileSource],
+    def __init__(self, source: typing.Union[Source, DiskSource],
                  authentication: typing.Optional[LinkedSourceAuthentication],
                  request: HttpRequest, file_path: str) -> None:
         self.source = source
@@ -40,7 +40,7 @@ class SourceContentFacade(object):
             return self.get_file_source_content()
         elif isinstance(self.source, GithubSource):
             return self.get_github_source_content()
-        elif isinstance(self.source, DiskFileSource):
+        elif isinstance(self.source, DiskSource):
             with open(self.file_path, 'r') as f:
                 return f.read()
         else:
@@ -51,7 +51,7 @@ class SourceContentFacade(object):
             return self.get_file_source_binary_content()
         elif isinstance(self.source, GithubSource):
             return self.get_github_source_binary_content()
-        elif isinstance(self.source, DiskFileSource):
+        elif isinstance(self.source, DiskSource):
             with open(self.file_path, 'rb') as f:
                 return BytesIO(f.read())
         else:
@@ -89,7 +89,7 @@ class SourceContentFacade(object):
         elif isinstance(self.source, GithubSource):
             editable = self.authentication.github_token is not None
             supports_commit_message = True
-        elif isinstance(self.source, DiskFileSource):
+        elif isinstance(self.source, DiskSource):
             editable = True
         else:
             raise TypeError("Don't know how to get EditContext for source type '{}'".format(type(self.source)))
@@ -103,7 +103,7 @@ class SourceContentFacade(object):
             return self.update_file_source_content(content)
         elif isinstance(self.source, GithubSource):
             return self.update_github_source_content(content, commit_message)
-        elif isinstance(self.source, DiskFileSource):
+        elif isinstance(self.source, DiskSource):
             with open(self.file_path, 'w') as f:
                 f.write(content)
             return True

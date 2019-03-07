@@ -3,7 +3,7 @@ import functools
 import typing
 from datetime import datetime
 
-from projects.source_models import MimeTypeFromPathMixin, Source, DiskFileSource
+from projects.source_models import MimeTypeFromPathMixin, Source, DiskSource
 
 
 class DirectoryEntryType(enum.Enum):
@@ -32,11 +32,11 @@ class DirectoryListEntry(MimeTypeFromPathMixin):
     name: str
     path: str
     type: DirectoryEntryType
-    source: typing.Union[Source, DiskFileSource]
+    source: typing.Union[Source, DiskSource]
     _modification_date: typing.Optional[datetime]
 
     def __init__(self, name: typing.Union[str, bytes], path: typing.Union[str, bytes], entry_type: DirectoryEntryType,
-                 source: typing.Union[Source, DiskFileSource],
+                 source: typing.Union[Source, DiskSource],
                  modification_date: typing.Optional[datetime] = None) -> None:
         self.name = name if isinstance(name, str) else name.decode('utf8')
         self.path = path if isinstance(path, str) else path.decode('utf8')

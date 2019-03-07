@@ -13,7 +13,7 @@ from projects.session_models import SessionStatus, SessionRequest, SESSION_QUEUE
     SESSION_QUEUE_CREATION_TIMEOUT
 from projects.source_operations import generate_project_storage_directory
 
-SESSION_CREATE_PATH_FORMAT = 'execute'
+SESSION_CREATE_PATH_FORMAT = 'execute?waitForReady=false'
 SESSION_STATUS_PATH_FORMAT = 'status'
 
 
@@ -48,7 +48,8 @@ class CloudClient(RestClientBase):
         transformed = {}
 
         for key in ['description', 'lifetime', 'mounts', 'name', 'network', 'timeout']:
-            transformed[key] = session_parameters[key]
+            if key in session_parameters:
+                transformed[key] = session_parameters[key]
 
         transformed['environment'] = {'id': environ}
 

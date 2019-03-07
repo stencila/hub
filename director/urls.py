@@ -27,6 +27,7 @@ from views import (
     Error500View,
     HelpView,
     HomeView,
+    IcoView,
     Test403View,
     Test404View,
     Test500View,
@@ -86,7 +87,10 @@ urlpatterns = [
     path('test/500', Test500View.as_view()),
 
     # status
-    path('status/', StatusView.as_view())
+    path('status/', StatusView.as_view()),
+
+    # ico for old browsers
+    path('favicon.ico', IcoView.as_view())
 ]
 
 handler403 = permission_denied
