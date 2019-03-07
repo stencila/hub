@@ -13,7 +13,11 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 import sys
+import warnings
 from configurations import Configuration, values
+
+# TODO: the UserWarning might start to not be raised as of psycopg2 v2.8+ but until then suppress it
+warnings.filterwarnings('ignore', category=UserWarning, module='psycopg2')
 
 
 class Common(Configuration):
