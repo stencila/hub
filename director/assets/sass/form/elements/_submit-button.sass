@@ -3,8 +3,11 @@
 ////
 input[type="submit"],
 button[type="submit"]
-    @extend .button 
+    @extend .button
     @extend .is-primary
-    @extend .is-rounded 
+    @extend .is-rounded
 
     line-height: 0 !important
+
+    .modal-card-foot &
+      border-radius: $radius-small
