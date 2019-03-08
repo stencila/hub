@@ -40,7 +40,7 @@ class Project(models.Model):
 
     name = models.TextField(
         null=True,
-        blank=True,
+        blank=False,
         help_text="The name of the project"
     )
 
