@@ -75,6 +75,8 @@ director/extern: director/package.json
 	cp director/node_modules/moment/min/moment.min.js $@/js
 	cp director/node_modules/vue-resource/dist/vue-resource.min.js $@/js
 	cp director/node_modules/buefy/dist/buefy.min.js $@/js/buefy.min.js
+	mkdir -p $@/js/monaco-editor/min/vs
+	cp -R director/node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
 	mkdir -p $@/css
 	cp director/node_modules/buefy/dist/buefy.min.css $@/css
 	touch $@
