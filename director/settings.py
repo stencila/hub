@@ -99,6 +99,7 @@ class Common(Configuration):
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
+                    'lib.template_context_processors.sentry_js_url'
                 ],
             },
         },
@@ -247,6 +248,9 @@ class Common(Configuration):
     # Path where the remote executor can find the above Project pulls.
     # By default this is the same as the path in the hub
     STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(STENCILA_PROJECT_STORAGE_DIRECTORY)
+
+    # URL for Sentry JS error reporting
+    SENTRY_JS_URL = values.Value('')
 
 
 class Dev(Common):

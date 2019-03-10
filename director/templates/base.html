@@ -14,10 +14,17 @@
         <!-- <link rel="stylesheet" href="{% static 'css/base.css' %}"> -->
         {% endblock %}
         {% block scripts %}
+        {% if SENTRY_JS_URL %}
+            <script src="//browser.sentry-cdn.com/4.6.4/bundle.min.js" crossorigin="anonymous"></script>
+            <script>
+                Sentry.init({ dsn: '{{ SENTRY_JS_URL }}' });
+            </script>
+        {% endif %}
         <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
 
         <script type="text/javascript" src="{% static 'js/vue.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
+
         <script>
             Vue.use(Buefy.default)
         </script>
