@@ -252,6 +252,9 @@ class Common(Configuration):
     # URL for Sentry JS error reporting
     SENTRY_JS_URL = values.Value('')
 
+    # This can be any format, it's not used in code, only humans will be looking at this
+    STENCILA_HUB_VERSION = values.Value('')
+
 
 class Dev(Common):
     """Configuration settings used in development."""

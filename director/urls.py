@@ -33,8 +33,8 @@ from views import (
     Test500View,
     PrivacyView,
     StatusView,
-    TermsView
-    )
+    TermsView,
+    VersionView)
 
 urlpatterns = [
     # Project CRUD
@@ -88,6 +88,9 @@ urlpatterns = [
 
     # status
     path('status/', StatusView.as_view()),
+
+    # version
+    path('version', VersionView.as_view()),
 
     # ico for old browsers
     path('favicon.ico', IcoView.as_view())

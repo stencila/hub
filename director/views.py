@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
@@ -125,3 +126,12 @@ class Test500View(View):
     @method_decorator(staff_member_required)
     def get(self, request):
         raise RuntimeError("This is a test error")
+
+
+class VersionView(View):
+    """Get the current version, this should be populated through a Django Setting using environment variables."""
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        r = HttpResponse(settings.STENCILA_HUB_VERSION)
+        r['Content-Type'] = 'text/plain'
+        return r
