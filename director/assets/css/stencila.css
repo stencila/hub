@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Nunito:400,400i,600,600i,700,700i,800,800i");
-footer input[type="submit"],
-footer button[type="submit"] {
+footer:not(.modal-card-foot) input[type="submit"],
+footer:not(.modal-card-foot) button[type="submit"] {
   border-color: white !important; }
 
 /*! bulma.io v0.7.4 | MIT License | github.com/jgthms/bulma */
@@ -10078,7 +10078,7 @@ hr.is-small {
 .modal-card-head,
 .modal-card-foot {
   align-items: center;
-  background-color: #3273dc;
+  background-color: whitesmoke;
   display: flex;
   flex-shrink: 0;
   justify-content: flex-start;
@@ -10091,7 +10091,7 @@ hr.is-small {
   border-top-right-radius: 6px; }
 
 .modal-card-title {
-  color: #ffffff;
+  color: #363636;
   flex-grow: 1;
   flex-shrink: 0;
   font-size: 1.5rem;
@@ -11694,7 +11694,8 @@ button.dropdown-item {
 
 .tabs.is-toggle li.is-active a {
   background-color: #d4d4d4;
-  border-color: #c4c4c4; }
+  border-color: #c4c4c4;
+  color: #4a4a4a; }
 
 .footer {
   font-weight: 300;
