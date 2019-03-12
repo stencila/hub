@@ -87,6 +87,7 @@ urlpatterns = [
 
     # status
     path('status/', StatusView.as_view()),
+    path('system-status/', StatusView.as_view()),  # for parity with cloud
 
     # ico for old browsers
     path('favicon.ico', IcoView.as_view())
