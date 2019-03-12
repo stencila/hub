@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -35,8 +35,10 @@ class StatusView(View):
     """A view that returns the current date for health checker purposes."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        resp = HttpResponse(datetime.datetime.utcnow().isoformat())
-        resp['Content-Type'] = 'text/plain'
+        resp = JsonResponse({
+            'time': datetime.datetime.utcnow().isoformat(),
+            'version': settings.STENCILA_HUB_VERSION
+        })
         resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         resp['Pragma'] = 'no-cache'
         resp['Expires'] = '0'
@@ -126,12 +128,3 @@ class Test500View(View):
     @method_decorator(staff_member_required)
     def get(self, request):
         raise RuntimeError("This is a test error")
-
-
-class VersionView(View):
-    """Get the current version, this should be populated through a Django Setting using environment variables."""
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        r = HttpResponse(settings.STENCILA_HUB_VERSION)
-        r['Content-Type'] = 'text/plain'
-        return r
