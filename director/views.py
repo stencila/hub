@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -128,3 +128,15 @@ class Test500View(View):
     @method_decorator(staff_member_required)
     def get(self, request):
         raise RuntimeError("This is a test error")
+
+
+class IeUnsupportedView(View):
+    """A view to let users know that we don't support Internet Explorer (yet)."""
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+        if not user_agent or 'MSIE' not in user_agent:
+            return redirect('/')
+
+        return render(request, 'ie-unsupported.html')

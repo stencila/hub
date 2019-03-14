@@ -33,7 +33,7 @@ from views import (
     Test500View,
     PrivacyView,
     StatusView,
-    TermsView)
+    TermsView, IeUnsupportedView)
 
 urlpatterns = [
     # Project CRUD
@@ -79,6 +79,8 @@ urlpatterns = [
 
     # API
     path('api/', include(api_patterns)),
+
+    path('ie-unsupported/', IeUnsupportedView.as_view(), name='ie-unsupported'),
 
     # Testing errors
     path('test/403', Test403View.as_view()),
