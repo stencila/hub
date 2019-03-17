@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
+from lib.browser_detection import user_agent_is_internet_explorer
+
 
 class HomeView(View):
     """
@@ -134,9 +136,7 @@ class IeUnsupportedView(View):
     """A view to let users know that we don't support Internet Explorer (yet)."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-
-        if not user_agent or 'MSIE' not in user_agent:
+        if not user_agent_is_internet_explorer(request.META.get('HTTP_USER_AGENT')):
             return redirect('/')
 
         return render(request, 'ie-unsupported.html')
