@@ -15,8 +15,8 @@
                 <div class="navbar-end is-flex align-centre">
                     {% if user.is_anonymous %}
                     <div class="buttons">
-                        <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signin' %}">Sign in</a>
-                        <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signup' %}">Sign up</a>
+                        <a class="button is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signin' %}">Sign in</a>
+                        <a class="button is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signup' %}">Sign up</a>
                     </div>
                     {% else %}
                     <div class="has-dropdown">
@@ -45,7 +45,7 @@
                                         <a class="dropdown-item" href="{% url 'user_settings' %}">Settings</a>
                                         <hr class="dropdown-divider">
                                         <div class="dropdown-item no-hover is-flex">
-                                            <a class="button is-mini is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signout' %}">Sign out</a>
+                                            <a class="button is-outlined is-primary is-rounded call-to-action" href="{% url 'user_signout' %}">Sign out</a>
                                         </div>
 
                                     </div>
