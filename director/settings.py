@@ -256,6 +256,9 @@ class Common(Configuration):
     # This can be any format, it's not used in code, only humans will be looking at this
     STENCILA_HUB_VERSION = values.Value('')
 
+    # some XML files are quite large (3MB+), this basically sets the size of the POST allowed
+    DATA_UPLOAD_MAX_MEMORY_SIZE = values.IntegerValue(5 * 1024 * 1024)
+
 
 class Dev(Common):
     """Configuration settings used in development."""
@@ -270,7 +273,7 @@ class Dev(Common):
     SECRET_KEY = 'not-a-secret-key'
 
     # Only allow localhost if in development mode
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['*']
 
     INTERNAL_IPS = '127.0.0.1'  # For debug_toolbar
 
