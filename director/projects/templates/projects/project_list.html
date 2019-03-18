@@ -45,29 +45,23 @@
 
             {% if request.user.is_authenticated %}
                 <p class="level-item">
-                    <a class="button is-success" href="{% url 'project_create' %}">
+                    <a class="button is-primary is-rounded is-outlined call-to-action" href="{% url 'project_create' %}">
                         <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New</span>
+                        <span>New Project</span>
                     </a>
                 </p>
             {% endif %}
         </div>
     </nav>
 
-    <div class="section">
+    <div class="section section--inner">
         {% for project in object_list %}
-            <div class="card">
-                <div class="card-content">
-                    <a href="{% url 'project_overview' project.id %}" title="Open">
-                        <span>{{ project.get_name }}</span>
-                    </a>
-                </div>
-            </div>
+            <a class="box" href="{% url 'project_overview' project.id %}" title="Open">
+                <span>{{ project.get_name }}</span>
+            </a>
         {% empty %}
             <div>
-                <div class="card-content">
-                    It appears that you have no projects. Click the <em>New</em> button above to get started!
-                </div>
+                It appears that you have no projects. Click the <em>New</em> button above to get started!
             </div>
         {% endfor %}
     </div>
