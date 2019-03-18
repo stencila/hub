@@ -9,7 +9,7 @@
         "start": "gulp"
     },
     "dependencies": {
-        "@stencila/style": "^1.1.8",
+        "@stencila/style": "^1.1.9",
         "buefy": "^0.7.2",
         "bulma": "^0.7.4",
         "gulp": "^4.0.0",
