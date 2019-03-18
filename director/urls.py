@@ -88,8 +88,7 @@ urlpatterns = [
     path('test/500', Test500View.as_view()),
 
     # status
-    path('status/', StatusView.as_view()),
-    path('system-status/', StatusView.as_view()),  # for parity with cloud
+    path('system-status/', StatusView.as_view()),
 
     # ico for old browsers
     path('favicon.ico', IcoView.as_view())

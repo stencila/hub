@@ -337,7 +337,7 @@ class Prod(Common):
     # enforce HTTPS
     SECURE_SSL_REDIRECT = True
 
-    SECURE_REDIRECT_EXEMPT = [r'^status/$', r'^system-status/$']
+    SECURE_REDIRECT_EXEMPT = [r'^system-status/$']
 
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
