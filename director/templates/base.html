@@ -36,8 +36,12 @@
         {% block main %}
         <main id="main_section" class="section">
             <div class="container">
-                {% include "_messages.html" %}
-                {% block content %}{% endblock %}
+                <div class="columns is-centered">
+                    <div class="column is-full">
+                        {% include "_messages.html" %}
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
             </div>
         </main>
         {% endblock %}
