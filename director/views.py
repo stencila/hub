@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
 from lib.browser_detection import user_agent_is_internet_explorer
+from lib.health_check import migrations_pending
 
 
 class HomeView(View):
@@ -37,6 +38,9 @@ class StatusView(View):
     """A view that returns the current date for health checker purposes."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
+        if migrations_pending():
+            return HttpResponse('Instance is not healthy: there are unapplied migrations.', status=500)
+
         resp = JsonResponse({
             'time': datetime.datetime.utcnow().isoformat(),
             'version': settings.STENCILA_HUB_VERSION
