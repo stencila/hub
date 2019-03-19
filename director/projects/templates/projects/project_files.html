@@ -152,11 +152,13 @@
                 </td>
                 <td>
                     {% if directory_entry.is_directory %}
-                        <a href="{% source_path project directory_entry %}">
+                      <p>
+                          <a href="{% source_path project directory_entry %}">
                     {% endif %}
                     {{ directory_entry.name }}
                     {% if directory_entry.is_directory %}
-                        </a>
+                          </a>
+                      </p>
                     {% endif %}
                 </td>
 
