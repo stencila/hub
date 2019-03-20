@@ -11714,6 +11714,8 @@ button.dropdown-item {
   border-radius: 4px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
   font-weight: 600; }
+  .box:not(:last-child) {
+    margin-bottom: 1rem; }
 
 a.box:hover, a.box:focus {
   color: #2568ef;
@@ -11738,6 +11740,9 @@ a.box:active {
   height: auto;
   width: auto;
   max-width: 100%; }
+
+.table a, .addon-notes-container table a {
+  font-weight: normal !important; }
 
 .tabs a {
   text-decoration: none !important; }

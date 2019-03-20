@@ -12687,6 +12687,8 @@ button[type="submit"] {
   border-radius: 4px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
   font-weight: 600; }
+  .box:not(:last-child) {
+    margin-bottom: 1rem; }
 
 a.box:hover, a.box:focus {
   color: #2568ef;
@@ -12711,6 +12713,9 @@ a.box:active {
   height: auto;
   width: auto;
   max-width: 100%; }
+
+.table a, .addon-notes-container table a {
+  font-weight: normal !important; }
 
 .tabs a {
   text-decoration: none !important; }
@@ -12824,10 +12829,6 @@ a.box:active {
   padding: 0 0.5rem;
   min-width: auto; }
 
-.button, input[type="submit"],
-button[type="submit"] {
-  text-decoration: none; }
-
 button.hamburger {
   line-height: 0; }
 
@@ -12889,11 +12890,14 @@ button.hamburger {
       justify-content: flex-end;
       margin-right: 1.25rem !important; } }
 
-.content a {
+.content p a, .section p a {
   font-weight: 700;
   text-decoration: underline; }
-  .content a:hover {
+  .content p a:hover, .section p a:hover {
     text-decoration: none; }
+
+.content a.button, .section a.button {
+  text-decoration: none; }
 
 .form-actions {
   text-align: right; }
@@ -12903,10 +12907,13 @@ button.hamburger {
 
 input[type="submit"],
 button[type="submit"] {
-  line-height: 0 !important; }
+  line-height: 0 !important;
+  padding: 1.125rem 1.375rem;
+  text-transform: uppercase;
+  font-weight: 700; }
   .modal-card-foot input[type="submit"], .modal-card-foot
   button[type="submit"] {
-    border-radius: 2px; }
+    padding: 1.125rem 1.375rem; }
 
 .dropdown {
   display: inline-flex;
