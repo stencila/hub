@@ -1,6 +1,8 @@
 SHELL := bash
 OS := $(shell uname -s)
-
+DIRECTOR_VERSION_COMMAND := sed -En "s/__version__ = '([^']+)'/\1/p" director/_version.py
+DIRECTOR_VERSION := $(shell $(DIRECTOR_VERSION_COMMAND))
+GIT_BRANCH := $(shell git branch | grep \* | cut -d ' ' -f2)
 
 all: setup run
 
@@ -17,6 +19,10 @@ build: router-build director-build desktop-build
 static: director-static desktop-static
 
 deploy: router-deploy director-deploy desktop-deploy
+
+# Exit with status 1 if git has uncommitted changes.
+git-dirty-check:
+	git diff-index --quiet --cached HEAD --
 
 
 ####################################################################################
@@ -143,6 +149,10 @@ director-test: director/venv
 director-build: director/Dockerfile
 	docker build --tag stencila/hub-director director
 
+# Build Docker image with current version tag
+director-docker-versioned-build: git-dirty-check director/Dockerfile
+	docker build --tag stencila/hub-director:$(DIRECTOR_VERSION) director
+
 # Run the Docker image passing through
 # environment variables required for `Prod` settings
 # but using development database and static files
@@ -166,6 +176,22 @@ director-interact:
 # Push Docker image to Docker hub
 director-deploy: director-build
 	docker push stencila/hub-director
+
+# Push versioned Docker image to Docker hub
+director-release: director-docker-versioned-build
+	docker push stencila/hub-director:$(DIRECTOR_VERSION)
+
+# Increment the Major Version of director
+increment-major:
+	./version-increment.sh major
+
+# Increment the Minor Version of director
+increment-minor:
+	./version-increment.sh minor
+
+# Make annotated tag based on the director version
+tag: git-dirty-check
+	git tag -a v$(DIRECTOR_VERSION) -m "Hub version $(DIRECTOR_VERSION)"
 
 
 ####################################################################################
