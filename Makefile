@@ -20,6 +20,8 @@ static: director-static desktop-static
 
 deploy: router-deploy director-deploy desktop-deploy
 
+release: router-deploy director-release desktop-deploy
+
 # Exit with status 1 if git has uncommitted changes.
 git-dirty-check:
 	git diff-index --quiet --cached HEAD --
