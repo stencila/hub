@@ -12908,12 +12908,14 @@ button.hamburger {
 input[type="submit"],
 button[type="submit"] {
   line-height: 0 !important;
-  padding: 1.125rem 1.375rem;
-  text-transform: uppercase;
-  font-weight: 700; }
+  padding: 1.125rem 1.375rem; }
   .modal-card-foot input[type="submit"], .modal-card-foot
   button[type="submit"] {
     padding: 1.125rem 1.375rem; }
+
+.call-to-action {
+  text-transform: none !important;
+  font-weight: normal !important; }
 
 .dropdown {
   display: inline-flex;

@@ -309,7 +309,7 @@
 
               if (data.status && (data.status === 'NOT_STARTED' || data.status === 'UNKNOWN')) {
                 this.status = SESSION_SETUP_STATUS.QUEUED
-                this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS[++TIME_CHECK_INDEX]
+                this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS[TIME_CHECK_INDEX++]
                 TIME_CHECK_INDEX = Math.min(TIME_CHECK_INDEX, TIME_BETWEEN_RECHECK_SECONDS.length -1)
 
                 this.queueCheckTimerSetup()
