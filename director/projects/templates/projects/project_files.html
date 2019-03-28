@@ -233,7 +233,8 @@
         </div>
     </section>
     <script type="text/javascript">
-      const TIME_BETWEEN_RECHECK_SECONDS = 60
+      const TIME_BETWEEN_RECHECK_SECONDS = [5, 10, 30, 30, 60]
+      let TIME_CHECK_INDEX = 0
       const SESSION_SETUP_STATUS = {
         IDLE: 0,
         CHECKING: 1,
@@ -265,7 +266,7 @@
         delimiters: ['[[', ']]'],
         data: {
           relativePath: '',
-          secondsToRecheck: TIME_BETWEEN_RECHECK_SECONDS,
+          secondsToRecheck: TIME_BETWEEN_RECHECK_SECONDS[TIME_CHECK_INDEX],
           status: SESSION_SETUP_STATUS.IDLE,
           sessionCheckPath: '{{ session_check_path|escapejs }}',
           sessionStartPath: '{{ session_start_path|escapejs }}',
@@ -308,7 +309,9 @@
 
               if (data.status && (data.status === 'NOT_STARTED' || data.status === 'UNKNOWN')) {
                 this.status = SESSION_SETUP_STATUS.QUEUED
-                this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS
+                this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS[++TIME_CHECK_INDEX]
+                TIME_CHECK_INDEX = Math.min(TIME_CHECK_INDEX, TIME_BETWEEN_RECHECK_SECONDS.length -1)
+
                 this.queueCheckTimerSetup()
                 return
               }
