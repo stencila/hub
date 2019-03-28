@@ -222,8 +222,6 @@ class CloudSessionFacade(object):
 
         return Session.objects.create(
             project=self.project,
-            started=timezone.now(),
-            last_check=timezone.now(),
             url=attach_context.url,
             execution_id=attach_context.execution_id,
             client_class_id=self.client.class_id
