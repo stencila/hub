@@ -22,7 +22,6 @@ from projects.permission_facade import fetch_project_for_user, ProjectFetchResul
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
-from projects.project_file_refresher import ProjectFileRefresher
 from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
@@ -309,13 +308,6 @@ class ProjectRefreshView(ProjectPermissionsMixin, View):
         return render(request, 'projects/project_refresh.html')
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, pk)
-        self.test_required_project_permission()
-        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to refresh Project files.')
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-        refresher = ProjectFileRefresher(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication)
-        refresher.refresh()
         return JsonResponse({'success': True})
 
 
