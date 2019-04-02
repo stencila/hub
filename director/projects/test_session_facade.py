@@ -241,15 +241,12 @@ class SessionFacadeTests(TestCase):
         session_parameters = mock.MagicMock(spec=dict)
 
         with mock.patch("projects.cloud_session_controller.Session", autospec=True) as mock_session_class:
-            with mock.patch("projects.cloud_session_controller.timezone") as mock_timezone:
-                session = self.cs_facade.perform_session_create(environ, session_parameters)
+            session = self.cs_facade.perform_session_create(environ, session_parameters)
 
         self.client.start_session.assert_called_with(environ, session_parameters)
         self.assertEqual(mock_session_class.objects.create.return_value, session)
         mock_session_class.objects.create.assert_called_with(
             project=self.project,
-            started=mock_timezone.now.return_value,
-            last_check=mock_timezone.now.return_value,
             url=self.client.start_session.return_value.url,
             execution_id=self.client.start_session.return_value.execution_id,
             client_class_id=self.client.class_id
