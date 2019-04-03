@@ -24,7 +24,7 @@ release: router-deploy director-release desktop-deploy
 
 # Exit with status 1 if git has uncommitted changes.
 git-dirty-check:
-	git diff-index --quiet --cached HEAD --
+	git diff-index --quiet --cached HEAD -- && git diff-files --quiet --ignore-submodules --
 
 
 ####################################################################################
