@@ -1,6 +1,5 @@
 import datetime
 
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
@@ -10,6 +9,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
+import _version
 from lib.browser_detection import user_agent_is_internet_explorer
 from lib.health_check import migrations_pending
 
@@ -43,7 +43,7 @@ class StatusView(View):
 
         resp = JsonResponse({
             'time': datetime.datetime.utcnow().isoformat(),
-            'version': settings.STENCILA_HUB_VERSION
+            'version': _version.__version__
         })
         resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         resp['Pragma'] = 'no-cache'

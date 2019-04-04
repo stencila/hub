@@ -1,7 +1,6 @@
 SHELL := bash
 OS := $(shell uname -s)
-DIRECTOR_VERSION_COMMAND := sed -En "s/__version__ = '([^']+)'/\1/p" director/_version.py
-DIRECTOR_VERSION := $(shell $(DIRECTOR_VERSION_COMMAND))
+DIRECTOR_VERSION := $(shell ./version-get.sh)
 GIT_BRANCH := $(shell git branch | grep \* | cut -d ' ' -f2)
 
 all: setup run
@@ -190,6 +189,10 @@ increment-major:
 # Increment the Minor Version of director
 increment-minor:
 	./version-increment.sh minor
+
+# Increment the Patch Version of director
+increment-patch:
+	./version-increment.sh patch
 
 # Make annotated tag based on the director version
 tag: git-dirty-check
