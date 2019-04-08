@@ -23,7 +23,12 @@ release: router-deploy director-release desktop-deploy
 
 # Exit with status 1 if git has uncommitted changes.
 git-dirty-check:
+ifneq ($(GIT_BRANCH),master)
+	@echo "Not on master branch, can't continue."
+	@false
+else
 	git diff-index --quiet --cached HEAD -- && git diff-files --quiet --ignore-submodules --
+endif
 
 
 ####################################################################################
@@ -183,15 +188,15 @@ director-release: director-docker-versioned-build
 	docker push stencila/hub-director:$(DIRECTOR_VERSION)
 
 # Increment the Major Version of director
-increment-major:
+increment-major: git-dirty-check
 	./version-increment.sh major
 
 # Increment the Minor Version of director
-increment-minor:
+increment-minor: git-dirty-check
 	./version-increment.sh minor
 
 # Increment the Patch Version of director
-increment-patch:
+increment-patch: git-dirty-check
 	./version-increment.sh patch
 
 # Make annotated tag based on the director version
