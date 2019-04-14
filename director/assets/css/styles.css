@@ -14182,3 +14182,6 @@ body, html {
   bottom: 0;
   height: 136px;
   width: 100%; }
+
+#file-browser table i {
+  color: #7A7A7A; }

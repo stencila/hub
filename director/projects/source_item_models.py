@@ -66,6 +66,14 @@ class DirectoryListEntry(MimeTypeFromPathMixin):
             return self._modification_date
         return self.source.updated
 
+    @property
+    def allow_rename(self) -> bool:
+        return isinstance(self.source, DiskSource)
+
+    @property
+    def allow_remove(self) -> bool:
+        return isinstance(self.source, DiskSource)
+
 
 class PathEntry(typing.NamedTuple):
     name: str

@@ -1,4 +1,5 @@
 import typing
+from os.path import splitext
 
 from django import template
 from django.urls import reverse
@@ -44,3 +45,24 @@ def is_text_editable(directory_entry: typing.Any) -> bool:
         return False
 
     return mimetype_text_editable(directory_entry.mimetype)
+
+
+@register.filter
+def file_icon(directory_entry: typing.Any) -> str:
+    if not isinstance(directory_entry, DirectoryListEntry):
+        return ''
+
+    directory_entry = typing.cast(DirectoryListEntry, directory_entry)
+
+    if directory_entry.is_directory:
+        return 'folder'
+
+    name, ext = splitext(directory_entry.name)
+
+    if ext:
+        ext = ext[1:].lower()
+
+    if ext in ['py', 'r', 'rmd', 'json', 'js', 'xml']:
+        return 'file-code'
+
+    return 'file'

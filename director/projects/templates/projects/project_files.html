@@ -2,63 +2,108 @@
 {% load humanize static escape_extras source_extras %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
-
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="files" %}
     {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
 
-    <div class="level">
-        <div class="level-right">
-            <div class="level-item buttons">
-                <a class="button is-primary"
-                   href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
-                    <span class="icon is-small">
-                        <i class="fas fa-plus" aria-hidden="true"></i>
-                    </span>
-                    <span>New</span>
-                </a>
-                <a class="button is-primary"
-                   href="{% url 'filesource_upload' project.pk %}?directory={{ current_directory }}">
-                    <span class="icon is-small">
-                        <i class="fas fa-upload" aria-hidden="true"></i>
-                    </span>
-                    <span>Upload</span>
-                </a>
-                <div class="dropdown" id="link" @click="active = !active" :class="{ 'is-active':active }">
-                    <div class="dropdown-trigger">
-                        <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
-                            <span class="icon is-small">
-                                <i class="fas fa-link" aria-hidden="true"></i>
-                            </span>
-                            <span>Link</span>
-                            <span class="icon is-small">
-                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                </span>
-                        </button>
-                    </div>
-                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                        <div class="dropdown-content">
-                            {% comment not supported yet %}
-                            <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
+    <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
+         data-file-pull-url="{% url 'project_pull' project.id %}"
+         data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
+         data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
+         data-item-remove-url="{% url 'api_v1_project_item_remove' project.id %}">
+        <add-item-modal
+                :item-type="createItemType"
+                directory-path="{{ current_directory }}"
+        ></add-item-modal>
+
+        <rename-item-modal
+                :visible="renameItemVisible"
+                directory-path="{{ current_directory }}"
+        ></rename-item-modal>
+
+        <remove-item-modal directory-path="{{ current_directory }}"></remove-item-modal>
+        <div class="level">
+            <div class="level-right">
+                <div class="level-item buttons">
+                    <div class="dropdown" style="margin-right: 0.5em" id="new-item"
+                         @click.prevent="newMenuVisible = !newMenuVisible"
+                         :class="{ 'is-active':newMenuVisible }">
+                        <div class="dropdown-trigger">
+                            <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
                                 <span class="icon is-small">
-                                    <i class="fab fa-dropbox" aria-hidden="true"></i>
+                                    <i class="fas fa-plus" aria-hidden="true"></i>
                                 </span>
-                                <span>Dropbox</span>
-                            </a>
-                            {% endcomment %}
-                            <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                                <span>New</span>
                                 <span class="icon is-small">
-                                    <i class="fab fa-github" aria-hidden="true"></i>
-                                </span>
-                                <span>Github</span>
-                            </a>
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                            <div class="dropdown-content">
+                                <a href="#" @click.prevent="createFile()" class="dropdown-item">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-file" aria-hidden="true"></i>
+                                    </span>
+                                    <span>File&hellip;</span>
+                                </a>
+                                <a href="#" @click.prevent="createFolder()" class="dropdown-item">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-folder" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Folder&hellip;</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% if linked_sources %}
-                    <div class="dropdown" style="margin-left: 0.5em" id="unlink" @click="active = !active"
-                         :class="{ 'is-active':active }">
-                        <script src="{% static "js/delete-confirm-modal.js" %}"></script>
+
+                    <!--a class="button is-primary"
+                       href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
+                        <span class="icon is-small">
+                            <i class="fas fa-plus" aria-hidden="true"></i>
+                        </span>
+                        <span>New</span>
+                    </a-->
+                    <a class="button is-primary"
+                       href="{% url 'filesource_upload' project.pk %}?directory={{ current_directory }}">
+                        <span class="icon is-small">
+                            <i class="fas fa-upload" aria-hidden="true"></i>
+                        </span>
+                        <span>Upload</span>
+                    </a>
+                    <div class="dropdown" id="link" @click.prevent="linkMenuVisible = !linkMenuVisible"
+                         :class="{ 'is-active':linkMenuVisible }">
+                        <div class="dropdown-trigger">
+                            <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+                                <span class="icon is-small">
+                                    <i class="fas fa-link" aria-hidden="true"></i>
+                                </span>
+                                <span>Link</span>
+                                <span class="icon is-small">
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                            <div class="dropdown-content">
+                                {% comment not supported yet %}
+                                <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
+                                    <span class="icon is-small">
+                                        <i class="fab fa-dropbox" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Dropbox</span>
+                                </a>
+                                {% endcomment %}
+                                <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                                    <span class="icon is-small">
+                                        <i class="fab fa-github" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Github</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% if linked_sources %}
                         <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
                                               delete-action="unlink_source"
                                               delete-id-name="source_id"
@@ -67,149 +112,128 @@
                                               @modal-hide="hideDeleteModal()">
                             <template slot="title">Unlink source?</template>
                             <template slot="csrf_token">{% csrf_token %}</template>
-                            <template slot="body">Are you sure you want to unlink <em>[[ unlinkSourceDescription ]]</em>
+                            <template slot="body">Are you sure you want to unlink <em>[[ unlinkSourceDescription
+                                ]]</em>
                                 from this project?
                             </template>
                         </delete-confirm-modal>
-                        <div class="dropdown-trigger">
-                            <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
-                            <span class="icon is-small">
-                                <i class="fas fa-unlink" aria-hidden="true"></i>
-                            </span>
-                                <span>Unlink</span>
+                        <div class="dropdown" style="margin-left: 0.5em" id="unlink"
+                             @click="unlinkMenuVisible = !unlinkMenuVisible"
+                             :class="{ 'is-active':unlinkMenuVisible }">
+                            <div class="dropdown-trigger">
+                                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
                                 <span class="icon is-small">
-                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    <i class="fas fa-unlink" aria-hidden="true"></i>
                                 </span>
-                            </button>
-                        </div>
-                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                            <div class="dropdown-content">
-                                {% for linked_source in linked_sources %}
-                                    <a href="#" class="dropdown-item"
-                                       @click="showUnlinkModal('{{ linked_source|escape_single_quotes }}', {{ linked_source.pk }})">
-                                        <span class="icon is-small">
-                                            <i class="fab fa-github" aria-hidden="true"></i>
-                                        </span>
-                                        <span>
-                                            {{ linked_source }}
-                                        </span>
-                                    </a>
-                                {% endfor %}
+                                    <span>Unlink</span>
+                                    <span class="icon is-small">
+                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                <div class="dropdown-content">
+                                    {% for linked_source in linked_sources %}
+                                        <a href="#" class="dropdown-item"
+                                           @click="showUnlinkModal('{{ linked_source|escape_single_quotes }}', {{ linked_source.pk }})">
+                                            <span class="icon is-small">
+                                                <i class="fab fa-github" aria-hidden="true"></i>
+                                            </span>
+                                            <span>
+                                                {{ linked_source }}
+                                            </span>
+                                        </a>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endif %}
-                <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
-                    <span class="icon is-small"><i class="fas fa-file-export"></i></span>
-                    <span v-if="!pullInProgress">Pull Linked Sources</span>
-                    <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
-                </a>
+                    {% endif %}
+                    <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
+                        <span class="icon is-small"><i class="fas fa-file-export"></i></span>
+                        <span v-if="!pullInProgress">Pull Linked Sources</span>
+                        <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <table class="table is-fullwidth is-striped is-bordered">
-        <thead>
-        <tr>
-            <th colspan="6">
-                <nav class="breadcrumb" aria-label="breadcrumbs">
-                    <ul>
-                        {% for breadcrumb in breadcrumbs %}
-                            <li {% if forloop.last %}class="is-active"{% endif %}>
-                                <a href="
-                                        {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
-                                    {% if forloop.first %}
-                                        <span class="icon is-small"><i class="fas fa-home"
-                                                                       aria-hidden="true"></i></span>
-                                    {% endif %}
-                                    <span>
-                                        {{ breadcrumb.name }}
-                                    </span>
+        <table class="table is-fullwidth is-striped" id="files-table">
+            <thead>
+            <tr>
+                <th colspan="6">
+                    <nav class="breadcrumb" aria-label="breadcrumbs">
+                        <ul>
+                            {% for breadcrumb in breadcrumbs %}
+                                <li {% if forloop.last %}class="is-active"{% endif %}>
+                                    <a href="
+                                            {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
+                                        {% if forloop.first %}
+                                            <span class="icon is-small"><i class="fas fa-home"
+                                                                           aria-hidden="true"></i></span>
+                                        {% endif %}
+                                        <span>
+                                            {{ breadcrumb.name }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                </th>
+            </tr>
+            <tr>
+                <th>Browse</th>
+                <th class="has-text-centered">Source</th>
+                <th>Updated</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="file_list_body">
+            {% for directory_entry in items %}
+                <tr>
+                    <td>
+                        <p>
+                            <i class="far fa-lg fa-{{ directory_entry|file_icon }}"></i>
+                            {% if directory_entry.is_directory %}
+                                <a href="{% source_path project directory_entry %}">
+                            {% endif %}
+                            {{ directory_entry.name }}
+                            {% if directory_entry.is_directory %}
                                 </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </nav>
-            </th>
-        </tr>
-        <tr>
-            <th>Type</th>
-            <th>Browse</th>
-            <th>Source</th>
-            <th>Open</th>
-            <th>Updated</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody id="file_list_body">
-        {% for directory_entry in items %}
-            <tr>
-                <td>
-                    {% if directory_entry.is_directory %}
-                        Directory
-                    {% else %}
-                        {{ directory_entry.mimetype }}
-                    {% endif %}
-                </td>
-                <td>
-                    {% if directory_entry.is_directory %}
-                      <p>
-                          <a href="{% source_path project directory_entry %}">
-                    {% endif %}
-                    {{ directory_entry.name }}
-                    {% if directory_entry.is_directory %}
-                          </a>
-                      </p>
-                    {% endif %}
-                </td>
+                            {% endif %}
+                        </p>
+                    </td>
 
-                <td>
-                    {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
-                        {% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}
-                    {% endif %}
-                </td>
-
-                <td>
-                    {% if directory_entry|is_text_editable %}
-                        <div class="select">
-                            <select @change="editorSelectChange">
-                                <option>Open with&hellip;</option>
-                                <option value="code-editor"
-                                        data-editor-url="{% source_path project directory_entry %}">Code editor
-                                </option>
-                                {% if directory_entry.name == 'manifest.xml' %}
-                                    <option data-path="{{ directory_entry.path|escape }}" value="desktop">
-                                        Stencila Desktop
-                                    </option>
-                                {% endif %}
-                            </select>
-                        </div>
-                    {% endif %}
-                </td>
-
-                <td>{{ directory_entry.modification_date|naturaltime }}</td>
-
-                <td>
-                    {% if directory_entry.source.type == 'disk' %}
-                        {% if not directory_entry.is_directory %}
-                            <a class="icon"
-                               href="{% url 'file_source_update' project.pk directory_entry.path %}?from={{ current_directory }}">
-                                <i class="fas fa-cog"></i>
-                            </a>
+                    <td class="has-text-centered">
+                        {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
+                            {% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}
                         {% endif %}
-                        <a class="icon has-text-danger"
-                           href="{% url 'file_source_delete' project.pk directory_entry.path %}?from={{ current_directory }}">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    {% endif %}
-                </td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="6">There are no items in this directory.</td>
-            </tr>
-        {% endfor %}
-        <tbody>
-    </table>
+                    </td>
+
+                    <td>{{ directory_entry.modification_date|naturaltime }}</td>
+
+                    <td class="has-text-centered">
+                        <item-action-menu
+                                :allow-rename="{% if directory_entry.allow_rename %}true{% else %}false{% endif %}"
+                                :allow-delete="{% if directory_entry.allow_remove %}true{% else %}false{% endif %}"
+                                :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
+                                :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
+                                {% if directory_entry|is_text_editable %}
+                                editor-path="{% source_path project directory_entry %}"
+                                {% endif %}
+                                absolute-path="{{ directory_entry.path|escape }}"
+                                index="{{ forloop.counter0 }}"
+                                file-name="{{ directory_entry.name }}"></item-action-menu>
+                    </td>
+
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6">There are no items in this directory.</td>
+                </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
     <section class="section has-text-centered" id="session-wait-info">
         <div v-if="status == SESSION_SETUP_STATUS.CHECKING">
             <h5 class="subtitle is-5">Acquiring Session </h5>
@@ -232,6 +256,8 @@
             <p>[[ error ]]</p>
         </div>
     </section>
+    <script src="{% static "js/delete-confirm-modal.js" %}"></script>
+    <script src="{% static "js/filebrowser.js" %}"></script>
     <script type="text/javascript">
       const TIME_BETWEEN_RECHECK_SECONDS = [5, 10, 30, 30, 60]
       let TIME_CHECK_INDEX = 0
@@ -260,11 +286,11 @@
         return `/desktop/?path=${filePath}&session=/cloud${sessionPath}&token=${token}`
       }
 
-
       const sessionWaitController = new Vue({
         el: '#session-wait-info',
         delimiters: ['[[', ']]'],
         data: {
+          SESSION_SETUP_STATUS: SESSION_SETUP_STATUS,
           relativePath: '',
           secondsToRecheck: TIME_BETWEEN_RECHECK_SECONDS[TIME_CHECK_INDEX],
           status: SESSION_SETUP_STATUS.IDLE,
@@ -284,10 +310,10 @@
               },
               credentials: 'same-origin'
             }).then(response => {
-              if(response.ok) {
+              if (response.ok) {
                 return response.json()
               }
-              if(response.status === 504) {
+              if (response.status === 504) {
                 this.startSession()
                 return null
               } else {
@@ -310,7 +336,7 @@
               if (data.status && (data.status === 'NOT_STARTED' || data.status === 'UNKNOWN')) {
                 this.status = SESSION_SETUP_STATUS.QUEUED
                 this.secondsToRecheck = TIME_BETWEEN_RECHECK_SECONDS[TIME_CHECK_INDEX++]
-                TIME_CHECK_INDEX = Math.min(TIME_CHECK_INDEX, TIME_BETWEEN_RECHECK_SECONDS.length -1)
+                TIME_CHECK_INDEX = Math.min(TIME_CHECK_INDEX, TIME_BETWEEN_RECHECK_SECONDS.length - 1)
 
                 this.queueCheckTimerSetup()
                 return
@@ -327,7 +353,7 @@
             }).catch(reason => {
               this.error = reason
               this.status = SESSION_SETUP_STATUS.ERROR
-            });
+            })
           },
           handleSessionCheckResponse (response) {
             if (response.invalid_session) {
@@ -382,74 +408,14 @@
             }, 1000)
           },
           launchDesktopEditor (path) {
-            document.getElementById('session-wait-info').scrollIntoView();
+            document.getElementById('session-wait-info').scrollIntoView()
             this.relativePath = path
             this.startSession()
           }
         },
       })
 
-      new Vue({
-        el: '#file_list_body',
-        methods: {
-          editorSelectChange (e) {
-            const select = e.target
-            const selectedIndex = select.selectedIndex
-
-            const selectedOption = select.options[selectedIndex]
-
-            const selectValue = selectedOption.getAttribute('value')
-
-            if (!selectValue) {
-              return
-            }
-
-            const editorUrl = selectedOption.getAttribute('data-editor-url')
-
-            if (editorUrl) {
-              window.location = editorUrl
-              return
-            }
-
-            sessionWaitController.launchDesktopEditor(selectedOption.getAttribute('data-path'))
-          }
-        }
-      })
-
-      new Vue({
-        el: '#link',
-        data: {active: false}
-      })
-
-      new Vue({
-        el: '#project-pull-button',
-        data: {
-            pullInProgress:false,
-            filePullUrl: '{% url "project_pull" project.id %}'
-        },
-        methods: {
-            pullFiles () {
-                this.pullInProgress = true
-                fetch(this.filePullUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRFToken': utils.cookie('csrftoken'),
-                    },
-                    credentials: 'same-origin'
-                }).then(
-                    response => {
-                        this.pullInProgress = false
-                    },
-                    failureResponse => {
-                        this.pullInProgress = false
-                        alert(failureResponse)
-                    })
-            }
-        }
-    })
-
-      {% if linked_sources %}
+      /*{% if linked_sources %}
         new Vue({
           el: '#unlink',
           delimiters: ['[[', ']]'],
@@ -469,6 +435,6 @@
             }
           }
         })
-      {% endif %}
+      {% endif %}*/
     </script>
 {% endblock %}

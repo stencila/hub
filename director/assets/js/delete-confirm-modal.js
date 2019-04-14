@@ -1,28 +1,22 @@
 Vue.component('delete-confirm-modal', {
-    template: '<b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">\n' +
-        '            <header class="modal-card-head">\n' +
-        '                <p class="modal-card-title"><slot name="title"></slot></p>\n' +
-        '            </header>\n' +
-        '            <section class="modal-card-body">\n' +
+    template: '<b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">' +
+        '            <header class="modal-card-head">' +
+        '                <p class="modal-card-title"><slot name="title"></slot></p>' +
+        '            </header>' +
+        '            <section class="modal-card-body">' +
         '                <slot name="body"></slot>' +
-        '            </section>\n' +
-        '            <footer class="modal-card-foot">\n' +
-        '                <form class="form" method="POST" :action="formAction">\n' +
-        '                    <slot name="csrf_token"></slot>\n' +
-        '                    <input type="hidden" :name="deleteIdName" value="" v-model="deleteIdValue">\n' +
-        '                    <button class="button is-danger is-rounded" type="submit" name="action" :value="deleteAction">\n' +
-        '                        [[ deleteButtonLabel ]]\n' +
-        '                    </button>\n' +
-        '                    <a class="button is-rounded call-to-action" href="#" @click.prevent="hideDeleteModal()">Cancel</a>\n' +
-        '                </form>\n' +
-        '            </footer>\n' +
+        '            </section>' +
+        '            <footer class="modal-card-foot">' +
+        '                <form class="form" method="POST" :action="formAction">' +
+        '                    <slot name="csrf_token"></slot>' +
+        '                    <input type="hidden" :name="deleteIdName" value="" v-model="deleteIdValue">' +
+        '                    <button class="button is-rounded" type="submit" name="action" :value="deleteAction">' +
+        '                        {{ deleteButtonLabel }}' +
+        '                    </button>' +
+        '                    <a class="button call-to-action" href="#" @click.prevent="hideDeleteModal()">Cancel</a>' +
+        '                </form>' +
+        '            </footer>' +
         '        </b-modal>',
-    delimiters: ['[[', ']]'],
-    data() {
-        return {
-            formAction: ''
-        }
-    },
     props: {
         deleteModalVisible: {
             required: true,
@@ -45,7 +39,8 @@ Vue.component('delete-confirm-modal', {
         },
         formAction: {
             required: false,
-            type: String
+            type: String,
+            default: ''
         }
     },
     methods: {
