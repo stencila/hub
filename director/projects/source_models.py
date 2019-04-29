@@ -193,6 +193,17 @@ class GitlabSource(Source):
         abstract = True
 
 
+class GoogleDocsSource(Source):
+    """A reference to a Google Docs document."""
+
+    provider_name = 'GoogleDocs'
+
+    doc_id = models.TextField(
+        null=False,
+        help_text='Google\'s ID of the document.'
+    )
+
+
 class OSFSource(Source):
     """
     A project hosted on the Open Science Framework.

@@ -2,32 +2,8 @@ import typing
 from datetime import datetime
 
 import pytz
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
-from django.contrib.auth.models import User
 from github import Github
 from github.Repository import Repository
-
-
-def user_github_token(user: User) -> typing.Optional[str]:
-    if user.is_anonymous:
-        return None
-
-    social_app = SocialApp.objects.filter(provider='github').first()  # assume just one github App is set up
-
-    if social_app is None:
-        return None
-
-    social_account = SocialAccount.objects.filter(provider='github', user=user).first()
-
-    if social_account is None:
-        return None
-
-    token = SocialToken.objects.filter(app=social_app, account=social_account).first()
-
-    if token is None:
-        return None
-
-    return token.token
 
 
 class GithubDirectoryEntry(typing.NamedTuple):

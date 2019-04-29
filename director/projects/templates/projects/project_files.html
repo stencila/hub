@@ -71,7 +71,7 @@
                         </span>
                         <span>Upload</span>
                     </a>
-                    <div class="dropdown" id="link" @click.prevent="linkMenuVisible = !linkMenuVisible"
+                    <div class="dropdown" id="link" @click="linkMenuVisible = !linkMenuVisible"
                          :class="{ 'is-active':linkMenuVisible }">
                         <div class="dropdown-trigger">
                             <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -99,6 +99,12 @@
                                         <i class="fab fa-github" aria-hidden="true"></i>
                                     </span>
                                     <span>Github</span>
+                                </a>
+                                <a href="{% url 'googledocssource_create' project.pk %}" class="dropdown-item">
+                                    <span class="icon is-small">
+                                        <i class="fab fa-google" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Google Docs</span>
                                 </a>
                             </div>
                         </div>
@@ -184,7 +190,7 @@
                 <th>Browse</th>
                 <th class="has-text-centered">Source</th>
                 <th>Updated</th>
-                <th>Actions</th>
+                <th class="has-text-centered">Actions</th>
             </tr>
             </thead>
             <tbody id="file_list_body">
@@ -218,7 +224,8 @@
                                 :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
                                 :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
                                 {% if directory_entry|is_text_editable %}
-                                editor-path="{% source_path project directory_entry %}"
+                                editor-url="{% source_path project directory_entry %}"
+                                edit-menu-text="{{ directory_entry|edit_menu_text }}"
                                 {% endif %}
                                 absolute-path="{{ directory_entry.path|escape }}"
                                 index="{{ forloop.counter0 }}"

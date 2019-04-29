@@ -20,3 +20,4 @@ raven==6.10.0
 requests==2.21.0
 sh==1.12.14
 PyGithub==1.43.5
+oauth2client==4.1.3

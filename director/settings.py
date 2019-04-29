@@ -259,6 +259,21 @@ class Common(Configuration):
     # some XML files are quite large (3MB+), this basically sets the size of the POST allowed
     DATA_UPLOAD_MAX_MEMORY_SIZE = values.IntegerValue(5 * 1024 * 1024)
 
+    SOCIALACCOUNT_PROVIDERS = {
+        'google': {
+            'SCOPE': [
+                'profile',
+                'email',
+                'https://www.googleapis.com/auth/documents',
+                'https://www.googleapis.com/auth/spreadsheets',
+                'https://www.googleapis.com/auth/drive'
+            ],
+            'AUTH_PARAMS': {
+                'access_type': 'offline'
+            }
+        }
+    }
+
 
 class Dev(Common):
     """Configuration settings used in development."""

@@ -7,7 +7,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
-from .source_models import GithubSource
+from lib.google_docs_facade import extract_google_document_id_from_url
+from .source_models import GithubSource, GoogleDocsSource
 
 
 class PathField(forms.CharField):
@@ -68,3 +69,29 @@ class GithubSourceForm(ModelFormWithSubmit):
         repo_match = typing.cast(typing.Match, repo_match)
 
         return '{}/{}'.format(repo_match[3], repo_match[4])
+
+
+class GoogleDocsSourceForm(ModelFormWithSubmit):
+    class Meta:
+        model = GoogleDocsSource
+        fields = ('doc_id',)
+
+    def raise_doc_id_validation_error(self, doc_id: str) -> None:
+        raise ValidationError(
+            '"{}" is not a valid Google Document. A or Google Document ID or URL is required.'.format(doc_id))
+
+    def clean_doc_id(self) -> str:
+        """If a Google Docs URL is entered then extract the Document ID."""
+        doc_id = self.cleaned_data['doc_id']
+        if not doc_id:
+            self.raise_doc_id_validation_error(doc_id)
+
+        try:
+            doc_id = extract_google_document_id_from_url(doc_id)
+        except ValueError:
+            pass  # not a URL, could just a be the ID
+
+        if not re.match(r'^([a-z\d])([a-z\d_]+)$', doc_id, re.I):
+            self.raise_doc_id_validation_error(doc_id)
+
+        return doc_id

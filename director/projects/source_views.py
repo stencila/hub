@@ -1,6 +1,7 @@
 import os
 import typing
 
+from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,15 +12,16 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
-from lib.github_facade import user_github_token
+from lib.google_docs_facade import GoogleDocsFacade
+from lib.social_auth_token import user_github_token, user_social_token
 from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
-from projects.source_models import LinkedSourceAuthentication, DiskSource
+from projects.source_models import LinkedSourceAuthentication, DiskSource, GoogleDocsSource
 from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join
 from .models import Project, DropboxSource, GithubSource
-from .source_forms import GithubSourceForm, DiskFileSourceForm
+from .source_forms import GithubSourceForm, DiskFileSourceForm, GoogleDocsSourceForm
 
 
 class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
@@ -32,6 +34,12 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
             'project': get_object_or_404(Project, pk=self.kwargs['pk'])
         }
 
+    def get_redirect(self, pk: int) -> HttpResponse:
+        if self.request.GET.get('directory'):
+            return redirect("project_files_path", pk, self.request.GET['directory'])
+        else:
+            return redirect("project_files", pk)
+
     def form_valid(self, form):
         """Override to set the project for the `Source` and redirect back to that project."""
         pk = self.kwargs['pk']
@@ -39,10 +47,7 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
         file_source.project = get_object_or_404(Project, pk=pk)
         file_source.save()
 
-        if self.request.GET.get('directory'):
-            redirect("project_files_path", args=(pk, self.request.GET['directory']))
-        else:
-            redirect("project_files", args=(pk,))
+        return self.get_redirect(pk)
 
 
 class FileSourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
@@ -101,6 +106,29 @@ class GithubSourceCreateView(SourceCreateView):
     model = GithubSource
     form_class = GithubSourceForm
     template_name = 'projects/githubsource_create.html'
+
+
+class GoogleDocsSourceCreateView(SourceCreateView):
+    """A view for creating a Github project source."""
+
+    model = GoogleDocsSource
+    form_class = GoogleDocsSourceForm
+    template_name = 'projects/googledocssource_create.html'
+
+    def form_valid(self, form: GoogleDocsSourceForm) -> HttpResponse:
+        google_app = SocialApp.objects.filter(provider='google').first()
+
+        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(self.request.user, 'google'))
+
+        document = gdf.get_document(form.cleaned_data['doc_id'])
+
+        pk = self.kwargs['pk']
+        source = form.save(commit=False)
+        source.project = get_object_or_404(Project, pk=pk)
+        source.path = document['title']
+        source.save()
+
+        return self.get_redirect(pk)
 
 
 class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):

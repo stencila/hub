@@ -6,10 +6,10 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
-                                    ProjectNamedArchiveDownloadView, ProjectRefreshView)
+                                    ProjectNamedArchiveDownloadView, ProjectRefreshView, GdocsTest)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
-                                   DiskFileSourceDeleteView, DiskFileSourceOpenView)
+                                   DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView)
 
 urlpatterns = [
     # Generic views
@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
+    path('<int:pk>/files/link/googledocs', GoogleDocsSourceCreateView.as_view(), name='googledocssource_create'),
 
     path('<int:project_pk>/files/<int:pk>/open/<path:path>', SourceOpenView.as_view(), name='file_source_open'),
     path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='real_file_source_open'),
@@ -66,6 +67,8 @@ urlpatterns = [
     path('<int:pk>/archive/', ProjectArchiveDownloadView.as_view(), name='project_archive'),
 
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
+
+    path('gdocs', GdocsTest.as_view())
 
     # Type-specific views
     # path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),

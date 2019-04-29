@@ -41,7 +41,12 @@ Vue.component('item-action-menu', {
       required: false,
       default: false
     },
-    editorPath: {
+    editorUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    editMenuText: {
       type: String,
       required: false,
       default: ''
@@ -59,7 +64,7 @@ Vue.component('item-action-menu', {
   },
   computed: {
     shouldDisplay () {
-      return this.allowDelete || this.allowRename
+      return this.allowDelete || this.allowRename || this.allowEdit
     },
     shouldDisplayDivider () {
       return (this.allowDesktopLaunch || this.allowEdit) && (this.allowDelete || this.allowRename)
@@ -80,11 +85,6 @@ Vue.component('item-action-menu', {
     showRemoveModal () {
       this.$root.$emit('remove-item-show', this.fileName)
     },
-    launchCodeEditor () {
-      if (this.editorPath !== '') {
-        window.location = this.editorPath
-      }
-    },
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
     }
@@ -96,7 +96,7 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a v-if="allowEdit" href="#" class="dropdown-item" @click.prevent="launchCodeEditor()">Open in Code Editor</a>' +
+    '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
     '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +

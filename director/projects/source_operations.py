@@ -11,7 +11,8 @@ from lib.github_facade import GitHubFacade
 from projects.project_models import Project
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
-from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource
+from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource, \
+    GoogleDocsSource
 
 PathType = typing.Union[str, bytes]
 
@@ -127,6 +128,9 @@ def relative_path_join(directory: str, relative_path: str) -> str:
 def determine_entry_type(source: Source, relative_path: str) -> DirectoryEntryType:
     if isinstance(source, FileSource):
         return DirectoryEntryType.DIRECTORY if '/' in relative_path else DirectoryEntryType.FILE
+
+    if isinstance(source, GoogleDocsSource):
+        return DirectoryEntryType.FILE
 
     return DirectoryEntryType.LINKED_SOURCE
 

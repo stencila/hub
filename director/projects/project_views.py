@@ -2,6 +2,7 @@ import json
 import typing
 from datetime import datetime
 
+from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -16,7 +17,8 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
-from lib.github_facade import user_github_token
+from lib.google_docs_facade import GoogleDocsFacade
+from lib.social_auth_token import user_github_token, user_social_token
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
@@ -603,3 +605,15 @@ class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin,
             response = HttpResponse(archive_file, content_type='application/x-zip-compressed')
             response['Content-Disposition'] = 'attachment; filename={}'.format(name)
             return response
+
+
+class GdocsTest(View):
+
+    def get(self, request):
+        google_app = SocialApp.objects.filter(provider='google').first()
+
+        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
+
+        gdf.list_documents()
+
+        return HttpResponse('Hello')
