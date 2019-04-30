@@ -274,6 +274,8 @@ class Common(Configuration):
         }
     }
 
+    STENCILA_CONVERTER_BINARY = values.ListValue('')
+
 
 class Dev(Common):
     """Configuration settings used in development."""

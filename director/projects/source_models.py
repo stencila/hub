@@ -2,6 +2,7 @@ import enum
 import mimetypes
 from io import BytesIO
 import typing
+from os.path import splitext
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.contenttypes.models import ContentType
@@ -18,6 +19,13 @@ class MimeTypeFromPathMixin(object):
     @property
     def mimetype(self) -> str:
         mimetype, encoding = mimetypes.guess_type(self.path, False)
+
+        if not mimetype:
+            name, ext = splitext(self.path)
+
+            if ext.lower() == '.md':
+                return 'text/markdown'
+
         return mimetype or 'Unknown'
 
 

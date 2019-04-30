@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
+from lib.converter_facade import ConverterFacade
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_github_token, user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
@@ -377,18 +378,24 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             scf = SourceContentFacade(source, authentication, request, source_path)
             content = scf.get_binary_content()
 
+        source_name, source_ext = splitext(utf8_basename(source_path))
+
+        if source_ext.lower() == '.md' and target_type == 'googledocs':
+            converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
+            content = converter.convert('md', 'html', content)
+
         if target_type == 'googledocs':
             google_app = SocialApp.objects.filter(provider='google').first()
 
             gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
 
-            name, ext = splitext(utf8_basename(source_path))
-
-            new_doc_id = gdf.create_document_from_html(name, content.decode('utf8'))
+            new_doc_id = gdf.create_document_from_html(source_name, content.decode('utf8'))
 
             gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
         else:
             raise NotImplementedError('Can\'t convert to anything except googledocs.')
+
+        messages.success(request, '{} was converted.'.format(utf8_basename(source_path)))
 
         return JsonResponse({
             'success': True

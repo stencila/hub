@@ -109,7 +109,7 @@ Vue.component('item-action-menu', {
       return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename)
     },
     convertTargets () {
-      if (this.fileType === 'text/html') {
+      if (this.fileType === 'text/html' || this.fileType === 'text/markdown') {
         return [
           ['googledocs', 'Google Doc']
         ]
