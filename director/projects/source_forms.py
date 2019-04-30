@@ -91,7 +91,7 @@ class GoogleDocsSourceForm(ModelFormWithSubmit):
         except ValueError:
             pass  # not a URL, could just a be the ID
 
-        if not re.match(r'^([a-z\d])([a-z\d_]+)$', doc_id, re.I):
+        if not re.match(r'^([a-z\d])([a-z\d_\-]+)$', doc_id, re.I):
             self.raise_doc_id_validation_error(doc_id)
 
         return doc_id

@@ -1,9 +1,15 @@
 import shutil
 import typing
+from enum import Enum
 
 from projects.project_models import Project
 from projects.source_operations import generate_project_storage_directory, relative_path_join, utf8_path_exists, \
     utf8_makedirs, to_utf8, utf8_isdir, utf8_unlink, utf8_path_join, utf8_basename, utf8_rename, utf8_dirname
+
+
+class ItemType(Enum):
+    FILE = 'file'
+    FOLDER = 'folder'
 
 
 class DiskFileFacade(object):
@@ -76,3 +82,11 @@ class DiskFileFacade(object):
 
         utf8_makedirs(utf8_dirname(new_path), exist_ok=True)
         utf8_rename(current_path, new_path)
+
+    def item_type(self, relative_path: str) -> ItemType:
+        if not self.item_exists(relative_path):
+            raise OSError('Can not determine type of {} as it does not exist.'.format(relative_path))
+
+        full_path = self.generate_full_file_path(relative_path)
+
+        return ItemType.FOLDER if utf8_isdir(full_path) else ItemType.FILE

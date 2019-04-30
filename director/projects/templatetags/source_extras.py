@@ -83,7 +83,7 @@ def file_icon(directory_entry: typing.Any) -> str:
     if ext:
         ext = ext[1:].lower()
 
-    if ext in ['py', 'r', 'rmd', 'json', 'js', 'xml']:
+    if ext in ['py', 'r', 'rmd', 'json', 'js', 'xml', 'html']:
         return 'file-code'
 
     return 'file'

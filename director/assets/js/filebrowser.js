@@ -7,6 +7,25 @@ function rootPathJoin (directory, fileName) {
   return '/' + directory + joiner + fileName
 }
 
+function jsonFetch (url, body, callback) {
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-CSRFToken': utils.cookie('csrftoken'),
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify(body)
+  }).then(response => {
+    return response.json()
+  }).then(jsonBody => {
+    callback(jsonBody.success, jsonBody.error)
+  }, error => {
+    callback(false, 'An unknown error occurred.')
+  })
+}
+
 Vue.component('item-action-menu', {
   props: {
     absolutePath: {
@@ -50,6 +69,26 @@ Vue.component('item-action-menu', {
       type: String,
       required: false,
       default: ''
+    },
+    sourceConvertUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    fileType: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    sourceIdentifier: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    sourceType: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   data () {
@@ -64,10 +103,19 @@ Vue.component('item-action-menu', {
   },
   computed: {
     shouldDisplay () {
-      return this.allowDelete || this.allowRename || this.allowEdit
+      return this.allowDelete || this.allowRename || this.allowEdit || this.convertTargets.length
     },
     shouldDisplayDivider () {
-      return (this.allowDesktopLaunch || this.allowEdit) && (this.allowDelete || this.allowRename)
+      return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename)
+    },
+    convertTargets () {
+      if (this.fileType === 'text/html') {
+        return [
+          ['googledocs', 'Google Doc']
+        ]
+      }
+
+      return []
     }
   },
   methods: {
@@ -87,6 +135,19 @@ Vue.component('item-action-menu', {
     },
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
+    },
+    startConvert (targetType) {
+      jsonFetch(this.sourceConvertUrl, {
+        source_id: this.sourceIdentifier,
+        source_path: this.absolutePath,
+        target_type: targetType
+      }, (success, errorMessage) => {
+        if (success) {
+          location.reload()
+        } else {
+          alert(errorMessage)
+        }
+      })
     }
   },
   template: '' +
@@ -98,6 +159,7 @@ Vue.component('item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
+    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0])">Convert to {{ convertTarget[1] }}</a>' +
     '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
@@ -387,25 +449,6 @@ new Vue({
     this.itemRemoveUrl = this.$refs['file-browser-root'].getAttribute('data-item-remove-url')
   },
   created () {
-    let jsonFetch = (url, body, callback) => {
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-CSRFToken': utils.cookie('csrftoken'),
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(body)
-      }).then(response => {
-        return response.json()
-      }).then(jsonBody => {
-        callback(jsonBody.success, jsonBody.error)
-      }, error => {
-        callback(false, 'An unknown error occurred.')
-      })
-    }
-
     this.$root.$on('create-item', (type, path, callback) => {
       jsonFetch(this.itemCreateUrl, {
         path: path,

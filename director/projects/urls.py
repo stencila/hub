@@ -9,7 +9,8 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectNamedArchiveDownloadView, ProjectRefreshView, GdocsTest)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
-                                   DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView)
+                                   DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView,
+                                   SourceConvertView)
 
 urlpatterns = [
     # Generic views
@@ -29,6 +30,7 @@ urlpatterns = [
     path('<int:pk>/files/link/dropbox', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
     path('<int:pk>/files/link/github', GithubSourceCreateView.as_view(), name='githubsource_create'),
     path('<int:pk>/files/link/googledocs', GoogleDocsSourceCreateView.as_view(), name='googledocssource_create'),
+    path('<int:pk>/files/convert', SourceConvertView.as_view(), name='source_convert'),
 
     path('<int:project_pk>/files/<int:pk>/open/<path:path>', SourceOpenView.as_view(), name='file_source_open'),
     path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='real_file_source_open'),

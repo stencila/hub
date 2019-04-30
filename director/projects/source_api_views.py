@@ -1,18 +1,12 @@
 import json
-from enum import Enum
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic.base import View
 
 from django.conf import settings
-from projects.disk_file_facade import DiskFileFacade
+from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
-
-
-class ItemType(Enum):
-    FILE = 'file'
-    FOLDER = 'folder'
 
 
 class DiskItemCreateView(ProjectPermissionsMixin, View):

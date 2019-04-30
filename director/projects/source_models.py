@@ -3,6 +3,7 @@ import mimetypes
 from io import BytesIO
 import typing
 
+from allauth.socialaccount.models import SocialToken
 from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 from django.core.files.base import ContentFile
@@ -262,6 +263,9 @@ class LinkedSourceAuthentication(object):
     """Container for token(s) a user has for authenticating to remote sources."""
 
     github_token: typing.Optional[str]
+    google_token: SocialToken
 
-    def __init__(self, github_token: typing.Optional[str] = None) -> None:
+    def __init__(self, github_token: typing.Optional[str] = None,
+                 google_token: typing.Optional[SocialToken] = None) -> None:
         self.github_token = github_token
+        self.google_token = google_token

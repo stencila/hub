@@ -100,7 +100,7 @@
                                     </span>
                                     <span>Github</span>
                                 </a>
-                                <a href="{% url 'googledocssource_create' project.pk %}" class="dropdown-item">
+                                <a href="{% url 'googledocssource_create' project.pk %}?directory={{ current_directory }}" class="dropdown-item">
                                     <span class="icon is-small">
                                         <i class="fab fa-google" aria-hidden="true"></i>
                                     </span>
@@ -227,11 +227,14 @@
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
                                 {% endif %}
+                                source-convert-url="{% url 'source_convert' project.pk  %}"
+                                source-type="{{ directory_entry.source.type }}"
+                                source-identifier="{{ directory_entry.source.pk }}"
+                                file-type="{{ directory_entry.mimetype }}"
                                 absolute-path="{{ directory_entry.path|escape }}"
                                 index="{{ forloop.counter0 }}"
                                 file-name="{{ directory_entry.name }}"></item-action-menu>
                     </td>
-
                 </tr>
             {% empty %}
                 <tr>

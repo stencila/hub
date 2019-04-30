@@ -1,12 +1,14 @@
+import json
 import os
 import typing
+from os.path import splitext
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, Http404
+from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
@@ -14,12 +16,13 @@ from django.views.generic import CreateView, DetailView
 
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_github_token, user_social_token
-from projects.disk_file_facade import DiskFileFacade
+from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_edit import SourceEditContext, SourceContentFacade
 from projects.source_models import LinkedSourceAuthentication, DiskSource, GoogleDocsSource
-from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join
+from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join, utf8_basename, \
+    utf8_dirname
 from .models import Project, DropboxSource, GithubSource
 from .source_forms import GithubSourceForm, DiskFileSourceForm, GoogleDocsSourceForm
 
@@ -120,12 +123,13 @@ class GoogleDocsSourceCreateView(SourceCreateView):
 
         gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(self.request.user, 'google'))
 
+        directory = self.request.GET.get('directory', '')
         document = gdf.get_document(form.cleaned_data['doc_id'])
 
         pk = self.kwargs['pk']
         source = form.save(commit=False)
         source.project = get_object_or_404(Project, pk=pk)
-        source.path = document['title']
+        source.path = utf8_path_join(directory, document['title'])
         source.save()
 
         return self.get_redirect(pk)
@@ -342,3 +346,50 @@ class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View
     @property
     def current_directory(self) -> str:
         return self.request.GET.get('from', '')
+
+
+class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.EDIT
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        project = self.get_project(request.user, pk)
+
+        body = json.loads(request.body)
+
+        source_id = body['source_id']
+        source_path = body['source_path']
+        target_type = body['target_type']
+
+        if target_type != 'googledocs':
+            raise TypeError('Can\'t convert to anything except googledocs.')
+
+        if not source_id:
+            # assume it's a file source and read from disk
+            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+            if dff.item_type(source_path) != ItemType.FILE:
+                raise OSError('{} is not a file.'.format(source_path))
+
+            content = dff.read_file_content(source_path)
+        else:
+            source = self.get_source(request.user, pk, source_id)
+
+            authentication = LinkedSourceAuthentication(user_github_token(request.user))
+            scf = SourceContentFacade(source, authentication, request, source_path)
+            content = scf.get_binary_content()
+
+        if target_type == 'googledocs':
+            google_app = SocialApp.objects.filter(provider='google').first()
+
+            gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
+
+            name, ext = splitext(utf8_basename(source_path))
+
+            new_doc_id = gdf.create_document_from_html(name, content.decode('utf8'))
+
+            gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
+        else:
+            raise NotImplementedError('Can\'t convert to anything except googledocs.')
+
+        return JsonResponse({
+            'success': True
+        })
