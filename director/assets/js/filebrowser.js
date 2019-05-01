@@ -115,6 +115,13 @@ Vue.component('item-action-menu', {
         ]
       }
 
+      if (this.fileType === 'application/vnd.google-apps.document') {
+        return [
+          ['html', 'HTML'],
+          ['markdown', 'Markdown']
+        ]
+      }
+
       return []
     }
   },

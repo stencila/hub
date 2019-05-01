@@ -360,13 +360,19 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         source_id = body['source_id']
         source_path = body['source_path']
         target_type = body['target_type']
+        source_type = None
 
-        if target_type != 'googledocs':
-            raise TypeError('Can\'t convert to anything except googledocs.')
+        if target_type not in ('markdown', 'html', 'googledocs'):
+            raise TypeError('Can\'t convert to {}.'.format(target_type))
+
+        google_token = user_social_token(request.user, 'google')
+
+        google_app = SocialApp.objects.filter(provider='google').first()
+        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, google_token)
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
         if not source_id:
             # assume it's a file source and read from disk
-            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
             if dff.item_type(source_path) != ItemType.FILE:
                 raise OSError('{} is not a file.'.format(source_path))
 
@@ -374,24 +380,40 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         else:
             source = self.get_source(request.user, pk, source_id)
 
-            authentication = LinkedSourceAuthentication(user_github_token(request.user))
-            scf = SourceContentFacade(source, authentication, request, source_path)
-            content = scf.get_binary_content()
+            if isinstance(source, GoogleDocsSource):
+                doc = gdf.get_document(source.doc_id)
+                content = json.dumps(doc).encode('utf8')
+                source_type = 'googledocs'
+            else:
+                authentication = LinkedSourceAuthentication(user_github_token(request.user), google_token)
+                scf = SourceContentFacade(source, authentication, request, source_path)
+                content = scf.get_binary_content()
 
-        source_name, source_ext = splitext(utf8_basename(source_path))
+        source_path_without_ext, source_ext = splitext(source_path)
 
-        if source_ext.lower() == '.md' and target_type == 'googledocs':
-            converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
-            content = converter.convert('md', 'html', content)
+        source_name = utf8_basename(source_path)
+
+        converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
+
+        if source_type is None:
+            source_type = {
+                '.md': 'markdown',
+                '.html': 'html',
+                '.htm': 'html'
+            }[source_ext.lower()]
+
+        if source_type == 'markdown' and target_type == 'googledocs':
+            content = converter.convert('markdown', 'html', content)
 
         if target_type == 'googledocs':
-            google_app = SocialApp.objects.filter(provider='google').first()
-
-            gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
-
             new_doc_id = gdf.create_document_from_html(source_name, content.decode('utf8'))
 
             gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
+        elif target_type in ('markdown', 'html'):
+            new_extension = 'md' if target_type == 'markdown' else 'html'
+            new_path = source_path_without_ext + '.' + new_extension
+            converted_content = converter.convert(source_type, target_type, content)
+            dff.write_file_content(new_path, converted_content)
         else:
             raise NotImplementedError('Can\'t convert to anything except googledocs.')
 

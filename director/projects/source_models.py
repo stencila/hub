@@ -13,11 +13,17 @@ from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 
-class MimeTypeFromPathMixin(object):
+class MimeTypeFromDetectMixin(object):
     path: str
+    source: typing.Any
 
     @property
     def mimetype(self) -> str:
+        if hasattr(self, 'source') and self.source is not None and hasattr(self.source, 'mimetype'):
+            mimetype = self.source.mimetype
+            if mimetype and mimetype != 'Unknown':
+                return mimetype
+
         mimetype, encoding = mimetypes.guess_type(self.path, False)
 
         if not mimetype:
@@ -35,7 +41,7 @@ class DiskSource(object):
     type = 'disk'
 
 
-class Source(PolymorphicModel, MimeTypeFromPathMixin):
+class Source(PolymorphicModel, MimeTypeFromDetectMixin):
     provider_name = ''
 
     project = models.ForeignKey(
@@ -211,6 +217,10 @@ class GoogleDocsSource(Source):
         null=False,
         help_text='Google\'s ID of the document.'
     )
+
+    @property
+    def mimetype(self) -> str:
+        return 'application/vnd.google-apps.document'
 
 
 class OSFSource(Source):
