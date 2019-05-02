@@ -26,6 +26,27 @@ function jsonFetch (url, body, callback) {
   })
 }
 
+function extensionFromType (type) {
+  if (type === 'markdown') {
+    return '.md'
+  }
+
+  if (type === 'html') {
+    return '.html'
+  }
+
+  return ''
+}
+
+function splitExt (fileName) {
+  const extIndex = fileName.lastIndexOf('.')
+
+  if (extIndex <= 0)
+    return [fileName, '']
+
+  return [fileName.substring(0, extIndex), fileName.sub(extIndex)]
+}
+
 Vue.component('item-action-menu', {
   props: {
     absolutePath: {
@@ -70,11 +91,6 @@ Vue.component('item-action-menu', {
       required: false,
       default: ''
     },
-    sourceConvertUrl: {
-      type: String,
-      required: false,
-      default: ''
-    },
     fileType: {
       type: String,
       required: false,
@@ -111,7 +127,7 @@ Vue.component('item-action-menu', {
     convertTargets () {
       if (this.fileType === 'text/html' || this.fileType === 'text/markdown') {
         return [
-          ['googledocs', 'Google Doc']
+          ['googledocs', 'Google Docs']
         ]
       }
 
@@ -143,18 +159,8 @@ Vue.component('item-action-menu', {
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
     },
-    startConvert (targetType) {
-      jsonFetch(this.sourceConvertUrl, {
-        source_id: this.sourceIdentifier,
-        source_path: this.absolutePath,
-        target_type: targetType
-      }, (success, errorMessage) => {
-        if (success) {
-          location.reload()
-        } else {
-          alert(errorMessage)
-        }
-      })
+    startConvert (targetType, targetTypeName) {
+      this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
     }
   },
   template: '' +
@@ -166,7 +172,7 @@ Vue.component('item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
-    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0])">Convert to {{ convertTarget[1] }}</a>' +
+    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Convert to {{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
@@ -430,6 +436,124 @@ Vue.component('add-item-modal', {
     '        </div>'
 })
 
+Vue.component('convert-modal', {
+  props: {
+    sourceConvertUrl: {
+      type: String,
+      required: true
+    },
+    existingFiles: {
+      type: Array,
+      required: true
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      sourceIdentifier: '',
+      sourceName: '',
+      sourcePath: '',
+      targetTypeName: '',
+      targetType: '',
+      targetName: '',
+      convertInProgress: false,
+      confirmExistingFileOverwrite: false,
+      errorMessage: null
+    }
+  },
+  computed: {
+    hasFilenameConflict () {
+      return this.existingFiles.indexOf(this.targetName) !== -1
+    },
+    convertButtonDisabled () {
+      return this.convertInProgress || (this.hasFilenameConflict && !this.confirmExistingFileOverwrite)
+    }
+  },
+  mounted () {
+    this.$root.$on('convert-modal-show', (targetType, targetTypeName, sourceIdentifier, sourceName, sourcePath) => {
+      this.sourceIdentifier = sourceIdentifier
+      this.sourceName = sourceName
+      this.sourcePath = sourcePath
+      const sourceNameAndExt = splitExt(sourceName)
+      this.targetName = sourceNameAndExt[0] + extensionFromType(targetType)
+      this.targetType = targetType
+      this.targetTypeName = targetTypeName
+      this.visible = true
+    })
+  },
+  methods: {
+    hide () {
+      this.visible = false
+    },
+    convert () {
+      if (this.targetName.indexOf('/') !== -1) {
+        this.errorMessage = 'Name must not contain /'
+        return
+      }
+      this.convertInProgress = true
+
+      jsonFetch(this.sourceConvertUrl, {
+        source_id: this.sourceIdentifier,
+        source_path: this.sourcePath,
+        target_name: this.targetName,
+        target_type: this.targetType
+      }, (success, errorMessage) => {
+        this.convertInProgress = false
+        if (success) {
+          location.reload()
+        } else {
+          alert(errorMessage)
+        }
+      })
+    },
+    nameChange () {
+      this.errorMessage = null
+      this.confirmExistingFileOverwrite = false
+    }
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">Convert to {{ targetTypeName }}</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <div class="content-container">' +
+    '        <p>File <em>{{ sourceName }}</em> will be converted to {{ targetTypeName }}. The original file will be preserved.</p>' +
+    '      </div>' +
+    '      <div class="field">' +
+    '        <div class="control">' +
+    '          <label class="label">Enter a name for the converted file</label>' +
+    '          <input class="input is-medium" type="text" placeholder="Converted File Name" v-model="targetName" @keypress="nameChange()">' +
+    '          <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
+    '        </div>' +
+    '      </div>' +
+    '      <article class="message is-warning" v-if="hasFilenameConflict">' +
+    '        <div class="message-header"><p><em>{{ targetName }}</em> already exists</p></div>' +
+    '        <div class="message-body">' +
+    '          <div class="content-container">' +
+    '            <p>Please choose a different name, or check <strong>Confirm Existing File Overwrite</strong></p>' +
+    '          </div>' +
+    '          <div class="field">' +
+    '            <div class="control">' +
+    '              <label class="checkbox">' +
+    '                <input type="checkbox" v-model="confirmExistingFileOverwrite">Confirm Existing File Overwrite' +
+    '              </label>' +
+    '            </div>' +
+    '          </div>' +
+    '        </div>' +
+    '      </article>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Convert</button>' +
+    '      <button class="button" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
 new Vue({
   el: '#file-browser',
   delimiters: ['[[', ']]'],
@@ -447,7 +571,8 @@ new Vue({
     pullInProgress: false,
     createItemType: 'Folder',
     createItemVisible: false,
-    renameItemVisible: false
+    renameItemVisible: false,
+    fileList: g_fileList
   },
   mounted () {
     this.filePullUrl = this.$refs['file-browser-root'].getAttribute('data-file-pull-url')

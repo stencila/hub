@@ -265,6 +265,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 'linked_sources': list(self.project.sources.not_instance_of(FileSource)),
                 'current_directory': path,
                 'breadcrumbs': path_entry_iterator(path),
+                'item_names': json.dumps([item.name for item in directory_items]),
                 'items': directory_items,
                 'inside_remote_source': False
             })

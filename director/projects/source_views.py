@@ -360,6 +360,11 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         source_id = body['source_id']
         source_path = body['source_path']
         target_type = body['target_type']
+        target_name = body['target_name']
+
+        if '/' in target_name:
+            raise ValueError('Target name can not contain /')
+
         source_type = None
 
         if target_type not in ('markdown', 'html', 'googledocs'):
@@ -392,6 +397,9 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         source_path_without_ext, source_ext = splitext(source_path)
 
         source_name = utf8_basename(source_path)
+        source_dir = utf8_dirname(source_path)
+
+        target_path = utf8_path_join(source_dir, target_name)
 
         converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
 
@@ -410,10 +418,8 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
             gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
         elif target_type in ('markdown', 'html'):
-            new_extension = 'md' if target_type == 'markdown' else 'html'
-            new_path = source_path_without_ext + '.' + new_extension
             converted_content = converter.convert(source_type, target_type, content)
-            dff.write_file_content(new_path, converted_content)
+            dff.write_file_content(target_path, converted_content)
         else:
             raise NotImplementedError('Can\'t convert to anything except googledocs.')
 

@@ -5,7 +5,9 @@
 {% block content %}
     {% include "projects/_project_header.html" with project=project tab="files" %}
     {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
-
+    <script>
+        const g_fileList = JSON.parse('{{ item_names|escapejs }}')
+    </script>
     <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
          data-file-pull-url="{% url 'project_pull' project.id %}"
          data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
@@ -22,6 +24,10 @@
         ></rename-item-modal>
 
         <remove-item-modal directory-path="{{ current_directory }}"></remove-item-modal>
+        <convert-modal
+            :existing-files="fileList"
+            source-convert-url="{% url 'source_convert' project.pk  %}"
+        ></convert-modal>
         <div class="level">
             <div class="level-right">
                 <div class="level-item buttons">
@@ -227,7 +233,6 @@
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
                                 {% endif %}
-                                source-convert-url="{% url 'source_convert' project.pk  %}"
                                 source-type="{{ directory_entry.source.type }}"
                                 source-identifier="{{ directory_entry.source.pk }}"
                                 file-type="{{ directory_entry.mimetype }}"
@@ -266,6 +271,7 @@
             <p>[[ error ]]</p>
         </div>
     </section>
+
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     <script src="{% static "js/filebrowser.js" %}"></script>
     <script type="text/javascript">
