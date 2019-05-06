@@ -5,7 +5,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from projects.project_models import Project, ProjectEvent, ProjectEventType
-from projects.source_edit import SourceContentFacade
+from projects.source_content_facade import make_source_content_facade
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, generate_project_storage_directory, \
@@ -72,7 +72,8 @@ class ProjectSourcePuller(object):
 
                 utf8_makedirs(output_path, exist_ok=True)
             else:
-                scf = SourceContentFacade(entry.source, self.authentication, self.request, entry.path)
+                scf = make_source_content_facade(self.request.user, entry.path, entry.source, self.project)
+
                 if utf8_path_exists(output_path) and utf8_isdir(output_path):
                     shutil.rmtree(to_utf8(output_path))  # remove path if it is a directory
 

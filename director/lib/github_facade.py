@@ -41,8 +41,8 @@ class GitHubFacade(object):
             last_modified = datetime.strptime(content.last_modified, '%a, %d %b %Y %H:%M:%S GMT')
             yield GithubDirectoryEntry(content.name, content.type == 'dir', last_modified.replace(tzinfo=pytz.UTC))
 
-    def get_file_content(self, relative_path: str) -> str:
-        return self.get_binary_file_content(relative_path).decode('utf8')
+    def get_file_content(self, relative_path: str, encoding) -> str:
+        return self.get_binary_file_content(relative_path).decode(encoding)
 
     def get_binary_file_content(self, relative_path: str) -> bytearray:
         f = self.repository.get_contents(relative_path)
@@ -51,3 +51,13 @@ class GitHubFacade(object):
     def put_file_content(self, relative_path: str, content: str, commit_message: str) -> None:
         f = self.repository.get_contents(relative_path)
         self.repository.update_file(f.path, commit_message, content, f.sha)
+
+    @property
+    def allows_editing(self) -> bool:
+        """
+        Return False if self does not allow editing, or return True if it might allow editing.
+
+        This function is kind of a guess. If `self.access_token` is empty then editing is definitely not allowed. If it
+        is set, then editing might be allowed, assuming the token is valid and for the correct user etc.
+        """
+        return True if self.access_token else False

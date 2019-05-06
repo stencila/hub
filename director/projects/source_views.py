@@ -16,13 +16,13 @@ from django.views.generic import CreateView, DetailView
 
 from lib.converter_facade import ConverterFacade
 from lib.google_docs_facade import GoogleDocsFacade
-from lib.social_auth_token import user_github_token, user_social_token
-from projects.disk_file_facade import DiskFileFacade, ItemType
+from lib.social_auth_token import user_social_token
+from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
-from projects.source_edit import SourceEditContext, SourceContentFacade
-from projects.source_models import LinkedSourceAuthentication, DiskSource, GoogleDocsSource
-from projects.source_operations import strip_directory, get_filesystem_project_path, utf8_path_join, utf8_basename, \
+from projects.source_content_facade import SourceEditContext, SourceContentFacade, make_source_content_facade
+from projects.source_models import DiskSource, GoogleDocsSource
+from projects.source_operations import strip_directory, utf8_path_join, utf8_basename, \
     utf8_dirname
 from .models import Project, DropboxSource, GithubSource
 from .source_forms import GithubSourceForm, DiskFileSourceForm, GoogleDocsSourceForm
@@ -218,11 +218,17 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
 
     def perform_post(self, request: HttpRequest, project_pk: int, path: str, content_facade: SourceContentFacade):
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
-        if not content_facade.update_content(request.POST['file_content'], commit_message):
+        update_success = content_facade.update_content(request.POST['file_content'], commit_message)
+
+        for message in content_facade.message_iterator():
+            messages.add_message(request, message.level, message.message)
+
+        if not update_success:
             return self.render(request, content_facade.get_edit_context(), {
                 'commit_message': commit_message,
                 'default_commit_message': self.get_default_commit_message(request)
             })
+
         messages.success(request, 'Content of {} updated.'.format(os.path.basename(path)))
         directory = os.path.dirname(path)
         if directory:
@@ -235,17 +241,14 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
 
     def get_content_facade(self, request, project_pk, pk, path):
         source = self.get_source(request.user, project_pk, pk)
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-        return SourceContentFacade(source, authentication, request, path)
+        return make_source_content_facade(request.user, path, source, self.get_project(request.user, project_pk))
 
 
 class DiskFileSourceOpenView(SourceOpenView):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
-        fs_path = get_filesystem_project_path(settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
-                                              self.get_project(request.user, project_pk), path)
-        return SourceContentFacade(DiskSource(), None, request, fs_path)
+        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
 
     def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, -1, path)
@@ -374,25 +377,15 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         google_app = SocialApp.objects.filter(provider='google').first()
         gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, google_token)
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
         if not source_id:
             # assume it's a file source and read from disk
-            if dff.item_type(source_path) != ItemType.FILE:
-                raise OSError('{} is not a file.'.format(source_path))
-
-            content = dff.read_file_content(source_path)
+            source = DiskSource()
         else:
             source = self.get_source(request.user, pk, source_id)
 
-            if isinstance(source, GoogleDocsSource):
-                doc = gdf.get_document(source.doc_id)
-                content = json.dumps(doc).encode('utf8')
-                source_type = 'googledocs'
-            else:
-                authentication = LinkedSourceAuthentication(user_github_token(request.user), google_token)
-                scf = SourceContentFacade(source, authentication, request, source_path)
-                content = scf.get_binary_content()
+        scf = make_source_content_facade(request.user, source_path, source, project)
+        content = scf.get_binary_content()
 
         source_path_without_ext, source_ext = splitext(source_path)
 
@@ -411,17 +404,24 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             }[source_ext.lower()]
 
         if source_type == 'markdown' and target_type == 'googledocs':
-            content = converter.convert('markdown', 'html', content)
+            content = converter.convert('markdown', 'html', content.read())
 
         if target_type == 'googledocs':
             new_doc_id = gdf.create_document_from_html(source_name, content.decode('utf8'))
 
             gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
         elif target_type in ('markdown', 'html'):
-            converted_content = converter.convert(source_type, target_type, content)
-            dff.write_file_content(target_path, converted_content)
+            converted_content = converter.convert(source_type, target_type, content.read())
+            target_scf = make_source_content_facade(request.user, target_path, DiskSource(), project)
+            target_scf.update_content(converted_content.decode('utf8'))
+
+            for message in target_scf.message_iterator():
+                messages.add_message(request, message.level, message.message)
         else:
             raise NotImplementedError('Can\'t convert to anything except googledocs.')
+
+        for message in scf.message_iterator():
+            messages.add_message(request, message.level, message.message)
 
         messages.success(request, '{} was converted.'.format(utf8_basename(source_path)))
 
