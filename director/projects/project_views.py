@@ -615,17 +615,6 @@ class GdocsTest(View):
 
         gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
 
-        gdf.upload_html('MyDoc.gdoc', '''
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title>My Doc!</title>
-                </head>
-                <body>
-                    <h1>This is a new document!</h1>
-                    <p>It has a lot of good information inside of it.</p>
-                </body>
-            </html>
-        ''')
+        gdf.trash_document('104sCNP6wP-kTVuC61CEwSBt6eQAJyo66ydvm5RtRVkM')
 
         return HttpResponse('Hello')

@@ -1,6 +1,5 @@
 import json
 import typing
-from io import BytesIO
 from os.path import splitext
 
 from allauth.socialaccount.models import SocialApp
@@ -23,7 +22,7 @@ DEFAULT_TEXT_ENCODING = 'utf8'
 class SourceEditContext(typing.NamedTuple):
     path: str
     extension: str
-    content: typing.Union[str, BytesIO]
+    content: typing.Union[str, bytes]
     source: typing.Union[Source, DiskSource]
     editable: bool
     supports_commit_message: bool
@@ -67,7 +66,7 @@ class SourceContentFacade(object):
 
         raise TypeError('Don\'t know how to get content for source type \'{}\''.format(type(self.source)))
 
-    def get_binary_content(self) -> BytesIO:
+    def get_binary_content(self) -> bytes:
         if isinstance(self.source, GithubSource):
             return self.get_github_source_binary_content()
 
@@ -96,12 +95,12 @@ class SourceContentFacade(object):
         _, ext = splitext(self.file_path.lower())
         content = self.get_content()
 
-        if not isinstance(content, (str, BytesIO)):
+        if not isinstance(content, (str, bytes)):
             raise TypeError('Can\t edit a non str or BytesIO')
 
         return SourceEditContext(self.file_path, ext, content, self.source, editable, supports_commit_message)
 
-    def update_content(self, content: str, commit_message: typing.Optional[str]) -> bool:
+    def update_content(self, content: str, commit_message: typing.Optional[str]=None) -> bool:
         if isinstance(self.source, DiskSource):
             return self.update_disk_source_content(content)
 
@@ -126,12 +125,12 @@ class SourceContentFacade(object):
         path_in_repo = self.get_github_repository_path()
         return self.github_facade.get_file_content(path_in_repo, self.encoding)
 
-    def get_github_source_binary_content(self) -> BytesIO:
+    def get_github_source_binary_content(self) -> bytes:
         if not self.github_facade:
             raise TypeError('Can\'t continue, GithubFacade not set.')
 
         path_in_repo = self.get_github_repository_path()
-        return BytesIO(self.github_facade.get_binary_file_content(path_in_repo))
+        return self.github_facade.get_binary_file_content(path_in_repo)
 
     def get_github_repository_path(self) -> str:
         source = typing.cast(GithubSource, self.source)
@@ -179,8 +178,8 @@ class SourceContentFacade(object):
         self.disk_file_facade.write_file_content(self.file_path, content.encode(self.encoding))
         return True
 
-    def get_disk_source_binary_content(self) -> BytesIO:
-        return BytesIO(self.disk_file_facade.read_file_content(self.file_path))
+    def get_disk_source_binary_content(self) -> bytes:
+        return self.disk_file_facade.read_file_content(self.file_path)
 
     # Google Docs
     def get_google_docs_source_content(self) -> dict:
@@ -189,10 +188,10 @@ class SourceContentFacade(object):
 
         return self.google_docs_facade.get_document(self.source.doc_id)
 
-    def get_google_docs_source_binary_content(self) -> BytesIO:
+    def get_google_docs_source_binary_content(self) -> bytes:
         doc = self.get_google_docs_source_content()
 
-        return BytesIO(json.dumps(doc).encode(self.encoding))
+        return json.dumps(doc).encode(self.encoding)
 
 
 def make_source_content_facade(user: User, file_path: str, source: typing.Union[Source, DiskSource],

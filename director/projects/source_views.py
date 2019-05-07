@@ -404,14 +404,24 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             }[source_ext.lower()]
 
         if source_type == 'markdown' and target_type == 'googledocs':
-            content = converter.convert('markdown', 'html', content.read())
+            content = converter.convert('markdown', 'html', content)
 
         if target_type == 'googledocs':
-            new_doc_id = gdf.create_document_from_html(source_name, content.decode('utf8'))
+            new_doc_id = gdf.create_document_from_html(target_name, content.decode('utf8'))
 
-            gdf.create_source_from_document(project, utf8_dirname(source_path), new_doc_id)
+            existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
+
+            new_source = gdf.create_source_from_document(project, utf8_dirname(target_path), new_doc_id)
+
+            if existing_source is not None:
+                gdf.trash_document(existing_source.doc_id)
+                messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(source_name))
+                existing_source.doc_id = new_source.doc_id
+                existing_source.save()
+            else:
+                new_source.save()
         elif target_type in ('markdown', 'html'):
-            converted_content = converter.convert(source_type, target_type, content.read())
+            converted_content = converter.convert(source_type, target_type, content)
             target_scf = make_source_content_facade(request.user, target_path, DiskSource(), project)
             target_scf.update_content(converted_content.decode('utf8'))
 

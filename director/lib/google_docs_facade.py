@@ -1,4 +1,5 @@
 import re
+import typing
 
 import httplib2
 from allauth.socialaccount.models import SocialToken
@@ -72,6 +73,7 @@ class GoogleDocsFacade(object):
     client_id: str
     client_secret: str
     social_auth_token: SocialToken
+    _drive_service = None
 
     def __init__(self, client_id: str, client_secret: str, social_auth_token: SocialToken) -> None:
         self.client_id = client_id
@@ -82,6 +84,12 @@ class GoogleDocsFacade(object):
     def credentials(self) -> GoogleCredentials:
         helper = GoogleAuthHelper(self.client_id, self.client_secret, self.social_auth_token)
         return helper.get_credentials()
+
+    @property
+    def drive_service(self):
+        if self._drive_service is None:
+            self._drive_service = build('drive', 'v3', credentials=self.credentials, cache_discovery=False)
+        return self._drive_service
 
     def get_document(self, document_id: str) -> dict:
         """"""
@@ -110,10 +118,20 @@ class GoogleDocsFacade(object):
 
         absolute_path = utf8_path_join(path, document_data['title'].replace('/', '_'))
 
-        return GoogleDocsSource.objects.create(doc_id=document_id, project=project, path=absolute_path)
+        return GoogleDocsSource(doc_id=document_id, project=project, path=absolute_path)
 
-    def list_documents(self):
-        drive_service = build('drive', 'v3', credentials=self.credentials, cache_discovery=False)
+    def list_documents(self) -> typing.List[dict]:
+        next_page_token = None
+        files: typing.List[dict] = []
+        while True:
+            resp = self.drive_service.files().list(pageToken=next_page_token).execute()
+            files += list(filter(lambda f: f['mimeType'] == 'application/vnd.google-apps.document', resp['files']))
+            next_page_token = resp.get('nextPageToken')
 
-        resp = drive_service.files().list().execute()
-        return resp
+            if next_page_token is None:
+                break
+
+        return files
+
+    def trash_document(self, document_id: str) -> None:
+        self.drive_service.files().update(fileId=document_id, body={'trashed': True}).execute()
