@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load project_permissions %}
+{% block content %}
+    <div class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <p class="title is-2">{{ project.name }}</p>
+            </div>
+        </div>
+        <div class="level-right">
+            {% block project_header_right %}{% endblock %}
+        </div>
+    </div>
+    <div class="columns">
+        <div class="column is-one-quarter">
+            <nav class="panel">
+                <a href="{% url 'project_overview' project.pk %}" class="panel-block{% if project_tab == 'overview' %} is-active{% endif %}">
+                    Overview
+                </a>
+                <a href="{% url 'project_files' project.pk %}" class="panel-block{% if project_tab == 'files' %} is-active{% endif %}">
+                    Files
+                </a>
+                <a href="{% url 'project_activity' project.pk %}" class="panel-block{% if project_tab == 'activity' %} is-active{% endif %}">
+                    Activity
+                </a>
+                {% if project_permissions|project_permissions_contain:'manage' %}
+                <a href="{% url 'project_sharing' project.pk %}" class="panel-block{% if project_tab == 'sharing' %} is-active{% endif %}">
+                    Sharing
+                </a>
+                {% endif %}
+                <a href="{% url 'project_settings_metadata' project.pk %}" class="panel-block{% if project_tab == 'settings' %} is-active{% endif %}">
+                    Settings
+                </a>
+            </nav>
+        </div>
+        <div class="column">
+            {% block project_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

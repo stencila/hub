@@ -397,11 +397,14 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
 
         if source_type is None:
-            source_type = {
-                '.md': 'markdown',
-                '.html': 'html',
-                '.htm': 'html'
-            }[source_ext.lower()]
+            if isinstance(source, GoogleDocsSource):
+                source_type = 'googledocs'
+            else:
+                source_type = {
+                    '.md': 'markdown',
+                    '.html': 'html',
+                    '.htm': 'html'
+                }[source_ext.lower()]
 
         if source_type == 'markdown' and target_type == 'googledocs':
             content = converter.convert('markdown', 'html', content)

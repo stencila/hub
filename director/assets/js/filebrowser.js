@@ -554,7 +554,7 @@ Vue.component('convert-modal', {
     '</div>'
 })
 
-new Vue({
+var fileBrowser = new Vue({
   el: '#file-browser',
   delimiters: ['[[', ']]'],
   data: {
@@ -562,13 +562,6 @@ new Vue({
     itemRenameUrl: null,
     itemRemoveUrl: null,
     filePullUrl: null,
-    newMenuVisible: false,
-    linkMenuVisible: false,
-    unlinkMenuVisible: false,
-    deleteModalVisible: false,
-    unlinkSourceId: null,
-    unlinkSourceDescription: '',
-    pullInProgress: false,
     createItemType: 'Folder',
     createItemVisible: false,
     renameItemVisible: false,
@@ -597,6 +590,22 @@ new Vue({
     })
   },
   methods: {
+  }
+})
+
+var actionBar = new Vue({
+  el: '#file-action-bar',
+  delimiters: ['[[', ']]'],
+  data: {
+    newMenuVisible: false,
+    linkMenuVisible: false,
+    unlinkMenuVisible: false,
+    pullInProgress: false,
+    deleteModalVisible: false,
+    unlinkSourceId: null,
+    unlinkSourceDescription: ''
+  },
+  methods: {
     pullFiles () {
       this.pullInProgress = true
       fetch(this.filePullUrl, {
@@ -615,29 +624,30 @@ new Vue({
           alert(failureResponse)
         })
     },
-    resetMenus () {
-      this.$root.$emit('menu-hide')
-      this.linkMenuVisible = false
-      this.unlinkMenuVisible = false
-      this.newMenuVisible = false
-    },
     createFile () {
       this.createItemType = 'File'
       this.createItemVisible = true
-      this.$root.$emit('add-item-show')
+      fileBrowser.$root.$emit('add-item-show')
     },
     createFolder () {
       this.createItemType = 'Folder'
       this.createItemVisible = true
-      this.$root.$emit('add-item-show')
-    },
-    hideDeleteModal () {
-      this.deleteModalVisible = false
+      fileBrowser.$root.$emit('add-item-show')
     },
     showUnlinkModal (sourceDescription, sourceId) {
       this.unlinkSourceDescription = sourceDescription
       this.unlinkSourceId = sourceId
-      this.deleteModalVisible = true
+      fileBrowser.deleteModalVisible = true
+    },
+    resetMenus () {
+      fileBrowser.$root.$emit('menu-hide')
+      this.linkMenuVisible = false
+      this.unlinkMenuVisible = false
+      this.newMenuVisible = false
+    },
+    hideDeleteModal () {
+      this.deleteModalVisible = false
     }
   }
 })
+

@@ -1,6 +1,7 @@
 import json
 import typing
 from datetime import datetime
+from enum import Enum
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
@@ -43,6 +44,10 @@ from .project_forms import (
 User = get_user_model()
 
 DEFAULT_ENVIRON = 'stencila/core'
+
+
+class ProjectTab(Enum):
+    FILES = 'files'
 
 
 class ProjectPermissionsMixin(object):
@@ -267,7 +272,8 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 'breadcrumbs': path_entry_iterator(path),
                 'item_names': json.dumps([item.name for item in directory_items]),
                 'items': directory_items,
-                'inside_remote_source': False
+                'inside_remote_source': False,
+                'project_tab': ProjectTab.FILES.value
             })
                       )
 
