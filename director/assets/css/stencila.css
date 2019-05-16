@@ -17599,6 +17599,11 @@ a.box:active {
   text-decoration: none !important;
 }
 
+.tabs li.is-active a {
+  border-color: #2468EF;
+  border-width: 0 0 2px 0;
+}
+
 .tabs.is-toggle li.is-active a {
   background-color: #d4d4d4;
   border-color: #c4c4c4;

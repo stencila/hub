@@ -1,10 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}Project {{ project.pk }} : Settings : Access{% endblock %}
 
-{% block content %}
-	{% include "projects/_project_header.html" with project=project tab="settings" %}
-	{% include "projects/_project_settings_tabs.html" with project=project tab="access" %}
+{% block project_content %}
+    {% include "projects/_project_settings_tabs.html" with project=project tab="access" %}
     {% crispy form %}
 {% endblock %}

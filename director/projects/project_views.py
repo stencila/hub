@@ -51,6 +51,7 @@ class ProjectTab(Enum):
     FILES = 'files'
     ACTIVITY = 'activity'
     SHARING = 'sharing'
+    SETTINGS = 'settings'
 
 
 class ProjectPermissionsMixin(object):
@@ -480,6 +481,11 @@ class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
     def get_success_url(self) -> str:
         return reverse("project_settings_metadata", kwargs={'pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        context_data = super(ProjectSettingsMetadataView, self).get_context_data(**kwargs)
+        context_data['project_tab'] = ProjectTab.SETTINGS.value
+        return context_data
+
 
 class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
     model = Project
@@ -489,6 +495,11 @@ class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
 
     def get_success_url(self) -> str:
         return reverse("project_settings_access", kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        context_data = super(ProjectSettingsAccessView, self).get_context_data(**kwargs)
+        context_data['project_tab'] = ProjectTab.SETTINGS.value
+        return context_data
 
 
 class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
@@ -500,6 +511,7 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsSessionsView, self).get_context_data(**kwargs)
         context_data['parameters_presets'] = json.dumps(parameters_presets.parameters_presets)
+        context_data['project_tab'] = ProjectTab.SETTINGS.value
         return context_data
 
     def get_initial(self):
