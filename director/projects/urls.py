@@ -40,7 +40,6 @@ urlpatterns = [
     path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
     path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),
     path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
-    path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
     path('<int:pk>/settings/metadata', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
     path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions'),

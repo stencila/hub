@@ -9,6 +9,6 @@ class ConverterFacade(object):
         self.converter_binary = converter_binary
 
     def convert(self, from_format: str, to_format: str, input_data: bytes) -> bytes:
-        convert_args = ['-from', from_format, '-to', to_format]
+        convert_args = ['--from', from_format, '--to', to_format]
         convert_result = subprocess.run(self.converter_binary + convert_args, input=input_data, stdout=subprocess.PIPE)
         return convert_result.stdout

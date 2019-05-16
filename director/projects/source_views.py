@@ -370,7 +370,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('markdown', 'html', 'googledocs'):
+        if target_type not in ('markdown', 'html', 'gdoc'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -389,7 +389,6 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_path_without_ext, source_ext = splitext(source_path)
 
-        source_name = utf8_basename(source_path)
         source_dir = utf8_dirname(source_path)
 
         target_path = utf8_path_join(source_dir, target_name)
@@ -398,7 +397,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         if source_type is None:
             if isinstance(source, GoogleDocsSource):
-                source_type = 'googledocs'
+                source_type = 'gdoc'
             else:
                 source_type = {
                     '.md': 'markdown',
@@ -406,10 +405,10 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     '.htm': 'html'
                 }[source_ext.lower()]
 
-        if source_type == 'markdown' and target_type == 'googledocs':
-            content = converter.convert('markdown', 'html', content)
+        if source_type == 'markdown' and target_type == 'gdoc':
+            content = converter.convert('md', 'html', content)
 
-        if target_type == 'googledocs':
+        if target_type == 'gdoc':
             new_doc_id = gdf.create_document_from_html(target_name, content.decode('utf8'))
 
             existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
@@ -418,7 +417,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
             if existing_source is not None:
                 gdf.trash_document(existing_source.doc_id)
-                messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(source_name))
+                messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(target_name))
                 existing_source.doc_id = new_source.doc_id
                 existing_source.save()
             else:

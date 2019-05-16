@@ -1,8 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags static escape_extras %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bulma-switch.min.css' %}">
     {{ block.super }}
 {% endblock %}
 {% block scripts %}
@@ -10,14 +11,11 @@
     <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
 {% endblock %}
-{% block content %}
-    {% include "projects/_project_header.html" with project=project tab="sharing" %}
-    {% crispy form %}
-
-    <section id="project-role" class="section" style="padding-left: 0; padding-right: 0">
+{% block project_content %}
+    <div id="project-role">
         <delete-confirm-modal
                 form-action="{% url 'project_sharing_roles' object.id %}"
-                :delete-modal-visible="deleteModalVisible"
+                :delete-modal-visible="deleteModalVisible"z
                 delete-action="remove_role"
                 delete-id-name="project_agent_role_id"
                 :delete-id-value="deleteRoleId"
@@ -26,171 +24,204 @@
             <template slot="title">Remove project access?</template>
             <template slot="csrf_token">{% csrf_token %}</template>
             <template slot="body">Are you sure you want to remove access to <em>{{ object.name }}</em> from
-                <em>[[ agentName]]</em>?</template>
+                <em>[[ agentName]]</em>?
+            </template>
         </delete-confirm-modal>
-        <div class="card">
-            <header class="card-header">
-                <p class="card-header-title">
-                    Collaborator access
-                </p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <div>
-                        <table class="table is-fullwidth">
-                            <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Role</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for project_agent_role in project_agent_roles %}
-                                <tr>
-                                    <td>{{ project_agent_role.agent_description }}</td>
-                                    <td>
-                                        {% if project_agent_role.content_type == user_content_type %}User{% endif %}
-                                        {% if project_agent_role.content_type == team_content_type %}Team{% endif %}
-                                    </td>
-                                    <td>
-                                        {% include "projects/_project_role_select.html" with project_agent_role_id=project_agent_role.id roles=all_roles current_role=project_agent_role.role agent_type=project_agent_role.content_type agent_id=project_agent_role.agent_id %}
-                                    </td>
-                                    <td class="has-text-right">
-                                        {% if project_agent_role.role not in roles or project_agent_role.content_type == user_content_type and project_agent_role.agent_id == request.user.id %}
-                                            {# show nothing, this is easier than trying to negate the if condition with django template's limited parsing #}
-                                        {% else %}
-                                            <button class="button is-danger"
-                                                    @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.agent_description|escape_single_quotes }}')">
-                                                Remove Access&hellip;
-                                            </button>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="section" style="padding-bottom: 0;">
-                        <h5 class="subtitle is-5">Add User</h5>
-                        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
-                            {% csrf_token %}
-                            <div class="columns">
-                                <div class="column">
-                                    <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
-                                </div>
-                                <div class="column">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                <select name="role_id">
-                                                    {% for role in all_roles %}
-                                                        <option value="{{ role.id }}">{{ role.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <button class="button is-success" name="action" value="add_user_role" type="submit"
-                                            :disabled="selectedUsername==''">Add
-                                    </button>
-                                </div>
+        <h6 class="title is-6 is-underline">Collaborators</h6>
+        <p class="title-caption">Who has access</p>
+        <table class="table is-fullwidth">
+            <tbody>
+            {% for project_agent_role in project_agent_roles %}
+                <tr class="access-row">
+                    <td class="has-text-centered">
+                        <i class="fas {% if project_agent_role.content_type == user_content_type %}fa-user{% endif %}
+                                      {% if project_agent_role.content_type == team_content_type %}fa-users{% endif %}">
+                        </i>
+                    </td>
+                    <td style="width: 50%">
+                        {{ project_agent_role.agent_description }}
+                    </td>
+                    <td class="role-col">
+                        {% include "projects/_project_role_select.html" with project_agent_role_id=project_agent_role.id roles=all_roles current_role=project_agent_role.role agent_type=project_agent_role.content_type agent_id=project_agent_role.agent_id %}
+                    </td>
+                    <td>
+                        <i class="fas fa-circle-notch fa-spin access-row-icon"
+                           v-if="updateCompleted[{{ project_agent_role.pk }}] !== true"
+                           :class="{ 'is-transparent': updateInProgress[{{ project_agent_role.pk }}] !== true }"></i>
+                        <i class="fas fa-check access-row-icon"
+                           v-if="updateCompleted[{{ project_agent_role.pk }}]"
+                        ></i>
+                    </td>
+                    <td class="has-text-right">
+                        {% if project_agent_role.role not in roles or project_agent_role.content_type == user_content_type and project_agent_role.agent_id == request.user.id %}
+                            {# show nothing, this is easier than trying to negate the if condition with django template's limited parsing #}
+                        {% else %}
+                            <a class="access-row-icon"
+                                @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.agent_description|escape_single_quotes }}')"
+                                title="Remove access from {{ project_agent_role.agent_description }}"
+                            >
+                                <i class="fa fa-times"></i>
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p class="title-caption has-top-margin">Add people</p>
+        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
+            {% csrf_token %}
+            <div class="columns">
+                <div class="column is-two-thirds">
+                    <user-autocomplete @username-selected="usernameSelected"></user-autocomplete>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select name="role_id">
+                                    {% for role in all_roles %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                        </form>
-                    </div>
-                    <div class="section">
-                        <h5 class="subtitle is-5">Add Team</h5>
-                        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
-                            {% csrf_token %}
-                            <div class="columns">
-                                <div class="column">
-                                    <div class="select is-fullwidth">
-                                        <select name="team_id" {% if not teams %}disabled="disabled"{% endif %}>
-                                            {% for team in teams %}
-                                                <option value="{{ team.pk }}">{{ team }}</option>
-                                            {% empty %}
-                                                <option>No teams</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <div class="field">
-                                        <div class="control">
-                                            <div class="select is-fullwidth">
-                                                <select name="role_id" {% if not teams %}disabled="disabled"{% endif %}>
-                                                    {% for role in all_roles %}
-                                                        <option value="{{ role.id }}">{{ role.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <button class="button is-success" name="action" value="add_team_role" type="submit"
-                                            {% if not teams %}disabled="disabled"{% endif %}>
-                                        Add
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
+                <div class="column has-text-centered">
+                    <button class="button is-primary" name="action" value="add_user_role" type="submit"
+                            :disabled="selectedUsername==''">Add
+                    </button>
+                </div>
+            </div>
+        </form>
+        <p class="title-caption has-top-margin">Add team</p>
+        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
+            {% csrf_token %}
+            <div class="columns">
+                <div class="column is-two-thirds">
+                    <div class="select is-fullwidth">
+                        <select name="team_id" {% if not teams %}disabled="disabled"{% endif %}>
+                            {% for team in teams %}
+                                <option value="{{ team.pk }}">{{ team }}</option>
+                            {% empty %}
+                                <option>No teams</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select name="role_id" {% if not teams %}disabled="disabled"{% endif %}>
+                                    {% for role in all_roles %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column has-text-centered">
+                    <button class="button is-primary" name="action" value="add_team_role" type="submit"
+                            {% if not teams %}disabled="disabled"{% endif %}>
+                        Add
+                    </button>
+                </div>
+            </div>
+        </form>
+        <h6 class="title is-6 is-underline has-top-margin">Public project</h6>
+        <div>
+            <div class="field">
+              <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded is-info" @change="isPublicChanged()">
+              <label for="id_project_public">
+                  <span v-if="isPublic">This project is public. Anyone can view, but only collaborators can change it.</span>
+                  <span v-if="isPublic === false">This project is private. Only collaborators can view or change it.</span>
+              </label>
             </div>
         </div>
-    </section>
+    </div>
     <script src="{% static "js/user-search.js" %}"></script>
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     <script>
-        new Vue({
-            el: "#project-role",
-            delimiters: ['[[', ']]'],
-            data: {
-                agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}"),
-                selectedUsername: '',
-                deleteModalVisible: false,
-                deleteRoleId: null,
-                agentName: ''
-            },
-            methods: {
-                roleChanged(projectAgentRoleId) {
-                    let roleData = new FormData()
-                    roleData.set('action', 'set_role')
-                    roleData.set('project_agent_role_id', projectAgentRoleId)
-                    roleData.set('role_id', this.agentRoles[projectAgentRoleId])
-                    fetch(`{% url 'project_sharing_roles' object.id %}`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRFToken': utils.cookie('csrftoken'),
-                        },
-                        credentials: 'same-origin',
-                        body: roleData
-                    }).then(response => response.json()
-                        , failureResponse => {
-                            console.log(failureResponse)
-                        }).then(responseBody => {
-                        alert(responseBody.message)
-                    })
-                },
-                usernameSelected(username) {
-                    this.selectedUsername = username
-                },
-                showDeleteModal(projectAgentRoleId, agentName) {
-                    this.deleteModalVisible = true
-                    this.deleteRoleId = projectAgentRoleId
-                    this.agentName = agentName
-                },
-                hideDeleteModal() {
-                    this.deleteModalVisible = false
-                    this.deleteRoleId = null
-                    this.agentName = ''
-                }
-            }
-        })
+      new Vue({
+        el: '#project-role',
+        delimiters: ['[[', ']]'],
+        data: {
+          agentRoles: JSON.parse("{{ project_agent_role_map|escapejs }}"),
+          selectedUsername: '',
+          deleteModalVisible: false,
+          deleteRoleId: null,
+          agentName: '',
+          updateInProgress: {},
+          updateCompleted: {},
+          isPublic: {% if project.public %}true{% else %}false{% endif %}
+        },
+        methods: {
+          roleChanged (projectAgentRoleId) {
+            let roleData = new FormData()
+            roleData.set('action', 'set_role')
+            roleData.set('project_agent_role_id', projectAgentRoleId)
+            roleData.set('role_id', this.agentRoles[projectAgentRoleId])
+
+            Vue.set(this.updateInProgress, projectAgentRoleId, true)
+            Vue.set(this.updateCompleted, projectAgentRoleId, false)
+
+            fetch(`{% url 'project_sharing_roles' object.id %}`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': utils.cookie('csrftoken'),
+              },
+              credentials: 'same-origin',
+              body: roleData
+            }).then(response => {
+              Vue.set(this.updateInProgress, projectAgentRoleId, false)
+              return response.json()
+            }, failureResponse => {
+              alert(failureResponse)
+            }).then(() => {
+              Vue.set(this.updateCompleted, projectAgentRoleId, true)
+              setTimeout(() => {
+                Vue.set(this.updateCompleted, projectAgentRoleId, false)
+              }, 5000)
+            })
+          },
+          isPublicChanged() {
+            let publicSettingData = new FormData()
+            publicSettingData.set('action', 'set_public')
+            publicSettingData.set('is_public', this.isPublic)
+
+            fetch(`{% url 'project_sharing_roles' object.id %}`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': utils.cookie('csrftoken'),
+              },
+              credentials: 'same-origin',
+              body: publicSettingData
+            }).then(response => {
+              return response.json()
+            }, failureResponse => {
+              alert(failureResponse)
+            }).then(responseBody => {
+            })
+          },
+          usernameSelected (username) {
+            this.selectedUsername = username
+          },
+          showDeleteModal (projectAgentRoleId, agentName) {
+            this.deleteModalVisible = true
+            this.deleteRoleId = projectAgentRoleId
+            this.agentName = agentName
+          },
+          hideDeleteModal () {
+            this.deleteModalVisible = false
+            this.deleteRoleId = null
+            this.agentName = ''
+          }
+        }
+      })
     </script>
 {% endblock %}

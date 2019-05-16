@@ -1,23 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'projects/project_base.html' %}
 
 {% block title %}{{ project.name }} : Overview{% endblock %}
 
-{% block content %}
-    {% include "projects/_project_header.html" with project=project tab="overview" %}
+{% block project_content %}
     <div class="section section--inner">
-        <div class="container">
+        <div>
             <p>This project is connected to the account: <strong> {{ project.account.name }}</strong></p>
             <br/>
         </div>
         <div class="columns">
-            <div class="column is-9">
+            <div class="column is-8">
                 {% if project.description %}
                     <p>{{ project.description }}</p>
                 {% else %}
                     <p class="has-text-grey-light">No description yet</p>
                 {% endif %}
             </div>
-            <div class="column is-3" id="id-project-actions">
+            <div class="column is-4" id="id-project-actions">
                 {% comment %}
                 <div class="row">
                     <a class="button is-rounded is-fullwidth is-primary"
@@ -50,8 +49,11 @@
                 </div>
             </div>
         </div>
-        <div class="columns is-12">
-            <div id="terminal" style="display: none; width:100%; height:100%; padding: 0.5em; background: black"></div>
+        <div class="columns">
+            <div class="column is-12">
+                <div id="terminal"
+                     style="display: none; width:100%; height:100%; padding: 0.5em; background: black"></div>
+            </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>

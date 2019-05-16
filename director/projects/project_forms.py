@@ -74,8 +74,7 @@ class ProjectSharingForm(forms.ModelForm):
                     '<p class="title is-5">Public access</p>'
                     '<p class="subtitle is-6">Make this project readable by everyone!</p>'
                 ),
-                'public',
-                css_class="section"
+                'public'
             ),
             Submit('submit', 'Update', css_class="button is-primary")
         )

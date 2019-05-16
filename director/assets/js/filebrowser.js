@@ -127,7 +127,7 @@ Vue.component('item-action-menu', {
     convertTargets () {
       if (this.fileType === 'text/html' || this.fileType === 'text/markdown') {
         return [
-          ['googledocs', 'Google Docs']
+          ['gdoc', 'Google Docs']
         ]
       }
 

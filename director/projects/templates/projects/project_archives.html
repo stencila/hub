@@ -1,11 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'projects/project_base.html' %}
 {% load humanize static escape_extras source_extras crispy_forms_tags %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 
-{% block content %}
+{% block project_content %}
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
-    {% include "projects/_project_header.html" with project=project tab="files" %}
     {% include "projects/_project_files_tabs.html" with project=project tab="archives" %}
     <section id="project_archives">
     <delete-confirm-modal

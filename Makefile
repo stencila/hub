@@ -91,6 +91,7 @@ director/extern: director/package.json
 	cp -R director/node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
 	mkdir -p $@/css
 	cp director/node_modules/buefy/dist/buefy.min.css $@/css
+	cp director/node_modules/bulma-switch/dist/css/bulma-switch.min.css $@/css
 	touch $@
 
 # Create UML models

@@ -47,7 +47,10 @@ DEFAULT_ENVIRON = 'stencila/core'
 
 
 class ProjectTab(Enum):
+    OVERVIEW = 'overview'
     FILES = 'files'
+    ACTIVITY = 'activity'
+    SHARING = 'sharing'
 
 
 class ProjectPermissionsMixin(object):
@@ -239,6 +242,7 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
             'NIXSTER': 'multi-mega'
         }.get(settings.EXECUTION_CLIENT, 'stencila/core')
         context['cloud_environ'] = environ
+        context['project_tab'] = ProjectTab.OVERVIEW.value
         return context
 
 
@@ -326,6 +330,11 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     template_name = 'projects/project_activity.html'
     project_permission_required = ProjectPermissionType.VIEW
 
+    def get_context_data(self, **kwargs) -> dict:
+        context_data = super().get_context_data(**kwargs)
+        context_data['project_tab'] = ProjectTab.ACTIVITY.value
+        return context_data
+
 
 class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
     model = Project
@@ -336,7 +345,7 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
     def get_success_url(self) -> str:
         return reverse("project_sharing", kwargs={'pk': self.object.pk})
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context_data = super().get_context_data(**kwargs)
         project_agent_roles = ProjectAgentRole.objects.filter(project=self.get_object()).order_by('content_type')
         # ordering by content_type SHOULD end up with Users first because it being a built in Django model should be
@@ -356,6 +365,8 @@ class ProjectSharingView(ProjectPermissionsMixin, UpdateView):
         context_data['teams'] = Team.objects.filter(account=self.project.account).exclude(
             pk__in=map(lambda r: r.agent_id, existing_teams))
 
+        context_data['project_tab'] = ProjectTab.SHARING.value
+
         return context_data
 
 
@@ -366,6 +377,11 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
             raise PermissionDenied
 
         project_agent_role = None
+
+        if request.POST.get('action') == 'set_public':
+            self.project.public = request.POST['is_public'] == 'true'
+            self.project.save()
+            return JsonResponse({'success': True})
 
         if request.POST.get('action') in ('set_role', 'remove_role'):
             project_agent_role = get_object_or_404(ProjectAgentRole, pk=request.POST['project_agent_role_id'])
@@ -534,7 +550,8 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         archives = self.list_archives(project)
 
         return render(request, self.template_name,
-                      self.get_render_context({'archives': archives, 'form': ProjectArchiveForm()}))
+                      self.get_render_context(
+                          {'archives': archives, 'form': ProjectArchiveForm(), 'project_tab': ProjectTab.FILES.value}))
 
     def list_archives(self, project: Project):
         archives_directory = self.get_archives_directory(project)

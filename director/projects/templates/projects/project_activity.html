@@ -1,10 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags static %}
 
 {% block title %}Project {{ project.pk }}: Activity{% endblock %}
 
-{% block content %}
-    {% include "projects/_project_header.html" with project=project tab="activity" %}
+{% block project_content %}
     <table class="table is-bordered is-striped is-full-width">
         <thead>
         <tr>
@@ -43,6 +42,10 @@
                 <td>
                     {{ event.message|default_if_none:"—"}}
                 </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">No project activity yet.</td>
             </tr>
         {% endfor %}
         </tbody>
