@@ -33,7 +33,7 @@
             <tbody>
             {% for project_agent_role in project_agent_roles %}
                 <tr class="access-row">
-                    <td class="has-text-centered">
+                    <td class="role-type-col has-text-centered">
                         <i class="fas {% if project_agent_role.content_type == user_content_type %}fa-user{% endif %}
                                       {% if project_agent_role.content_type == team_content_type %}fa-users{% endif %}">
                         </i>

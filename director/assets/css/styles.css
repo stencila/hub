@@ -18471,9 +18471,14 @@ a.box:active {
   text-decoration: none !important;
 }
 
+.tabs li {
+  font-weight: bold;
+}
+
 .tabs li.is-active a {
   border-color: #2468EF;
   border-width: 0 0 2px 0;
+  color: #2468EF;
 }
 
 .tabs.is-toggle li.is-active a {
@@ -20467,11 +20472,15 @@ body, html {
 
 .title-caption {
   text-transform: uppercase;
-  color: #7a7a7a;
+  color: #7a7a7a !important;
   font-weight: bold;
   line-height: 133%;
   font-size: 12px;
   margin-bottom: 9px;
+}
+
+thead th.title-caption {
+  margin-bottom: auto;
 }
 
 .is-transparent {
@@ -20493,6 +20502,11 @@ body, html {
 
 .access-row .activity-col {
   padding-left: 0;
+}
+
+.access-row .role-type-col {
+  width: 14px;
+  padding-right: 0;
 }
 
 .switch[type=checkbox] + label {

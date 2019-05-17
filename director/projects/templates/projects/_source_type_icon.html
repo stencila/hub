@@ -1,13 +1,11 @@
-<span>
-  {% if type == 'filesource' %}
+{% if type == 'filesource' %}
     <i class="fa fa-lg fa-cloud" title="New or uploaded file"></i>
-  {% elif type == 'githubsource' %}
+{% elif type == 'githubsource' %}
     <i class="fab fa-lg fa-github" title="Github"></i>
-  {% elif type == 'googledocssource' %}
-      <i class="fab fa-lg fa-google" title="Google"></i>
-  {% elif type == 'dropboxsource' %}
+{% elif type == 'googledocssource' %}
+    <i class="fab fa-lg fa-google" title="Google"></i>
+{% elif type == 'dropboxsource' %}
     <i class="fab fa-lg fa-dropbox" title="Dropbox"></i>
-  {% elif type == 'disk' %}
+{% elif type == 'disk' %}
     <i class="fa fa-lg fa-hdd" title="Disk"></i>
-  {% endif %}
-</span>
+{% endif %}

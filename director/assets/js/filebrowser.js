@@ -1,3 +1,10 @@
+const UPLOAD_STATUS = {
+  WAITING: 0,
+  IN_PROGRESS: 1,
+  COMPLETED_SUCCESS: 2,
+  COMPLETED_FAILURE: 3
+}
+
 function rootPathJoin (directory, fileName) {
   let joiner = ''
 
@@ -172,7 +179,7 @@ Vue.component('item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
-    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Convert to {{ convertTarget[1] }}&hellip;</a>' +
+    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
@@ -342,19 +349,16 @@ Vue.component('rename-item-modal', {
 
 Vue.component('add-item-modal', {
   props: {
-    itemType: {
-      type: String,
-      required: true,
-    },
     directoryPath: {
       type: String,
       required: true
-    },
+    }
   },
   data () {
     return {
       visible: false,
       itemName: '',
+      itemType: '',
       createInProgress: false,
       errorMessage: null
     }
@@ -368,8 +372,9 @@ Vue.component('add-item-modal', {
     }
   },
   methods: {
-    show () {
+    show (itemType) {
       this.visible = true
+      this.itemType = itemType
       this.itemName = ''
     },
     hide () {
@@ -516,12 +521,12 @@ Vue.component('convert-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Convert to {{ targetTypeName }}</p>' +
+    '      <p class="modal-card-title">Save as {{ targetTypeName }}</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
     '      <div class="content-container">' +
-    '        <p>File <em>{{ sourceName }}</em> will be converted to {{ targetTypeName }}. The original file will be preserved.</p>' +
+    '        <p>File <em>{{ sourceName }}</em> will be saved as {{ targetTypeName }}. The original file will be preserved.</p>' +
     '      </div>' +
     '      <div class="field">' +
     '        <div class="control">' +
@@ -554,6 +559,140 @@ Vue.component('convert-modal', {
     '</div>'
 })
 
+Vue.component('upload-progress-row', {
+  data () {
+    return {
+      UPLOAD_STATUS: UPLOAD_STATUS
+    }
+  },
+  props: {
+    item: {
+      type: Object,
+      required: true
+    }
+  },
+  template: '' +
+    '<tr>' +
+    '  <td>{{ item.name }}</td>' +
+    '  <td>' +
+    '    <i class="fas fa-circle-notch fa-spin" v-if="item.uploadStatus === UPLOAD_STATUS.IN_PROGRESS"></i>' +
+    '    <i class="fas fa-times" v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_FAILURE"></i>' +
+    '    <i class="fas fa-check" v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_SUCCESS"></i>' +
+    '  </td>' +
+    '  <td>' +
+    '    <span v-if="item.uploadStatus === UPLOAD_STATUS.WAITING">Waiting</span>' +
+    '    <span v-if="item.uploadStatus === UPLOAD_STATUS.IN_PROGRESS">In progress</span>' +
+    '    <span v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_SUCCESS">Completed</span>' +
+    '    <span v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_FAILURE">Failed</span>' +
+    '  </td>' +
+    '</tr>'
+})
+
+Vue.component('upload-progress-modal', {
+  props: {
+    uploadUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      uploadInProgress: false,
+      itemsWereUploaded: false,
+      visible: false,
+      items: []
+    }
+  },
+  mounted () {
+    this.$root.$on('upload-progress-modal-show', this.show)
+  },
+  methods: {
+    show (uploads) {
+      this.visible = uploads.length != 0
+
+      this.items = uploads
+      this.processUploadQueue()
+    },
+    close () {
+      if (this.uploadInProgress) {
+        return
+      }
+
+      if (this.itemsWereUploaded) {
+        location.reload()
+      }
+
+      this.visible = false
+    },
+    processUploadQueue () {
+      let item = null
+      for (let i = 0; i < this.items.length; ++i) {
+        if (this.items[i].uploadStatus === UPLOAD_STATUS.WAITING) {
+          item = this.items[i]
+          break
+        }
+      }
+
+      if (item === null) {
+        this.uploadInProgress = false
+        return
+      }
+
+      this.uploadItem(item)
+    },
+    uploadItem (item) {
+      this.uploadInProgress = true
+
+      Vue.set(item, 'uploadStatus', UPLOAD_STATUS.IN_PROGRESS)
+
+      const formData = new FormData()
+      formData.append('file', item.file)
+
+      fetch(this.uploadUrl, {
+        method: 'POST',
+        body: formData,
+        headers: {
+           'X-CSRFToken': utils.cookie('csrftoken')
+        }
+      }).then((response) => {
+        const uploadSuccess = response.status === 200
+
+        if (uploadSuccess)
+          this.itemsWereUploaded = true
+
+        Vue.set(item, 'uploadStatus', uploadSuccess ? UPLOAD_STATUS.COMPLETED_SUCCESS : UPLOAD_STATUS.COMPLETED_FAILURE)
+        this.processUploadQueue()
+      })
+    }
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">File upload</p>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <table class="table is-fullwidth">' +
+    '        <thead>' +
+    '          <tr>' +
+    '            <th class="title-caption">Name</th>' +
+    '            <th class="title-caption">Status</th>' +
+    '            <th></th>' +
+    '          </tr>' +
+    '        </thead>' +
+    '        <tbody>' +
+    '          <upload-progress-row v-for="item in items" v-bind:key="item.id" :item="item"></upload-progress-row>' +
+    '        </tbody>' +
+    '      </table>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="close()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
 var fileBrowser = new Vue({
   el: '#file-browser',
   delimiters: ['[[', ']]'],
@@ -562,7 +701,6 @@ var fileBrowser = new Vue({
     itemRenameUrl: null,
     itemRemoveUrl: null,
     filePullUrl: null,
-    createItemType: 'Folder',
     createItemVisible: false,
     renameItemVisible: false,
     fileList: g_fileList
@@ -589,8 +727,7 @@ var fileBrowser = new Vue({
       jsonFetch(this.itemRemoveUrl, {path}, callback)
     })
   },
-  methods: {
-  }
+  methods: {}
 })
 
 var actionBar = new Vue({
@@ -606,6 +743,9 @@ var actionBar = new Vue({
     unlinkSourceDescription: ''
   },
   methods: {
+    showFileUploadSelect () {
+      this.$refs['file-upload'].click()
+    },
     pullFiles () {
       this.pullInProgress = true
       fetch(this.filePullUrl, {
@@ -625,14 +765,10 @@ var actionBar = new Vue({
         })
     },
     createFile () {
-      this.createItemType = 'File'
-      this.createItemVisible = true
-      fileBrowser.$root.$emit('add-item-show')
+      fileBrowser.$root.$emit('add-item-show', 'File')
     },
     createFolder () {
-      this.createItemType = 'Folder'
-      this.createItemVisible = true
-      fileBrowser.$root.$emit('add-item-show')
+      fileBrowser.$root.$emit('add-item-show', 'Folder')
     },
     showUnlinkModal (sourceDescription, sourceId) {
       this.unlinkSourceDescription = sourceDescription
@@ -647,6 +783,22 @@ var actionBar = new Vue({
     },
     hideDeleteModal () {
       this.deleteModalVisible = false
+    },
+    handleFileUpload (event) {
+      const uploadList = []
+      const files = event.target.files
+
+      for (let i = 0; i < files.length; ++i) {
+        uploadList.push({
+            id: i,
+            name: files[i].name,
+            file: files[i],
+            uploadStatus: UPLOAD_STATUS.WAITING
+          }
+        )
+      }
+
+      fileBrowser.$root.$emit('upload-progress-modal-show', uploadList)
     }
   }
 })

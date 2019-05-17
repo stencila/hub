@@ -85,11 +85,15 @@ body, html
 
 .title-caption
     text-transform: uppercase
-    color: #7a7a7a
+    color: #7a7a7a !important
     font-weight: bold
     line-height: 133%
     font-size: 12px
     margin-bottom: 9px
+
+thead
+    th.title-caption
+        margin-bottom: auto
 
 .is-transparent
     color: rgba(0, 0, 0, 0)
@@ -106,6 +110,10 @@ body, html
 
     .activity-col
         padding-left: 0
+
+    .role-type-col
+        width: 14px
+        padding-right: 0
 
 .switch[type=checkbox]+label
     font-size: 14px

@@ -4,8 +4,9 @@
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 {% block project_header_right %}
     <div class="level-item buttons" id="file-action-bar">
+        <input type="file" ref="file-upload" @change="handleFileUpload" class="is-hidden" multiple="multiple"/>
         <div class="dropdown" style="margin-right: 0.5em" id="new-item"
-             @click.prevent="newMenuVisible = !newMenuVisible"
+             @click="newMenuVisible = !newMenuVisible"
              :class="{ 'is-active':newMenuVisible }">
             <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -32,24 +33,16 @@
                         </span>
                         <span>Folder&hellip;</span>
                     </a>
+                    <a href="#" @click.prevent="showFileUploadSelect()" class="dropdown-item">
+                        <span class="icon is-small">
+                            <i class="fas fa-upload" aria-hidden="true"></i>
+                        </span>
+                        <span>File upload</span>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!--a class="button is-primary"
-           href="{% url 'filesource_create' project.pk %}?directory={{ current_directory }}">
-            <span class="icon is-small">
-                <i class="fas fa-plus" aria-hidden="true"></i>
-            </span>
-            <span>New</span>
-        </a-->
-        <a class="button is-primary"
-           href="{% url 'filesource_upload' project.pk %}?directory={{ current_directory }}">
-            <span class="icon is-small">
-                <i class="fas fa-upload" aria-hidden="true"></i>
-            </span>
-            <span>Upload</span>
-        </a>
         <div class="dropdown" id="link" @click="linkMenuVisible = !linkMenuVisible"
              :class="{ 'is-active':linkMenuVisible }">
             <div class="dropdown-trigger">
@@ -122,7 +115,7 @@
                             <a href="#" class="dropdown-item"
                                @click="showUnlinkModal('{{ linked_source|escape_single_quotes }}', {{ linked_source.pk }})">
                                 <span class="icon is-small">
-                                    <i class="fab fa-github" aria-hidden="true"></i>
+                                    {% include 'projects/_source_type_icon.html' with type=linked_source.type %}
                                 </span>
                                 <span>
                                     {{ linked_source }}
@@ -151,7 +144,6 @@
          data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
          data-item-remove-url="{% url 'api_v1_project_item_remove' project.id %}">
         <add-item-modal
-                :item-type="createItemType"
                 directory-path="{{ current_directory }}"
         ></add-item-modal>
 
@@ -165,6 +157,7 @@
             :existing-files="fileList"
             source-convert-url="{% url 'source_convert' project.pk  %}"
         ></convert-modal>
+        <upload-progress-modal upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
         <div class="level">
             <div class="level-right">
 
@@ -219,7 +212,7 @@
 
                     <td class="has-text-centered">
                         {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
-                            {% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}
+                            <span>{% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}</span>
                         {% endif %}
                     </td>
 
