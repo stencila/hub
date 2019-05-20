@@ -17,6 +17,6 @@ Pillow==6.0.0
 pyjwt==1.7.1
 psycopg2==2.8.2
 raven==6.10.0
-requests==2.21.0
+requests==2.22.0
 sh==1.12.14
 PyGithub==1.43.5
