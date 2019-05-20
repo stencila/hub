@@ -46,6 +46,10 @@ function extensionFromType (type) {
     return '.docx'
   }
 
+  if (type === 'jats') {
+    return '.jats.xml'
+  }
+
   return ''
 }
 
@@ -137,16 +141,29 @@ Vue.component('item-action-menu', {
     allowDownload () {
       return this.downloadUrl !== ''
     },
-    shouldDisplay () {
-      return this.allowDelete || this.allowDownload || this.allowRename || this.allowEdit || this.convertTargets.length
+    hasOpenActions() {
+      return this.allowEdit || this.allowDesktopLaunch
     },
-    shouldDisplayDivider () {
-      return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename || this.allowDownload)
+    hasConvertActions () {
+      return this.convertTargets.length > 0
+    },
+    hasFileManageActions() {
+      return this.allowDelete || this.allowRename || this.allowDownload
+    },
+    shouldDisplay () {
+      return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
+    },
+    shouldDisplayOpenConvertDivider() {
+        return this.hasOpenActions && (this.hasConvertActions || this.hasFileManageActions)
+    },
+    shouldDisplayConvertFileManageDivider() {
+      return this.hasConvertActions && this.hasFileManageActions
     },
     convertTargets () {
       const convertibleDefinitions = [
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
+        ['text/xml+jats', 'jats', 'JATS'],
         ['text/markdown', 'markdown', 'Markdown'],
         ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word']
       ]
@@ -190,8 +207,9 @@ Vue.component('item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
+    '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
-    '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
+    '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +

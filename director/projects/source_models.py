@@ -13,7 +13,7 @@ from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 
-class MimeTypeFromDetectMixin(object):
+class MimeTypeDetectMixin(object):
     path: str
     source: typing.Any
 
@@ -23,6 +23,9 @@ class MimeTypeFromDetectMixin(object):
             mimetype = self.source.mimetype
             if mimetype and mimetype != 'Unknown':
                 return mimetype
+
+        if self.path.lower().endswith('.jats.xml'):
+            return 'text/xml+jats'
 
         mimetype, encoding = mimetypes.guess_type(self.path, False)
 
@@ -41,7 +44,7 @@ class DiskSource(object):
     type = 'disk'
 
 
-class Source(PolymorphicModel, MimeTypeFromDetectMixin):
+class Source(PolymorphicModel, MimeTypeDetectMixin):
     provider_name = ''
 
     project = models.ForeignKey(

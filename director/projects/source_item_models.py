@@ -3,7 +3,7 @@ import functools
 import typing
 from datetime import datetime
 
-from projects.source_models import MimeTypeFromDetectMixin, Source, DiskSource
+from projects.source_models import MimeTypeDetectMixin, Source, DiskSource
 
 
 class DirectoryEntryType(enum.Enum):
@@ -28,7 +28,7 @@ class DirectoryEntryType(enum.Enum):
 
 
 @functools.total_ordering
-class DirectoryListEntry(MimeTypeFromDetectMixin):
+class DirectoryListEntry(MimeTypeDetectMixin):
     name: str
     path: str
     type: DirectoryEntryType
