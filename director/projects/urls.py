@@ -10,7 +10,7 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
                                    DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView,
-                                   SourceConvertView)
+                                   SourceConvertView, SourceDownloadView, DiskFileSourceDownloadView)
 
 urlpatterns = [
     # Generic views
@@ -33,7 +33,13 @@ urlpatterns = [
     path('<int:pk>/files/convert', SourceConvertView.as_view(), name='source_convert'),
 
     path('<int:project_pk>/files/<int:pk>/open/<path:path>', SourceOpenView.as_view(), name='file_source_open'),
-    path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='real_file_source_open'),
+    path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='disk_file_source_open'),
+
+    path('<int:project_pk>/files/<int:pk>/download/<path:path>', SourceDownloadView.as_view(),
+         name='file_source_download'),
+    path('<int:project_pk>/files/download/<path:path>', DiskFileSourceDownloadView.as_view(),
+         name='disk_file_source_download'),
+
     path('<int:pk>/files/update/<path:path>', DiskFileSourceUpdateView.as_view(), name='file_source_update'),
     path('<int:pk>/files/delete/<path:path>', DiskFileSourceDeleteView.as_view(), name='file_source_delete'),
 

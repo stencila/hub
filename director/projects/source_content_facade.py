@@ -14,7 +14,7 @@ from lib.social_auth_token import user_github_token, user_social_token
 from projects.disk_file_facade import DiskFileFacade
 from projects.project_models import Project
 from projects.source_models import Source, GithubSource, DiskSource, GoogleDocsSource
-from projects.source_operations import strip_directory, utf8_path_join
+from projects.source_operations import strip_directory, utf8_path_join, utf8_basename
 
 DEFAULT_TEXT_ENCODING = 'utf8'
 
@@ -100,7 +100,7 @@ class SourceContentFacade(object):
 
         return SourceEditContext(self.file_path, ext, content, self.source, editable, supports_commit_message)
 
-    def update_content(self, content: str, commit_message: typing.Optional[str]=None) -> bool:
+    def update_content(self, content: str, commit_message: typing.Optional[str] = None) -> bool:
         if isinstance(self.source, DiskSource):
             return self.update_disk_source_content(content)
 
@@ -192,6 +192,10 @@ class SourceContentFacade(object):
         doc = self.get_google_docs_source_content()
 
         return json.dumps(doc).encode(self.encoding)
+
+    def get_name(self) -> str:
+        """Get the name of the source (i.e. basename)."""
+        return utf8_basename(self.file_path)
 
 
 def make_source_content_facade(user: User, file_path: str, source: typing.Union[Source, DiskSource],

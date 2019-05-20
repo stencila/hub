@@ -93,6 +93,11 @@ Vue.component('item-action-menu', {
       required: false,
       default: ''
     },
+    downloadUrl: {
+      type: String,
+      required: false,
+      default: ''
+    },
     editMenuText: {
       type: String,
       required: false,
@@ -125,11 +130,14 @@ Vue.component('item-action-menu', {
     })
   },
   computed: {
+    allowDownload () {
+      return this.downloadUrl !== ''
+    },
     shouldDisplay () {
-      return this.allowDelete || this.allowRename || this.allowEdit || this.convertTargets.length
+      return this.allowDelete || this.allowDownload || this.allowRename || this.allowEdit || this.convertTargets.length
     },
     shouldDisplayDivider () {
-      return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename)
+      return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename || this.allowDownload)
     },
     convertTargets () {
       if (this.fileType === 'text/html' || this.fileType === 'text/markdown') {
@@ -181,6 +189,7 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
+    '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
     '    </div>' +

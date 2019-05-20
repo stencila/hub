@@ -226,6 +226,7 @@
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
                                 {% endif %}
+                                download-url="{% download_url project directory_entry %}"
                                 source-type="{{ directory_entry.source.type }}"
                                 source-identifier="{{ directory_entry.source.pk }}"
                                 file-type="{{ directory_entry.mimetype }}"

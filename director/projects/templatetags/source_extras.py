@@ -13,7 +13,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def source_path(project: Project, directory_entry: DirectoryListEntry):
+def source_path(project: Project, directory_entry: DirectoryListEntry) -> str:
     if isinstance(directory_entry.source, GoogleDocsSource):
         source = typing.cast(GoogleDocsSource, directory_entry.source)
         return build_google_document_url(source.doc_id)
@@ -25,11 +25,22 @@ def source_path(project: Project, directory_entry: DirectoryListEntry):
 
     if directory_entry.type == DirectoryEntryType.FILE:
         if isinstance(directory_entry.source, DiskSource):
-            return reverse('real_file_source_open', args=(project.pk, directory_entry.path))
+            return reverse('disk_file_source_open', args=(project.pk, directory_entry.path))
         else:
             return reverse('file_source_open', args=(project.pk, directory_entry.source.pk, directory_entry.path))
 
     return ""
+
+
+@register.simple_tag
+def download_url(project: Project, directory_entry: DirectoryListEntry) -> str:
+    if directory_entry.is_directory:
+        return ''
+
+    if isinstance(directory_entry.source, DiskSource):
+        return reverse('disk_file_source_download', args=(project.pk, directory_entry.path))
+    else:
+        return reverse('file_source_download', args=(project.pk, directory_entry.source.pk, directory_entry.path))
 
 
 def mimetype_text_editable(mimetype: str) -> bool:

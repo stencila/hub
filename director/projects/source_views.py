@@ -166,7 +166,27 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
         return HttpResponse()
 
 
-class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
+class ContentFacadeMixin(object):
+    def get_content_facade(self, request, project_pk, pk, path):
+        source = self.get_source(request.user, project_pk, pk)
+        return make_source_content_facade(request.user, path, source, self.get_project(request.user, project_pk))
+
+
+class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+        content_facade = self.get_content_facade(request, project_pk, pk, path)
+        return self.process_get(content_facade)
+
+    @staticmethod
+    def process_get(content_facade) -> HttpResponse:
+        response = HttpResponse(content_facade.get_binary_content(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(content_facade.get_name())
+        return response
+
+
+class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeMixin, DetailView):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get_context_data(self, *args, **kwargs):
@@ -239,9 +259,14 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
             args = (project_pk,)  # type: ignore
         return redirect(reverse(reverse_name, args=args))
 
-    def get_content_facade(self, request, project_pk, pk, path):
-        source = self.get_source(request.user, project_pk, pk)
-        return make_source_content_facade(request.user, path, source, self.get_project(request.user, project_pk))
+
+class DiskFileSourceDownloadView(SourceDownloadView):
+    def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, project_pk, -1, path)
+        return self.process_get(content_facade)
+
+    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
+        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
 
 
 class DiskFileSourceOpenView(SourceOpenView):
