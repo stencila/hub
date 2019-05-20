@@ -72,7 +72,7 @@
                         </span>
                         <span>Github</span>
                     </a>
-                    <a href="{% url 'googledocssource_create' project.pk %}?directory={{ current_directory }}" class="dropdown-item">
+                    <a href="#" @click.prevent="showLinkModal('google', 'gdoc')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-google" aria-hidden="true"></i>
                         </span>
@@ -137,6 +137,7 @@
     {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
     <script>
         const g_fileList = JSON.parse('{{ item_names|escapejs }}')
+        const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
     </script>
     <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
          data-file-pull-url="{% url 'project_pull' project.id %}"
@@ -158,11 +159,8 @@
             source-convert-url="{% url 'source_convert' project.pk  %}"
         ></convert-modal>
         <upload-progress-modal upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
-        <div class="level">
-            <div class="level-right">
-
-            </div>
-        </div>
+        <unsupported-social-provider-modal account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
+        <googledocs-link-modal directory="{{ current_directory }}" source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
         <table class="table is-fullwidth is-striped" id="files-table">
             <thead>
             <tr>

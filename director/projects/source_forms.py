@@ -7,7 +7,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
-from lib.google_docs_facade import extract_google_document_id_from_url
+from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid
 from .source_models import GithubSource, GoogleDocsSource
 
 
@@ -91,7 +91,7 @@ class GoogleDocsSourceForm(ModelFormWithSubmit):
         except ValueError:
             pass  # not a URL, could just a be the ID
 
-        if not re.match(r'^([a-z\d])([a-z\d_\-]+)$', doc_id, re.I):
+        if not google_document_id_is_valid(doc_id):
             self.raise_doc_id_validation_error(doc_id)
 
         return doc_id

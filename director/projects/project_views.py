@@ -19,7 +19,7 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
 from lib.google_docs_facade import GoogleDocsFacade
-from lib.social_auth_token import user_github_token, user_social_token
+from lib.social_auth_token import user_github_token, user_social_token, user_supported_social_providers
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
@@ -277,8 +277,8 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 'breadcrumbs': path_entry_iterator(path),
                 'item_names': json.dumps([item.name for item in directory_items]),
                 'items': directory_items,
-                'inside_remote_source': False,
-                'project_tab': ProjectTab.FILES.value
+                'project_tab': ProjectTab.FILES.value,
+                'social_providers_supported': json.dumps(user_supported_social_providers(request.user))
             })
                       )
 

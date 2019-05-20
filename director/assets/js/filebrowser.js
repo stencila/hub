@@ -652,7 +652,7 @@ Vue.component('upload-progress-modal', {
         method: 'POST',
         body: formData,
         headers: {
-           'X-CSRFToken': utils.cookie('csrftoken')
+          'X-CSRFToken': utils.cookie('csrftoken')
         }
       }).then((response) => {
         const uploadSuccess = response.status === 200
@@ -688,6 +688,130 @@ Vue.component('upload-progress-modal', {
     '    </section>' +
     '    <footer class="modal-card-foot">' +
     '      <button class="button is-primary" @click.prevent="close()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
+Vue.component('googledocs-link-modal', {
+  props: {
+    directory: {
+      type: String,
+      required: true
+    },
+    sourceLinkUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      docIdOrUrl: '',
+      errorMessage: null,
+      inProgress: false,
+      visible: false
+    }
+  },
+  methods: {
+    show () {
+      this.visible = true
+    },
+    hide () {
+      if (this.inProgress) {
+        return
+      }
+
+      this.visible = false
+    },
+    performLink () {
+      this.errorMessage = null
+
+      if (this.destination === '') {
+        this.errorMessage = 'ID or URL must not be empty.'
+        return
+      }
+
+      this.inProgress = true
+      jsonFetch(this.sourceLinkUrl, {
+        document_id: this.docIdOrUrl,
+        source_type: 'gdoc',
+        directory: this.directory
+      }, (success, errorMessage) => {
+        this.inProgress = false
+        if (success) {
+          location.reload()
+        } else {
+          this.errorMessage = errorMessage
+        }
+      })
+    }
+  },
+  mounted () {
+    this.$root.$on('googledocs-link-modal-show', this.show)
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">Link Google Doc</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <div class="control">' +
+    '        <label class="label">Document ID or URL</label>' +
+    '        <input class="input is-medium" type="text" placeholder="Document ID or URL" v-model="docIdOrUrl">' +
+    '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
+    '      </div>' +
+    '      <p class="help">For example, <em>https://docs.google.com/document/d/[document id]/</em></p>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
+    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '    </footer>' +
+    '  </div> ' +
+    '</div>'
+})
+
+Vue.component('unsupported-social-provider-modal', {
+  props: {
+    accountConnectionsUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      providerType: ''
+    }
+  },
+  methods: {
+    hide () {
+      this.visible = false
+    },
+    show (providerType) {
+      this.providerType = providerType
+      this.visible = true
+    }
+  },
+  mounted () {
+    this.$root.$on('unsupported-social-provider-modal-show', this.show)
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">{{ providerType }} Account Not Connected</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <p>A source of this type can not be linked as there is no {{ providerType }} account connected to your Stencila Hub account.</p>' +
+    '      <p>You connect one on the <a :href="accountConnectionsUrl">Account Connections</a> page.</p>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="hide()">OK</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
@@ -730,7 +854,7 @@ var fileBrowser = new Vue({
   methods: {}
 })
 
-var actionBar = new Vue({
+const g_actionBar = new Vue({
   el: '#file-action-bar',
   delimiters: ['[[', ']]'],
   data: {
@@ -769,6 +893,23 @@ var actionBar = new Vue({
     },
     createFolder () {
       fileBrowser.$root.$emit('add-item-show', 'Folder')
+    },
+    showLinkModal (providerTypeId, linkType) {
+      if (g_supportedSocialProviders[providerTypeId] !== true) {
+
+        let providerTypeName = ''
+
+        if (providerTypeId === 'google') {
+          providerTypeName = 'Google'
+        }
+
+        fileBrowser.$root.$emit('unsupported-social-provider-modal-show', providerTypeName)
+        return
+      }
+
+      if (linkType === 'gdoc') {
+        fileBrowser.$root.$emit('googledocs-link-modal-show')
+      }
     },
     showUnlinkModal (sourceDescription, sourceId) {
       this.unlinkSourceDescription = sourceDescription
