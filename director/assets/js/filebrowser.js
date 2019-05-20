@@ -547,21 +547,23 @@ Vue.component('convert-modal', {
     '          <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '        </div>' +
     '      </div>' +
-    '      <article class="message is-warning" v-if="hasFilenameConflict">' +
-    '        <div class="message-header"><p><em>{{ targetName }}</em> already exists</p></div>' +
-    '        <div class="message-body">' +
-    '          <div class="content-container">' +
-    '            <p>Please choose a different name, or check <strong>Confirm Existing File Overwrite</strong></p>' +
-    '          </div>' +
-    '          <div class="field">' +
-    '            <div class="control">' +
-    '              <label class="checkbox">' +
-    '                <input type="checkbox" v-model="confirmExistingFileOverwrite">Confirm Existing File Overwrite' +
-    '              </label>' +
+    '      <transition name="fade">' +
+    '        <article class="message is-warning" v-if="hasFilenameConflict">' +
+    '          <div class="message-header"><p><em>{{ targetName }}</em> already exists</p></div>' +
+    '          <div class="message-body">' +
+    '            <div class="content-container">' +
+    '              <p>Please choose a different name, or check <strong>Confirm Existing File Overwrite</strong></p>' +
+    '            </div>' +
+    '            <div class="field">' +
+    '              <div class="control">' +
+    '                <label class="checkbox">' +
+    '                  <input type="checkbox" v-model="confirmExistingFileOverwrite">Confirm Existing File Overwrite' +
+    '                </label>' +
+    '              </div>' +
     '            </div>' +
     '          </div>' +
-    '        </div>' +
-    '      </article>' +
+    '        </article>' +
+    '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
     '      <button class="button is-primary" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Convert</button>' +
