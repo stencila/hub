@@ -42,6 +42,10 @@ function extensionFromType (type) {
     return '.html'
   }
 
+  if (type === 'docx') {
+    return '.docx'
+  }
+
   return ''
 }
 
@@ -140,20 +144,19 @@ Vue.component('item-action-menu', {
       return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename || this.allowDownload)
     },
     convertTargets () {
-      if (this.fileType === 'text/html' || this.fileType === 'text/markdown') {
-        return [
-          ['gdoc', 'Google Docs']
-        ]
-      }
+      const convertibleDefinitions = [
+        ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
+        ['text/html', 'html', 'HTML'],
+        ['text/markdown', 'markdown', 'Markdown'],
+        ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word']
+      ]
 
-      if (this.fileType === 'application/vnd.google-apps.document') {
-        return [
-          ['html', 'HTML'],
-          ['markdown', 'Markdown']
-        ]
-      }
+      const convertibleMimetypes = convertibleDefinitions.map(typeDef => typeDef[0])
 
-      return []
+      if (convertibleMimetypes.indexOf(this.fileType) === -1)
+        return []
+
+      return convertibleDefinitions.filter(typeDefinition => typeDefinition[0] !== this.fileType).map(typeDefinition => typeDefinition.slice(1))
     }
   },
   methods: {

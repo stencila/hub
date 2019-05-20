@@ -395,7 +395,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('markdown', 'html', 'gdoc'):
+        if target_type not in ('markdown', 'html', 'gdoc', 'docx'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -447,7 +447,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 existing_source.save()
             else:
                 new_source.save()
-        elif target_type in ('markdown', 'html'):
+        elif target_type in ('markdown', 'html', 'docx'):
             converted_content = converter.convert(source_type, target_type, content)
             target_scf = make_source_content_facade(request.user, target_path, DiskSource(), project)
             target_scf.update_content(converted_content.decode('utf8'))
@@ -455,7 +455,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             for message in target_scf.message_iterator():
                 messages.add_message(request, message.level, message.message)
         else:
-            raise NotImplementedError('Can\'t convert to anything except googledocs.')
+            raise NotImplementedError('Can\'t convert to {}.'.format(target_type))
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)
