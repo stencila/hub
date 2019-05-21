@@ -1,7 +1,7 @@
 import enum
 import mimetypes
-from io import BytesIO
 import typing
+from io import BytesIO
 from os.path import splitext
 
 from allauth.socialaccount.models import SocialToken
@@ -13,7 +13,7 @@ from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 
-class MimeTypeFromDetectMixin(object):
+class MimeTypeDetectMixin(object):
     path: str
     source: typing.Any
 
@@ -23,6 +23,9 @@ class MimeTypeFromDetectMixin(object):
             mimetype = self.source.mimetype
             if mimetype and mimetype != 'Unknown':
                 return mimetype
+
+        if self.path.lower().endswith('.jats.xml'):
+            return 'text/xml+jats'
 
         mimetype, encoding = mimetypes.guess_type(self.path, False)
 
@@ -41,7 +44,7 @@ class DiskSource(object):
     type = 'disk'
 
 
-class Source(PolymorphicModel, MimeTypeFromDetectMixin):
+class Source(PolymorphicModel, MimeTypeDetectMixin):
     provider_name = ''
 
     project = models.ForeignKey(
@@ -63,8 +66,13 @@ class Source(PolymorphicModel, MimeTypeFromDetectMixin):
         help_text='Time this model instance was last updated'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Source {}".format(self.path)
+
+    @property
+    def description(self) -> str:
+        """Not very useful, subclasses should override this to provide something more meaningful."""
+        return str(self)
 
     @property
     def type(self) -> typing.Type['Source']:
@@ -221,6 +229,10 @@ class GoogleDocsSource(Source):
     @property
     def mimetype(self) -> str:
         return 'application/vnd.google-apps.document'
+
+    @property
+    def description(self) -> str:
+        return self.path.split('/')[-1]
 
 
 class OSFSource(Source):

@@ -5,6 +5,11 @@ const UPLOAD_STATUS = {
   COMPLETED_FAILURE: 3
 }
 
+const SOURCE_TYPE_NAME_LOOKUP = {
+  'googledocssource': 'Google Docs',
+  'githubsource': 'Github'
+}
+
 function rootPathJoin (directory, fileName) {
   let joiner = ''
 
@@ -46,6 +51,10 @@ function extensionFromType (type) {
     return '.docx'
   }
 
+  if (type === 'jats') {
+    return '.jats.xml'
+  }
+
   return ''
 }
 
@@ -73,6 +82,11 @@ Vue.component('item-action-menu', {
       required: true
     },
     allowDelete: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    allowUnlink: {
       type: Boolean,
       required: false,
       default: false
@@ -115,12 +129,22 @@ Vue.component('item-action-menu', {
     sourceIdentifier: {
       type: String,
       required: false,
-      default: ''
+      default: null
     },
     sourceType: {
       type: String,
       required: false,
       default: ''
+    },
+    sourceDescription: {
+      type: String,
+      required: false,
+      default: ''
+    },
+    allowMainFileSet: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
@@ -137,16 +161,29 @@ Vue.component('item-action-menu', {
     allowDownload () {
       return this.downloadUrl !== ''
     },
-    shouldDisplay () {
-      return this.allowDelete || this.allowDownload || this.allowRename || this.allowEdit || this.convertTargets.length
+    hasOpenActions () {
+      return this.allowEdit || this.allowDesktopLaunch
     },
-    shouldDisplayDivider () {
-      return (this.allowDesktopLaunch || this.allowEdit || this.convertTargets.length) && (this.allowDelete || this.allowRename || this.allowDownload)
+    hasConvertActions () {
+      return this.convertTargets.length > 0
+    },
+    hasFileManageActions () {
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowMainFileSet
+    },
+    shouldDisplay () {
+      return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
+    },
+    shouldDisplayOpenConvertDivider () {
+      return this.hasOpenActions && (this.hasConvertActions || this.hasFileManageActions)
+    },
+    shouldDisplayConvertFileManageDivider () {
+      return this.hasConvertActions && this.hasFileManageActions
     },
     convertTargets () {
       const convertibleDefinitions = [
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
+        ['text/xml+jats', 'jats', 'JATS'],
         ['text/markdown', 'markdown', 'Markdown'],
         ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word']
       ]
@@ -174,11 +211,17 @@ Vue.component('item-action-menu', {
     showRemoveModal () {
       this.$root.$emit('remove-item-show', this.fileName)
     },
+    showUnlinkModal () {
+      this.$root.$emit('unlink-item-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
+    },
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
     },
     startConvert (targetType, targetTypeName) {
       this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
+    },
+    setAsMainFile () {
+      this.$root.$emit('set-main-file', this.absolutePath, this.sourceIdentifier)
     }
   },
   template: '' +
@@ -190,11 +233,14 @@ Vue.component('item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
+    '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
-    '      <hr v-if="shouldDisplayDivider" class="dropdown-divider">' +
+    '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
+    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
+    '      <a v-if="allowMainFileSet" href="#" class="dropdown-item" @click.prevent="setAsMainFile()">Set as Main File</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
@@ -841,7 +887,12 @@ var fileBrowser = new Vue({
     filePullUrl: null,
     createItemVisible: false,
     renameItemVisible: false,
-    fileList: g_fileList
+    fileList: g_fileList,
+    unlinkSourceId: null,
+    unlinkModalVisible: false,
+    unlinkSourceDescription: '',
+    unlinkSourceType: '',
+    SOURCE_TYPE_NAME_LOOKUP: SOURCE_TYPE_NAME_LOOKUP
   },
   mounted () {
     this.filePullUrl = this.$refs['file-browser-root'].getAttribute('data-file-pull-url')
@@ -864,8 +915,33 @@ var fileBrowser = new Vue({
     this.$root.$on('remove-item', (path, callback) => {
       jsonFetch(this.itemRemoveUrl, {path}, callback)
     })
+
+    this.$root.$on('unlink-item-show', (sourceType, sourceIdentifier, sourceDescription) => {
+      this.isUnlinkMulti = sourceType === 'githubsource'
+      this.unlinkSourceType = sourceType
+      this.unlinkSourceId = sourceIdentifier
+      this.unlinkSourceDescription = sourceDescription
+      this.unlinkModalVisible = true
+    })
+
+    this.$root.$on('set-main-file', (absolutePath, sourceIdentifier) => {
+      jsonFetch(g_projectUpdateUrl, {
+        'main_file_path': absolutePath,
+        'main_file_source_id': sourceIdentifier
+      }, (success, errorMessage) => {
+        if (success) {
+          location.reload()
+        } else {
+          alert(errorMessage)
+        }
+      })
+    })
   },
-  methods: {}
+  methods: {
+    hideUnlinkModal () {
+      this.unlinkModalVisible = false
+    }
+  }
 })
 
 const g_actionBar = new Vue({

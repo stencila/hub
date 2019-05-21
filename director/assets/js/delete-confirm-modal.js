@@ -10,7 +10,7 @@ Vue.component('delete-confirm-modal', {
         '                <form class="form" method="POST" :action="formAction">' +
         '                    <slot name="csrf_token"></slot>' +
         '                    <input type="hidden" :name="deleteIdName" value="" v-model="deleteIdValue">' +
-        '                    <button class="button is-rounded" type="submit" name="action" :value="deleteAction">' +
+        '                    <button class="button is-rounded is-danger" type="submit" name="action" :value="deleteAction">' +
         '                        {{ deleteButtonLabel }}' +
         '                    </button>' +
         '                    <a class="button call-to-action" href="#" @click.prevent="hideDeleteModal()">Cancel</a>' +

@@ -10,11 +10,11 @@
     },
     "dependencies": {
         "@stencila/style": "^1.1.10",
-        "buefy": "^0.7.2",
-        "bulma": "^0.7.4",
+        "buefy": "^0.7.6",
+        "bulma": "^0.7.5",
         "bulma-switch": "^2.0.0",
-        "gulp": "^4.0.0",
-        "gulp-autoprefixer": "^6.0.0",
+        "gulp": "^4.0.2",
+        "gulp-autoprefixer": "^6.1.0",
         "gulp-connect": "^5.6.1",
         "gulp-plumber": "^1.2.0",
         "gulp-sass": "^4.0.2",
@@ -22,8 +22,8 @@
         "moment": "^2.24.0",
         "monaco-editor": "^0.14.3",
         "sass-module-importer": "^1.4.0",
-        "vue": "^2.6.6",
+        "vue": "^2.6.10",
         "vue-resource": "^1.5.1",
-        "vue-upload-component": "^2.8.19"
+        "vue-upload-component": "^2.8.20"
     }
 }

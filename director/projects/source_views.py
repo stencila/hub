@@ -395,7 +395,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('markdown', 'html', 'gdoc', 'docx'):
+        if target_type not in ('markdown', 'html', 'gdoc', 'docx', 'jats'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -423,11 +423,18 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         if source_type is None:
             if isinstance(source, GoogleDocsSource):
                 source_type = 'gdoc'
+            elif source_ext.lower() == '.xml':
+                _, sub_ext = splitext(source_path_without_ext)
+                if sub_ext == '.jats':
+                    source_type = 'jats'
+                else:
+                    source_type = 'xml'
             else:
                 source_type = {
                     '.md': 'markdown',
                     '.html': 'html',
-                    '.htm': 'html'
+                    '.htm': 'html',
+                    '.docx': 'docx',
                 }[source_ext.lower()]
 
         if source_type == 'markdown' and target_type == 'gdoc':
@@ -447,7 +454,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 existing_source.save()
             else:
                 new_source.save()
-        elif target_type in ('markdown', 'html', 'docx'):
+        elif target_type in ('markdown', 'html', 'docx', 'jats'):
             converted_content = converter.convert(source_type, target_type, content)
             target_scf = make_source_content_facade(request.user, target_path, DiskSource(), project)
             target_scf.update_content(converted_content.decode('utf8'))
