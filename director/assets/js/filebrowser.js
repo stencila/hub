@@ -129,17 +129,22 @@ Vue.component('item-action-menu', {
     sourceIdentifier: {
       type: String,
       required: false,
-      default: ''
+      default: null
     },
     sourceType: {
       type: String,
       required: false,
       default: ''
     },
-     sourceDescription: {
+    sourceDescription: {
       type: String,
       required: false,
       default: ''
+    },
+    allowMainFileSet: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data () {
@@ -156,22 +161,22 @@ Vue.component('item-action-menu', {
     allowDownload () {
       return this.downloadUrl !== ''
     },
-    hasOpenActions() {
+    hasOpenActions () {
       return this.allowEdit || this.allowDesktopLaunch
     },
     hasConvertActions () {
       return this.convertTargets.length > 0
     },
-    hasFileManageActions() {
-      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink
+    hasFileManageActions () {
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowMainFileSet
     },
     shouldDisplay () {
       return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
     },
-    shouldDisplayOpenConvertDivider() {
-        return this.hasOpenActions && (this.hasConvertActions || this.hasFileManageActions)
+    shouldDisplayOpenConvertDivider () {
+      return this.hasOpenActions && (this.hasConvertActions || this.hasFileManageActions)
     },
-    shouldDisplayConvertFileManageDivider() {
+    shouldDisplayConvertFileManageDivider () {
       return this.hasConvertActions && this.hasFileManageActions
     },
     convertTargets () {
@@ -214,6 +219,9 @@ Vue.component('item-action-menu', {
     },
     startConvert (targetType, targetTypeName) {
       this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
+    },
+    setAsMainFile () {
+      this.$root.$emit('set-main-file', this.absolutePath, this.sourceIdentifier)
     }
   },
   template: '' +
@@ -232,6 +240,7 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
+    '      <a v-if="allowMainFileSet" href="#" class="dropdown-item" @click.prevent="setAsMainFile()">Set as Main File</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
@@ -914,9 +923,22 @@ var fileBrowser = new Vue({
       this.unlinkSourceDescription = sourceDescription
       this.unlinkModalVisible = true
     })
+
+    this.$root.$on('set-main-file', (absolutePath, sourceIdentifier) => {
+      jsonFetch(g_projectUpdateUrl, {
+        'main_file_path': absolutePath,
+        'main_file_source_id': sourceIdentifier
+      }, (success, errorMessage) => {
+        if (success) {
+          location.reload()
+        } else {
+          alert(errorMessage)
+        }
+      })
+    })
   },
   methods: {
-    hideUnlinkModal() {
+    hideUnlinkModal () {
       this.unlinkModalVisible = false
     }
   }

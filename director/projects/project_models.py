@@ -108,6 +108,22 @@ class Project(models.Model):
         help_text='The parameters that defines sessions created for this project'
     )
 
+    main_file_path = models.TextField(
+        null=True,
+        blank=True,
+        help_text='The path to the main file of the Project. Does not need to be set.'
+    )
+
+    main_file_source = models.ForeignKey(
+        'Source',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='main_file_project',
+        help_text='If the Project\'s main file is inside a linked Source, this is its id.'
+
+    )
+
     def __str__(self):
         return 'Project #{}'.format(self.id)
 

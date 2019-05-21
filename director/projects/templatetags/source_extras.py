@@ -67,6 +67,39 @@ def is_text_editable(directory_entry: typing.Any) -> bool:
 
 
 @register.filter
+def is_main_file(directory_entry: typing.Any, project: typing.Any) -> bool:
+    if not isinstance(directory_entry, DirectoryListEntry):
+        return False
+
+    directory_entry = typing.cast(DirectoryListEntry, directory_entry)
+
+    if not isinstance(project, Project):
+        return False
+
+    project = typing.cast(Project, project)
+
+    return directory_entry.path == project.main_file_path
+
+
+@register.filter
+def can_be_main_file(directory_entry: typing.Any, project: typing.Any) -> bool:
+    if not isinstance(directory_entry, DirectoryListEntry):
+        return False
+
+    directory_entry = typing.cast(DirectoryListEntry, directory_entry)
+
+    if not isinstance(project, Project):
+        return False
+
+    project = typing.cast(Project, project)
+
+    if directory_entry.is_directory:
+        return False
+
+    return not is_main_file(directory_entry, project)
+
+
+@register.filter
 def edit_menu_text(directory_entry: typing.Any) -> str:
     if not isinstance(directory_entry, DirectoryListEntry):
         return ''

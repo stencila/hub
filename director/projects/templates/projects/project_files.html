@@ -93,6 +93,7 @@
     <script>
         const g_fileList = JSON.parse('{{ item_names|escapejs }}')
         const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
+        const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
     </script>
     <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
          data-file-pull-url="{% url 'project_pull' project.id %}"
@@ -159,6 +160,7 @@
             </tr>
             <tr>
                 <th>Browse</th>
+                <th>{# main file #}</th>
                 <th class="has-text-centered">Source</th>
                 <th>Updated</th>
                 <th class="has-text-centered">Actions</th>
@@ -180,6 +182,10 @@
                         </p>
                     </td>
 
+                    <td class="has-text-right title-caption">
+                        {% if directory_entry|is_main_file:project %}Main File{% endif %}
+                    </td>
+
                     <td class="has-text-centered">
                         {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
                             <span>{% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}</span>
@@ -195,6 +201,7 @@
                                 :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
                                 :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
                                 :allow-unlink="{% if directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
+                                :allow-main-file-set="{% if directory_entry|can_be_main_file:project %}true{% else %}false{% endif %}"
                                 {% if directory_entry|is_text_editable %}
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
