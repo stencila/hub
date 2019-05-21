@@ -5,6 +5,11 @@ const UPLOAD_STATUS = {
   COMPLETED_FAILURE: 3
 }
 
+const SOURCE_TYPE_NAME_LOOKUP = {
+  'googledocssource': 'Google Docs',
+  'githubsource': 'Github'
+}
+
 function rootPathJoin (directory, fileName) {
   let joiner = ''
 
@@ -81,6 +86,11 @@ Vue.component('item-action-menu', {
       required: false,
       default: false
     },
+    allowUnlink: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     allowRename: {
       type: Boolean,
       required: false,
@@ -125,6 +135,11 @@ Vue.component('item-action-menu', {
       type: String,
       required: false,
       default: ''
+    },
+     sourceDescription: {
+      type: String,
+      required: false,
+      default: ''
     }
   },
   data () {
@@ -148,7 +163,7 @@ Vue.component('item-action-menu', {
       return this.convertTargets.length > 0
     },
     hasFileManageActions() {
-      return this.allowDelete || this.allowRename || this.allowDownload
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink
     },
     shouldDisplay () {
       return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
@@ -191,6 +206,9 @@ Vue.component('item-action-menu', {
     showRemoveModal () {
       this.$root.$emit('remove-item-show', this.fileName)
     },
+    showUnlinkModal () {
+      this.$root.$emit('unlink-item-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
+    },
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
     },
@@ -213,6 +231,7 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
+    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
@@ -859,7 +878,12 @@ var fileBrowser = new Vue({
     filePullUrl: null,
     createItemVisible: false,
     renameItemVisible: false,
-    fileList: g_fileList
+    fileList: g_fileList,
+    unlinkSourceId: null,
+    unlinkModalVisible: false,
+    unlinkSourceDescription: '',
+    unlinkSourceType: '',
+    SOURCE_TYPE_NAME_LOOKUP: SOURCE_TYPE_NAME_LOOKUP
   },
   mounted () {
     this.filePullUrl = this.$refs['file-browser-root'].getAttribute('data-file-pull-url')
@@ -882,8 +906,20 @@ var fileBrowser = new Vue({
     this.$root.$on('remove-item', (path, callback) => {
       jsonFetch(this.itemRemoveUrl, {path}, callback)
     })
+
+    this.$root.$on('unlink-item-show', (sourceType, sourceIdentifier, sourceDescription) => {
+      this.isUnlinkMulti = sourceType === 'githubsource'
+      this.unlinkSourceType = sourceType
+      this.unlinkSourceId = sourceIdentifier
+      this.unlinkSourceDescription = sourceDescription
+      this.unlinkModalVisible = true
+    })
   },
-  methods: {}
+  methods: {
+    hideUnlinkModal() {
+      this.unlinkModalVisible = false
+    }
+  }
 })
 
 const g_actionBar = new Vue({

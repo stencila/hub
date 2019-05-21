@@ -293,7 +293,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             if isinstance(source, FileSource):
                 raise TypeError("Can't unlink a File source")
 
-            source_description = str(source)
+            source_description = source.description
 
             source.delete()
 

@@ -18749,6 +18749,14 @@ button.hamburger {
   }
 }
 
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
 .content p a, .section p a {
   font-weight: 700;
   text-decoration: underline;
@@ -18760,6 +18768,10 @@ button.hamburger {
 
 .content a.button, .section a.button {
   text-decoration: none;
+}
+
+input[type="checkbox"] {
+  margin-right: 0.5em;
 }
 
 .form-actions {

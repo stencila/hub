@@ -81,51 +81,6 @@
                 </div>
             </div>
         </div>
-        {% if linked_sources %}
-            <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
-                                  delete-action="unlink_source"
-                                  delete-id-name="source_id"
-                                  :delete-id-value="unlinkSourceId"
-                                  delete-button-label="Remove"
-                                  @modal-hide="hideDeleteModal()">
-                <template slot="title">Unlink source?</template>
-                <template slot="csrf_token">{% csrf_token %}</template>
-                <template slot="body">Are you sure you want to unlink <em>[[ unlinkSourceDescription
-                    ]]</em>
-                    from this project?
-                </template>
-            </delete-confirm-modal>
-            <div class="dropdown" style="margin-left: 0.5em" id="unlink"
-                 @click="unlinkMenuVisible = !unlinkMenuVisible"
-                 :class="{ 'is-active':unlinkMenuVisible }">
-                <div class="dropdown-trigger">
-                    <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
-                    <span class="icon is-small">
-                        <i class="fas fa-unlink" aria-hidden="true"></i>
-                    </span>
-                        <span>Unlink</span>
-                        <span class="icon is-small">
-                            <i class="fas fa-angle-down" aria-hidden="true"></i>
-                        </span>
-                    </button>
-                </div>
-                <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                    <div class="dropdown-content">
-                        {% for linked_source in linked_sources %}
-                            <a href="#" class="dropdown-item"
-                               @click="showUnlinkModal('{{ linked_source|escape_single_quotes }}', {{ linked_source.pk }})">
-                                <span class="icon is-small">
-                                    {% include 'projects/_source_type_icon.html' with type=linked_source.type %}
-                                </span>
-                                <span>
-                                    {{ linked_source }}
-                                </span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        {% endif %}
         <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
             <span class="icon is-small"><i class="fas fa-file-export"></i></span>
             <span v-if="!pullInProgress">Pull Linked Sources</span>
@@ -161,6 +116,23 @@
         <upload-progress-modal upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
         <unsupported-social-provider-modal account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
         <googledocs-link-modal directory="{{ current_directory }}" source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
+         {% if linked_sources %}
+                <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
+                                      delete-action="unlink_source"
+                                      delete-id-name="source_id"
+                                      :delete-id-value="unlinkSourceId"
+                                      delete-button-label="Unlink"
+                                      @modal-hide="hideUnlinkModal()">
+                    <template slot="title">Unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[ unlinkSourceDescription ]]</em>?</template>
+                    <template slot="csrf_token">{% csrf_token %}</template>
+                    <template slot="body">
+                        <p>Are you sure you want to unlink <em>[[ unlinkSourceDescription ]]</em> from this project?</p>
+                        <p v-if="isUnlinkMulti" class="has-top-margin">
+                            All this source's files will be removed from this project, but will still be available in
+                            their [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
+                    </template>
+                </delete-confirm-modal>
+        {% endif %}
         <table class="table is-fullwidth is-striped" id="files-table">
             <thead>
             <tr>
@@ -222,6 +194,7 @@
                                 :allow-delete="{% if directory_entry.allow_remove %}true{% else %}false{% endif %}"
                                 :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
                                 :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
+                                :allow-unlink="{% if directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
                                 {% if directory_entry|is_text_editable %}
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
@@ -229,6 +202,7 @@
                                 download-url="{% download_url project directory_entry %}"
                                 source-type="{{ directory_entry.source.type }}"
                                 source-identifier="{{ directory_entry.source.pk }}"
+                                source-description="{{ directory_entry.source.description }}"
                                 file-type="{{ directory_entry.mimetype }}"
                                 absolute-path="{{ directory_entry.path|escape }}"
                                 index="{{ forloop.counter0 }}"
@@ -424,27 +398,5 @@
           }
         },
       })
-
-      /*{% if linked_sources %}
-        new Vue({
-          el: '#unlink',
-          delimiters: ['[[', ']]'],
-          data: {
-            active: false,
-            deleteModalVisible: false,
-            unlinkSourceId: null,
-            unlinkSourceDescription: ''
-          }, methods: {
-            hideDeleteModal () {
-              this.deleteModalVisible = false
-            },
-            showUnlinkModal (sourceDescription, sourceId) {
-              this.unlinkSourceDescription = sourceDescription
-              this.unlinkSourceId = sourceId
-              this.deleteModalVisible = true
-            }
-          }
-        })
-      {% endif %}*/
     </script>
 {% endblock %}

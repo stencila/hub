@@ -1,7 +1,7 @@
 import enum
 import mimetypes
-from io import BytesIO
 import typing
+from io import BytesIO
 from os.path import splitext
 
 from allauth.socialaccount.models import SocialToken
@@ -66,8 +66,13 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         help_text='Time this model instance was last updated'
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Source {}".format(self.path)
+
+    @property
+    def description(self) -> str:
+        """Not very useful, subclasses should override this to provide something more meaningful."""
+        return str(self)
 
     @property
     def type(self) -> typing.Type['Source']:
@@ -224,6 +229,10 @@ class GoogleDocsSource(Source):
     @property
     def mimetype(self) -> str:
         return 'application/vnd.google-apps.document'
+
+    @property
+    def description(self) -> str:
+        return self.path.split('/')[-1]
 
 
 class OSFSource(Source):
