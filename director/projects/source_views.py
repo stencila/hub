@@ -1,6 +1,8 @@
 import json
 import os
+import tempfile
 import typing
+from os import unlink
 from os.path import splitext
 
 from allauth.socialaccount.models import SocialApp
@@ -14,7 +16,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
-from lib.converter_facade import ConverterFacade
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token
 from projects.disk_file_facade import DiskFileFacade
@@ -410,7 +412,6 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             source = self.get_source(request.user, pk, source_id)
 
         scf = make_source_content_facade(request.user, source_path, source, project)
-        content = scf.get_binary_content()
 
         source_path_without_ext, source_ext = splitext(source_path)
 
@@ -437,11 +438,36 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     '.docx': 'docx',
                 }[source_ext.lower()]
 
-        if source_type == 'markdown' and target_type == 'gdoc':
-            content = converter.convert('md', 'html', content)
-
         if target_type == 'gdoc':
-            new_doc_id = gdf.create_document_from_html(target_name, content.decode('utf8'))
+            content = scf.get_binary_content()
+
+            temp_input_path = None
+            temp_output_path = None
+
+            try:
+                with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+                    temp_input.write(content)
+                    temp_input_path = temp_input.name
+
+                converter_input = ConverterIo(ConverterIoType.PATH, temp_input_path, source_type)
+
+                with tempfile.NamedTemporaryFile() as temp_output:
+                    temp_output_path = temp_output.name
+
+                converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'html')
+
+                converter.convert(converter_input, converter_output)
+
+                with open(temp_output_path, 'w+b') as temp_output:  # reopen after data has been written
+                    output_content = temp_output.read()
+            finally:
+                if temp_input_path:
+                    unlink(temp_input_path)
+
+                if temp_output_path:
+                    unlink(temp_output_path)
+
+            new_doc_id = gdf.create_document_from_html(target_name, output_content.decode('utf8'))
 
             existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
 
@@ -455,12 +481,19 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             else:
                 new_source.save()
         elif target_type in ('markdown', 'html', 'docx', 'jats'):
-            converted_content = converter.convert(source_type, target_type, content)
-            target_scf = make_source_content_facade(request.user, target_path, DiskSource(), project)
-            target_scf.update_content(converted_content.decode('utf8'))
+            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
-            for message in target_scf.message_iterator():
-                messages.add_message(request, message.level, message.message)
+            if not isinstance(source, DiskSource):
+                content = scf.get_binary_content()
+                dff.write_file_content(source_path, content)
+
+            absolute_input_path = dff.generate_full_file_path(source_path)
+            absolute_output_path = dff.generate_full_file_path(target_path)
+
+            converter_input = ConverterIo(ConverterIoType.PATH, absolute_input_path, source_type)
+            converter_output = ConverterIo(ConverterIoType.PATH, absolute_output_path, target_type)
+
+            converter.convert(converter_input, converter_output)
         else:
             raise NotImplementedError('Can\'t convert to {}.'.format(target_type))
 
