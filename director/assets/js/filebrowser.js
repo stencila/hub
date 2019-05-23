@@ -35,6 +35,8 @@ function jsonFetch (url, body, callback) {
     callback(jsonBody.success, jsonBody.error)
   }, error => {
     callback(false, 'An unknown error occurred.')
+  }).catch(error => {
+    callback(false, error)
   })
 }
 
@@ -588,7 +590,7 @@ Vue.component('convert-modal', {
         if (success) {
           location.reload()
         } else {
-          alert(errorMessage)
+          this.errorMessage = errorMessage
         }
       })
     },
@@ -666,7 +668,7 @@ Vue.component('upload-progress-row', {
     '    <span v-if="item.uploadStatus === UPLOAD_STATUS.WAITING">Waiting</span>' +
     '    <span v-if="item.uploadStatus === UPLOAD_STATUS.IN_PROGRESS">In progress</span>' +
     '    <span v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_SUCCESS">Completed</span>' +
-    '    <span v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_FAILURE">Failed</span>' +
+    '    <span class="has-text-danger" v-if="item.uploadStatus === UPLOAD_STATUS.COMPLETED_FAILURE">Failed: {{ item.error }}</span>' +
     '  </td>' +
     '</tr>'
 })
@@ -738,15 +740,23 @@ Vue.component('upload-progress-modal', {
         method: 'POST',
         body: formData,
         headers: {
-          'X-CSRFToken': utils.cookie('csrftoken')
+          'X-CSRFToken': utils.cookie('csrftoken'),
+          'Accept': 'application/json'
         }
       }).then((response) => {
-        const uploadSuccess = response.status === 200
+        return response.json()
+      }).then(data => {
+        const uploadSuccess = data.success
 
         if (uploadSuccess)
           this.itemsWereUploaded = true
 
         Vue.set(item, 'uploadStatus', uploadSuccess ? UPLOAD_STATUS.COMPLETED_SUCCESS : UPLOAD_STATUS.COMPLETED_FAILURE)
+        Vue.set(item, 'error', data.error)
+        this.processUploadQueue()
+      }).catch(error => {
+        Vue.set(item, 'uploadStatus', UPLOAD_STATUS.COMPLETED_FAILURE)
+        Vue.set(item, 'error', error)
         this.processUploadQueue()
       })
     }
@@ -978,9 +988,9 @@ var fileBrowser = new Vue({
   },
   methods: {
     handleKeyUp (event) {
-        if (event.key === 'Escape') {
-          this.$root.$emit('modal-hide')
-        }
+      if (event.key === 'Escape') {
+        this.$root.$emit('modal-hide')
+      }
     },
     hideUnlinkModal () {
       this.unlinkModalVisible = false
@@ -1076,7 +1086,8 @@ const g_actionBar = new Vue({
             id: i,
             name: files[i].name,
             file: files[i],
-            uploadStatus: UPLOAD_STATUS.WAITING
+            uploadStatus: UPLOAD_STATUS.WAITING,
+            error: null
           }
         )
       }

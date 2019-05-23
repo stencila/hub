@@ -159,13 +159,31 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
-        if directory:
-            dff.create_directory(directory)
+        respond_with_json = request.META.get('HTTP_ACCEPT') == 'application/json'
 
-        for file in files:
-            dff.write_file_content(utf8_path_join(directory, file.name), file.read())
+        error = None
 
-        return HttpResponse()
+        try:
+            if directory:
+                dff.create_directory(directory)
+
+            for file in files:
+                dff.write_file_content(utf8_path_join(directory, file.name), file.read())
+        except Exception as e:
+            if respond_with_json:
+                error = str(e)
+            else:
+                messages.error(request, 'Error during upload: {}'.format(str(e)))
+
+        response_status = 500 if error else (200 if respond_with_json else 204)  # 240 == no content
+
+        if respond_with_json:
+            return JsonResponse({
+                'success': error is None,
+                'error': error
+            }, status=response_status)
+        else:
+            return HttpResponse(status=response_status)
 
 
 class ContentFacadeMixin(object):
