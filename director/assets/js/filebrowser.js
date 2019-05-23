@@ -206,7 +206,8 @@ Vue.component('item-action-menu', {
       }
     },
     showRenameModal () {
-      this.$root.$emit('rename-item-show', this.fileName, 'Rename')
+      const itemType = this.fileType === 'directory' ? 'Directory' : 'File'
+      this.$root.$emit('rename-item-show', this.fileName, 'Rename', itemType)
     },
     showRemoveModal () {
       this.$root.$emit('remove-item-show', this.fileName)
@@ -295,13 +296,17 @@ Vue.component('remove-item-modal', {
       this.itemName = itemName
       this.visible = true
     })
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   template: '' +
     '<div class="modal" :class="{\'is-active\': visible}">' +
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Delete <em>{{ itemName }}</em>?</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-trash-o"></i> Delete <em>{{ itemName }}</em>?</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
@@ -309,8 +314,8 @@ Vue.component('remove-item-modal', {
     '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-danger" @click.prevent="performDelete()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Delete</button>' +
-    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-rounded is-danger" @click.prevent="performDelete()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Delete</button>' +
+    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -330,6 +335,7 @@ Vue.component('rename-item-modal', {
   data () {
     return {
       itemName: '',
+      itemType: '',
       action: '',
       destination: '',
       errorMessage: null,
@@ -375,11 +381,16 @@ Vue.component('rename-item-modal', {
     }
   },
   mounted () {
-    this.$root.$on('rename-item-show', (itemName, action) => {
+    this.$root.$on('rename-item-show', (itemName, action, itemType) => {
       this.itemName = itemName
+      this.itemType = itemType
       this.action = action
       this.destination = this.currentPath
       this.visible = true
+    })
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
     })
   },
   template: '' +
@@ -387,7 +398,7 @@ Vue.component('rename-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">{{ action }} Item</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-pencil-alt"></i> {{ action }} {{ itemType }}</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
@@ -398,8 +409,8 @@ Vue.component('rename-item-modal', {
     '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
-    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
+    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -423,6 +434,10 @@ Vue.component('add-item-modal', {
   },
   mounted () {
     this.$root.$on('add-item-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   computed: {
     fullPath () {
@@ -477,8 +492,8 @@ Vue.component('add-item-modal', {
     '            <div class="modal-background"></div>' +
     '            <div class="modal-card">' +
     '                <header class="modal-card-head">' +
-    '                    <p class="modal-card-title">New {{ itemType }}</p>' +
-    '                    <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '                    <p class="modal-card-title"><i class="fa" :class="{\'fa-file\': itemType == \'File\', \'fa-folder\': itemType == \'Folder\'}"></i> New {{ itemType }}</p>' +
+    '                    <button class="delete" aria-label="close" @click.prevent="hide()"></button>' +
     '                </header>' +
     '                <section class="modal-card-body">' +
     '                    <div class="field">' +
@@ -492,8 +507,8 @@ Vue.component('add-item-modal', {
     '                    <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '                </section>' +
     '                <footer class="modal-card-foot">' +
-    '                    <button class="button is-primary" @click.prevent="create()" :disabled="createInProgress"  :class="{\'is-loading\': createInProgress}">Create</button>' +
-    '                    <button class="button" :disabled="createInProgress" @click.prevent="hide()">Cancel</button>' +
+    '                    <button class="button is-primary is-rounded" @click.prevent="create()" :disabled="createInProgress"  :class="{\'is-loading\': createInProgress}">Create</button>' +
+    '                    <button class="button is-rounded" :disabled="createInProgress" @click.prevent="hide()">Cancel</button>' +
     '                </footer>' +
     '            </div>' +
     '        </div>'
@@ -543,9 +558,17 @@ Vue.component('convert-modal', {
       this.targetTypeName = targetTypeName
       this.visible = true
     })
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   methods: {
     hide () {
+      if (this.convertInProgress) {
+        return
+      }
+
       this.visible = false
     },
     convert () {
@@ -612,8 +635,8 @@ Vue.component('convert-modal', {
     '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Convert</button>' +
-    '      <button class="button" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Convert</button>' +
+    '      <button class="button is-rounded" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
@@ -665,15 +688,18 @@ Vue.component('upload-progress-modal', {
   },
   mounted () {
     this.$root.$on('upload-progress-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   methods: {
     show (uploads) {
-      this.visible = uploads.length != 0
-
+      this.visible = uploads.length !== 0
       this.items = uploads
       this.processUploadQueue()
     },
-    close () {
+    hide () {
       if (this.uploadInProgress) {
         return
       }
@@ -730,7 +756,7 @@ Vue.component('upload-progress-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">File upload</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-upload"></i> File upload</p>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
     '      <table class="table is-fullwidth">' +
@@ -747,7 +773,7 @@ Vue.component('upload-progress-modal', {
     '      </table>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="close()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="hide()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
@@ -808,13 +834,17 @@ Vue.component('googledocs-link-modal', {
   },
   mounted () {
     this.$root.$on('googledocs-link-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   template: '' +
     '<div class="modal" :class="{\'is-active\': visible}">' +
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Link Google Doc</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-link"></i> Link Google Doc</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
@@ -826,8 +856,8 @@ Vue.component('googledocs-link-modal', {
     '      <p class="help">For example, <em>https://docs.google.com/document/d/[document id]/</em></p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
-    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
+    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -857,6 +887,10 @@ Vue.component('unsupported-social-provider-modal', {
   },
   mounted () {
     this.$root.$on('unsupported-social-provider-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
   },
   template: '' +
     '<div class="modal" :class="{\'is-active\': visible}">' +
@@ -892,6 +926,7 @@ var fileBrowser = new Vue({
     unlinkModalVisible: false,
     unlinkSourceDescription: '',
     unlinkSourceType: '',
+    isUnlinkMulti: false,
     SOURCE_TYPE_NAME_LOOKUP: SOURCE_TYPE_NAME_LOOKUP
   },
   mounted () {
@@ -899,6 +934,10 @@ var fileBrowser = new Vue({
     this.itemCreateUrl = this.$refs['file-browser-root'].getAttribute('data-item-create-url')
     this.itemRenameUrl = this.$refs['file-browser-root'].getAttribute('data-item-rename-url')
     this.itemRemoveUrl = this.$refs['file-browser-root'].getAttribute('data-item-remove-url')
+    document.addEventListener('keyup', this.handleKeyUp)
+  },
+  beforeDestroy () {
+    document.removeEventListener('keyup', this.handleKeyUp)
   },
   created () {
     this.$root.$on('create-item', (type, path, callback) => {
@@ -938,6 +977,11 @@ var fileBrowser = new Vue({
     })
   },
   methods: {
+    handleKeyUp (event) {
+        if (event.key === 'Escape') {
+          this.$root.$emit('modal-hide')
+        }
+    },
     hideUnlinkModal () {
       this.unlinkModalVisible = false
     }
@@ -1005,12 +1049,12 @@ const g_actionBar = new Vue({
       this.unlinkSourceId = sourceId
       fileBrowser.deleteModalVisible = true
     },
-    toggleLinkMenu() {
+    toggleLinkMenu () {
       const newLinkMenuVisible = !this.linkMenuVisible
       this.resetMenus()
       this.linkMenuVisible = newLinkMenuVisible
     },
-    toggleNewMenu() {
+    toggleNewMenu () {
       const newNewMenuVisible = !this.newMenuVisible
       this.resetMenus()
       this.newMenuVisible = newNewMenuVisible
@@ -1039,9 +1083,9 @@ const g_actionBar = new Vue({
 
       fileBrowser.$root.$emit('upload-progress-modal-show', uploadList)
     },
-    bodyClick(event) {
-      for(let el of event.path) {
-        if (el.tagName ===  'BUTTON' || (typeof el.classList !== 'undefined' && el.classList.contains('dropdown-trigger'))) {
+    bodyClick (event) {
+      for (let el of event.path) {
+        if (el.tagName === 'BUTTON' || (typeof el.classList !== 'undefined' && el.classList.contains('dropdown-trigger'))) {
           return
         }
       }

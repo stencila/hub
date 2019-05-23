@@ -2,6 +2,7 @@ Vue.component('delete-confirm-modal', {
     template: '<b-modal :active.sync="deleteModalVisible" :width="640" scroll="keep">' +
         '            <header class="modal-card-head">' +
         '                <p class="modal-card-title"><slot name="title"></slot></p>' +
+        '                <button class="delete" aria-label="close" @click="hideDeleteModal()"></button>' +
         '            </header>' +
         '            <section class="modal-card-body">' +
         '                <slot name="body"></slot>' +
@@ -13,7 +14,7 @@ Vue.component('delete-confirm-modal', {
         '                    <button class="button is-rounded is-danger" type="submit" name="action" :value="deleteAction">' +
         '                        {{ deleteButtonLabel }}' +
         '                    </button>' +
-        '                    <a class="button call-to-action" href="#" @click.prevent="hideDeleteModal()">Cancel</a>' +
+        '                    <a class="button is-rounded" href="#" @click.prevent="hideDeleteModal()">Cancel</a>' +
         '                </form>' +
         '            </footer>' +
         '        </b-modal>',

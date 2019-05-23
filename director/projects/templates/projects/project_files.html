@@ -5,11 +5,9 @@
 {% block project_header_right %}
     <div class="level-item buttons" id="file-action-bar">
         <input type="file" ref="file-upload" @change="handleFileUpload" class="is-hidden" multiple="multiple"/>
-        <div class="dropdown" style="margin-right: 0.5em" id="new-item"
-             @click.prevent="toggleNewMenu()"
-             :class="{ 'is-active':newMenuVisible }">
+        <div class="dropdown" style="margin-right: 0.5em" id="new-item" :class="{ 'is-active':newMenuVisible }">
             <div class="dropdown-trigger">
-                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button @click.prevent="toggleNewMenu()" class="button is-primary is-rounded" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                     </span>
@@ -45,7 +43,7 @@
 
         <div class="dropdown" id="link" :class="{ 'is-active':linkMenuVisible }">
             <div class="dropdown-trigger" @click.prevent="toggleLinkMenu()">
-                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button class="button is-primary is-rounded is-outlined" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-link" aria-hidden="true"></i>
                     </span>
@@ -69,18 +67,18 @@
                         <span class="icon is-small">
                             <i class="fab fa-github" aria-hidden="true"></i>
                         </span>
-                        <span>Github</span>
+                        <span>Github&hellip;</span>
                     </a>
                     <a href="#" @click.prevent="showLinkModal('google', 'gdoc')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-google" aria-hidden="true"></i>
                         </span>
-                        <span>Google Docs</span>
+                        <span>Google Docs&hellip;</span>
                     </a>
                 </div>
             </div>
         </div>
-        <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
+        <a class="button is-primary is-rounded is-outlined" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
             <span class="icon is-small"><i class="fas fa-file-export"></i></span>
             <span v-if="!pullInProgress">Pull Linked Sources</span>
             <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
@@ -123,10 +121,10 @@
                                       :delete-id-value="unlinkSourceId"
                                       delete-button-label="Unlink"
                                       @modal-hide="hideUnlinkModal()">
-                    <template slot="title">Unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[ unlinkSourceDescription ]]</em>?</template>
+                    <template slot="title"><i class="fa fa-unlink"></i> Unlink <em>[[ unlinkSourceDescription ]]</em>?</template>
                     <template slot="csrf_token">{% csrf_token %}</template>
                     <template slot="body">
-                        <p>Are you sure you want to unlink <em>[[ unlinkSourceDescription ]]</em> from this project?</p>
+                        <p>Are you sure you want to unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[ unlinkSourceDescription ]]</em> from this project?</p>
                         <p v-if="isUnlinkMulti" class="has-top-margin">
                             All this source's files will be removed from this project, but will still be available in
                             their [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
@@ -209,7 +207,7 @@
                                 source-type="{{ directory_entry.source.type }}"
                                 source-identifier="{{ directory_entry.source.pk }}"
                                 source-description="{{ directory_entry.source.description }}"
-                                file-type="{{ directory_entry.mimetype }}"
+                                file-type="{% if directory_entry.is_directory %}directory{% else %}{{ directory_entry.mimetype }}{% endif %}"
                                 absolute-path="{{ directory_entry.path|escape }}"
                                 index="{{ forloop.counter0 }}"
                                 file-name="{{ directory_entry.name }}"></item-action-menu>
