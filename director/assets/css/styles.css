@@ -21314,3 +21314,11 @@ h6.has-top-margin {
   height: 70vh;
   margin-bottom: 20px;
 }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
