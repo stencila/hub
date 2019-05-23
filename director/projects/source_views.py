@@ -217,6 +217,9 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
     def render(self, request: HttpRequest, editing_context: SourceEditContext,
                extra_context: typing.Optional[dict] = None) -> HttpResponse:
         render_context = {
+            'project': self.project,
+            'file_name': utf8_basename(editing_context.path),
+            'file_directory': utf8_dirname(editing_context.path),
             'file_path': editing_context.path,
             'file_extension': editing_context.extension,
             'file_content': editing_context.content,

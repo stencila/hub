@@ -19564,12 +19564,6 @@ input[type="checkbox"] {
 input[type="submit"],
 button[type="submit"] {
   line-height: 0 !important;
-  padding: 1.125rem 1.375rem;
-}
-
-.modal-card-foot input[type="submit"], .modal-card-foot
-button[type="submit"] {
-  padding: 1.125rem 1.375rem;
 }
 
 .call-to-action {
@@ -21313,4 +21307,10 @@ p.has-top-margin {
 
 h6.has-top-margin {
   margin-top: 30px;
+}
+
+#editor_container {
+  width: 100%;
+  height: 70vh;
+  margin-bottom: 20px;
 }

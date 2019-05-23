@@ -3,6 +3,8 @@
 {% block title %}Edit {{ file_path }}{% endblock %}
 
 {% block content %}
+    <h2 class="title is-2">{{ project.name }}</h2>
+    <h5 class="subtitle is-5">{{ file_path }}</h5>
     {% if not file_editable %}
         <article class="message is-warning">
             <div class="message-header">
@@ -16,8 +18,8 @@
     {% endif %}
     <form method="post" onsubmit="return sourceEditSubmit();">
         {% csrf_token %}
-        <textarea id="file_content" name="file_content" style="display: none;">{{ file_content }}</textarea>
-        <div id="editor_container" style="width: 100%; height: 60vh;"></div>
+        <textarea id="file_content" name="file_content" class="is-hidden">{{ file_content }}</textarea>
+        <div id="editor_container"></div>
         {% if file_editable %}
             {% if supports_commit_message %}
                 <div class="field">
@@ -29,9 +31,14 @@
                     </div>
                 </div>
             {% endif %}
-            <div class="field">
+            <div class="field is-grouped">
                 <div class="control">
-                    <input type="submit" class="button is-success" value="Save">
+                    <input type="submit" class="button is-primary is-rounded" value="Save">
+                </div>
+                <div class="control">
+                    <a href="{% if file_directory %}{% url 'project_files_path' project.pk file_directory %}{% else %}{% url 'project_files' project.pk %}{% endif %}"
+                       class="button is-rounded"
+                    >Cancel</a>
                 </div>
             </div>
         {% endif %}
