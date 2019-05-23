@@ -209,13 +209,13 @@ Vue.component('item-action-menu', {
     },
     showRenameModal () {
       const itemType = this.fileType === 'directory' ? 'Directory' : 'File'
-      this.$root.$emit('rename-item-show', this.fileName, 'Rename', itemType)
+      this.$root.$emit('rename-modal-show', this.fileName, 'Rename', itemType)
     },
     showRemoveModal () {
-      this.$root.$emit('remove-item-show', this.fileName)
+      this.$root.$emit('remove-modal-show', this.fileName)
     },
     showUnlinkModal () {
-      this.$root.$emit('unlink-item-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
+      this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
     },
     launchDesktopEditor () {
       sessionWaitController.launchDesktopEditor(this.absolutePath)
@@ -294,7 +294,7 @@ Vue.component('remove-item-modal', {
     }
   },
   mounted () {
-    this.$root.$on('remove-item-show', (itemName) => {
+    this.$root.$on('remove-modal-show', (itemName) => {
       this.itemName = itemName
       this.visible = true
     })
@@ -383,7 +383,7 @@ Vue.component('rename-item-modal', {
     }
   },
   mounted () {
-    this.$root.$on('rename-item-show', (itemName, action, itemType) => {
+    this.$root.$on('rename-modal-show', (itemName, action, itemType) => {
       this.itemName = itemName
       this.itemType = itemType
       this.action = action
@@ -435,7 +435,7 @@ Vue.component('add-item-modal', {
     }
   },
   mounted () {
-    this.$root.$on('add-item-show', this.show)
+    this.$root.$on('add-item-modal-show', this.show)
 
     this.$root.$on('modal-hide', () => {
       this.hide()
@@ -965,7 +965,7 @@ var fileBrowser = new Vue({
       jsonFetch(this.itemRemoveUrl, {path}, callback)
     })
 
-    this.$root.$on('unlink-item-show', (sourceType, sourceIdentifier, sourceDescription) => {
+    this.$root.$on('unlink-modal-show', (sourceType, sourceIdentifier, sourceDescription) => {
       this.isUnlinkMulti = sourceType === 'githubsource'
       this.unlinkSourceType = sourceType
       this.unlinkSourceId = sourceIdentifier
@@ -1032,10 +1032,10 @@ const g_actionBar = new Vue({
         })
     },
     createFile () {
-      fileBrowser.$root.$emit('add-item-show', 'File')
+      fileBrowser.$root.$emit('add-item-modal-show', 'File')
     },
     createFolder () {
-      fileBrowser.$root.$emit('add-item-show', 'Folder')
+      fileBrowser.$root.$emit('add-item-modal-show', 'Folder')
     },
     showLinkModal (providerTypeId, linkType) {
       if (g_supportedSocialProviders[providerTypeId] !== true) {
