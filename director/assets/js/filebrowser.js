@@ -328,14 +328,11 @@ Vue.component('rename-item-modal', {
     directoryPath: {
       type: String,
       required: true
-    },
-    visible: {
-      type: Boolean,
-      required: true
     }
   },
   data () {
     return {
+      visible: false,
       itemName: '',
       itemType: '',
       action: '',
@@ -930,7 +927,6 @@ var fileBrowser = new Vue({
     itemRemoveUrl: null,
     filePullUrl: null,
     createItemVisible: false,
-    renameItemVisible: false,
     fileList: g_fileList,
     unlinkSourceId: null,
     unlinkModalVisible: false,
