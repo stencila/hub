@@ -15183,7 +15183,6 @@ fieldset[disabled] .button {
   font-size: 1rem;
   font-weight: 700;
   line-height: 1em;
-  text-transform: uppercase;
   padding: 1.125rem 1.375rem;
   margin-left: auto;
   margin-right: auto;
@@ -17785,6 +17784,20 @@ button.dropdown-item.is-active {
   margin-right: 0;
 }
 
+.panel-block {
+  border-color: #E5E5E5;
+  border-right: none;
+  border-left: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.panel-block.is-active {
+  border-left: 2px solid #2468EF;
+  color: #2468EF;
+  background-color: #EDEDED;
+}
+
 .button {
   transition: all 0.25s 0s ease;
   padding: calc(0.375em - 2px) 0.75em;
@@ -17927,6 +17940,16 @@ a.box:active {
 
 .tabs a {
   text-decoration: none !important;
+}
+
+.tabs li {
+  font-weight: bold;
+}
+
+.tabs li.is-active a {
+  border-color: #2468EF;
+  border-width: 0 0 2px 0;
+  color: #2468EF;
 }
 
 .tabs.is-toggle li.is-active a {

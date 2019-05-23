@@ -950,7 +950,6 @@ const g_actionBar = new Vue({
   data: {
     newMenuVisible: false,
     linkMenuVisible: false,
-    unlinkMenuVisible: false,
     pullInProgress: false,
     deleteModalVisible: false,
     unlinkSourceId: null,
@@ -1006,10 +1005,19 @@ const g_actionBar = new Vue({
       this.unlinkSourceId = sourceId
       fileBrowser.deleteModalVisible = true
     },
+    toggleLinkMenu() {
+      const newLinkMenuVisible = !this.linkMenuVisible
+      this.resetMenus()
+      this.linkMenuVisible = newLinkMenuVisible
+    },
+    toggleNewMenu() {
+      const newNewMenuVisible = !this.newMenuVisible
+      this.resetMenus()
+      this.newMenuVisible = newNewMenuVisible
+    },
     resetMenus () {
       fileBrowser.$root.$emit('menu-hide')
       this.linkMenuVisible = false
-      this.unlinkMenuVisible = false
       this.newMenuVisible = false
     },
     hideDeleteModal () {
@@ -1030,7 +1038,21 @@ const g_actionBar = new Vue({
       }
 
       fileBrowser.$root.$emit('upload-progress-modal-show', uploadList)
+    },
+    bodyClick(event) {
+      for(let el of event.path) {
+        if (el.tagName ===  'BUTTON' || (typeof el.classList !== 'undefined' && el.classList.contains('dropdown-trigger'))) {
+          return
+        }
+      }
+      this.resetMenus()
     }
+  },
+  mounted () {
+    document.addEventListener('click', this.bodyClick)
+  },
+  beforeDestroy () {
+    document.removeEventListener('click', this.bodyClick)
   }
 })
 

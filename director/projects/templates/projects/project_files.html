@@ -6,7 +6,7 @@
     <div class="level-item buttons" id="file-action-bar">
         <input type="file" ref="file-upload" @change="handleFileUpload" class="is-hidden" multiple="multiple"/>
         <div class="dropdown" style="margin-right: 0.5em" id="new-item"
-             @click="newMenuVisible = !newMenuVisible"
+             @click.prevent="toggleNewMenu()"
              :class="{ 'is-active':newMenuVisible }">
             <div class="dropdown-trigger">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
@@ -43,9 +43,8 @@
             </div>
         </div>
 
-        <div class="dropdown" id="link" @click="linkMenuVisible = !linkMenuVisible"
-             :class="{ 'is-active':linkMenuVisible }">
-            <div class="dropdown-trigger">
+        <div class="dropdown" id="link" :class="{ 'is-active':linkMenuVisible }">
+            <div class="dropdown-trigger" @click.prevent="toggleLinkMenu()">
                 <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-link" aria-hidden="true"></i>
@@ -95,7 +94,7 @@
         const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
         const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
     </script>
-    <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
+    <div id="file-browser" ref="file-browser-root"
          data-file-pull-url="{% url 'project_pull' project.id %}"
          data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
          data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
