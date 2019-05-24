@@ -37,7 +37,7 @@ class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
 
     def get_initial(self):
         return {
-            'project': get_object_or_404(Project, pk=self.kwargs['pk'])
+            'project': self.get_project(self.request.user, self.kwargs['pk'])
         }
 
     def get_redirect(self, pk: int) -> HttpResponse:
@@ -218,6 +218,7 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
                extra_context: typing.Optional[dict] = None) -> HttpResponse:
         render_context = {
             'project': self.project,
+            'has_edit_permission': self.has_permission(ProjectPermissionType.EDIT),
             'file_name': utf8_basename(editing_context.path),
             'file_directory': utf8_dirname(editing_context.path),
             'file_path': editing_context.path,

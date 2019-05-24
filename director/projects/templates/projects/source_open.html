@@ -20,7 +20,7 @@
         {% csrf_token %}
         <textarea id="file_content" name="file_content" class="is-hidden">{{ file_content }}</textarea>
         <div id="editor_container"></div>
-        {% if file_editable %}
+        {% if file_editable and has_edit_permission %}
             {% if supports_commit_message %}
                 <div class="field">
                     <div class="control">
@@ -51,7 +51,7 @@
       require(['vs/editor/editor.main'], function () {
         editor = monaco.editor.create(document.getElementById('editor_container'), {
           language: editorLanguageFromExtension('{{ file_extension }}'),
-          readOnly: {% if file_editable %}false{% else %}true{% endif %}
+          readOnly: {% if file_editable and has_edit_permission %}false{% else %}true{% endif %}
         })
         editor.setValue(editorTextArea.value)
       })

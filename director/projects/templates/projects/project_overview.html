@@ -5,7 +5,7 @@
 {% block project_content %}
     <div class="section section--inner">
         <div>
-            <p>This project is connected to the account: <strong> {{ project.account.name }}</strong></p>
+            <p>This project is connected to the account: <strong><a href="{% url 'account_profile' project.account.pk %}">{{ project.account.name }}</a></strong></p>
             <br/>
         </div>
         <div class="columns">
@@ -13,7 +13,7 @@
                 {% if project.description %}
                     <p>{{ project.description }}</p>
                 {% else %}
-                    <p class="has-text-grey-light">No description yet</p>
+                    <p class="has-text-grey-light">No project description yet</p>
                 {% endif %}
             </div>
             <div class="column is-4" id="id-project-actions">
@@ -40,13 +40,6 @@
                     </button>
                 </div>
                 {% endcomment %}
-                <div class="row is-top-padding">
-                    <button class="button is-rounded is-fullwidth" type="button" @click="checkoutFiles">
-                        <span class="icon is-small"><i class="fas fa-file-export"></i></span>
-                        <span v-if="!checkoutInProgress">Pull Linked Sources</span>
-                        <span v-if="checkoutInProgress">Pulling Linked Sources<&hellip;</span>
-                    </button>
-                </div>
             </div>
         </div>
         <div class="columns">
@@ -121,24 +114,6 @@
               ).catch(failureResponse => {
                 alert(failureResponse.message)
               })
-            },
-            checkoutFiles () {
-              this.checkoutInProgress = true
-              fetch(this.fileCheckoutUrl, {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'X-CSRFToken': utils.cookie('csrftoken'),
-                },
-                credentials: 'same-origin'
-              }).then(
-                response => {
-                  this.checkoutInProgress = false
-                },
-                failureResponse => {
-                  this.checkoutInProgress = false
-                  alert(failureResponse)
-                })
             }
           }
         })

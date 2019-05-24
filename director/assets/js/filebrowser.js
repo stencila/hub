@@ -71,6 +71,10 @@ function splitExt (fileName) {
 
 Vue.component('item-action-menu', {
   props: {
+    hasEditPermission: {
+      type: Boolean,
+      required: true
+    },
     absolutePath: {
       type: String,
       required: true
@@ -167,7 +171,7 @@ Vue.component('item-action-menu', {
       return this.allowEdit || this.allowDesktopLaunch
     },
     hasConvertActions () {
-      return this.convertTargets.length > 0
+      return this.hasEditPermission && this.convertTargets.length > 0
     },
     hasFileManageActions () {
       return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowMainFileSet
@@ -182,6 +186,10 @@ Vue.component('item-action-menu', {
       return this.hasConvertActions && this.hasFileManageActions
     },
     convertTargets () {
+      if(!this.hasEditPermission) {
+        return []
+      }
+
       const convertibleDefinitions = [
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
@@ -1091,11 +1099,12 @@ const g_actionBar = new Vue({
       fileBrowser.$root.$emit('upload-progress-modal-show', uploadList)
     },
     bodyClick (event) {
-      for (let el of event.path) {
+      let el = event.target
+      do {
         if (el.tagName === 'BUTTON' || (typeof el.classList !== 'undefined' && el.classList.contains('dropdown-trigger'))) {
           return
         }
-      }
+      }while((el = el.parentNode) != null)
       this.resetMenus()
     }
   },

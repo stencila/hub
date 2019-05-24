@@ -14,7 +14,7 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         project = self.get_project(request.user, pk)
 
-        if not self.has_permission(ProjectPermissionType.EDIT):
+        if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied('You do not have permission to edit this Project.')
 
         update_data = json.loads(request.body)
