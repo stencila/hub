@@ -43,85 +43,96 @@ $stencila-dropdown-font-weight: $weight-light
 $footer-height: 136px
 
 body, html
-    height: 100%
+  height: 100%
 
 #body
-    min-height: 100%
-    position: relative
+  min-height: 100%
+  position: relative
 
 #main_section
-    padding-top: 51px
-    padding-bottom: $footer-height
-    height: 100%
+  padding-top: 51px
+  padding-bottom: $footer-height
+  height: 100%
 
-    > .container
-        padding-bottom: 35px
+  > .container
+    padding-bottom: 35px
 
 .footer
-    position: absolute
-    bottom: 0
-    height: $footer-height
-    width: 100%
+  position: absolute
+  bottom: 0
+  height: $footer-height
+  width: 100%
 
 #file-browser
-    table
-        i
-            color: #7A7A7A
+  table
+    i
+      color: #7A7A7A
 
 .content-container
-    padding: 10px 0
+  padding: 10px 0
 
 .title.is-underline
-    padding-bottom: 2px
-    border-bottom: 2px solid #dbdbdb
+  padding-bottom: 2px
+  border-bottom: 2px solid #dbdbdb
 
 .select
-    select
-        &.is-borderless-select,&.is-borderless-select:active
-            border: none
+  select
+    &.is-borderless-select, &.is-borderless-select:active
+      border: none
 
 .select-align
-    padding-left: 9px
+  padding-left: 9px
 
 .title-caption
-    text-transform: uppercase
-    color: #7a7a7a !important
-    font-weight: bold
-    line-height: 133%
-    font-size: 12px
-    margin-bottom: 9px
+  text-transform: uppercase
+  color: #7a7a7a !important
+  font-weight: bold
+  line-height: 133%
+  font-size: 12px
+  margin-bottom: 9px
 
 th.title-caption, td.title-caption
-    margin-bottom: auto
+  margin-bottom: auto
 
 td.title-caption
-    vertical-align: middle
+  vertical-align: middle
 
 .is-transparent
-    color: rgba(0, 0, 0, 0)
+  color: rgba(0, 0, 0, 0)
 
 .access-row
-    line-height: 36px
+  line-height: 36px
 
-    .access-row-icon
-        margin-top: 6px
+  .access-row-icon
+    margin-top: 6px
 
-    .role-col
-        width: 0.1%
-        white-space: nowrap
+  .role-col
+    width: 0.1%
+    white-space: nowrap
 
-    .activity-col
-        padding-left: 0
+  .activity-col
+    padding-left: 0
 
-    .role-type-col
-        width: 14px
-        padding-right: 0
+  .role-type-col
+    width: 14px
+    padding-right: 0
 
-.switch[type=checkbox]+label
-    font-size: 14px
+.switch[type=checkbox] + label
+  font-size: 14px
 
 p.has-top-margin
-    margin-top: 20px
+  margin-top: 20px
 
 h6.has-top-margin
-    margin-top: 30px
+  margin-top: 30px
+
+#editor_container
+  width: 100%
+  height: 70vh
+  margin-bottom: 20px
+
+.fade-enter-active, .fade-leave-active
+  transition: opacity .5s
+
+.fade-enter, .fade-leave-to
+  opacity: 0

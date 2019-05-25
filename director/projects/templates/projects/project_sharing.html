@@ -15,7 +15,7 @@
     <div id="project-role">
         <delete-confirm-modal
                 form-action="{% url 'project_sharing_roles' object.id %}"
-                :delete-modal-visible="deleteModalVisible"z
+                :delete-modal-visible="deleteModalVisible" z
                 delete-action="remove_role"
                 delete-id-name="project_agent_role_id"
                 :delete-id-value="deleteRoleId"
@@ -45,20 +45,22 @@
                         {% include "projects/_project_role_select.html" with project_agent_role_id=project_agent_role.id roles=all_roles current_role=project_agent_role.role agent_type=project_agent_role.content_type agent_id=project_agent_role.agent_id %}
                     </td>
                     <td>
+                        <transition name="fade">
+                            <i class="fas fa-check access-row-icon"
+                               v-if="updateCompleted[{{ project_agent_role.pk }}]"
+                            ></i>
+                        </transition>
                         <i class="fas fa-circle-notch fa-spin access-row-icon"
                            v-if="updateCompleted[{{ project_agent_role.pk }}] !== true"
                            :class="{ 'is-transparent': updateInProgress[{{ project_agent_role.pk }}] !== true }"></i>
-                        <i class="fas fa-check access-row-icon"
-                           v-if="updateCompleted[{{ project_agent_role.pk }}]"
-                        ></i>
                     </td>
                     <td class="has-text-right">
                         {% if project_agent_role.role not in roles or project_agent_role.content_type == user_content_type and project_agent_role.agent_id == request.user.id %}
                             {# show nothing, this is easier than trying to negate the if condition with django template's limited parsing #}
                         {% else %}
                             <a class="access-row-icon"
-                                @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.agent_description|escape_single_quotes }}')"
-                                title="Remove access from {{ project_agent_role.agent_description }}"
+                               @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.agent_description|escape_single_quotes }}')"
+                               title="Remove access from {{ project_agent_role.agent_description }}"
                             >
                                 <i class="fa fa-times"></i>
                             </a>
@@ -134,11 +136,12 @@
         <h6 class="title is-6 is-underline has-top-margin">Public project</h6>
         <div>
             <div class="field">
-              <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded is-info" @change="isPublicChanged()">
-              <label for="id_project_public">
-                  <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>
-                  <span v-if="isPublic === false">This project is private. Only collaborators can view or change it.</span>
-              </label>
+                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded is-info"
+                       @change="isPublicChanged()">
+                <label for="id_project_public">
+                    <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>
+                    <span v-if="isPublic === false">This project is private. Only collaborators can view or change it.</span>
+                </label>
             </div>
         </div>
     </div>
@@ -185,10 +188,10 @@
               Vue.set(this.updateCompleted, projectAgentRoleId, true)
               setTimeout(() => {
                 Vue.set(this.updateCompleted, projectAgentRoleId, false)
-              }, 5000)
+              }, 3000)
             })
           },
-          isPublicChanged() {
+          isPublicChanged () {
             let publicSettingData = new FormData()
             publicSettingData.set('action', 'set_public')
             publicSettingData.set('is_public', this.isPublic)

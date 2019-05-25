@@ -329,7 +329,7 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     model = Project
     fields: typing.List[str] = []
     template_name = 'projects/project_activity.html'
-    project_permission_required = ProjectPermissionType.VIEW
+    project_permission_required = ProjectPermissionType.MANAGE
 
     def get_context_data(self, **kwargs) -> dict:
         context_data = super().get_context_data(**kwargs)

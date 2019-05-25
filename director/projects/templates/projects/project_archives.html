@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load humanize static escape_extras source_extras crispy_forms_tags %}
+{% load humanize static escape_extras source_extras crispy_forms_tags project_permissions %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 
@@ -7,18 +7,20 @@
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     {% include "projects/_project_files_tabs.html" with project=project tab="archives" %}
     <section id="project_archives">
-    <delete-confirm-modal
-                        :delete-modal-visible="deleteModalVisible"
-                        delete-action="remove_archive"
-                        delete-id-name="archive_name"
-                        :delete-id-value="removeArchiveName"
-                        delete-button-label="Delete"
-                        @modal-hide="hideDeleteModal()">
-                    <template slot="title">Delete archive?</template>
-                    <template slot="csrf_token">{% csrf_token %}</template>
-                    <template slot="body">Are you sure you want to delete the archive <em>[[ removeArchiveName ]]</em>?
-                    </template>
-                </delete-confirm-modal>
+        {% if project_permissions|project_permissions_contain:'edit' %}
+            <delete-confirm-modal
+                    :delete-modal-visible="deleteModalVisible"
+                    delete-action="remove_archive"
+                    delete-id-name="archive_name"
+                    :delete-id-value="removeArchiveName"
+                    delete-button-label="Delete"
+                    @modal-hide="hideDeleteModal()">
+                <template slot="title">Delete archive?</template>
+                <template slot="csrf_token">{% csrf_token %}</template>
+                <template slot="body">Are you sure you want to delete the archive <em>[[ removeArchiveName ]]</em>?
+                </template>
+            </delete-confirm-modal>
+        {% endif %}
         <table class="table is-fullwidth is-striped is-bordered">
             <thead>
             <tr>
@@ -39,11 +41,13 @@
                            title="Download">
                             <i class="fas fa-download"></i>
                         </a>
+                        {% if project_permissions|project_permissions_contain:'edit' %}
                         <a class="icon has-text-danger"
                            href="#"
                            title="Delete&hellip;" @click.prevent="showDeleteModal('{{ archive.name|escapejs }}')">
                             <i class="fa fa-trash"></i>
                         </a>
+                        {% endif %}
                     </td>
                 </tr>
             {% empty %}
@@ -53,14 +57,16 @@
             {% endfor %}
             </tbody>
         </table>
-        <div class="column is-full" style="margin-bottom: 15px;">
-            <h4 class="subtitle is-4">Create Archive</h4>
-            <p>Create a zip file of the files in this project. The file name contains the date the archive was
-                created.</p>
-        </div>
-        <div class="column is-full">
-            {% crispy form %}
-        </div>
+        {% if project_permissions|project_permissions_contain:'edit' %}
+            <div class="column is-full" style="margin-bottom: 15px;">
+                <h4 class="subtitle is-4">Create Archive</h4>
+                <p>Create a zip file of the files in this project. The file name contains the date the archive was
+                    created.</p>
+            </div>
+            <div class="column is-full">
+                {% crispy form %}
+            </div>
+        {% endif %}
     </section>
     <script>
       new Vue({

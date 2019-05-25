@@ -1,64 +1,64 @@
 {% extends 'projects/project_base.html' %}
-{% load humanize static escape_extras source_extras %}
+{% load humanize static escape_extras source_extras project_permissions %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 {% block project_header_right %}
     <div class="level-item buttons" id="file-action-bar">
-        <input type="file" ref="file-upload" @change="handleFileUpload" class="is-hidden" multiple="multiple"/>
-        <div class="dropdown" style="margin-right: 0.5em" id="new-item"
-             @click="newMenuVisible = !newMenuVisible"
-             :class="{ 'is-active':newMenuVisible }">
-            <div class="dropdown-trigger">
-                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+        {% if project_permissions|project_permissions_contain:'edit' %}
+            <input type="file" ref="file-upload" @change="handleFileUpload" class="is-hidden" multiple="multiple"/>
+            <div class="dropdown" style="margin-right: 0.5em" id="new-item" :class="{ 'is-active':newMenuVisible }">
+                <div class="dropdown-trigger">
+                    <button @click.prevent="toggleNewMenu()" class="button is-primary is-rounded" aria-haspopup="true"
+                            aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-plus" aria-hidden="true"></i>
                     </span>
-                    <span>New</span>
-                    <span class="icon is-small">
+                        <span>New</span>
+                        <span class="icon is-small">
                             <i class="fas fa-angle-down" aria-hidden="true"></i>
                         </span>
-                </button>
-            </div>
-            <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                <div class="dropdown-content">
-                    <a href="#" @click.prevent="createFile()" class="dropdown-item">
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        <a href="#" @click.prevent="createFile()" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fas fa-file" aria-hidden="true"></i>
                         </span>
-                        <span>File&hellip;</span>
-                    </a>
-                    <a href="#" @click.prevent="createFolder()" class="dropdown-item">
+                            <span>File&hellip;</span>
+                        </a>
+                        <a href="#" @click.prevent="createFolder()" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fas fa-folder" aria-hidden="true"></i>
                         </span>
-                        <span>Folder&hellip;</span>
-                    </a>
-                    <a href="#" @click.prevent="showFileUploadSelect()" class="dropdown-item">
+                            <span>Folder&hellip;</span>
+                        </a>
+                        <a href="#" @click.prevent="showFileUploadSelect()" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fas fa-upload" aria-hidden="true"></i>
                         </span>
-                        <span>File upload</span>
-                    </a>
+                            <span>File upload</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="dropdown" id="link" @click="linkMenuVisible = !linkMenuVisible"
-             :class="{ 'is-active':linkMenuVisible }">
-            <div class="dropdown-trigger">
-                <button class="button is-primary" aria-haspopup="true" aria-controls="dropdown-menu">
+            <div class="dropdown" id="link" :class="{ 'is-active':linkMenuVisible }">
+                <div class="dropdown-trigger" @click.prevent="toggleLinkMenu()">
+                    <button class="button is-primary is-rounded is-outlined" aria-haspopup="true"
+                            aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-link" aria-hidden="true"></i>
                     </span>
-                    <span>Link</span>
-                    <span class="icon is-small">
+                        <span>Link</span>
+                        <span class="icon is-small">
                             <i class="fas fa-angle-down" aria-hidden="true"></i>
                         </span>
-                </button>
-            </div>
-            <div class="dropdown-menu" id="dropdown-menu" role="menu">
-                <div class="dropdown-content">
-                    {% comment not supported yet %}
+                    </button>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        {% comment not supported yet %}
                     <a href="{% url 'dropboxsource_create' project.pk %}" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-dropbox" aria-hidden="true"></i>
@@ -66,36 +66,38 @@
                         <span>Dropbox</span>
                     </a>
                     {% endcomment %}
-                    <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                        <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-github" aria-hidden="true"></i>
                         </span>
-                        <span>Github</span>
-                    </a>
-                    <a href="#" @click.prevent="showLinkModal('google', 'gdoc')" class="dropdown-item">
+                            <span>Github&hellip;</span>
+                        </a>
+                        <a href="#" @click.prevent="showLinkModal('google', 'gdoc')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-google" aria-hidden="true"></i>
                         </span>
-                        <span>Google Docs</span>
-                    </a>
+                            <span>Google Docs&hellip;</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <a class="button is-primary" style="margin-left: 0.5em" @click="pullFiles" id="project-pull-button">
-            <span class="icon is-small"><i class="fas fa-file-export"></i></span>
-            <span v-if="!pullInProgress">Pull Linked Sources</span>
-            <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
-        </a>
+            <a class="button is-primary is-rounded is-outlined" style="margin-left: 0.5em" @click="pullFiles"
+               id="project-pull-button">
+                <span class="icon is-small"><i class="fas fa-file-export"></i></span>
+                <span v-if="!pullInProgress">Pull Linked Sources</span>
+                <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
+            </a>
+        {% endif %}
     </div>
 {% endblock %}
 {% block project_content %}
     {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
     <script>
-        const g_fileList = JSON.parse('{{ item_names|escapejs }}')
-        const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
-        const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
+      const g_fileList = JSON.parse('{{ item_names|escapejs }}')
+      const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
+      const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
     </script>
-    <div id="file-browser" @click.self="resetMenus()" ref="file-browser-root"
+    <div id="file-browser" ref="file-browser-root"
          data-file-pull-url="{% url 'project_pull' project.id %}"
          data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
          data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
@@ -105,34 +107,38 @@
         ></add-item-modal>
 
         <rename-item-modal
-                :visible="renameItemVisible"
                 directory-path="{{ current_directory }}"
         ></rename-item-modal>
 
         <remove-item-modal directory-path="{{ current_directory }}"></remove-item-modal>
         <convert-modal
-            :existing-files="fileList"
-            source-convert-url="{% url 'source_convert' project.pk  %}"
+                :existing-files="fileList"
+                source-convert-url="{% url 'source_convert' project.pk %}"
         ></convert-modal>
-        <upload-progress-modal upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
-        <unsupported-social-provider-modal account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
-        <googledocs-link-modal directory="{{ current_directory }}" source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
-         {% if linked_sources %}
-                <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
-                                      delete-action="unlink_source"
-                                      delete-id-name="source_id"
-                                      :delete-id-value="unlinkSourceId"
-                                      delete-button-label="Unlink"
-                                      @modal-hide="hideUnlinkModal()">
-                    <template slot="title">Unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[ unlinkSourceDescription ]]</em>?</template>
-                    <template slot="csrf_token">{% csrf_token %}</template>
-                    <template slot="body">
-                        <p>Are you sure you want to unlink <em>[[ unlinkSourceDescription ]]</em> from this project?</p>
-                        <p v-if="isUnlinkMulti" class="has-top-margin">
-                            All this source's files will be removed from this project, but will still be available in
-                            their [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
-                    </template>
-                </delete-confirm-modal>
+        <upload-progress-modal
+                upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
+        <unsupported-social-provider-modal
+                account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
+        <googledocs-link-modal directory="{{ current_directory }}"
+                               source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
+        {% if linked_sources %}
+            <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
+                                  delete-action="unlink_source"
+                                  delete-id-name="source_id"
+                                  :delete-id-value="unlinkSourceId"
+                                  delete-button-label="Unlink"
+                                  @modal-hide="hideUnlinkModal()">
+                <template slot="title"><i class="fa fa-unlink"></i> Unlink <em>[[ unlinkSourceDescription ]]</em>?
+                </template>
+                <template slot="csrf_token">{% csrf_token %}</template>
+                <template slot="body">
+                    <p>Are you sure you want to unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[
+                        unlinkSourceDescription ]]</em> from this project?</p>
+                    <p v-if="isUnlinkMulti" class="has-top-margin">
+                        All this source's files will be removed from this project, but will still be available in
+                        their [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
+                </template>
+            </delete-confirm-modal>
         {% endif %}
         <table class="table is-fullwidth is-striped" id="files-table">
             <thead>
@@ -143,6 +149,7 @@
                             {% for breadcrumb in breadcrumbs %}
                                 <li {% if forloop.last %}class="is-active"{% endif %}>
                                     <a href="
+
                                             {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
                                         {% if forloop.first %}
                                             <span class="icon is-small"><i class="fas fa-home"
@@ -196,12 +203,13 @@
 
                     <td class="has-text-centered">
                         <item-action-menu
-                                :allow-rename="{% if directory_entry.allow_rename %}true{% else %}false{% endif %}"
-                                :allow-delete="{% if directory_entry.allow_remove %}true{% else %}false{% endif %}"
+                                :has-edit-permission="{% if project_permissions|project_permissions_contain:'edit' %}true{% else %}false{% endif %}"
+                                :allow-rename="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.allow_rename %}true{% else %}false{% endif %}"
+                                :allow-delete="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.allow_remove %}true{% else %}false{% endif %}"
                                 :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
                                 :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
-                                :allow-unlink="{% if directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
-                                :allow-main-file-set="{% if directory_entry|can_be_main_file:project %}true{% else %}false{% endif %}"
+                                :allow-unlink="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
+                                :allow-main-file-set="{% if project_permissions|project_permissions_contain:'edit' and directory_entry|can_be_main_file:project %}true{% else %}false{% endif %}"
                                 {% if directory_entry|is_text_editable %}
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
@@ -210,7 +218,7 @@
                                 source-type="{{ directory_entry.source.type }}"
                                 source-identifier="{{ directory_entry.source.pk }}"
                                 source-description="{{ directory_entry.source.description }}"
-                                file-type="{{ directory_entry.mimetype }}"
+                                file-type="{% if directory_entry.is_directory %}directory{% else %}{{ directory_entry.mimetype }}{% endif %}"
                                 absolute-path="{{ directory_entry.path|escape }}"
                                 index="{{ forloop.counter0 }}"
                                 file-name="{{ directory_entry.name }}"></item-action-menu>

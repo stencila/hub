@@ -4,8 +4,9 @@
 {% block title %}Link a Github folder{% endblock %}
 
 {% block content %}
-<div class="section">
-    <h1 class="title is-4">{{ project }}: Link a Github folder</h1>
+<div>
+    <h2 class="title is-2">{{ project.name }}</h2>
+    <h5 class="subtitle is-5">Link a Github folder</h5>
     {% crispy form %}
 </div>
 {% endblock %}

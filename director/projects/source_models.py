@@ -200,7 +200,7 @@ class GithubSource(Source):
     subpath = models.TextField(
         null=True,
         blank=True,
-        help_text='Path to file or folder withing the repository'
+        help_text='Path to file or folder within the repository'
     )
 
     def __str__(self) -> str:
