@@ -157,7 +157,7 @@ class SourceLinkView(ProjectPermissionsMixin, View):
         directory = request_body['directory']
         try:
             document = gdf.get_document(doc_id)
-        except HttpError as e:
+        except HttpError:
             raise LinkException('Could not retrieve the document, please check the ID/URL.')
 
         source = GoogleDocsSource(doc_id=doc_id)
