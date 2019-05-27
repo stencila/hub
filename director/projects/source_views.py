@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import os
 import tempfile
 import typing
@@ -435,6 +436,8 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         scf = make_source_content_facade(request.user, source_path, source, project)
 
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
         source_path_without_ext, source_ext = splitext(source_path)
 
         source_dir = utf8_dirname(source_path)
@@ -461,35 +464,47 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 }[source_ext.lower()]
 
         if target_type == 'gdoc':
-            content = scf.get_binary_content()
+            output_mime_type: typing.Optional[str] = None
 
-            temp_input_path = None
-            temp_output_path = None
+            if source_type not in ('html', 'docx'):
+                temp_input_path = None
+                temp_output_path = None
 
-            try:
-                with tempfile.NamedTemporaryFile(delete=False) as temp_input:
-                    temp_input.write(content)
-                    temp_input_path = temp_input.name
+                try:
+                    if isinstance(source, DiskSource):
+                        converter_input = ConverterIo(ConverterIoType.PATH, dff.generate_full_file_path(source_path),
+                                                      source_type)
+                    else:
+                        with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+                            temp_input.write(scf.get_binary_content())
+                            temp_input_path = temp_input.name
 
-                converter_input = ConverterIo(ConverterIoType.PATH, temp_input_path, source_type)
+                        converter_input = ConverterIo(ConverterIoType.PATH, temp_input_path, source_type)
 
-                with tempfile.NamedTemporaryFile() as temp_output:
-                    temp_output_path = temp_output.name
+                    with tempfile.NamedTemporaryFile(delete=False) as temp_output:
+                        temp_output_path = temp_output.name
 
-                converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'html')
+                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'html')
 
-                converter.convert(converter_input, converter_output)
+                    converter.convert(converter_input, converter_output)
 
-                with open(temp_output_path, 'w+b') as temp_output:  # reopen after data has been written
-                    output_content = temp_output.read()
-            finally:
-                if temp_input_path:
-                    unlink(temp_input_path)
+                    with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
+                        output_content = temp_output.read()
+                finally:
+                    if temp_input_path:
+                        unlink(temp_input_path)
 
-                if temp_output_path:
-                    unlink(temp_output_path)
+                    if temp_output_path:
+                        unlink(temp_output_path)
+                output_mime_type = 'text/html'
+            else:
+                output_mime_type, encoding = mimetypes.guess_type(source_path, False)
+                output_content = scf.get_binary_content()
 
-            new_doc_id = gdf.create_document_from_html(target_name, output_content.decode('utf8'))
+            if output_mime_type is None:
+                output_mime_type = 'application/octet-stream'
+
+            new_doc_id = gdf.create_document(target_name, output_content, output_mime_type)
 
             existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
 
@@ -503,7 +518,6 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             else:
                 new_source.save()
         elif target_type in ('markdown', 'html', 'docx', 'jats'):
-            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
             if not isinstance(source, DiskSource):
                 content = scf.get_binary_content()

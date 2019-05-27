@@ -316,7 +316,7 @@ Vue.component('remove-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title"><i class="fa fa-trash-o"></i> Delete <em>{{ itemName }}</em>?</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-trash"></i> Delete <em>{{ itemName }}</em>?</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +

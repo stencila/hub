@@ -103,8 +103,8 @@ class GoogleDocsFacade(object):
 
         return docs_resource.get(documentId=document_id).execute()
 
-    def create_document_from_html(self, name: str, content: str) -> str:
-        """Create a Google Doc from HTML and return its ID."""
+    def create_document(self, name: str, content: str, source_mimetype: str) -> str:
+        """Create a Google Doc from a file and return its ID."""
         drive_service = build('drive', 'v3', credentials=self.credentials, cache_discovery=False)
 
         metadata = {
@@ -112,7 +112,7 @@ class GoogleDocsFacade(object):
             'mimeType': 'application/vnd.google-apps.document'
         }
 
-        document = MediaInMemoryUpload(content.encode('utf8'), mimetype='text/html', resumable=True)
+        document = MediaInMemoryUpload(content, mimetype=source_mimetype, resumable=True)
 
         resp = drive_service.files().create(body=metadata, media_body=document, fields='id').execute()
 
