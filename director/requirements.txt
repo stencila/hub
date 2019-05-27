@@ -16,7 +16,7 @@ google-api-python-client==1.7.9
 google-cloud-storage==1.16.0
 Pillow==6.0.0
 pyjwt==1.7.1
-psycopg2==2.7.7
+psycopg2==2.8.2
 raven==6.10.0
 requests==2.21.0
 sh==1.12.14
