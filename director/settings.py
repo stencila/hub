@@ -274,7 +274,7 @@ class Common(Configuration):
         }
     }
 
-    STENCILA_CONVERTER_BINARY = values.ListValue('')
+    STENCILA_CONVERTER_BINARY = values.ListValue(['/usr/local/bin/stencila-convert'])
 
 
 class Dev(Common):
