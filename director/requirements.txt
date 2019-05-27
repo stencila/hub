@@ -14,7 +14,7 @@ django-extensions==2.1.7
 dj_database_url==0.5.0
 google-api-python-client==1.7.9
 google-cloud-storage==1.16.0
-Pillow==5.4.1
+Pillow==6.0.0
 pyjwt==1.7.1
 psycopg2==2.7.7
 raven==6.10.0
