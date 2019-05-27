@@ -21,6 +21,7 @@ RUN curl -Lo /tmp/convert.tar.gz https://github.com/stencila/convert/releases/do
     echo "Installing stencila-convert to /usr/local/bin/stencila-convert-${CONVERT_VERSION}/" && \
     mkdir -p /usr/local/bin/stencila-convert-${CONVERT_VERSION} && \
     mv -f stencila-convert /usr/local/bin/stencila-convert-${CONVERT_VERSION} && \
+    /usr/local/bin/stencila-convert-${CONVERT_VERSION}/stencila-convert --version && \
     echo "Pointing stencila-convert to /usr/local/bin/stencila-convert-${CONVERT_VERSION}/stencila-convert" && \
     ln -sf stencila-convert-${CONVERT_VERSION}/stencila-convert /usr/local/bin/stencila-convert
 
