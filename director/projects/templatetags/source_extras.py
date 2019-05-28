@@ -83,6 +83,8 @@ def is_main_file(directory_entry: typing.Any, project: typing.Any) -> bool:
 
 @register.filter
 def can_be_main_file(directory_entry: typing.Any, project: typing.Any) -> bool:
+    return False  # TODO: Main File Feature is disabled for now
+
     if not isinstance(directory_entry, DirectoryListEntry):
         return False
 
