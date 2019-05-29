@@ -1,3 +1,5 @@
+import logging
+import logging.handlers
 import re
 import typing
 
@@ -16,6 +18,16 @@ from projects.source_operations import utf8_path_join
 GOOGLE_DOCUMENT_URL_FORMAT = 'https://docs.google.com/document/d/{}/edit'
 GOOGLE_DOCUMENT_URL_RE = r'^(https://)?docs.google.com/document/d/([^/]+)/.*'
 GOOGLE_DOCUMENT_ID_FORMAT_RE = r'^([a-z\d])([a-z\d_\-]+)$'
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.ERROR)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+syslog_handler = logging.handlers.SysLogHandler()
+syslog_handler.setLevel(logging.ERROR)
+syslog_handler.setFormatter(formatter)
+logger.addHandler(syslog_handler)
 
 
 def build_google_document_url(document_id: str) -> str:
@@ -101,10 +113,14 @@ class GoogleDocsFacade(object):
         docs_service = build('docs', 'v1', credentials=self.credentials, cache_discovery=False)
         docs_resource = docs_service.documents()
 
-        return docs_resource.get(documentId=document_id).execute()
+        try:
+            return docs_resource.get(documentId=document_id).execute()
+        except Exception:
+            logger.exception('Error getting document {}'.format(document_id))
+            raise
 
-    def create_document_from_html(self, name: str, content: str) -> str:
-        """Create a Google Doc from HTML and return its ID."""
+    def create_document(self, name: str, content: str, source_mimetype: str) -> str:
+        """Create a Google Doc from a file and return its ID."""
         drive_service = build('drive', 'v3', credentials=self.credentials, cache_discovery=False)
 
         metadata = {
@@ -112,7 +128,7 @@ class GoogleDocsFacade(object):
             'mimeType': 'application/vnd.google-apps.document'
         }
 
-        document = MediaInMemoryUpload(content.encode('utf8'), mimetype='text/html', resumable=True)
+        document = MediaInMemoryUpload(content, mimetype=source_mimetype, resumable=True)
 
         resp = drive_service.files().create(body=metadata, media_body=document, fields='id').execute()
 
