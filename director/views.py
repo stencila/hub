@@ -86,17 +86,15 @@ class IcoView(RedirectView):
     url = '/static/img/favicon.ico'
 
 
-class Error500View(View):
+def error_500_view(request: HttpRequest) -> HttpResponse:
     """
-    Custom view to handling 500 error.
+    Handle 500 errors.
 
     A custom 500 view which pass the request into the template context
     so that the Sentry id is available for rendering.
     See https://docs.sentry.io/clients/python/integrations/django/
     """
-
-    def get(self, *args, **kwargs):
-        return TemplateResponse(self.request, '500.html', context={'request': self.request}, status=500)
+    return TemplateResponse(request, '500.html', context={'request': request}, status=500)
 
 
 class Test403View(View):

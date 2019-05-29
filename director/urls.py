@@ -1,9 +1,10 @@
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from django.conf.urls.static import static
 from django.views.defaults import permission_denied, page_not_found
 
+import projects.urls
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
 from checkouts.views import (
@@ -13,7 +14,6 @@ from checkouts.views import (
     CheckoutOpenView,
     CheckoutSaveView,
     CheckoutCloseView)
-import projects.urls
 from users.views import (
     UsernameChangeView,
     UserSettingsView,
@@ -24,7 +24,6 @@ from users.views import (
 from views import (
     AboutView,
     ContactView,
-    Error500View,
     HelpView,
     HomeView,
     IcoView,
@@ -33,7 +32,7 @@ from views import (
     Test500View,
     PrivacyView,
     StatusView,
-    TermsView, IeUnsupportedView)
+    TermsView, IeUnsupportedView, error_500_view)
 
 urlpatterns = [
     # Project CRUD
@@ -96,7 +95,7 @@ urlpatterns = [
 
 handler403 = permission_denied
 handler404 = page_not_found
-handler500 = Error500View.as_view()
+handler500 = error_500_view
 
 if settings.DEBUG:
     import debug_toolbar
