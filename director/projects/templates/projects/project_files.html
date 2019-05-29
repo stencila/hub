@@ -135,8 +135,8 @@
                     <p>Are you sure you want to unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] source <em>[[
                         unlinkSourceDescription ]]</em> from this project?</p>
                     <p v-if="isUnlinkMulti" class="has-top-margin">
-                        All this source's files will be removed from this project, but will still be available in
-                        their [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
+                        All files from this source will be removed from this project, but will still be available in
+                        the [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
                 </template>
             </delete-confirm-modal>
         {% endif %}
