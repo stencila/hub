@@ -91,8 +91,8 @@
                     </div>
                 </div>
                 <div class="column has-text-centered">
-                    <button class="button is-primary" name="action" value="add_user_role" type="submit"
-                            :disabled="selectedUsername==''">Add
+                    <button class="button is-primary is-full-width" name="action" value="add_user_role" type="submit"
+                            :disabled="selectedUsername==''">Add User
                     </button>
                 </div>
             </div>
@@ -126,9 +126,9 @@
                     </div>
                 </div>
                 <div class="column has-text-centered">
-                    <button class="button is-primary" name="action" value="add_team_role" type="submit"
+                    <button class="button is-primary is-full-width" name="action" value="add_team_role" type="submit"
                             {% if not teams %}disabled="disabled"{% endif %}>
-                        Add
+                        Add Team
                     </button>
                 </div>
             </div>
@@ -136,7 +136,7 @@
         <h6 class="title is-6 is-underline has-top-margin">Public project</h6>
         <div>
             <div class="field">
-                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded is-info"
+                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded"
                        @change="isPublicChanged()">
                 <label for="id_project_public">
                     <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>

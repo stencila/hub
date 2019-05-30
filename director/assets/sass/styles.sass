@@ -117,8 +117,11 @@ td.title-caption
     width: 14px
     padding-right: 0
 
-.switch[type=checkbox] + label
-  font-size: 14px
+.switch[type=checkbox]
+  & + label
+    font-size: 14px
+  &:checked + label::before
+    background-color: $primary
 
 p.has-top-margin
   margin-top: 20px
