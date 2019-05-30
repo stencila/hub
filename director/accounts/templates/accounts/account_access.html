@@ -26,36 +26,34 @@
                 deleteRoleUsername ]]</em>?
             </template>
         </delete-confirm-modal>
-        <div class="section">
-            <form method="POST">
-                {% csrf_token %}
-                <div class="columns">
-                    <div class="column">
-                        <user-autocomplete @username-selected="usernameSelected" :skip-results="currentUsers"></user-autocomplete>
-                    </div>
-                    <div class="column">
-                        <div class="field">
-                            <div class="control">
-                                <div class="select is-fullwidth">
-                                    <select name="role_id">
-                                        {% for role in all_roles %}
-                                            <option value="{{ role.id }}">{{ role.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="columns">
+                <div class="column">
+                    <user-autocomplete @username-selected="usernameSelected" :skip-results="currentUsers"></user-autocomplete>
+                </div>
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select name="role_id">
+                                    {% for role in all_roles %}
+                                        <option value="{{ role.id }}">{{ role.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="column">
-                        <button class="button is-success" name="action" value="add_access" type="submit"
-                                :disabled="selectedUsername==''">Add
-                        </button>
-                    </div>
                 </div>
-            </form>
-        </div>
+                <div class="column">
+                    <button class="button is-primary" name="action" value="add_access" type="submit"
+                            :disabled="selectedUsername==''">Add
+                    </button>
+                </div>
+            </div>
+        </form>
         <div class="container">
-          <p> You can add users to {{ account.name }} and assign two different roles to them: <em>Admin</em> or <em>Member</em>.</p>
+          <p class="has-top-margin"> You can add users to {{ account.name }} and assign two different roles to them: <em>Admin</em> or <em>Member</em>.</p>
           <br/>
           <p> <strong>Account admin</strong> can: delete {{ account.name }}; update the billing details; give other users access
             to the account (including giving them administrative permission); create and add teams to the account.</p>

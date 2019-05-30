@@ -15,30 +15,22 @@
         <div class="level-right">
             {% if account_permissions|account_permissions_contain:'administer' %}
                 <p class="level-item">
-                    <a class="button is-success" href="{% url 'account_team_create' account.id %}">
+                    <a class="button is-primary is-rounded is-outlined call-to-action" href="{% url 'account_team_create' account.id %}">
                         <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New</span>
+                        <span>New Team</span>
                     </a>
                 </p>
             {% endif %}
         </div>
     </nav>
 
-    <div class="section">
-        {% for team in teams %}
-            <div class="card">
-                <div class="card-content">
-                    <a href="{% url 'account_team_detail' account.id team.id %}" title="Open">
-                        <span>{{ team.name }}</span>
-                    </a>
-                </div>
-            </div>
-        {% empty %}
-            <div>
-                <div class="card-content">
-                    No teams exist.
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+    {% for team in teams %}
+        <a class="box" href="{% url 'account_team_detail' account.id team.id %}" title="Open">
+            <span>{{ team.name }}</span>
+        </a>
+    {% empty %}
+        <div>
+            No teams exist.
+        </div>
+    {% endfor %}
 {% endblock %}
