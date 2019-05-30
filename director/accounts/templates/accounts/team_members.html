@@ -24,22 +24,21 @@
                     <em>{{ team.name }}</em>?
                 </template>
             </delete-confirm-modal>
-            <div class="section">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="columns">
-                        <div class="column">
-                            <user-autocomplete @username-selected="usernameSelected"
-                                               :skip-results="currentMembers"></user-autocomplete>
-                        </div>
-                        <div class="column">
-                            <button class="button is-success" name="action" value="add_member" type="submit"
-                                    :disabled="selectedUsername == ''">Add
-                            </button>
-                        </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="columns">
+                    <div class="column">
+                        <user-autocomplete @username-selected="usernameSelected"
+                                            :skip-results="currentMembers"></user-autocomplete>
                     </div>
-                </form>
-            </div>
+                    <div class="column">
+                        <button class="button is-primary" name="action" value="add_member" type="submit"
+                                :disabled="selectedUsername == ''">Add
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <br>
         {% endif %}
         <table class="table is-fullwidth is-striped is-bordered">
             <thead>
