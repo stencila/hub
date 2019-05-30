@@ -920,7 +920,7 @@ Vue.component('unsupported-social-provider-modal', {
     '      <p>You connect one on the <a :href="accountConnectionsUrl">Account Connections</a> page.</p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="hide()">OK</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="hide()">OK</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
