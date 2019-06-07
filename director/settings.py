@@ -15,6 +15,9 @@ import os
 import sys
 import warnings
 from configurations import Configuration, values
+import monkey_patch
+
+monkey_patch.monkey_patch()
 
 # TODO: the UserWarning might start to not be raised as of psycopg2 v2.8+ but until then suppress it
 warnings.filterwarnings('ignore', category=UserWarning, module='psycopg2')
@@ -274,7 +277,7 @@ class Common(Configuration):
         }
     }
 
-    STENCILA_CONVERTER_BINARY = values.ListValue(['/usr/local/bin/stencila-convert'])
+    STENCILA_BINARY = values.ListValue(['/usr/local/bin/stencila'])
 
 
 class Dev(Common):

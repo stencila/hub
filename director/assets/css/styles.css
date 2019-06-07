@@ -13568,11 +13568,9 @@ button.hamburger {
 input[type="checkbox"] {
   margin-right: 0.5em; }
 
-.form-actions {
-  text-align: right; }
-  .form-actions.separation {
-    margin-top: 1.25rem;
-    margin-bottom: 2.5rem; }
+.form-actions.separation {
+  margin-top: 1.25rem;
+  margin-bottom: 2.5rem; }
 
 input[type="submit"],
 button[type="submit"] {
@@ -14895,8 +14893,15 @@ td.title-caption {
     width: 14px;
     padding-right: 0; }
 
+a.box:hover .title {
+  transition: all 0.25s 0s ease;
+  color: #2568ef; }
+
 .switch[type=checkbox] + label {
   font-size: 14px; }
+
+.switch[type=checkbox]:checked + label::before {
+  background-color: #2568ef; }
 
 p.has-top-margin {
   margin-top: 20px; }

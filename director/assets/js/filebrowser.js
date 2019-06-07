@@ -642,7 +642,7 @@ Vue.component('convert-modal', {
     '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Convert</button>' +
+    '      <button class="button is-primary is-rounded" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Save</button>' +
     '      <button class="button is-rounded" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div>' +

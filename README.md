@@ -56,7 +56,7 @@ Stencila Hub is implemented using [Django](https://www.djangoproject.com/), [Nod
 
 The projects in Stencila Hub can be created  by adding files from multiple sources and in multiple formats. The 
 conversion between the formats is achieved by using 
-[Stencila Converters](https://github.com/stencila/convert) which can be used as an independent command line tool.
+[Stencila Encoda](https://github.com/stencila/encoda) which can be used as an independent command line tool ([Stencila CLI](https://github.com/stencila/stencila)).
 
 The interactive code cells in the documents and sheets in Stencila Hub projects can be executed thanks to 
 [Stencila Cloud](https://github.com/stencila/cloud) where hosts for execution contexts sit in Docker containers on a 
@@ -115,7 +115,7 @@ Three forms of code quality analysis are currently available.
 
 Running `make director-lint` will perform all three checks.
 
-We use Codeclimate for additional monitoring code quality and maintainability, beyond that provided by running the 
+We use Codeclimate for additional monitoring of code quality and maintainability, beyond that provided by running the 
 linting commands described above. See [here](https://codeclimate.com/github/stencila/hub) for current status.
 
 ### Testing
