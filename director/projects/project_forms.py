@@ -110,7 +110,9 @@ class ProjectSettingsAccessForm(forms.ModelForm):
                 ),
                 'token',
                 'key',
-                css_class='section'
+                HTML(
+                    '<br>'
+                )
             ),
             Submit('submit', 'Update', css_class='button is-primary')
         )
@@ -193,7 +195,7 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                     'sessions_concurrent',
                     'sessions_queued',
                     'sessions_total',
-                    css_class="column is-half section"
+                    css_class="column is-half"
                 ),
                 Div(
                     HTML(
@@ -206,7 +208,7 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                     'network',
                     'lifetime',
                     'timeout',
-                    css_class="column is-half section"
+                    css_class="column is-half"
                 ),
                 css_class="columns"
             ),
