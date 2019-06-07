@@ -30,6 +30,7 @@ class ConverterFacade(object):
 
     def convert(self, input_data: ConverterIo, output_data: ConverterIo) -> typing.Optional[bytes]:
         convert_args = [
+            'convert',
             '--from', input_data.conversion_format,
             '--to', output_data.conversion_format,
             input_data.as_path_shell_arg, output_data.as_path_shell_arg]

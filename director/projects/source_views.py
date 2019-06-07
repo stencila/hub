@@ -444,7 +444,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         target_path = utf8_path_join(source_dir, target_name)
 
-        converter = ConverterFacade(settings.STENCILA_CONVERTER_BINARY)
+        converter = ConverterFacade(settings.STENCILA_BINARY)
 
         if source_type is None:
             if isinstance(source, GoogleDocsSource):
