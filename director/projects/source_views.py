@@ -420,7 +420,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('markdown', 'html', 'gdoc', 'docx', 'jats'):
+        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -457,7 +457,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     source_type = 'xml'
             else:
                 source_type = {
-                    '.md': 'markdown',
+                    '.md': 'md',
                     '.html': 'html',
                     '.htm': 'html',
                     '.docx': 'docx',
@@ -517,7 +517,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 existing_source.save()
             else:
                 new_source.save()
-        elif target_type in ('markdown', 'html', 'docx', 'jats'):
+        elif target_type in ('md', 'html', 'docx', 'jats'):
 
             if not isinstance(source, DiskSource):
                 content = scf.get_binary_content()

@@ -41,7 +41,7 @@ function jsonFetch (url, body, callback) {
 }
 
 function extensionFromType (type) {
-  if (type === 'markdown') {
+  if (type === 'md') {
     return '.md'
   }
 
@@ -194,7 +194,7 @@ Vue.component('item-action-menu', {
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
         ['text/xml+jats', 'jats', 'JATS'],
-        ['text/markdown', 'markdown', 'Markdown'],
+        ['text/markdown', 'md', 'Markdown'],
         ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word']
       ]
 
