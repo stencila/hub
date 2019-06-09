@@ -64,6 +64,7 @@ class Common(Configuration):
 
         # Our apps
 
+        'stencila_admin',  # not Django admin
         'users',
         'accounts',
         'projects',

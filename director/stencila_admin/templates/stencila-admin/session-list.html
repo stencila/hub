@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Running Sessions{% endblock %}
+{% block content %}
+    <h3 class="title is-3">Running Sessions</h3>
+    <table class="table is-fullwidth">
+        <thead>
+        <tr>
+            <th>Session ID</th>
+            <th>Project</th>
+            <th>Status</th>
+            <th>URL</th>
+            <th>Last Check</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for session in sessions %}
+            <tr>
+                <td>{{ session.id }}</td>
+                <td>
+                    <a href="{% url 'project_overview' session.project.pk %}">{{ session.project.pk }}</a>
+                </td>
+                <td>
+                    {{ session.status.name }}
+                </td>
+                <td>
+                    {{ session.url }}
+                </td>
+                <td>
+                    {{ session.last_check|timesince }} ago
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

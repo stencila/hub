@@ -7,6 +7,7 @@ from django.views.defaults import permission_denied, page_not_found
 import projects.urls
 from accounts.urls import urlpatterns as accounts_patterns
 from api_urls import urlpatterns as api_patterns
+from stencila_admin.urls import urlpatterns as stencila_admin_patterns
 from checkouts.views import (
     CheckoutListView,
     CheckoutCreateView,
@@ -75,6 +76,9 @@ urlpatterns = [
 
     # Accounts App
     path('accounts/', include(accounts_patterns)),
+
+    # Stencila Admin App (not Django Admin)
+    path('stencila-admin/', include(stencila_admin_patterns)),
 
     # API
     path('api/', include(api_patterns)),

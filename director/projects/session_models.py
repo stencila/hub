@@ -31,20 +31,20 @@ class SessionStatus(enum.Enum):
 
 
 class SessionManager(models.Manager):
-    def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
+    def filter_status(self, status: SessionStatus) -> QuerySet:
         """
         Retrieve `Session`s with a particular `SessionStatus`.
 
         Since the `status` attribute is dynamically updated.
         It is based on when the `Session` was polled, stopped or started.
         """
-        filter_kwargs = {'project': project}
+        filter_kwargs = {}
 
         if status == SessionStatus.UNKNOWN:
             filter_kwargs['last_check__isnull'] = True
         elif status == SessionStatus.NOT_STARTED:
             filter_kwargs['last_check__isnull'] = False
-            filter_kwargs['started'] = None
+            filter_kwargs['started'] = None  # type: ignore
         elif status == SessionStatus.RUNNING:
             filter_kwargs['last_check__isnull'] = False
             filter_kwargs['started__lt'] = timezone.now()
@@ -54,6 +54,10 @@ class SessionManager(models.Manager):
             filter_kwargs['stopped__lt'] = timezone.now()
 
         return super().get_queryset().filter(**filter_kwargs)
+
+    def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
+        """Find `Sessions` with a particular `SessionStatus`, but only for the given `Project`."""
+        return self.filter_status(status).filter(project=project)
 
     def filter_stale_status(self) -> QuerySet:
         """
