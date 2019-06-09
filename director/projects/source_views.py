@@ -420,7 +420,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats', 'rmd'):
+        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats', 'rmd', 'ipynb'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -460,6 +460,8 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     '.md': 'md',
                     '.html': 'html',
                     '.htm': 'html',
+                    '.rmd': 'rmd',
+                    '.ipynb': 'ipynb',
                     '.docx': 'docx',
                 }[source_ext.lower()]
 
@@ -517,7 +519,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 existing_source.save()
             else:
                 new_source.save()
-        elif target_type in ('md', 'html', 'docx', 'jats'):
+        elif target_type in ('md', 'html', 'docx', 'jats', 'ipynb', 'rmd'):
 
             if not isinstance(source, DiskSource):
                 content = scf.get_binary_content()

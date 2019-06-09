@@ -41,20 +41,12 @@ function jsonFetch (url, body, callback) {
 }
 
 function extensionFromType (type) {
-  if (type === 'md') {
-    return '.md'
-  }
-
-  if (type === 'html') {
-    return '.html'
-  }
-
-  if (type === 'docx') {
-    return '.docx'
-  }
-
   if (type === 'jats') {
     return '.jats.xml'
+  }
+
+  if(['md', 'html', 'docx', 'rmd', 'ipynb'].indexOf(type) !== -1) {
+    return `.${type}`
   }
 
   return ''
@@ -194,8 +186,10 @@ Vue.component('item-action-menu', {
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
         ['text/xml+jats', 'jats', 'JATS'],
+        ['application/x-ipynb+json', 'ipynb', 'Jupyter Notebook'],
         ['text/markdown', 'md', 'Markdown'],
-        ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word']
+        ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word'],
+        ['text/rmarkdown', 'rmd', 'RMarkdown']
       ]
 
       const convertibleMimetypes = convertibleDefinitions.map(typeDef => typeDef[0])

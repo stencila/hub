@@ -34,6 +34,10 @@ class MimeTypeDetectMixin(object):
 
             if ext.lower() == '.md':
                 return 'text/markdown'
+            elif ext.lower() == '.rmd':
+                return 'text/rmarkdown'
+            elif ext.lower() == '.ipynb':
+                return 'application/x-ipynb+json'
 
         return mimetype or 'Unknown'
 
