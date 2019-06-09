@@ -420,7 +420,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = None
 
-        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats'):
+        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats', 'rmd'):
             raise TypeError('Can\'t convert to {}.'.format(target_type))
 
         google_token = user_social_token(request.user, 'google')
@@ -484,7 +484,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     with tempfile.NamedTemporaryFile(delete=False) as temp_output:
                         temp_output_path = temp_output.name
 
-                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'html')
+                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'docx')
 
                     converter.convert(converter_input, converter_output)
 
@@ -496,7 +496,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
                     if temp_output_path:
                         unlink(temp_output_path)
-                output_mime_type = 'text/html'
+                output_mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             else:
                 output_mime_type, encoding = mimetypes.guess_type(source_path, False)
                 output_content = scf.get_binary_content()
