@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV STENCILA_CLI_VERSION v0.29.0
+ENV STENCILA_CLI_VERSION v0.30.0
 
 RUN apt-get update \
  && apt-get install -y \
