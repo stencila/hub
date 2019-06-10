@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV STENCILA_CLI_VERSION v0.30.0
+ENV STENCILA_CLI_VERSION v0.30.1
 
 RUN apt-get update \
  && apt-get install -y \
@@ -12,13 +12,13 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s ${STENCILA_CLI_VERSION}
-
 RUN pip3 install gunicorn
 
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
 USER director
+
+RUN curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s ${STENCILA_CLI_VERSION}
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
