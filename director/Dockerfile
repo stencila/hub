@@ -12,9 +12,6 @@ RUN apt-get update \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://github.com/stencila/cli/releases/download/v0.30.1/stencila-linux-x64.tar.gz | tar xvz \
- && mv stencila /usr/local/bin
-
 RUN curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s ${STENCILA_CLI_VERSION}
 
 RUN pip3 install gunicorn
