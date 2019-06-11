@@ -8,6 +8,7 @@ RUN apt-get update \
       curl \
       python3 \
       python3-pip \
+      libx11-6 \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
