@@ -1035,22 +1035,31 @@ const g_actionBar = new Vue({
     createFolder () {
       fileBrowser.$root.$emit('add-item-modal-show', 'Folder')
     },
-    showLinkModal (providerTypeId, linkType) {
+    showLinkModal ($event, providerTypeId, linkType) {
       if (g_supportedSocialProviders[providerTypeId] !== true) {
+        $event.preventDefault()
 
         let providerTypeName = ''
 
         if (providerTypeId === 'google') {
           providerTypeName = 'Google'
+        } else if (providerTypeId === 'github') {
+          providerTypeName = 'Github'
         }
 
+
         fileBrowser.$root.$emit('unsupported-social-provider-modal-show', providerTypeName)
-        return
+        return false
       }
 
       if (linkType === 'gdoc') {
+        $event.preventDefault()
         fileBrowser.$root.$emit('googledocs-link-modal-show')
+      } else {
+        return true
       }
+
+      return false
     },
     showUnlinkModal (sourceDescription, sourceId) {
       this.unlinkSourceDescription = sourceDescription

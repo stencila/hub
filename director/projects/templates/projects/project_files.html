@@ -66,13 +66,13 @@
                         <span>Dropbox</span>
                     </a>
                     {% endcomment %}
-                        <a href="{% url 'githubsource_create' project.pk %}" class="dropdown-item">
+                        <a href="{% url 'githubsource_create' project.pk %}" @click="showLinkModal($event, 'github', 'github')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-github" aria-hidden="true"></i>
                         </span>
                             <span>Github&hellip;</span>
                         </a>
-                        <a href="#" @click.prevent="showLinkModal('google', 'gdoc')" class="dropdown-item">
+                        <a href="#" @click.prevent="showLinkModal($event, 'google', 'gdoc')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-google" aria-hidden="true"></i>
                         </span>

@@ -19,7 +19,7 @@ from django.views.generic import CreateView, DetailView
 
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
 from lib.google_docs_facade import GoogleDocsFacade
-from lib.social_auth_token import user_social_token
+from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
@@ -113,6 +113,16 @@ class GithubSourceCreateView(SourceCreateView):
     model = GithubSource
     form_class = GithubSourceForm
     template_name = 'projects/githubsource_create.html'
+
+    def get(self, request, *args, **kwargs) -> HttpResponse:
+        github_token = user_github_token(request.user)
+        if not github_token:
+            messages.error(request, 'Can not link a Github repository as you do not have a Github account connected to '
+                                    'your Stencila Hub account. Please add a connection on the Account Connections '
+                                    'page.')
+            return redirect('project_files', kwargs['pk'])
+
+        return super(GithubSourceCreateView, self).get(request, *args, **kwargs)
 
 
 class GoogleDocsSourceCreateView(SourceCreateView):
