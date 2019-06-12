@@ -15,6 +15,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
+from github import RateLimitExceededException
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
@@ -259,11 +260,17 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
         path = path or ''
 
-        virtual_items = list_project_virtual_directory(self.project, path, authentication)
-        on_disk_items = list_project_filesystem_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self.project,
-                                                          path)
+        try:
+            virtual_items = list_project_virtual_directory(self.project, path, authentication)
+            on_disk_items = list_project_filesystem_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self.project,
+                                                              path)
 
-        directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
+            directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
+        except RateLimitExceededException:
+            directory_items = []
+            messages.error(request, "Could not list this directory as it contains Github sources and the anonymous "
+                                    "rate limit has been exceeded. Please connect your Github account on the Account "
+                                    "Connections page to remove this limit.")
 
         session_check_path = reverse('session_queue_v1', args=(self.project.token,))
         session_start_path = reverse('session_start_v1', args=(self.project.token, DEFAULT_ENVIRON))

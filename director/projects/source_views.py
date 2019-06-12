@@ -188,9 +188,10 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
 
 
 class ContentFacadeMixin(object):
-    def get_content_facade(self, request, project_pk, pk, path):
-        source = self.get_source(request.user, project_pk, pk)
-        return make_source_content_facade(request.user, path, source, self.get_project(request.user, project_pk))
+    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
+        source = self.get_source(request.user, project_pk, pk)  # type: ignore
+        return make_source_content_facade(request.user, path, source,
+                                          self.get_project(request.user, project_pk))  # type: ignore
 
 
 class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
@@ -198,11 +199,22 @@ class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
 
     def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
         content_facade = self.get_content_facade(request, project_pk, pk, path)
-        return self.process_get(content_facade)
+        return self.process_get(project_pk, path, content_facade)
 
-    @staticmethod
-    def process_get(content_facade) -> HttpResponse:
-        response = HttpResponse(content_facade.get_binary_content(), content_type='application/octet-stream')
+    def process_get(self, project_pk: int, path: str, content_facade: SourceContentFacade) -> HttpResponse:
+        file_content = content_facade.get_binary_content()
+
+        if content_facade.error_exists:
+            content_facade.add_messages_to_request(self.request)
+
+            dirname = utf8_dirname(path)
+
+            if dirname:
+                return redirect('project_files_path', project_pk, dirname)
+            return redirect('project_files', project_pk)
+
+        response = HttpResponse(file_content, content_type='application/octet-stream')
+
         response['Content-Disposition'] = 'attachment; filename={}'.format(content_facade.get_name())
         return response
 
@@ -236,14 +248,25 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
     def get_default_commit_message(request: HttpRequest):
         return 'Commit from Stencila Hub User {}'.format(request.user)
 
-    def process_get(self, request: HttpRequest, content_facade: SourceContentFacade) -> HttpResponse:
-        return self.render(request, content_facade.get_edit_context(), {
+    def process_get(self, request: HttpRequest, project_pk: int, path: str,
+                    content_facade: SourceContentFacade) -> HttpResponse:
+        edit_context = content_facade.get_edit_context()
+
+        if edit_context is None:
+            content_facade.add_messages_to_request(request)
+            dirname = utf8_dirname(path)
+
+            if dirname:
+                return redirect('project_files_path', project_pk, dirname)
+            return redirect('project_files', project_pk)
+
+        return self.render(request, edit_context, {
             'default_commit_message': self.get_default_commit_message(request)
         })
 
     def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
         content_facade = self.get_content_facade(request, project_pk, pk, path)
-        return self.process_get(request, content_facade)
+        return self.process_get(request, project_pk, path, content_facade)
 
     @staticmethod
     def get_github_repository_path(source, file_path):
@@ -265,10 +288,22 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
         update_success = content_facade.update_content(request.POST['file_content'], commit_message)
 
-        for message in content_facade.message_iterator():
-            messages.add_message(request, message.level, message.message)
+        error_exists = content_facade.error_exists
 
-        if not update_success:
+        content_facade.add_messages_to_request(request)
+
+        if error_exists or not update_success:
+            edit_context = content_facade.get_edit_context()
+
+            if edit_context is None or content_facade.error_exists:
+                content_facade.add_messages_to_request(self.request)
+
+                dirname = utf8_dirname(path)
+
+                if dirname:
+                    return redirect('project_files_path', project_pk, dirname)
+                return redirect('project_files', project_pk)
+
             return self.render(request, content_facade.get_edit_context(), {
                 'commit_message': commit_message,
                 'default_commit_message': self.get_default_commit_message(request)
@@ -288,21 +323,21 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
 class DiskFileSourceDownloadView(SourceDownloadView):
     def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, -1, path)
-        return self.process_get(content_facade)
+        return self.process_get(project_pk, path, content_facade)
 
-    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
+    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
         return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
 
 
 class DiskFileSourceOpenView(SourceOpenView):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str):
+    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
         return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
 
     def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, -1, path)
-        return self.process_get(request, content_facade)
+        return self.process_get(request, project_pk, path, content_facade)
 
     def post(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
         self.pre_post_check(request, project_pk)

@@ -2,6 +2,7 @@ import shutil
 import typing
 from io import BytesIO
 
+from django.contrib import messages
 from django.http import HttpRequest
 from django.utils import timezone
 
@@ -80,6 +81,11 @@ class ProjectSourcePuller(object):
 
                 with open(to_utf8(output_path), 'wb') as f:
                     shutil.copyfileobj(BytesIO(scf.get_binary_content()), f)
+
+                if scf.error_exists:
+                    for message in scf.message_iterator():
+                        messages.add_message(self.request, message.level, message.message)
+                    return
 
         directory_entries = filter(lambda e: e.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE),
                                    dir_list)

@@ -4,9 +4,11 @@ from os.path import splitext
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_constants
-from github import GithubException
+from django.http import HttpRequest
+from github import GithubException, RateLimitExceededException
 
 from lib.github_facade import GitHubFacade
 from lib.google_docs_facade import GoogleDocsFacade
@@ -31,6 +33,17 @@ class SourceEditContext(typing.NamedTuple):
 class Message(typing.NamedTuple):
     level: int
     message: str
+
+
+def rate_limit_decorator(func):
+    def wrapper(scf, *args, **kwargs):
+        try:
+            return func(scf, *args, **kwargs)
+        except RateLimitExceededException:
+            scf.add_rate_limit_exceeded_error()
+            return None
+
+    return wrapper
 
 
 class SourceContentFacade(object):
@@ -78,7 +91,7 @@ class SourceContentFacade(object):
 
         raise TypeError('Don\'t know how to get binary content for source type \'{}\''.format(type(self.source)))
 
-    def get_edit_context(self) -> SourceEditContext:
+    def get_edit_context(self) -> typing.Optional[SourceEditContext]:
         supports_commit_message = False
 
         if isinstance(self.source, GithubSource):
@@ -96,7 +109,9 @@ class SourceContentFacade(object):
         content = self.get_content()
 
         if not isinstance(content, (str, bytes)):
-            raise TypeError('Can\t edit a non str or BytesIO')
+            if content is None and self.error_exists:
+                return None
+            raise TypeError('Can\'t edit a non str or BytesIO')
 
         return SourceEditContext(self.file_path, ext, content, self.source, editable, supports_commit_message)
 
@@ -117,7 +132,13 @@ class SourceContentFacade(object):
         while self.messages:
             yield self.messages.pop(0)
 
+    def add_rate_limit_exceeded_error(self) -> None:
+        self.add_message(message_constants.ERROR, 'Could not access Github because the anonymous rate limit has been '
+                                                  'reached. Add your Github account on the Account Connections page to '
+                                                  'prevent this error in the future.')
+
     # Github
+    @rate_limit_decorator
     def get_github_source_content(self) -> str:
         if not self.github_facade:
             raise TypeError('Can\'t continue, GithubFacade not set.')
@@ -125,6 +146,7 @@ class SourceContentFacade(object):
         path_in_repo = self.get_github_repository_path()
         return self.github_facade.get_file_content(path_in_repo, self.encoding)
 
+    @rate_limit_decorator
     def get_github_source_binary_content(self) -> bytes:
         if not self.github_facade:
             raise TypeError('Can\'t continue, GithubFacade not set.')
@@ -136,6 +158,7 @@ class SourceContentFacade(object):
         source = typing.cast(GithubSource, self.source)
         return utf8_path_join(source.subpath, strip_directory(self.file_path, source.path))
 
+    @rate_limit_decorator
     def update_github_source_content(self, content: str, commit_message: str) -> bool:
         if not self.github_facade:
             raise TypeError('Can\'t continue, GithubFacade not set.')
@@ -197,9 +220,21 @@ class SourceContentFacade(object):
         """Get the name of the source (i.e. basename)."""
         return utf8_basename(self.file_path)
 
+    @property
+    def error_exists(self) -> bool:
+        try:
+            filter(lambda m: m.level == message_constants.ERROR, self.messages)
+        except StopIteration:
+            return False
+        return True
+
+    def add_messages_to_request(self, request: HttpRequest) -> None:
+        for message in self.message_iterator():
+            messages.add_message(request, message.level, message.message)
+
 
 def make_source_content_facade(user: User, file_path: str, source: typing.Union[Source, DiskSource],
-                               project: Project):
+                               project: Project) -> SourceContentFacade:
     disk_facade = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
     gh_token = user_github_token(user)
