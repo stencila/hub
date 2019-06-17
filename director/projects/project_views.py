@@ -268,9 +268,11 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
         except RateLimitExceededException:
             directory_items = []
-            messages.error(request, "Could not list this directory as it contains Github sources and the anonymous "
-                                    "rate limit has been exceeded. Please connect your Github account on the Account "
-                                    "Connections page to remove this limit.")
+            messages.error(request, 'Could not list this directory as it contains Github sources and the anonymous '
+                                    'rate limit has been exceeded.<br/>Please connect your Github account on the '
+                                    '<a href="{}">Account Connections page</a> to remove this limit.'.format(
+                                        reverse('socialaccount_connections')),
+                           extra_tags='safe')
 
         session_check_path = reverse('session_queue_v1', args=(self.project.token,))
         session_start_path = reverse('session_start_v1', args=(self.project.token, DEFAULT_ENVIRON))

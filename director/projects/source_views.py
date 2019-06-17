@@ -116,10 +116,11 @@ class GithubSourceCreateView(SourceCreateView):
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         github_token = user_github_token(request.user)
-        if not github_token:
+        if True or not github_token:
             messages.error(request, 'Can not link a Github repository as you do not have a Github account connected to '
-                                    'your Stencila Hub account. Please add a connection on the Account Connections '
-                                    'page.')
+                                    'your Stencila Hub account.<br/>Please connect your Github account on the '
+                                    '<a href="{}">Account Connections page</a>.'.format(
+                                        reverse('socialaccount_connections')), extra_tags='safe')
             return redirect('project_files', kwargs['pk'])
 
         return super(GithubSourceCreateView, self).get(request, *args, **kwargs)
