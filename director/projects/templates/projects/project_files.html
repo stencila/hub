@@ -140,45 +140,36 @@
                 </template>
             </delete-confirm-modal>
         {% endif %}
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                {% for breadcrumb in breadcrumbs %}
+                    <li {% if forloop.last %}class="is-active"{% endif %}>
+                        <a href="
+                                {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
+                            <span>
+                                {{ breadcrumb.name }}
+                            </span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
         <table class="table is-fullwidth is-striped" id="files-table">
             <thead>
-            <tr>
-                <th colspan="6">
-                    <nav class="breadcrumb" aria-label="breadcrumbs">
-                        <ul>
-                            {% for breadcrumb in breadcrumbs %}
-                                <li {% if forloop.last %}class="is-active"{% endif %}>
-                                    <a href="
-
-                                            {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
-                                        {% if forloop.first %}
-                                            <span class="icon is-small"><i class="fas fa-home"
-                                                                           aria-hidden="true"></i></span>
-                                        {% endif %}
-                                        <span>
-                                            {{ breadcrumb.name }}
-                                        </span>
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </nav>
-                </th>
-            </tr>
-            <tr>
-                <th>Browse</th>
-                <th>{# main file #}</th>
-                <th class="has-text-centered">Source</th>
-                <th>Updated</th>
-                <th class="has-text-centered">Actions</th>
-            </tr>
+                <tr class="table-header">
+                    <th>Browse</th>
+                    <th>{# main file #}</th>
+                    <th class="has-text-centered">Source</th>
+                    <th>Updated</th>
+                    <th class="has-text-centered">Actions</th>
+                </tr>
             </thead>
             <tbody id="file_list_body">
             {% for directory_entry in items %}
                 <tr>
                     <td>
-                        <p>
-                            <i class="far fa-lg fa-{{ directory_entry|file_icon }}"></i>
+                        <p class="table-icon-label">
+                            <i class="fa fa-{{ directory_entry|file_icon }}"></i>
                             {% if directory_entry.is_directory %}
                                 <a href="{% source_path project directory_entry %}">
                             {% endif %}
