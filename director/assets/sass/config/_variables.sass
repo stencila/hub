@@ -2,26 +2,28 @@
 /// Variables - overrides & additions.
 ////
 
-/// Bulma settings
-$body-background-color: $light
+/// Colours
+$link: $dark
 
-/// Bluma menu.
-$menu-item-active-color: $primary
-$menu-item-active-background-color: $light
+/// Fonts
+@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:600&display=swap')
+$family-sans-serif: 'Lato', sans-serif
+$family-monospace: monospace
+$family-primary: $family-sans-serif
+$family-secondary: 'Montserrat', sans-serif
+// ~TODO: update in styles repo, remove here (resets to defaults)
+$weight-bold: 700
+$weight-heavy: 700
+$weight-semibold: 600
 
-/// Bulma forms
+/// Form
 $input-shadow: none
 $input-border-color: rgba($black, 0.1)
 $input-focus-border-color: $primary
 $input-focus-box-shadow-color: transparent
 $label-color: rgba($black, 0.5)
 
-/// Colours
-$link: $dark
-
-/// Drop down
-
-
+// ~TODO: revisit if hamburger still necessary
 /// Hamburger
 $hamburger-layer-border-radius: 0
 $hamburger-layer-color: $primary
@@ -31,3 +33,6 @@ $hamburger-padding-y: 10px
 $hamburger-layer-width: 30px
 $hamburger-layer-height: 4px
 $hamburger-layer-spacing: 4px
+
+/// Menu
+$menu-item-active-color: $primary

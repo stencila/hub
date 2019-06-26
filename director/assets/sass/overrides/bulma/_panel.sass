@@ -1,0 +1,19 @@
+////
+/// Bulma Panel overrides
+////
+$panel-block-active-border-left-color: $primary
+$panel-block-active-background-color: transparent
+
+.panel-block
+    border-color: transparent
+    border-left: 2px solid transparent
+    padding: 1em
+    +uppercase-heading()
+
+    &:first-child
+        border-top: none
+
+    &.is-active, &:hover
+        border-left: 2px solid $panel-block-active-border-left-color
+        color: $panel-block-active-border-left-color
+        background-color: $panel-block-active-background-color
