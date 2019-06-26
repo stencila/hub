@@ -8,12 +8,13 @@ $panel-block-active-background-color: transparent
     border-color: transparent
     border-left: 2px solid transparent
     padding: 1em
-    +uppercase-heading()
+    +uppercase-heading
 
     &:first-child
         border-top: none
 
     &.is-active, &:hover
+        +transition
         border-left: 2px solid $panel-block-active-border-left-color
         color: $panel-block-active-border-left-color
         background-color: $panel-block-active-background-color
