@@ -318,8 +318,8 @@ Vue.component('remove-item-modal', {
     '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-rounded is-danger" @click.prevent="performDelete()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Delete</button>' +
-    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-danger" @click.prevent="performDelete()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Delete</button>' +
+    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -410,8 +410,8 @@ Vue.component('rename-item-modal', {
     '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
-    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
+    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -508,8 +508,8 @@ Vue.component('add-item-modal', {
     '                    <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '                </section>' +
     '                <footer class="modal-card-foot">' +
-    '                    <button class="button is-primary is-rounded" @click.prevent="create()" :disabled="createInProgress"  :class="{\'is-loading\': createInProgress}">Create</button>' +
-    '                    <button class="button is-rounded" :disabled="createInProgress" @click.prevent="hide()">Cancel</button>' +
+    '                    <button class="button is-primary" @click.prevent="create()" :disabled="createInProgress"  :class="{\'is-loading\': createInProgress}">Create</button>' +
+    '                    <button class="button" :disabled="createInProgress" @click.prevent="hide()">Cancel</button>' +
     '                </footer>' +
     '            </div>' +
     '        </div>'
@@ -636,8 +636,8 @@ Vue.component('convert-modal', {
     '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Save</button>' +
-    '      <button class="button is-rounded" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Save</button>' +
+    '      <button class="button" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
@@ -782,7 +782,7 @@ Vue.component('upload-progress-modal', {
     '      </table>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="hide()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
+    '      <button class="button is-primary" @click.prevent="hide()" :disabled="uploadInProgress"  :class="{\'is-loading\': uploadInProgress}">Done</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'
@@ -865,8 +865,8 @@ Vue.component('googledocs-link-modal', {
     '      <p class="help">For example, <em>https://docs.google.com/document/d/[document id]/</em></p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
-    '      <button class="button is-rounded" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
+    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
     '</div>'
@@ -914,7 +914,7 @@ Vue.component('unsupported-social-provider-modal', {
     '      <p>You connect one on the <a :href="accountConnectionsUrl">Account Connections</a> page.</p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary is-rounded" @click.prevent="hide()">OK</button>' +
+    '      <button class="button is-primary" @click.prevent="hide()">OK</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'

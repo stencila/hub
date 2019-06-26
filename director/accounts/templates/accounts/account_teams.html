@@ -15,7 +15,7 @@
         <div class="level-right">
             {% if account_permissions|account_permissions_contain:'administer' %}
                 <p class="level-item">
-                    <a class="button is-primary is-rounded is-outlined" href="{% url 'account_team_create' account.id %}">
+                    <a class="button is-primary is-outlined" href="{% url 'account_team_create' account.id %}">
                         <span class="icon"><i class="fas fa-plus"></i></span>
                         <span>New Team</span>
                     </a>

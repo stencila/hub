@@ -33,11 +33,11 @@
             {% endif %}
             <div class="field is-grouped">
                 <div class="control">
-                    <input type="submit" class="button is-primary is-rounded" value="Save">
+                    <input type="submit" class="button is-primary" value="Save">
                 </div>
                 <div class="control">
                     <a href="{% if file_directory %}{% url 'project_files_path' project.pk file_directory %}{% else %}{% url 'project_files' project.pk %}{% endif %}"
-                       class="button is-rounded"
+                       class="button"
                     >Cancel</a>
                 </div>
             </div>
