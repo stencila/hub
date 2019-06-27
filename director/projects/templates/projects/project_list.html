@@ -5,11 +5,6 @@
 {% block content %}
     <nav class="level">
         <div class="level-left">
-            <div class="level-item">
-                <p class="subtitle is-5">
-                    <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
-                </p>
-            </div>
             {% comment %}
             <div class="level-item">
               <div class="field has-addons">
@@ -26,83 +21,86 @@
             {% endcomment %}
         </div>
 
-        <div class="level-right">
-            {% for filter_option in filter_options %}
-                <p class="level-item">
-                    {% if filter_option.key == filter_key %}
-                        <strong>
-                    {% else %}
-                        <a href="{{ request.path }}?filter={{ filter_option.key }}">
-                    {% endif %}
-                    {{ filter_option.label }}
-                    {% if filter_option.key == filter_key %}
-                        </strong>
-                    {% else %}
-                        </a>
-                    {% endif %}
-                </p>
-            {% endfor %}
-
-            {% if request.user.is_authenticated %}
-                <p class="level-item">
-                    <a class="button is-primary is-outlined" href="{% url 'project_create' %}">
-                        <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New Project</span>
-                    </a>
-                </p>
-            {% endif %}
-        </div>
     </nav>
-
-    <div class="section section--inner">
-        {% for project in object_list %}
-            <a class="box" href="{% url 'project_overview' project.id %}" title="Open">
-                <span>{{ project.get_name }}</span>
-            </a>
-        {% empty %}
-            <div>
-                It appears that you have no projects. Click on <em>New Project</em> to get started!
-            </div>
-        {% endfor %}
-    </div>
-
-    {% comment %}
-    Disabled card-based 'gallery' view
-
-    <div class="columns is-multiline">
-        {% for project in object_list %}
-            <div class="column">
-                <div class="card">
-                    <header class="card-header">
-                        <p class="card-header-title">
-                            {{ project.get_name }}
-                        </p>
-                    </header>
-                    <div class="card-content">
-                        <div class="content">
-                        </div>
-                    </div>
-                    <footer class="card-footer">
-                        <a class="card-footer-item" href="{% url 'checkout_create' %}?project={{ project.id }}"
-                           target="_blank" title="Open">
-                            <span class="icon">
-                                <i class="fas fa-edit"></i>
-                            </span>
-                            <span>Open</span>
-                        </a>
-                        <a class="card-footer-item" href="{% url 'project_update' project.id %}" title="Settings">
-                            <span class="icon">
-                                <i class="fas fa-cog"></i>
-                            </span>
-                            <span>Settings</span>
-                        </a>
-                    </footer>
+    
+    <div class="columns">
+        <div class="column" style="flex: none; width: 228px">
+                <nav class="panel">
+                    {% for filter_option in filter_options %}
+                    <a href="{{ request.path }}?filter={{ filter_option.key }}"
+                    class="panel-block{% if filter_option.key == filter_key %} is-active{% endif %}">
+                    {{ filter_option.label }}
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+        <div class="column">
+            <nav class="level">
+                <div class="level-left">
+                    <h2 class="title">
+                        Projects 
+                    </h2>
+                    <p class="subtitle is-5">
+                        <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
+                    </p>
                 </div>
-            </div>
-        {% empty %}
-            <p>No projects yet.</p>
-        {% endfor %}
-    </div>
-    {% endcomment %}
+                <div class="level-right">
+                    {% if request.user.is_authenticated %}
+                        <p class="level-item">
+                            <a class="button is-primary is-outlined" href="{% url 'project_create' %}">
+                                <span class="icon"><i class="fas fa-plus"></i></span>
+                                <span>New Project</span>
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </nav>
+            {% for project in object_list %}
+                <a class="box" href="{% url 'project_overview' project.id %}" title="Open">
+                    <span>{{ project.get_name }}</span>
+                </a>
+                {% empty %}
+                <div>
+                    It appears that you have no projects. Click on <em>New Project</em> to get started!
+                </div>
+            {% endfor %}
+        {% comment %}
+        Disabled card-based 'gallery' view
 
+        <div class="columns is-multiline">
+            {% for project in object_list %}
+                <div class="column">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                {{ project.get_name }}
+                            </p>
+                        </header>
+                        <div class="card-content">
+                            <div class="content">
+                            </div>
+                        </div>
+                        <footer class="card-footer">
+                            <a class="card-footer-item" href="{% url 'checkout_create' %}?project={{ project.id }}"
+                            target="_blank" title="Open">
+                                <span class="icon">
+                                    <i class="fas fa-edit"></i>
+                                </span>
+                                <span>Open</span>
+                            </a>
+                            <a class="card-footer-item" href="{% url 'project_update' project.id %}" title="Settings">
+                                <span class="icon">
+                                    <i class="fas fa-cog"></i>
+                                </span>
+                                <span>Settings</span>
+                            </a>
+                        </footer>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No projects yet.</p>
+            {% endfor %}
+        </div>
+        {% endcomment %}
+    </div>
 {% endblock %}

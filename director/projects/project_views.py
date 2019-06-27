@@ -196,10 +196,10 @@ class ProjectListView(BetaTokenRequiredMixin, View):
                 projects = Project.objects.filter(creator=request.user)
 
             filter_options = (
-                FilterOption('created', 'My Projects'),
-                FilterOption('account', 'Account Projects'),
-                FilterOption('shared', 'Projects Shared With Me'),
-                FilterOption('public', 'Public Projects')
+                FilterOption('created', 'Created by me'),
+                FilterOption('account', 'Account projects'),
+                FilterOption('shared', 'Shared with me'),
+                FilterOption('public', 'Public')
             )
 
         return render(request, 'projects/project_list.html', {
