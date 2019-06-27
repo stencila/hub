@@ -4,6 +4,5 @@
 {% block title %}Project {{ project.pk }} : Settings : Access{% endblock %}
 
 {% block project_content %}
-    {% include "projects/_project_settings_tabs.html" with project=project tab="access" %}
     {% crispy form %}
 {% endblock %}

@@ -50,10 +50,14 @@ DEFAULT_ENVIRON = 'stencila/core'
 class ProjectTab(Enum):
     OVERVIEW = 'overview'
     FILES = 'files'
+    FILES_CURRENT = 'current'
+    FILES_ARCHIVES = 'archives'
     ACTIVITY = 'activity'
     SHARING = 'sharing'
     SETTINGS = 'settings'
-
+    SETTINGS_METADATA = 'metadata'
+    SETTINGS_ACCESS = 'access'
+    SETTINGS_SESSIONS = 'sessions'
 
 class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
@@ -287,6 +291,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 'item_names': json.dumps([item.name for item in directory_items]),
                 'items': directory_items,
                 'project_tab': ProjectTab.FILES.value,
+                'project_subtab': ProjectTab.FILES_CURRENT.value,
                 'social_providers_supported': json.dumps(user_supported_social_providers(request.user))
             })
                       )
@@ -493,6 +498,7 @@ class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsMetadataView, self).get_context_data(**kwargs)
         context_data['project_tab'] = ProjectTab.SETTINGS.value
+        context_data['project_subtab'] = ProjectTab.SETTINGS_METADATA.value
         return context_data
 
 
@@ -508,6 +514,7 @@ class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsAccessView, self).get_context_data(**kwargs)
         context_data['project_tab'] = ProjectTab.SETTINGS.value
+        context_data['project_subtab'] = ProjectTab.SETTINGS_ACCESS.value
         return context_data
 
 
@@ -521,6 +528,7 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
         context_data = super(ProjectSettingsSessionsView, self).get_context_data(**kwargs)
         context_data['parameters_presets'] = json.dumps(parameters_presets.parameters_presets)
         context_data['project_tab'] = ProjectTab.SETTINGS.value
+        context_data['project_subtab'] = ProjectTab.SETTINGS_SESSIONS.value
         return context_data
 
     def get_initial(self):
@@ -571,8 +579,12 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         archives = self.list_archives(project)
 
         return render(request, self.template_name,
-                      self.get_render_context(
-                          {'archives': archives, 'form': ProjectArchiveForm(), 'project_tab': ProjectTab.FILES.value}))
+                      self.get_render_context({
+                          'archives': archives,
+                          'form': ProjectArchiveForm(),
+                          'project_tab': ProjectTab.FILES.value,
+                          'project_subtab': ProjectTab.FILES_ARCHIVES.value
+                          }))
 
     def list_archives(self, project: Project):
         archives_directory = self.get_archives_directory(project)

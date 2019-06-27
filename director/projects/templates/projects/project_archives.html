@@ -5,7 +5,6 @@
 
 {% block project_content %}
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
-    {% include "projects/_project_files_tabs.html" with project=project tab="archives" %}
     <section id="project_archives">
         {% if project_permissions|project_permissions_contain:'edit' %}
             <delete-confirm-modal

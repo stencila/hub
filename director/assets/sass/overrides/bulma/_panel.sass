@@ -18,3 +18,16 @@ $panel-block-active-background-color: transparent
         border-left: 2px solid $panel-block-active-border-left-color
         color: $panel-block-active-border-left-color
         background-color: $panel-block-active-background-color
+
+.panel-block-secondary
+    &:not(.is-active)
+        visibility: hidden
+        height: 0
+
+    .panel-block
+        margin-left: 20px
+        font-size: $size-small
+
+        &.is-active, &:hover
+            border-color: transparent
+            background-color: transparent

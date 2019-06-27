@@ -91,7 +91,6 @@
     </div>
 {% endblock %}
 {% block project_content %}
-    {% include "projects/_project_files_tabs.html" with project=project tab="files" %}
     <script>
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
