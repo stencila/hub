@@ -4,15 +4,6 @@
 .main-navbar
     border-top: 4px solid $primary
     
-    .button
-        margin-right: rem(14)
-    
-    .buttons
-        margin-bottom: 0
-        
-        .button
-            margin-bottom: 0
-    
     .container
         @include until($desktop)
             flex-direction: row
@@ -27,20 +18,19 @@
                     
                     
         .dropdown-divider
-            margin-top: 0
+            margin: 0
             
-            + .dropdown-item
-                padding-top: 2px
-                
-        .dropdown-item
+        a.dropdown-item
+            +uppercase-heading
+            padding: 1rem
+            color: #4a4a4a
+
             &.no-hover
                 &:hover
                     &:before
-                        display: none
+                        background: transparent
+                        transition-duration: 0s
                         
-                    background-color: $white
-            .button
-                margin: auto
                 
     .dropdown-menu
         @include until($desktop)

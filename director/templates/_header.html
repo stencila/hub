@@ -44,10 +44,7 @@
                                         {% endif %}
                                         <a class="dropdown-item" href="{% url 'user_settings' %}">Settings</a>
                                         <hr class="dropdown-divider">
-                                        <div class="dropdown-item no-hover is-flex">
-                                            <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signout' %}">Sign out</a>
-                                        </div>
-
+                                        <a class="dropdown-item no-hover" href="{% url 'user_signout' %}">Sign out</a>
                                     </div>
                                 </div>
                             </div>

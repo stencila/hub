@@ -4,30 +4,41 @@
 $panel-block-active-border-left-color: $primary
 $panel-block-active-background-color: transparent
 
-.panel-block
-    border-color: transparent
-    border-left: 2px solid transparent
-    padding: 1em
-    +uppercase-heading
-
-    &:first-child
-        border-top: none
-
-    &.is-active, &:hover
-        +transition
-        border-left: 2px solid $panel-block-active-border-left-color
-        color: $panel-block-active-border-left-color
-        background-color: $panel-block-active-background-color
-
-.panel-block-secondary
-    &:not(.is-active)
-        visibility: hidden
-        height: 0
-
+nav.panel
     .panel-block
-        margin-left: 20px
-        font-size: $size-small
+        border-color: transparent
+        border-left: 2px solid transparent
+        padding: 1em
+        +uppercase-heading
+
+        &:first-child
+            border-top: none
 
         &.is-active, &:hover
-            border-color: transparent
-            background-color: transparent
+            +transition
+            border-left: 2px solid $panel-block-active-border-left-color
+            color: $panel-block-active-border-left-color
+            background-color: $panel-block-active-background-color
+
+    .panel-block-secondary
+        &:not(.is-active)
+            visibility: hidden
+            height: 0
+
+        .panel-block
+            margin-left: 20px
+            font-size: $size-small
+
+            &.is-active, &:hover
+                border-color: transparent
+                background-color: transparent
+
+.panel-heading
+    +uppercase-heading
+    border-width: 0px 0px 1px 0px
+    background: transparent
+
+.panel-block
+    font-weight: normal
+    &:last-of-type
+        border-color: transparent
