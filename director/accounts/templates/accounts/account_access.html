@@ -11,8 +11,10 @@
     <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
 {% endblock %}
 {% block content %}
-    {% include "accounts/_account_header.html" with account=account tab="members" %}
-    <section id="account-access">
+<div class="columns">
+    {% include "accounts/_account_nav.html" with account=account tab="members" %}
+    <section id="account-access" class="column">
+        {% include "accounts/_account_header.html" with account=account %}        
         <delete-confirm-modal
                 :delete-modal-visible="deleteModalVisible"
                 delete-action="delete_access"
@@ -60,7 +62,7 @@
           <p> <strong>Account member</strong> can only add projects to {{ account.name }}.</p>
           <br/>
         </div>
-        <table class="table is-bordered is-fullwidth">
+        <table class="table is-fullwidth">
             <thead>
             <tr>
                 <th>User</th>
@@ -145,4 +147,5 @@
             }
         })
     </script>
+</div>
 {% endblock %}

@@ -1,5 +1,6 @@
-<h5 class="title is-5">{{ team.name }}</h5>
-<div class="tabs is-right">
+<p class="is-uppercase-heading has-bottom-margin">{{ team.name }}</p>
+{% include "accounts/_account_header.html" with account=account %}
+<div class="tabs">
     <ul>
         <li {% if team_tab == "metadata" %}class="is-active"{% endif %}>
             <a {% if team.id %}href="{% url "account_team_detail" account.id team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>

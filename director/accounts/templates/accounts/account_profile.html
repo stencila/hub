@@ -2,9 +2,10 @@
 {% load avatar_tags %}
 {% block title %}Account {{ account.pk }}{% endblock %}
 {% block content %}
-    {% include "accounts/_account_header.html" with account=account tab="profile" %}
-    <div class="columns">
+<div class="columns">
+        {% include "accounts/_account_nav.html" with account=account tab="profile" %}
         <div class="column is-two-thirds">
+            {% include "accounts/_account_header.html" with account=account %}
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">

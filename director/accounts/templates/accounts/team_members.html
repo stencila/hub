@@ -6,95 +6,98 @@
     {{ block.super }}
 {% endblock %}
 {% block content %}
-    {% include "accounts/_account_header.html" with account=account tab="teams" %}
-    {% include "accounts/_team_header.html" with account=account team=team team_tab="members" %}
-
-    <section id="member-access">
-        {% if account_permissions|account_permissions_contain:'administer' %}
-            <delete-confirm-modal
-                    :delete-modal-visible="deleteModalVisible"
-                    delete-action="remove_member"
-                    delete-id-name="name"
-                    :delete-id-value="removeUserName"
-                    delete-button-label="Remove"
-                    @modal-hide="hideDeleteModal()">
-                <template slot="title">Remove this user?</template>
-                <template slot="csrf_token">{% csrf_token %}</template>
-                <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from
-                    <em>{{ team.name }}</em>?
-                </template>
-            </delete-confirm-modal>
-            <form method="post">
-                {% csrf_token %}
-                <div class="columns">
-                    <div class="column">
-                        <user-autocomplete @username-selected="usernameSelected"
-                                            :skip-results="currentMembers"></user-autocomplete>
-                    </div>
-                    <div class="column">
-                        <button class="button is-primary" name="action" value="add_member" type="submit"
-                                :disabled="selectedUsername == ''">Add
-                        </button>
-                    </div>
-                </div>
-            </form>
-            <br>
-        {% endif %}
-        <table class="table is-fullwidth is-striped is-bordered">
-            <thead>
-            <tr>
-                <th>User</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for member in team.members.all %}
-                <tr>
-                    <td>{{ member }}</td>
-                    <td class="has-text-right">
-                        {% if account_permissions|account_permissions_contain:'administer' %}
-                            <button class="button is-danger"
-                                    @click.prevent="showDeleteModal('{{ member.username }}')">
-                                Remove&hellip;
+<div class="columns">
+    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+    <div class="column">
+        {% include "accounts/_team_header.html" with account=account team=team team_tab="members" %}
+        <section id="member-access">
+            {% if account_permissions|account_permissions_contain:'administer' %}
+                <delete-confirm-modal
+                        :delete-modal-visible="deleteModalVisible"
+                        delete-action="remove_member"
+                        delete-id-name="name"
+                        :delete-id-value="removeUserName"
+                        delete-button-label="Remove"
+                        @modal-hide="hideDeleteModal()">
+                    <template slot="title">Remove this user?</template>
+                    <template slot="csrf_token">{% csrf_token %}</template>
+                    <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from
+                        <em>{{ team.name }}</em>?
+                    </template>
+                </delete-confirm-modal>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="columns">
+                        <div class="column">
+                            <user-autocomplete @username-selected="usernameSelected"
+                                                :skip-results="currentMembers"></user-autocomplete>
+                        </div>
+                        <div class="column">
+                            <button class="button is-primary" name="action" value="add_member" type="submit"
+                                    :disabled="selectedUsername == ''">Add
                             </button>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
+                        </div>
+                    </div>
+                </form>
+                <br>
+            {% endif %}
+            <table class="table is-fullwidth">
+                <thead>
                 <tr>
-                    <td colspan="2">No members.</td>
+                    <th>User</th>
+                    <th></th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </section>
-    {% if account_permissions|account_permissions_contain:'administer' %}
-        <script src="{% static "js/user-search.js" %}"></script>
-        <script src="{% static "js/delete-confirm-modal.js" %}"></script>
-        <script>
-          new Vue({
-            el: '#member-access',
-            delimiters: ['[[', ']]'],
-            data: {
-              deleteModalVisible: false,
-              removeUserName: null,
-              selectedUsername: '',
-              currentMembers: JSON.parse("{{ current_members|escapejs }}")
-            },
-            methods: {
-              showDeleteModal (username) {
-                this.deleteModalVisible = true
-                this.removeUserName = username
-              },
-              hideDeleteModal () {
-                this.deleteModalVisible = false
-                this.removeUserName = null
-              },
-              usernameSelected (username) {
-                this.selectedUsername = username
-              }
-            }
-          })
-        </script>
-    {% endif %}
+                </thead>
+                <tbody>
+                {% for member in team.members.all %}
+                    <tr>
+                        <td>{{ member }}</td>
+                        <td class="has-text-right">
+                            {% if account_permissions|account_permissions_contain:'administer' %}
+                                <button class="button is-danger"
+                                        @click.prevent="showDeleteModal('{{ member.username }}')">
+                                    Remove&hellip;
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">No members.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+        {% if account_permissions|account_permissions_contain:'administer' %}
+            <script src="{% static "js/user-search.js" %}"></script>
+            <script src="{% static "js/delete-confirm-modal.js" %}"></script>
+            <script>
+            new Vue({
+                el: '#member-access',
+                delimiters: ['[[', ']]'],
+                data: {
+                deleteModalVisible: false,
+                removeUserName: null,
+                selectedUsername: '',
+                currentMembers: JSON.parse("{{ current_members|escapejs }}")
+                },
+                methods: {
+                showDeleteModal (username) {
+                    this.deleteModalVisible = true
+                    this.removeUserName = username
+                },
+                hideDeleteModal () {
+                    this.deleteModalVisible = false
+                    this.removeUserName = null
+                },
+                usernameSelected (username) {
+                    this.selectedUsername = username
+                }
+                }
+            })
+            </script>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

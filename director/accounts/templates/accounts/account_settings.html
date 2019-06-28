@@ -2,6 +2,11 @@
 {% load crispy_forms_tags %}
 {% block title %}Account {{account.pk}} : Settings{% endblock %}
 {% block content %}
-	{% include "accounts/_account_header.html" with account=account tab="settings" %}
-    {% crispy form %}
+<div class="columns">
+	{% include "accounts/_account_nav.html" with account=account tab="settings" %}
+    <div class="column">
+        {% include "accounts/_account_header.html" with account=account %}
+        {% crispy form %}
+    </div>
+</div>
 {% endblock %}
