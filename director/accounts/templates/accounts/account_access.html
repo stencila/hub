@@ -22,16 +22,17 @@
                 :delete-id-value="deleteRoleId"
                 delete-button-label="Remove"
                 @modal-hide="hideDeleteModal()">
-            <template slot="title">Remove this access?</template>
+            <template slot="title">Remove account access?</template>
             <template slot="csrf_token">{% csrf_token %}</template>
             <template slot="body">Are you sure you want to remove access to this account for user <em>[[
                 deleteRoleUsername ]]</em>?
             </template>
         </delete-confirm-modal>
-        <form method="POST">
+        <p class="is-uppercase-heading has-bottom-margin">Add people to account</p>
+        <form method="POST" class="field">
             {% csrf_token %}
             <div class="columns">
-                <div class="column">
+                <div class="column is-two-thirds">
                     <user-autocomplete @username-selected="usernameSelected" :skip-results="currentUsers"></user-autocomplete>
                 </div>
                 <div class="column">
@@ -48,8 +49,8 @@
                     </div>
                 </div>
                 <div class="column">
-                    <button class="button is-primary" name="action" value="add_access" type="submit"
-                            :disabled="selectedUsername==''">Add
+                    <button class="button is-primary is-full-width" name="action" value="add_access" type="submit"
+                            :disabled="selectedUsername==''">Add User
                     </button>
                 </div>
             </div>
@@ -77,9 +78,9 @@
                     <td>
                         {% include "accounts/_account_role_select.html" with user_role=access_role.role %}
                     </td>
-                    <td>
+                    <td class="field">
                         {% if access_role.user != request.user %}
-                            <button class="button is-danger"
+                            <button class="button is-danger is-pulled-right"
                                     @click.prevent="showDeleteModal({{ access_role.id }}, '{{ access_role.user.username }}')">
                                 Remove&hellip;
                             </button>

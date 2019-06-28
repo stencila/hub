@@ -19,22 +19,23 @@
                         :delete-id-value="removeUserName"
                         delete-button-label="Remove"
                         @modal-hide="hideDeleteModal()">
-                    <template slot="title">Remove this user?</template>
+                    <template slot="title">Remove user from team?</template>
                     <template slot="csrf_token">{% csrf_token %}</template>
                     <template slot="body">Are you sure you want to remove <em>[[ removeUserName ]]</em> from
                         <em>{{ team.name }}</em>?
                     </template>
                 </delete-confirm-modal>
+                <p class="is-uppercase-heading has-bottom-margin">Add people to team</p>
                 <form method="post">
                     {% csrf_token %}
                     <div class="columns">
-                        <div class="column">
+                        <div class="column is-two-thirds">
                             <user-autocomplete @username-selected="usernameSelected"
                                                 :skip-results="currentMembers"></user-autocomplete>
                         </div>
-                        <div class="column">
+                        <div class="column field">
                             <button class="button is-primary" name="action" value="add_member" type="submit"
-                                    :disabled="selectedUsername == ''">Add
+                                    :disabled="selectedUsername == ''">Add User
                             </button>
                         </div>
                     </div>
@@ -52,7 +53,7 @@
                 {% for member in team.members.all %}
                     <tr>
                         <td>{{ member }}</td>
-                        <td class="has-text-right">
+                        <td class="has-text-right field">
                             {% if account_permissions|account_permissions_contain:'administer' %}
                                 <button class="button is-danger"
                                         @click.prevent="showDeleteModal('{{ member.username }}')">

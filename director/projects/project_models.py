@@ -41,7 +41,7 @@ class Project(models.Model):
     name = models.TextField(
         null=True,
         blank=False,
-        help_text="The name of the project"
+        help_text="Name of the project"
     )
 
     creator = models.ForeignKey(

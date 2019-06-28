@@ -5,28 +5,28 @@
 <div class="columns">
         {% include "accounts/_account_nav.html" with account=account tab="profile" %}
         <div class="column is-two-thirds">
-            {% include "accounts/_account_header.html" with account=account %}
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <p class="subtitle is-5">
-                            {% if projects.count == 0 %}
-                                There are no projects linked to this account.
-                            {% else %}
-                                <strong>{{ projects.count }}</strong> project{{ projects.count|pluralize }}
-                            {% endif %}
-                        </p>
+                        {% include "accounts/_account_header.html" with account=account %}
                     </div>
                 </div>
                 <div class="level-right">
                     <p class="level-item">
-                        <a class="button is-primary is-outlined" href="{% url 'project_create' %}?account_id={{ account.pk }}">
+                        <a class="button is-primary" href="{% url 'project_create' %}?account_id={{ account.pk }}">
                             <span class="icon"><i class="fas fa-plus"></i></span>
                             <span>New Project</span>
                         </a>
                     </p>
                 </div>
             </div>
+            <p class="subtitle">
+                {% if projects.count == 0 %}
+                    There are no projects linked to this account.
+                {% else %}
+                    <strong>{{ projects.count }}</strong> project{{ projects.count|pluralize }}
+                {% endif %}
+            </p>
             {% for project in projects %}
                 <a class="box" href="{% url 'project_overview' project.pk %}" title="Open">
                     <h1 class="title is-5">{{ project.name|default:'Unnamed project' }}</h1>

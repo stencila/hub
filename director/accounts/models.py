@@ -48,13 +48,13 @@ class Account(models.Model):
         null=False,
         blank=False,
         unique=True,
-        help_text='Name of the account (required).'
+        help_text='Name of the account'
     )
 
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text='Logo for the account (optional). Please use an image that is 100 x 100 px or smaller. '
+        help_text='Logo for the account. Please use an image that is 100 x 100 px or smaller. '
     )
 
     def get_administrators(self) -> typing.Iterable[User]:
@@ -99,13 +99,13 @@ class Team(models.Model):
     name = models.TextField(
         blank=False,
         null=False,
-        help_text='The name of the team (required).'
+        help_text='Name of the team'
     )
 
     description = models.TextField(
         blank=True,
         null=True,
-        help_text='Team description (optional).'
+        help_text='Team description'
     )
 
     members = models.ManyToManyField(

@@ -31,51 +31,34 @@
                         <br>
                     {% endif %}
                 {% else %}
+                    <p class="is-uppercase-heading has-bottom-margin">Add project access</p>
                     <form method="post">
                         {% csrf_token %}
-                        <div class="columns">
-                            <div class="column">
-                                <label class="label">Project</label>
-                            </div>
-                            <div class="column">
-                                <label class="label">Role</label>
-                            </div>
-                            <div class="column">
-
-                            </div>
-                        </div>
-                        <div class="columns">
-                            <div class="column">
-                                <div class="field">
-                                    <div class="control">
-                                        <div class="select">
-                                            <select name="project_id">
-                                                {% for project in unassigned_projects %}
-                                                    <option value="{{ project.id }}">{{ project.name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                        <div class="control field">
+                            <div class="columns">
+                                <div class="column">
+                                    <div class="select">
+                                        <select name="project_id">
+                                            {% for project in unassigned_projects %}
+                                            <option value="{{ project.id }}">{{ project.name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="column">
-                                <div class="field">
-                                    <div class="control">
-                                        <div class="select">
-                                            <select name="role_id">
-                                                {% for project_role in project_roles %}
-                                                    <option value="{{ project_role.id }}">{{ project_role.name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
+                                <div class="column">
+                                    <div class="select">
+                                        <select name="role_id">
+                                            {% for project_role in project_roles %}
+                                            <option value="{{ project_role.id }}">{{ project_role.name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="column">
-                                <button class="button is-primary" type="submit" name="action" value="add_project">Add
-                                    Project
-                                    Access
-                                </button>
+                                <div class="column">
+                                    <button class="button is-primary" type="submit" name="action" value="add_project">
+                                        Add project
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -102,11 +85,11 @@
                                     {{ project_agent_role.role.name }}
                                 {% endif %}
                             </td>
-                            <td class="has-text-right">
+                            <td class="field has-text-right">
                                 {% if account_permissions|account_permissions_contain:'administer' %}
                                     <button class="button is-danger"
                                             @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
-                                        Remove Access&hellip;
+                                        Remove access&hellip;
                                     </button>
                                 {% endif %}
                             </td>

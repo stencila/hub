@@ -5,28 +5,26 @@
 <div class="columns">
     {% include "accounts/_account_nav.html" with account=account tab="teams" %}
     <div class="column">
-        {% include "accounts/_account_header.html" with account=account %}
         <nav class="level">
             <div class="level-left">
                 <div class="level-item">
-                    <p class="subtitle is-5">
-                        <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
-                    </p>
+                    {% include "accounts/_account_header.html" with account=account %}
                 </div>
             </div>
-
             <div class="level-right">
                 {% if account_permissions|account_permissions_contain:'administer' %}
-                    <p class="level-item">
-                        <a class="button is-primary is-outlined" href="{% url 'account_team_create' account.id %}">
-                            <span class="icon"><i class="fas fa-plus"></i></span>
-                            <span>New Team</span>
-                        </a>
-                    </p>
+                <p class="level-item">
+                    <a class="button is-primary" href="{% url 'account_team_create' account.id %}">
+                        <span class="icon"><i class="fas fa-plus"></i></span>
+                        <span>New Team</span>
+                    </a>
+                </p>
                 {% endif %}
             </div>
         </nav>
-
+        <p class="subtitle">
+            <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
+        </p>
         {% for team in teams %}
             <a class="box" href="{% url 'account_team_detail' account.id team.id %}" title="Open">
                 <span>{{ team.name }}</span>
