@@ -2,13 +2,13 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
-{% block title %}{% trans "Manage E-mail Addresses" %}{% endblock %}
+{% block title %}{% trans "Manage e-mail addresses" %}{% endblock %}
 
 {% block content %}
 <div class="columns is-centered">
 	<div class="column is-three-quarters">
 		<div class="content">
-			<h1 class="title is-3">{% trans "Manage E-mail Addresses" %}</h1>
+			<h1 class="title is-3">{% trans "Manage e-mail addresses" %}</h1>
 
 			{% if user.emailaddress_set.all %}
 				<p>
@@ -39,7 +39,7 @@
 					<br>
 					<button class="button" type="submit" name="action_primary" >{% trans 'Make primary' %}</button>
 					<button class="button" type="submit" name="action_send" >{% trans 'Re-send verification' %}</button>
-					<button class="button" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
+					<button class="button is-danger" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
 				</form>
 				<br>				
 			{% else %}
@@ -49,7 +49,7 @@
 			{% endif %}
 
 			<form class="form" method="POST" action="{% url 'account_email' %}">
-				<p>{% trans "Add an e-mail address" %}</p>
+				<p class="is-uppercase-heading has-top-margin">{% trans "Add an e-mail address" %}</p>
 				{% csrf_token %}
 				{{ form|crispy }}
 				<button class="button" name="action_add" type="submit">{% trans "Add e-mail" %}</button>

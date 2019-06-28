@@ -35,26 +35,26 @@
             </nav>
         </div>
         <div class="column">
-            <nav class="level">
+            <nav class="level has-margin-small">
                 <div class="level-left">
                     <h2 class="title">
                         Projects 
                     </h2>
-                    <p class="subtitle is-5">
-                        <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
-                    </p>
                 </div>
                 <div class="level-right">
                     {% if request.user.is_authenticated %}
-                        <p class="level-item">
-                            <a class="button is-primary is-outlined" href="{% url 'project_create' %}">
-                                <span class="icon"><i class="fas fa-plus"></i></span>
-                                <span>New Project</span>
-                            </a>
-                        </p>
+                    <p class="level-item">
+                        <a class="button is-primary" href="{% url 'project_create' %}">
+                            <span class="icon"><i class="fas fa-plus"></i></span>
+                            <span>New Project</span>
+                        </a>
+                    </p>
                     {% endif %}
                 </div>
             </nav>
+            <p class="subtitle">
+                <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
+            </p>
             {% for project in object_list %}
                 <a class="box" href="{% url 'project_overview' project.id %}" title="Open">
                     <span>{{ project.get_name }}</span>

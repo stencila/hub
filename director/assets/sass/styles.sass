@@ -76,7 +76,8 @@ body, html
   padding-bottom: 2px
   border-bottom: 2px solid #dbdbdb
 
-.input
+.input,
+.select select
   border-radius: 0
 
 .select
@@ -131,8 +132,16 @@ a.box:hover .title
   &:checked + label::before
     background-color: $primary
 
-p.has-top-margin
-  margin-top: 20px
+.field
+  .button
+    height: 2.25rem
+
+p
+  &.has-top-margin
+    margin-top: 24px
+
+  &.has-bottom-margin
+    margin-bottom: 12px
 
 h6.has-top-margin
   margin-top: 30px
@@ -147,3 +156,6 @@ h6.has-top-margin
 
 .fade-enter, .fade-leave-to
   opacity: 0
+
+.is-uppercase-heading
+    +uppercase-heading

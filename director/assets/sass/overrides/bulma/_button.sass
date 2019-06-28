@@ -10,3 +10,8 @@ $button-padding-horizontal: 1em
     border-width: $button-border-width
     height: 2.75em
     padding: $button-padding-vertical $button-padding-horizontal
+
+    &:hover
+        &:not(.btn-primary),
+        &:not(.btn-primary[disabled])
+            color: $dark

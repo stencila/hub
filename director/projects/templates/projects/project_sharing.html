@@ -27,8 +27,8 @@
                 <em>[[ agentName]]</em>?
             </template>
         </delete-confirm-modal>
-        <h6 class="title is-6 is-underline">Collaborators</h6>
-        <p class="title-caption">Who has access</p>
+        <h6 class="title is-5">Collaborators</h6>
+        <p class="is-uppercase-heading">Who has access</p>
         <table class="table is-fullwidth">
             <tbody>
             {% for project_agent_role in project_agent_roles %}
@@ -70,8 +70,8 @@
             {% endfor %}
             </tbody>
         </table>
-        <p class="title-caption has-top-margin">Add people</p>
-        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
+        <p class="is-uppercase-heading has-bottom-margin">Add people</p>
+        <form class="field" method="POST" action="{% url 'project_sharing_roles' object.id %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -97,8 +97,8 @@
                 </div>
             </div>
         </form>
-        <p class="title-caption has-top-margin">Add team</p>
-        <form method="POST" action="{% url 'project_sharing_roles' object.id %}">
+        <p class="is-uppercase-heading has-top-margin has-bottom-margin">Add team</p>
+        <form class="field" ethod="POST" action="{% url 'project_sharing_roles' object.id %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -133,10 +133,10 @@
                 </div>
             </div>
         </form>
-        <h6 class="title is-6 is-underline has-top-margin">Public project</h6>
+        <h6 class="title is-5 has-top-margin">Public project</h6>
         <div>
             <div class="field">
-                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch"
+                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded"
                        @change="isPublicChanged()">
                 <label for="id_project_public">
                     <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>

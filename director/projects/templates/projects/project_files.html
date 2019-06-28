@@ -45,7 +45,7 @@
 
             <div class="dropdown" id="link" :class="{ 'is-active':linkMenuVisible }">
                 <div class="dropdown-trigger" @click.prevent="toggleLinkMenu()">
-                    <button class="button is-primary is-outlined" aria-haspopup="true"
+                    <button class="button is-outlined" aria-haspopup="true"
                             aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-link" aria-hidden="true"></i>
@@ -81,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            <a class="button is-primary is-outlined" style="margin-left: 0.5em" @click="pullFiles"
+            <a class="button is-outlined" style="margin-left: 0.5em" @click="pullFiles"
                id="project-pull-button">
                 <span class="icon is-small"><i class="fas fa-file-export"></i></span>
                 <span v-if="!pullInProgress">Pull Linked Sources</span>

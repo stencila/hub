@@ -105,7 +105,7 @@ class ProjectSettingsAccessForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML(
-                    '<p class="title is-5">API tokens and keys</p>'
+                    '<p class="title is-6 is-uppercase-heading">API access</p>'
                     '<p class="subtitle is-6">Set tokens and keys for API access to this project</p>'
                 ),
                 'token',
@@ -189,7 +189,7 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
             Div(
                 Div(
                     HTML(
-                        '<p class="title is-5">Session numbers</p>'
+                        '<p class="title is-6 is-uppercase-heading">Session numbers</p>'
                         '<p class="subtitle is-6">Control the number of sessions for this project</p>'
                     ),
                     'sessions_concurrent',
@@ -199,7 +199,7 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                 ),
                 Div(
                     HTML(
-                        '<p class="title is-5">Session parameters</p>'
+                        '<p class="title is-6 is-uppercase-heading">Session parameters</p>'
                         '<p class="subtitle is-6">Control the parameters for each session</p>'
                         '<preset-parameters @select-preset="selectPreset"></preset-parameters>'
                     ),
