@@ -59,6 +59,7 @@ class ProjectTab(Enum):
     SETTINGS_ACCESS = 'access'
     SETTINGS_SESSIONS = 'sessions'
 
+
 class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
