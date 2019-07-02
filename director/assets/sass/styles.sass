@@ -72,6 +72,27 @@ body, html
 .content-container
   padding: 10px 0
 
+.level-list
+  .level
+    padding: 20px 0
+    margin-bottom: 0
+    
+    &:not(:last-child)
+      border-bottom: 1px solid #dbdbdb
+
+  a
+    color: #363636
+    
+    &:hover
+      color: $primary
+
+    &:not(:last-of-type)
+      .level
+        border-bottom: 1px solid #dbdbdb
+
+  .icon
+    margin-right: 0.5rem
+
 .title.is-underline
   padding-bottom: 2px
   border-bottom: 2px solid #dbdbdb

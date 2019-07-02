@@ -55,15 +55,24 @@
             <p class="subtitle">
                 <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
             </p>
-            {% for project in object_list %}
-                <a class="box" href="{% url 'project_overview' project.id %}" title="Open">
-                    <span>{{ project.get_name }}</span>
-                </a>
-                {% empty %}
-                <div>
-                    It appears that you have no projects. Click on <em>New Project</em> to get started!
-                </div>
-            {% endfor %}
+            <div class="level-list">
+                {% for project in object_list %}
+                    <div class="level">
+                        <div class="level-left">
+                            <a class="is-uppercase-heading" href="{% url 'project_overview' project.id %}" title="Open">
+                                {{ project.get_name }}
+                            </a>
+                        </div>
+                        <div class="level-right">
+                            <p class="is-size-7">Created {{ project.created }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div>
+                        It appears that you have no projects. Click on <em>New Project</em> to get started!
+                    </div>
+                {% endfor %}
+            </div>
         {% comment %}
         Disabled card-based 'gallery' view
 

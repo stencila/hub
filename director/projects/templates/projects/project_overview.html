@@ -8,15 +8,15 @@
         <br/>
     </div>
     <div class="columns">
-        <div class="column is-8">
+        <div class="column is-three-quarters-desktop">
             {% if project.description %}
                 <p>{{ project.description }}</p>
             {% else %}
                 <p class="has-text-grey-light">No project description yet</p>
             {% endif %}
         </div>
-        <div class="column is-4" id="id-project-actions">
-            {% comment %}
+        {% comment %}
+          <div class="column id="id-project-actions">
             <div class="row">
                 <a class="button is-fullwidth is-primary"
                     href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
@@ -38,8 +38,8 @@
                     <span>Launch Session</span>
                 </button>
             </div>
-            {% endcomment %}
-        </div>
+          </div>
+          {% endcomment %}
     </div>
     <div class="columns">
         <div class="column is-12">

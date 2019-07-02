@@ -3,88 +3,98 @@
 {% block title %}Account {{ account.pk }}{% endblock %}
 {% block content %}
 <div class="columns">
-        {% include "accounts/_account_nav.html" with account=account tab="profile" %}
-        <div class="column is-two-thirds">
-            <div class="level">
-                <div class="level-left">
-                    <div class="level-item">
-                        {% include "accounts/_account_header.html" with account=account %}
-                    </div>
-                </div>
-                <div class="level-right">
-                    <p class="level-item">
-                        <a class="button is-primary" href="{% url 'project_create' %}?account_id={{ account.pk }}">
-                            <span class="icon"><i class="fas fa-plus"></i></span>
-                            <span>New Project</span>
-                        </a>
-                    </p>
-                </div>
-            </div>
-            <p class="subtitle">
-                {% if projects.count == 0 %}
-                    There are no projects linked to this account.
-                {% else %}
-                    <strong>{{ projects.count }}</strong> project{{ projects.count|pluralize }}
-                {% endif %}
-            </p>
-            {% for project in projects %}
-                <a class="box" href="{% url 'project_overview' project.pk %}" title="Open">
-                    <h1 class="title is-5">{{ project.name|default:'Unnamed project' }}</h1>
-
-                    <div class="box-description">
-                        {{ project.description|default:'' }}
-                    </div>
-                </a>
-                {% comment %}
-                <div class="media-left">
-                <figure class="image is-48x48">
-                    <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">
-                </figure>
-                </div>
-                {% endcomment %}
-            {% endfor %}
-        </div>
+    {% include "accounts/_account_nav.html" with account=account tab="profile" %}
         <div class="column">
-            <div class="panel">
-                <div class="panel-heading">
-                    Users
+            <div class="columns is-multiline">
+                <div class="column is-full is-three-quarters-desktop">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                {% include "accounts/_account_header.html" with account=account %}
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <p class="level-item">
+                                <a class="button is-primary" href="{% url 'project_create' %}?account_id={{ account.pk }}">
+                                    <span class="icon"><i class="fas fa-plus"></i></span>
+                                    <span>New Project</span>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    <p class="subtitle">
+                        {% if projects.count == 0 %}
+                            There are no projects linked to this account.
+                        {% else %}
+                            <strong>{{ projects.count }}</strong> project{{ projects.count|pluralize }}
+                        {% endif %}
+                    </p>
+                    <div class="level-list">
+                    {% for project in projects %}
+                        <div class="level">
+                            <div class="level-left">
+                                <a class="is-uppercase-heading" href="{% url 'project_overview' project.id %}" title="Open">
+                                    {{ project.name|default:'Unnamed project' }}
+                                </a>
+                            </div>
+                            <div class="level-right">
+                                <p class="is-size-7">Created {{ project.created }}</p>
+                            </div>
+                        </div>
+                        {% comment %}
+                        <div class="media-left">
+                        <figure class="image is-48x48">
+                            <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">
+                        </figure>
+                        </div>
+                        {% endcomment %}
+                    {% endfor %}
+                    </div>
                 </div>
-                {% for user in users %}
-                    <div class="panel-block">
-                        <div class="media">
-                            <div class="media-left">
-                                <figure class="image is-48x48">
-                                    {% avatar user 48 %}
-                                </figure>
-                            </div>
-                            <div class="media-content">
-                                <p class="title is-6">{{ user.get_full_name }}</p>
-                                <p class="subtitle is-6">{{ user.username }}</p>
-                            </div>
+                <div class="column">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            Users
                         </div>
-                    </div>
-                {% empty %}
-                    <div class="panel-block">
-                        There are no users linked to this account.
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="panel">
-                <div class="panel-heading">Teams</div>
-                {% for team in teams %}
-                    <div class="panel-block">
-                        <div class="media">
-                            <div class="media-content">
-                                <p class="title is-6"><a href="{% url 'account_team_detail' account.pk team.pk %}">{{ team.name }}</a></p>
+                        {% for user in users %}
+                            <div class="panel-block">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <figure class="image is-48x48">
+                                            {% avatar user 48 %}
+                                        </figure>
+                                    </div>
+                                    <div class="media-content">
+                                        <p class="title is-6">{{ user.get_full_name }}</p>
+                                        <p class="subtitle is-6">{{ user.username }}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        {% empty %}
+                            <div class="panel-block">
+                                There are no users linked to this account.
+                            </div>
+                        {% endfor %}
                     </div>
-                {% empty %}
-                    <div class="panel-block">
-                        There are no teams linked to this account.
+                    <div class="panel">
+                        <div class="panel-heading">Teams</div>
+                        {% for team in teams %}
+                            <div class="panel-block">
+                                <div class="media">
+                                    <div class="media-content">
+                                        <p class="title is-6"><a href="{% url 'account_team_detail' account.pk team.pk %}">{{ team.name }}</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="panel-block">
+                                There are no teams linked to this account.
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
