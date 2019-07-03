@@ -25,15 +25,21 @@
         <p class="subtitle">
             <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
         </p>
+        <div class="level-list">
         {% for team in teams %}
-            <a class="box" href="{% url 'account_team_detail' account.id team.id %}" title="Open">
-                <span>{{ team.name }}</span>
-            </a>
+            <div class="level">
+                <div class="level-left">
+                    <a class="is-uppercase-heading" href="{% url 'account_team_detail' account.id team.id %}" title="Open">
+                        {{ team.name }}
+                    </a>
+                </div>
+            </div>
         {% empty %}
             <div>
                 No teams exist.
             </div>
         {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}
