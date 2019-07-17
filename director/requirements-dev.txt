@@ -5,5 +5,5 @@ flake8==3.7.7
 mypy==0.711
 pydocstyle==3.0.0
 pydot==1.4.1
-pygraphviz==1.5
+#pygraphviz==1.5
 pyparsing==2.4.0
