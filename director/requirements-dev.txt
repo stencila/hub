@@ -3,7 +3,7 @@ bump2version==0.5.11
 django-nose==1.4.6
 flake8==3.7.8
 mypy==0.720
-pydocstyle==3.0.0
+pydocstyle==4.0.1
 pydot==1.4.1
 #pygraphviz==1.5
 pyparsing==2.4.0
