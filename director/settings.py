@@ -70,7 +70,8 @@ class Common(Configuration):
         'projects',
         'editors',
         'hosts',
-        'checkouts'
+        'checkouts',
+        'open'
     ]
 
     MIDDLEWARE = [
@@ -276,6 +277,7 @@ class Common(Configuration):
     }
 
     STENCILA_BINARY = values.ListValue(['/usr/local/bin/stencila'])
+    STENCILA_CLIENT_USER_AGENT = values.Value('Stencila Hub HTTP Client')
 
 
 class Dev(Common):

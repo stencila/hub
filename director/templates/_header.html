@@ -6,7 +6,7 @@
             <div class="navbar-brand">
                 <a class="navbar-item navbar-logo" href="{% url 'home' %}">
                     <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
-                    <span style="margin: 0 0.5em; font-size: 1rem; line-height: 1em;">Beta</span>
+                    <span style="margin: 0 0.5em; font-size: 1rem; line-height: 1em;">{{ brand_tag|default:"Beta" }}</span>
                 </a>
             </div>
             <div class="navbar-menu" :class="{ 'is-active':active }">

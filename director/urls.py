@@ -6,6 +6,7 @@ from django.views.defaults import permission_denied, page_not_found
 
 import projects.urls
 from accounts.urls import urlpatterns as accounts_patterns
+from open.urls import urlpatterns as open_patterns
 from api_urls import urlpatterns as api_patterns
 from stencila_admin.urls import urlpatterns as stencila_admin_patterns
 from checkouts.views import (
@@ -49,7 +50,7 @@ urlpatterns = [
         path('<int:pk>/close/', CheckoutCloseView.as_view(), name='checkout_close')
     ])),
     # Shortcut to `checkout_create`
-    path('open/', CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
+    path('checkout/', CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
 
     # User sign in, settings etc
     path('beta/', BetaTokenView.as_view(), name='user_beta'),
@@ -76,6 +77,9 @@ urlpatterns = [
 
     # Accounts App
     path('accounts/', include(accounts_patterns)),
+
+    # Open App
+    path('open/', include(open_patterns)),
 
     # Stencila Admin App (not Django Admin)
     path('stencila-admin/', include(stencila_admin_patterns)),

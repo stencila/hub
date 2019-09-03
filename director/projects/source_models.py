@@ -1,8 +1,6 @@
 import enum
-import mimetypes
 import typing
 from io import BytesIO
-from os.path import splitext
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.contenttypes.models import ContentType
@@ -11,6 +9,8 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
+
+from lib.converter_facade import mimetype_from_path
 
 
 class MimeTypeDetectMixin(object):
@@ -24,22 +24,7 @@ class MimeTypeDetectMixin(object):
             if mimetype and mimetype != 'Unknown':
                 return mimetype
 
-        if self.path.lower().endswith('.jats.xml'):
-            return 'text/xml+jats'
-
-        mimetype, encoding = mimetypes.guess_type(self.path, False)
-
-        if not mimetype:
-            name, ext = splitext(self.path)
-
-            if ext.lower() == '.md':
-                return 'text/markdown'
-            elif ext.lower() == '.rmd':
-                return 'text/rmarkdown'
-            elif ext.lower() == '.ipynb':
-                return 'application/x-ipynb+json'
-
-        return mimetype or 'Unknown'
+        return mimetype_from_path(self.path) or 'Unknown'
 
 
 class DiskSource(object):
@@ -267,7 +252,7 @@ class SourceType(typing.NamedTuple):
 
 
 class AvailableSourceType(enum.Enum):
-    """Enum for each available SourceType. For two-way lookup name to values etc."""
+    """Enum for each available ConversionFormat. For two-way lookup name to values etc."""
 
     FILE = SourceType('file', 'File', FileSource)
     GITHUB = SourceType('github', 'Github', GithubSource)

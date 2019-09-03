@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Open{% endblock %}
+{% block header %}{% include "_header.html" with brand_tag="/open" %}{% endblock %}
+{% block content %}
+    <section class="section">
+        <div class="columns">
+            <div class="column is-8 is-offset-2">
+                <p class="subtitle is-4 text-center">Enter a Github or Google Doc file URL (.ipynb, .md, Google Doc)</p>
+                <form method="post">
+                    {% csrf_token %}
+                    {% if url_form.non_field_errors %}
+                        <ul>
+                            {% for error in url_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <div class="field is-grouped">
+                        <p class="control is-expanded">
+                            <input type="text"
+                                   class="input{% if url_form.url.errors %} is-danger{% endif %}"
+                                   placeholder="https://"
+                                   name="{{ url_form.url.name }}"
+                                   id="{{ url_form.url.id }}"
+                                   value="{{ url_form.url.value|default:"" }}"
+                            >
+                        </p>
+                        <p class="control">
+                            <input class="button is-info" type="submit" value="Open">
+                        </p>
+                    </div>
+                    {% if url_form.url.errors %}
+                        <div>
+                            <p class="help is-danger">
+                                {% for error in url_form.url.errors %}
+                                    {{ error }}{% if not forloop.first and forloop.last %}<br/>{% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        <!--div class="columns">
+            <div class="column is-8 is-offset-2">
+                <p>OR</p>
+            </div>
+        </div-->
+    </section>
+
+{% endblock %}

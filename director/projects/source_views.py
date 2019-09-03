@@ -1,10 +1,8 @@
 import json
-import mimetypes
 import os
 import tempfile
 import typing
 from os import unlink
-from os.path import splitext
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
@@ -17,7 +15,8 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConversionFormat, DOCX_MIMETYPES, \
+    mimetype_from_path, conversion_format_from_mimetype
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
@@ -117,10 +116,10 @@ class GithubSourceCreateView(SourceCreateView):
     def get(self, request, *args, **kwargs) -> HttpResponse:
         github_token = user_github_token(request.user)
         if True or not github_token:
+            social_url = reverse('socialaccount_connections')
             messages.error(request, 'Can not link a Github repository as you do not have a Github account connected to '
                                     'your Stencila Hub account.<br/>Please connect your Github account on the '
-                                    '<a href="{}">Account Connections page</a>.'.format(
-                                        reverse('socialaccount_connections')), extra_tags='safe')
+                                    '<a href="{}">Account Connections page</a>.'.format(social_url), extra_tags='safe')
             return redirect('project_files', kwargs['pk'])
 
         return super(GithubSourceCreateView, self).get(request, *args, **kwargs)
@@ -458,16 +457,13 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_id = body['source_id']
         source_path = body['source_path']
-        target_type = body['target_type']
+        target_type_name = body['target_type']
         target_name = body['target_name']
 
         if '/' in target_name:
             raise ValueError('Target name can not contain /')
 
-        source_type = None
-
-        if target_type not in ('md', 'html', 'gdoc', 'docx', 'jats', 'rmd', 'ipynb'):
-            raise TypeError('Can\'t convert to {}.'.format(target_type))
+        target_type = ConversionFormat(target_type_name)
 
         google_token = user_social_token(request.user, 'google')
 
@@ -484,37 +480,17 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
-        source_path_without_ext, source_ext = splitext(source_path)
-
         source_dir = utf8_dirname(source_path)
 
         target_path = utf8_path_join(source_dir, target_name)
 
         converter = ConverterFacade(settings.STENCILA_BINARY)
 
-        if source_type is None:
-            if isinstance(source, GoogleDocsSource):
-                source_type = 'gdoc'
-            elif source_ext.lower() == '.xml':
-                _, sub_ext = splitext(source_path_without_ext)
-                if sub_ext == '.jats':
-                    source_type = 'jats'
-                else:
-                    source_type = 'xml'
-            else:
-                source_type = {
-                    '.md': 'md',
-                    '.html': 'html',
-                    '.htm': 'html',
-                    '.rmd': 'rmd',
-                    '.ipynb': 'ipynb',
-                    '.docx': 'docx',
-                }[source_ext.lower()]
+        source_type = conversion_format_from_mimetype(source.mimetype)
 
-        if target_type == 'gdoc':
-            output_mime_type: typing.Optional[str] = None
-
-            if source_type not in ('html', 'docx'):
+        if target_type == ConversionFormat.gdoc:
+            if source_type not in (ConversionFormat.html, ConversionFormat.docx):
+                # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
                 temp_input_path = None
                 temp_output_path = None
 
@@ -532,7 +508,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     with tempfile.NamedTemporaryFile(delete=False) as temp_output:
                         temp_output_path = temp_output.name
 
-                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, 'docx')
+                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormat.docx)
 
                     converter.convert(converter_input, converter_output)
 
@@ -544,9 +520,9 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
                     if temp_output_path:
                         unlink(temp_output_path)
-                output_mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                output_mime_type = DOCX_MIMETYPES[0]
             else:
-                output_mime_type, encoding = mimetypes.guess_type(source_path, False)
+                output_mime_type = mimetype_from_path(source_path)
                 output_content = scf.get_binary_content()
 
             if output_mime_type is None:
@@ -565,8 +541,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                 existing_source.save()
             else:
                 new_source.save()
-        elif target_type in ('md', 'html', 'docx', 'jats', 'ipynb', 'rmd'):
-
+        else:
             if not isinstance(source, DiskSource):
                 content = scf.get_binary_content()
                 dff.write_file_content(source_path, content)
@@ -578,8 +553,6 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             converter_output = ConverterIo(ConverterIoType.PATH, absolute_output_path, target_type)
 
             converter.convert(converter_input, converter_output)
-        else:
-            raise NotImplementedError('Can\'t convert to {}.'.format(target_type))
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)
