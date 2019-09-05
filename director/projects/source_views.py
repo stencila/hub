@@ -510,7 +510,11 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
                     converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormat.docx)
 
-                    converter.convert(converter_input, converter_output)
+                    convert_result = converter.convert(converter_input, converter_output)
+
+                    if convert_result.returncode != 0:
+                        raise RuntimeError('Convert process failed. Stderr is: {}'.format(
+                            convert_result.stderr.decode('ascii')))
 
                     with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
                         output_content = temp_output.read()
@@ -552,7 +556,11 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             converter_input = ConverterIo(ConverterIoType.PATH, absolute_input_path, source_type)
             converter_output = ConverterIo(ConverterIoType.PATH, absolute_output_path, target_type)
 
-            converter.convert(converter_input, converter_output)
+            convert_result = converter.convert(converter_input, converter_output)
+
+            if convert_result.returncode != 0:
+                raise RuntimeError('Convert process failed. Stderr is: {}'.format(
+                    convert_result.stderr.decode('ascii')))
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)

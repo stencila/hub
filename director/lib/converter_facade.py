@@ -187,6 +187,8 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
                 pass
 
         mimetype = resp.headers.get('Content-Type')
+        if mimetype:
+            mimetype = mimetype.split(';')[0]
 
         source_format = None
 
@@ -235,7 +237,7 @@ class ConverterFacade(object):
     def __init__(self, converter_binary: typing.List[str]) -> None:
         self.converter_binary = converter_binary
 
-    def convert(self, input_data: ConverterIo, output_data: ConverterIo) -> typing.Optional[bytes]:
+    def convert(self, input_data: ConverterIo, output_data: ConverterIo) -> subprocess.CompletedProcess:
         convert_args: typing.List[str] = [
             'convert',
             '--from', input_data.conversion_format.value,
@@ -244,13 +246,5 @@ class ConverterFacade(object):
 
         input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None
 
-        convert_result = subprocess.run(self.converter_binary + convert_args, input=input_pipe_data,
-                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        if convert_result.returncode != 0:
-            raise RuntimeError('Convert process failed. Stderr is: {}'.format(convert_result.stderr.decode('ascii')))
-
-        if output_data.io_type == ConverterIoType.PIPE:
-            return convert_result.stdout
-
-        return None
+        return subprocess.run(self.converter_binary + convert_args, input=input_pipe_data, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)

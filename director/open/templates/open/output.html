@@ -1,0 +1,22 @@
+{% extends 'open/main.html' %}
+{% block main %}
+    <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
+    <script type="text/javascript">
+      const parentTitleEl = document.querySelector('title')
+
+      window.history.replaceState(history.state, parentTitleEl.textContent, window.location.href.split('?')[0])
+      const articleDisplay = document.getElementById('article_display_{{ public_id }}')
+
+      function updateParentTitle () {
+        let subTitle = articleDisplay.contentDocument.querySelector('title')
+        if (subTitle)
+          parentTitleEl.textContent = 'Open : Stencila : ' + subTitle.textContent
+      }
+
+      articleDisplay.onload = function () {
+        updateParentTitle()
+      }
+
+      updateParentTitle()
+    </script>
+{% endblock %}
