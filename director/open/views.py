@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import subprocess
 import tempfile
 import typing
@@ -15,43 +14,11 @@ from django.views.generic.base import View
 
 from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormat, \
     conversion_format_from_path, ConversionFormatError
+from open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm
 from .models import Conversion
 
-CONVERSION_STORAGE_SUBDIR = 'conversions'
 POST_CONVERT_FLAG = 'post_convert'
-
-
-class ConversionFileStorage:
-    root: str
-
-    def __init__(self, root: str):
-        self.root = root
-
-    def generate_save_directory(self, public_id: str) -> str:
-        if not re.match(r'^([a-z0-9_\-]{7,14})', public_id, re.I):
-            raise ValueError('ID should not contain any bad characters.')
-
-        return os.path.join(self.root, CONVERSION_STORAGE_SUBDIR, *list(public_id[:2]))
-
-    def create_save_directory(self, public_id: str) -> None:
-        os.makedirs(self.generate_save_directory(public_id), exist_ok=True)
-
-    def generate_save_path(self, public_id, filename: typing.Optional[str] = None) -> str:
-        filename = filename or public_id
-        return os.path.join(self.generate_save_directory(public_id), filename)
-
-    def move_file_to_public_id(self, source: str, public_id: str, filename: typing.Optional[str] = None) -> str:
-        """
-        Move a file to its permanent conversion results location.
-
-        Encoda does the file writing itself to a temp file. After that is complete, this should be called to do the
-        move. This is why the file has an `open` (read) but no `write` method.
-        """
-        self.create_save_directory(public_id)
-        save_path = self.generate_save_path(public_id, filename)
-        os.rename(source, save_path)
-        return save_path
 
 
 class ConversionRequest:
