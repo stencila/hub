@@ -83,16 +83,18 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
 def conversion_format_from_mimetype(mimetype: str) -> ConversionFormat:
     if mimetype in DOCX_MIMETYPES:
         return ConversionFormat.docx
-
-    return {
-        'application/vnd.google-apps.document': ConversionFormat.gdoc,
-        'application/x-ipynb+json': ConversionFormat.ipynb,
-        'application/xml': ConversionFormat.xml,
-        'text/html': ConversionFormat.html,
-        'text/markdown': ConversionFormat.md,
-        'text/rmarkdown': ConversionFormat.rmd,
-        'text/xml+jats': ConversionFormat.jats
-    }[mimetype]
+    try:
+        return {
+            'application/vnd.google-apps.document': ConversionFormat.gdoc,
+            'application/x-ipynb+json': ConversionFormat.ipynb,
+            'application/xml': ConversionFormat.xml,
+            'text/html': ConversionFormat.html,
+            'text/markdown': ConversionFormat.md,
+            'text/rmarkdown': ConversionFormat.rmd,
+            'text/xml+jats': ConversionFormat.jats
+        }[mimetype]
+    except KeyError:
+        raise ConversionFormatError('Unable to create ConversionFormat from {}'.format(mimetype))
 
 
 def conversion_format_from_path(path: str) -> ConversionFormat:
@@ -121,7 +123,7 @@ class RemoteFileException(Exception):
     pass
 
 
-class ConversionError(Exception):
+class ConversionFormatError(Exception):
     pass
 
 
@@ -195,14 +197,14 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
         if mimetype:
             try:
                 source_format = conversion_format_from_mimetype(mimetype)
-            except ValueError:
-                pass
+            except ConversionFormatError:
+                pass  # Fall back to extension, in cases where HTTP server send back 'text/plain' for MD, for example
 
         if not source_format:
             try:
                 source_format = conversion_format_from_path(url_obj.path)
             except ValueError:
-                raise ConversionError(
+                raise ConversionFormatError(
                     'Unable to determine conversion format from mimetype "{}" or path "".'.format(mimetype,
                                                                                                   url_obj.path))
 
