@@ -17,3 +17,7 @@ class UrlForm(forms.Form):
         if is_malicious_host(url_obj.hostname):
             raise forms.ValidationError('{} is not a valid hostname.'.format(url_obj.hostname))
         return url
+
+
+class FileForm(forms.Form):
+    file = forms.FileField()

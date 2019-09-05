@@ -8,6 +8,7 @@
                 <p class="subtitle is-4 text-center">Enter a Github or Google Doc file URL (.ipynb, .md, Google Doc)</p>
                 <form method="post">
                     {% csrf_token %}
+                    <input type="hidden" name="mode" value="url">
                     {% if url_form.non_field_errors %}
                         <ul>
                             {% for error in url_form.non_field_errors %}
@@ -21,8 +22,9 @@
                                    class="input{% if url_form.url.errors %} is-danger{% endif %}"
                                    placeholder="https://"
                                    name="{{ url_form.url.name }}"
-                                   id="{{ url_form.url.id }}"
+                                   id="{{ url_form.url.auto_id }}"
                                    value="{{ url_form.url.value|default:"" }}"
+                                   required
                             >
                         </p>
                         <p class="control">
@@ -41,11 +43,55 @@
                 </form>
             </div>
         </div>
-        <!--div class="columns">
+        <div class="columns">
             <div class="column is-8 is-offset-2">
-                <p>OR</p>
+                <p class="has-text-centered">&mdash; OR &mdash;</p>
             </div>
-        </div-->
-    </section>
+        </div>
+        <div class="columns">
+            <div class="column is-8 is-offset-2">
+                <form method="post" enctype="multipart/form-data" id="id_file_form">
+                    {% csrf_token %}
+                    <input type="hidden" name="mode" value="file">
 
+                    {% if url_form.non_field_errors %}
+                        <ul>
+                            {% for error in file_form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <div class="file is-boxed is-centered">
+                        <label class="file-label" for="{{ file_form.file.auto_id }}">
+                            <input type="file"
+                                   class="file-input{% if file_form.file.errors %} is-danger{% endif %}"
+                                   name="{{ file_form.file.name }}"
+                                   id="{{ file_form.file.auto_id }}"
+                                   value="{{ file_form.file.value|default:"" }}"
+                                   required
+                            >
+                            <span class="file-cta">
+                                    <span class="file-label">Upload file&hellip;</span>
+                                </span>
+                        </label>
+                    </div>
+                    {% if url_form.url.errors %}
+                        <div>
+                            <p class="help is-danger">
+                                {% for error in file_form.file.errors %}
+                                    {{ error }}{% if not forloop.first and forloop.last %}<br/>{% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </section>
+    <script>
+      let fileField = document.getElementById('{{ file_form.file.auto_id }}')
+      fileField.onchange = function () {
+        if (fileField.files.length === 1) document.getElementById('id_file_form').submit()
+      }
+    </script>
 {% endblock %}
