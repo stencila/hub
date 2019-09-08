@@ -21488,4 +21488,5 @@ h6.has-top-margin {
 .open-embed {
   width: 100%;
   height: calc(100vh - 214px);
+  margin-bottom: 156px;
 }

@@ -1,6 +1,11 @@
 {% extends 'open/main.html' %}
 {% block main %}
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
+    {% if display_warnings_button %}
+        <div>
+            {{ warnings }}
+        </div>
+    {% endif %}
     <script type="text/javascript">
       const parentTitleEl = document.querySelector('title')
 
@@ -11,6 +16,7 @@
         let subTitle = articleDisplay.contentDocument.querySelector('title')
         if (subTitle)
           parentTitleEl.textContent = 'Open : Stencila : ' + subTitle.textContent
+        articleDisplay.style.height = `${articleDisplay.contentWindow.document.body.scrollHeight}px`
       }
 
       articleDisplay.onload = function () {

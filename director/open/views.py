@@ -19,6 +19,7 @@ from .forms import UrlForm, FileForm
 from .models import Conversion
 
 POST_CONVERT_FLAG = 'post_convert'
+OWNED_CONVERSIONS_KEY = 'owned_conversions'
 
 
 class ConversionRequest:
@@ -63,6 +64,11 @@ class OpenView(View):
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
                                                        target_file, cr.uploaded_filename)
 
+                    # Add the ownership of this conversion to the session
+                    if OWNED_CONVERSIONS_KEY not in request.session:
+                        request.session[OWNED_CONVERSIONS_KEY] = []
+                    request.session[OWNED_CONVERSIONS_KEY].append(public_id)
+
                     return redirect(reverse('open_result', args=(public_id,)) + '?{}'.format(POST_CONVERT_FLAG))
                 finally:
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
@@ -83,12 +89,11 @@ class OpenView(View):
             except ConversionFormatError:
                 cr.invalid_source_format = True
             else:
-                if cr.source_file:
-                    with tempfile.NamedTemporaryFile(delete=False) as source_file:
-                        for chunk in uploaded_file.chunks():
-                            cr.source_file.write(chunk)
-
-                    cr.source_io = ConverterIo(ConverterIoType.PATH, source_file.name, input_format)
+                with tempfile.NamedTemporaryFile(delete=False) as source_file:
+                    for chunk in uploaded_file.chunks():
+                        source_file.write(chunk)
+                cr.source_file = source_file
+                cr.source_io = ConverterIo(ConverterIoType.PATH, source_file.name, input_format)
         return cr
 
     @staticmethod
@@ -151,12 +156,24 @@ class OpenView(View):
 
 
 class OpenResultView(View):
+    @staticmethod
+    def user_owns_conversion(request: HttpRequest, conversion_id: str) -> bool:
+        if OWNED_CONVERSIONS_KEY not in request.session:
+            return False
+
+        return conversion_id in request.session[OWNED_CONVERSIONS_KEY]
+
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id)
+
+        user_owns_conversion = self.user_owns_conversion(request, conversion_id)
+
         return render(request, 'open/output.html', {
             'raw_source': reverse('open_result_raw', args=(conversion.public_id,)),
             'is_post_convert': POST_CONVERT_FLAG in request.GET,
-            'public_id': conversion.public_id
+            'public_id': conversion.public_id,
+            'display_warnings_button': user_owns_conversion and conversion.stderr,
+            'stderr': conversion.stderr
         })
 
 
@@ -165,5 +182,8 @@ class OpenResultRawView(View):
 
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id)
+        if conversion.output_file is None:
+            return render(request, 'open/error.html', {})
+
         with open(conversion.output_file, 'rb') as f:
             return HttpResponse(FileWrapper(f), content_type='text/html')
