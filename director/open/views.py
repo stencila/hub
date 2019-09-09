@@ -68,6 +68,8 @@ class OpenView(View):
                     if OWNED_CONVERSIONS_KEY not in request.session:
                         request.session[OWNED_CONVERSIONS_KEY] = []
                     request.session[OWNED_CONVERSIONS_KEY].append(public_id)
+                    # modified flag needs to be set manually since an object inside session is being manipulated
+                    request.session.modified = True
 
                     return redirect(reverse('open_result', args=(public_id,)) + '?{}'.format(POST_CONVERT_FLAG))
                 finally:
@@ -155,6 +157,19 @@ class OpenView(View):
                 pass
 
 
+class LogMessage:
+    message: dict
+
+    def __init__(self, message: dict) -> None:
+        self.message = message
+
+    def level_to_name(self) -> str:
+        return ['ERROR', 'WARN', 'INFO', 'DEBUG'][self.message['level']]
+
+    def __getitem__(self, item: typing.Any) -> typing.Any:
+        return self.message[item]
+
+
 class OpenResultView(View):
     @staticmethod
     def user_owns_conversion(request: HttpRequest, conversion_id: str) -> bool:
@@ -168,12 +183,20 @@ class OpenResultView(View):
 
         user_owns_conversion = self.user_owns_conversion(request, conversion_id)
 
+        if user_owns_conversion and conversion.stderr:
+            raw_log_messages = json.loads('[' + conversion.stderr + ']')
+            log_messages: typing.Optional[typing.List[LogMessage]] = list(map(LogMessage, raw_log_messages))
+        else:
+            log_messages = None
+
         return render(request, 'open/output.html', {
             'raw_source': reverse('open_result_raw', args=(conversion.public_id,)),
             'is_post_convert': POST_CONVERT_FLAG in request.GET,
             'public_id': conversion.public_id,
-            'display_warnings_button': user_owns_conversion and conversion.stderr,
-            'stderr': conversion.stderr
+            'user_owns_conversion': user_owns_conversion,
+            'display_warnings_button':
+                user_owns_conversion and log_messages is not None,
+            'log_messages': log_messages
         })
 
 

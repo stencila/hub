@@ -41,6 +41,9 @@ $stencila-dropdown-font-weight: $weight-light
 /// Plugins
 @import 'hamburgers/_sass/hamburgers/hamburgers.scss'
 
+.has-text-warning
+  color: #FFA800 !important  // Bulma defines this with !important so we must do that too
+
 $header-height: 78px  // This is only currently used in iframe size calc, this size might be implicit
 $footer-height: 136px
 
@@ -186,3 +189,18 @@ h6.has-top-margin
   width: 100%
   height: calc(100vh - #{$footer-height + $header-height})
   margin-bottom: $footer-height + 20px
+  margin-top: -24px
+
+.conversions-footer
+  background-color: transparent
+  position: fixed
+  bottom: 20px
+  height: auto
+
+  .button.is-borderless
+    .is-borderless-text
+      text-decoration: underline
+
+.modal-card-title
+  i
+    font-size: 1.5rem

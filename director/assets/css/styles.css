@@ -21314,6 +21314,10 @@ button.dropdown-item.is-active {
           transform: rotate(-90deg);
 }
 
+.has-text-warning {
+  color: #FFA800 !important;
+}
+
 body, html {
   height: 100%;
 }
@@ -21489,4 +21493,20 @@ h6.has-top-margin {
   width: 100%;
   height: calc(100vh - 214px);
   margin-bottom: 156px;
+  margin-top: -24px;
+}
+
+.conversions-footer {
+  background-color: transparent;
+  position: fixed;
+  bottom: 20px;
+  height: auto;
+}
+
+.conversions-footer .button.is-borderless .is-borderless-text, .conversions-footer input.is-borderless[type="submit"] .is-borderless-text, .conversions-footer button.is-borderless[type="submit"] .is-borderless-text {
+  text-decoration: underline;
+}
+
+.modal-card-title i {
+  font-size: 1.5rem;
 }
