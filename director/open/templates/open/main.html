@@ -5,9 +5,22 @@
     <section class="section">
         <div class="columns">
             <div class="column is-8 is-offset-2">
-                <p class="subtitle is-4 text-center">Enter a Github or Google Doc file URL (.ipynb, .md, Google Doc)</p>
+                <h1 class="title has-text-centered">Stencila /open</h1>
+                <h2 class="subtitle is-5 has-text-centered">Generate reproducible articles in formats familiar to managers</h2>
                 <form method="post">
                     {% csrf_token %}
+                    <label for="{{ url_form.url.auto_id }}" class="label">
+                        Enter a file URL (.ipynb, .md, Google Doc, .docx)
+                        <span class="tooltip-q">?
+                            <div class="tooltip">
+                                <p class="is-uppercase-heading has-bottom-margin">Supported formats</p>
+                                <p><strong>Github (.ipynb, .md, .docx):</strong> https://github.com/stencila/examples/blob/master/rodents/README.md</p>
+                                <p><strong>Google Docs:</strong> https://docs.google.com/document/d/[document id]/</p>
+                                <p><strong>eLife article:</strong> https://elifesciences.org/articles/[article number]/</p>
+                                <p><strong>PLoS article:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
+                            </div>
+                        </span>
+                    </label>
                     <input type="hidden" name="mode" value="url">
                     {% if url_form.non_field_errors %}
                         <ul>
@@ -16,21 +29,22 @@
                             {% endfor %}
                         </ul>
                     {% endif %}
-                    <div class="field is-grouped">
+                    <div class="field is-grouped is-marginless">
                         <p class="control is-expanded">
                             <input type="text"
-                                   class="input{% if url_form.url.errors %} is-danger{% endif %}"
-                                   placeholder="https://"
-                                   name="{{ url_form.url.name }}"
-                                   id="{{ url_form.url.auto_id }}"
-                                   value="{{ url_form.url.value|default:"" }}"
-                                   required
+                            class="input{% if url_form.url.errors %} is-danger{% endif %}"
+                            placeholder="https://"
+                            name="{{ url_form.url.name }}"
+                            id="{{ url_form.url.auto_id }}"
+                            value="{{ url_form.url.value|default:"" }}"
+                            required
                             >
                         </p>
                         <p class="control">
-                            <input class="button is-info" type="submit" value="Open">
+                            <input class="button is-primary" type="submit" value="Open">
                         </p>
                     </div>
+                    <p class="help">Examples: <a href="#">Article 1</a> (.ipynb), <a href="#">Article 2</a> (.md), <a href="#">Article 3</a> (Google Doc), <a href="#">Article 4</a> (.docx)</p>
                     {% if url_form.url.errors %}
                         <div>
                             <p class="help is-danger">
@@ -45,7 +59,7 @@
         </div>
         <div class="columns">
             <div class="column is-8 is-offset-2">
-                <p class="has-text-centered">&mdash; OR &mdash;</p>
+                <p class="is-uppercase-heading has-text-centered">&ndash; OR &ndash;</p>
             </div>
         </div>
         <div class="columns">
@@ -70,11 +84,14 @@
                                    value="{{ file_form.file.value|default:"" }}"
                                    required
                             >
-                            <span class="file-cta">
-                                    <span class="file-label">Upload file&hellip;</span>
-                                </span>
+                            <span class="button is-outlined is-primary call-to-action">
+                                <span class="file-label">Upload file&hellip;</span>
+                            </span>
                         </label>
                     </div>
+                    <p class="help has-text-centered">
+                        (.docx, .ipynb, .md)
+                    </p>
                     {% if url_form.url.errors %}
                         <div>
                             <p class="help is-danger">
@@ -84,6 +101,15 @@
                             </p>
                         </div>
                     {% endif %}
+                    <div class="has-text-centered"><a href="#" class="help tooltip-link">How is my data used?
+                        <span class="tooltip-q">?
+                            <div class="tooltip">
+                                <p class="is-uppercase-heading has-bottom-margin">How is my data used?</p>
+                                <p>We retain copies of file uploads for 24 hours before they are removed from our servers. Files are only used for testing purposes by Stencila (e.g. debugging and recreating error reports submitted with associated files), or for automatic addition to your Stencila Hub account. Uploaded source files are not shared with any third parties. The converted output in HTML format is retained on our servers, and you can request that this output is removed at any time.</p>
+                            </div>
+                        </span>
+                    </a>
+                    </div>
                 </form>
             </div>
         </div>

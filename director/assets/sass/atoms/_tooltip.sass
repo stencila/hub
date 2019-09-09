@@ -1,0 +1,43 @@
+////
+/// Tooltip
+////
+.tooltip-link
+    &:hover
+        .tooltip
+            display: inline-block
+
+.tooltip-q
+    color: #fff
+    background-color: $primary
+    width: 1rem
+    height: 1rem
+    display: inline-block
+    text-align: center
+    font-size: .8rem
+    border-radius: 100%
+    line-height: 1rem
+    vertical-align: top
+    padding: 0
+    border: 0
+    font-weight: bold
+    position: relative
+
+    .tooltip
+        display: none
+        color: #4a4a4a
+        text-align: left
+        position: absolute
+        bottom: 20px
+        left: -240px
+        background: #fff
+        padding: 1rem
+        border: 1px solid #dbdbdb
+        font-weight: normal
+        width: 480px
+
+        @media screen and (min-width: 1092px)
+            left: -10px
+
+    &:hover
+        .tooltip
+            display: inline-block
