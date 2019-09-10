@@ -252,7 +252,7 @@ class SourceType(typing.NamedTuple):
 
 
 class AvailableSourceType(enum.Enum):
-    """Enum for each available ConversionFormat. For two-way lookup name to values etc."""
+    """Enum for each available ConversionFormatId. For two-way lookup name to values etc."""
 
     FILE = SourceType('file', 'File', FileSource)
     GITHUB = SourceType('github', 'Github', GithubSource)

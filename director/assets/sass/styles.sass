@@ -191,6 +191,10 @@ h6.has-top-margin
   margin-bottom: $footer-height + 20px
   margin-top: -24px
 
+.open-footer
+  background-color: transparent
+  color: black
+
 .conversions-footer
   background-color: transparent
   position: fixed
@@ -204,3 +208,14 @@ h6.has-top-margin
 .modal-card-title
   i
     font-size: 1.5rem
+
+$share-offset: 80px
+$share-width: 450px
+
+#share_dropdown
+  .dropdown-content
+    width: $share-width
+    padding: 20px
+    left: -$share-offset
+    &:before
+      left: ($share-width / 2) + $share-offset

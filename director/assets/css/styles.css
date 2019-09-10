@@ -21496,6 +21496,11 @@ h6.has-top-margin {
   margin-top: -24px;
 }
 
+.open-footer {
+  background-color: transparent;
+  color: black;
+}
+
 .conversions-footer {
   background-color: transparent;
   position: fixed;
@@ -21509,4 +21514,14 @@ h6.has-top-margin {
 
 .modal-card-title i {
   font-size: 1.5rem;
+}
+
+#share_dropdown .dropdown-content {
+  width: 450px;
+  padding: 20px;
+  left: -80px;
+}
+
+#share_dropdown .dropdown-content:before {
+  left: 305px;
 }

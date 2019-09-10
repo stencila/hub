@@ -6,11 +6,12 @@ import os
 import subprocess
 import tempfile
 import typing
-from os.path import splitext
+from os.path import splitext, basename
 from socket import gethostbyname
 from urllib.parse import urlparse, urljoin
 
 import requests
+from django.http.multipartparser import parse_header
 
 MAX_REMOTE_CONVERT_SIZE = 5 * 1024 * 1024
 STREAM_CHUNK_SIZE = 1024 * 1024
@@ -29,7 +30,12 @@ class ConverterIoType(enum.Enum):
     PATH = enum.auto()
 
 
-class ConversionFormat(enum.Enum):
+class ConversionFormat(typing.NamedTuple):
+    format_id: str
+    mimetypes: typing.Iterable[str]
+
+
+class ConversionFormatId(enum.Enum):
     """
     List of formats we know how to work with.
 
@@ -40,14 +46,31 @@ class ConversionFormat(enum.Enum):
       manually if necessary).
     """
 
-    docx = 'docx'
-    gdoc = 'gdoc'
-    html = 'html'
-    ipynb = 'ipynb'
-    jats = 'jats'
-    md = 'md'
-    rmd = 'rmd'
-    xml = 'xml'
+    docx = ConversionFormat('docx', DOCX_MIMETYPES)
+    gdoc = ConversionFormat('gdoc', ['application/vnd.google-apps.document'])
+    html = ConversionFormat('html', ['text/html'])
+    ipynb = ConversionFormat('ipynb', ['application/x-ipynb+jso'])
+    jats = ConversionFormat('jats', ['text/xml+jats'])
+    json = ConversionFormat('json', ['application/json'])
+    md = ConversionFormat('md', ['text/markdown'])
+    rmd = ConversionFormat('rmd', ['text/rmarkdown'])
+    xml = ConversionFormat('xml', ['application/xml'])
+
+    @classmethod
+    def from_id(cls, format_id: str) -> 'ConversionFormatId':
+        for f in cls:
+            if f.value.format_id == format_id:
+                return f
+
+        raise ValueError('No such member with id {}'.format(format_id))
+
+    @classmethod
+    def from_mimetype(cls, mimetype: str) -> 'ConversionFormatId':
+        for f in cls:
+            if mimetype in f.value.mimetypes:
+                return f
+
+        raise ValueError('No such member with mimetype {}'.format(mimetype))
 
 
 def mimetype_from_path(path: str) -> typing.Optional[str]:
@@ -80,24 +103,14 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
     return mimetype
 
 
-def conversion_format_from_mimetype(mimetype: str) -> ConversionFormat:
-    if mimetype in DOCX_MIMETYPES:
-        return ConversionFormat.docx
+def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
     try:
-        return {
-            'application/vnd.google-apps.document': ConversionFormat.gdoc,
-            'application/x-ipynb+json': ConversionFormat.ipynb,
-            'application/xml': ConversionFormat.xml,
-            'text/html': ConversionFormat.html,
-            'text/markdown': ConversionFormat.md,
-            'text/rmarkdown': ConversionFormat.rmd,
-            'text/xml+jats': ConversionFormat.jats
-        }[mimetype]
-    except KeyError:
-        raise ConversionFormatError('Unable to create ConversionFormat from {}'.format(mimetype))
+        return ConversionFormatId.from_mimetype(mimetype)
+    except ValueError:
+        raise ConversionFormatError('Unable to create ConversionFormatId from {}'.format(mimetype))
 
 
-def conversion_format_from_path(path: str) -> ConversionFormat:
+def conversion_format_from_path(path: str) -> ConversionFormatId:
     mimetype = mimetype_from_path(path)
 
     if not mimetype:
@@ -109,7 +122,7 @@ class ConverterIo(typing.NamedTuple):
     io_type: ConverterIoType
     # data is either data to be converted (io_type == PIPE) or the path to the file to be converted (io_type == PATH)
     data: typing.Union[None, str, bytes]
-    conversion_format: ConversionFormat
+    conversion_format: ConversionFormatId
 
     @property
     def as_path_shell_arg(self) -> str:
@@ -142,7 +155,7 @@ def is_malicious_host(hostname: str) -> bool:
 
 
 def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
-                      seen_urls: typing.Optional[typing.List[str]] = None) -> ConverterIo:
+                      seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Tuple[str, ConverterIo]:
     """
     Download a remote file to a tmp location, then generate a `ConverterIO`.
 
@@ -200,9 +213,15 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
             except ConversionFormatError:
                 pass  # Fall back to extension, in cases where HTTP server send back 'text/plain' for MD, for example
 
+        file_name = basename(url_obj.path)
+
+        if 'Content-Disposition' in resp.headers:
+            _, metadata = parse_header(resp.headers['Content-Disposition'])
+            file_name = metadata.get('filename')
+
         if not source_format:
             try:
-                source_format = conversion_format_from_path(url_obj.path)
+                source_format = conversion_format_from_path(file_name)
             except ValueError:
                 raise ConversionFormatError(
                     'Unable to determine conversion format from mimetype "{}" or path "".'.format(mimetype,
@@ -230,7 +249,7 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
                 os.unlink(download_to.name)
                 raise
 
-        return ConverterIo(ConverterIoType.PATH, download_to.name, source_format)
+        return file_name, ConverterIo(ConverterIoType.PATH, download_to.name, source_format)
 
 
 class ConverterFacade(object):
@@ -242,8 +261,8 @@ class ConverterFacade(object):
     def convert(self, input_data: ConverterIo, output_data: ConverterIo) -> subprocess.CompletedProcess:
         convert_args: typing.List[str] = [
             'convert',
-            '--from', input_data.conversion_format.value,
-            '--to', output_data.conversion_format.value,
+            '--from', input_data.conversion_format.value.format_id,
+            '--to', output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg, output_data.as_path_shell_arg]
 
         input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None

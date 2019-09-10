@@ -3,6 +3,7 @@ import os
 import subprocess
 import tempfile
 import typing
+from os.path import splitext
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
@@ -12,13 +13,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 
-from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormat, \
+from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, \
     conversion_format_from_path, ConversionFormatError
 from open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm
 from .models import Conversion
 
-POST_CONVERT_FLAG = 'post_convert'
 OWNED_CONVERSIONS_KEY = 'owned_conversions'
 
 
@@ -26,13 +26,13 @@ class ConversionRequest:
     source_io: typing.Optional[ConverterIo] = None
     invalid_source_format: bool = False
     input_url: typing.Optional[str] = None
-    uploaded_filename: typing.Optional[str] = None
     source_file: typing.Optional[typing.Any] = None
+    original_filename: typing.Optional[str] = None
 
     def source_format_valid(self) -> bool:
         if self.source_io is None:
             return False
-        return self.source_io.conversion_format in (ConversionFormat.html, ConversionFormat.md)
+        return self.source_io.conversion_format in (ConversionFormatId.html, ConversionFormatId.md)
 
 
 class OpenView(View):
@@ -56,13 +56,13 @@ class OpenView(View):
                 target_file = None
                 try:
                     with tempfile.NamedTemporaryFile(delete=False) as target_file:
-                        target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormat.html)
+                        target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.html)
                         converter = ConverterFacade(settings.STENCILA_BINARY)
 
                         conversion_result = converter.convert(cr.source_io, target_io)
 
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
-                                                       target_file, cr.uploaded_filename)
+                                                       target_file, cr.original_filename)
 
                     # Add the ownership of this conversion to the session
                     if OWNED_CONVERSIONS_KEY not in request.session:
@@ -71,7 +71,7 @@ class OpenView(View):
                     # modified flag needs to be set manually since an object inside session is being manipulated
                     request.session.modified = True
 
-                    return redirect(reverse('open_result', args=(public_id,)) + '?{}'.format(POST_CONVERT_FLAG))
+                    return redirect('open_result', public_id)
                 finally:
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
@@ -85,9 +85,9 @@ class OpenView(View):
         cr = ConversionRequest()
         if file_form.is_valid():
             uploaded_file = request.FILES['file']
-            cr.uploaded_filename = uploaded_file.name
+            cr.original_filename = uploaded_file.name
             try:
-                input_format = conversion_format_from_path(cr.uploaded_filename)
+                input_format = conversion_format_from_path(cr.original_filename)
             except ConversionFormatError:
                 cr.invalid_source_format = True
             else:
@@ -104,7 +104,9 @@ class OpenView(View):
         if url_form.is_valid():
             cr.input_url = url_form.cleaned_data['url']
             try:
-                cr.source_io = fetch_remote_file(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
+                file_name, source_io = fetch_remote_file(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
+                cr.source_io = source_io
+                cr.original_filename = file_name
             except ConversionFormatError:
                 cr.invalid_source_format = True
         return cr
@@ -113,11 +115,12 @@ class OpenView(View):
     def create_conversion(request: HttpRequest, conversion_result: subprocess.CompletedProcess,
                           input_url: typing.Optional[str], source_io: ConverterIo,
                           target_file: typing.Optional[typing.Any],
-                          uploaded_filename: typing.Optional[str]) -> str:
+                          original_filename: typing.Optional[str]) -> str:
         conversion = Conversion(input_url=input_url)
         public_id = conversion.generate_or_get_public_id()
         conversion.stderr = conversion_result.stderr.decode('utf8')
         conversion.stdout = conversion_result.stdout.decode('utf8')
+        conversion.original_filename = original_filename
         # It may have warnings even if the conversion went OK
         conversion.has_warnings = conversion.stderr is not None and len(conversion.stderr) != 0
         cfs = ConversionFileStorage(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
@@ -126,10 +129,10 @@ class OpenView(View):
         else:
             # We can later find failed Conversions by those with null output_file
             conversion.output_file = None
-        if (conversion.has_warnings or conversion_result.returncode != 0) and uploaded_filename:
+        if (conversion.has_warnings or conversion_result.returncode != 0) and original_filename:
             # retain the uploaded file for later
             conversion.input_file = cfs.move_file_to_public_id(source_io.data, public_id,
-                                                               uploaded_filename)
+                                                               original_filename)
         conversion.meta = json.dumps({
             'user_agent': request.META.get('HTTP_USER_AGENT')
         })
@@ -184,19 +187,21 @@ class OpenResultView(View):
         user_owns_conversion = self.user_owns_conversion(request, conversion_id)
 
         if user_owns_conversion and conversion.stderr:
-            raw_log_messages = json.loads('[' + conversion.stderr + ']')
+            raw_log_messages = json.loads('[' + ','.join(conversion.stderr.strip().split('\n')) + ']')
             log_messages: typing.Optional[typing.List[LogMessage]] = list(map(LogMessage, raw_log_messages))
         else:
             log_messages = None
 
+        share_url = request.build_absolute_uri()
+
         return render(request, 'open/output.html', {
             'raw_source': reverse('open_result_raw', args=(conversion.public_id,)),
-            'is_post_convert': POST_CONVERT_FLAG in request.GET,
             'public_id': conversion.public_id,
             'user_owns_conversion': user_owns_conversion,
             'display_warnings_button':
                 user_owns_conversion and log_messages is not None,
-            'log_messages': log_messages
+            'log_messages': log_messages,
+            'share_url': share_url
         })
 
 
@@ -208,5 +213,34 @@ class OpenResultRawView(View):
         if conversion.output_file is None:
             return render(request, 'open/error.html', {})
 
+        if 'download' in request.GET:
+            return self.send_download(request.GET['download'], conversion)
+
         with open(conversion.output_file, 'rb') as f:
             return HttpResponse(FileWrapper(f), content_type='text/html')
+
+    @staticmethod
+    def send_download(format_name: str, conversion: Conversion) -> HttpResponse:
+        json_representation_path = conversion.output_file + '.json'
+
+        source_io = ConverterIo(ConverterIoType.PATH, json_representation_path, ConversionFormatId.json)
+
+        # TODO: TEMP
+        source_io = ConverterIo(ConverterIoType.PATH, conversion.output_file, ConversionFormatId.html)
+
+        with tempfile.NamedTemporaryFile() as target_file:
+            target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.from_id(format_name))
+
+            converter = ConverterFacade(settings.STENCILA_BINARY)
+            converter.convert(source_io, target_io)
+
+            resp = HttpResponse(FileWrapper(target_file), content_type=target_io.conversion_format.value.mimetypes[0])
+            if conversion.original_filename:
+                original_filename, _ = splitext(conversion.original_filename)
+                output_filename = '{}.{}'.format(original_filename, target_io.conversion_format.value.format_id)
+            else:
+                output_filename = 'stencila-open-download.{}'.format(target_io.conversion_format.value.format_id)
+
+            resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
+                output_filename.replace('"', '\"'))
+            return resp

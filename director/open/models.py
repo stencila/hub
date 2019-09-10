@@ -21,6 +21,8 @@ class Conversion(models.Model):
     meta = models.TextField(null=True, blank=True,
                             help_text='Any extra arbitrary metadata about the conversion that might be useful. Should '
                                       'be JSON encoded.')
+    original_filename = models.TextField(null=True, blank=True,
+                                         help_text='If available, the name of the original file.')
 
     def clean(self) -> None:
         super().clean()

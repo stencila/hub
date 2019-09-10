@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConversionFormat, DOCX_MIMETYPES, \
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, DOCX_MIMETYPES, \
     mimetype_from_path, conversion_format_from_mimetype
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token, user_github_token
@@ -457,13 +457,13 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_id = body['source_id']
         source_path = body['source_path']
-        target_type_name = body['target_type']
+        target_id = body['target_type']
         target_name = body['target_name']
 
         if '/' in target_name:
             raise ValueError('Target name can not contain /')
 
-        target_type = ConversionFormat(target_type_name)
+        target_type = ConversionFormatId.from_id(target_id)
 
         google_token = user_social_token(request.user, 'google')
 
@@ -488,8 +488,8 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         source_type = conversion_format_from_mimetype(source.mimetype)
 
-        if target_type == ConversionFormat.gdoc:
-            if source_type not in (ConversionFormat.html, ConversionFormat.docx):
+        if target_type == ConversionFormatId.gdoc:
+            if source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
                 # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
                 temp_input_path = None
                 temp_output_path = None
@@ -508,7 +508,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
                     with tempfile.NamedTemporaryFile(delete=False) as temp_output:
                         temp_output_path = temp_output.name
 
-                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormat.docx)
+                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormatId.docx)
 
                     convert_result = converter.convert(converter_input, converter_output)
 

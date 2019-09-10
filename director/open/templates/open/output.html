@@ -1,4 +1,6 @@
 {% extends 'open/main.html' %}
+{% block header %}
+    {% include "open/open_header.html" with brand_tag="/open" display_share=user_owns_conversion %}{% endblock %}
 {% block main %}
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
     {% if user_owns_conversion %}
@@ -70,7 +72,7 @@
       }
 
       function updatePageFooterPosition () {
-        if (!pageFooter) return
+        if (!pageFooter || !conversionsFooter) return
         pageFooterPosition = pageFooter.getBoundingClientRect().top
         if (conversionFooterOriginalBottom === -1)
           conversionFooterOriginalBottom = parseInt(getComputedStyle(conversionsFooter).getPropertyValue('bottom'))
@@ -102,6 +104,27 @@
         const pageFooters = document.querySelectorAll('footer')
         pageFooter = pageFooters[pageFooters.length - 1]
         updateParentTitle()
+
+        document.getElementById('download_dropdown_button').onclick = function () {
+          document.getElementById('download_dropdown').classList.toggle('is-active')
+        }
+
+        const shareButton = document.getElementById('share_dropdown_button')
+
+        if (!shareButton)
+          return
+
+        document.getElementById('share_dropdown_button').onclick = function () {
+          document.getElementById('share_dropdown').classList.toggle('is-active')
+        }
+
+        document.getElementById('share_copy_button').onclick = function () {
+          const shareUrlEl = document.getElementById('id_share_url')
+
+          shareUrlEl.focus()
+          shareUrlEl.select()
+          document.execCommand('copy')
+        }
       }
     </script>
 {% endblock %}
