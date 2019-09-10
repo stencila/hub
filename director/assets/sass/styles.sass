@@ -70,7 +70,6 @@ body, html
 .footer
   position: absolute
   bottom: 0
-  /* height: $footer-height */
   width: 100%
   padding: 2rem 1.25rem
 
@@ -79,6 +78,23 @@ body, html
   
   .column
     padding-bottom: 0
+
+.open-footer
+  img
+    width: 1rem
+    vertical-align: text-bottom
+    margin-right: 4px
+  
+  a
+    font-size: 1rem
+    color: rgba(0, 0, 0, 0.5)
+    font-weight: 300
+
+    &::after
+      content: normal
+
+    &:hover
+      color: #333
 
 #file-browser
   table
