@@ -65,5 +65,6 @@ def cleanup_old_conversions():
 
         if conversion.output_file:
             exception_handling_unlink(conversion.output_file, 'conversion output')
+            exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
 
     old_conversions.delete()

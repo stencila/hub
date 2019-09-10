@@ -258,12 +258,19 @@ class ConverterFacade(object):
     def __init__(self, converter_binary: typing.List[str]) -> None:
         self.converter_binary = converter_binary
 
-    def convert(self, input_data: ConverterIo, output_data: ConverterIo) -> subprocess.CompletedProcess:
+    def convert(self, input_data: ConverterIo, output_data: ConverterIo,
+                output_intermediary: bool = False) -> subprocess.CompletedProcess:
         convert_args: typing.List[str] = [
             'convert',
             '--from', input_data.conversion_format.value.format_id,
             '--to', output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg, output_data.as_path_shell_arg]
+
+        if output_intermediary:
+            if output_data.as_path_shell_arg == '-':
+                raise RuntimeError('Can\'t output the intermediary when sending output to STDOUT')
+
+            convert_args.append(output_data.as_path_shell_arg + '.json')
 
         input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None
 

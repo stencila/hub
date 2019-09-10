@@ -3,7 +3,7 @@ import os
 import subprocess
 import tempfile
 import typing
-from os.path import splitext
+from os.path import splitext, basename
 from wsgiref.util import FileWrapper
 
 from django.conf import settings
@@ -59,7 +59,7 @@ class OpenView(View):
                         target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.html)
                         converter = ConverterFacade(settings.STENCILA_BINARY)
 
-                        conversion_result = converter.convert(cr.source_io, target_io)
+                        conversion_result = converter.convert(cr.source_io, target_io, True)
 
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
                                                        target_file, cr.original_filename)
@@ -126,6 +126,11 @@ class OpenView(View):
         cfs = ConversionFileStorage(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
         if conversion_result.returncode == 0 and target_file is not None:
             conversion.output_file = cfs.move_file_to_public_id(target_file.name, public_id)
+
+            intermediary_input_path = target_file.name + '.json'
+            intermediary_output_path = basename(conversion.output_file) + '.json'
+
+            cfs.move_file_to_public_id(intermediary_input_path, public_id, basename(intermediary_output_path))
         else:
             # We can later find failed Conversions by those with null output_file
             conversion.output_file = None
@@ -224,9 +229,6 @@ class OpenResultRawView(View):
         json_representation_path = conversion.output_file + '.json'
 
         source_io = ConverterIo(ConverterIoType.PATH, json_representation_path, ConversionFormatId.json)
-
-        # TODO: TEMP
-        source_io = ConverterIo(ConverterIoType.PATH, conversion.output_file, ConversionFormatId.html)
 
         with tempfile.NamedTemporaryFile() as target_file:
             target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.from_id(format_name))
