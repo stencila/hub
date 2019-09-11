@@ -21525,3 +21525,20 @@ h6.has-top-margin {
 #share_dropdown .dropdown-content:before {
   left: 305px;
 }
+
+.feedback-rating .column {
+  cursor: pointer;
+}
+
+.feedback-rating .column h6 {
+  padding-top: 10px;
+}
+
+.feedback-rating .column p {
+  font-style: italic;
+  font-size: 80%;
+}
+
+.feedback-rating .column.selected .icon {
+  color: #2468EF;
+}

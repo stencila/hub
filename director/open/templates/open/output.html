@@ -5,27 +5,9 @@
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
     {% if user_owns_conversion %}
         {% if log_messages %}
-            <div class="modal" id="warnings_modal">
-                <div class="modal-background"></div>
-                <div class="modal-card">
-                    <header class="modal-card-head">
-                        <p class="modal-card-title">
-                           <span class="icon has-text-warning is-large">
-                               <i class="fas fa-exclamation-triangle"></i></span>
-                            WARNINGS
-                        </p>
-                        <button class="delete" aria-label="close" id="warnings_modal_close"></button>
-                    </header>
-                    <section class="modal-card-body">
-                        <ul>
-                            {% for log_message in log_messages %}
-                                <li><strong>{{ log_message.level_to_name }}</strong> {{ log_message.message }}</li>
-                            {% endfor %}
-                        </ul>
-                    </section>
-                </div>
-            </div>
+            {% include "open/_warnings_modal.html" %}
         {% endif %}
+        {% include "open/_feedback_modal.html" %}
         <footer class="footer conversions-footer">
             <div class="is-pulled-right">
                 {% if log_messages %}
@@ -34,7 +16,7 @@
                         <span class="is-borderless-text">{{ log_messages|length }} warning{{ log_messages|pluralize }}</span>
                     </button>
                 {% endif %}
-                <button class="button is-primary">
+                <button class="button is-primary" id="feedback_button">
                     <span class="icon"><i class="far fa-comment-alt"></i></span>
                     <span>Feedback</span>
                 </button>
@@ -46,6 +28,91 @@
       let pageFooter
       let pageFooterPosition = -1
       let conversionFooterOriginalBottom = -1
+
+      {% if user_owns_conversion %}
+        const feedbackModal = new Vue(
+          {
+            el: '#feedback_modal',
+            delimiters: ['[[', ']]'],
+            data: {
+              rating: null,
+              submitted: false,
+              active: false,
+              submitInProgress: false,
+              comments: '',
+              emailAddress: '',
+              submitUrl: '{% url "open_feedback" public_id %}',
+              submissionError: null,
+              ratingErrors: null,
+              emailErrors: null
+            },
+            methods: {
+              showModal () {
+                this.active = true
+              },
+              hideModal () {
+                if (this.submitInProgress)
+                  return
+
+                this.active = false
+              },
+              setRating (rating) {
+                this.ratingError = null
+                this.rating = rating
+              },
+              send () {
+                this.ratingErrors = null
+                this.emailErrors = null
+
+                if (this.rating === null) {
+                  this.ratingErrors = ['Please select a rating.']
+                  return
+                }
+
+                this.submissionError = null
+                fetch(this.submitUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'X-CSRFToken': utils.cookie('csrftoken'),
+                  },
+                  credentials: 'same-origin',
+                  body: new URLSearchParams({
+                    rating: this.rating,
+                    comments: this.comments,
+                    email_address: this.emailAddress
+                  })
+                }).then(
+                  response => {
+                    this.submitInProgress = false
+                    return response.json()
+                  },
+                  failureResponse => {
+                    this.submitInProgress = false
+                  }).then(data => {
+                  if (data.success) {
+                    this.submitted = true
+                  } else {
+                    if (data.errors) {
+                      this.emailErrors = data.errors.email_address || null
+                      this.ratingErrors = data.errors.rating || null
+                    } else {
+                      this.submissionError = 'An unknown error occurred during send.'
+                    }
+
+                    this.submissionError = null
+                    this.submitted = false
+                  }
+                })
+              }
+            }
+          })
+
+        document.getElementById('feedback_button').onclick = function () {
+          feedbackModal.showModal()
+        }
+      {% endif %}
 
       {% if log_messages %}
         document.getElementById('warnings_button').onclick = function () {

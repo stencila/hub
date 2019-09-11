@@ -1,0 +1,20 @@
+<div class="modal" id="warnings_modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                           <span class="icon has-text-warning is-large">
+                               <i class="fas fa-exclamation-triangle"></i></span>
+                Warnings Modal
+            </p>
+            <button class="delete" aria-label="close" id="warnings_modal_close"></button>
+        </header>
+        <section class="modal-card-body">
+            <ul>
+                {% for log_message in log_messages %}
+                    <li><strong>{{ log_message.level_to_name }}</strong> {{ log_message.message }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</div>

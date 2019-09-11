@@ -4,6 +4,7 @@ import re
 import typing
 from datetime import timedelta
 
+from django.db import transaction
 from django.utils import timezone
 
 from open.models import Conversion
@@ -59,12 +60,14 @@ class ConversionFileStorage:
 def cleanup_old_conversions():
     old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE)
 
-    for conversion in old_conversions:
-        if conversion.input_file:
-            exception_handling_unlink(conversion.input_file, 'conversion input')
+    with transaction.atomic():
+        for conversion in old_conversions:
+            if conversion.input_file:
+                exception_handling_unlink(conversion.input_file, 'conversion input')
 
-        if conversion.output_file:
-            exception_handling_unlink(conversion.output_file, 'conversion output')
-            exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
+            if conversion.output_file:
+                exception_handling_unlink(conversion.output_file, 'conversion output')
+                exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
 
-    old_conversions.delete()
+            conversion.is_deleted = True
+            conversion.save()

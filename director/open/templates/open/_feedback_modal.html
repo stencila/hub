@@ -1,0 +1,96 @@
+<div class="modal" id="feedback_modal" :class="{'is-active': active}">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">
+                           <span class="icon is-large">
+                               <i class="far fa-comment-alt"></i></span>
+                Share Your Feedback
+            </p>
+            <button class="delete" aria-label="close" @click="hideModal()" :disabled="submitInProgress"></button>
+        </header>
+        <section class="modal-card-body">
+            <div v-show="!submitted">
+                <h5 class="subtitle is-5 is-marginless">1. How satisfied are you with the converted document?</h5>
+                <p class="has-bottom-margin">On a scale of 1-5, 1 being very dissatisfied, 5 being very satisfied.</p>
+                <div class="columns feedback-rating">
+                    <div class="column has-text-centered" :class="{selected: rating === 1}" @click="setRating(1)">
+                        <span class="icon is-large">
+                            <i class="far fa-3x fa-frown"></i>
+                        </span>
+                        <h6 class="subtitle is-4 is-marginless">1</h6>
+                        <p>
+                            very dissatisfied
+                        </p>
+                    </div>
+                    <div class="column has-text-centered" :class="{selected: rating === 2}" @click="setRating(2)">
+                        <span class="icon is-large">
+                            <i class="fas fa-lg fa-circle"></i>
+                        </span>
+                        <h6 class="subtitle is-4 is-marginless">2</h6>
+                        <p>dissatisfied</p>
+                    </div>
+                    <div class="column has-text-centered" :class="{selected: rating === 3}" @click="setRating(3)">
+                        <span class="icon is-large">
+                            <i class="far fa-3x fa-meh"></i>
+                        </span>
+                        <h6 class="subtitle is-4 is-marginless">3</h6>
+                        <p>neither dissatisfied nor satisfied</p>
+                    </div>
+                    <div class="column has-text-centered" :class="{selected: rating === 4}" @click="setRating(4)">
+                        <span class="icon is-large">
+                            <i class="fas fa-lg fa-circle"></i>
+                        </span>
+                        <h6 class="subtitle is-4 is-marginless">4</h6>
+                        <p>satisfied</p>
+                    </div>
+                    <div class="column has-text-centered" :class="{selected: rating === 5}" @click="setRating(5)">
+                        <span class="icon is-large">
+                            <i class="far fa-3x fa-smile"></i>
+                        </span>
+                        <h6 class="subtitle is-4 is-marginless">5</h6>
+                        <p>very satisfied</p>
+                    </div>
+                </div>
+                <p v-if="ratingErrors !== null" class="has-text-danger has-bottom-margin">[[ ratingErrors.join(' ') ]]</p>
+                <h5 class="subtitle is-5 is-marginless">2. Any comments or suggestions for improvements?</h5>
+                <p class="has-bottom-margin">
+                    How useful did you find <em>/open</em>? Is there anything you&rsquo;d like us to add or remove to
+                    make
+                    it perfect for you?
+                </p>
+                <div class="field">
+                    <div class="control">
+                        <textarea class="textarea" placeholder="I love it!" v-model="comments"></textarea>
+                    </div>
+                </div>
+                <h5 class="subtitle is-5 has-bottom-margin">3. Email address (optional)</h5>
+                <p class="has-bottom-margin">
+                    Enter your email address if you would like to be contacted regarding your experience.
+                </p>
+                <div class="field">
+                    <div class="control">
+                        <input type="text" class="input" :class="{'is-danger': emailErrors !== null}"
+                               placeholder="Email Address" v-model="emailAddress">
+                    </div>
+                    <p class="help is-danger" v-if="emailErrors !== null">[[ emailErrors.join(' ') ]]</p>
+                </div>
+            </div>
+            <div v-show="submitted">
+                <p>Thank you, we have received your feedback about Stencila /open.
+                    <span v-if="emailAddress !== ''">Since you provided your email address we may contact you regarding
+                    any changes we make to enhance your experience with Stencila.</span>
+                </p>
+            </div>
+        </section>
+        <footer class="modal-card-foot" style="justify-content: flex-end">
+            <button class="button" @click="hideModal()" v-show="submitted">
+                Close
+            </button>
+
+            <button class="button is-primary" @click="send()" :disabled="submitInProgress" v-show="!submitted">
+                Send
+            </button>
+        </footer>
+    </div>
+</div>

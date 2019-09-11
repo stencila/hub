@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import PROTECT
 from shortid import ShortId
 
 
@@ -23,6 +24,11 @@ class Conversion(models.Model):
                                       'be JSON encoded.')
     original_filename = models.TextField(null=True, blank=True,
                                          help_text='If available, the name of the original file.')
+    source_format = models.TextField(null=False, blank=False, help_text='Format that was converted from.')
+    target_format = models.TextField(null=False, blank=False, help_text='Format that was converted to.')
+    is_deleted = models.BooleanField(null=False, default=False,
+                                     help_text='Instead of deleting conversions, this flag should be set so a record '
+                                               'still exists for feedback/analytics.')
 
     def clean(self) -> None:
         super().clean()
@@ -32,3 +38,11 @@ class Conversion(models.Model):
         if not self.public_id:
             self.public_id = ShortId().generate()
         return self.public_id
+
+
+class ConversionFeedback(models.Model):
+    conversion = models.ForeignKey(Conversion, related_name='feedback', on_delete=PROTECT)
+    rating = models.IntegerField(help_text='What the user has rated the feedback (1-5).')
+    comments = models.TextField(blank=True, null=True, help_text='Comments the user had regarding the conversion.')
+    email_address = models.EmailField(blank=True, null=True, help_text='Email address provided with feedback.')
+    created = models.DateTimeField(auto_now_add=True, help_text='Date/time the feedback was created.')

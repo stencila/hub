@@ -8,7 +8,8 @@ from wsgiref.util import FileWrapper
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import HttpRequest, HttpResponse
+from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
@@ -16,8 +17,8 @@ from django.views.generic.base import View
 from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, \
     conversion_format_from_path, ConversionFormatError
 from open.lib import ConversionFileStorage
-from .forms import UrlForm, FileForm
-from .models import Conversion
+from .forms import UrlForm, FileForm, FeedbackForm
+from .models import Conversion, ConversionFeedback
 
 OWNED_CONVERSIONS_KEY = 'owned_conversions'
 
@@ -62,7 +63,7 @@ class OpenView(View):
                         conversion_result = converter.convert(cr.source_io, target_io, True)
 
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
-                                                       target_file, cr.original_filename)
+                                                       target_io, target_file, cr.original_filename)
 
                     # Add the ownership of this conversion to the session
                     if OWNED_CONVERSIONS_KEY not in request.session:
@@ -113,13 +114,18 @@ class OpenView(View):
 
     @staticmethod
     def create_conversion(request: HttpRequest, conversion_result: subprocess.CompletedProcess,
-                          input_url: typing.Optional[str], source_io: ConverterIo,
+                          input_url: typing.Optional[str], source_io: ConverterIo, target_io: ConverterIo,
                           target_file: typing.Optional[typing.Any],
                           original_filename: typing.Optional[str]) -> str:
         conversion = Conversion(input_url=input_url)
         public_id = conversion.generate_or_get_public_id()
+
+        conversion.source_format = source_io.conversion_format.value.format_id
+        conversion.target_format = target_io.conversion_format.value.format_id
+
         conversion.stderr = conversion_result.stderr.decode('utf8')
         conversion.stdout = conversion_result.stdout.decode('utf8')
+
         conversion.original_filename = original_filename
         # It may have warnings even if the conversion went OK
         conversion.has_warnings = conversion.stderr is not None and len(conversion.stderr) != 0
@@ -178,20 +184,20 @@ class LogMessage:
         return self.message[item]
 
 
+def user_owns_conversion(request: HttpRequest, conversion_id: str) -> bool:
+    if OWNED_CONVERSIONS_KEY not in request.session:
+        return False
+
+    return conversion_id in request.session[OWNED_CONVERSIONS_KEY]
+
+
 class OpenResultView(View):
-    @staticmethod
-    def user_owns_conversion(request: HttpRequest, conversion_id: str) -> bool:
-        if OWNED_CONVERSIONS_KEY not in request.session:
-            return False
-
-        return conversion_id in request.session[OWNED_CONVERSIONS_KEY]
-
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
-        conversion = get_object_or_404(Conversion, public_id=conversion_id)
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
 
-        user_owns_conversion = self.user_owns_conversion(request, conversion_id)
+        conversion_owned = user_owns_conversion(request, conversion_id)
 
-        if user_owns_conversion and conversion.stderr:
+        if conversion_owned and conversion.stderr:
             raw_log_messages = json.loads('[' + ','.join(conversion.stderr.strip().split('\n')) + ']')
             log_messages: typing.Optional[typing.List[LogMessage]] = list(map(LogMessage, raw_log_messages))
         else:
@@ -202,9 +208,9 @@ class OpenResultView(View):
         return render(request, 'open/output.html', {
             'raw_source': reverse('open_result_raw', args=(conversion.public_id,)),
             'public_id': conversion.public_id,
-            'user_owns_conversion': user_owns_conversion,
+            'user_owns_conversion': conversion_owned,
             'display_warnings_button':
-                user_owns_conversion and log_messages is not None,
+                conversion_owned and log_messages is not None,
             'log_messages': log_messages,
             'share_url': share_url
         })
@@ -214,7 +220,7 @@ class OpenResultRawView(View):
     """Fetches and displays just the raw HTML content with no Hub UI around the outside."""
 
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
-        conversion = get_object_or_404(Conversion, public_id=conversion_id)
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
         if conversion.output_file is None:
             return render(request, 'open/error.html', {})
 
@@ -246,3 +252,33 @@ class OpenResultRawView(View):
             resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
                 output_filename.replace('"', '\"'))
             return resp
+
+
+def upsert_intercom_user(email_address: str):
+    """Create or update an Intercom user with a flag that they have added Conversion feedback."""
+    pass
+
+
+class OpenFeedbackView(View):
+    def post(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
+
+        if not user_owns_conversion(request, conversion_id):
+            raise PermissionDenied('You do not own this conversion.')
+
+        feedback_form = FeedbackForm(request.POST)
+
+        resp: typing.Dict[typing.Any, typing.Any] = {}
+
+        if feedback_form.is_valid():
+            ConversionFeedback.objects.create(conversion=conversion, **feedback_form.cleaned_data)
+
+            if feedback_form.cleaned_data['email_address']:
+                upsert_intercom_user(feedback_form.cleaned_data['email_address'])
+
+            resp['success'] = True
+        else:
+            resp['success'] = False
+            resp['errors'] = dict(feedback_form.errors.items())
+
+        return JsonResponse(resp)

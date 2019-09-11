@@ -21,3 +21,9 @@ class UrlForm(forms.Form):
 
 class FileForm(forms.Form):
     file = forms.FileField()
+
+
+class FeedbackForm(forms.Form):
+    rating = forms.IntegerField(min_value=1, max_value=5)
+    comments = forms.CharField(required=False)
+    email_address = forms.EmailField(required=False)
