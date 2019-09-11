@@ -202,24 +202,31 @@ class OpenResultView(View):
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
 
         conversion_owned = user_owns_conversion(request, conversion_id)
+        context = {
+            'user_owns_conversion': conversion_owned,
+            'public_id': conversion.public_id
+        }
 
         if conversion_owned and conversion.stderr:
+            # log messages are line separated JSON directories
             raw_log_messages = json.loads('[' + ','.join(conversion.stderr.strip().split('\n')) + ']')
             log_messages: typing.Optional[typing.List[LogMessage]] = list(map(LogMessage, raw_log_messages))
         else:
             log_messages = None
 
-        share_url = request.build_absolute_uri()
+        context['log_messages'] = log_messages
+        context['display_warings_button'] = conversion_owned and log_messages is not None
 
-        return render(request, 'open/output.html', {
-            'raw_source': reverse('open_result_raw', args=(conversion.public_id,)),
-            'public_id': conversion.public_id,
-            'user_owns_conversion': conversion_owned,
-            'display_warnings_button':
-                conversion_owned and log_messages is not None,
-            'log_messages': log_messages,
-            'share_url': share_url
-        })
+        if conversion.output_file is None:
+            template = 'open/error.html'
+            context['conversion_success'] = False
+        else:
+            template = 'open/output.html'
+            context['conversion_success'] = True
+            context['share_url'] = request.build_absolute_uri()
+            context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
+
+        return render(request, template, context)
 
 
 class OpenResultRawView(View):
@@ -255,13 +262,16 @@ class OpenResultRawView(View):
             else:
                 output_filename = 'stencila-open-download.{}'.format(target_io.conversion_format.value.format_id)
 
-            resp['Content-Disposition'] = 'attachment; filename="{}"'.format(
-                output_filename.replace('"', '\"'))
+            resp['Content-Disposition'] = 'attachment; filename="{}"'.format(output_filename)
             return resp
 
 
 def upsert_intercom_user(email_address: str) -> None:
     """Create or update an Intercom user with a flag that they have added Conversion feedback."""
+    if settings.DEBUG:
+        LOGGER.debug('In debug mode so not sending %s to intercom', email_address)
+        return
+
     resp = requests.post('https://api.intercom.io/users', json={
         'email': email_address,
         'custom_attributes': {

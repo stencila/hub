@@ -1,24 +1,27 @@
-{% extends 'open/main.html' %}
+{% extends 'open/output.html' %}
 {% load static %}
 
 {% block main %}
     <section class="section">
-    <div class="columns">
-        <div class="column is-8 is-offset-2 has-text-centered">
-            <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px" height="28px">
-            <h1 class="title has-margin-top">Oops!</h1>
-            <p>Sorry, we had an issue converting your file, <em>filename</em>. If you’d like to be contacted once we resolve this issue, please leave your email in Feedback.</p>
-            <br />
-            <div class="buttons is-centered">
-                <a href="{% url 'home' %}" class="button is-primary is-outlined call-to-action">
-                    <span>Go back</span>
-                </a>
-                <button class="button is-primary">
-                    <span class="icon"><i class="far fa-comment-alt"></i></span>
-                    <span>Feedback</span>
-                </button>
+        <div class="columns">
+            <div class="column is-8 is-offset-2 has-text-centered">
+                <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px"
+                     height="28px">
+                <h1 class="title has-margin-top">Oops!</h1>
+                <p>Sorry, we had an issue converting your file, <em>filename</em>. If you’d like to be contacted once we
+                    resolve this issue, please leave your email in Feedback.</p>
+                <br/>
+                <div class="buttons is-centered">
+                    <a href="{% url 'open_main' %}" class="button is-primary is-outlined call-to-action">
+                        <span>Go back</span>
+                    </a>
+                    <button class="button is-primary" id="feedback_button">
+                        <span class="icon"><i class="far fa-comment-alt"></i></span>
+                        <span>Feedback</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
     </section>
+    {% include 'open/_output_footer.html' %}
 {% endblock %}

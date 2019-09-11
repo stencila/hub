@@ -8,7 +8,7 @@ import tempfile
 import typing
 from os.path import splitext, basename
 from socket import gethostbyname
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin, unquote
 
 import requests
 from django.http.multipartparser import parse_header
@@ -216,8 +216,16 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
         file_name = basename(url_obj.path)
 
         if 'Content-Disposition' in resp.headers:
-            _, metadata = parse_header(resp.headers['Content-Disposition'])
+            content_disposition: typing.Union[str, bytes] = resp.headers['Content-Disposition']
+
+            if not isinstance(content_disposition, bytes):
+                content_disposition = content_disposition.encode('ascii')
+
+            _, metadata = parse_header(content_disposition)
             file_name = metadata.get('filename')
+            if isinstance(file_name, bytes):
+                file_name = file_name.decode('ascii')
+            file_name = unquote(file_name)
 
         if not source_format:
             try:

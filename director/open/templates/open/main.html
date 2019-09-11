@@ -6,7 +6,8 @@
         <div class="columns">
             <div class="column is-8 is-offset-2">
                 <h1 class="title has-text-centered">Stencila /open</h1>
-                <h2 class="subtitle is-5 has-text-centered">Generate reproducible articles in formats familiar to managers</h2>
+                <h2 class="subtitle is-5 has-text-centered">Generate reproducible articles in formats familiar to
+                    managers</h2>
                 <form method="post">
                     {% csrf_token %}
                     <label for="{{ url_form.url.auto_id }}" class="label">
@@ -32,19 +33,20 @@
                     <div class="field is-grouped is-marginless">
                         <p class="control is-expanded">
                             <input type="text"
-                            class="input{% if url_form.url.errors %} is-danger{% endif %}"
-                            placeholder="https://"
-                            name="{{ url_form.url.name }}"
-                            id="{{ url_form.url.auto_id }}"
-                            value="{{ url_form.url.value|default:"" }}"
-                            required
+                                   class="input{% if url_form.url.errors %} is-danger{% endif %}"
+                                   placeholder="https://"
+                                   name="{{ url_form.url.name }}"
+                                   id="{{ url_form.url.auto_id }}"
+                                   value="{{ url_form.url.value|default:"" }}"
+                                   required
                             >
                         </p>
                         <p class="control">
                             <input class="button is-primary" type="submit" value="Open">
                         </p>
                     </div>
-                    <p class="help">Examples: <a href="#">Article 1</a> (.ipynb), <a href="#">Article 2</a> (.md), <a href="#">Article 3</a> (Google Doc), <a href="#">Article 4</a> (.docx)</p>
+                    <p class="help">Examples: <a href="#">Article 1</a> (.ipynb), <a href="#">Article 2</a> (.md), <a
+                            href="#">Article 3</a> (Google Doc), <a href="#">Article 4</a> (.docx)</p>
                     {% if url_form.url.errors %}
                         <div>
                             <p class="help is-danger">
@@ -114,13 +116,16 @@
             </div>
         </div>
     </section>
-    <script>
-      let fileField = document.getElementById('{{ file_form.file.auto_id }}')
-      fileField.onchange = function () {
-        if (fileField.files.length === 1) document.getElementById('id_file_form').submit()
-      }
-    </script>
+
 {% endblock %}
 {% block footer %}
+    {% block open_scripts %}
+        <script>
+          let fileField = document.getElementById('{{ file_form.file.auto_id }}')
+          fileField.onchange = function () {
+            if (fileField.files.length === 1) document.getElementById('id_file_form').submit()
+          }
+        </script>
+    {% endblock %}
     {% include "open/open_footer.html" %}
 {% endblock %}

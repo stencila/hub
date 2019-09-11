@@ -30,6 +30,9 @@ class Conversion(models.Model):
                                      help_text='Instead of deleting conversions, this flag should be set so a record '
                                                'still exists for feedback/analytics.')
 
+    def __str__(self):
+        return 'Conversion {} / {}'.format(self.pk, self.public_id)
+
     def clean(self) -> None:
         super().clean()
         self.generate_or_get_public_id()

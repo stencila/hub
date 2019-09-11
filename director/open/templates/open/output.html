@@ -3,27 +3,10 @@
     {% include "open/open_header.html" with brand_tag="/open" display_share=user_owns_conversion %}{% endblock %}
 {% block main %}
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
-    {% if user_owns_conversion %}
-        {% if log_messages %}
-            {% include "open/_warnings_modal.html" %}
-        {% endif %}
-        {% include "open/_feedback_modal.html" %}
-        <footer class="footer conversions-footer">
-            <div class="is-pulled-right">
-                {% if log_messages %}
-                    <button class="button is-borderless" id="warnings_button">
-                        <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span>
-                        <span class="is-borderless-text">{{ log_messages|length }} warning{{ log_messages|pluralize }}</span>
-                    </button>
-                {% endif %}
-                <button class="button is-primary" id="feedback_button">
-                    <span class="icon"><i class="far fa-comment-alt"></i></span>
-                    <span>Feedback</span>
-                </button>
-            </div>
-        </footer>
-    {% endif %}
-    <script type="text/javascript">
+    {% include 'open/_output_footer.html' %}
+{% endblock %}
+{% block open_scripts %}
+    <script>
       let conversionsFooter = document.querySelector('.conversions-footer')
       let pageFooter
       let pageFooterPosition = -1
@@ -123,20 +106,24 @@
           document.getElementById('warnings_modal').classList.remove('is-active')
         }
       {% endif %}
+      {% if conversion_success %}
+        const parentTitleEl = document.querySelector('title')
 
-      const parentTitleEl = document.querySelector('title')
+        const articleDisplay = document.getElementById('article_display_{{ public_id }}')
 
-      window.history.replaceState(history.state, parentTitleEl.textContent, window.location.href.split('?')[0])
-      const articleDisplay = document.getElementById('article_display_{{ public_id }}')
+        function updateParentTitle () {
+          let subTitle = articleDisplay.contentDocument.querySelector('title')
+          if (subTitle)
+            parentTitleEl.textContent = 'Open : Stencila : ' + subTitle.textContent
+          articleDisplay.style.height = `${articleDisplay.contentWindow.document.body.scrollHeight}px`
+          updatePageFooterPosition()
+          scrollChange()
+        }
+        articleDisplay.onload = function () {
+          updateParentTitle()
+        }
 
-      function updateParentTitle () {
-        let subTitle = articleDisplay.contentDocument.querySelector('title')
-        if (subTitle)
-          parentTitleEl.textContent = 'Open : Stencila : ' + subTitle.textContent
-        articleDisplay.style.height = `${articleDisplay.contentWindow.document.body.scrollHeight}px`
-        updatePageFooterPosition()
-        scrollChange()
-      }
+      {% endif %}
 
       function updatePageFooterPosition () {
         if (!pageFooter || !conversionsFooter) return
@@ -157,10 +144,6 @@
         }
       }
 
-      articleDisplay.onload = function () {
-        updateParentTitle()
-      }
-
       document.onscroll = scrollChange
       window.onresize = function () {
         updatePageFooterPosition()
@@ -172,8 +155,11 @@
         pageFooter = pageFooters[pageFooters.length - 1]
         updateParentTitle()
 
-        document.getElementById('download_dropdown_button').onclick = function () {
-          document.getElementById('download_dropdown').classList.toggle('is-active')
+        const downloadButton = document.getElementById('download_dropdown_button')
+        if (downloadButton) {
+          downloadButton.onclick = function () {
+            document.getElementById('download_dropdown').classList.toggle('is-active')
+          }
         }
 
         const shareButton = document.getElementById('share_dropdown_button')

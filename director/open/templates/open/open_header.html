@@ -1,55 +1,57 @@
 {% extends "_header.html" %}
 {% block navbar_end %}
-    {% if display_share %}
-        <div class="dropdown" id="share_dropdown" style="margin-right: 0.5em">
-            <div class="dropdown-trigger">
-                <button id="share_dropdown_button" class="button is-outlined" aria-haspopup="true"
-                        aria-controls="dropdown-menu">
+    {% if conversion_success %}
+        {% if display_share %}
+            <div class="dropdown" id="share_dropdown" style="margin-right: 0.5em">
+                <div class="dropdown-trigger">
+                    <button id="share_dropdown_button" class="button is-outlined" aria-haspopup="true"
+                            aria-controls="dropdown-menu">
                     <span class="icon is-small">
                         <i class="fas fa-share" aria-hidden="true"></i>
                     </span>
-                    <span>Share</span>
+                        <span>Share</span>
+                    </button>
+                </div>
+                <div class="dropdown-menu" role="menu">
+                    <div class="dropdown-content">
+                        <h5 class="subtitle is-5">Public Share Link</h5>
+                        <div class="field is-grouped">
+                            <p class="control is-expanded">
+                                <input class="input" type="text" placeholder="Share URL" readonly="readonly"
+                                       value="{{ share_url }}" id="id_share_url">
+                            </p>
+                            <p class="control">
+                                <a class="button is-info" href="#" id="share_copy_button">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-copy" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Copy</span>
+                                </a>
+                            </p>
+                        </div>
+                        <p>This link will expire 24 hours after conversion.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="dropdown" id="download_dropdown" style="margin-right: 0.5rem;">
+            <div class="dropdown-trigger">
+                <button id="download_dropdown_button" class="button is-outlined" aria-haspopup="true"
+                        aria-controls="dropdown-menu">
+                    <span class="icon is-small">
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                    </span>
+                    <span>Download</span>
                 </button>
             </div>
             <div class="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <h5 class="subtitle is-5">Public Share Link</h5>
-                    <div class="field is-grouped">
-                        <p class="control is-expanded">
-                            <input class="input" type="text" placeholder="Share URL" readonly="readonly"
-                                   value="{{ share_url }}" id="id_share_url">
-                        </p>
-                        <p class="control">
-                            <a class="button is-info" href="#" id="share_copy_button">
-                                    <span class="icon is-small">
-                                        <i class="fas fa-copy" aria-hidden="true"></i>
-                                    </span>
-                                <span>Copy</span>
-                            </a>
-                        </p>
-                    </div>
-                    <p>This link will expire 24 hours after conversion.</p>
+                    <a class="dropdown-item" href="{{ raw_source }}?download=html">HTML</a>
+                    <a class="dropdown-item" href="{{ raw_source }}?download=md">Markdown</a>
                 </div>
             </div>
         </div>
     {% endif %}
-    <div class="dropdown" id="download_dropdown" style="margin-right: 0.5rem;">
-        <div class="dropdown-trigger">
-            <button id="download_dropdown_button" class="button is-outlined" aria-haspopup="true"
-                    aria-controls="dropdown-menu">
-                    <span class="icon is-small">
-                        <i class="fas fa-download" aria-hidden="true"></i>
-                    </span>
-                <span>Download</span>
-            </button>
-        </div>
-        <div class="dropdown-menu" role="menu">
-            <div class="dropdown-content">
-                <a class="dropdown-item" href="{{ raw_source }}?download=html">HTML</a>
-                <a class="dropdown-item" href="{{ raw_source }}?download=md">Markdown</a>
-            </div>
-        </div>
-    </div>
     {% if user.is_anonymous %}
         <div class="buttons">
             <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signin' %}">Sign

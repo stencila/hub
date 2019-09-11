@@ -18803,6 +18803,52 @@ a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover, a.navbar-i
   border-radius: 50%;
 }
 
+.tooltip-link:hover .tooltip {
+  display: inline-block;
+}
+
+.tooltip-q {
+  color: #fff;
+  background-color: #2568ef;
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  text-align: center;
+  font-size: .8rem;
+  border-radius: 100%;
+  line-height: 1rem;
+  vertical-align: top;
+  padding: 0;
+  border: 0;
+  font-weight: bold;
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip-q .tooltip {
+  display: none;
+  color: #4a4a4a;
+  text-align: left;
+  position: absolute;
+  bottom: 20px;
+  left: -240px;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #dbdbdb;
+  font-weight: normal;
+  width: 480px;
+}
+
+@media screen and (min-width: 1092px) {
+  .tooltip-q .tooltip {
+    left: -10px;
+  }
+}
+
+.tooltip-q:hover .tooltip {
+  display: inline-block;
+}
+
 .card--grid {
   box-shadow: none;
   margin-bottom: 1.25rem;
@@ -19455,6 +19501,14 @@ button:hover:not(.btn-primary[disabled])[type="submit"] {
   border-left: 4px solid #66ff66;
 }
 
+.message.is-danger {
+  border-color: #ff3860;
+}
+
+.message.is-danger .message-header {
+  color: rgba(0, 0, 0, 0.7);
+}
+
 .message-body {
   padding: 0rem 1.5rem 1rem;
 }
@@ -19673,9 +19727,11 @@ button[type="submit"] {
   line-height: 0 !important;
 }
 
-.call-to-action {
+.call-to-action.button, input.call-to-action[type="submit"],
+button.call-to-action[type="submit"] {
   text-transform: none !important;
   font-weight: normal !important;
+  padding: .25rem 1rem;
 }
 
 .dropdown {
@@ -21314,6 +21370,11 @@ button.dropdown-item.is-active {
           transform: rotate(-90deg);
 }
 
+.error-image {
+  margin-bottom: 1rem;
+  width: 150px;
+}
+
 .has-text-warning {
   color: #FFA800 !important;
 }
@@ -21340,8 +21401,40 @@ body, html {
 .footer {
   position: absolute;
   bottom: 0;
-  height: 136px;
   width: 100%;
+  padding: 2rem 1.25rem;
+}
+
+.footer .container {
+  height: 100%;
+}
+
+.footer .column {
+  padding-bottom: 0;
+}
+
+.open-footer {
+  padding-top: 0;
+}
+
+.open-footer img {
+  width: 1rem;
+  vertical-align: text-bottom;
+  margin-right: 4px;
+}
+
+.open-footer a {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: 300;
+}
+
+.open-footer a::after {
+  content: normal;
+}
+
+.open-footer a:hover {
+  color: #333;
 }
 
 #file-browser table i {
