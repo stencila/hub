@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import subprocess
 import tempfile
@@ -6,6 +7,7 @@ import typing
 from os.path import splitext, basename
 from wsgiref.util import FileWrapper
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -13,6 +15,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
+from requests import HTTPError
 
 from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, \
     conversion_format_from_path, ConversionFormatError
@@ -21,6 +24,9 @@ from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback
 
 OWNED_CONVERSIONS_KEY = 'owned_conversions'
+
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.NullHandler())
 
 
 class ConversionRequest:
@@ -254,9 +260,22 @@ class OpenResultRawView(View):
             return resp
 
 
-def upsert_intercom_user(email_address: str):
+def upsert_intercom_user(email_address: str) -> None:
     """Create or update an Intercom user with a flag that they have added Conversion feedback."""
-    pass
+    resp = requests.post('https://api.intercom.io/users', json={
+        'email': email_address,
+        'custom_attributes': {
+            'open_feedback': True
+        }
+    }, headers={
+        'Accept': 'application/json',
+        'Authorization': 'Bearer {}'.format(settings.INTERCOM_ACCESS_TOKEN)
+    })
+
+    try:
+        resp.raise_for_status()
+    except HTTPError:
+        LOGGER.exception('Adding conversion feedback user to Intercom')
 
 
 class OpenFeedbackView(View):
