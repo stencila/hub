@@ -16,9 +16,11 @@
                             <div class="tooltip">
                                 <p class="is-uppercase-heading has-bottom-margin">Supported formats</p>
                                 <p><strong>Github (.ipynb, .md, .docx):</strong> https://github.com/stencila/examples/blob/master/rodents/README.md</p>
+                                {% comment %}
                                 <p><strong>Google Docs:</strong> https://docs.google.com/document/d/[document id]/</p>
                                 <p><strong>eLife article:</strong> https://elifesciences.org/articles/[article number]/</p>
                                 <p><strong>PLoS article:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
+                                {% endcomment %}
                             </div>
                         </span>
                     </label>
@@ -45,8 +47,14 @@
                             <input class="button is-primary" type="submit" value="Open">
                         </p>
                     </div>
-                    <p class="help">Examples: <a href="#">Article 1</a> (.ipynb), <a href="#">Article 2</a> (.md), <a
-                            href="#">Article 3</a> (Google Doc), <a href="#">Article 4</a> (.docx)</p>
+                    <p class="help">Examples:
+                        <a href="{% url 'open_main_with_url' 'https://github.com/stencila/examples/tree/master/rodents/README.md' %}">Article 1</a> (.md)
+                        {% comment %}
+                        <a href="#">Article 1</a> (.ipynb),
+                        <a href="#">Article 3</a> (Google Doc),
+                        <a href="#">Article 4</a> (.docx)
+                        {% endcomment %}
+                    </p>
                     {% if url_form.url.errors %}
                         <div>
                             <p class="help is-danger">
