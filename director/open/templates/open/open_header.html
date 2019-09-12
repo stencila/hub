@@ -1,4 +1,7 @@
 {% extends "_header.html" %}
+{% block brand_tagline %}
+<a href="{% url 'open_main' %}">/open</a>
+{% endblock %}
 {% block navbar_end %}
     {% if conversion_success %}
         {% if display_share %}

@@ -21635,3 +21635,7 @@ h6.has-top-margin {
 .feedback-rating .column.selected .icon {
   color: #2468EF;
 }
+
+.is-brand-tagline:after {
+  background: none;
+}
