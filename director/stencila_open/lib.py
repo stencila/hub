@@ -7,7 +7,7 @@ from datetime import timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from open.models import Conversion
+from stencila_open.models import Conversion
 
 MAX_AGE = timedelta(days=1)
 

@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('open', '0002_conversion_original_filename'),
+        ('stencila_open', '0002_conversion_original_filename'),
     ]
 
     operations = [
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('comments', models.TextField(blank=True, help_text='Comments the user had regarding the conversion.', null=True)),
                 ('email_address', models.EmailField(blank=True, help_text='Email address provided with feedback.', max_length=254, null=True)),
                 ('created', models.DateTimeField(auto_now_add=True, help_text='Date/time the feedback was created.')),
-                ('conversion', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='feedback', to='open.Conversion')),
+                ('conversion', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='feedback', to='stencila_open.Conversion')),
             ],
         ),
     ]

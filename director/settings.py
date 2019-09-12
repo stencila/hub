@@ -71,7 +71,7 @@ class Common(Configuration):
         'editors',
         'hosts',
         'checkouts',
-        'open'
+        'stencila_open'
     ]
 
     MIDDLEWARE = [

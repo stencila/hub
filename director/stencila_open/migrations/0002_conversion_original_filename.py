@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('open', '0001_initial'),
+        ('stencila_open', '0001_initial'),
     ]
 
     operations = [

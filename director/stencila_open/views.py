@@ -19,7 +19,7 @@ from requests import HTTPError
 
 from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, \
     conversion_format_from_path, ConversionFormatError
-from open.lib import ConversionFileStorage
+from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback
 

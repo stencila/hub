@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from open.views import OpenView, OpenResultView, OpenResultRawView, OpenFeedbackView
+from stencila_open.views import OpenView, OpenResultView, OpenResultRawView, OpenFeedbackView
 
 urlpatterns = [
     path('', OpenView.as_view(), name='open_main'),
