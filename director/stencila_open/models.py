@@ -1,6 +1,8 @@
+import shortuuid
 from django.db import models
 from django.db.models import PROTECT
-from shortid import ShortId
+
+PUBLIC_ID_LENGTH = 11
 
 
 class Conversion(models.Model):
@@ -39,7 +41,7 @@ class Conversion(models.Model):
 
     def generate_or_get_public_id(self) -> str:
         if not self.public_id:
-            self.public_id = ShortId().generate()
+            self.public_id = shortuuid.ShortUUID().random(length=PUBLIC_ID_LENGTH)
         return self.public_id
 
 

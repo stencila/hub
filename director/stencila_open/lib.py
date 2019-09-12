@@ -7,7 +7,7 @@ from datetime import timedelta
 from django.db import transaction
 from django.utils import timezone
 
-from stencila_open.models import Conversion
+from stencila_open.models import Conversion, PUBLIC_ID_LENGTH
 
 MAX_AGE = timedelta(days=1)
 
@@ -32,8 +32,9 @@ class ConversionFileStorage:
         self.root = root
 
     def generate_save_directory(self, public_id: str) -> str:
-        if not re.match(r'^([a-z0-9_\-]{7,14})', public_id, re.I):
-            raise ValueError('ID should not contain any bad characters.')
+        if not re.match(r'^([a-z0-9]{' + str(PUBLIC_ID_LENGTH) + '})', public_id, re.I):
+            raise ValueError(
+                'ID should not contain any bad characters and must be of length {}.'.format(PUBLIC_ID_LENGTH))
 
         return os.path.join(self.root, CONVERSION_STORAGE_SUBDIR, *list(public_id[:2]))
 
