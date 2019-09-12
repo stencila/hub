@@ -2,10 +2,10 @@
 {% block navbar_end %}
     {% if conversion_success %}
         {% if display_share %}
-            <div class="dropdown" id="share_dropdown" style="margin-right: 0.5em">
+            <div class="dropdown" id="share_dropdown" style="margin-right: 0.5em" :class="{'is-active': active}">
                 <div class="dropdown-trigger">
-                    <button id="share_dropdown_button" class="button is-outlined" aria-haspopup="true"
-                            aria-controls="dropdown-menu">
+                    <button class="button is-outlined" aria-haspopup="true" aria-controls="dropdown-menu"
+                            @click="toggle()">
                     <span class="icon is-small">
                         <i class="fas fa-share" aria-hidden="true"></i>
                     </span>
@@ -18,14 +18,16 @@
                         <div class="field is-grouped">
                             <p class="control is-expanded">
                                 <input class="input" type="text" placeholder="Share URL" readonly="readonly"
-                                       value="{{ share_url }}" id="id_share_url">
+                                       value="{{ share_url }}" ref="share-url">
                             </p>
                             <p class="control">
-                                <a class="button is-info" href="#" id="share_copy_button">
+                                <a class="button is-info" href="#" @click="copy()">
                                     <span class="icon is-small">
-                                        <i class="fas fa-copy" aria-hidden="true"></i>
+                                        <i v-if="!postCopy" class="fas fa-copy" aria-hidden="true"></i>
+                                        <i v-if="postCopy" class="fas fa-check" aria-hidden="true"></i>
                                     </span>
-                                    <span>Copy</span>
+                                    <span v-if="!postCopy">Copy</span>
+                                    <span v-if="postCopy">Copied!</span>
                                 </a>
                             </p>
                         </div>
@@ -34,10 +36,11 @@
                 </div>
             </div>
         {% endif %}
-        <div class="dropdown" id="download_dropdown" style="margin-right: 0.5rem;">
+        <div class="dropdown" id="download_dropdown"{% if user.is_anonymous %} style="margin-right: 0.5rem;"{% endif %}
+             :class="{'is-active': active}">
             <div class="dropdown-trigger">
                 <button id="download_dropdown_button" class="button is-outlined" aria-haspopup="true"
-                        aria-controls="dropdown-menu">
+                        aria-controls="dropdown-menu" @click="toggle()">
                     <span class="icon is-small">
                         <i class="fas fa-download" aria-hidden="true"></i>
                     </span>
@@ -46,18 +49,27 @@
             </div>
             <div class="dropdown-menu" role="menu">
                 <div class="dropdown-content">
-                    <a class="dropdown-item" href="{{ raw_source }}?download=html">HTML</a>
-                    <a class="dropdown-item" href="{{ raw_source }}?download=md">Markdown</a>
+                    {% for download_option in download_options %}
+                        {% if download_option is None %}
+                            <hr class="dropdown-divider">
+                        {% else %}
+                            <a class="dropdown-item" href="{{ raw_source }}?download={{ download_option.format_id }}">
+                                <span class="icon">
+                                    <i class="{{ download_option.icon_class }}"></i>
+                                </span>
+                                <span>{{ download_option.name }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
     {% endif %}
     {% if user.is_anonymous %}
         <div class="buttons">
-            <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signin' %}">Sign
-                in</a>
-            <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signup' %}">Sign
-                up</a>
+            <a class="button is-outlined is-primary call-to-action" href="https://stenci.la/#beta-signup">
+                Sign up
+            </a>
         </div>
     {% endif %}
 {% endblock %}

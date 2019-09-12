@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Open{% endblock %}
-{% block header %}{% include "open/open_header.html" with brand_tag="/open" %}{% endblock %}
+{% block header %}{% include "open/open_header.html" with brand_tag='/open' navbar_id='navbar_open' display_share=user_owns_conversion %}{% endblock %}
 {% block content %}
     <section class="section">
         <div class="columns">

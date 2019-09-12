@@ -1,6 +1,4 @@
 {% extends 'open/main.html' %}
-{% block header %}
-    {% include "open/open_header.html" with brand_tag="/open" display_share=user_owns_conversion %}{% endblock %}
 {% block main %}
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
     {% include 'open/_output_footer.html' %}
@@ -73,6 +71,7 @@
                   },
                   failureResponse => {
                     this.submitInProgress = false
+                    this.submissionError = failureResponse
                   }).then(data => {
                   if (data.success) {
                     this.submitted = true
@@ -98,12 +97,16 @@
       {% endif %}
 
       {% if log_messages %}
-        document.getElementById('warnings_button').onclick = function () {
+        document.getElementById('warnings_button').onclick = function (e) {
+          e.preventDefault()
           document.getElementById('warnings_modal').classList.add('is-active')
+          return false
         }
 
-        document.getElementById('warnings_modal_close').onclick = function () {
+        document.getElementById('warnings_modal_close').onclick = function (e) {
+          e.preventDefault()
           document.getElementById('warnings_modal').classList.remove('is-active')
+          return false
         }
       {% endif %}
       {% if conversion_success %}
@@ -119,9 +122,11 @@
           updatePageFooterPosition()
           scrollChange()
         }
-        articleDisplay.onload = function () {
+
+        articleDisplay.addEventListener('load', function () {
+          articleDisplay.contentWindow.document.addEventListener('click', documentClick)
           updateParentTitle()
-        }
+        })
 
       {% endif %}
 
@@ -144,40 +149,96 @@
         }
       }
 
-      document.onscroll = scrollChange
-      window.onresize = function () {
+      document.addEventListener('scroll', scrollChange)
+      window.addEventListener('resize', function () {
         updatePageFooterPosition()
         scrollChange()
+      })
+
+      let downloadDropdown = null
+
+      if (document.getElementById('download_dropdown')) {
+        downloadDropdown = new Vue({
+          el: '#download_dropdown',
+          data: {
+            active: false
+          },
+          methods: {
+            toggle () {
+              this.active ? this.hide() : this.show()
+            },
+            show () {
+              this.active = true
+            },
+            hide () {
+              this.active = false
+            }
+          }
+        })
       }
 
-      window.onload = function () {
+      let shareDropdown = null
+
+      if (document.getElementById('share_dropdown')) {
+        shareDropdown = new Vue({
+          el: '#share_dropdown',
+          data: {
+            active: false,
+            postCopy: false
+          },
+          methods: {
+            toggle () {
+              this.active ? this.hide() : this.show()
+            },
+            show () {
+              this.postCopy = false
+              this.active = true
+            },
+            hide () {
+              this.active = false
+              this.postCopy = false
+            },
+            copy () {
+              const shareUrlInput = this.$refs['share-url']
+              shareUrlInput.focus()
+              shareUrlInput.select()
+              document.execCommand('copy')
+              this.postCopy = true
+            }
+          }
+        })
+      }
+
+      function documentClick (e) {
+        let target = e.target
+        let downloadButton = document.getElementById('download_dropdown_button')
+        let shareDropdownEl = document.getElementById('share_dropdown')
+
+        let isInDownloadButton = false
+        let isInShareDropdown = false
+
+        while (target) {
+          if (target === downloadButton || target === shareDropdownEl) {
+            if (target === downloadButton) isInDownloadButton = true
+            else isInShareDropdown = true
+            break
+          }
+          target = target.parentElement
+        }
+
+        if (downloadDropdown !== null && !isInDownloadButton)
+          downloadDropdown.hide()
+
+        if (shareDropdown !== null && !isInShareDropdown)
+          shareDropdown.hide()
+      }
+
+      document.addEventListener('click', documentClick)
+
+      window.addEventListener('load', function () {
         const pageFooters = document.querySelectorAll('footer')
         pageFooter = pageFooters[pageFooters.length - 1]
         updateParentTitle()
-
-        const downloadButton = document.getElementById('download_dropdown_button')
-        if (downloadButton) {
-          downloadButton.onclick = function () {
-            document.getElementById('download_dropdown').classList.toggle('is-active')
-          }
-        }
-
-        const shareButton = document.getElementById('share_dropdown_button')
-
-        if (!shareButton)
-          return
-
-        document.getElementById('share_dropdown_button').onclick = function () {
-          document.getElementById('share_dropdown').classList.toggle('is-active')
-        }
-
-        document.getElementById('share_copy_button').onclick = function () {
-          const shareUrlEl = document.getElementById('id_share_url')
-
-          shareUrlEl.focus()
-          shareUrlEl.select()
-          document.execCommand('copy')
-        }
-      }
+      })
     </script>
 {% endblock %}

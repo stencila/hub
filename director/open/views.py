@@ -197,6 +197,24 @@ def user_owns_conversion(request: HttpRequest, conversion_id: str) -> bool:
     return conversion_id in request.session[OWNED_CONVERSIONS_KEY]
 
 
+class ConversionDownloadOption(typing.NamedTuple):
+    name: str
+    format_id: str
+    icon_class: str
+
+
+CONVERSION_DOWNLOAD_OPTIONS = [
+    ConversionDownloadOption('Word (.docx)', 'docx', 'far fa-file-word'),
+    None,
+    ConversionDownloadOption('JATS (.xml)', 'jats', 'far fa-file-code'),
+    # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
+    ConversionDownloadOption('Web page', 'html', 'far fa-file-code'),
+    # None,
+    # ConversionDownloadOption('RMarkdown (.rmd)', 'rmd', 'far fa-file-code'),
+    # ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'far fa-book'),
+]
+
+
 class OpenResultView(View):
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
@@ -223,6 +241,7 @@ class OpenResultView(View):
         else:
             template = 'open/output.html'
             context['conversion_success'] = True
+            context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
             context['share_url'] = request.build_absolute_uri()
             context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
 

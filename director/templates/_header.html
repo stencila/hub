@@ -1,7 +1,8 @@
 {% load static avatar_tags %}
 
 <header class="header">
-    <nav id="navbar" class="navbar main-navbar is-shadowless is-fixed-top border-bottom-light" role="navigation"
+    <nav id="{{ navbar_id|default:'navbar' }}" class="navbar main-navbar is-shadowless is-fixed-top border-bottom-light"
+         role="navigation"
          aria-label="main navigation">
         <div class="container">
             <div class="navbar-brand">
@@ -64,10 +65,12 @@
     </nav>
 </header>
 <script type="text/javascript">
-  new Vue({
-    el: '#navbar',
-    data: {
-      active: false
-    }
-  })
+  if (document.getElementById('navbar')) {
+    new Vue({
+      el: '#navbar',
+      data: {
+        active: false
+      }
+    })
+  }
 </script>
