@@ -48,34 +48,42 @@ def google_document_id_is_valid(document_id: str) -> bool:
 class GoogleAuthHelper(object):
     client_id: str
     client_secret: str
-    social_auth_token: SocialToken
+    social_auth_token: typing.Optional[SocialToken]
     _credentials: GoogleCredentials = None
 
-    def __init__(self, client_id: str, client_secret: str, social_auth_token: SocialToken) -> None:
+    def __init__(self, client_id: str, client_secret: str,
+                 social_auth_token: typing.Optional[SocialToken] = None) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.social_auth_token = social_auth_token
 
     @property
     def auth_token_expired(self) -> bool:
+        if self.social_auth_token is None:
+            return False
         return self.social_auth_token.expires_at is not None and self.social_auth_token.expires_at < timezone.now()
 
     @property
-    def credentials(self) -> GoogleCredentials:
+    def credentials(self) -> typing.Optional[GoogleCredentials]:
         if self._credentials is None:
-            self._credentials = GoogleCredentials(self.social_auth_token.token, self.client_id, self.client_secret,
-                                                  self.social_auth_token.token_secret,
-                                                  self.social_auth_token.expires_at,
-                                                  GOOGLE_TOKEN_URI, 'Stencila Hub Client')
+            if self.social_auth_token is None:
+                return None
+            else:
+                self._credentials = GoogleCredentials(self.social_auth_token.token, self.client_id, self.client_secret,
+                                                      self.social_auth_token.token_secret,
+                                                      self.social_auth_token.expires_at,
+                                                      GOOGLE_TOKEN_URI, 'Stencila Hub Client')
         return self._credentials
 
-    def update_social_auth_token(self, credentials: GoogleCredentials) -> None:
+    def update_social_auth_token(self, credentials: typing.Optional[GoogleCredentials]) -> None:
+        if credentials is None or self.social_auth_token is None:
+            return
         self.social_auth_token.token = credentials.access_token
         self.social_auth_token.expires_at = timezone.make_aware(credentials.token_expiry, timezone.utc)
         self.social_auth_token.save()
 
     def check_and_refresh_token(self) -> None:
-        if not self.auth_token_expired:
+        if self.credentials is None or not self.auth_token_expired:
             return
         http = self.credentials.authorize(httplib2.Http())
         self.credentials.refresh(http)
@@ -89,16 +97,17 @@ class GoogleAuthHelper(object):
 class GoogleDocsFacade(object):
     client_id: str
     client_secret: str
-    social_auth_token: SocialToken
+    social_auth_token: typing.Optional[SocialToken]
     _drive_service = None
 
-    def __init__(self, client_id: str, client_secret: str, social_auth_token: SocialToken) -> None:
+    def __init__(self, client_id: str, client_secret: str,
+                 social_auth_token: typing.Optional[SocialToken] = None) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.social_auth_token = social_auth_token
 
     @property
-    def credentials(self) -> GoogleCredentials:
+    def credentials(self) -> typing.Optional[GoogleCredentials]:
         helper = GoogleAuthHelper(self.client_id, self.client_secret, self.social_auth_token)
         return helper.get_credentials()
 

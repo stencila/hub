@@ -15,8 +15,8 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, DOCX_MIMETYPES, \
-    mimetype_from_path, conversion_format_from_mimetype
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
+from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path, conversion_format_from_mimetype
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade

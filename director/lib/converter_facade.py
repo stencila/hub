@@ -1,7 +1,7 @@
 import datetime
 import enum
 import ipaddress
-import mimetypes
+import json
 import os
 import re
 import subprocess
@@ -12,7 +12,12 @@ from socket import gethostbyname
 from urllib.parse import urlparse, urljoin, unquote
 
 import requests
+from allauth.socialaccount.models import SocialApp
 from django.http.multipartparser import parse_header
+
+from lib.conversion_types import ConversionFormatId, conversion_format_from_mimetype, conversion_format_from_path, \
+    ConversionFormatError
+from lib.google_docs_facade import extract_google_document_id_from_url, GoogleDocsFacade
 
 MAX_REMOTE_CONVERT_SIZE = 5 * 1024 * 1024
 STREAM_CHUNK_SIZE = 1024 * 1024
@@ -20,103 +25,10 @@ DOWNLOAD_TIMEOUT_SECONDS = 30
 MAX_DOWNLOAD_TIME_SECONDS = 60
 MAX_HTTP_REDIRECTS = 10
 
-DOCX_MIMETYPES = ('application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                  'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-                  'application/vnd.ms-word.document.macroEnabled.12',
-                  'application/vnd.ms-word.template.macroEnabled.12')
-
 
 class ConverterIoType(enum.Enum):
     PIPE = enum.auto()
     PATH = enum.auto()
-
-
-class ConversionFormat(typing.NamedTuple):
-    format_id: str
-    mimetypes: typing.Iterable[str]
-
-
-class ConversionFormatId(enum.Enum):
-    """
-    List of formats we know how to work with.
-
-    To add support for a conversion format:
-    - Add it to the list below
-    - Add a conversion for its mimetype to the `conversion_format_from_mimetype` function below
-    - Check that its mimetype can be retrieved from its path using the `mimetype_from_path` function below (add support
-      manually if necessary).
-    """
-
-    docx = ConversionFormat('docx', DOCX_MIMETYPES)
-    gdoc = ConversionFormat('gdoc', ['application/vnd.google-apps.document'])
-    html = ConversionFormat('html', ['text/html'])
-    ipynb = ConversionFormat('ipynb', ['application/x-ipynb+json'])
-    jats = ConversionFormat('jats', ['text/xml+jats'])
-    json = ConversionFormat('json', ['application/json'])
-    md = ConversionFormat('md', ['text/markdown'])
-    rmd = ConversionFormat('rmd', ['text/rmarkdown'])
-    xml = ConversionFormat('xml', ['application/xml'])
-
-    @classmethod
-    def from_id(cls, format_id: str) -> 'ConversionFormatId':
-        for f in cls:
-            if f.value.format_id == format_id:
-                return f
-
-        raise ValueError('No such member with id {}'.format(format_id))
-
-    @classmethod
-    def from_mimetype(cls, mimetype: str) -> 'ConversionFormatId':
-        for f in cls:
-            if mimetype in f.value.mimetypes:
-                return f
-
-        raise ValueError('No such member with mimetype {}'.format(mimetype))
-
-
-def mimetype_from_path(path: str) -> typing.Optional[str]:
-    """
-    Get the mimetype of a file from its path.
-
-    Takes the path instead of extension because some formats (e.g. JATS) have two extensions.
-    """
-    if path.lower().endswith('.jats.xml'):
-        return 'text/xml+jats'
-
-    mimetype, encoding = mimetypes.guess_type(path, False)
-
-    if not mimetype:
-        name, ext = splitext(path)
-        ext = ext.lower()
-
-        if ext == '.md':
-            return 'text/markdown'
-
-        if ext == '.rmd':
-            return 'text/rmarkdown'
-
-        if ext == '.ipynb':
-            return 'application/x-ipynb+json'
-
-        if ext == '.docx':
-            return DOCX_MIMETYPES[0]
-
-    return mimetype
-
-
-def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
-    try:
-        return ConversionFormatId.from_mimetype(mimetype)
-    except ValueError:
-        raise ConversionFormatError('Unable to create ConversionFormatId from {}'.format(mimetype))
-
-
-def conversion_format_from_path(path: str) -> ConversionFormatId:
-    mimetype = mimetype_from_path(path)
-
-    if not mimetype:
-        raise ValueError('MIME type could not be determined for path: {}'.format(mimetype))
-    return conversion_format_from_mimetype(mimetype)
 
 
 class ConverterIo(typing.NamedTuple):
@@ -134,10 +46,6 @@ class ConverterIo(typing.NamedTuple):
 
 
 class RemoteFileException(Exception):
-    pass
-
-
-class ConversionFormatError(Exception):
     pass
 
 
@@ -172,13 +80,57 @@ def convert_raw_content_url(url: str) -> str:
     return url
 
 
-def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
-                      seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Tuple[str, ConverterIo]:
+class ServiceId(enum.Enum):
+    google_docs = enum.auto()
+
+
+class ServiceItem(typing.NamedTuple):
+    service_id: ServiceId
+    item_id: str
+
+
+def fetch_google_docs_content(service_item: ServiceItem) -> typing.Tuple[str, ConverterIo]:
+    google_app = SocialApp.objects.filter(provider='google').first()
+
+    gdf = GoogleDocsFacade(google_app.client_id, google_app.secret)
+    document = gdf.get_document(service_item.item_id)
+    with tempfile.NamedTemporaryFile(delete=False) as download_to:
+        download_to.write(json.dumps(document).encode('utf-8'))
+
+    return document['title'], ConverterIo(ConverterIoType.PATH, download_to.name, ConversionFormatId.gdoc)
+
+
+def fetch_service_item(service_item: ServiceItem) -> typing.Tuple[str, ConverterIo]:
+    if service_item.service_id == ServiceId.google_docs:
+        return fetch_google_docs_content(service_item)
+
+    raise TypeError('Unsupported service item type {}'.format(service_item.service_id))
+
+
+def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
+    try:
+        google_docs_id = extract_google_document_id_from_url(url)
+        return ServiceItem(ServiceId.google_docs, google_docs_id)
+    except ValueError:
+        pass
+
+    return None
+
+
+def fetch_url(url: str, user_agent: typing.Optional[str] = None,
+              seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Tuple[str, ConverterIo]:
     """
     Download a remote file to a tmp location, then generate a `ConverterIO`.
 
     The conversion_format wil try to be determined from the response mimetype then a fallback to file extensions.
+
+    Returns the filename of the source and a ConversionIo for the source.
     """
+    # delegate fetching of 3rpd party service items that have custom URLs, e.g. Google Docs
+    service_item = parse_service_url(url)
+    if service_item:
+        return fetch_service_item(service_item)
+
     headers = {'User-Agent': user_agent} if user_agent else None
 
     url = convert_raw_content_url(url)
@@ -208,7 +160,7 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
                 raise RemoteFileException('Too many HTTP redirects from original URL: {}'.format(seen_urls[0]))
 
             new_url = urljoin(url, resp.headers['location'])
-            return fetch_remote_file(new_url, user_agent, seen_urls)
+            return fetch_url(new_url, user_agent, seen_urls)
 
         download_start_time = datetime.datetime.now()
         resp.raise_for_status()

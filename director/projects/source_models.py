@@ -10,7 +10,7 @@ from django.db import models
 from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
-from lib.converter_facade import mimetype_from_path
+from lib.conversion_types import mimetype_from_path
 
 
 class MimeTypeDetectMixin(object):

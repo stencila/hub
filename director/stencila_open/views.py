@@ -17,8 +17,8 @@ from django.urls import reverse
 from django.views.generic.base import View
 from requests import HTTPError
 
-from lib.converter_facade import fetch_remote_file, ConverterFacade, ConverterIo, ConverterIoType, ConversionFormatId, \
-    conversion_format_from_path, ConversionFormatError
+from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType
+from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback
@@ -41,7 +41,11 @@ class ConversionRequest:
         if self.source_io is None:
             return False
         return self.source_io.conversion_format in (
-            ConversionFormatId.html, ConversionFormatId.md, ConversionFormatId.ipynb, ConversionFormatId.docx)
+            ConversionFormatId.html,
+            ConversionFormatId.md,
+            ConversionFormatId.ipynb,
+            ConversionFormatId.docx,
+            ConversionFormatId.gdoc)
 
 
 class OpenView(View):
@@ -113,8 +117,8 @@ class OpenView(View):
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
             if not cr.source_format_valid():
-                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx) or Jupyter Notebook is '
-                                        'currently supported.')
+                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook or Google '
+                                        'Docs is currently supported.')
 
         return render(request, 'open/main.html', {'url_form': url_form, 'file_form': file_form})
 
@@ -150,7 +154,7 @@ class OpenView(View):
         if url_form.is_valid():
             cr.input_url = url_form.cleaned_data['url']
             try:
-                file_name, source_io = fetch_remote_file(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
+                file_name, source_io = fetch_url(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
                 cr.source_io = source_io
                 cr.original_filename = file_name
             except ConversionFormatError:
