@@ -43,17 +43,24 @@ class ConversionRequest:
 
 
 class OpenView(View):
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, url: typing.Optional[str] = None) -> HttpResponse:
         url_form = UrlForm()
         file_form = FileForm()
 
-        if request.method == 'POST':
-            mode = request.POST.get('mode')
+        if request.method == 'POST' or url:
+            if url:
+                mode = 'url'
+            else:
+                mode = request.POST.get('mode')
             if mode not in ('url', 'file'):
                 raise ValueError('Unknown mode "{}"'.format(mode))
 
             if mode == 'url':
-                url_form = UrlForm(request.POST)
+                if request.method == 'POST':
+                    form_data = request.POST
+                else:
+                    form_data = {'url': url}
+                url_form = UrlForm(form_data)
                 cr = self.get_url_conversion_request(url_form)
             else:
                 file_form = FileForm(request.POST, request.FILES)
