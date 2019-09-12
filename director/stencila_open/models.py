@@ -31,6 +31,8 @@ class Conversion(models.Model):
     is_deleted = models.BooleanField(null=False, default=False,
                                      help_text='Instead of deleting conversions, this flag should be set so a record '
                                                'still exists for feedback/analytics.')
+    is_example = models.BooleanField(null=False, default=False, help_text='This Conversion is an example and so '
+                                                                          'shouldn\'t be deleted.')
 
     def __str__(self):
         return 'Conversion {} / {}'.format(self.pk, self.public_id)

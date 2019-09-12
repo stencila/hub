@@ -24,6 +24,7 @@ from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback
 
 OWNED_CONVERSIONS_KEY = 'owned_conversions'
+SAVE_EXAMPLE_KEY = 'stencila_example'
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -47,10 +48,31 @@ class OpenView(View):
     def dispatch(self, request: HttpRequest, url: typing.Optional[str] = None) -> HttpResponse:
         url_form = UrlForm()
         file_form = FileForm()
+        save_example = False
 
         if request.method == 'POST' or url:
             if url:
                 mode = 'url'
+
+                # If passing a URL with a query string, it won't be part of `url`, Django will parse it into request.GET
+                # This will re-add it to the URL after removing our SAVE flag
+                if SAVE_EXAMPLE_KEY in request.GET:
+                    get_params = request.GET.copy()
+                    del get_params[SAVE_EXAMPLE_KEY]
+                    save_example = (not request.user.is_anonymous) and request.user.is_staff
+                else:
+                    get_params = request.GET
+
+                if get_params:
+                    # this should be safe as and ? will be consumed already
+                    url += '?' + get_params.urlencode()
+
+                if not save_example:
+                    # check for an example conversion for this to use already
+                    example_conversion = self.get_example_conversion(url)  # type: ignore # url != None is checked above
+                    if example_conversion:
+                        return redirect('open_result', example_conversion.public_id)
+
             else:
                 mode = request.POST.get('mode')
             if mode not in ('url', 'file'):
@@ -77,7 +99,7 @@ class OpenView(View):
                         conversion_result = converter.convert(cr.source_io, target_io, True)
 
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
-                                                       target_io, target_file, cr.original_filename)
+                                                       target_io, target_file, cr.original_filename, save_example)
 
                     # Add the ownership of this conversion to the session
                     if OWNED_CONVERSIONS_KEY not in request.session:
@@ -95,6 +117,14 @@ class OpenView(View):
                                         'currently supported.')
 
         return render(request, 'open/main.html', {'url_form': url_form, 'file_form': file_form})
+
+    @staticmethod
+    def get_example_conversion(url: str) -> typing.Optional[Conversion]:
+        """Attempt to find an example Conversion for a url request."""
+        try:
+            return Conversion.objects.get(input_url=url, is_example=True)
+        except Conversion.DoesNotExist:
+            return None
 
     @staticmethod
     def get_file_conversion_request(request: HttpRequest, file_form: FileForm) -> ConversionRequest:
@@ -127,12 +157,18 @@ class OpenView(View):
                 cr.invalid_source_format = True
         return cr
 
-    @staticmethod
-    def create_conversion(request: HttpRequest, conversion_result: subprocess.CompletedProcess,
+    def create_conversion(self, request: HttpRequest, conversion_result: subprocess.CompletedProcess,
                           input_url: typing.Optional[str], source_io: ConverterIo, target_io: ConverterIo,
                           target_file: typing.Optional[typing.Any],
-                          original_filename: typing.Optional[str]) -> str:
-        conversion = Conversion(input_url=input_url)
+                          original_filename: typing.Optional[str], save_example: bool) -> str:
+
+        conversion = None
+        if save_example and input_url:
+            conversion = self.get_example_conversion(input_url)
+
+        if not conversion:
+            conversion = Conversion(input_url=input_url, is_example=save_example)
+
         public_id = conversion.generate_or_get_public_id()
 
         conversion.source_format = source_io.conversion_format.value.format_id
