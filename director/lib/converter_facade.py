@@ -50,7 +50,7 @@ class ConversionFormatId(enum.Enum):
     docx = ConversionFormat('docx', DOCX_MIMETYPES)
     gdoc = ConversionFormat('gdoc', ['application/vnd.google-apps.document'])
     html = ConversionFormat('html', ['text/html'])
-    ipynb = ConversionFormat('ipynb', ['application/x-ipynb+jso'])
+    ipynb = ConversionFormat('ipynb', ['application/x-ipynb+json'])
     jats = ConversionFormat('jats', ['text/xml+jats'])
     json = ConversionFormat('json', ['application/json'])
     md = ConversionFormat('md', ['text/markdown'])
@@ -162,7 +162,7 @@ def convert_raw_content_url(url: str) -> str:
     For providers like Github that have a URL you would navigate to that is not the raw content, convert the URL to be
     that of the raw content.
     """
-    github_match = re.search(r'^https://github.com/([a-z0-9\-]+)/([a-z0-9\-]+)/blob/(.*)', url, re.I)
+    github_match = re.search(r'^https://github.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/blob/(.*)', url, re.I)
 
     if github_match:
         return 'https://raw.githubusercontent.com/{}/{}/{}'.format(github_match.group(1),

@@ -39,7 +39,8 @@ class ConversionRequest:
     def source_format_valid(self) -> bool:
         if self.source_io is None:
             return False
-        return self.source_io.conversion_format in (ConversionFormatId.html, ConversionFormatId.md)
+        return self.source_io.conversion_format in (
+            ConversionFormatId.html, ConversionFormatId.md, ConversionFormatId.ipynb, ConversionFormatId.docx)
 
 
 class OpenView(View):
@@ -90,7 +91,8 @@ class OpenView(View):
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
             if not cr.source_format_valid():
-                messages.error(request, 'Only conversion from HTML or Markdown is currently supported.')
+                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx) or Jupyter Notebook is '
+                                        'currently supported.')
 
         return render(request, 'open/main.html', {'url_form': url_form, 'file_form': file_form})
 
