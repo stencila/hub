@@ -238,7 +238,9 @@
       window.addEventListener('load', function () {
         const pageFooters = document.querySelectorAll('footer')
         pageFooter = pageFooters[pageFooters.length - 1]
-        updateParentTitle()
+        {% if conversion_success %}
+          updateParentTitle()
+        {% endif %}
       })
     </script>
 {% endblock %}
