@@ -60,7 +60,7 @@ class ConversionFileStorage:
 
 
 def cleanup_old_conversions():
-    old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE)
+    old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE, is_example=False)
 
     with transaction.atomic():
         for conversion in old_conversions:
