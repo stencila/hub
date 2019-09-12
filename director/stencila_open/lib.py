@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import shutil
 import typing
 from datetime import timedelta
 
@@ -54,7 +55,7 @@ class ConversionFileStorage:
         """
         self.create_save_directory(public_id)
         save_path = self.generate_save_path(public_id, filename)
-        os.rename(source, save_path)
+        shutil.copy(source, save_path)
         return save_path
 
 
