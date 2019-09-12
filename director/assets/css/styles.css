@@ -21598,6 +21598,7 @@ h6.has-top-margin {
   background-color: transparent;
   position: fixed;
   bottom: 10px;
+  z-index: 5;
   height: auto;
 }
 
