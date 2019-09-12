@@ -4,21 +4,19 @@
     {% endif %}
     {% include 'open/_feedback_modal.html' %}
     <footer class="footer conversions-footer">
-        <div class="container">
-            <div class="is-pulled-right">
-                {% if log_messages %}
-                    <button class="button is-borderless" id="warnings_button">
-                        <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span>
-                        <span class="is-borderless-text">{{ log_messages|length }} warning{{ log_messages|pluralize }}</span>
-                    </button>
-                {% endif %}
-                {% if conversion_success %}
-                    <button class="button is-primary" id="feedback_button">
-                        <span class="icon"><i class="far fa-comment-alt"></i></span>
-                        <span>Feedback</span>
-                    </button>
-                {% endif %}
-            </div>
+        <div class="is-pulled-right">
+            {% if log_messages %}
+                <button class="button is-borderless" id="warnings_button">
+                    <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span>
+                    <span class="is-borderless-text">{{ log_messages|length }} warning{{ log_messages|pluralize }}</span>
+                </button>
+            {% endif %}
+            {% if conversion_success %}
+                <button class="button is-primary" id="feedback_button">
+                    <span class="icon"><i class="far fa-comment-alt"></i></span>
+                    <span>Feedback</span>
+                </button>
+            {% endif %}
         </div>
     </footer>
 {% endif %}

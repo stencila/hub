@@ -3,6 +3,7 @@ import enum
 import ipaddress
 import mimetypes
 import os
+import re
 import subprocess
 import tempfile
 import typing
@@ -154,6 +155,23 @@ def is_malicious_host(hostname: str) -> bool:
     return ip.is_loopback or ip.is_private
 
 
+def convert_raw_content_url(url: str) -> str:
+    """
+    Get URL to raw content from one that has website chrome around it.
+
+    For providers like Github that have a URL you would navigate to that is not the raw content, convert the URL to be
+    that of the raw content.
+    """
+    github_match = re.search(r'^https://github.com/([a-z0-9\-]+)/([a-z0-9\-]+)/blob/(.*)', url, re.I)
+
+    if github_match:
+        return 'https://raw.githubusercontent.com/{}/{}/{}'.format(github_match.group(1),
+                                                                   github_match.group(2),
+                                                                   github_match.group(3))
+
+    return url
+
+
 def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
                       seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Tuple[str, ConverterIo]:
     """
@@ -162,6 +180,8 @@ def fetch_remote_file(url: str, user_agent: typing.Optional[str] = None,
     The conversion_format wil try to be determined from the response mimetype then a fallback to file extensions.
     """
     headers = {'User-Agent': user_agent} if user_agent else None
+
+    url = convert_raw_content_url(url)
 
     url_obj = urlparse(url)
 
