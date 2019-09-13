@@ -21597,9 +21597,10 @@ h6.has-top-margin {
 .conversions-footer {
   background-color: transparent;
   position: fixed;
-  bottom: 10px;
+  bottom: -4px;
   z-index: 5;
   height: auto;
+  padding-right: 6em;
 }
 
 .conversions-footer .button.is-borderless .is-borderless-text, .conversions-footer input.is-borderless[type="submit"] .is-borderless-text, .conversions-footer button.is-borderless[type="submit"] .is-borderless-text {
