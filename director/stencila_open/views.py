@@ -303,7 +303,9 @@ class OpenResultRawView(View):
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
         if conversion.output_file is None:
-            return render(request, 'open/error.html', {})
+            return render(request, 'open/error.html', {
+                'filename': conversion.original_filename
+            })
 
         if 'download' in request.GET:
             return self.send_download(request.GET['download'], conversion)
