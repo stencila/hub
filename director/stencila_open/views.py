@@ -323,12 +323,17 @@ class OpenResultRawView(View):
             converter = ConverterFacade(settings.STENCILA_BINARY)
             converter.convert(source_io, target_io)
 
-            resp = HttpResponse(FileWrapper(target_file), content_type=target_io.conversion_format.value.mimetypes[0])
+            conversion_format = target_io.conversion_format.value
+            resp = HttpResponse(FileWrapper(target_file), content_type=conversion_format.mimetypes[0])
+
+            # Use specified extension (e.g. for jats.xml) or fall back to format_id)
+            extension = conversion_format.output_extension or conversion_format.format_id
+
             if conversion.original_filename:
                 original_filename, _ = splitext(conversion.original_filename)
-                output_filename = '{}.{}'.format(original_filename, target_io.conversion_format.value.format_id)
+                output_filename = '{}.{}'.format(original_filename, extension)
             else:
-                output_filename = 'stencila-open-download.{}'.format(target_io.conversion_format.value.format_id)
+                output_filename = 'stencila-open-download.{}'.format(extension)
 
             resp['Content-Disposition'] = 'attachment; filename="{}"'.format(output_filename)
             return resp

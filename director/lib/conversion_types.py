@@ -12,6 +12,7 @@ DOCX_MIMETYPES = ('application/vnd.openxmlformats-officedocument.wordprocessingm
 class ConversionFormat(typing.NamedTuple):
     format_id: str
     mimetypes: typing.Iterable[str]
+    output_extension: typing.Optional[str] = None
 
 
 class ConversionFormatId(enum.Enum):
@@ -29,7 +30,7 @@ class ConversionFormatId(enum.Enum):
     gdoc = ConversionFormat('gdoc', ['application/vnd.google-apps.document'])
     html = ConversionFormat('html', ['text/html'])
     ipynb = ConversionFormat('ipynb', ['application/x-ipynb+json'])
-    jats = ConversionFormat('jats', ['text/xml+jats'])
+    jats = ConversionFormat('jats', ['text/xml+jats'], 'jats.xml')
     json = ConversionFormat('json', ['application/json'])
     md = ConversionFormat('md', ['text/markdown'])
     rmd = ConversionFormat('rmd', ['text/rmarkdown'])
