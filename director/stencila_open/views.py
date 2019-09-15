@@ -4,14 +4,14 @@ import os
 import subprocess
 import tempfile
 import typing
-from os.path import splitext, basename
+from os.path import splitext, basename, dirname
 from wsgiref.util import FileWrapper
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
@@ -19,12 +19,18 @@ from requests import HTTPError
 
 from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
+from projects.source_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback
 
 OWNED_CONVERSIONS_KEY = 'owned_conversions'
 SAVE_EXAMPLE_KEY = 'stencila_example'
+
+OUTPUT_FORMAT = ConversionFormatId.html
+OUTPUT_FILENAME = 'output.html'
+
+INTERMEDIARY_FILENAME = 'output.json'
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
@@ -97,7 +103,7 @@ class OpenView(View):
                 target_file = None
                 try:
                     with tempfile.NamedTemporaryFile(delete=False) as target_file:
-                        target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.html)
+                        target_io = ConverterIo(ConverterIoType.PATH, target_file.name, OUTPUT_FORMAT)
                         converter = ConverterFacade(settings.STENCILA_BINARY)
 
                         conversion_result = converter.convert(cr.source_io, target_io, True)
@@ -186,18 +192,22 @@ class OpenView(View):
         conversion.has_warnings = conversion.stderr is not None and len(conversion.stderr) != 0
         cfs = ConversionFileStorage(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
         if conversion_result.returncode == 0 and target_file is not None:
-            conversion.output_file = cfs.move_file_to_public_id(target_file.name, public_id)
+            conversion.output_file = cfs.copy_file_to_public_id(target_file.name, public_id, OUTPUT_FILENAME)
+
+            # copy the media directory if it exists
+            media_path = target_file.name + '.media'
+            if os.path.exists(media_path):
+                cfs.copy_file_to_public_id(media_path, public_id, basename(media_path))
 
             intermediary_input_path = target_file.name + '.json'
-            intermediary_output_path = basename(conversion.output_file) + '.json'
 
-            cfs.move_file_to_public_id(intermediary_input_path, public_id, basename(intermediary_output_path))
+            cfs.copy_file_to_public_id(intermediary_input_path, public_id, INTERMEDIARY_FILENAME)
         else:
             # We can later find failed Conversions by those with null output_file
             conversion.output_file = None
         if (conversion.has_warnings or conversion_result.returncode != 0) and original_filename:
             # retain the uploaded file for later
-            conversion.input_file = cfs.move_file_to_public_id(source_io.data, public_id,
+            conversion.input_file = cfs.copy_file_to_public_id(source_io.data, public_id,
                                                                original_filename)
         conversion.meta = json.dumps({
             'user_agent': request.META.get('HTTP_USER_AGENT')
@@ -298,10 +308,24 @@ class OpenResultView(View):
         return render(request, template, context)
 
 
+class OpenMediaView(View):
+    def get(self, request: HttpRequest, conversion_id: str, media_dir_id: str, filename: str) -> FileResponse:
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
+
+        conversion_dir = dirname(conversion.output_file)
+        media_dir = os.path.join(conversion_dir, '{}.media'.format(media_dir_id))
+        file_path = os.path.join(media_dir, filename)
+
+        if not path_is_in_directory(file_path, conversion_dir):
+            raise PermissionDenied('Media file is not inside conversion directory.')
+
+        return FileResponse(open(file_path, 'rb'))
+
+
 class OpenResultRawView(View):
     """Fetches and displays just the raw HTML content with no Hub UI around the outside."""
 
-    def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
+    def get(self, request: HttpRequest, conversion_id: str) -> typing.Union[FileResponse, HttpResponse]:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
         if conversion.output_file is None:
             return render(request, 'open/error.html', {
@@ -311,12 +335,11 @@ class OpenResultRawView(View):
         if 'download' in request.GET:
             return self.send_download(request.GET['download'], conversion)
 
-        with open(conversion.output_file, 'rb') as f:
-            return HttpResponse(FileWrapper(f), content_type='text/html')
+        return FileResponse(open(conversion.output_file, 'rb'), content_type='text/html')
 
     @staticmethod
     def send_download(format_name: str, conversion: Conversion) -> HttpResponse:
-        json_representation_path = conversion.output_file + '.json'
+        json_representation_path = os.path.join(dirname(conversion.output_file), INTERMEDIARY_FILENAME)
 
         source_io = ConverterIo(ConverterIoType.PATH, json_representation_path, ConversionFormatId.json)
 

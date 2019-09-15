@@ -2,8 +2,8 @@ import logging
 import os
 import re
 import shutil
-import typing
 from datetime import timedelta
+from os.path import dirname, basename
 
 from django.db import transaction
 from django.utils import timezone
@@ -37,39 +37,50 @@ class ConversionFileStorage:
             raise ValueError(
                 'ID should not contain any bad characters and must be of length {}.'.format(PUBLIC_ID_LENGTH))
 
-        return os.path.join(self.root, CONVERSION_STORAGE_SUBDIR, *list(public_id[:2]))
+        return os.path.join(self.root, CONVERSION_STORAGE_SUBDIR, public_id[0], public_id[1], public_id)
 
     def create_save_directory(self, public_id: str) -> None:
         os.makedirs(self.generate_save_directory(public_id), exist_ok=True)
 
-    def generate_save_path(self, public_id, filename: typing.Optional[str] = None) -> str:
-        filename = filename or public_id
+    def generate_save_path(self, public_id, filename: str) -> str:
         return os.path.join(self.generate_save_directory(public_id), filename)
 
-    def move_file_to_public_id(self, source: str, public_id: str, filename: typing.Optional[str] = None) -> str:
+    def copy_file_to_public_id(self, source: str, public_id: str, filename: str) -> str:
         """
-        Move a file to its permanent conversion results location.
+        Copy a file or directory to its permanent conversion results location.
 
         Encoda does the file writing itself to a temp file. After that is complete, this should be called to do the
-        move. This is why the file has an `open` (read) but no `write` method.
+        copy. This is why the file has an `open` (read) but no `write` method.
         """
         self.create_save_directory(public_id)
         save_path = self.generate_save_path(public_id, filename)
-        shutil.copy(source, save_path)
+        if os.path.isdir(source):
+            shutil.copytree(source, save_path)
+        else:
+            shutil.copy(source, save_path)
         return save_path
 
 
-def cleanup_old_conversions():
+def cleanup_old_conversions() -> None:
     old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE, is_example=False)
 
     with transaction.atomic():
         for conversion in old_conversions:
-            if conversion.input_file:
-                exception_handling_unlink(conversion.input_file, 'conversion input')
+            if not conversion.output_file:
+                continue
 
-            if conversion.output_file:
-                exception_handling_unlink(conversion.output_file, 'conversion output')
-                exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
+            conversion_dir = dirname(conversion.output_file)
+            if basename(conversion_dir) == conversion.public_id:
+                # new style where everything is stored in a single directory, so just delete it
+                shutil.rmtree(conversion_dir)
+            else:
+                # unlink all the pieces
+                if conversion.input_file:
+                    exception_handling_unlink(conversion.input_file, 'conversion input')
+
+                if conversion.output_file:
+                    exception_handling_unlink(conversion.output_file, 'conversion output')
+                    exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
 
             conversion.is_deleted = True
             conversion.save()
