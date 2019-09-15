@@ -287,6 +287,7 @@ class OpenResultView(View):
         if conversion.output_file is None:
             template = 'open/error.html'
             context['conversion_success'] = False
+            context['filename'] = conversion.original_filename
         else:
             template = 'open/output.html'
             context['conversion_success'] = True
