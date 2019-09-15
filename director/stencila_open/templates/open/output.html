@@ -5,11 +5,6 @@
 {% endblock %}
 {% block open_scripts %}
     <script>
-      let conversionsFooter = document.querySelector('.conversions-footer')
-      let pageFooter
-      let pageFooterPosition = -1
-      let conversionFooterOriginalBottom = -1
-
       {% if user_owns_conversion %}
         const feedbackModal = new Vue(
           {
@@ -119,8 +114,6 @@
           if (subTitle)
             parentTitleEl.textContent = 'Open : Stencila : ' + subTitle.textContent
           articleDisplay.style.height = `${articleDisplay.contentWindow.document.body.scrollHeight}px`
-          updatePageFooterPosition()
-          scrollChange()
         }
 
         articleDisplay.addEventListener('load', function () {
@@ -128,32 +121,10 @@
           updateParentTitle()
         })
 
+        window.addEventListener('resize', function () {
+          articleDisplay.style.height = `${articleDisplay.contentWindow.document.body.scrollHeight}px`
+        })
       {% endif %}
-
-      function updatePageFooterPosition () {
-        if (!pageFooter || !conversionsFooter) return
-        pageFooterPosition = pageFooter.getBoundingClientRect().top
-        if (conversionFooterOriginalBottom === -1)
-          conversionFooterOriginalBottom = parseInt(getComputedStyle(conversionsFooter).getPropertyValue('bottom'))
-      }
-
-      function scrollChange () {
-        if (pageFooterPosition === -1) return
-
-        const windowBottom = window.innerHeight + window.scrollY
-
-        if (windowBottom > pageFooterPosition) {
-          conversionsFooter.style.bottom = (windowBottom - pageFooterPosition) + conversionFooterOriginalBottom + 'px'
-        } else {
-          conversionsFooter.style.bottom = conversionFooterOriginalBottom + 'px'
-        }
-      }
-
-      document.addEventListener('scroll', scrollChange)
-      window.addEventListener('resize', function () {
-        updatePageFooterPosition()
-        scrollChange()
-      })
 
       let downloadDropdown = null
 
@@ -235,12 +206,10 @@
 
       document.addEventListener('click', documentClick)
 
-      window.addEventListener('load', function () {
-        const pageFooters = document.querySelectorAll('footer')
-        pageFooter = pageFooters[pageFooters.length - 1]
-        {% if conversion_success %}
+      {% if conversion_success %}
+        window.addEventListener('load', function () {
           updateParentTitle()
-        {% endif %}
-      })
+        })
+      {% endif %}
     </script>
 {% endblock %}

@@ -21585,7 +21585,7 @@ h6.has-top-margin {
 .open-embed {
   width: 100%;
   height: calc(100vh - 214px);
-  margin-bottom: 156px;
+  margin-bottom: 128px;
   margin-top: -24px;
 }
 
@@ -21601,6 +21601,19 @@ h6.has-top-margin {
   z-index: 5;
   height: auto;
   padding-right: 6em;
+}
+
+@media screen and (max-width: 1023px) {
+  .conversions-footer {
+    position: absolute;
+    bottom: 30px;
+    padding-right: 1.25rem;
+  }
+}
+
+.conversions-footer .button.is-borderless, .conversions-footer input.is-borderless[type="submit"],
+.conversions-footer button.is-borderless[type="submit"] {
+  background-color: transparent;
 }
 
 .conversions-footer .button.is-borderless .is-borderless-text, .conversions-footer input.is-borderless[type="submit"] .is-borderless-text, .conversions-footer button.is-borderless[type="submit"] .is-borderless-text {
