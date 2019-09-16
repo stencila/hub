@@ -3,6 +3,7 @@
 
 *
 !/requirements.txt
+!/conversion-cleanup.sh
 !/*.py
 !/accounts
 !/checkouts
