@@ -180,17 +180,49 @@
         })
       }
 
+      let themeDropdown = null
+
+      if (document.getElementById('theme_dropdown')) {
+        themeDropdown = new Vue({
+          el: '#theme_dropdown',
+          data: {
+            active: false,
+            currentTheme: 'stencila'
+          },
+          methods: {
+            toggle () {
+              this.active ? this.hide() : this.show()
+            },
+            show () {
+              this.active = true
+            },
+            hide () {
+              this.active = false
+            },
+            setTheme (themeName) {
+              this.currentTheme = themeName
+              let themeUrl = `https://unpkg.com/@stencila/thema@1.4.3/dist/themes/${themeName}/styles.css`
+              articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+              this.hide()
+            }
+          }
+        })
+      }
+
       function documentClick (e) {
         let target = e.target
         let downloadButton = document.getElementById('download_dropdown_button')
         let shareDropdownEl = document.getElementById('share_dropdown')
+        let themeDropdownButton = document.getElementById('theme_dropdown')
 
         let isInDownloadButton = false
         let isInShareDropdown = false
+        let isInThemeButton = false
 
         while (target) {
-          if (target === downloadButton || target === shareDropdownEl) {
+          if (target === downloadButton || target === shareDropdownEl || target === themeDropdownButton) {
             if (target === downloadButton) isInDownloadButton = true
+            else if (target === themeDropdownButton) isInThemeButton = true
             else isInShareDropdown = true
             break
           }
@@ -202,6 +234,9 @@
 
         if (shareDropdown !== null && !isInShareDropdown)
           shareDropdown.hide()
+
+        if (themeDropdown !== null && !isInThemeButton)
+          themeDropdown.hide()
       }
 
       document.addEventListener('click', documentClick)
