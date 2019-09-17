@@ -32,6 +32,7 @@ class ConversionFormatId(enum.Enum):
     ipynb = ConversionFormat('ipynb', ['application/x-ipynb+json'])
     jats = ConversionFormat('jats', ['text/xml+jats'], 'jats.xml')
     json = ConversionFormat('json', ['application/json'])
+    jsonld = ConversionFormat('jsonld', ['application/ld+json'])
     md = ConversionFormat('md', ['text/markdown'])
     rmd = ConversionFormat('rmd', ['text/rmarkdown'])
     xml = ConversionFormat('xml', ['application/xml'])

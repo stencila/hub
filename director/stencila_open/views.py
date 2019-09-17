@@ -262,14 +262,15 @@ class ConversionDownloadOption(typing.NamedTuple):
 
 
 CONVERSION_DOWNLOAD_OPTIONS = [
-    ConversionDownloadOption('Word (.docx)', 'docx', 'far fa-file-word'),
+    ConversionDownloadOption('Reproducible DOCX', 'docx', 'far fa-file-word'),
     None,
-    ConversionDownloadOption('JATS (.xml)', 'jats', 'far fa-file-code'),
+    ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'far fa-book'),
+    ConversionDownloadOption('RMarkdown (.rmd)', 'rmd', 'far fa-file-code'),
+    # ConversionDownloadOption('JATS (.xml)', 'jats', 'far fa-file-code'),
     # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
-    ConversionDownloadOption('Web page', 'html', 'far fa-file-code'),
-    # None,
-    # ConversionDownloadOption('RMarkdown (.rmd)', 'rmd', 'far fa-file-code'),
-    # ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'far fa-book'),
+    None,
+    ConversionDownloadOption('Semantic HTML', 'html', 'far fa-file-code'),
+    ConversionDownloadOption('JSON-Linked Data', 'jsonld', 'far fa-file-code'),
 ]
 
 
@@ -337,10 +338,22 @@ class OpenResultRawView(View):
         if 'download' in request.GET:
             return self.send_download(request.GET['download'], conversion)
 
-        return FileResponse(open(conversion.output_file, 'rb'), content_type='text/html')
+        resp = FileResponse(open(conversion.output_file, 'rb'))
+        # this needs to be set here instead of content_type kwarg as it gets overwritten since it matches the default
+        # content type from settings
+        resp['Content-Type'] = 'text/html'
+        return resp
 
     @staticmethod
     def send_download(format_name: str, conversion: Conversion) -> FileResponse:
+        for format_option in CONVERSION_DOWNLOAD_OPTIONS:
+            if format_option is None:
+                continue
+            if format_option.format_id == format_name:
+                break
+        else:
+            raise TypeError('{} is not a valid format'.format(format_name))
+
         output_directory = dirname(conversion.output_file)
         json_representation_path = os.path.join(output_directory, INTERMEDIARY_FILENAME)
 
@@ -362,7 +375,7 @@ class OpenResultRawView(View):
         target_io = ConverterIo(ConverterIoType.PATH, output_path, output_format)
 
         converter = ConverterFacade(settings.STENCILA_BINARY)
-        conversion_result = converter.convert(source_io, target_io, ConverterContext(False, True))
+        conversion_result = converter.convert(source_io, target_io, ConverterContext(False, True and False))
 
         if conversion_result.returncode != 0:
             raise RuntimeError('Conversion was not successful: {}'.format(str(conversion_result.stderr)))
@@ -376,8 +389,11 @@ class OpenResultRawView(View):
         else:
             output_mimetype = output_format.value.mimetypes[0]
 
-        return FileResponse(open(output_path, 'rb'), as_attachment=True, filename=output_filename,
-                            content_type=output_mimetype)
+        resp = FileResponse(open(output_path, 'rb'), as_attachment=True, filename=output_filename)
+
+        # set here instead of as kwarg above because it can get overwritten if it's text/html
+        resp['Content-Type'] = output_mimetype
+        return resp
 
 
 def upsert_intercom_user(email_address: str) -> None:
