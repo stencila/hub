@@ -62,7 +62,8 @@ class ConversionFileStorage:
 
 
 def cleanup_old_conversions() -> None:
-    old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE, is_example=False)
+    old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE, is_example=False,
+                                                is_deleted=False)
 
     with transaction.atomic():
         for conversion in old_conversions:
@@ -72,7 +73,10 @@ def cleanup_old_conversions() -> None:
             conversion_dir = dirname(conversion.output_file)
             if basename(conversion_dir) == conversion.public_id:
                 # new style where everything is stored in a single directory, so just delete it
-                shutil.rmtree(conversion_dir)
+                try:
+                    shutil.rmtree(conversion_dir)
+                except FileNotFoundError:
+                    pass
             else:
                 # unlink all the pieces
                 if conversion.input_file:
