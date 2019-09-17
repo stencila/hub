@@ -23,6 +23,7 @@
     position: relative
     cursor: pointer
 
+    & + .tooltip,
     .tooltip
         display: none
         color: #4a4a4a
@@ -35,10 +36,18 @@
         border: 1px solid #dbdbdb
         font-weight: normal
         width: 480px
+        overflow-wrap: break-word
+
+        @media screen and (max-width: 768px)
+            bottom: auto
+            left: 0
+            width: 100%
+            z-index: 1
 
         @media screen and (min-width: 1092px)
             left: -10px
 
     &:hover
+        & + .tooltip,
         .tooltip
             display: inline-block

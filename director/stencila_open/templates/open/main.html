@@ -13,7 +13,7 @@
                     <label for="{{ url_form.url.auto_id }}" class="label">
                         Enter a file URL (.ipynb, .md, Google Doc, .docx)
                         <span class="tooltip-q">?
-                            <div class="tooltip">
+                            <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">Supported formats</p>
                                 <p><strong>Github (.ipynb, .md, .docx):</strong> https://github.com/stencila/examples/blob/master/rodents/README.md</p>
                                 {% comment %}
@@ -23,6 +23,15 @@
                                 {% endcomment %}
                             </div>
                         </span>
+                        <div class="tooltip is-hidden-tablet">
+                            <p class="is-uppercase-heading has-bottom-margin">Supported formats</p>
+                            <p><strong>Github (.ipynb, .md, .docx):</strong> https://github.com/stencila/examples/blob/master/rodents/README.md</p>
+                            {% comment %}
+                            <p><strong>Google Docs:</strong> https://docs.google.com/document/d/[document id]/</p>
+                            <p><strong>eLife article:</strong> https://elifesciences.org/articles/[article number]/</p>
+                            <p><strong>PLoS article:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
+                            {% endcomment %}
+                        </div>
                     </label>
                     <input type="hidden" name="mode" value="url">
                     {% if url_form.non_field_errors %}
@@ -113,11 +122,15 @@
                     {% endif %}
                     <div class="has-text-centered"><a href="#" class="help tooltip-link">How is my data used?
                         <span class="tooltip-q">?
-                            <div class="tooltip">
+                            <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">How is my data used?</p>
                                 <p>We retain copies of file uploads for 24 hours before they are removed from our servers. Files are only used for testing purposes by Stencila (e.g. debugging and recreating error reports submitted with associated files), or for automatic addition to your Stencila Hub account. Uploaded source files are not shared with any third parties. The converted output in HTML format is retained on our servers, and you can request that this output is removed at any time.</p>
                             </div>
                         </span>
+                        <div class="tooltip is-hidden-tablet">
+                            <p class="is-uppercase-heading has-bottom-margin">How is my data used?</p>
+                            <p>We retain copies of file uploads for 24 hours before they are removed from our servers. Files are only used for testing purposes by Stencila (e.g. debugging and recreating error reports submitted with associated files), or for automatic addition to your Stencila Hub account. Uploaded source files are not shared with any third parties. The converted output in HTML format is retained on our servers, and you can request that this output is removed at any time.</p>
+                        </div>
                     </a>
                     </div>
                 </form>
