@@ -5,20 +5,19 @@ import subprocess
 import tempfile
 import typing
 from os.path import splitext, basename, dirname
-from wsgiref.util import FileWrapper
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, JsonResponse, FileResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 from requests import HTTPError
 
-from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
+from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
 from projects.source_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
@@ -106,7 +105,7 @@ class OpenView(View):
                         target_io = ConverterIo(ConverterIoType.PATH, target_file.name, OUTPUT_FORMAT)
                         converter = ConverterFacade(settings.STENCILA_BINARY)
 
-                        conversion_result = converter.convert(cr.source_io, target_io, True)
+                        conversion_result = converter.convert(cr.source_io, target_io, ConverterContext(True, False))
 
                     public_id = self.create_conversion(request, conversion_result, cr.input_url, cr.source_io,
                                                        target_io, target_file, cr.original_filename, save_example)
@@ -319,13 +318,16 @@ class OpenMediaView(View):
         if not path_is_in_directory(file_path, conversion_dir):
             raise PermissionDenied('Media file is not inside conversion directory.')
 
+        if not os.path.exists(file_path):
+            raise Http404
+
         return FileResponse(open(file_path, 'rb'))
 
 
 class OpenResultRawView(View):
     """Fetches and displays just the raw HTML content with no Hub UI around the outside."""
 
-    def get(self, request: HttpRequest, conversion_id: str) -> typing.Union[FileResponse, HttpResponse]:
+    def get(self, request: HttpRequest, conversion_id: str) -> FileResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
         if conversion.output_file is None:
             return render(request, 'open/error.html', {
@@ -338,31 +340,44 @@ class OpenResultRawView(View):
         return FileResponse(open(conversion.output_file, 'rb'), content_type='text/html')
 
     @staticmethod
-    def send_download(format_name: str, conversion: Conversion) -> HttpResponse:
-        json_representation_path = os.path.join(dirname(conversion.output_file), INTERMEDIARY_FILENAME)
+    def send_download(format_name: str, conversion: Conversion) -> FileResponse:
+        output_directory = dirname(conversion.output_file)
+        json_representation_path = os.path.join(output_directory, INTERMEDIARY_FILENAME)
 
         source_io = ConverterIo(ConverterIoType.PATH, json_representation_path, ConversionFormatId.json)
 
-        with tempfile.NamedTemporaryFile() as target_file:
-            target_io = ConverterIo(ConverterIoType.PATH, target_file.name, ConversionFormatId.from_id(format_name))
+        output_format = ConversionFormatId.from_id(format_name)
 
-            converter = ConverterFacade(settings.STENCILA_BINARY)
-            converter.convert(source_io, target_io)
+        # Use specified extension (e.g. for jats.xml) or fall back to format_id)
+        extension = output_format.value.output_extension or output_format.value.format_id
 
-            conversion_format = target_io.conversion_format.value
-            resp = HttpResponse(FileWrapper(target_file), content_type=conversion_format.mimetypes[0])
+        if conversion.original_filename:
+            original_filename, _ = splitext(conversion.original_filename)
+            output_filename = '{}.{}'.format(original_filename, extension)
+        else:
+            output_filename = 'stencila-open-conversion.{}'.format(extension)
 
-            # Use specified extension (e.g. for jats.xml) or fall back to format_id)
-            extension = conversion_format.output_extension or conversion_format.format_id
+        output_path = os.path.join(output_directory, output_filename)
 
-            if conversion.original_filename:
-                original_filename, _ = splitext(conversion.original_filename)
-                output_filename = '{}.{}'.format(original_filename, extension)
-            else:
-                output_filename = 'stencila-open-download.{}'.format(extension)
+        target_io = ConverterIo(ConverterIoType.PATH, output_path, output_format)
 
-            resp['Content-Disposition'] = 'attachment; filename="{}"'.format(output_filename)
-            return resp
+        converter = ConverterFacade(settings.STENCILA_BINARY)
+        conversion_result = converter.convert(source_io, target_io, ConverterContext(False, True))
+
+        if conversion_result.returncode != 0:
+            raise RuntimeError('Conversion was not successful: {}'.format(str(conversion_result.stderr)))
+
+        output_zip_path = os.path.splitext(output_path)[0] + '.zip'
+
+        if os.path.exists(output_zip_path):
+            output_path = output_zip_path
+            output_filename = basename(output_zip_path)
+            output_mimetype = 'application/zip'
+        else:
+            output_mimetype = output_format.value.mimetypes[0]
+
+        return FileResponse(open(output_path, 'rb'), as_attachment=True, filename=output_filename,
+                            content_type=output_mimetype)
 
 
 def upsert_intercom_user(email_address: str) -> None:

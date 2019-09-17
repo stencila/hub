@@ -232,6 +232,11 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
         return file_name, ConverterIo(ConverterIoType.PATH, download_to.name, source_format)
 
 
+class ConverterContext(typing.NamedTuple):
+    output_intermediary: bool = False
+    maybe_zip: bool = False
+
+
 class ConverterFacade(object):
     converter_binary: typing.List[str]
 
@@ -239,18 +244,23 @@ class ConverterFacade(object):
         self.converter_binary = converter_binary
 
     def convert(self, input_data: ConverterIo, output_data: ConverterIo,
-                output_intermediary: bool = False) -> subprocess.CompletedProcess:
+                context: typing.Optional[ConverterContext]) -> subprocess.CompletedProcess:
         convert_args: typing.List[str] = [
             'convert',
             '--from', input_data.conversion_format.value.format_id,
             '--to', output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg, output_data.as_path_shell_arg]
 
-        if output_intermediary:
-            if output_data.as_path_shell_arg == '-':
-                raise RuntimeError('Can\'t output the intermediary when sending output to STDOUT')
+        if context:
+            if context.output_intermediary:
+                if output_data.as_path_shell_arg == '-':
+                    raise RuntimeError('Can\'t output the intermediary when sending output to STDOUT')
 
             convert_args.append(output_data.as_path_shell_arg + '.json')
+
+            if context.maybe_zip:
+                # If output contains media it will be zipped up
+                convert_args.append('--zip=maybe')
 
         input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None
 
