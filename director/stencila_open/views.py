@@ -375,7 +375,7 @@ class OpenResultRawView(View):
         target_io = ConverterIo(ConverterIoType.PATH, output_path, output_format)
 
         converter = ConverterFacade(settings.STENCILA_BINARY)
-        conversion_result = converter.convert(source_io, target_io, ConverterContext(False, True and False))
+        conversion_result = converter.convert(source_io, target_io, ConverterContext(False, True))
 
         if conversion_result.returncode != 0:
             raise RuntimeError('Conversion was not successful: {}'.format(str(conversion_result.stderr)))

@@ -256,7 +256,7 @@ class ConverterFacade(object):
                 if output_data.as_path_shell_arg == '-':
                     raise RuntimeError('Can\'t output the intermediary when sending output to STDOUT')
 
-            convert_args.append(output_data.as_path_shell_arg + '.json')
+                convert_args.append(output_data.as_path_shell_arg + '.json')
 
             if context.maybe_zip:
                 # If output contains media it will be zipped up
