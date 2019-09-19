@@ -321,6 +321,7 @@ class OpenResultView(View):
             context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
             context['share_url'] = request.build_absolute_uri()
             context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
+            context['absolute_raw_url'] = request.build_absolute_uri(context['raw_source'])
 
         return render(request, template, context)
 

@@ -1,0 +1,28 @@
+<div class="dropdown" id="download_dropdown"{% if user.is_anonymous %} style="margin-right: 0.5rem;"{% endif %}
+     :class="{'is-active': active}">
+    <div class="dropdown-trigger">
+        <button id="download_dropdown_button" class="button is-outlined" aria-haspopup="true"
+                aria-controls="dropdown-menu" @click="toggle()">
+                    <span class="icon is-small">
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                    </span>
+            <span>Download</span>
+        </button>
+    </div>
+    <div class="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+            {% for download_option in download_options %}
+                {% if download_option is None %}
+                    <hr class="dropdown-divider">
+                {% else %}
+                    <a class="dropdown-item" href="{{ raw_source }}?download={{ download_option.format_id }}">
+                                <span class="icon">
+                                    <i class="{{ download_option.icon_class }}"></i>
+                                </span>
+                        <span>{{ download_option.name }}</span>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

@@ -209,22 +209,59 @@
         })
       }
 
+      let openWithDropdown = null
+
+      if (document.getElementById('open_with_dropdown')) {
+        openWithDropdown = new Vue({
+          el: '#open_with_dropdown',
+          data: {
+            active: false,
+
+          },
+          methods: {
+            toggle () {
+              this.active ? this.hide() : this.show()
+            },
+            show () {
+              this.active = true
+            },
+            hide () {
+              this.active = false
+            }
+          }
+        })
+      }
+
       function documentClick (e) {
         let target = e.target
         let downloadButton = document.getElementById('download_dropdown_button')
         let shareDropdownEl = document.getElementById('share_dropdown')
         let themeDropdownButton = document.getElementById('theme_dropdown')
+        let openWithButton = document.getElementById('open_with_dropdown_button')
 
         let isInDownloadButton = false
         let isInShareDropdown = false
         let isInThemeButton = false
+        let isInOpenWithButton = false
 
         while (target) {
-          if (target === downloadButton || target === shareDropdownEl || target === themeDropdownButton) {
-            if (target === downloadButton) isInDownloadButton = true
-            else if (target === themeDropdownButton) isInThemeButton = true
-            else isInShareDropdown = true
-            break
+          if (target === downloadButton || target === shareDropdownEl || target === themeDropdownButton || target === openWithButton) {
+            switch (target) {
+              case downloadButton:
+                isInDownloadButton = true
+                break
+              case shareDropdownEl:
+                isInShareDropdown = true
+                break
+              case themeDropdownButton:
+                isInThemeButton = true
+                break
+              case openWithButton:
+                isInOpenWithButton = true
+                break
+              default:
+                break
+            }
           }
           target = target.parentElement
         }
@@ -237,6 +274,9 @@
 
         if (themeDropdown !== null && !isInThemeButton)
           themeDropdown.hide()
+
+        if (openWithDropdown !== null && !isInOpenWithButton)
+          openWithDropdown.hide()
       }
 
       document.addEventListener('click', documentClick)

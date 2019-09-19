@@ -1,0 +1,33 @@
+<div class="dropdown" id="share_dropdown" style="margin-right: 0.5em" :class="{'is-active': active}">
+    <div class="dropdown-trigger">
+        <button class="button is-outlined" aria-haspopup="true" aria-controls="dropdown-menu"
+                @click="toggle()">
+                    <span class="icon is-small">
+                        <i class="fas fa-share" aria-hidden="true"></i>
+                    </span>
+            <span>Share</span>
+        </button>
+    </div>
+    <div class="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+            <h5 class="subtitle is-5">Public Share Link</h5>
+            <div class="field is-grouped">
+                <p class="control is-expanded">
+                    <input class="input" type="text" placeholder="Share URL" readonly="readonly"
+                           value="{{ share_url }}" ref="share-url">
+                </p>
+                <p class="control">
+                    <a class="button is-info" href="#" @click="copy()">
+                                    <span class="icon is-small">
+                                        <i v-if="!postCopy" class="fas fa-copy" aria-hidden="true"></i>
+                                        <i v-if="postCopy" class="fas fa-check" aria-hidden="true"></i>
+                                    </span>
+                        <span v-if="!postCopy">Copy</span>
+                        <span v-if="postCopy">Copied!</span>
+                    </a>
+                </p>
+            </div>
+            <p>This link will expire 24 hours after conversion.</p>
+        </div>
+    </div>
+</div>

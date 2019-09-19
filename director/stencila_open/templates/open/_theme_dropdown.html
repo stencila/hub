@@ -1,0 +1,48 @@
+<div class="dropdown" id="theme_dropdown" style="margin-right: 0.5rem;"
+     :class="{'is-active': active}">
+    <div class="dropdown-trigger">
+        <button id="theme_dropdown_button" class="button is-outlined" aria-haspopup="true"
+                aria-controls="dropdown-menu" @click="toggle()">
+                    <span class="icon is-small">
+                        <i class="fas fa-paint-roller" aria-hidden="true"></i>
+                    </span>
+            <span>Theme</span>
+        </button>
+    </div>
+    <div class="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+            <a href="#" class="dropdown-item" @click="setTheme('stencila')">
+                        <span class="icon is-small">
+                            <i class="fas"
+                               :class="{'fa-fw': currentTheme !== 'stencila', 'fa-check': currentTheme === 'stencila' }"
+                               aria-hidden="true"></i>
+                        </span>
+                <span>Stencila</span>
+            </a>
+            <a href="#" class="dropdown-item" @click="setTheme('eLife')">
+                        <span class="icon is-small">
+                            <i class="fas"
+                               :class="{'fa-fw': currentTheme !== 'eLife', 'fa-check': currentTheme === 'eLife' }"
+                               aria-hidden="true"></i>
+                        </span>
+                <span>eLife</span>
+            </a>
+            <a href="#" class="dropdown-item" @click="setTheme('nature')">
+                        <span class="icon is-small">
+                            <i class="fas"
+                               :class="{'fa-fw': currentTheme !== 'nature', 'fa-check': currentTheme === 'nature' }"
+                               aria-hidden="true"></i>
+                        </span>
+                <span>Nature</span>
+            </a>
+            <a href="#" class="dropdown-item" @click="setTheme('plos')">
+                        <span class="icon is-small">
+                            <i class="fas"
+                               :class="{'fa-fw': currentTheme !== 'plos', 'fa-check': currentTheme === 'plos' }"
+                               aria-hidden="true"></i>
+                        </span>
+                <span>PLOS</span>
+            </a>
+        </div>
+    </div>
+</div>
