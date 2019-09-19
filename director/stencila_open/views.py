@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import tempfile
 import typing
@@ -274,6 +275,22 @@ CONVERSION_DOWNLOAD_OPTIONS = [
 ]
 
 
+class FileDownloadCleanup:
+    path: str
+
+    def __init__(self, path: str) -> None:
+        self.path = path
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        try:
+            os.remove(self.path)
+        except OSError:
+            pass
+
+
 class OpenResultView(View):
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
@@ -354,8 +371,13 @@ class OpenResultRawView(View):
         else:
             raise TypeError('{} is not a valid format'.format(format_name))
 
-        output_directory = dirname(conversion.output_file)
-        json_representation_path = os.path.join(output_directory, INTERMEDIARY_FILENAME)
+        conversion_dir = dirname(conversion.output_file)
+
+        # Should be output to its own directory to prevent conflicts with the original HTML file
+        output_directory = os.path.join(conversion_dir, 'downloads')
+        os.makedirs(output_directory, exist_ok=True)
+
+        json_representation_path = os.path.join(conversion_dir, INTERMEDIARY_FILENAME)
 
         source_io = ConverterIo(ConverterIoType.PATH, json_representation_path, ConversionFormatId.json)
 
@@ -380,6 +402,10 @@ class OpenResultRawView(View):
         if conversion_result.returncode != 0:
             raise RuntimeError('Conversion was not successful: {}'.format(str(conversion_result.stderr)))
 
+        media_path = output_path + '.media'
+        if os.path.exists(media_path):
+            shutil.rmtree(media_path)
+
         output_zip_path = os.path.splitext(output_path)[0] + '.zip'
 
         if os.path.exists(output_zip_path):
@@ -393,7 +419,8 @@ class OpenResultRawView(View):
 
         # set here instead of as kwarg above because it can get overwritten if it's text/html
         resp['Content-Type'] = output_mimetype
-        return resp
+        with FileDownloadCleanup(output_path):
+            return resp
 
 
 def upsert_intercom_user(email_address: str) -> None:
