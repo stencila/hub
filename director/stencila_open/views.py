@@ -274,7 +274,7 @@ class ConversionDownloadOption(typing.NamedTuple):
 CONVERSION_DOWNLOAD_OPTIONS = [
     ConversionDownloadOption('Reproducible DOCX', 'docx', 'far fa-file-word'),
     None,
-    ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'far fa-book'),
+    ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'fas fa-book'),
     ConversionDownloadOption('RMarkdown (.rmd)', 'rmd', 'far fa-file-code'),
     # ConversionDownloadOption('JATS (.xml)', 'jats', 'far fa-file-code'),
     # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
