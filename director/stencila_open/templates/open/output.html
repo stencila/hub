@@ -1,5 +1,10 @@
 {% extends 'open/main.html' %}
 {% block main %}
+    <div id="loading-mask" class="is-hidden">
+        <div>
+            <i class="fas fa-5x fa-spinner fa-spin"></i>
+        </div>
+    </div>
     <iframe class="open-embed" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
     {% include 'open/_output_footer.html' %}
 {% endblock %}
@@ -201,8 +206,19 @@
             },
             setTheme (themeName) {
               this.currentTheme = themeName
-              let themeUrl = `https://unpkg.com/@stencila/thema@<=1/dist/themes/${themeName}/styles.css`
-              articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+              const themeUrl = `https://unpkg.com/@stencila/thema@<=1/dist/themes/${themeName}/styles.css`
+
+              const loadingMask = document.getElementById('loading-mask')
+
+              const loadingMaskShowTimeout = setTimeout(() => {
+                loadingMask.classList.remove('is-hidden')
+              }, 200)
+
+              fetch(themeUrl).then(() => {
+               articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+                clearTimeout(loadingMaskShowTimeout)
+                loadingMask.classList.add('is-hidden')
+              })
               this.hide()
             }
           }

@@ -21681,3 +21681,20 @@ h6.has-top-margin {
 .is-brand-tagline:after {
   background: none;
 }
+
+#loading-mask {
+  top: 0;
+  z-index: 10000;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#loading-mask div {
+  width: 50%;
+  text-align: center;
+}
