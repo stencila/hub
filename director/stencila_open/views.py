@@ -58,6 +58,12 @@ class ConversionRequest:
         )
 
 
+class ConversionExample(typing.NamedTuple):
+    tagline: str
+    url: str
+    icon_class: str
+
+
 class OpenView(View):
     def dispatch(self, request: HttpRequest, url: typing.Optional[str] = None) -> HttpResponse:
         url_form = UrlForm()
@@ -135,7 +141,26 @@ class OpenView(View):
                 messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook, Google '
                                         'Docs, R Markdown or Rstudio is currently supported.')
 
-        return render(request, 'open/main.html', {'url_form': url_form, 'file_form': file_form})
+        conversion_examples = [
+            ConversionExample('Jupyter Notebook <br> hosted on Github',
+                              'https://github.com/stencila/examples/tree/master/jupyter/jupyter.ipynb',
+                              'fab fa-github'),
+
+            ConversionExample('Markdown file <br> on Hackmd.io',
+                              'https://hackmd.io/RaFYCFoyTlODFxz5hPevLw',
+                              'fas fa-file-code'),
+
+            ConversionExample('R Notebook <br> hosted on Github',
+                              'https://github.com/stencila/examples/tree/master/rmarkdown/rmarkdown.nb.html',
+                              'fab fa-github'),
+
+            ConversionExample('Article written in <br> Google Docs',
+                              'https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA',
+                              'fab fa-google'),
+        ]
+
+        return render(request, 'open/main.html',
+                      {'url_form': url_form, 'file_form': file_form, 'conversion_examples': conversion_examples})
 
     @staticmethod
     def get_example_conversion(url: str) -> typing.Optional[Conversion]:

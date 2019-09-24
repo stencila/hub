@@ -210,51 +210,24 @@
                     </div>
 
                     <div class="columns">
-                        <div class="column is-one-third">
+                        {% for conversion_example in conversion_examples %}
+                        <div class="column">
                             <div class="card card--grid">
                                 <div class="has-text-centered">
-                                    <!-- <figure class="image is-4by3">
-                                        <img src="#">
-                                    </figure> -->
                                     <span class="icon is-large has-text-grey">
-                                        <i class="fab fa-5x fa-github"></i>
+                                         <a href="{% url 'open_main_with_url' conversion_example.url %}">
+                                             <i class="fa-5x {{ conversion_example.icon_class }}"></i>
+                                         </a>
                                     </span>
                                 </div>
                                 <div class="card-content has-text-centered">
-                                    <p class="is-uppercase-heading is-5">Jupyter Notebook <br> hosted on Github</p>
+                                    <p class="is-uppercase-heading is-5">
+                                        <a href="{% url 'open_main_with_url' conversion_example.url %}">{{ conversion_example.tagline|safe }}</a>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-one-third">
-                            <div class="card card--grid">
-                                <div class="has-text-centered">
-                                    <!-- <figure class="image is-4by3">
-                                        <img src="#">
-                                    </figure> -->
-                                    <span class="icon is-large has-text-grey">
-                                        <i class="fas fa-5x fa-file-code"></i>
-                                    </span>
-                                </div>
-                                <div class="card-content has-text-centered">
-                                    <p class="is-uppercase-heading is-5">Markdown file <br> on Hackmd.io</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-one-third">
-                            <div class="card card--grid">
-                                <div class="has-text-centered">
-                                    <!-- <figure class="image is-4by3">
-                                        <img src="#">
-                                    </figure> -->
-                                    <span class="icon is-large has-text-grey">
-                                        <i class="fab fa-5x fa-google"></i>
-                                    </span>
-                                </div>
-                                <div class="card-content has-text-centered">
-                                    <p class="is-uppercase-heading is-5">Article written in <br>Google Doc</p>
-                                </div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
             </div>
         </div>
