@@ -246,8 +246,40 @@
             </div>
           </div>
 
+<div class="columns is-vcentered is-centered has-background-light">
+                <div class="column">
+                    <div class="content">
+                        <header class="heading has-text-centered">
+                            <span class="small is-block is-uppercase-heading">
+                                Examples
+                            </span>
+                        </header>
+                    </div>
 
-          <div class="columns is-vcentered is-centered has-background-light">
+                    <div class="columns">
+                        {% for conversion_example in conversion_examples %}
+                        <div class="column">
+                            <div class="card card--grid">
+                                <div class="has-text-centered">
+                                    <span class="icon is-large has-text-grey">
+                                         <a href="{% url 'open_main_with_url' conversion_example.url %}">
+                                             <i class="fa-5x {{ conversion_example.icon_class }}"></i>
+                                         </a>
+                                    </span>
+                                </div>
+                                <div class="card-content has-text-centered">
+                                    <p class="is-uppercase-heading is-5">
+                                        <a href="{% url 'open_main_with_url' conversion_example.url %}">{{ conversion_example.tagline|safe }}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+            </div>
+</div>
+
+          <div class="columns is-vcentered is-centered has-background-white-bis">
             <div class="column is-4 is-offset-1">
               <h3 class="title is-size-4-mobile">
                 Preserve your code across formats
@@ -274,7 +306,7 @@
           </div>
 
 
-          <div class="columns is-vcentered is-centered has-background-white-bis">
+          <div class="columns is-vcentered is-centered has-background-light">
             <div class="column is-3">
               <img src="{% static 'img/file-conversion-themes.png' %}" alt="" />
             </div>
@@ -299,46 +331,6 @@
           </div>
         </section>
 
-        <section class="has-background-light section">
-        <div class="container">
-            <div class="columns is-centered">
-                <div class="column">
-                    <div class="content">
-                        <header class="heading has-text-centered">
-                            <span class="small is-block is-uppercase-heading">
-                                Examples
-                            </span>
-                            <h2 class="title is-3 is-size-4-mobile">
-                                What can I open with Stencila?
-                            </h2>
-                            <br>
-                        </header>
-                    </div>
-
-                    <div class="columns">
-                        {% for conversion_example in conversion_examples %}
-                        <div class="column">
-                            <div class="card card--grid">
-                                <div class="has-text-centered">
-                                    <span class="icon is-large has-text-grey">
-                                         <a href="{% url 'open_main_with_url' conversion_example.url %}">
-                                             <i class="fa-5x {{ conversion_example.icon_class }}"></i>
-                                         </a>
-                                    </span>
-                                </div>
-                                <div class="card-content has-text-centered">
-                                    <p class="is-uppercase-heading is-5">
-                                        <a href="{% url 'open_main_with_url' conversion_example.url %}">{{ conversion_example.tagline|safe }}</a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-            </div>
-        </div>
-    </div>
-    </section>
     {% endif %}
     {% block open_scripts %}
         <script>
