@@ -18,7 +18,8 @@ from django.views.generic.base import View
 from requests import HTTPError
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
-from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
+from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, ConverterContext, \
+    GoogleDocs403Exception
 from projects.source_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
@@ -91,18 +92,23 @@ class OpenView(View):
             if mode not in ('url', 'file'):
                 raise ValueError('Unknown mode "{}"'.format(mode))
 
+            cr: typing.Optional[ConversionRequest] = None
+
             if mode == 'url':
                 if request.method == 'POST':
                     form_data = request.POST
                 else:
                     form_data = {'url': url}
                 url_form = UrlForm(form_data)
-                cr = self.get_url_conversion_request(url_form)
+                try:
+                    cr = self.get_url_conversion_request(url_form)
+                except GoogleDocs403Exception:
+                    messages.error(request, 'Could not retrieve Google Doc as the document is not public.')
             else:
                 file_form = FileForm(request.POST, request.FILES)
                 cr = self.get_file_conversion_request(request, file_form)
 
-            if cr.source_format_valid():
+            if cr and cr.source_format_valid():
                 target_file = None
                 try:
                     with tempfile.NamedTemporaryFile(delete=False) as target_file:
@@ -125,7 +131,7 @@ class OpenView(View):
                 finally:
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
-            if not cr.source_format_valid():
+            if cr and not cr.source_format_valid():
                 messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook, Google '
                                         'Docs, R Markdown or Rstudio is currently supported.')
 

@@ -14,6 +14,7 @@ from urllib.parse import urlparse, urljoin, unquote
 import requests
 from allauth.socialaccount.models import SocialApp
 from django.http.multipartparser import parse_header
+from googleapiclient.errors import HttpError
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_mimetype, conversion_format_from_path, \
     ConversionFormatError
@@ -46,6 +47,10 @@ class ConverterIo(typing.NamedTuple):
 
 
 class RemoteFileException(Exception):
+    pass
+
+
+class GoogleDocs403Exception(RemoteFileException):
     pass
 
 
@@ -107,7 +112,12 @@ def fetch_google_docs_content(service_item: ServiceItem) -> typing.Tuple[str, Co
 
 def fetch_service_item(service_item: ServiceItem) -> typing.Tuple[str, ConverterIo]:
     if service_item.service_id == ServiceId.google_docs:
-        return fetch_google_docs_content(service_item)
+        try:
+            return fetch_google_docs_content(service_item)
+        except HttpError as e:
+            if e.resp['status'] == '403':  # it is a string
+                raise GoogleDocs403Exception()
+            raise
 
     raise TypeError('Unsupported service item type {}'.format(service_item.service_id))
 
@@ -131,7 +141,7 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
 
     Returns the filename of the source and a ConversionIo for the source.
     """
-    # delegate fetching of 3rpd party service items that have custom URLs, e.g. Google Docs
+    # delegate fetching of 3rd party service items that have custom URLs, e.g. Google Docs
     service_item = parse_service_url(url)
     if service_item:
         return fetch_service_item(service_item)
