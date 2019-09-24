@@ -272,15 +272,15 @@ class ConversionDownloadOption(typing.NamedTuple):
 
 
 CONVERSION_DOWNLOAD_OPTIONS = [
-    ConversionDownloadOption('Reproducible DOCX', 'docx', 'far fa-file-word'),
+    ConversionDownloadOption('Reproducible DOCX', ConversionFormatId.docx.value.format_id, 'far fa-file-word'),
     None,
-    ConversionDownloadOption('Jupyter Notebook (.ipynb)', 'ipynb', 'fas fa-book'),
-    ConversionDownloadOption('RMarkdown (.rmd)', 'rmd', 'far fa-file-code'),
-    # ConversionDownloadOption('JATS (.xml)', 'jats', 'far fa-file-code'),
+    ConversionDownloadOption('Jupyter Notebook (.ipynb)', ConversionFormatId.ipynb.value.format_id, 'fas fa-book'),
+    ConversionDownloadOption('RMarkdown (.rmd)', ConversionFormatId.rmd.value.format_id, 'far fa-file-code'),
     # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
     None,
-    ConversionDownloadOption('Semantic HTML', 'html', 'far fa-file-code'),
-    ConversionDownloadOption('JSON-Linked Data', 'jsonld', 'far fa-file-code'),
+    ConversionDownloadOption('JATS (.xml)', ConversionFormatId.jats.value.format_id, 'far fa-file-code'),
+    ConversionDownloadOption('Semantic HTML', ConversionFormatId.html.value.format_id, 'far fa-file-code'),
+    ConversionDownloadOption('JSON-Linked Data', ConversionFormatId.jsonld.value.format_id, 'far fa-file-code'),
 ]
 
 
