@@ -201,7 +201,7 @@
             },
             setTheme (themeName) {
               this.currentTheme = themeName
-              let themeUrl = `https://unpkg.com/@stencila/thema@1.4.3/dist/themes/${themeName}/styles.css`
+              let themeUrl = `https://unpkg.com/@stencila/thema@<=1/dist/themes/${themeName}/styles.css`
               articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
               this.hide()
             }
