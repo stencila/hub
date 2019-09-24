@@ -51,7 +51,10 @@ class ConversionRequest:
             ConversionFormatId.md,
             ConversionFormatId.ipynb,
             ConversionFormatId.docx,
-            ConversionFormatId.gdoc)
+            ConversionFormatId.gdoc,
+            ConversionFormatId.rmd,
+            ConversionFormatId.rnb
+        )
 
 
 class OpenView(View):
@@ -123,8 +126,8 @@ class OpenView(View):
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
             if not cr.source_format_valid():
-                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook or Google '
-                                        'Docs is currently supported.')
+                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook, Google '
+                                        'Docs, R Markdown or Rstudio is currently supported.')
 
         return render(request, 'open/main.html', {'url_form': url_form, 'file_form': file_form})
 

@@ -34,6 +34,7 @@ class ConversionFormatId(enum.Enum):
     json = ConversionFormat('json', ['application/json'])
     jsonld = ConversionFormat('jsonld', ['application/ld+json'])
     md = ConversionFormat('md', ['text/markdown'])
+    rnb = ConversionFormat('rnb', ['text/html+rstudio'], 'nb.html')
     rmd = ConversionFormat('rmd', ['text/rmarkdown'])
     xml = ConversionFormat('xml', ['application/xml'])
 
@@ -62,6 +63,9 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
     """
     if path.lower().endswith('.jats.xml'):
         return 'text/xml+jats'
+
+    if path.lower().endswith('.nb.html'):
+        return 'text/html+rstudio'
 
     mimetype, encoding = mimetypes.guess_type(path, False)
 
