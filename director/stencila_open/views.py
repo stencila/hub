@@ -109,7 +109,12 @@ class OpenView(View):
                 try:
                     cr = self.get_url_conversion_request(url_form)
                 except GoogleDocs403Exception:
-                    messages.error(request, 'Could not retrieve Google Doc as the document is not public.')
+                    messages.error(request, 'Could not retrieve the Google Doc because it isn\'t publicly viewable.'
+                                            'Please make sure link sharing is set to "Public on the web" or '
+                                            '"Anyone with the link" for the Google Doc.<br>For more information, see: '
+                                            '<a href="https://support.google.com/drive/answer/2494822#link_sharing">'
+                                            'https://support.google.com/drive/answer/2494822#link_sharing</a>',
+                                   extra_tags='safe')
             else:
                 file_form = FileForm(request.POST, request.FILES)
                 cr = self.get_file_conversion_request(request, file_form)
