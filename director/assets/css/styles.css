@@ -18803,23 +18803,27 @@ a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover, a.navbar-i
   border-radius: 50%;
 }
 
+.tooltip-link {
+  display: inline-block;
+}
+
 .tooltip-link:hover .tooltip {
   display: inline-block;
 }
 
 .tooltip-q {
-  color: #fff;
-  background-color: #2568ef;
+  color: #2568ef;
+  background-color: #ffffff;
   width: 1rem;
   height: 1rem;
   display: inline-block;
   text-align: center;
-  font-size: .8rem;
+  font-size: .75rem;
   border-radius: 100%;
   line-height: 1rem;
   vertical-align: top;
   padding: 0;
-  border: 0;
+  border: 1px solid #2568ef;
   font-weight: bold;
   position: relative;
   cursor: pointer;
@@ -18833,7 +18837,7 @@ a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover, a.navbar-i
   position: absolute;
   bottom: 20px;
   left: -240px;
-  background: #fff;
+  background: #ffffff;
   padding: 1rem;
   border: 1px solid #dbdbdb;
   font-weight: normal;
@@ -21598,6 +21602,11 @@ h6.has-top-margin {
   text-transform: uppercase;
   letter-spacing: 1.2px;
   font-size: 14px;
+}
+
+.open-feature-list .columns {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
 }
 
 .open-embed {

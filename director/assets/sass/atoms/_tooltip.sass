@@ -2,23 +2,24 @@
 /// Tooltip
 ////
 .tooltip-link
+    display: inline-block
     &:hover
         .tooltip
             display: inline-block
 
 .tooltip-q
-    color: #fff
-    background-color: $primary
+    color: $primary
+    background-color: $white
     width: 1rem
     height: 1rem
     display: inline-block
     text-align: center
-    font-size: .8rem
+    font-size: .75rem
     border-radius: 100%
     line-height: 1rem
     vertical-align: top
     padding: 0
-    border: 0
+    border: 1px solid $primary
     font-weight: bold
     position: relative
     cursor: pointer
@@ -26,14 +27,14 @@
     & + .tooltip,
     .tooltip
         display: none
-        color: #4a4a4a
+        color: $grey-dark
         text-align: left
         position: absolute
         bottom: 20px
         left: -240px
-        background: #fff
+        background: $white
         padding: 1rem
-        border: 1px solid #dbdbdb
+        border: 1px solid $grey-lighter
         font-weight: normal
         width: 480px
         overflow-wrap: break-word

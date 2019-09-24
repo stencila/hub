@@ -1,12 +1,22 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Open{% endblock %}
 {% block header %}{% include "open/open_header.html" with brand_tagline='/open' navbar_id='navbar_open' display_share=user_owns_conversion %}{% endblock %}
 {% block content %}
     <section class="section">
         <div class="columns">
             <div class="column is-8 is-offset-2">
-                <h1 class="title has-text-centered">Stencila /open</h1>
-                <h2 class="subtitle is-5 has-text-centered">Generate reproducible publication previews, and collaborate with colleagues using other formats.</h2>
+                <h1 class="title is-size-4-mobile has-text-centered">
+                  Reproducible research collaboration &amp; publication, minus&nbsp;all&nbsp;the&nbsp;headache.
+                </h1>
+
+                <h2 class="subtitle is-5 has-text-centered">Generate previews, collaborate across file formats, and
+                  concentrate on getting your work done.
+                  <br />
+                  Need to share your Jupyter notebook with your supervisor as a Word document for&nbsp;sign&#8209;off?&nbsp;Easy&nbsp;peasy.
+                </h2>
+                
                 <form method="post">
                     {% csrf_token %}
                     <label for="{{ url_form.url.auto_id }}" class="label">
@@ -43,7 +53,7 @@
                             <a href="#">Article 4</a> (.docx)
                         </p>
                     {% endcomment %}
-                    <div class=""><a href="#" class="help tooltip-link">What types of URLs can I enter?
+                    <div><a href="#" class="help tooltip-link">What types of URLs can I enter?
                         <span class="tooltip-q">?
                             <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">Supported sites and formats</p>
@@ -188,11 +198,109 @@
             </div>
         </div>
     </section>
-
 {% endblock %}
 
 {% block footer %}
     {% if conversion_success == None %}
+
+        <section class="section has-background-white-bis open-feature-list">
+          <div class="container">
+              <div class="content">
+                <header class="heading has-text-centered">
+                  <span class="small is-block is-uppercase-heading">
+                    How can Stencila Open help?
+                  </span>
+                </header>
+              </div>
+          </div>
+
+          <div class="columns is-vcentered is-centered has-background-white-bis">
+            <div class="column is-3">
+              <img src="{% static 'img/file-conversion-graphic.png' %}" alt="" />
+            </div>
+
+            <div class="column is-4 is-offset-1">
+              <h3 class="title is-size-4-mobile">
+                Seamless file conversion
+              </h3>
+
+              <p class="is-size-5">
+              Go back-and-forth across file formats as needed so you can efficiently collaborate
+              with every stakeholder.
+              </p>
+              <p class="is-size-5">
+              Whether you need to work with researchers across teams who are using R Markdown
+              instead of Jupyter Notebooks, or need your paper proofread in Word, Stencila can help
+              facilitate it all.
+              </p>
+
+              <br />
+
+              <p class="is-size-5">
+              <code>/Open</code> supports opening Markdown, R Markdown, Jupyter Notebooks, DOCX (Word), and Google&nbsp;Docs.
+              </p>
+
+              <p class="is-size-5">
+                <a href="//stenci.la/#beta-signup">Sign up for Stencila Beta</a> to convert between even <a
+                   href="https://github.com/stencila/encoda#formats">more formats</a> like JATS and LaTex.
+              </p>
+
+              <hr class="is-small">
+            </div>
+          </div>
+
+
+          <div class="columns is-vcentered is-centered has-background-light">
+            <div class="column is-4 is-offset-1">
+              <h3 class="title is-size-4-mobile">
+                Preserve data across formats
+              </h3>
+
+              <p class="is-size-5">
+                By embedding the source-code inside generated figures, we are able to bring maintain reproducibility
+                throughout the entirety of authoring lifecycle—even in formats that don't traditionally support code
+                elements.
+              </p>
+
+              <br />
+
+              <p class="is-size-5">
+              You'll never have to manually type out tracked changes from Word into your research paper again!
+              </p>
+
+              <hr class="is-small">
+            </div>
+
+            <div class="column is-3">
+              <img src="{% static 'img/file-conversion-lossless.png' %}" alt="" />
+            </div>
+          </div>
+
+
+          <div class="columns is-vcentered is-centered has-background-white-bis">
+            <div class="column is-3">
+              <img src="{% static 'img/file-conversion-themes.png' %}" alt="" />
+            </div>
+
+            <div class="column is-4 is-offset-1">
+              <h3 class="title is-size-4-mobile">
+                Beautifully styled papers to match&nbsp;your&nbsp;needs
+              </h3>
+
+              <p class="is-size-5">
+                Instantaneously convert your manuscript into a delightfully readable, semantic and easy-to-share web pre-print.
+              </p>
+
+              <p class="is-size-5">
+                The themes, like all our work, are open-source and can be changed based on your needs. 
+              </p>
+
+
+              <hr class="is-small">
+            </div>
+          </div>
+        </section>
+
         <section class="has-background-light section">
         <div class="container">
             <div class="columns is-centered">
@@ -202,7 +310,7 @@
                             <span class="small is-block is-uppercase-heading">
                                 Examples
                             </span>
-                            <h2 class="title is-3">
+                            <h2 class="title is-3 is-size-4-mobile">
                                 What can I open with Stencila?
                             </h2>
                             <br>
