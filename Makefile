@@ -61,13 +61,13 @@ EV := test -f director/env.sh && source director/env.sh || source director/env-e
 # Shortcut to run a Django manage.py task in the virtual environment; used below
 DJ ?= $(VE) $(EV) python3 director/manage.py
 
-
-
 # Setup virtual environment
+.PHONY: director/venv
 director/venv: director/requirements.txt
 	python3 -m venv director/venv
 	$(VE) pip3 install -r director/requirements.txt
 	touch director/venv
+.PHONY: director-venv
 director-venv: director/venv
 
 # Setup DEV virtual environment
@@ -215,11 +215,13 @@ desktop/node_modules: desktop/package.json
 desktop-setup: desktop/node_modules
 
 # Collect static files
+desktop/node_modules/stencila/dist/:
+	mkdir -p $@
 desktop/static/dist/: desktop/node_modules desktop/node_modules/stencila/dist/
 	mkdir -p $@
 	rsync --verbose --archive --recursive --delete desktop/node_modules/stencila/dist/ $@
 	touch $@
-desktop-static: desktop/static/dist/
+desktop-static: desktop-setup desktop/static/dist/
 
 # Run locally
 desktop-run: desktop-static
