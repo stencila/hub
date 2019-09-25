@@ -71,7 +71,9 @@ class OpenView(View):
         save_example = False
 
         if request.method == 'POST' or url:
-            if url:
+            if request.method == 'POST':
+                mode = request.POST.get('mode')
+            elif url:
                 mode = 'url'
 
                 # If passing a URL with a query string, it won't be part of `url`, Django will parse it into request.GET
@@ -92,9 +94,9 @@ class OpenView(View):
                     example_conversion = self.get_example_conversion(url)  # type: ignore # url != None is checked above
                     if example_conversion:
                         return redirect('open_result', example_conversion.public_id)
-
             else:
-                mode = request.POST.get('mode')
+                mode = ''
+
             if mode not in ('url', 'file'):
                 raise ValueError('Unknown mode "{}"'.format(mode))
 
