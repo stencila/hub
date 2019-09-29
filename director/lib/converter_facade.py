@@ -75,14 +75,14 @@ def convert_raw_content_url(url: str) -> str:
     For providers like Github that have a URL you would navigate to that is not the raw content, convert the URL to be
     that of the raw content.
     """
-    github_match = re.search(r'^https://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/blob/(.*)', url, re.I)
+    github_match = re.search(r'^https://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/blob/([^?]+)', url, re.I)
 
     if github_match:
         return 'https://raw.githubusercontent.com/{}/{}/{}'.format(github_match.group(1),
                                                                    github_match.group(2),
                                                                    github_match.group(3))
 
-    hackmd_match = re.search(r'^https://hackmd\.io/([^/]+)', url, re.I)
+    hackmd_match = re.search(r'^https://hackmd\.io/([^/?]+)', url, re.I)
 
     if hackmd_match:
         return 'https://hackmd.io/{}/download'.format(hackmd_match.group(1))
