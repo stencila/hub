@@ -357,7 +357,7 @@ class OpenResultView(View):
             context['conversion_success'] = False
             context['filename'] = conversion.original_filename
         else:
-            template = 'open/output.html'
+            template = 'open/output_intermediary.html'
             context['conversion_success'] = True
             context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
             context['share_url'] = request.build_absolute_uri()

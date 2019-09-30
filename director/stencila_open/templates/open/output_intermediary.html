@@ -1,0 +1,74 @@
+{% extends 'open/main.html' %}
+{% block main %}
+    <div class="container" style="padding-top: 30px; padding-bottom: 30px">
+        <p class="is-uppercase-heading"><span class="heading-circle">A</span> Create a shareable pre-print</p>
+        <h3 class="title is-3">Select a Theme</h3>
+        <div class="columns is-open-preview">
+            <div class="column">
+                <div class="buttons">
+                    <a href="#" id="iframe_preview_stencila" class="button is-centered open-preview-link" data-index="0">Default</a>
+                    <a href="#" id="iframe_preview_elife" class="button is-centered open-preview-link" data-index="1">eLife</a>
+                    <a href="#" id="iframe_preview_nature" class="button is-centered open-preview-link" data-index="2">Nature</a>
+                    <a href="#" id="iframe_preview_plos" class="button is-centered open-preview-link" data-index="3">PLOS</a>
+                </div>
+            </div>
+        </div>
+        
+        <p class="is-uppercase-heading has-bottom-margin">Theme preview</p>
+
+        <iframe class="open-embed open-embed-preview" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
+
+        <button class="button is-primary" id="feedback_button">
+            <span>Create pre-print</span>
+        </button>
+
+        <hr>
+        <p class="is-uppercase-heading"><span class="heading-circle">B</span> Convert your file</p>
+        <h3 class="title is-3">Download as...</h3>
+        <div class="columns" style="padding-bottom: 50px">
+            <div class="column">
+                <div class="buttons">
+                {% for download_option in download_options %}
+                    {% if download_option is None %}
+                    {% else %}
+                        <a class="button" href="{{ raw_source }}?download={{ download_option.format_id }}">
+                            <span class="icon"><i class="{{ download_option.icon_class }}"></i></span>
+                            <span>{{ download_option.name }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block open_scripts %}
+    <script>
+      const themes = ['stencila', 'eLife', 'nature', 'plos']
+
+      for (let themeIndex = 0; themeIndex < themes.length; ++themeIndex) {
+        let theme = themes[themeIndex]
+        let themeEl = document.getElementById('iframe_preview_' + theme.toLowerCase())
+        //debugger
+        //themeEl.src = 'data:text/html;charset=utf-8,' + encodeURI(convertedContent)
+
+        themeEl.addEventListener('load', function () {
+          setIframeTheme(this, theme)
+        })
+      }
+
+      document.querySelectorAll('.open-preview-link').forEach(function (el) {
+        el.addEventListener('click', function () {
+          const articleDisplay = document.getElementById('article_display_{{ public_id }}')
+          setIframeTheme(articleDisplay, themes[parseInt(this.getAttribute('data-index'))])
+          articleDisplay.classList.remove('is-hidden')
+          window.screenTop = 0
+        })
+      })
+
+      function setIframeTheme (el, themeName) {
+        let themeUrl = `https://unpkg.com/@stencila/thema@1.4.3/dist/themes/${themeName}/styles.css`
+        el.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+      }
+    </script>
+{% endblock %}

@@ -215,16 +215,33 @@ h6.has-top-margin
 .is-uppercase-heading
     +uppercase-heading
 
+.heading-circle
+  background-color: rgba(0, 0, 0, 0.1)
+  width: 1.5rem
+  display: inline-block
+  line-height: 1.5rem
+  text-align: center
+  border-radius: 100%
+  height: 1.5rem
+  margin-bottom: 1rem
+  margin-right: .5rem
+
 .open-feature-list
   .columns
     margin-top: 1.5rem
-    padding-top: 1.5rem
-
+    padding-top: 1.5rem    
+  
 .open-embed
   width: 100%
   height: calc(100vh - #{$footer-height + $header-height})
   margin-bottom: 128px
   margin-top: -24px
+
+  &-preview
+    height: calc(30vh)
+    margin-bottom: 1rem
+    margin-top: 0
+    border: solid 1px #dbdbdb
 
 .open-footer
   background-color: transparent
