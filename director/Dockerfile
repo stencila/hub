@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV STENCILA_CLI_VERSION v0.33.3
+ENV STENCILA_CLI_VERSION v0.33.4
 
 # apt dependencies from gconf-service onwards are for puppeteer support for Stencila CLI
 RUN apt-get update \
