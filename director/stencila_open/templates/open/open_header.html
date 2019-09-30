@@ -4,12 +4,12 @@
 {% endblock %}
 {% block navbar_end %}
     {% if conversion_success %}
+        {% include 'open/_download_dropdown.html' %}
         {% include 'open/_theme_dropdown.html' %}
         {% if display_share %}
             {% include 'open/_share_dropdown.html' %}
         {% endif %}
-        {% include 'open/_open_with_dropdown.html' %}
-        {% include 'open/_download_dropdown.html' %}
+        {% include 'open/_more_dropdown.html' %}
     {% endif %}
     {% if user.is_anonymous %}
         <div class="buttons">

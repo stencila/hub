@@ -225,11 +225,11 @@
         })
       }
 
-      let openWithDropdown = null
+      let moreDropdown = null
 
-      if (document.getElementById('open_with_dropdown')) {
-        openWithDropdown = new Vue({
-          el: '#open_with_dropdown',
+      if (document.getElementById('more_dropdown')) {
+        moreDropdown = new Vue({
+          el: '#more_dropdown',
           data: {
             active: false,
 
@@ -243,6 +243,11 @@
             },
             hide () {
               this.active = false
+            },
+            showWarningsModal (event) {
+              event.preventDefault()
+              document.getElementById('warnings_modal').classList.add('is-active')
+              return false
             }
           }
         })
@@ -253,15 +258,15 @@
         let downloadButton = document.getElementById('download_dropdown_button')
         let shareDropdownEl = document.getElementById('share_dropdown')
         let themeDropdownButton = document.getElementById('theme_dropdown')
-        let openWithButton = document.getElementById('open_with_dropdown_button')
+        let moreButton = document.getElementById('more_dropdown_button')
 
         let isInDownloadButton = false
         let isInShareDropdown = false
         let isInThemeButton = false
-        let isInOpenWithButton = false
+        let isInMoreButton = false
 
         while (target) {
-          if (target === downloadButton || target === shareDropdownEl || target === themeDropdownButton || target === openWithButton) {
+          if (target === downloadButton || target === shareDropdownEl || target === themeDropdownButton || target === moreButton) {
             switch (target) {
               case downloadButton:
                 isInDownloadButton = true
@@ -272,8 +277,8 @@
               case themeDropdownButton:
                 isInThemeButton = true
                 break
-              case openWithButton:
-                isInOpenWithButton = true
+              case moreButton:
+                isInMoreButton = true
                 break
               default:
                 break
@@ -291,8 +296,8 @@
         if (themeDropdown !== null && !isInThemeButton)
           themeDropdown.hide()
 
-        if (openWithDropdown !== null && !isInOpenWithButton)
-          openWithDropdown.hide()
+        if (moreDropdown !== null && !isInMoreButton)
+          moreDropdown.hide()
       }
 
       document.addEventListener('click', documentClick)

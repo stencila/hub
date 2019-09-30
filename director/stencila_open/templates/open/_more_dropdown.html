@@ -1,0 +1,43 @@
+<div class="dropdown" id="more_dropdown" style="margin-right: 0.5rem;" :class="{'is-active': active}">
+    <div class="dropdown-trigger">
+        <button id="more_dropdown_button" class="button is-outlined" aria-haspopup="true"
+                aria-controls="dropdown-menu" @click="toggle()">
+            <span>More</span>
+            <span class="icon is-small">
+                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            </span>
+        </button>
+    </div>
+    <div class="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+            <a class="dropdown-item" href="https://search.google.com/structured-data/testing-tool/u/0/#url={{ absolute_raw_url }}" target="_blank" rel="noopener">
+                <span class="icon">
+                    <i class="fas fa-external-link-alt"></i>
+                </span>
+                <span>Open in Google Structured Data Testing Tool</span>
+            </a>
+            <a class="dropdown-item" href="#" @click="showWarningsModal($event)">
+                <span class="icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </span>
+                <span>View conversion warnings</span>
+            </a>
+            {% comment %}
+            <hr class="dropdown-divider">
+            <a class="dropdown-item" href="#">
+                <span class="icon">
+                    <i class="far fa-question-circle"></i>
+                </span>
+                <span>FAQ</span>
+            </a>
+            {% endcomment %}
+            <hr class="dropdown-divider">
+            <a class="dropdown-item" href="{% url 'open_main' %}">
+                <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Back to Stencila Open</span>
+            </a>
+        </div>
+    </div>
+</div>
