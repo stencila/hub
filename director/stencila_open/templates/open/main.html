@@ -9,15 +9,19 @@
     <section class="section">
         <div class="columns">
             <div class="column is-8 is-offset-2">
-                <h1 class="title is-size-4-mobile has-text-centered">
+                <h1 class="title is-size-4-mobile is-spaced has-text-centered">
                   Reproducible research collaboration &amp; publication, minus&nbsp;the&nbsp;headaches.
                 </h1>
 
                 <h2 class="subtitle is-5 has-text-centered">
                     Need to share your <span id="informat-example">Jupyter notebook</span> with your supervisor as a Word document for&nbsp;sign&#8209;off?&nbsp;Easy&nbsp;peasy.
                 </h2>
-
-                <form method="post">
+                
+            </div>
+        </div>
+        <div class="columns is-vcentered">
+            <div class="column is-4 is-offset-1">
+                <form method="post" class="open-landing-form">
                     {% csrf_token %}
                     <label for="{{ url_form.url.auto_id }}" class="label">
                         Enter a file URL
@@ -110,14 +114,13 @@
                     {% endif %}
                 </form>
             </div>
-        </div>
-        <div class="columns">
-            <div class="column is-8 is-offset-2">
+            <div class="column is-2">
                 <p class="is-uppercase-heading has-text-centered">&ndash; OR &ndash;</p>
             </div>
-        </div>
-        <div class="columns">
-            <div class="column is-8 is-offset-2">
+            <div class="column is-3">
+                <div class="is-hidden-mobile">
+                    <br/>
+                </div>
                 <form method="post" enctype="multipart/form-data" id="id_file_form">
                     {% csrf_token %}
                     <input type="hidden" name="mode" value="file">
