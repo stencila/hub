@@ -18807,7 +18807,7 @@ a.navbar-item:focus, a.navbar-item:focus-within, a.navbar-item:hover, a.navbar-i
   display: inline-block;
 }
 
-.tooltip-link:hover .tooltip {
+.tooltip-link:hover .tooltip, .tooltip-link:focus .tooltip {
   display: inline-block;
 }
 

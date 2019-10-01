@@ -53,7 +53,7 @@
                             <a href="#">Article 4</a> (.docx)
                         </p>
                     {% endcomment %}
-                    <div><a href="#" class="help tooltip-link">What types of URLs can I enter?
+                    <div><a href="javascript:void(0)" class="help tooltip-link">What types of URLs can I enter?
                         <span class="tooltip-q">?
                             <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">Supported sites and formats</p>
@@ -143,7 +143,7 @@
                             </span>
                         </label>
                     </div>
-                    <div class="has-text-centered"><a href="#" class="help tooltip-link">What types of files can I upload?
+                    <div class="has-text-centered"><a href="javascript:void(0)" class="help tooltip-link">What types of files can I upload?
                         <span class="tooltip-q">?
                             <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">Supported file formats</p>
@@ -181,7 +181,7 @@
                             </p>
                         </div>
                     {% endif %}
-                    <div class="has-text-centered"><a href="#" class="help tooltip-link">How is my data used?
+                    <div class="has-text-centered"><a href="javascript:void(0)" class="help tooltip-link">How is my data used?
                         <span class="tooltip-q">?
                             <div class="tooltip is-hidden-mobile">
                                 <p class="is-uppercase-heading has-bottom-margin">How is my data used?</p>
@@ -342,7 +342,6 @@
     {% block open_scripts %}
         <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
         <script>
-
         var typed = new Typed('#informat-example',  {
            strings: ['Jupyter notebook', 'R Markdown file', 'GitHub file', 'R Notebook'],
           startDelay: 3000,
@@ -358,6 +357,8 @@
           fileField.onchange = function () {
             if (fileField.files.length === 1) document.getElementById('id_file_form').submit()
           }
+
+
         </script>
     {% endblock %}
     {% include "open/open_footer.html" %}
