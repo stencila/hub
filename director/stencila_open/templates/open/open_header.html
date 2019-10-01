@@ -3,7 +3,7 @@
     <a href="{% url 'open_main' %}">/open</a>
 {% endblock %}
 {% block navbar_end %}
-    {% if conversion_success %}
+    {% if conversion_success and not hide_action_buttons %}
         {% include 'open/_download_dropdown.html' %}
         {% include 'open/_theme_dropdown.html' %}
         {% if display_share %}

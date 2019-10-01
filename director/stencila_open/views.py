@@ -310,7 +310,8 @@ CONVERSION_DOWNLOAD_OPTIONS = [
     ConversionDownloadOption('R Markdown (.Rmd)', ConversionFormatId.rmd.value.format_id, 'far fa-file-code'),
     None,
     ConversionDownloadOption('JATS (.xml)', ConversionFormatId.jats.value.format_id, 'far fa-file-code'),
-    ConversionDownloadOption('JSON-Linked Data (.jsonld)', ConversionFormatId.jsonld.value.format_id, 'far fa-file-code'),
+    ConversionDownloadOption('JSON-Linked Data (.jsonld)', ConversionFormatId.jsonld.value.format_id,
+                             'far fa-file-code'),
     ConversionDownloadOption('Semantic HTML', ConversionFormatId.html.value.format_id, 'far fa-file-code'),
     # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
 ]
@@ -332,7 +333,25 @@ class FileDownloadCleanup:
             pass
 
 
-class OpenResultView(View):
+class OpenConversionView(View):
+    def get_log_messages(self, conversion: Conversion, conversion_owned: bool) -> \
+            typing.Optional[typing.List[LogMessage]]:
+        if conversion_owned and conversion.stderr:
+            # log messages are line separated JSON directories
+            raw_log_messages = json.loads('[' + ','.join(conversion.stderr.strip().split('\n')) + ']')
+            return list(map(LogMessage, raw_log_messages))
+        else:
+            return None
+
+    def get_error_response(self, request, context, conversion, conversion_owned):
+        context['conversion_success'] = False
+        context['log_messages'] = self.get_log_messages(conversion, conversion_owned)
+        context['display_warnings_button'] = conversion_owned and context['log_messages'] is not None
+        context['filename'] = conversion.original_filename
+        return render(request, 'open/error.html', context)
+
+
+class OpenPreviewView(OpenConversionView):
     def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
 
@@ -342,29 +361,39 @@ class OpenResultView(View):
             'public_id': conversion.public_id
         }
 
-        if conversion_owned and conversion.stderr:
-            # log messages are line separated JSON directories
-            raw_log_messages = json.loads('[' + ','.join(conversion.stderr.strip().split('\n')) + ']')
-            log_messages: typing.Optional[typing.List[LogMessage]] = list(map(LogMessage, raw_log_messages))
-        else:
-            log_messages = None
+        if conversion.output_file is None:
+            return self.get_error_response(request, context, conversion, conversion_owned)
 
-        context['log_messages'] = log_messages
-        context['display_warings_button'] = conversion_owned and log_messages is not None
+        context['conversion_success'] = True
+        context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
+        context['share_url'] = request.build_absolute_uri()
+        context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
+        context['absolute_raw_url'] = request.build_absolute_uri(context['raw_source'])
+
+        return render(request, 'open/output_intermediary.html', context)
+
+
+class OpenDisplayView(OpenConversionView):
+    def get(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
+        conversion_owned = user_owns_conversion(request, conversion_id)
+        context = {
+            'user_owns_conversion': conversion_owned,
+            'public_id': conversion.public_id
+        }
 
         if conversion.output_file is None:
-            template = 'open/error.html'
-            context['conversion_success'] = False
-            context['filename'] = conversion.original_filename
-        else:
-            template = 'open/output_intermediary.html'
-            context['conversion_success'] = True
-            context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
-            context['share_url'] = request.build_absolute_uri()
-            context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
-            context['absolute_raw_url'] = request.build_absolute_uri(context['raw_source'])
+            return self.get_error_response(request, context, conversion, conversion_owned)
 
-        return render(request, template, context)
+        context['conversion_success'] = True
+        context['log_messages'] = self.get_log_messages(conversion, conversion_owned)
+        context['download_options'] = CONVERSION_DOWNLOAD_OPTIONS
+        context['share_url'] = request.build_absolute_uri()
+        context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
+        context['absolute_raw_url'] = request.build_absolute_uri(context['raw_source'])
+        context['current_theme'] = request.GET.get('theme')
+
+        return render(request, 'open/output.html', context)
 
 
 class OpenMediaView(View):

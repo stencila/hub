@@ -1,4 +1,5 @@
 {% extends 'open/main.html' %}
+{% block header %}{% include "open/open_header.html" with brand_tagline='/open' navbar_id='navbar_open' hide_action_buttons=True %}{% endblock %}
 {% block main %}
     <div class="container" style="padding-top: 30px; padding-bottom: 30px">
         <p class="is-uppercase-heading"><span class="heading-circle">A</span> Create a shareable pre-print</p>
@@ -18,9 +19,9 @@
 
         <iframe class="open-embed open-embed-preview" id="article_display_{{ public_id }}" src="{{ raw_source }}"></iframe>
 
-        <button class="button is-primary" id="feedback_button">
+        <a href="{% url 'open_result' public_id %}" class="button is-primary" id="preprint-link">
             <span>Create pre-print</span>
-        </button>
+        </a>
 
         <hr>
         <p class="is-uppercase-heading"><span class="heading-circle">B</span> Convert your file</p>
@@ -49,8 +50,6 @@
       for (let themeIndex = 0; themeIndex < themes.length; ++themeIndex) {
         let theme = themes[themeIndex]
         let themeEl = document.getElementById('iframe_preview_' + theme.toLowerCase())
-        //debugger
-        //themeEl.src = 'data:text/html;charset=utf-8,' + encodeURI(convertedContent)
 
         themeEl.addEventListener('load', function () {
           setIframeTheme(this, theme)
@@ -60,9 +59,13 @@
       document.querySelectorAll('.open-preview-link').forEach(function (el) {
         el.addEventListener('click', function () {
           const articleDisplay = document.getElementById('article_display_{{ public_id }}')
-          setIframeTheme(articleDisplay, themes[parseInt(this.getAttribute('data-index'))])
+          const themeId = themes[parseInt(this.getAttribute('data-index'))]
+          setIframeTheme(articleDisplay, themeId)
           articleDisplay.classList.remove('is-hidden')
           window.screenTop = 0
+          const prePrintLink = document.getElementById('preprint-link')
+          const prePrintUrl = prePrintLink.getAttribute('href').split('?')[0]
+          prePrintLink.setAttribute('href', prePrintUrl + '?theme=' + themeId)
         })
       })
 

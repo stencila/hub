@@ -16,12 +16,14 @@
                 </span>
                 <span>Open in Google Structured Data Testing Tool</span>
             </a>
-            <a class="dropdown-item" href="#" @click="showWarningsModal($event)">
+            {%  if log_messages %}
+            <a class="dropdown-item" href="#" @click.prevent="showWarningsModal()">
                 <span class="icon">
                     <i class="fas fa-exclamation-triangle"></i>
                 </span>
                 <span>View conversion warnings</span>
             </a>
+            {% endif %}
             {% comment %}
             <hr class="dropdown-divider">
             <a class="dropdown-item" href="#">

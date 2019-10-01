@@ -11,6 +11,8 @@
 {% block open_scripts %}
     <script>
       {% if user_owns_conversion %}
+        let themeDropdown = null
+
         const feedbackModal = new Vue(
           {
             el: '#feedback_modal',
@@ -124,6 +126,9 @@
         articleDisplay.addEventListener('load', function () {
           articleDisplay.contentWindow.document.addEventListener('click', documentClick)
           updateParentTitle()
+          if (themeDropdown !== null && '{{ current_theme|default:'stencila' }}' !== 'stencila') {
+            themeDropdown.setTheme('{{ current_theme|default:'stencila' }}')
+          }
         })
 
         window.addEventListener('resize', function () {
@@ -185,8 +190,6 @@
         })
       }
 
-      let themeDropdown = null
-
       if (document.getElementById('theme_dropdown')) {
         themeDropdown = new Vue({
           el: '#theme_dropdown',
@@ -215,7 +218,7 @@
               }, 200)
 
               fetch(themeUrl).then(() => {
-               articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+                articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
                 clearTimeout(loadingMaskShowTimeout)
                 loadingMask.classList.add('is-hidden')
               })
@@ -244,10 +247,8 @@
             hide () {
               this.active = false
             },
-            showWarningsModal (event) {
-              event.preventDefault()
+            showWarningsModal () {
               document.getElementById('warnings_modal').classList.add('is-active')
-              return false
             }
           }
         })
@@ -304,6 +305,7 @@
 
       {% if conversion_success %}
         window.addEventListener('load', function () {
+
           updateParentTitle()
         })
       {% endif %}
