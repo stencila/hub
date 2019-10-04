@@ -14,7 +14,7 @@
                 </h1>
 
                 <h2 class="subtitle is-5 has-text-centered">
-                  Need to share your <span id="informat-example">Jupyter notebook</span> with your supervisor<br /> as a Word document for&nbsp;sign&#8209;off?&nbsp;Easy&nbsp;peasy.
+                  Need to share your <span id="informat-example">Jupyter Notebook</span> with your supervisor<br /> as a Word document for&nbsp;sign&#8209;off?&nbsp;Easy&nbsp;peasy.
                 </h2>
                 
             </div>
@@ -345,15 +345,14 @@
     {% block open_scripts %}
         <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
         <script>
-        var typed = new Typed('#informat-example',  {
-           strings: ['Jupyter notebook', 'R Markdown file', 'GitHub file', 'R Notebook'],
+        var typed = new Typed('#informat-example', {
+          strings: ['R Notebook', 'R Markdown file', 'GitHub file', 'Jupyter Notebook'],
           startDelay: 3000,
           typeSpeed: 50,
           backSpeed: 20,
           loop: true,
           backDelay: 4000,
           showCursor: false
-
         });
 
           let fileField = document.getElementById('{{ file_form.file.auto_id }}')
