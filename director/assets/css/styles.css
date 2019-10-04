@@ -21435,6 +21435,13 @@ body, html {
   padding-bottom: 0;
 }
 
+.open-landing-form .control input,
+.open-landing-form .control .button,
+.open-landing-form .control input[type="submit"],
+.open-landing-form .control button[type="submit"] {
+  height: 2.75rem;
+}
+
 .open-footer {
   padding-top: 0;
 }
@@ -21614,6 +21621,11 @@ h6.has-top-margin {
   height: 1.5rem;
   margin-bottom: 1rem;
   margin-right: .5rem;
+}
+
+#informat-example {
+  background-color: rgba(102, 255, 102, 0.16);
+  padding: 2px 4px;
 }
 
 .open-feature-list .columns {
