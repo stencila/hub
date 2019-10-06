@@ -1,0 +1,127 @@
+<div id="open-modals">
+    <div class="modal" :class="{'is-active': downloadModalVisible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Download</p>
+                <button class="delete" aria-label="close" @click="toggleDownloadModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <nav class="panel">
+                    {% for download_option in download_options %}
+                        {% if download_option is None %}
+                            <!--hr class="dropdown-divider"-->
+                        {% else %}
+                            <a class="panel-block" href="{{ raw_source }}?download={{ download_option.format_id }}"
+                               @click="toggleDownloadModal()">
+                                <span class="panel-icon">
+                                    <i class="{{ download_option.icon_class }}" aria-hidden="true"></i>
+                                </span>
+                                {{ download_option.name }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-primary is-fullwidth" @click="toggleDownloadModal()">Close</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" :class="{'is-active': themeModalVisible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Theme</p>
+                <button class="delete" aria-label="close" @click="toggleThemeModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <nav class="panel">
+                    {% for theme in themes %}
+                        <a class="panel-block" @click.prevent="setTheme('{{ theme.theme_id }}')">
+                            <span class="panel-icon">
+                                <i class="fas"
+                                   :class="{'fa-fw': currentTheme !== '{{ theme.theme_id }}', 'fa-check': currentTheme === '{{ theme.theme_id }}' }"
+                                   aria-hidden="true"></i>
+                            </span>
+                            {{ theme.name }}
+                        </a>
+                    {% endfor %}
+                </nav>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-primary is-fullwidth" @click="toggleThemeModal()">Close</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" :class="{'is-active': shareModalVisible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">Public Share Link</p>
+                <button class="delete" aria-label="close" @click="toggleShareModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field is-grouped">
+                    <p class="control is-expanded">
+                        <input class="input" type="text" placeholder="Share URL" readonly="readonly"
+                               value="{{ share_url }}" ref="share-url">
+                    </p>
+                    <p class="control">
+                        <a class="button is-info" href="#" @click="copy()">
+                            <span class="icon is-small">
+                                <i v-if="!postCopy" class="fas fa-copy" aria-hidden="true"></i>
+                                <i v-if="postCopy" class="fas fa-check" aria-hidden="true"></i>
+                            </span>
+                            <span v-if="!postCopy">Copy</span>
+                            <span v-if="postCopy">Copied!</span>
+                        </a>
+                    </p>
+                </div>
+                <p>This link will expire 24 hours after conversion.</p>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-primary is-fullwidth" @click="toggleShareModal()">Close</button>
+            </footer>
+        </div>
+    </div>
+    <div class="modal" :class="{'is-active': moreModalVisible}">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">More</p>
+                <button class="delete" aria-label="close" @click="toggleMoreModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <nav class="panel">
+                    <a href="https://search.google.com/structured-data/testing-tool/u/0/#url={{ absolute_raw_url }}"
+                       target="_blank" rel="noopener" class="panel-block">
+                        <span class="panel-icon">
+                                <i class="fas fa-external-link-alt"></i>
+                        </span>
+                        Open in Google Structured Data Testing Tool
+                    </a>
+
+                    {% if log_messages %}
+                        <a class="panel-block" href="#" @click.prevent="showWarningsModal()">
+                            <span class="panel-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </span>
+                            View conversion warnings
+                        </a>
+                    {% endif %}
+
+                    <a class="panel-block" href="{% url 'open_main' %}">
+                        <span class="icon">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                        Back to Stencila Open
+                    </a>
+                </nav>
+            </section>
+            <footer class="modal-card-foot">
+                <button class="button is-primary is-fullwidth" @click="toggleMoreModal()">Close</button>
+            </footer>
+        </div>
+    </div>
+</div>

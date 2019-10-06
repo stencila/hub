@@ -47,9 +47,11 @@ $stencila-dropdown-font-weight: $weight-light
   width: 150px
 
 .has-text-warning
-  color: #FFA800 !important  // Bulma defines this with !important so we must do that too
+  color: #FFA800 !important
+// Bulma defines this with !important so we must do that too
 
-$header-height: 78px  // This is only currently used in iframe size calc, this size might be implicit
+$header-height: 78px
+// This is only currently used in iframe size calc, this size might be implicit
 $footer-height: 136px
 
 body, html
@@ -76,7 +78,7 @@ body, html
 
   .container
     height: 100%
-  
+
   .column
     padding-bottom: 0
 
@@ -88,11 +90,12 @@ body, html
 
 .open-footer
   padding-top: 0
+
   img
     width: 1rem
     vertical-align: text-bottom
     margin-right: 4px
-  
+
   a
     font-size: 1rem
     color: rgba(0, 0, 0, 0.5)
@@ -190,6 +193,7 @@ a.box:hover .title
 .switch[type=checkbox]
   & + label
     font-size: 14px
+
   &:checked + label::before
     background-color: $primary
 
@@ -219,7 +223,7 @@ h6.has-top-margin
   opacity: 0
 
 .is-uppercase-heading
-    +uppercase-heading
+  +uppercase-heading
 
 .heading-circle
   background-color: rgba(0, 0, 0, 0.1)
@@ -233,14 +237,14 @@ h6.has-top-margin
   margin-right: .5rem
 
 #informat-example
-    background-color: rgba($success, .16)
-    padding: 2px 4px
+  background-color: rgba($success, .16)
+  padding: 2px 4px
 
 .open-feature-list
   .columns
     margin-top: 1.5rem
-    padding-top: 1.5rem    
-  
+    padding-top: 1.5rem
+
 .open-embed
   width: 100%
   height: calc(100vh - #{$footer-height + $header-height})
@@ -272,6 +276,7 @@ h6.has-top-margin
 
   .button.is-borderless
     background-color: transparent
+
     .is-borderless-text
       text-decoration: underline
 
@@ -287,6 +292,7 @@ $share-width: 450px
     width: $share-width
     padding: 20px
     left: -$share-offset
+
     &:before
       left: ($share-width / 2) + $share-offset
 
@@ -294,8 +300,10 @@ $share-width: 450px
 .feedback-rating
   .column
     cursor: pointer
+
     h6
       padding-top: 10px
+
     p
       font-style: italic
       font-size: 80%
@@ -323,3 +331,10 @@ $share-width: 450px
   div
     width: 50%
     text-align: center
+
+#open-navbar
+  z-index: 0
+  height: 0
+
+  &.is-active
+    height: auto

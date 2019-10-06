@@ -9,7 +9,11 @@
                 <a class="navbar-item navbar-logo" href="{% url 'home' %}">
                     <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
                 </a>
-                <span class="navbar-item is-brand-tagline is-uppercase-heading" style="margin: 0 0.5em 0 0; padding-left: 0.5em">{% block brand_tagline %}Beta{% endblock %}</span>
+                <span class="navbar-item is-brand-tagline is-uppercase-heading"
+                      style="margin: 0 0.5em 0 0; padding-left: 0.5em">{% block brand_tagline %}
+                    Beta{% endblock %}</span>
+
+
             </div>
             <div class="navbar-menu" :class="{ 'is-active':active }">
                 <div class="navbar-start is-hidden-mobile">
@@ -63,7 +67,9 @@
             </div>
         </div>
     </nav>
+    {% block after_main_nav %}{% endblock %}
 </header>
+
 <script type="text/javascript">
   if (document.getElementById('navbar')) {
     new Vue({
@@ -73,4 +79,6 @@
       }
     })
   }
+
+
 </script>

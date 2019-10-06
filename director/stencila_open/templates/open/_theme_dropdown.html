@@ -14,38 +14,14 @@
     </div>
     <div class="dropdown-menu" role="menu">
         <div class="dropdown-content">
-            <a href="#" class="dropdown-item" @click="setTheme('stencila')">
-                        <span class="icon is-small">
-                            <i class="fas"
-                               :class="{'fa-fw': currentTheme !== 'stencila', 'fa-check': currentTheme === 'stencila' }"
-                               aria-hidden="true"></i>
-                        </span>
-                <span>Stencila</span>
-            </a>
-            <a href="#" class="dropdown-item" @click="setTheme('eLife')">
-                        <span class="icon is-small">
-                            <i class="fas"
-                               :class="{'fa-fw': currentTheme !== 'eLife', 'fa-check': currentTheme === 'eLife' }"
-                               aria-hidden="true"></i>
-                        </span>
-                <span>eLife</span>
-            </a>
-            <a href="#" class="dropdown-item" @click="setTheme('nature')">
-                        <span class="icon is-small">
-                            <i class="fas"
-                               :class="{'fa-fw': currentTheme !== 'nature', 'fa-check': currentTheme === 'nature' }"
-                               aria-hidden="true"></i>
-                        </span>
-                <span>Nature</span>
-            </a>
-            <a href="#" class="dropdown-item" @click="setTheme('plos')">
-                        <span class="icon is-small">
-                            <i class="fas"
-                               :class="{'fa-fw': currentTheme !== 'plos', 'fa-check': currentTheme === 'plos' }"
-                               aria-hidden="true"></i>
-                        </span>
-                <span>PLOS</span>
-            </a>
+            {% for theme in themes %}
+                <a class="dropdown-item" @click.prevent="setTheme('{{ theme.theme_id }}')">
+                    <span class="icon is-small">
+                       <i class="fas" :class="{'fa-fw': currentTheme !== '{{ theme.theme_id }}', 'fa-check': currentTheme === '{{ theme.theme_id }}' }" aria-hidden="true"></i>
+                    </span>
+                    <span>{{ theme.name }}</span>
+                </a>
+            {% endfor %}
         </div>
     </div>
 </div>

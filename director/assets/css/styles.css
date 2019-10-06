@@ -19569,6 +19569,7 @@ button:hover:not(.btn-primary[disabled])[type="submit"] {
 
 .main-navbar {
   border-top: 4px solid #2568ef;
+  z-index: 1;
 }
 
 @media screen and (max-width: 1023px) {
@@ -21728,4 +21729,13 @@ h6.has-top-margin {
 #loading-mask div {
   width: 50%;
   text-align: center;
+}
+
+#open-navbar {
+  z-index: 0;
+  height: 0;
+}
+
+#open-navbar.is-active {
+  height: auto;
 }

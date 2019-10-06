@@ -4,18 +4,81 @@
 {% endblock %}
 {% block navbar_end %}
     {% if conversion_success and not hide_action_buttons %}
-        {% include 'open/_download_dropdown.html' %}
-        {% include 'open/_theme_dropdown.html' %}
-        {% if display_share %}
-            {% include 'open/_share_dropdown.html' %}
-        {% endif %}
-        {% include 'open/_more_dropdown.html' %}
+        <div class="is-hidden-mobile">
+            {% include 'open/_download_dropdown.html' %}
+            {% include 'open/_theme_dropdown.html' %}
+            {% if display_share %}
+                {% include 'open/_share_dropdown.html' %}
+            {% endif %}
+            {% include 'open/_more_dropdown.html' %}
+        </div>
+        <a role="button" class="navbar-burger burger is-hidden-desktop is-hidden-tablet" aria-label="menu"
+           aria-expanded="false" id="open-navbar-burger">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
     {% endif %}
     {% if user.is_anonymous %}
-        <div class="buttons">
+        <div class="buttons is-hidden-mobile">
             <a class="button is-outlined is-primary call-to-action" href="https://stenci.la/#beta-signup">
                 Sign up
             </a>
         </div>
+    {% endif %}
+{% endblock %}
+{% block after_main_nav %}
+    {% if conversion_success and not hide_action_buttons %}
+        <nav class="navbar is-shadowless is-hidden-desktop is-hidden-tablet" id="open-navbar"
+             :class="{ 'is-active': isActive }">
+            <div class="container">
+                <div id="open-navbar-actions" class="navbar-menu" :class="{ 'is-active': isActive }">
+                    <div class="navbar-start">
+                        <div class="navbar-item">
+                            <a class="button is-fullwidth" @click="toggleDownloadModal()">
+                                <span class="icon is-small">
+                                    <i class="fas fa-download" aria-hidden="true"></i>
+                                </span>
+                                <span>Download</span>
+                            </a>
+                        </div>
+                        <div class="navbar-item">
+                            <button class="button is-fullwidth" @click="toggleThemeModal()">
+                                <span class="icon is-small">
+                                    <i class="fas fa-paint-roller" aria-hidden="true"></i>
+                                </span>
+                                <span>Theme</span>
+                            </button>
+                        </div>
+                        {% if display_share %}
+                            <div class="navbar-item">
+                                <button class="button is-fullwidth" @click="toggleShareModal()">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-share" aria-hidden="true"></i>
+                                    </span>
+                                    <span>Share</span>
+                                </button>
+                            </div>
+                        {% endif %}
+                        <div class="navbar-item">
+                            <button class="button is-fullwidth" @click="toggleMoreModal()">
+                                    <span class="icon is-small">
+                                        <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
+                                    </span>
+                                <span>More</span>
+                            </button>
+                        </div>
+                        {% if user.is_anonymous %}
+                            <div class="navbar-item">
+                                <a class="button is-outlined is-primary call-to-action is-fullwidth"
+                                   href="https://stenci.la/#beta-signup">
+                                    Sign up
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
     {% endif %}
 {% endblock %}

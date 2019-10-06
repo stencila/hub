@@ -1,5 +1,6 @@
 {% extends 'open/main.html' %}
 {% block main %}
+    {% include "open/_open_mobile_modals.html" %}
     <div id="loading-mask" class="is-hidden">
         <div>
             <i class="fas fa-5x fa-spinner fa-spin"></i>
@@ -10,6 +11,85 @@
 {% endblock %}
 {% block open_scripts %}
     <script>
+      var CURRENT_THEME = 'stencila'
+
+      if (document.getElementById('open-navbar')) {
+        let openModals = new Vue({
+          el: '#open-modals',
+          data: {
+            downloadModalVisible: false,
+            themeModalVisible: false,
+            shareModalVisible: false,
+            moreModalVisible: false,
+            currentTheme: CURRENT_THEME,
+            postCopy: false
+          },
+          methods: {
+            toggleDownloadModal () {
+              this.downloadModalVisible = !this.downloadModalVisible
+            },
+            toggleThemeModal () {
+              this.currentTheme = CURRENT_THEME
+              this.themeModalVisible = !this.themeModalVisible
+            },
+            toggleShareModal () {
+              this.postCopy = false
+              this.shareModalVisible = !this.shareModalVisible
+            },
+            toggleMoreModal () {
+              this.moreModalVisible = !this.moreModalVisible
+            },
+            setTheme (themeName) {
+              this.currentTheme = themeName
+              CURRENT_THEME = themeName
+              setTheme(themeName, () => {
+                this.toggleThemeModal()
+              })
+            },
+            copy () {
+              const shareUrlInput = this.$refs['share-url']
+              shareUrlInput.focus()
+              shareUrlInput.select()
+              document.execCommand('copy')
+              this.postCopy = true
+            },
+            showWarningsModal () {
+              this.toggleMoreModal()
+              document.getElementById('warnings_modal').classList.add('is-active')
+            }
+          }
+        })
+        let openNavbar = new Vue({
+          el: '#open-navbar',
+          data: {
+            isActive: false
+          },
+          methods: {
+            toggleDownloadModal () {
+              openModals.toggleDownloadModal()
+            },
+            toggleThemeModal () {
+              openModals.toggleThemeModal()
+            },
+            toggleShareModal () {
+              openModals.toggleShareModal()
+            },
+            toggleMoreModal () {
+              openModals.toggleMoreModal()
+            },
+            toggle() {
+              this.isActive = !this.isActive
+            }
+          }
+        })
+
+        if (document.getElementById('open-navbar-burger')) {
+            document.getElementById('open-navbar-burger') .addEventListener('click', function () {
+              this.classList.toggle('is-active')
+              openNavbar.toggle()
+            })
+        }
+      }
       {% if user_owns_conversion %}
         let themeDropdown = null
 
@@ -190,18 +270,36 @@
         })
       }
 
+      function setTheme (themeName, cb) {
+        const themeUrl = `https://unpkg.com/@stencila/thema@<=1/dist/themes/${themeName}/styles.css`
+
+        const loadingMask = document.getElementById('loading-mask')
+
+        const loadingMaskShowTimeout = setTimeout(() => {
+          loadingMask.classList.remove('is-hidden')
+        }, 200)
+
+        fetch(themeUrl).then(() => {
+          articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
+          clearTimeout(loadingMaskShowTimeout)
+          loadingMask.classList.add('is-hidden')
+        })
+        cb()
+      }
+
       if (document.getElementById('theme_dropdown')) {
         themeDropdown = new Vue({
           el: '#theme_dropdown',
           data: {
             active: false,
-            currentTheme: 'stencila'
+            currentTheme: CURRENT_THEME
           },
           methods: {
             toggle () {
               this.active ? this.hide() : this.show()
             },
             show () {
+              this.currentTheme = CURRENT_THEME
               this.active = true
             },
             hide () {
@@ -209,20 +307,10 @@
             },
             setTheme (themeName) {
               this.currentTheme = themeName
-              const themeUrl = `https://unpkg.com/@stencila/thema@<=1/dist/themes/${themeName}/styles.css`
-
-              const loadingMask = document.getElementById('loading-mask')
-
-              const loadingMaskShowTimeout = setTimeout(() => {
-                loadingMask.classList.remove('is-hidden')
-              }, 200)
-
-              fetch(themeUrl).then(() => {
-                articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
-                clearTimeout(loadingMaskShowTimeout)
-                loadingMask.classList.add('is-hidden')
+              CURRENT_THEME = themeName
+              setTheme(themeName, () => {
+                this.hide()
               })
-              this.hide()
             }
           }
         })
