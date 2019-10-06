@@ -317,6 +317,19 @@ CONVERSION_DOWNLOAD_OPTIONS = [
 ]
 
 
+class ConversionTheme(typing.NamedTuple):
+    theme_id: str
+    name: str
+
+
+THEMES = [
+    ConversionTheme('stencila', 'Stencila'),
+    ConversionTheme('eLife', 'eLife'),
+    ConversionTheme('nature', 'Nature'),
+    ConversionTheme('plos', 'PLOS')
+]
+
+
 class FileDownloadCleanup:
     path: str
 
@@ -391,6 +404,7 @@ class OpenDisplayView(OpenConversionView):
         context['share_url'] = request.build_absolute_uri()
         context['raw_source'] = reverse('open_result_raw', args=(conversion.public_id,))
         context['absolute_raw_url'] = request.build_absolute_uri(context['raw_source'])
+        context['themes'] = THEMES
         context['current_theme'] = request.GET.get('theme')
 
         return render(request, 'open/output.html', context)
