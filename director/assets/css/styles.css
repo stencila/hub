@@ -21669,6 +21669,12 @@ h6.has-top-margin {
   }
 }
 
+@media screen and (max-width: 429px) {
+  .conversions-footer {
+    bottom: 64px;
+  }
+}
+
 .conversions-footer .button.is-borderless, .conversions-footer input.is-borderless[type="submit"],
 .conversions-footer button.is-borderless[type="submit"] {
   background-color: transparent;
