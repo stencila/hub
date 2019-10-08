@@ -19,6 +19,7 @@
                 
             </div>
         </div>
+
         <div class="columns is-vcentered">
             <div class="column is-4 is-offset-1">
                 <form method="post" class="open-landing-form">
@@ -200,6 +201,31 @@
                 </form>
             </div>
         </div>
+
+        <hr />
+
+        <div class="columns is-vcentered is-centered">
+          <div class="column">
+              <div class="content">
+                  <header class="has-text-centered small is-uppercase-heading has-text-grey open-examples-header">
+                    Open up some examples
+                  </header>
+
+              <div class="columns">
+                  {% for conversion_example in conversion_examples %}
+                  <div class="column">
+                    <p class="is-size-5 has-text-centered has-text-weight-medium">
+                      <a href="{% url 'open_main_with_url' conversion_example.url %}">
+                        <i class="fa-1 {{ conversion_example.icon_class }}"></i> {{ conversion_example.tagline|safe }}
+                        <i class="fas fa-external-link-alt is-size-7"></i>
+                      </a>
+                    </p>
+                  </div>
+                  {% endfor %}
+              </div>
+            </div>
+              </div>
+          </div>
     </section>
 {% endblock %}
 
@@ -254,40 +280,7 @@
             </div>
           </div>
 
-          <div class="columns is-vcentered is-centered has-background-light">
-                <div class="column">
-                    <div class="content">
-                        <header class="heading has-text-centered">
-                            <span class="small is-block is-uppercase-heading">
-                                Examples
-                            </span>
-                        </header>
-                    </div>
-
-                    <div class="columns">
-                        {% for conversion_example in conversion_examples %}
-                        <div class="column">
-                            <div class="card card--grid">
-                                <div class="has-text-centered">
-                                    <span class="icon is-large has-text-grey">
-                                         <a href="{% url 'open_main_with_url' conversion_example.url %}">
-                                             <i class="fa-5x {{ conversion_example.icon_class }}"></i>
-                                         </a>
-                                    </span>
-                                </div>
-                                <div class="card-content has-text-centered">
-                                    <p class="is-uppercase-heading is-5">
-                                        <a href="{% url 'open_main_with_url' conversion_example.url %}">{{ conversion_example.tagline|safe }}</a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-            </div>
-          </div>
-
-          <div class="columns is-vcentered is-centered has-background-white-bis">
+          <div class="columns is-vcentered is-centered has-background-white">
             <div class="column is-4 is-offset-1">
               <h3 class="title is-size-4-mobile">
                 Preserve your code across formats
@@ -314,7 +307,7 @@
           </div>
 
 
-          <div class="columns is-vcentered is-centered has-background-light">
+          <div class="columns is-vcentered is-centered has-background-white-bis">
             <div class="column is-3">
               <img src="{% static 'img/file-conversion-themes.png' %}" alt="" />
             </div>
