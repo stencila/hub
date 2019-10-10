@@ -140,7 +140,7 @@ class OpenView(View):
                     # modified flag needs to be set manually since an object inside session is being manipulated
                     request.session.modified = True
 
-                    return redirect('open_result', public_id)
+                    return redirect('open_preview', public_id)
                 finally:
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
