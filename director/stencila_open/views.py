@@ -124,6 +124,12 @@ class OpenView(View):
                     else:
                         messages.error(request, 'Unable to fetch from {} (response status: {}).'.format(
                             url_form.cleaned_data['url'], e.response.status_code))
+                except OSError:
+                    messages.error(request, 'Unable to fetch from {}, please check the URL is valid.'.format(
+                        url_form.cleaned_data['url']))
+                except Exception:
+                    messages.error(request, 'Unable to fetch from {}, an unknown error occurred.'.format(
+                        url_form.cleaned_data['url']))
 
             else:
                 file_form = FileForm(request.POST, request.FILES)
