@@ -117,6 +117,14 @@ class OpenView(View):
                                             '<a href="https://support.google.com/drive/answer/2494822#link_sharing">'
                                             'https://support.google.com/drive/answer/2494822#link_sharing</a>',
                                    extra_tags='safe')
+                except HTTPError as e:
+                    if e.response.status_code == 404:
+                        messages.error(request, 'Unable to fetch from {} as the file doesn\'t exist.'.format(
+                            url_form.cleaned_data['url']))
+                    else:
+                        messages.error(request, 'Unable to fetch from {} (response status: {}).'.format(
+                            url_form.cleaned_data['url'], e.response.status_code))
+
             else:
                 file_form = FileForm(request.POST, request.FILES)
                 cr = self.get_file_conversion_request(request, file_form)
@@ -347,7 +355,8 @@ class FileDownloadCleanup:
 
 
 class OpenConversionView(View):
-    def get_log_messages(self, conversion: Conversion, conversion_owned: bool) -> \
+    @staticmethod
+    def get_log_messages(conversion: Conversion, conversion_owned: bool) -> \
             typing.Optional[typing.List[LogMessage]]:
         if conversion_owned and conversion.stderr:
             # log messages are line separated JSON directories
