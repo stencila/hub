@@ -153,7 +153,7 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
     url_obj = urlparse(url)
 
     if is_malicious_host(url_obj.hostname):
-        raise RemoteFileException('{} is not a valid host name.'.format(url_obj.hostname))
+        raise RemoteFileException('{} is not a valid hostname.'.format(url_obj.hostname))
 
     _, file_ext = splitext(url_obj.path)
 

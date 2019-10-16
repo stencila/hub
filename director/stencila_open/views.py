@@ -66,6 +66,9 @@ class ConversionExample(typing.NamedTuple):
 
 class OpenView(View):
     def dispatch(self, request: HttpRequest, url: typing.Optional[str] = None) -> HttpResponse:
+        if request.META.get('HTTP_USER_AGENT') == settings.STENCILA_CLIENT_USER_AGENT:
+            return HttpResponse('<h1>Generic Hub Conversion Output 🗿🥚</h1>', content_type='text/html;charset=utf-8')
+
         url_form = UrlForm()
         file_form = FileForm()
         save_example = False
