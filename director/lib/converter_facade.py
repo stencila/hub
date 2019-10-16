@@ -56,6 +56,9 @@ class GoogleDocs403Exception(RemoteFileException):
 
 def is_malicious_host(hostname: str) -> bool:
     """Detect if user is trying to do things like connect to localhost or a local IP address of some kind."""
+    if hostname.lower() in ['hub-test.stenci.la', 'hub.stenci.la']:
+        return True
+
     try:
         ipaddress.ip_address(hostname)
     except ValueError:
