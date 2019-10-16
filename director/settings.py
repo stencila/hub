@@ -279,6 +279,7 @@ class Common(Configuration):
     STENCILA_BINARY = values.ListValue(['/usr/local/bin/stencila'])
     STENCILA_CLIENT_USER_AGENT = values.Value('Stencila Hub HTTP Client')
     INTERCOM_ACCESS_TOKEN = values.Value('')
+    SPARKLA_HOST = values.Value('')
 
 
 class Dev(Common):

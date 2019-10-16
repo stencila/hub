@@ -1,11 +1,10 @@
 import json
 
 from allauth.socialaccount.models import SocialApp
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.generic.base import View
-
-from django.conf import settings
 from googleapiclient.errors import HttpError
 
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid, GoogleDocsFacade

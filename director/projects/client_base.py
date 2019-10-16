@@ -3,12 +3,10 @@ import time
 import typing
 from urllib.parse import urljoin
 
-import jwt
 import requests
 
+from lib.jwt import jwt_encode
 from projects.session_models import SessionStatus, Session
-
-JWT_ALGORITHM = "HS256"
 
 
 class HttpMethod(enum.Enum):
@@ -86,7 +84,7 @@ class RestClientBase(object):
         if extra_payload:
             jwt_payload.update(extra_payload)
 
-        return jwt.encode(jwt_payload, self.jwt_secret, algorithm=JWT_ALGORITHM).decode("utf-8")
+        return jwt_encode(jwt_payload, self.jwt_secret)
 
     def start_session(self, environ: str, session_parameters: dict) -> SessionAttachContext:
         raise NotImplementedError('Subclasses must implement start_session')

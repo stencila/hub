@@ -1,9 +1,11 @@
 import json
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import View
 
+from lib.jwt import jwt_encode
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 
@@ -34,3 +36,46 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
         return JsonResponse(
             {'success': True}
         )
+
+
+class ManifestView(ProjectPermissionsMixin, View):
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+        if not settings.SPARKLA_HOST:
+            raise ValueError('SPARKLA_HOST setting is empty.')
+
+        project = self.get_project(request.user, pk)
+
+        limits = {
+            'project_id': project.pk
+        }
+
+        manifest = {
+            'capabilities': {
+                'execute': {
+                    'required': ['node'],
+                    'properties': {
+                        'node': {
+                            'type': 'object',
+                            'required': ['type', 'programmingLanguage'],
+                            'properties': {
+                                'type': {
+                                    'enum': ['CodeChunk', 'CodeExpression']
+                                },
+                                'programmingLanguage': {
+                                    'enum': ['python', 'r']
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            'addresses': {
+                'ws': {
+                    'type': 'ws',
+                    'host': settings.SPARKLA_HOST,
+                    'jwt': jwt_encode(limits)
+                }
+            }
+        }
+
+        return JsonResponse(manifest)
