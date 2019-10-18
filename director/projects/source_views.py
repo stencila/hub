@@ -487,10 +487,15 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         converter = ConverterFacade(settings.STENCILA_BINARY)
 
-        if isinstance(source, DiskSource):
+        source_mimetype = None
+
+        if not isinstance(source, DiskSource):
+            source_mimetype = source.mimetype
+
+        if source_mimetype in (None, 'Unknown' ):
             source_type = conversion_format_from_path(source_path)
         else:
-            source_type = conversion_format_from_mimetype(source.mimetype)
+            source_type = conversion_format_from_mimetype(source_mimetype)
 
         if target_type == ConversionFormatId.gdoc:
             if source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
