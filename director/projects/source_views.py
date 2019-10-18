@@ -492,7 +492,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         if not isinstance(source, DiskSource):
             source_mimetype = source.mimetype
 
-        if source_mimetype in (None, 'Unknown' ):
+        if source_mimetype is None or source_mimetype == 'Unknown':  # don't simplify, it makes mypy barf 3 lines down
             source_type = conversion_format_from_path(source_path)
         else:
             source_type = conversion_format_from_mimetype(source_mimetype)
