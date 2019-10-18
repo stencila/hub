@@ -13,3 +13,5 @@ storage
 
 cover
 .coverage
+
+venv
