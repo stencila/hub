@@ -128,7 +128,7 @@ class GoogleDocsFacade(object):
             logger.exception('Error getting document {}'.format(document_id))
             raise
 
-    def create_document(self, name: str, content: str, source_mimetype: str) -> str:
+    def create_document(self, name: str, content: bytes, source_mimetype: str) -> str:
         """Create a Google Doc from a file and return its ID."""
         drive_service = build('drive', 'v3', credentials=self.credentials, cache_discovery=False)
 

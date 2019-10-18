@@ -127,7 +127,7 @@ class ProjectSessionRequestView(CloudClientMixin, ProjectHostBaseView):
         # client should attempt the session start POST again and we let them through
         return True
 
-    def get(self, request: HttpRequest, token: str) -> HttpResponse:
+    def get(self, request: HttpRequest, token: str) -> HttpResponse:  # type: ignore
         project = get_object_or_404(Project, token=token)
 
         session_request = self.get_session_request(request, token)
@@ -225,7 +225,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
             'status': session.status.name
         })
 
-    def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:
+    def post(self, request: HttpRequest, token: str, environ: str) -> HttpResponse:  # type: ignore
         project = get_object_or_404(Project, token=token)
 
         if project.key and request.POST.get("key") != project.key:
@@ -261,7 +261,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
 
 
 class ProjectSessionSetupView(View, BetaTokenRequiredMixin, ProjectPermissionsMixin):
-    def post(self, request: HttpRequest, token: str, environ: str):
+    def post(self, request: HttpRequest, token: str, environ: str):  # type: ignore
         project = get_object_or_404(Project, token=token)
 
         if project.key and request.POST.get("key") != project.key:

@@ -64,6 +64,10 @@ class DirectoryListEntry(MimeTypeDetectMixin):
     def modification_date(self) -> datetime:
         if self._modification_date is not None:
             return self._modification_date
+        if isinstance(self.source, DiskSource):
+            # The modification date should actually be set as self._modification_date so we shouldn't hit this, mostly
+            # to make mypy happy
+            return datetime.now()
         return self.source.updated
 
     @property

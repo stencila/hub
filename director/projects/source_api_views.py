@@ -24,7 +24,7 @@ class LinkException(Exception):
 class DiskItemCreateView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
@@ -56,7 +56,7 @@ class DiskItemCreateView(ProjectPermissionsMixin, View):
 class DiskItemMoveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
@@ -84,7 +84,7 @@ class DiskItemMoveView(ProjectPermissionsMixin, View):
 class DiskItemRemoveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
@@ -109,7 +109,7 @@ class DiskItemRemoveView(ProjectPermissionsMixin, View):
 class SourceLinkView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         self.get_project(request.user, pk)
 
         body = json.loads(request.body)

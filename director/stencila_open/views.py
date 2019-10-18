@@ -139,6 +139,9 @@ class OpenView(View):
                 cr = self.get_file_conversion_request(request, file_form)
 
             if cr and cr.source_format_valid():
+                assert cr.source_io is not None
+                # mostly to keep mypy happy, the None check is done in source_format_valid call above
+
                 target_file = None
                 try:
                     with tempfile.NamedTemporaryFile(delete=False) as target_file:
@@ -200,6 +203,10 @@ class OpenView(View):
         if file_form.is_valid():
             uploaded_file = request.FILES['file']
             cr.original_filename = uploaded_file.name
+
+            if cr.original_filename is None:
+                raise ValueError('Invalid file: uploaded without a name.')
+
             try:
                 input_format = conversion_format_from_path(cr.original_filename)
             except ConversionFormatError:
@@ -216,7 +223,7 @@ class OpenView(View):
     def get_url_conversion_request(url_form: UrlForm) -> ConversionRequest:
         cr = ConversionRequest()
         if url_form.is_valid():
-            cr.input_url = url_form.cleaned_data['url']
+            cr.input_url = typing.cast(str, url_form.cleaned_data['url'])  # safe to do because the form is valid
             try:
                 file_name, source_io = fetch_url(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
                 cr.source_io = source_io
@@ -265,6 +272,8 @@ class OpenView(View):
             conversion.output_file = None
         if (conversion.has_warnings or conversion_result.returncode != 0) and original_filename:
             # retain the uploaded file for later
+            if not isinstance(source_io.data, str):
+                raise TypeError('Source Data does not appear to be a path')
             conversion.input_file = cfs.copy_file_to_public_id(source_io.data, public_id,
                                                                original_filename)
         conversion.meta = json.dumps({
@@ -279,7 +288,8 @@ class OpenView(View):
                           target_file: typing.Optional[typing.Any]) -> None:
         if source_io:
             try:
-                os.unlink(source_io.data)
+                if isinstance(source_io.data, str):
+                    os.unlink(source_io.data)
             except OSError:
                 pass
         if source_file:

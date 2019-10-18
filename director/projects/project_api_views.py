@@ -11,7 +11,7 @@ from projects.project_views import ProjectPermissionsMixin
 class ProjectDetailView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         if not self.has_permission(ProjectPermissionType.MANAGE):

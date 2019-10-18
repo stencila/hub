@@ -16,7 +16,8 @@ from django.views import View
 from django.views.generic import CreateView, DetailView
 
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
-from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path, conversion_format_from_mimetype
+from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path, \
+    conversion_format_from_mimetype, conversion_format_from_path
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
@@ -63,12 +64,12 @@ class FileSourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
     template_name = 'projects/filesource_create.html'
     project_permission_required = ProjectPermissionType.EDIT
 
-    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         self.get_project(request.user, pk)
 
         return self.get_response(request, self.form_class())
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         form = self.form_class(request.POST)
@@ -115,7 +116,7 @@ class GithubSourceCreateView(SourceCreateView):
 
     def get(self, request, *args, **kwargs) -> HttpResponse:
         github_token = user_github_token(request.user)
-        if True or not github_token:
+        if not github_token:
             social_url = reverse('socialaccount_connections')
             messages.error(request, 'Can not link a Github repository as you do not have a Github account connected to '
                                     'your Stencila Hub account.<br/>Please connect your Github account on the '
@@ -162,7 +163,7 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
         context_data['upload_directory'] = self.request.GET.get('directory', '')
         return context_data
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         directory = request.GET.get('directory', '')
@@ -207,7 +208,7 @@ class ContentFacadeMixin(object):
 class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, pk, path)
         return self.process_get(project_pk, path, content_facade)
 
@@ -274,7 +275,7 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
             'default_commit_message': self.get_default_commit_message(request)
         })
 
-    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
         content_facade = self.get_content_facade(request, project_pk, pk, path)
         return self.process_get(request, project_pk, path, content_facade)
 
@@ -283,7 +284,7 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
         repo_path = utf8_path_join(source.subpath, strip_directory(file_path, source.path))
         return repo_path
 
-    def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:
+    def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
         self.pre_post_check(request, project_pk)
 
         content_facade = self.get_content_facade(request, project_pk, pk, path)
@@ -314,7 +315,7 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
                     return redirect('project_files_path', project_pk, dirname)
                 return redirect('project_files', project_pk)
 
-            return self.render(request, content_facade.get_edit_context(), {
+            return self.render(request, edit_context, {
                 'commit_message': commit_message,
                 'default_commit_message': self.get_default_commit_message(request)
             })
@@ -362,7 +363,7 @@ class DiskFileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, View
     template_name = 'projects/source_update.html'
     project_permission_required = ProjectPermissionType.EDIT
 
-    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         form = self.form_class(initial={'path': path})
@@ -381,7 +382,7 @@ class DiskFileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, View
             'form': form
         })
 
-    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         form = self.form_class(request.POST, initial={'path': path})
@@ -409,7 +410,7 @@ class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View
     template_name = 'confirm_delete.html'
     project_permission_required = ProjectPermissionType.EDIT
 
-    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
@@ -422,7 +423,7 @@ class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View
             'object': path
         })
 
-    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
@@ -450,7 +451,7 @@ class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View
 class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         body = json.loads(request.body)
@@ -486,7 +487,10 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
         converter = ConverterFacade(settings.STENCILA_BINARY)
 
-        source_type = conversion_format_from_mimetype(source.mimetype)
+        if isinstance(source, DiskSource):
+            source_type = conversion_format_from_path(source_path)
+        else:
+            source_type = conversion_format_from_mimetype(source.mimetype)
 
         if target_type == ConversionFormatId.gdoc:
             if source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
@@ -510,7 +514,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
                     converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormatId.docx)
 
-                    convert_result = converter.convert(converter_input, converter_output)
+                    convert_result = converter.convert(converter_input, converter_output, None)
 
                     if convert_result.returncode != 0:
                         raise RuntimeError('Convert process failed. Stderr is: {}'.format(
@@ -524,7 +528,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
 
                     if temp_output_path:
                         unlink(temp_output_path)
-                output_mime_type = DOCX_MIMETYPES[0]
+                output_mime_type: typing.Optional[str] = DOCX_MIMETYPES[0]
             else:
                 output_mime_type = mimetype_from_path(source_path)
                 output_content = scf.get_binary_content()
@@ -556,7 +560,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
             converter_input = ConverterIo(ConverterIoType.PATH, absolute_input_path, source_type)
             converter_output = ConverterIo(ConverterIoType.PATH, absolute_output_path, target_type)
 
-            convert_result = converter.convert(converter_input, converter_output)
+            convert_result = converter.convert(converter_input, converter_output, None)
 
             if convert_result.returncode != 0:
                 raise RuntimeError('Convert process failed. Stderr is: {}'.format(

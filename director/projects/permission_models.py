@@ -238,8 +238,11 @@ def record_creator_as_owner(sender, instance, created, *args, **kwargs):
 post_save.connect(record_creator_as_owner, sender=Project)
 
 
-def get_roles_under_permission(highest_permission: ProjectPermissionType) -> typing.List[ProjectRole]:
+def get_roles_under_permission(highest_permission: typing.Optional[ProjectPermissionType]) -> typing.List[ProjectRole]:
     """Return a list of `ProjectRole`s that have permissions less or equal to the given permission."""
+    if highest_permission is None:
+        return []
+
     roles = []
 
     for role in ProjectRole.objects.all():

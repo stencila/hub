@@ -2,6 +2,7 @@ SHELL := bash
 OS := $(shell uname -s)
 DIRECTOR_VERSION := $(shell ./version-get.sh)
 GIT_BRANCH := $(shell git branch | grep \* | cut -d ' ' -f2)
+VENV_DIR := venv
 
 all: setup run
 
@@ -52,7 +53,7 @@ router-deploy: router-build
 # Director
 
 # Shortcut to activate the virtual environment during development
-VE := . director/venv/bin/activate ;
+VE := . $(VENV_DIR)/bin/activate ;
 
 # Shortcut to set required environment variables during development
 # Uses a custom `env.sh` or falls back to `env-example.sh`
@@ -62,21 +63,21 @@ EV := test -f director/env.sh && source director/env.sh || source director/env-e
 DJ ?= $(VE) $(EV) python3 director/manage.py
 
 # Setup virtual environment
-.PHONY: director/venv
-director/venv: director/requirements.txt
-	python3 -m venv director/venv
+.PHONY: $(VENV_DIR)
+$(VENV_DIR): director/requirements.txt
+	python3 -m venv $(VENV_DIR)
 	$(VE) pip3 install -r director/requirements.txt
-	touch director/venv
+	touch $(VENV_DIR)
 .PHONY: director-venv
-director-venv: director/venv
+director-venv: $(VENV_DIR)
 
 # Setup DEV virtual environment
 .PHONY: director-venv-dev
 director-venv-dev:
-	python3 -m venv director/venv
+	python3 -m venv $(VENV_DIR)
 	$(VE) pip3 install -r director/requirements.txt
 	$(VE) pip3 install -r director/requirements-dev.txt
-	touch director/venv
+	touch $(VENV_DIR)
 
 # Build directory of external third party JS and CSS
 director/extern: director/package.json
@@ -95,20 +96,20 @@ director/extern: director/package.json
 	touch $@
 
 # Create UML models
-director-models: director/venv
+director-models: $(VENV_DIR)
 	$(DJ) graph_models -a -o director/models.png
 
 # Build any static files
-# Needs `director/venv` to setup virtualenv for Django collectstatic
-director-static: director/venv director/extern
+# Needs `$(VENV_DIR)` to setup virtualenv for Django collectstatic
+director-static: $(VENV_DIR) director/extern
 	$(DJ) collectstatic --noinput
 
 # Create migrations
-director-migrations: director/venv
+director-migrations: $(VENV_DIR)
 	$(DJ) makemigrations
 
 # Build a development database
-director-create-devdb: director/venv
+director-create-devdb: $(VENV_DIR)
 	rm -f director/db.sqlite3
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
@@ -118,15 +119,15 @@ director-create-devdb: director/venv
 	$(DJ) runscript create_dev_project_roles
 
 # Build a development database
-director-migrate-devdb: director/venv
+director-migrate-devdb: $(VENV_DIR)
 	$(DJ) migrate
 
 # Run development server
-director-run: director/venv director/extern
+director-run: $(VENV_DIR) director/extern
 	$(DJ) runserver
 
 # Run development server with production settings
-director-runprod: director/venv director/extern
+director-runprod: $(VENV_DIR) director/extern
 	$(EV) \
 	export DJANGO_CONFIGURATION=Prod; \
 	$(DJ) runserver
@@ -148,7 +149,7 @@ director-lint-docs:
 	$(VE) pydocstyle --match-dir='^(?!venv|node_modules|\\.|migrations|tests|scripts|storage).*' director
 
 # Run tests
-director-test: director/venv
+director-test: $(VENV_DIR)
 	$(DJ) test
 
 

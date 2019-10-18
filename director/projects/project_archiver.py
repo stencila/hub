@@ -40,7 +40,7 @@ class ProjectArchiver(object):
                 for file in files:
                     file_path = utf8_path_join(root, file)
                     relative_path = file_path[len(project_dir):]
-                    zip_handle.write(to_utf8(file_path), relative_path)
+                    zip_handle.write(to_utf8(file_path).decode('utf8'), relative_path)
 
     def archive_project(self, name_prefix: typing.Optional[str] = None) -> None:
         self.puller.pull()

@@ -155,6 +155,9 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
 
     url_obj = urlparse(url)
 
+    if url_obj.hostname is None:
+        raise TypeError('Url "{}" appears to have no hostname.'.format(url))
+
     if is_malicious_host(url_obj.hostname):
         raise RemoteFileException('{} is not a valid hostname.'.format(url_obj.hostname))
 
@@ -222,8 +225,8 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
                 source_format = conversion_format_from_path(file_name)
             except ValueError:
                 raise ConversionFormatError(
-                    'Unable to determine conversion format from mimetype "{}" or path "".'.format(mimetype,
-                                                                                                  url_obj.path))
+                    'Unable to determine conversion format from mimetype "{}" or path "{}".'.format(mimetype,
+                                                                                                    url_obj.path))
 
         with tempfile.NamedTemporaryFile(delete=False) as download_to:
             try:

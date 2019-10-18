@@ -26,6 +26,7 @@ AGENT_ROLE_ID_PREFIX = 'agent_role_id_'
 class TeamDetailView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
         self.perform_account_fetch(request.user, account_pk)
+        assert self.account_fetch_result is not None
         team = fetch_team_for_account(self.account_fetch_result.account, team_pk)
 
         form = TeamForm(instance=team)

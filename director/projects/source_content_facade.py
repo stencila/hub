@@ -209,6 +209,9 @@ class SourceContentFacade(object):
         if not self.google_docs_facade:
             raise TypeError('Can\'t continue, GithubFacade not set.')
 
+        if not isinstance(self.source, GoogleDocsSource):
+            raise TypeError('Attempting to get Google Docs content from a non GoogleDocsSource')
+
         return self.google_docs_facade.get_document(self.source.doc_id)
 
     def get_google_docs_source_binary_content(self) -> bytes:
@@ -239,12 +242,14 @@ def make_source_content_facade(user: User, file_path: str, source: typing.Union[
 
     gh_token = user_github_token(user)
 
+    gh_facade: typing.Optional[GitHubFacade] = None
+
     if isinstance(source, GithubSource):
         source = typing.cast(GithubSource, source)
 
         gh_facade = GitHubFacade(source.repo, gh_token)
-    else:
-        gh_facade = None
+
+    gd_facade: typing.Optional[GoogleDocsFacade] = None
 
     if isinstance(source, GoogleDocsSource):
         source = typing.cast(GoogleDocsSource, source)
@@ -254,7 +259,5 @@ def make_source_content_facade(user: User, file_path: str, source: typing.Union[
             raise RuntimeError('No Google Docs app set up.')
 
         gd_facade = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(user, 'google'))
-    else:
-        gd_facade = None
 
     return SourceContentFacade(file_path, source, disk_facade, gh_facade, gd_facade)
