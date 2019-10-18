@@ -150,7 +150,7 @@ director-lint-docs:
 
 # Run tests
 director-test: $(VENV_DIR)
-	$(DJ) test
+	$(DJ) test director
 
 
 # Build Docker image
