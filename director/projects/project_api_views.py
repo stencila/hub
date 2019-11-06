@@ -41,7 +41,7 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ManifestView(ProjectPermissionsMixin, View):
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         if request.user.is_anonymous or not request.user.is_staff:
             raise PermissionDenied
 
