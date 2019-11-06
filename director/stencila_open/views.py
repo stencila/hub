@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 import typing
+import uuid
 from os.path import splitext, basename, dirname
 
 import requests
@@ -14,12 +15,15 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse, FileResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from requests import HTTPError
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
 from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, ConverterContext, \
     GoogleDocs403Exception
+from lib.sparkla import generate_manifest
 from projects.source_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
@@ -581,3 +585,22 @@ class OpenFeedbackView(View):
             resp['errors'] = dict(feedback_form.errors.items())
 
         return JsonResponse(resp)
+
+
+def get_request_user_id(request: HttpRequest) -> str:
+    if request.user.is_anonymous:
+        if 'OPEN_USER' not in request.session:
+            request.session['OPEN_USER'] = str(uuid.uuid4())
+        return request.session['OPEN_USER']
+
+    return '{}'.format(request.user.id)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class OpenManifestView(View):
+    def post(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
+        conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
+
+        manifest = generate_manifest(get_request_user_id(request), project_id_override=conversion.pk)
+
+        return JsonResponse(manifest)

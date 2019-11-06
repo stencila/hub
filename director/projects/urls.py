@@ -6,7 +6,7 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
-                                    ProjectNamedArchiveDownloadView, ProjectRefreshView, GdocsTest)
+                                    ProjectNamedArchiveDownloadView, ProjectRefreshView, ProjectExecutaView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
                                    DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView,
@@ -75,7 +75,7 @@ urlpatterns = [
 
     path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
 
-    path('gdocs', GdocsTest.as_view())
+    path('<int:pk>/executa/', ProjectExecutaView.as_view(), name='project_executa'),
 
     # Type-specific views
     # path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),

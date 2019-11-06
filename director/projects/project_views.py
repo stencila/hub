@@ -3,7 +3,6 @@ import typing
 from datetime import datetime
 from enum import Enum
 
-from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -19,8 +18,7 @@ from github import RateLimitExceededException
 
 from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
-from lib.google_docs_facade import GoogleDocsFacade
-from lib.social_auth_token import user_github_token, user_social_token, user_supported_social_providers
+from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
@@ -276,7 +274,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             messages.error(request, 'Could not list this directory as it contains Github sources and the anonymous '
                                     'rate limit has been exceeded.<br/>Please connect your Github account on the '
                                     '<a href="{}">Account Connections page</a> to remove this limit.'.format(
-                                        reverse('socialaccount_connections')),
+                                     reverse('socialaccount_connections')),
                            extra_tags='safe')
 
         session_check_path = reverse('session_queue_v1', args=(self.project.token,))
@@ -585,7 +583,7 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
                           'form': ProjectArchiveForm(),
                           'project_tab': ProjectTab.FILES.value,
                           'project_subtab': ProjectTab.FILES_ARCHIVES.value
-                          }))
+                      }))
 
     def list_archives(self, project: Project):
         archives_directory = self.get_archives_directory(project)
@@ -665,13 +663,8 @@ class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin,
             return response
 
 
-class GdocsTest(View):
+class ProjectExecutaView(ProjectPermissionsMixin, View):
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, pk)
 
-    def get(self, request):
-        google_app = SocialApp.objects.filter(provider='google').first()
-
-        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(request.user, 'google'))
-
-        gdf.trash_document('104sCNP6wP-kTVuC61CEwSBt6eQAJyo66ydvm5RtRVkM')
-
-        return HttpResponse('Hello')
+        return render(request, 'projects/executa-test.html', {'project': project})

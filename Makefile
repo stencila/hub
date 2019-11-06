@@ -88,8 +88,12 @@ director/extern: director/package.json
 	cp director/node_modules/moment/min/moment.min.js $@/js
 	cp director/node_modules/vue-resource/dist/vue-resource.min.js $@/js
 	cp director/node_modules/buefy/dist/buefy.min.js $@/js/buefy.min.js
+	cp director/node_modules/@stencila/executa/dist/browser/index.js $@/js/executa-index.js
 	mkdir -p $@/js/monaco-editor/min/vs
 	cp -R director/node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
+
+	cp -R director/node_modules/@stencila/designa/packages/components/dist/stencila-components/ $@/stencila-components/
+
 	mkdir -p $@/css
 	cp director/node_modules/buefy/dist/buefy.min.css $@/css
 	cp director/node_modules/bulma-switch/dist/css/bulma-switch.min.css $@/css
