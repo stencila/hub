@@ -599,6 +599,9 @@ def get_request_user_id(request: HttpRequest) -> str:
 @method_decorator(csrf_exempt, name='dispatch')
 class OpenManifestView(View):
     def post(self, request: HttpRequest, conversion_id: str) -> HttpResponse:
+        if request.user.is_anonymous or not request.user.is_staff:
+            raise PermissionDenied
+
         conversion = get_object_or_404(Conversion, public_id=conversion_id, is_deleted=False)
 
         manifest = generate_manifest(get_request_user_id(request), project_id_override=conversion.pk)
