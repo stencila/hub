@@ -23,6 +23,7 @@ USER_ROLE_ID_PREFIX = 'user_role_id_'
 
 class AccountPermissionsMixin(LoginRequiredMixin):
     account_fetch_result: typing.Optional[AccountFetchResult] = None
+    required_account_permission: AccountPermissionType
 
     def perform_account_fetch(self, user: AbstractUser, account_pk: int) -> None:
         self.account_fetch_result = fetch_account(user, account_pk)
@@ -30,6 +31,8 @@ class AccountPermissionsMixin(LoginRequiredMixin):
     def get_render_context(self, context: dict) -> dict:
         context['account_permissions'] = self.account_permissions
         context['account_roles'] = self.account_roles
+        context['account'] = self.account
+        context['is_account_admin'] = self.has_permission(AccountPermissionType.ADMINISTER)
         return context
 
     def _test_account_fetch_result_set(self) -> None:
@@ -63,6 +66,12 @@ class AccountPermissionsMixin(LoginRequiredMixin):
                 return True
 
         return False
+
+    def request_permissions_guard(self, request: HttpRequest, account_pk: int) -> None:
+        """Test that the current user has `required_account_permission`, raising `PermissionDenied` if not."""
+        self.perform_account_fetch(request.user, account_pk)
+        if not self.has_permission(self.required_account_permission):
+            raise PermissionDenied('User must have {} permission to do this.'.format(self.required_account_permission))
 
 
 class AccountListView(LoginRequiredMixin, ListView):
@@ -200,6 +209,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     model = Account
     form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
+    required_account_permission = AccountPermissionType.ADMINISTER
 
     def get_success_url(self) -> str:
         return reverse("account_profile", kwargs={'pk': self.object.pk})

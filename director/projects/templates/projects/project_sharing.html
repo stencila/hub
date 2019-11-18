@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static escape_extras %}
+{% load crispy_forms_tags static escape_extras resource_allowance %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
@@ -135,15 +135,23 @@
         </form>
         <h6 class="title is-5 has-top-margin">Public project</h6>
         <div>
-            <div class="field">
-                <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded"
-                       @change="isPublicChanged()">
-                <label for="id_project_public">
-                    <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>
-                    <span v-if="isPublic === false">This project is private. Only collaborators can view or change it.</span>
-                </label>
-            </div>
-        </div>
+            {% if account|resource_limit_met:'max_private_projects' %}
+                This project is publicly visible. Anyone can view it but only collaborators can change it.
+                <br>
+                Your subscription does not allow private Projects. Please
+                <a href="{% url "account_subscriptions_plan_list" object.account.pk %}">add or upgrade your subscription</a> to enable
+                private Projects.
+            {% else %}
+                <div class="field">
+                    <input id="id_project_public" type="checkbox" v-model="isPublic" class="switch is-rounded"
+                           @change="isPublicChanged()">
+                    <label for="id_project_public">
+                        <span v-if="isPublic">This project is publicly visible. Anyone can view it but only collaborators can change it.</span>
+                        <span v-if="isPublic === false">This project is private. Only collaborators can view or change it.</span>
+                    </label>
+                </div>
+            {% endif %}
+        </br>
     </div>
     <script src="{% static "js/user-search.js" %}"></script>
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>

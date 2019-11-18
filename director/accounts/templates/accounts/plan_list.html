@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
+{% block content %}
+    <div class="columns">
+        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
+        <section class="column">
+            <p class="title is-capitalized">Subscribe</p>
+            {% for product, plan, is_subscribed  in product_plans %}
+                <div class="box">
+                    <div class="media-content">
+                        <div class="content">
+                            <p>
+                                <strong>
+                                    {{ product.name }}
+                                </strong>
+                                <br/>
+                                {{ product.description }}
+                            </p>
+                        </div>
+                    </div>
+                    <nav class="level is-mobile">
+                        <div class="level-left">
+                            <span class="level-item">
+                            ${{ plan.amount }} per {{ plan.interval }}
+                            </span>
+                            {%  if is_subscribed %}
+                                <button class="button is-small is-disabled">Subscribed</button>
+                            {% else %}
+                            <a class="level-item">
+                                <a href="{% url 'account_subscriptions_add' account.pk plan.pk %}"
+                                   class="button is-small">Subscribe</a>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </nav>
+                    <p>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
+{% endblock %}

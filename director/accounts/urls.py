@@ -1,8 +1,9 @@
 from django.urls import path
 
 from accounts.views import (
-    AccountListView, AccountProfileView, AccountAccessView, AccountSettingsView, AccountCreateView
-)
+    AccountListView, AccountProfileView, AccountAccessView, AccountSettingsView, AccountCreateView)
+from accounts.subscription_views import SubscriptionListView, SubscriptionPlanListView, \
+    AccountSubscriptionAddView, SubscriptionSignupView, SubscriptionDetailView, AccountSubscriptionCancelView
 from accounts.team_views import TeamDetailView, TeamListView, TeamMembersView, TeamProjectsView
 
 urlpatterns = [
@@ -17,5 +18,17 @@ urlpatterns = [
     path('<int:account_pk>/teams/<int:team_pk>/members', TeamMembersView.as_view(), name='account_team_members'),
     path('<int:account_pk>/teams/<int:team_pk>/projects', TeamProjectsView.as_view(), name='account_team_projects'),
     path('<int:account_pk>/teams', TeamListView.as_view(), name='account_team_list'),
+
+    path('<int:pk>/subscriptions/', SubscriptionListView.as_view(), name='account_subscriptions'),
+    path('<int:pk>/subscriptions/add', SubscriptionPlanListView.as_view(),
+         name='account_subscriptions_plan_list'),
+    path('<int:pk>/subscriptions/<str:subscription_id>', SubscriptionDetailView.as_view(),
+         name='account_subscription_detail'),
+    path('<int:pk>/subscriptions/<str:subscription_id>/cancel', AccountSubscriptionCancelView.as_view(),
+         name='account_subscription_cancel'),
+    path('<int:pk>/customer-create/', SubscriptionSignupView.as_view(),
+         name='account_subscription_customer_create'),
+    path('<int:pk>/subscriptions/add/<int:plan_pk>/', AccountSubscriptionAddView.as_view(),
+         name='account_subscriptions_add'),
 
 ]

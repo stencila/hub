@@ -21748,3 +21748,7 @@ h6.has-top-margin {
 #open-navbar.is-active {
   height: auto;
 }
+
+.stacked-item {
+  margin-bottom: 20px;
+}

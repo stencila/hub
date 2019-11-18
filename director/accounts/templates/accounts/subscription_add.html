@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+      const planId = '{{ plan.id }}'
+      const stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}')
+      const stripeElements = stripe.elements()
+      const stripeStyle = {
+        base: {
+          color: '#32325d',
+          fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+          fontSmoothing: 'antialiased',
+          fontSize: '16px',
+          '::placeholder': {
+            color: '#aab7c4'
+          }
+        },
+        invalid: {
+          color: '#fa755a',
+          iconColor: '#fa755a'
+        }
+      }
+
+      function showError (error) {
+        const errorContainer = document.getElementById('stripe-error-element')
+        const errorTextContainer = errorContainer.getElementsByClassName('message-body')[0]
+        if (error) {
+          errorContainer.classList.remove('is-hidden')
+          errorTextContainer.textContent = error.message
+        } else {
+          errorContainer.classList.add('is-hidden')
+          errorTextContainer.textContent = ''
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const card = stripeElements.create('card', {style: stripeStyle})
+        card.mount('#stripe-card-element')
+
+        card.addEventListener('change', ({error}) => {
+
+          showError(error)
+
+        })
+
+        const stripeSubmit = document.getElementById('stripe-submit')
+
+        stripeSubmit.addEventListener('click', async () => {
+          stripeSubmit.classList.add('is-loading')
+          showError(null)
+          const emailSelect = document.getElementById('account_email_select')
+          const email = emailSelect.options[emailSelect.selectedIndex].value
+          const {paymentMethod, error} = await stripe.createPaymentMethod('card', card, {
+            billing_details: {
+              email: email,
+            },
+          })
+
+          showError(error)
+
+          if (error) {
+            stripeSubmit.classList.remove('is-loading')
+            return
+          }
+
+          try {
+            const response = await fetch('{% url 'account_subscription_customer_create' account.pk %}', {
+              method: 'post',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRFToken': utils.cookie('csrftoken'),
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify({
+                email: email,
+                payment_method: paymentMethod.id,
+                plan: planId
+              })
+            })
+            const responseData = await response.json()
+            // The customer and subscription has been created
+            if (responseData.success) {
+              window.location = responseData.redirect
+            }
+          } catch (error) {
+            // Handle error from server if customer wasn't created
+            console.error(error)
+          }
+          stripeSubmit.classList.remove('is-loading')
+        })
+      })
+    </script>
+{% endblock %}
+{% block content %}
+    <div class="columns">
+        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
+        <section class="column">
+            <div class="stacked-item">
+                <h4 class="title is-4">1. Select Email Address</h4>
+                <div class="field">
+                    <label class="label" for="account_email">Email Address</label>
+                    <div class="control">
+                        <div class="select">
+                            <select id="account_email_select">
+                                {% for email in emails %}
+                                    <option value="{{ email.email }}">{{ email.email }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="stacked-item">
+                <h4 class="title is-4">2. Enter Credit Card Details</h4>
+                <div id="stripe-card-element" class="MyCardElement">
+                </div>
+                <article class="message is-danger is-hidden" id="stripe-error-element">
+                    <div class="message-body">
+
+                    </div>
+                </article>
+            </div>
+            <div class="stacked-item">
+                <h4 class="title is-4">3. Pay</h4>
+                <button class="button is-primary" id="stripe-submit">Pay</button>
+            </div>
+        </section>
+    </div>
+{% endblock %}

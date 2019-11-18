@@ -9,12 +9,14 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.views import View
 
 from accounts.db_facade import fetch_team_for_account
 from accounts.forms import TeamForm
 from accounts.models import Team, AccountPermissionType
 from accounts.views import AccountPermissionsMixin
+from lib.resource_allowance import resource_limit_met, QuotaName, get_subscription_upgrade_text
 from projects.permission_models import ProjectRole, ProjectAgentRole, AgentType
 from projects.project_models import Project
 
@@ -24,9 +26,26 @@ AGENT_ROLE_ID_PREFIX = 'agent_role_id_'
 
 
 class TeamDetailView(AccountPermissionsMixin, View):
+    def test_team_create_quota(self, request: HttpRequest, team_pk: typing.Optional[int]) \
+            -> typing.Optional[HttpResponse]:
+        if team_pk is None and resource_limit_met(self.account, QuotaName.MAX_TEAMS):
+            upgrade_message = get_subscription_upgrade_text(self.has_permission(AccountPermissionType.ADMINISTER),
+                                                            self.account)
+
+            messages.error(request, 'This account has reached the maximum number of teams allowed by its current '
+                                    'subscription. {}'.format(upgrade_message), extra_tags='safe')
+            return redirect(reverse('account_team_list', args=(self.account.id,)))
+
+        return None
+
     def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
         self.perform_account_fetch(request.user, account_pk)
         assert self.account_fetch_result is not None
+
+        max_teams_redirect = self.test_team_create_quota(request, team_pk)
+        if max_teams_redirect:
+            return max_teams_redirect
+
         team = fetch_team_for_account(self.account_fetch_result.account, team_pk)
 
         form = TeamForm(instance=team)
@@ -46,6 +65,10 @@ class TeamDetailView(AccountPermissionsMixin, View):
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
 
+        max_teams_redirect = self.test_team_create_quota(request, team_pk)
+        if max_teams_redirect:
+            return max_teams_redirect
+
         team = fetch_team_for_account(self.account, team_pk)
 
         form = TeamForm(request.POST, instance=team)
@@ -57,7 +80,8 @@ class TeamDetailView(AccountPermissionsMixin, View):
             else:
                 update_verb = "updated"
 
-            messages.success(request, "Team '{}' was {} successfully".format(team.name, update_verb))
+            messages.success(request, "Team <em>{}</em> was {} successfully".format(escape(team.name), update_verb),
+                             extra_tags='safe')
             return redirect(reverse('account_team_list', args=(self.account.id,)))
 
         return render(request, "accounts/team_detail.html", self.get_render_context({

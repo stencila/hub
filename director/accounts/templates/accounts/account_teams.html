@@ -1,45 +1,64 @@
 {% extends 'base.html' %}
-{% load account_permissions %}
+{% load account_permissions resource_allowance %}
 {% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
-<div class="columns">
-    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
-    <div class="column">
-        <nav class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    {% include "accounts/_account_header.html" with account=account %}
+    <div class="columns">
+        {% include "accounts/_account_nav.html" with account=account tab="teams" %}
+        {% if account|resource_limit:'max_teams' == 0 %}
+            {# this section for if the account has no team quota #}
+            <div class="column">
+                <nav class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            {% include "accounts/_account_header.html" with account=account %}
+                        </div>
+                    </div>
+                    <div class="level-right">
+                    </div>
+                </nav>
+                <div>
+                    This account&rsquo;s current subscription does not support teams. {% include "accounts/_subscription_upgrade_message.html" with account=account is_admin=is_account_admin %}
                 </div>
             </div>
-            <div class="level-right">
-                {% if account_permissions|account_permissions_contain:'administer' %}
-                <p class="level-item">
-                    <a class="button is-primary" href="{% url 'account_team_create' account.id %}">
-                        <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New Team</span>
-                    </a>
+        {% else %}
+            <div class="column">
+                <nav class="level">
+                    <div class="level-left">
+                        <div class="level-item">
+                            {% include "accounts/_account_header.html" with account=account %}
+                        </div>
+                    </div>
+                    <div class="level-right">
+                        {% if account_permissions|account_permissions_contain:'administer' %}
+                            <p class="level-item">
+                                <a class="button is-primary" href="{% url 'account_team_create' account.id %}">
+                                    <span class="icon"><i class="fas fa-plus"></i></span>
+                                    <span>New Team</span>
+                                </a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </nav>
+                <p class="subtitle">
+                    <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
                 </p>
-                {% endif %}
-            </div>
-        </nav>
-        <p class="subtitle">
-            <strong>{{ teams.count }}</strong> team{{ teams.count|pluralize }}
-        </p>
-        <div class="level-list">
-        {% for team in teams %}
-            <div class="level">
-                <div class="level-left">
-                    <a class="is-uppercase-heading" href="{% url 'account_team_detail' account.id team.id %}" title="Open">
-                        {{ team.name }}
-                    </a>
+                <div class="level-list">
+                    {% for team in teams %}
+                        <div class="level">
+                            <div class="level-left">
+                                <a class="is-uppercase-heading"
+                                   href="{% url 'account_team_detail' account.id team.id %}" title="Open">
+                                    {{ team.name }}
+                                </a>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div>
+                            No teams exist.
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
-        {% empty %}
-            <div>
-                No teams exist.
-            </div>
-        {% endfor %}
-        </div>
+        {% endif %}
     </div>
-</div>
 {% endblock %}

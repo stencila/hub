@@ -6,6 +6,7 @@ from django.views.defaults import permission_denied, page_not_found
 
 import projects.urls
 from accounts.urls import urlpatterns as accounts_patterns
+from dev_views import test_view
 from stencila_open.urls import urlpatterns as open_patterns
 from api_urls import urlpatterns as api_patterns
 from stencila_admin.urls import urlpatterns as stencila_admin_patterns
@@ -98,7 +99,9 @@ urlpatterns = [
     path('system-status/', StatusView.as_view()),
 
     # ico for old browsers
-    path('favicon.ico', IcoView.as_view())
+    path('favicon.ico', IcoView.as_view()),
+
+    path('dev_test', test_view)
 ]
 
 handler403 = permission_denied

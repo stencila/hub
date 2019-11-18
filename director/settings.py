@@ -61,6 +61,7 @@ class Common(Configuration):
         'storages',
         'rest_framework',
         'django_intercom',
+        'djstripe',
 
         # Our apps
 
@@ -292,6 +293,13 @@ class Common(Configuration):
             'rest_framework.authentication.SessionAuthentication'
         ),
     }
+
+    STRIPE_LIVE_PUBLIC_KEY = values.Value('')
+    STRIPE_LIVE_SECRET_KEY = values.Value('sk_live_test')  # Leaving this blank causes issues running Django
+    STRIPE_TEST_PUBLIC_KEY = values.Value('')
+    STRIPE_TEST_SECRET_KEY = values.Value('sk_test_test')  # Leaving this blank causes issues running Django
+    STRIPE_LIVE_MODE = values.BooleanValue(False)
+    DJSTRIPE_WEBHOOK_VALIDATION = None
 
 
 class Dev(Common):

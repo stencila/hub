@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Account, AccountPermission, AccountRole, AccountUserRole, Team
+from .models import Account, AccountPermission, AccountRole, AccountUserRole, Team, ProductResourceAllowance
 
 
 @admin.register(Account)
@@ -20,7 +20,6 @@ class AccountRoleAdmin(admin.ModelAdmin):
 
 @admin.register(AccountUserRole)
 class AccountUserRoleAdmin(admin.ModelAdmin):
-
     list_display = [
         'account', 'user', 'role'
     ]
@@ -28,4 +27,9 @@ class AccountUserRoleAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(ProductResourceAllowance)
+class ProductResourceAllowanceAdmin(admin.ModelAdmin):
     pass

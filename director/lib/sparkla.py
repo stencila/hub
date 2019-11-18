@@ -6,6 +6,7 @@ from django.conf import settings
 import stencila.schema.types
 
 from lib.jwt import jwt_encode
+from lib.resource_allowance import account_resource_limit_multiple, QuotaName
 from projects.project_models import Project
 
 
@@ -56,6 +57,26 @@ def generate_jwt(jwt_secret: str, url: str, user_id: str, environment_id: Sparkl
     if project_id_override:
         limits['projectId'] = project_id_override
     elif project:
+        account = project.account
+        resource_limits = account_resource_limit_multiple(account, {
+            QuotaName.MAX_SESSION_DURATION,
+            QuotaName.SESSION_MEMORY_LIMIT,
+            QuotaName.SESSION_CPU_LIMIT,
+            QuotaName.MAX_CLIENTS_PER_SESSION
+        })
+
+        if resource_limits[QuotaName.MAX_SESSION_DURATION] != -1:
+            limits['sessionDuration'] = resource_limits[QuotaName.MAX_SESSION_DURATION]
+
+        if resource_limits[QuotaName.MAX_CLIENTS_PER_SESSION] != -1:
+            limits['clientsPerSession'] = resource_limits[QuotaName.MAX_CLIENTS_PER_SESSION]
+
+        if resource_limits[QuotaName.SESSION_MEMORY_LIMIT] != -1:
+            software_session.memoryLimit = resource_limits[QuotaName.SESSION_MEMORY_LIMIT]
+
+        if resource_limits[QuotaName.SESSION_CPU_LIMIT] != -1:
+            software_session.cpuLimit = resource_limits[QuotaName.SESSION_CPU_LIMIT]
+
         limits['projectId'] = project.id
         project_dir = os.path.join(settings.SPARKLA_PROJECT_ROOT, '{}'.format(project.pk))
         software_session.volumeMounts = [stencila.schema.types.VolumeMount('/project', mountSource=project_dir)]

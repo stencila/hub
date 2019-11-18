@@ -13,10 +13,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.html import escape
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
 from github import RateLimitExceededException
 
-from accounts.models import Team
+from accounts.db_facade import user_is_account_admin
+from accounts.models import Team, Account
+from lib.resource_allowance import QuotaName, resource_limit_met, get_subscription_upgrade_text
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
@@ -90,6 +93,7 @@ class ProjectPermissionsMixin(object):
         context['project'] = self.project
         context['project_roles'] = self.project_roles
         context['project_permissions'] = self.project_permissions
+        context['account'] = self.account
         return context
 
     def get_context_data(self, **kwargs) -> dict:
@@ -120,6 +124,11 @@ class ProjectPermissionsMixin(object):
         self._test_project_fetch_result_set()
         return self.project_fetch_result.agent_roles  # type: ignore
 
+    @property
+    def account(self) -> Account:
+        self._test_project_fetch_result_set()
+        return self.project.account  # type: ignore
+
     def has_permission(self, permission: ProjectPermissionType) -> bool:
         return self.has_any_permissions((permission,))
 
@@ -149,6 +158,10 @@ class ProjectPermissionsMixin(object):
 
     def get_object(self, *args, **kwargs):
         return self.get_project(self.request.user, self.kwargs['pk'])
+
+    @property
+    def is_account_admin(self):
+        pass
 
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
@@ -211,7 +224,32 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return kwargs
 
     def form_valid(self, form):
-        """If the project creation form is valid them make the current user the project creator."""
+        """
+        Check if the account to which the Project is assigned is allowed more Projects.
+
+        If the project creation form is valid them make the current user the project creator.
+        """
+        account = form.cleaned_data['account']
+
+        is_account_admin = user_is_account_admin(self.request.user, account)
+
+        if resource_limit_met(account, QuotaName.MAX_PROJECTS):
+            sub_upgrade_text = get_subscription_upgrade_text(is_account_admin, account)
+
+            messages.error(self.request,
+                           'A project can not be created for the Account <em>{}</em> as it has reached the quota of '
+                           'Projects that its subscription allows. {}'.format(escape(account), sub_upgrade_text),
+                           extra_tags='safe')
+            return self.form_invalid(form)
+
+        if not form.cleaned_data['public'] and resource_limit_met(account, QuotaName.MAX_PRIVATE_PROJECTS):
+            sub_upgrade_text = get_subscription_upgrade_text(is_account_admin, account)
+            messages.error(self.request,
+                           'This Project must be made public as the subscription for the Account <em>{}</em> does not '
+                           'allow private Projects. {}'.format(
+                               escape(account), sub_upgrade_text), extra_tags='safe')
+            return self.form_invalid(form)
+
         self.object = form.save(commit=False)
         self.object.creator = self.request.user
         self.object.save()
@@ -256,10 +294,10 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             directory_items = combine_virtual_and_real_entries(virtual_items, on_disk_items)
         except RateLimitExceededException:
             directory_items = []
+            sa_c_url = reverse('socialaccount_connections')
             messages.error(request, 'Could not list this directory as it contains Github sources and the anonymous '
                                     'rate limit has been exceeded.<br/>Please connect your Github account on the '
-                                    '<a href="{}">Account Connections page</a> to remove this limit.'.format(
-                                     reverse('socialaccount_connections')),
+                                    '<a href="{}">Account Connections page</a> to remove this limit.'.format(sa_c_url),
                            extra_tags='safe')
 
         session_check_path = reverse('session_queue_v1', args=(self.project.token,))
@@ -378,7 +416,8 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         project_agent_role = None
 
         if request.POST.get('action') == 'set_public':
-            self.project.public = request.POST['is_public'] == 'true'
+            self.project.public = request.POST['is_public'] == 'true' or \
+                                  resource_limit_met(self.project.account, QuotaName.MAX_PRIVATE_PROJECTS)
             self.project.save()
             return JsonResponse({'success': True})
 

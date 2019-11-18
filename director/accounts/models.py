@@ -6,6 +6,7 @@ Against which the usage of the computational resources is metered.
 
 import typing
 
+import djstripe.models
 from django.contrib.auth.models import User, AbstractUser
 from django.db import models
 from django.db.models import QuerySet
@@ -156,6 +157,7 @@ class AccountRole(models.Model):
     @classmethod
     def roles_with_permission(cls, permission_type: AccountPermissionType) -> QuerySet:
         """Query for a list of `AccountRoles` that have the given permission_type `AccountPermissionType`."""
+        # TODO: This is a good candidate for a long cache
         permission = AccountPermission.objects.get(type=permission_type.value)
         return cls.objects.filter(permissions=permission)
 
@@ -189,6 +191,35 @@ class AccountUserRole(models.Model):
 
     class Meta:
         unique_together = (('user', 'account'),)
+
+
+class AccountSubscription(models.Model):
+    """
+    Basically just add a "subscriptions" attribute to the Account.
+
+    Ideally you'd just add an "account" attribute to `Subscription` but since we don't have control of that object we do
+    it with this extra model. This is why `subscription` is a OneToOneField.
+    """
+
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        db_index=True
+    )
+
+    subscription = models.OneToOneField(
+        djstripe.models.Subscription,
+        on_delete=models.PROTECT,
+        related_name='account'
+    )
+
+
+class ProductResourceAllowance(models.Model):
+    """Add resource allowance to a `Product` since we don't have control of that model."""
+
+    product = models.OneToOneField(djstripe.models.Product, on_delete=models.PROTECT, related_name='resource_allowance')
+    allowances = models.TextField(help_text='Allowances granted in JSON format.')  # Another contender for JSONField
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
