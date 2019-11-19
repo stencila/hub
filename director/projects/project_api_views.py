@@ -5,12 +5,24 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics
 
 from lib.sparkla import generate_manifest
+from projects.api_serializers import ProjectSerializer
 from projects.permission_models import ProjectPermissionType
+from projects.project_data import get_projects
 from projects.project_views import ProjectPermissionsMixin
 
 
+class ProjectListView(generics.ListAPIView):
+    serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        filter_key, projects = get_projects(self.request.user, None)
+        return projects
+
+
+# These are not DRF Views but they probably should be
 class ProjectDetailView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 

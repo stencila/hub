@@ -285,6 +285,16 @@ class Common(Configuration):
     SPARKLA_PROJECT_ROOT = values.Value('')
     SPARKLA_PORT = values.IntegerValue(9000)
 
+    REST_FRAMEWORK = {
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        ),
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication'
+        ),
+    }
+
 
 class Dev(Common):
     """Configuration settings used in development."""

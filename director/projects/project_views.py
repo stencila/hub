@@ -16,7 +16,6 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
 from github import RateLimitExceededException
 
-from accounts.db_facade import fetch_accounts_for_user
 from accounts.models import Team
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
@@ -24,6 +23,7 @@ from projects.permission_facade import fetch_project_for_user, ProjectFetchResul
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
+from projects.project_data import get_projects
 from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
@@ -175,31 +175,16 @@ class FilterOption(typing.NamedTuple):
 class ProjectListView(BetaTokenRequiredMixin, View):
     def get(self, request: HttpRequest) -> HttpResponse:
         if not request.user.is_authenticated:
-            projects = Project.objects.filter(public=True)
-            filter_key = 'public'
             filter_options: typing.Iterable[FilterOption] = []
         else:
-            filter_key = request.GET.get('filter')
-
-            if filter_key == 'account':
-                accounts = fetch_accounts_for_user(request.user)
-                projects = Project.objects.filter(account__in=accounts)
-            elif filter_key == 'shared':
-                roles = ProjectAgentRole.filter_with_user_teams(user=request.user)
-                all_projects = map(lambda par: par.project, roles)
-                projects = filter(lambda proj: proj.creator != request.user, all_projects)
-            elif filter_key == 'public':
-                projects = Project.objects.filter(public=True)
-            else:
-                filter_key = 'created'
-                projects = Project.objects.filter(creator=request.user)
-
             filter_options = (
                 FilterOption('created', 'Created by me'),
                 FilterOption('account', 'Account projects'),
                 FilterOption('shared', 'Shared with me'),
                 FilterOption('public', 'Public')
             )
+
+        filter_key, projects = get_projects(request.user, request.GET.get('filter'))
 
         return render(request, 'projects/project_list.html', {
             'object_list': projects,
