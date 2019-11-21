@@ -92,7 +92,7 @@ director/extern: director/package.json
 	mkdir -p $@/js/monaco-editor/min/vs
 	cp -R director/node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
 
-	cp -R director/node_modules/@stencila/designa/packages/components/dist/stencila-components/ $@/stencila-components/
+	cp -R director/node_modules/@stencila/components/dist/stencila-components/ $@/stencila-components/
 
 	mkdir -p $@/css
 	cp director/node_modules/buefy/dist/buefy.min.css $@/css
