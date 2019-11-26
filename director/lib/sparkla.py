@@ -50,20 +50,17 @@ def generate_jwt(jwt_secret: str, url: str, user_id: str, environment_id: Sparkl
 
     limits: typing.Dict[str, typing.Any] = {
         'url': url,
-        'user': {
-            'id': user_id
-        }
+        'userId': user_id
     }
 
-    if project:
-        limits['project_id'] = project.id
+    if project_id_override:
+        limits['projectId'] = project_id_override
+    elif project:
+        limits['projectId'] = project.id
         project_dir = os.path.join(settings.SPARKLA_PROJECT_ROOT, '{}'.format(project.pk))
         software_session.volumeMounts = [stencila.schema.types.VolumeMount('/project', mountSource=project_dir)]
 
-    if project_id_override:
-        limits['project_id'] = project_id_override
-
-    limits['user']['session'] = to_dict(software_session)
+    limits['session'] = to_dict(software_session)
 
     return jwt_encode(limits, jwt_secret)
 
