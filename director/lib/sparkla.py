@@ -39,11 +39,8 @@ def to_dict(node: stencila.schema.types.Entity) -> typing.Any:
     return node_dict
 
 
-def generate_jwt(user_id: str, environment_id: SparklaEnvironment = DEFAULT_ENVIRONMENT,
+def generate_jwt(jwt_secret: str, url: str, user_id: str, environment_id: SparklaEnvironment = DEFAULT_ENVIRONMENT,
                  project: typing.Optional[Project] = None, project_id_override: typing.Optional[str] = None) -> str:
-    if not settings.SPARKLA_JWT_SECRET:
-        raise ValueError('SPARKLA_JWT_SECRET is empty.')
-
     if not settings.SPARKLA_PROJECT_ROOT:
         raise ValueError('SPARKLA_PROJECT_ROOT is empty.')
 
@@ -51,8 +48,11 @@ def generate_jwt(user_id: str, environment_id: SparklaEnvironment = DEFAULT_ENVI
 
     software_session = stencila.schema.types.SoftwareSession(environment=environment)
 
-    limits = {
-        'uid': user_id,
+    limits: typing.Dict[str, typing.Any] = {
+        'url': url,
+        'user': {
+            'id': user_id
+        }
     }
 
     if project:
@@ -63,44 +63,22 @@ def generate_jwt(user_id: str, environment_id: SparklaEnvironment = DEFAULT_ENVI
     if project_id_override:
         limits['project_id'] = project_id_override
 
-    limits['session'] = to_dict(software_session)
+    limits['user']['session'] = to_dict(software_session)
 
-    return jwt_encode(limits, settings.SPARKLA_JWT_SECRET)
+    return jwt_encode(limits, jwt_secret)
 
 
 def generate_manifest(user_id: str, environment_id: SparklaEnvironment = DEFAULT_ENVIRONMENT,
                       project: typing.Optional[Project] = None,
-                      project_id_override: typing.Optional[str] = None) -> dict:
+                      project_id_override: typing.Optional[str] = None) -> typing.List[typing.Dict[str, str]]:
     """Generate a manifest for Sparkla, using the environment, project and user_id to generate the JWT it includes."""
-    if not settings.SPARKLA_HOST:
-        raise ValueError('SPARKLA_HOST setting is empty.')
+    if not settings.EXECUTA_HOSTS:
+        raise ValueError('EXECUTA_HOSTS setting is empty.')
 
-    return {
-        'capabilities': {
-            'execute': {
-                'required': ['node'],
-                'properties': {
-                    'node': {
-                        'type': 'object',
-                        'required': ['type', 'programmingLanguage'],
-                        'properties': {
-                            'type': {
-                                'enum': ['CodeChunk', 'CodeExpression']
-                            },
-                            'programmingLanguage': {
-                                'enum': ['python', 'r']
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        'addresses': {
-            'ws': {
-                'type': 'ws',
-                'host': settings.SPARKLA_HOST,
-                'port': settings.SPARKLA_PORT,
-                'jwt': generate_jwt(user_id, environment_id, project, project_id_override)
-            }
+    return [
+        {
+            'url': url,
+            'jwt': generate_jwt(jwt_secret, url, user_id, environment_id, project, project_id_override)
         }
-    }
+        for url, jwt_secret in settings.EXECUTA_HOSTS
+    ]

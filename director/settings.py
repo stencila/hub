@@ -280,10 +280,8 @@ class Common(Configuration):
     STENCILA_CLIENT_USER_AGENT = values.Value('Stencila Hub HTTP Client')
     INTERCOM_ACCESS_TOKEN = values.Value('')
 
-    SPARKLA_HOST = values.Value('')
-    SPARKLA_JWT_SECRET = values.Value('')
+    EXECUTA_HOSTS = values.SingleNestedTupleValue('')
     SPARKLA_PROJECT_ROOT = values.Value('')
-    SPARKLA_PORT = values.IntegerValue(9000)
 
     REST_FRAMEWORK = {
         'DEFAULT_PERMISSION_CLASSES': (

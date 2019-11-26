@@ -1,4 +1,5 @@
 import json
+import typing
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -53,23 +54,33 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ManifestView(ProjectPermissionsMixin, View):
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+    def dispatch(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         if request.user.is_anonymous or not request.user.is_staff:
             raise PermissionDenied
 
         project = self.get_project(request.user, pk)
 
-        json_rpc = json.loads(request.body)
+        json_rpc_response = False
 
-        if json_rpc.get('method') != 'manifest':
-            raise ValueError('Request is not for manifest')
+        if request.method == 'POST':
+            json_rpc_response = True
+
+            json_rpc = json.loads(request.body)
+
+            if json_rpc.get('method') != 'manifest':
+                raise ValueError('Request is not for manifest')
 
         manifest = generate_manifest('{}'.format(request.user.id), project=project)
 
-        response = {
-            'jsonrpc': '2.0',
-            'result': manifest,
-            'id': json_rpc['id']
-        }
+        response: typing.Any = None
 
-        return JsonResponse(response)
+        if json_rpc_response:
+            response = {
+                'jsonrpc': '2.0',
+                'result': manifest,
+                'id': json_rpc['id']
+            }
+        else:
+            response = manifest
+
+        return JsonResponse(response, safe=False)
