@@ -10,5 +10,5 @@ urlpatterns = [
     path('<int:pk>/item-move', DiskItemMoveView.as_view(), name='api_v1_project_item_move'),
     path('<int:pk>/item-remove', DiskItemRemoveView.as_view(), name='api_v1_project_item_remove'),
     path('<int:pk>/sources/link', SourceLinkView.as_view(), name='api_v1_sources_link'),
-    path('<int:pk>/manifest', ManifestView.as_view(), name='api_v1_project_manifest')
+    path('<int:pk>/manifest/', ManifestView.as_view(), name='api_v1_project_manifest')
 ]
