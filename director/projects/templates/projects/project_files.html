@@ -92,12 +92,12 @@
 {% endblock %}
 {% block project_content %}
     <script>
+      const g_filePullUrl = "{% url 'project_pull' project.id %}"
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
       const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
     </script>
     <div id="file-browser" ref="file-browser-root"
-         data-file-pull-url="{% url 'project_pull' project.id %}"
          data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
          data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
          data-item-remove-url="{% url 'api_v1_project_item_remove' project.id %}">

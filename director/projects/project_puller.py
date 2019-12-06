@@ -6,10 +6,11 @@ from django.contrib import messages
 from django.http import HttpRequest
 from django.utils import timezone
 
+from lib.resource_allowance import get_directory_size, StorageLimitExceededException
 from projects.project_models import Project, ProjectEvent, ProjectEventType
 from projects.source_content_facade import make_source_content_facade
 from projects.source_item_models import DirectoryEntryType
-from projects.source_models import LinkedSourceAuthentication
+from projects.source_models import LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, generate_project_storage_directory, \
     utf8_path_join, utf8_path_exists, utf8_isdir, utf8_unlink, to_utf8, utf8_makedirs
 
@@ -25,13 +26,16 @@ class ProjectSourcePuller(object):
     target_directory: str
     authentication: LinkedSourceAuthentication
     request: HttpRequest
+    storage_limit: int
+    current_storage: typing.Optional[int] = None
 
     def __init__(self, project: Project, target_directory: str, authentication: LinkedSourceAuthentication,
-                 request: HttpRequest) -> None:
+                 request: HttpRequest, storage_limit: int) -> None:
         self.project = project
         self.target_directory = target_directory
         self.authentication = authentication
         self.request = request
+        self.storage_limit = storage_limit
 
     @property
     def project_directory(self) -> str:
@@ -60,6 +64,9 @@ class ProjectSourcePuller(object):
 
         Will create directories and files in `sub_directory`, then recurse into directories to repeat the pull.
         """
+        if self.current_storage is None:
+            self.current_storage = self.project_directory_size
+
         dir_list = list_project_virtual_directory(self.project, sub_directory, self.authentication, only_file_sources)
 
         working_directory = sub_directory or ''
@@ -75,6 +82,17 @@ class ProjectSourcePuller(object):
                 utf8_makedirs(output_path, exist_ok=True)
             else:
                 scf = make_source_content_facade(self.request.user, entry.path, entry.source, self.project)
+
+                if self.storage_limit != -1:
+                    if isinstance(entry.source, DiskSource):
+                        source_size = 0
+                    else:
+                        source_size = scf.get_size()
+
+                    if source_size + self.current_storage > self.storage_limit:
+                        raise StorageLimitExceededException()
+
+                    self.current_storage += source_size
 
                 if utf8_path_exists(output_path) and utf8_isdir(output_path):
                     shutil.rmtree(to_utf8(output_path))  # remove path if it is a directory
@@ -92,3 +110,7 @@ class ProjectSourcePuller(object):
 
         for directory in directory_entries:
             self.pull_directory(utf8_path_join(working_directory, directory.name))
+
+    @property
+    def project_directory_size(self) -> int:
+        return get_directory_size(self.project_directory)

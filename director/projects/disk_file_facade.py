@@ -1,7 +1,9 @@
+import os
 import shutil
 import typing
 from enum import Enum
 
+from lib.resource_allowance import get_directory_size
 from projects.project_models import Project
 from projects.source_operations import generate_project_storage_directory, relative_path_join, utf8_path_exists, \
     utf8_makedirs, to_utf8, utf8_isdir, utf8_unlink, utf8_path_join, utf8_basename, utf8_rename, utf8_dirname
@@ -90,3 +92,9 @@ class DiskFileFacade(object):
         full_path = self.generate_full_file_path(relative_path)
 
         return ItemType.FOLDER if utf8_isdir(full_path) else ItemType.FILE
+
+    def get_size(self, relative_path: str) -> int:
+        return os.path.getsize(self.generate_full_file_path(relative_path))
+
+    def get_project_directory_size(self) -> bool:
+        return get_directory_size(self.project_storage_directory)

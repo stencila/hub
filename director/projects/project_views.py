@@ -19,7 +19,8 @@ from github import RateLimitExceededException
 
 from accounts.db_facade import user_is_account_admin
 from accounts.models import Team, Account
-from lib.resource_allowance import QuotaName, resource_limit_met, get_subscription_upgrade_text
+from lib.resource_allowance import QuotaName, resource_limit_met, get_subscription_upgrade_text, \
+    StorageLimitExceededException, account_resource_limit
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
@@ -177,7 +178,10 @@ class ProjectPermissionsMixin(object):
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
-        return ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request)
+        storage_limit = typing.cast(int, account_resource_limit(self.project.account, QuotaName.STORAGE_LIMIT))
+
+        return ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request,
+                                   storage_limit)
 
 
 class FilterOption(typing.NamedTuple):
@@ -343,7 +347,18 @@ class ProjectPullView(ProjectPermissionsMixin, View):
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         puller = self.get_project_puller(request, pk)
-        puller.pull()
+        try:
+            puller.pull()
+        except StorageLimitExceededException:
+            is_account_admin = user_is_account_admin(self.request.user, self.project.account)
+            subscription_upgrade_text = get_subscription_upgrade_text(is_account_admin, self.project.account)
+
+            messages.error(request,
+                           'Could not pull the remote sources for this project, as it would exceed the storage limit '
+                           'for the account <em>{}</em>. {}'.format(
+                               escape(self.project.account), subscription_upgrade_text), extra_tags='safe'
+                           )
+            return JsonResponse({'success': False, 'reload': True})
         return JsonResponse({'success': True})
 
 

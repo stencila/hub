@@ -1,11 +1,13 @@
 import enum
 import json
 import typing
+from pathlib import Path
 
 from django.urls import reverse
 from djstripe.models import Subscription
 
 from accounts.models import Account, AccountSubscription, ProductResourceAllowance, Team
+from lib import data_size
 from projects.project_models import Project
 
 
@@ -34,16 +36,26 @@ class QuotaName(enum.Enum):
     MAX_CLIENTS_PER_SESSION = 'max_clients_per_session'
     SESSION_CPU_LIMIT = 'session_cpu_limit'
     SESSION_MEMORY_LIMIT = 'session_memory_limit'
+    STORAGE_LIMIT = 'storage_limit'
 
 
 QUOTA_DEFAULTS = {
     QuotaName.MAX_PROJECTS: 10,
     QuotaName.MAX_TEAMS: 1,
-    QuotaName.MAX_SESSION_DURATION: 60 * 30,
+    QuotaName.MAX_SESSION_DURATION: 60 * 30,  # 30 mins
     QuotaName.MAX_CLIENTS_PER_SESSION: 2,
     QuotaName.SESSION_CPU_LIMIT: 10,
-    QuotaName.SESSION_MEMORY_LIMIT: 1073741824  # bytes
+    QuotaName.SESSION_MEMORY_LIMIT: data_size.to_bytes(1, data_size.Units.GB),
+    QuotaName.STORAGE_LIMIT: data_size.to_bytes(20, data_size.Units.MB)
 }
+
+
+class QuotaExceededException(Exception):
+    pass
+
+
+class StorageLimitExceededException(QuotaExceededException):
+    pass
 
 
 def active_subscriptions(account: Account) -> typing.List[Subscription]:
@@ -129,3 +141,13 @@ def resource_limit_met(account: Account, name: QuotaName) -> bool:
     current_value = current_resource_amount(account, name)
 
     return current_value >= resource_limit
+
+
+def get_directory_size(path: str):
+    """
+    Get the size of the `path`, in bytes.
+
+    Does not take into account the size of the directory entries or symlinks (which we shouldn't have) but is close
+    enough for our quota purposes.
+    """
+    return sum(f.stat().st_size for f in Path(path).glob('**/*') if f.is_file())

@@ -52,6 +52,9 @@ class GitHubFacade(object):
         f = self.repository.get_contents(relative_path)
         self.repository.update_file(f.path, commit_message, content, f.sha)
 
+    def get_size(self, relative_path: str) -> int:
+        return self.repository.get_contents(relative_path).size
+
     @property
     def allows_editing(self) -> bool:
         """

@@ -1,6 +1,6 @@
 import unittest
 
-from director.scripts.anonymize_test_emails import anonymize_email
+from scripts.anonymize_test_emails import anonymize_email
 
 
 class AnonymizeTestEmailsTest(unittest.TestCase):

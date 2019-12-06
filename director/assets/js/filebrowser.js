@@ -45,7 +45,7 @@ function extensionFromType (type) {
     return '.jats.xml'
   }
 
-  if(['md', 'html', 'docx', 'rmd', 'ipynb'].indexOf(type) !== -1) {
+  if (['md', 'html', 'docx', 'rmd', 'ipynb'].indexOf(type) !== -1) {
     return `.${type}`
   }
 
@@ -178,7 +178,7 @@ Vue.component('item-action-menu', {
       return this.hasConvertActions && this.hasFileManageActions
     },
     convertTargets () {
-      if(!this.hasEditPermission) {
+      if (!this.hasEditPermission) {
         return []
       }
 
@@ -1013,7 +1013,7 @@ const g_actionBar = new Vue({
     },
     pullFiles () {
       this.pullInProgress = true
-      fetch(this.filePullUrl, {
+      fetch(g_filePullUrl, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1023,6 +1023,10 @@ const g_actionBar = new Vue({
       }).then(
         response => {
           this.pullInProgress = false
+          response.json().then(data => {
+            if (data.success === false && data.reload === true)
+              window.location = window.location
+          })
         },
         failureResponse => {
           this.pullInProgress = false
@@ -1046,7 +1050,6 @@ const g_actionBar = new Vue({
         } else if (providerTypeId === 'github') {
           providerTypeName = 'Github'
         }
-
 
         fileBrowser.$root.$emit('unsupported-social-provider-modal-show', providerTypeName)
         return false
@@ -1107,7 +1110,7 @@ const g_actionBar = new Vue({
         if (el.tagName === 'BUTTON' || (typeof el.classList !== 'undefined' && el.classList.contains('dropdown-trigger'))) {
           return
         }
-      }while((el = el.parentNode) != null)
+      } while ((el = el.parentNode) != null)
       this.resetMenus()
     }
   },

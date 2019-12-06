@@ -12,13 +12,18 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
+from django.utils.html import escape
 from django.views import View
 from django.views.generic import CreateView, DetailView
 
+from accounts.db_facade import user_is_account_admin
+from lib import data_size
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
 from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path, \
     conversion_format_from_mimetype, conversion_format_from_path
 from lib.google_docs_facade import GoogleDocsFacade
+from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
+    get_subscription_upgrade_text
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
@@ -171,6 +176,9 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
+        storage_limit = typing.cast(int, account_resource_limit(project.account, QuotaName.STORAGE_LIMIT))
+        actual_storage_used = storage_used = 0 if storage_limit == -1 else dff.get_project_directory_size()
+
         respond_with_json = request.META.get('HTTP_ACCEPT') == 'application/json'
 
         error = None
@@ -178,6 +186,19 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
         try:
             if directory:
                 dff.create_directory(directory)
+
+            if storage_limit != -1:
+                for file in files:
+                    storage_used += file.size
+                    if storage_used > storage_limit:
+                        plural = 's' if len(files) != 1 else ''
+                        raise StorageLimitExceededException(
+                            'The file{} could not be saved as it would exceed the storage limit for the account "{}". '
+                            'The current limit is {}, you have used {}. Please visit the Account Subscriptions page '
+                            'to add or upgrade a subscription'.format(
+                                plural, project.account, data_size.to_human(storage_limit),
+                                data_size.to_human(actual_storage_used))
+                        )
 
             for file in files:
                 dff.write_file_content(utf8_path_join(directory, file.name), file.read())
@@ -295,16 +316,39 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
-    def perform_post(self, request: HttpRequest, project_pk: int, path: str, content_facade: SourceContentFacade):
+    def perform_post(self, request: HttpRequest, project_pk: int, path: str,
+                     content_facade: SourceContentFacade) -> HttpResponse:
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
-        update_success = content_facade.update_content(request.POST['file_content'], commit_message)
+
+        storage_limit = account_resource_limit(self.project.account, QuotaName.STORAGE_LIMIT)
+
+        update_success = None
+        content_override = None
+
+        if storage_limit != -1 and isinstance(content_facade.source, DiskSource):
+            old_size = content_facade.get_size()
+            new_size = len(request.POST['file_content'])
+            if new_size > old_size:
+                storage_used = content_facade.disk_file_facade.get_project_directory_size()
+                is_account_admin = user_is_account_admin(self.request.user, self.project.account)
+                subscription_upgrade_text = get_subscription_upgrade_text(is_account_admin, self.project.account)
+
+                if (new_size - old_size) + storage_used > storage_limit:
+                    message = 'The file content could not be saved as it would exceed the storage limit for the ' \
+                              'account <em>{}</em>. {}'.format(escape(self.project.account), subscription_upgrade_text)
+                    messages.error(request, message, extra_tags='safe')
+                    update_success = False
+                    content_override = request.POST['file_content']
+
+        if update_success is None:
+            update_success = content_facade.update_content(request.POST['file_content'], commit_message)
 
         error_exists = content_facade.error_exists
 
         content_facade.add_messages_to_request(request)
 
         if error_exists or not update_success:
-            edit_context = content_facade.get_edit_context()
+            edit_context = content_facade.get_edit_context(content_override)
 
             if edit_context is None or content_facade.error_exists:
                 content_facade.add_messages_to_request(self.request)

@@ -54,6 +54,11 @@ class SourceContentFacade(object):
     github_facade: typing.Optional[GitHubFacade]
     google_docs_facade: typing.Optional[GoogleDocsFacade]
     encoding: str
+    size: typing.Optional[int] = None
+
+    # use content_cache to prevent us doing two calls when getting the size of a file that is just calculated by
+    # fetching its content then reading its length
+    content_cache: typing.Optional[typing.Union[dict, bytes]]
 
     def __init__(self, file_path: str, source: typing.Union[Source, DiskSource],
                  disk_file_facade: DiskFileFacade,
@@ -91,7 +96,19 @@ class SourceContentFacade(object):
 
         raise TypeError('Don\'t know how to get binary content for source type \'{}\''.format(type(self.source)))
 
-    def get_edit_context(self) -> typing.Optional[SourceEditContext]:
+    def get_size(self) -> int:
+        if self.size is None:
+            if isinstance(self.source, GithubSource):
+                self.size = self.get_github_source_size()
+            elif isinstance(self.source, DiskSource):
+                self.size = self.get_disk_source_size()
+            elif isinstance(self.source, GoogleDocsSource):
+                self.size = self.get_google_docs_size()
+            else:
+                raise TypeError('Don\'t know how to get size for source type \'{}\''.format(type(self.source)))
+        return self.size
+
+    def get_edit_context(self, content_override: typing.Optional[str] = None) -> typing.Optional[SourceEditContext]:
         supports_commit_message = False
 
         if isinstance(self.source, GithubSource):
@@ -106,7 +123,7 @@ class SourceContentFacade(object):
             raise TypeError('Don\'t know how to get EditContext for source type \'{}\''.format(type(self.source)))
 
         _, ext = splitext(self.file_path.lower())
-        content = self.get_content()
+        content = content_override or self.get_content()
 
         if not isinstance(content, (str, bytes)):
             if content is None and self.error_exists:
@@ -153,6 +170,14 @@ class SourceContentFacade(object):
 
         path_in_repo = self.get_github_repository_path()
         return self.github_facade.get_binary_file_content(path_in_repo)
+
+    @rate_limit_decorator
+    def get_github_source_size(self) -> int:
+        if not self.github_facade:
+            raise TypeError('Can\'t continue, GithubFacade not set.')
+
+        path_in_repo = self.get_github_repository_path()
+        return self.github_facade.get_size(path_in_repo)
 
     def get_github_repository_path(self) -> str:
         source = typing.cast(GithubSource, self.source)
@@ -204,20 +229,28 @@ class SourceContentFacade(object):
     def get_disk_source_binary_content(self) -> bytes:
         return self.disk_file_facade.read_file_content(self.file_path)
 
+    def get_disk_source_size(self) -> int:
+        return self.disk_file_facade.get_size(self.file_path)
+
     # Google Docs
     def get_google_docs_source_content(self) -> dict:
-        if not self.google_docs_facade:
-            raise TypeError('Can\'t continue, GithubFacade not set.')
+        if not self.content_cache:
+            if not self.google_docs_facade:
+                raise TypeError('Can\'t continue, GithubFacade not set.')
 
-        if not isinstance(self.source, GoogleDocsSource):
-            raise TypeError('Attempting to get Google Docs content from a non GoogleDocsSource')
+            if not isinstance(self.source, GoogleDocsSource):
+                raise TypeError('Attempting to get Google Docs content from a non GoogleDocsSource')
 
-        return self.google_docs_facade.get_document(self.source.doc_id)
+            self.content_cache = self.google_docs_facade.get_document(self.source.doc_id)
+        return typing.cast(dict, self.content_cache)
 
     def get_google_docs_source_binary_content(self) -> bytes:
         doc = self.get_google_docs_source_content()
 
         return json.dumps(doc).encode(self.encoding)
+
+    def get_google_docs_size(self) -> int:
+        return len(self.get_google_docs_source_binary_content())
 
     def get_name(self) -> str:
         """Get the name of the source (i.e. basename)."""
@@ -225,11 +258,11 @@ class SourceContentFacade(object):
 
     @property
     def error_exists(self) -> bool:
-        try:
-            filter(lambda m: m.level == message_constants.ERROR, self.messages)
-        except StopIteration:
-            return False
-        return True
+        for message in self.messages:
+            if message.level == message_constants.ERROR:
+                return True
+
+        return False
 
     def add_messages_to_request(self, request: HttpRequest) -> None:
         for message in self.message_iterator():
