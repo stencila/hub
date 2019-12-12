@@ -41,7 +41,7 @@ class QuotaName(enum.Enum):
 
 QUOTA_DEFAULTS = {
     QuotaName.MAX_PROJECTS: 10,
-    QuotaName.MAX_TEAMS: 1,
+    QuotaName.MAX_TEAMS: 0,
     QuotaName.MAX_SESSION_DURATION: 60 * 30,  # 30 mins
     QuotaName.MAX_CLIENTS_PER_SESSION: 2,
     QuotaName.SESSION_CPU_LIMIT: 10,
