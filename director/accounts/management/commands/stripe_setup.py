@@ -37,7 +37,7 @@ def remote_product_cleanup():
 def remote_plan_cleanup():
     """Go through the remote plans and remove thos that are not in the local list of plans."""
     for remote_plan in Plan.api_list():
-        if remote_plan['nickname'] not in PLAN_NAMES:
+        if remote_plan['nickname'] in PLAN_NAMES:
             active = True
         else:
             active = False

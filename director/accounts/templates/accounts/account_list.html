@@ -1,41 +1,41 @@
 {% extends 'base.html' %}
-{% block title %}Account {{account.pk}} : Teams{% endblock %}
+{% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
-<div class="columns is-centered">
-    <div class="column is-three-quarters">
-        <div class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    <h2 class="title">Accounts</h2>
-                </div>
-            </div>
-            <div class="level-right">
-                <p class="level-item">
-                    <a class="button is-primary" href="{% url 'account_create' %}">
-                        <span class="icon"><i class="fas fa-plus"></i></span>
-                        <span>New Account</span>
-                    </a>
-                </p>
-            </div>
-        </div>
-        <div class="level-list">
-            {% for account_role in object_list %}
+    <div class="columns is-centered">
+        <div class="column is-three-quarters">
             <div class="level">
                 <div class="level-left">
-                    <a class="is-uppercase-heading" href="{% url 'account_profile' account_role.account.id %}" title="Open">
-                        {{ account_role.account }}
-                    </a>
+                    <div class="level-item">
+                        <h2 class="title">Accounts</h2>
+                    </div>
                 </div>
                 <div class="level-right">
-                    <p class="is-size-7">{{ account_role.role }}</p>
+                    <p class="level-item">
+                        <a class="button is-primary" href="{% url 'account_create' %}">
+                            <span class="icon"><i class="fas fa-plus"></i></span>
+                            <span>New Account</span>
+                        </a>
+                    </p>
                 </div>
             </div>
-            {% empty %}
-            <div class="column">
-                <div class="notification is-warning">You are not a member of any accounts</div>
-            </div>
-            {% endfor %}
+            <table class="table is-fullwidth is-item-list">
+                <tbody>
+                {% for account_role in object_list %}
+                    <tr>
+                        <td>
+                            <a class="is-uppercase-heading" href="{% url 'account_profile' account_role.account.id %}"
+                               title="{{ account_role.account }}">
+                                {{ account_role.account }}
+                            </a>
+                            <p class="is-size-7">{{ account_role.role }}</p>
+                        </td>
+                        <td class="has-text-right">
+                            {{ account_role.account.plan.product.name }} Plan
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 {% endblock %}

@@ -26,5 +26,6 @@ FREE_PRODUCT = {
 }
 
 FREE_PLAN = {
-    'price_description': 'Free'
+    'price_description': 'Free',
+    'product': FREE_PRODUCT
 }

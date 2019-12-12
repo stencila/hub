@@ -21474,6 +21474,18 @@ body, html {
   padding: 10px 0;
 }
 
+table.is-item-list td {
+  padding: 20px 0;
+}
+
+table.is-item-list a {
+  color: #363636;
+}
+
+table.is-item-list a:hover {
+  color: #2568ef;
+}
+
 .level-list .level {
   padding: 20px 0;
   margin-bottom: 0;

@@ -80,6 +80,16 @@ class Account(models.Model):
     def __str__(self) -> str:
         return self.name if self.name else 'Account #{}'.format(self.pk)
 
+    @property
+    def plan(self) -> typing.Union[djstripe.models.Plan, dict]:
+        subscription = self.subscriptions.filter(subscription__status='active').first()
+
+        if subscription is None:
+            from accounts.static_product_config import FREE_PLAN
+            return FREE_PLAN
+
+        return subscription.subscription.plan
+
 
 class Team(models.Model):
     """
