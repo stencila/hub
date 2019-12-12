@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import include, path, re_path
 
 from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView,
@@ -48,7 +49,6 @@ urlpatterns = [
     path('<int:pk>/sharing/roles', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
     path('<int:pk>/settings/metadata', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
-    path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions'),
     path('<int:pk>/archives', ProjectArchiveView.as_view(), name='project_archives'),
     path('<int:pk>/archives/<name>', ProjectNamedArchiveDownloadView.as_view(), name='project_named_archive_download'),
 
@@ -83,3 +83,8 @@ urlpatterns = [
     # path('files/<int:pk>/upload/', FilesSourceUploadView.as_view(), name='filesproject_upload'),
     # path('files/<int:pk>/remove/<int:file>/', FilesProjectRemoveView.as_view(), name='filesproject_remove'),
 ]
+
+if settings.FEATURES['PROJECT_SESSION_SETTINGS']:
+    urlpatterns.append(
+        path('<int:pk>/settings/sessions', ProjectSettingsSessionsView.as_view(), name='project_settings_sessions')
+    )

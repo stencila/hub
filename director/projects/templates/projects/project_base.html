@@ -40,9 +40,11 @@
                 <a href="{% url 'project_settings_access' project.pk %}" class="panel-block{% if project_subtab == 'access' %} is-active{% endif %}">
                     Access
                 </a>
-                <a href="{% url 'project_settings_sessions' project.pk %}" class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">
-                    Sessions
-                </a>
+                {% if FEATURE_PROJECT_SESSION_SETTINGS %}
+                    <a href="{% url 'project_settings_sessions' project.pk %}" class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">
+                        Sessions
+                    </a>
+                {% endif %}
             </div>
             {% endif %}
         </nav>

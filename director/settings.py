@@ -103,7 +103,8 @@ class Common(Configuration):
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
-                    'lib.template_context_processors.sentry_js_url'
+                    'lib.template_context_processors.sentry_js_url',
+                    'lib.template_context_processors.feature_toggle'
                 ],
             },
         },
@@ -300,6 +301,11 @@ class Common(Configuration):
     STRIPE_TEST_SECRET_KEY = values.Value('sk_test_test')  # Leaving this blank causes issues running Django
     STRIPE_LIVE_MODE = values.BooleanValue(False)
     DJSTRIPE_WEBHOOK_VALIDATION = None
+
+    # Rudimentary feature toggle
+    FEATURES = {
+        'PROJECT_SESSION_SETTINGS': False
+    }
 
 
 class Dev(Common):
