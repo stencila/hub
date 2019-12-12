@@ -6,7 +6,7 @@ from pathlib import Path
 from django.urls import reverse
 from djstripe.models import Subscription
 
-from accounts.models import Account, AccountSubscription, ProductResourceAllowance, Team
+from accounts.models import Account, AccountSubscription, ProductExtension, Team
 from lib import data_size
 from projects.project_models import Project
 
@@ -71,10 +71,10 @@ def account_resource_allowance(account: Account) -> dict:
                                                   subscription__status__in=('active', 'trialing')).values(
         'subscription__plan__product')
 
-    prs = ProductResourceAllowance.objects.filter(
+    product_extensions = ProductExtension.objects.filter(
         product__in=[product['subscription__plan__product'] for product in products])
 
-    for pr in prs:
+    for pr in product_extensions:
         allowances: dict = json.loads(pr.allowances)
 
         for k, v in allowances.items():

@@ -5,38 +5,45 @@
     <div class="columns">
         {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
         <section class="column">
-            <p class="title is-capitalized">Subscribe</p>
-            {% for product, plan, is_subscribed  in product_plans %}
-                <div class="box">
-                    <div class="media-content">
-                        <div class="content">
-                            <p>
-                                <strong>
-                                    {{ product.name }}
-                                </strong>
-                                <br/>
-                                {{ product.description }}
-                            </p>
-                        </div>
-                    </div>
-                    <nav class="level is-mobile">
-                        <div class="level-left">
+            <p class="title is-capitalized">Select your Plan</p>
+            <p class="has-bottom-margin">Choose the plan that fits your needs best.</p>
+            <div class="columns">
+                {% for product, plan, is_subscribed  in product_plans %}
+                    <div class="column">
+                        <div class="box">
+                            <div class="media-content">
+                                <div class="content">
+                                    <p>
+                                    <h4 class="title is-4">
+                                        {{ product.name }}
+                                    </h4>
+                                    <h5 class="subtitle is-5">{{ product.extension.tag_line }}</h5>
+                                    <br/>
+                                    </p>
+                                </div>
+                            </div>
+                            {{ product.description|safe }}
+                            <nav class="level is-mobile">
+                                <div class="level-left">
                             <span class="level-item">
-                            ${{ plan.amount }} per {{ plan.interval }}
-                            </span>
-                            {%  if is_subscribed %}
-                                <button class="button is-small is-disabled">Subscribed</button>
+                            {% if plan.price_description %}
+                                {{ plan.price_description }}
                             {% else %}
-                            <a class="level-item">
+                                ${{ plan.amount }} per {{ plan.interval }}
+                            {% endif %}
+                            </span>
+                                </div>
+                            </nav>
+                            {% if is_subscribed %}
+                                <button class="button is-disabled">Subscribed</button>
+                            {% else %}
                                 <a href="{% url 'account_subscriptions_add' account.pk plan.pk %}"
-                                   class="button is-small">Subscribe</a>
-                            </a>
+                                   class="button is-primary">Subscribe</a>
                             {% endif %}
                         </div>
-                    </nav>
-                    <p>
-                </div>
-            {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
         </section>
     </div>
 {% endblock %}

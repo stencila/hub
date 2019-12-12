@@ -99,10 +99,15 @@
     <div class="columns">
         {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
         <section class="column">
+            <p class="title is-capitalized">Subscription Purchase: {{ plan }}</p>
+            <div class="stacked-item">
+                <p>You are subscribing the account <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
+            </div>
             <div class="stacked-item">
                 <h4 class="title is-4">1. Select Email Address</h4>
+                <p>This is the email address that will be used for communication (for example, invoices) by our payment processor.</p>
                 <div class="field">
-                    <label class="label" for="account_email">Email Address</label>
+                    <label class="label" for="account_email_select">Email Address</label>
                     <div class="control">
                         <div class="select">
                             <select id="account_email_select">
@@ -125,8 +130,9 @@
                 </article>
             </div>
             <div class="stacked-item">
-                <h4 class="title is-4">3. Pay</h4>
-                <button class="button is-primary" id="stripe-submit">Pay</button>
+                <h4 class="title is-4">3. Subscribe</h4>
+                <p>Your credit card will be charged <strong>${{ plan.amount }}</strong> every <strong>{{ plan.interval }}</strong>.</p>
+                <button class="button is-primary" id="stripe-submit">Subscribe</button>
             </div>
         </section>
     </div>

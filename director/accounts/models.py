@@ -215,11 +215,12 @@ class AccountSubscription(models.Model):
     )
 
 
-class ProductResourceAllowance(models.Model):
-    """Add resource allowance to a `Product` since we don't have control of that model."""
+class ProductExtension(models.Model):
+    """Add extra properties to a `Product` since we don't have control of that model."""
 
-    product = models.OneToOneField(djstripe.models.Product, on_delete=models.PROTECT, related_name='resource_allowance')
+    product = models.OneToOneField(djstripe.models.Product, on_delete=models.PROTECT, related_name='extension')
     allowances = models.TextField(help_text='Allowances granted in JSON format.')  # Another contender for JSONField
+    tag_line = models.TextField(help_text='A short tag line for the product.')
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):

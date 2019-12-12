@@ -11,6 +11,7 @@ from djstripe import settings as djstripe_settings
 from djstripe.models import Product, Plan, Customer, PaymentMethod, Subscription
 
 from accounts.models import AccountPermissionType, AccountSubscription
+from accounts.static_product_config import FREE_PRODUCT, FREE_PLAN
 from accounts.views import AccountPermissionsMixin
 from lib.resource_allowance import account_resource_allowance
 
@@ -22,8 +23,8 @@ class ProductPlan(typing.NamedTuple):
     For easier use in templates.
     """
 
-    product: Product
-    plan: Plan
+    product: typing.Union[Product, dict]
+    plan: typing.Union[Plan, dict]
     is_subscribed: bool
 
 
@@ -42,7 +43,9 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
             if account_subscription.subscription.is_status_current()
         ]
 
-        product_plans = []
+        product_plans = [
+            ProductPlan(FREE_PRODUCT, FREE_PLAN, len(subscription_plans) == 0)
+        ]
 
         for product in products:
             plan = product.plan_set.first()
@@ -123,6 +126,12 @@ class AccountSubscriptionAddView(AccountPermissionsMixin, View):
         plan = get_object_or_404(Plan, pk=plan_pk)
 
         verified_emails = request.user.emailaddress_set.filter(verified=True).order_by('email')
+
+        if verified_emails.count() == 0:
+            messages.error(request, 'You can not sign up for a new subscription as you do not have a verified email '
+                                    'address, please add or verify an email address then return to the subscriptions '
+                                    'page.')
+            return redirect('account_email')
 
         # TODO: If no verified emails, redirect to the email setup page
 
