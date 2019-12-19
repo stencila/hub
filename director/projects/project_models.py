@@ -293,3 +293,10 @@ class ProjectEvent(models.Model):
     @property
     def long_type(self) -> str:
         return PROJECT_EVENT_LONG_TYPE_LOOKUP.get(self.event_type, 'Unknown')
+
+
+class PublishedItem(models.Model):
+    project = models.OneToOneField(Project, on_delete=models.CASCADE, help_text='Project this item belongs to.',
+                                   related_name='published_item')
+    path = models.TextField(blank=False, null=False, help_text='The path to the published file (in HTML format).')
+    slug = models.SlugField(blank=False, null=False, help_text='Slug to be used in the URL.')

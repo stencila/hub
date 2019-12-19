@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404, FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
@@ -23,13 +23,15 @@ from lib.resource_allowance import QuotaName, resource_limit_met, get_subscripti
     StorageLimitExceededException, account_resource_limit
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
+from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects
 from projects.project_puller import ProjectSourcePuller
-from projects.source_models import Source, FileSource, LinkedSourceAuthentication
+from projects.shared import PUBLISHED_FILE_NAME
+from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
     path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
@@ -149,9 +151,15 @@ class ProjectPermissionsMixin(object):
         self.test_required_project_permission()
         return self.project
 
-    def get_source(self, user: AbstractUser, project_pk: int, source_pk: int) -> Source:
+    def get_source(self, user: AbstractUser, project_pk: int, source_pk: typing.Optional[int]) \
+            -> typing.Union[Source, DiskSource]:
         self.perform_project_fetch(user, project_pk)
         self.test_required_project_permission()
+
+        if not source_pk:
+            # assume it's a file source and read from disk
+            return DiskSource()
+
         try:
             return self.project.sources.get(pk=source_pk)
         except Source.DoesNotExist:
@@ -330,7 +338,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         if request.POST.get('action') == 'unlink_source':
             source = self.get_source(request.user, pk, request.POST.get('source_id'))
 
-            if isinstance(source, FileSource):
+            if isinstance(source, (FileSource, DiskSource)):
                 raise TypeError("Can't unlink a File source")
 
             source_description = source.description
@@ -703,7 +711,72 @@ class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin,
 
 
 class ProjectExecutaView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk)
 
         return render(request, 'projects/executa-test.html', {'project': project})
+
+
+class PublishedViewBase(View):
+    @staticmethod
+    def get_file_facade(project: Project, slug: str) -> DiskFileFacade:
+        published_item = project.published_item
+
+        if not published_item:
+            raise Http404
+
+        if published_item.slug != slug:
+            raise Http404
+
+        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+        try:
+            if dff.item_type(PUBLISHED_FILE_NAME) != ItemType.FILE:
+                raise Http404
+        except OSError:
+            raise Http404
+
+        return dff
+
+
+class PublishedView(ProjectPermissionsMixin, PublishedViewBase):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, pk: int, slug: str) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, pk)
+        self.get_file_facade(project, slug)
+
+        return render(request, 'projects/published.html',
+                      self.get_render_context({'slug': slug, 'project_tab': 'published'}))
+
+
+class PublishedContentView(ProjectPermissionsMixin, PublishedViewBase):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, pk: int, slug: str) -> FileResponse:  # type: ignore
+        project = self.get_project(request.user, pk)
+
+        dff = self.get_file_facade(project, slug)
+
+        resp = FileResponse(open(dff.full_file_path(PUBLISHED_FILE_NAME), 'rb'))
+        resp['Content-Type'] = 'text/html'
+        return resp
+
+
+class PublishedMediaView(ProjectPermissionsMixin, PublishedViewBase):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, pk: int, slug: str, media_path: str) -> FileResponse:  # type: ignore
+        project = self.get_project(request.user, pk)
+
+        dff = self.get_file_facade(project, slug)
+
+        media_dir = '{}.media/'.format(PUBLISHED_FILE_NAME)
+
+        if not media_path.startswith(media_dir):
+            raise Http404
+
+        resp = FileResponse(open(dff.full_file_path(media_path), 'rb'))
+        return resp

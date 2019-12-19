@@ -7,7 +7,8 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectActivityView, ProjectSharingView, ProjectRoleUpdateView,
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
-                                    ProjectNamedArchiveDownloadView, ProjectRefreshView, ProjectExecutaView)
+                                    ProjectNamedArchiveDownloadView, ProjectRefreshView, ProjectExecutaView,
+                                    PublishedView, PublishedContentView, PublishedMediaView)
 from projects.source_views import (FileSourceCreateView, FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView, DiskFileSourceUpdateView,
                                    DiskFileSourceDeleteView, DiskFileSourceOpenView, GoogleDocsSourceCreateView,
@@ -51,6 +52,12 @@ urlpatterns = [
     path('<int:pk>/settings/access', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
     path('<int:pk>/archives', ProjectArchiveView.as_view(), name='project_archives'),
     path('<int:pk>/archives/<name>', ProjectNamedArchiveDownloadView.as_view(), name='project_named_archive_download'),
+
+    path('<int:pk>/published/<slug:slug>/', PublishedView.as_view(), name='project_published_view'),
+    path('<int:pk>/published/<slug:slug>/content/', PublishedContentView.as_view(),
+         name='project_published_content_view'),
+    path('<int:pk>/published/<slug:slug>/content/<path:media_path>', PublishedMediaView.as_view(),
+         name='project_published_media_view'),
 
     # Per project Host API
     path('<str:token>/host/', include([

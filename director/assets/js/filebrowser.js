@@ -139,7 +139,7 @@ Vue.component('item-action-menu', {
       required: false,
       default: ''
     },
-    allowMainFileSet: {
+    allowPublish: {
       type: Boolean,
       required: false,
       default: false
@@ -166,7 +166,7 @@ Vue.component('item-action-menu', {
       return this.hasEditPermission && this.convertTargets.length > 0
     },
     hasFileManageActions () {
-      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowMainFileSet
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowPublish
     },
     shouldDisplay () {
       return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
@@ -225,8 +225,8 @@ Vue.component('item-action-menu', {
     startConvert (targetType, targetTypeName) {
       this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
     },
-    setAsMainFile () {
-      this.$root.$emit('set-main-file', this.absolutePath, this.sourceIdentifier)
+    publishFile () {
+      this.$root.$emit('publish-modal-show', this.sourceIdentifier, this.absolutePath)
     }
   },
   template: '' +
@@ -245,7 +245,7 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
-    '      <a v-if="allowMainFileSet" href="#" class="dropdown-item" @click.prevent="setAsMainFile()">Set as Main File</a>' +
+    '      <a v-if="allowPublish" href="#" class="dropdown-item" @click.prevent="publishFile()">Publish&hellip;</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
@@ -638,6 +638,124 @@ Vue.component('convert-modal', {
     '    <footer class="modal-card-foot">' +
     '      <button class="button is-primary" @click.prevent="convert()" :disabled="convertButtonDisabled"  :class="{\'is-loading\': convertInProgress}">Save</button>' +
     '      <button class="button" :disabled="convertInProgress" @click.prevent="hide()">Cancel</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
+Vue.component('publish-modal', {
+  props: {
+    publishUrl: {
+      type: String,
+      required: true
+    },
+    publishedExists: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      sourceName: '',
+      publishInProgress: false,
+      sourceId: null,
+      path: null,
+      slug: null,
+      slugError: null,
+      errorMessage: ''
+    }
+  },
+  methods: {
+    slugifyPath(path) {
+      const splitPath = path.split('/')
+      const fileNameAndExt = splitExt(splitPath[splitPath.length - 1])
+      const fileName = fileNameAndExt[0]
+      const slugChars = /(\s|\w|\d|-|_)/gi
+      return fileName.match(slugChars).join('').replace(/ /g, '-').substring(0, 50).toLowerCase()
+    },
+    show (sourceId, path) {
+      this.slugError = null
+      this.slug = this.slugifyPath(path)
+      this.sourceId = sourceId
+      this.path = path
+      this.visible = true
+    },
+    hide () {
+      if (this.publishInProgress)
+        return
+
+      this.visible = false
+    },
+    publish () {
+      this.publishInProgress = true
+      this.slugError = null
+      fetch(this.publishUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          'source_id': this.sourceId,
+          'path': this.path,
+          'slug': this.slug
+        }),
+        headers: {
+          'X-CSRFToken': utils.cookie('csrftoken'),
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      }).then((response) => {
+        return response.json()
+      }).then(data => {
+        const success = data.success
+        if (success) {
+          window.location = data.url
+          return
+        } else {
+          if(data.errors.slug) {
+            this.slugError = data.errors.slug[0].message
+          } else {
+            alert("An error occurred during publish, please check the console.")
+            console.error(data.errors)
+          }
+        }
+        this.publishInProgress = false
+      }).catch(error => {
+        this.publishInProgress = false
+      })
+    }
+  },
+  mounted () {
+    this.$root.$on('publish-modal-show', (sourceId, path) => {
+      this.show(sourceId, path)
+    })
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">Publish</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <div class="content-container">' +
+    '        <p>' +
+    '          File <em>{{ sourceName }}</em> will be converted to HTML and published for this project.' +
+    '          <span v-if="publishedExists">The existing published file will be replaced.</span>' +
+    '        </p>' +
+    '      </div>' +
+    '      <div class="field">' +
+    '        <div class="control">' +
+    '          <label class="label">Enter a slug to use in the URL</label>' +
+    '          <input class="input is-medium" type="text" placeholder="Slug" v-model="slug">' +
+    '          <p class="help">A slug is used in the URL of your published file and can help with SEO. It must only ' +
+    'contain letters, numbers and dashes.</p>' +
+    '          <p v-if="slugError != null" class="has-text-danger">{{ slugError }}</p>' +
+    '        </div>' +
+    '      </div>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="publish()" :disabled="publishInProgress"  :class="{\'is-loading\': publishInProgress}">Publish</button>' +
+    '      <button class="button" :disabled="publishInProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div>' +
     '</div>'

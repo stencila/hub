@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import Account
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
-from .project_models import Project
+from .project_models import Project, PublishedItem
 
 
 class ProjectCreateForm(ModelFormWithSubmit):
@@ -275,3 +275,28 @@ class ProjectArchiveForm(FormWithSubmit):
             raise ValidationError('Tag may not contain "..", "/", ":" or "\\".')
 
         return self.cleaned_data['tag']
+
+
+class PublishedItemForm(forms.ModelForm):
+    class Meta:
+        model = PublishedItem
+        fields = ['path', 'slug']
+
+    source_id = forms.IntegerField(required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        project = cleaned_data.get('project')
+
+        if not project:
+            return
+
+        source_id = cleaned_data.get('source_id')
+
+        if source_id:
+            source = project.sources.filter(pk=self.cleaned_data['source_id']).first()
+        else:
+            source = None
+
+        if source is None:
+            self.add_error('source_id', 'Source with {} does not exist on this project.'.format(self.cleaned_data))

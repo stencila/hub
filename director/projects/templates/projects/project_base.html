@@ -8,6 +8,12 @@
                 class="panel-block{% if project_tab == 'overview' %} is-active{% endif %}">
                 Overview
             </a>
+            {% if project.published_item %}
+                <a href="{% url 'project_published_view' project.pk project.published_item.slug %}"
+                   class="panel-block{% if project_tab == 'published' %} is-active{% endif %}">
+                   Published
+                </a>
+            {% endif %}
             <a href="{% url 'project_files' project.pk %}"
                 class="panel-block{% if project_tab == 'files' %} is-active{% endif %}">
                 Files

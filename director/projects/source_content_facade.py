@@ -1,4 +1,5 @@
 import json
+import tempfile
 import typing
 from os.path import splitext
 
@@ -10,10 +11,11 @@ from django.contrib.messages import constants as message_constants
 from django.http import HttpRequest
 from github import GithubException, RateLimitExceededException
 
+from lib.conversion_types import ConversionFormatId, conversion_format_from_path, conversion_format_from_mimetype
 from lib.github_facade import GitHubFacade
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_github_token, user_social_token
-from projects.disk_file_facade import DiskFileFacade
+from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.project_models import Project
 from projects.source_models import Source, GithubSource, DiskSource, GoogleDocsSource
 from projects.source_operations import strip_directory, utf8_path_join, utf8_basename
@@ -56,9 +58,11 @@ class SourceContentFacade(object):
     encoding: str
     size: typing.Optional[int] = None
 
+    _source_type: typing.Optional[ConversionFormatId] = None
+
     # use content_cache to prevent us doing two calls when getting the size of a file that is just calculated by
     # fetching its content then reading its length
-    content_cache: typing.Optional[typing.Union[dict, bytes]]
+    content_cache: typing.Optional[typing.Union[dict, bytes]] = None
 
     def __init__(self, file_path: str, source: typing.Union[Source, DiskSource],
                  disk_file_facade: DiskFileFacade,
@@ -268,6 +272,44 @@ class SourceContentFacade(object):
         for message in self.message_iterator():
             messages.add_message(request, message.level, message.message)
 
+    def sync_content(self, temp_file=False) -> str:
+        """
+        Download a remote source's content to disk, and return the absolute path to which the content now exists.
+
+        If the source is a DiskSource, don't do anything as it's already on disk, just verify that it exists and return
+        the path.
+
+        If `temp_file` is `True` then the content is downloaded to a `NamedTemporaryFile`. The temp file is not deleted,
+        but it is closed. The temporary path is returned from this method.
+        """
+        if isinstance(self.source, DiskSource):
+            if self.disk_file_facade.item_type(self.file_path) != ItemType.FILE:
+                raise TypeError('Item at {} is not a file.'.format(self.file_path))
+        else:
+            if temp_file:
+                with tempfile.NamedTemporaryFile(delete=False) as temp_input:
+                    temp_input.write(self.get_binary_content())
+                    return temp_input.name
+
+            content = self.get_binary_content()
+            self.disk_file_facade.write_file_content(self.file_path, content)
+
+        return self.disk_file_facade.full_file_path(self.file_path)
+
+    @property
+    def source_type(self) -> ConversionFormatId:
+        if self._source_type is None:
+            source_mimetype = None
+            if not isinstance(self.source, DiskSource):
+                source_mimetype = self.source.mimetype
+
+            if source_mimetype is None or source_mimetype == 'Unknown':  # don't simplify, mypy will barf 3 lines down
+                self._source_type = conversion_format_from_path(self.file_path)
+            else:
+                self._source_type = conversion_format_from_mimetype(source_mimetype)
+
+        return self._source_type
+
 
 def make_source_content_facade(user: User, file_path: str, source: typing.Union[Source, DiskSource],
                                project: Project) -> SourceContentFacade:
@@ -282,15 +324,14 @@ def make_source_content_facade(user: User, file_path: str, source: typing.Union[
 
         gh_facade = GitHubFacade(source.repo, gh_token)
 
-    gd_facade: typing.Optional[GoogleDocsFacade] = None
+    google_app = SocialApp.objects.filter(provider='google').first()
 
-    if isinstance(source, GoogleDocsSource):
-        source = typing.cast(GoogleDocsSource, source)
-        google_app = SocialApp.objects.filter(provider='google').first()
-
-        if google_app is None:
+    if google_app is None:
+        if isinstance(source, GoogleDocsSource):
+            # it's only a problem if we're working with a Google Docs source
             raise RuntimeError('No Google Docs app set up.')
-
+        gd_facade = None
+    else:
         gd_facade = GoogleDocsFacade(google_app.client_id, google_app.secret, user_social_token(user, 'google'))
 
     return SourceContentFacade(file_path, source, disk_facade, gh_facade, gd_facade)

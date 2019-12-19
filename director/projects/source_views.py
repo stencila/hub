@@ -19,8 +19,7 @@ from django.views.generic import CreateView, DetailView
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
-from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path, \
-    conversion_format_from_mimetype, conversion_format_from_path
+from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
@@ -492,7 +491,103 @@ class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View
         return self.request.GET.get('from', '')
 
 
-class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
+class ConverterMixin:
+    _converter: typing.Optional[ConverterFacade] = None
+
+    @property
+    def converter(self) -> ConverterFacade:
+        if self._converter is None:
+            self._converter = ConverterFacade(settings.STENCILA_BINARY)
+
+        return self._converter
+
+    def do_conversion(self, source_type: ConversionFormatId,
+                      source_path: str,
+                      target_type: ConversionFormatId,
+                      target_path: typing.Optional[str] = None) -> str:
+        """
+        Perform a conversion (with Encoda).
+
+        If `target_path` is not set then a `NamedTemporaryFile` is created and its path returned. The temporary file
+        is not cleaned up.
+        """
+        if not target_path:
+            with tempfile.NamedTemporaryFile(delete=False) as temp_output:
+                target_path = temp_output.name
+
+        converter_input = ConverterIo(ConverterIoType.PATH, source_path, source_type)
+        converter_output = ConverterIo(ConverterIoType.PATH, target_path, target_type)
+
+        convert_result = self.converter.convert(converter_input, converter_output, None)
+
+        if convert_result.returncode != 0:
+            raise RuntimeError('Convert process failed. Stderr is: {}'.format(
+                convert_result.stderr.decode('ascii')))
+
+        return target_path
+
+    def convert_to_google_docs(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_name: str,
+                               target_path: str) -> None:
+        """
+        Convert a document to Google Docs.
+
+        If the document is already in DOCX or HTML format it will just be uploaded, otherwise it is first converted to
+        DOCX. The document is uploaded in DOCX/HTML and Google takes care of converting to Google Docs format.
+        """
+        if scf.source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
+            output_content, output_mime_type = self.convert_source_for_google_docs(scf)
+        else:
+            output_mime_type = mimetype_from_path(scf.file_path) or 'application/octet-stream'
+            output_content = scf.get_binary_content()
+        gdf = scf.google_docs_facade
+
+        if gdf is None:
+            raise TypeError('Google Docs Facade was not set up. Check that app tokens are good.')
+
+        new_doc_id = gdf.create_document(target_name, output_content, output_mime_type)
+        existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
+        new_source = gdf.create_source_from_document(project, utf8_dirname(target_path), new_doc_id)
+        if existing_source is not None:
+            gdf.trash_document(existing_source.doc_id)
+            messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(target_name))
+            existing_source.doc_id = new_source.doc_id
+            existing_source.save()
+        else:
+            new_source.save()
+
+    def convert_source_for_google_docs(self, scf: SourceContentFacade) -> typing.Tuple[bytes, str]:
+        # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
+        temp_output_path = None
+        input_path = None
+        # if the source is not from Disk then the content should be saved to a temp path beforehand
+        use_temp_input_path = not isinstance(scf.source, DiskSource)
+        try:
+            input_path = scf.sync_content(use_temp_input_path)
+
+            temp_output_path = self.do_conversion(scf.source_type, input_path, ConversionFormatId.docx)
+
+            with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
+                output_content = temp_output.read()  # this is in DOCX after conversion
+        finally:
+            if use_temp_input_path and input_path:
+                unlink(input_path)
+
+            if temp_output_path:
+                unlink(temp_output_path)
+        return output_content, DOCX_MIMETYPES[0]
+
+    def source_convert(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_path: str,
+                       target_name: str, target_type: ConversionFormatId) -> None:
+        if target_type == ConversionFormatId.gdoc:
+            self.convert_to_google_docs(request, project, scf, target_name, target_path)
+        else:
+            absolute_input_path = scf.sync_content()
+            absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
+
+            self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path)
+
+
+class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
@@ -508,112 +603,13 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         if '/' in target_name:
             raise ValueError('Target name can not contain /')
 
-        target_type = ConversionFormatId.from_id(target_id)
-
-        google_token = user_social_token(request.user, 'google')
-
-        google_app = SocialApp.objects.filter(provider='google').first()
-        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, google_token)
-
-        if not source_id:
-            # assume it's a file source and read from disk
-            source = DiskSource()
-        else:
-            source = self.get_source(request.user, pk, source_id)
-
+        source = self.get_source(request.user, pk, source_id)
         scf = make_source_content_facade(request.user, source_path, source, project)
 
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        target_path = utf8_path_join(utf8_dirname(source_path), target_name)
+        target_type = ConversionFormatId.from_id(target_id)
 
-        source_dir = utf8_dirname(source_path)
-
-        target_path = utf8_path_join(source_dir, target_name)
-
-        converter = ConverterFacade(settings.STENCILA_BINARY)
-
-        source_mimetype = None
-
-        if not isinstance(source, DiskSource):
-            source_mimetype = source.mimetype
-
-        if source_mimetype is None or source_mimetype == 'Unknown':  # don't simplify, it makes mypy barf 3 lines down
-            source_type = conversion_format_from_path(source_path)
-        else:
-            source_type = conversion_format_from_mimetype(source_mimetype)
-
-        if target_type == ConversionFormatId.gdoc:
-            if source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
-                # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
-                temp_input_path = None
-                temp_output_path = None
-
-                try:
-                    if isinstance(source, DiskSource):
-                        converter_input = ConverterIo(ConverterIoType.PATH, dff.generate_full_file_path(source_path),
-                                                      source_type)
-                    else:
-                        with tempfile.NamedTemporaryFile(delete=False) as temp_input:
-                            temp_input.write(scf.get_binary_content())
-                            temp_input_path = temp_input.name
-
-                        converter_input = ConverterIo(ConverterIoType.PATH, temp_input_path, source_type)
-
-                    with tempfile.NamedTemporaryFile(delete=False) as temp_output:
-                        temp_output_path = temp_output.name
-
-                    converter_output = ConverterIo(ConverterIoType.PATH, temp_output_path, ConversionFormatId.docx)
-
-                    convert_result = converter.convert(converter_input, converter_output, None)
-
-                    if convert_result.returncode != 0:
-                        raise RuntimeError('Convert process failed. Stderr is: {}'.format(
-                            convert_result.stderr.decode('ascii')))
-
-                    with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
-                        output_content = temp_output.read()
-                finally:
-                    if temp_input_path:
-                        unlink(temp_input_path)
-
-                    if temp_output_path:
-                        unlink(temp_output_path)
-                output_mime_type: typing.Optional[str] = DOCX_MIMETYPES[0]
-            else:
-                output_mime_type = mimetype_from_path(source_path)
-                output_content = scf.get_binary_content()
-
-            if output_mime_type is None:
-                output_mime_type = 'application/octet-stream'
-
-            new_doc_id = gdf.create_document(target_name, output_content, output_mime_type)
-
-            existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
-
-            new_source = gdf.create_source_from_document(project, utf8_dirname(target_path), new_doc_id)
-
-            if existing_source is not None:
-                gdf.trash_document(existing_source.doc_id)
-                messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(target_name))
-                existing_source.doc_id = new_source.doc_id
-                existing_source.save()
-            else:
-                new_source.save()
-        else:
-            if not isinstance(source, DiskSource):
-                content = scf.get_binary_content()
-                dff.write_file_content(source_path, content)
-
-            absolute_input_path = dff.generate_full_file_path(source_path)
-            absolute_output_path = dff.generate_full_file_path(target_path)
-
-            converter_input = ConverterIo(ConverterIoType.PATH, absolute_input_path, source_type)
-            converter_output = ConverterIo(ConverterIoType.PATH, absolute_output_path, target_type)
-
-            convert_result = converter.convert(converter_input, converter_output, None)
-
-            if convert_result.returncode != 0:
-                raise RuntimeError('Convert process failed. Stderr is: {}'.format(
-                    convert_result.stderr.decode('ascii')))
+        self.source_convert(request, project, scf, target_path, target_name, target_type)
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)
@@ -623,3 +619,6 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, View):
         return JsonResponse({
             'success': True
         })
+
+
+67
