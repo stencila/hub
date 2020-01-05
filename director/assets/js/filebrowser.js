@@ -667,7 +667,7 @@ Vue.component('publish-modal', {
     }
   },
   methods: {
-    slugifyPath(path) {
+    slugifyPath (path) {
       const splitPath = path.split('/')
       const fileNameAndExt = splitExt(splitPath[splitPath.length - 1])
       const fileName = fileNameAndExt[0]
@@ -710,10 +710,10 @@ Vue.component('publish-modal', {
           window.location = data.url
           return
         } else {
-          if(data.errors.slug) {
+          if (data.errors.slug) {
             this.slugError = data.errors.slug[0].message
           } else {
-            alert("An error occurred during publish, please check the console.")
+            alert('An error occurred during publish, please check the console.')
             console.error(data.errors)
           }
         }
@@ -906,6 +906,12 @@ Vue.component('upload-progress-modal', {
     '</div>'
 })
 
+function linkSource (sourceLinkUrl, sourceType, directory, postParameters, callback) {
+  postParameters['source_type'] = sourceType
+  postParameters['directory'] = directory
+  jsonFetch(sourceLinkUrl, postParameters, callback)
+}
+
 Vue.component('googledocs-link-modal', {
   props: {
     directory: {
@@ -945,11 +951,7 @@ Vue.component('googledocs-link-modal', {
       }
 
       this.inProgress = true
-      jsonFetch(this.sourceLinkUrl, {
-        document_id: this.docIdOrUrl,
-        source_type: 'gdoc',
-        directory: this.directory
-      }, (success, errorMessage) => {
+      linkSource(this.sourceLinkUrl, 'gdoc', this.directory, {document_id: this.docIdOrUrl}, (success, errorMessage) => {
         this.inProgress = false
         if (success) {
           location.reload()
@@ -981,6 +983,86 @@ Vue.component('googledocs-link-modal', {
     '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '      </div>' +
     '      <p class="help">For example, <em>https://docs.google.com/document/d/[document id]/</em></p>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot">' +
+    '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
+    '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
+    '    </footer>' +
+    '  </div> ' +
+    '</div>'
+})
+
+Vue.component('url-link-modal', {
+  props: {
+    directory: {
+      type: String,
+      required: true
+    },
+    sourceLinkUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      url: '',
+      errorMessage: null,
+      inProgress: false,
+      visible: false
+    }
+  },
+  methods: {
+    show () {
+      this.visible = true
+    },
+    hide () {
+      if (this.inProgress) {
+        return
+      }
+
+      this.visible = false
+    },
+    performLink () {
+      this.errorMessage = null
+
+      if (this.destination === '') {
+        this.errorMessage = 'URL must not be empty.'
+        return
+      }
+
+      this.inProgress = true
+      linkSource(this.sourceLinkUrl, 'url', this.directory, {url: this.url}, (success, errorMessage) => {
+        this.inProgress = false
+        if (success) {
+          location.reload()
+        } else {
+          this.errorMessage = errorMessage
+        }
+      })
+    }
+  },
+  mounted () {
+    this.$root.$on('url-link-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title"><i class="fa fa-link"></i> Link URL</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body">' +
+    '      <div class="control">' +
+    '        <label class="label">URL</label>' +
+    '        <input class="input is-medium" type="text" placeholder="URL" v-model="url">' +
+    '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
+    '      </div>' +
+    '      <p class="help">For example, <em>https://hackmd.io/[document_id]</document_id></em></p>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
     '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +
@@ -1158,7 +1240,7 @@ const g_actionBar = new Vue({
       fileBrowser.$root.$emit('add-item-modal-show', 'Folder')
     },
     showLinkModal ($event, providerTypeId, linkType) {
-      if (g_supportedSocialProviders[providerTypeId] !== true) {
+      if (providerTypeId !== 'url' && g_supportedSocialProviders[providerTypeId] !== true) {
         $event.preventDefault()
 
         let providerTypeName = ''
@@ -1176,6 +1258,9 @@ const g_actionBar = new Vue({
       if (linkType === 'gdoc') {
         $event.preventDefault()
         fileBrowser.$root.$emit('googledocs-link-modal-show')
+      } else if (linkType === 'url') {
+        $event.preventDefault()
+        fileBrowser.$root.$emit('url-link-modal-show')
       } else {
         return true
       }

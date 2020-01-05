@@ -12,7 +12,7 @@ from projects.project_models import Project
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource, \
-    GoogleDocsSource
+    GoogleDocsSource, UrlSource
 
 PathType = typing.Union[str, bytes]
 
@@ -129,7 +129,7 @@ def determine_entry_type(source: Source, relative_path: str) -> DirectoryEntryTy
     if isinstance(source, FileSource):
         return DirectoryEntryType.DIRECTORY if '/' in relative_path else DirectoryEntryType.FILE
 
-    if isinstance(source, GoogleDocsSource):
+    if isinstance(source, (GoogleDocsSource, UrlSource)):
         return DirectoryEntryType.FILE
 
     return DirectoryEntryType.LINKED_SOURCE

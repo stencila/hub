@@ -21,8 +21,8 @@ from django.views.generic.base import View
 from requests import HTTPError
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
-from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, ConverterContext, \
-    GoogleDocs403Exception
+from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, \
+    ConverterContext, GoogleDocs403Exception, download_for_conversion
 from lib.sparkla import generate_manifest
 from projects.source_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
@@ -229,7 +229,8 @@ class OpenView(View):
         if url_form.is_valid():
             cr.input_url = typing.cast(str, url_form.cleaned_data['url'])  # safe to do because the form is valid
             try:
-                file_name, source_io = fetch_url(cr.input_url, settings.STENCILA_CLIENT_USER_AGENT)
+                file_name, source_io = fetch_url(cr.input_url, download_for_conversion,
+                                                 settings.STENCILA_CLIENT_USER_AGENT)
                 cr.source_io = source_io
                 cr.original_filename = file_name
             except ConversionFormatError:

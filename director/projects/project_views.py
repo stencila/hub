@@ -345,7 +345,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
             source.delete()
 
-            messages.success(request, "'{}' was unlinked.".format(source_description))
+            messages.success(request, "<em>{}</em> was unlinked.".format(escape(source_description)), extra_tags='safe')
 
         return redirect(request.path)
 

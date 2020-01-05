@@ -175,6 +175,17 @@ class FileSource(Source):
         self.size = self.file.size
 
 
+class UrlSource(Source):
+    """A source that is downloaded from a URL on demand."""
+
+    provider_name = 'URL'
+
+    url = models.URLField(help_text='The URL of the remote file.')
+
+    def __str__(self) -> str:
+        return self.url
+
+
 class GithubSource(Source):
     """A project hosted on Github."""
 
@@ -256,6 +267,7 @@ class AvailableSourceType(enum.Enum):
 
     FILE = SourceType('file', 'File', FileSource)
     GITHUB = SourceType('github', 'Github', GithubSource)
+    GOOGLE_DOCS = SourceType('googledocs', 'GoogleDocs', GoogleDocsSource)
 
     # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
     # doesn't understand this

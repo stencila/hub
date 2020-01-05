@@ -7,6 +7,7 @@ import re
 import subprocess
 import tempfile
 import typing
+from io import BytesIO
 from os.path import splitext, basename
 from socket import gethostbyname
 from urllib.parse import urlparse, urljoin, unquote
@@ -15,6 +16,7 @@ import requests
 from allauth.socialaccount.models import SocialApp
 from django.http.multipartparser import parse_header
 from googleapiclient.errors import HttpError
+from requests import Response
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_mimetype, conversion_format_from_path, \
     ConversionFormatError
@@ -138,14 +140,14 @@ def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
     return None
 
 
-def fetch_url(url: str, user_agent: typing.Optional[str] = None,
-              seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Tuple[str, ConverterIo]:
+def fetch_url(url: str, response_delegate: typing.Optional[typing.Callable[[str, Response], typing.Any]] = None,
+              user_agent: typing.Optional[str] = None,
+              seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Any:
     """
-    Download a remote file to a tmp location, then generate a `ConverterIO`.
+    Fetch a URL, following redirects and denying access to dangerous URLs.
 
-    The conversion_format wil try to be determined from the response mimetype then a fallback to file extensions.
-
-    Returns the filename of the source and a ConversionIo for the source.
+    If response_delegate is provided, call out to that function to generate the response and return it. Otherwise, just
+    return the file name.
     """
     # delegate fetching of 3rd party service items that have custom URLs, e.g. Google Docs
     service_item = parse_service_url(url)
@@ -169,11 +171,11 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
     if seen_urls is None:
         seen_urls = []
 
-    with requests.get(url,
-                      headers=headers,
-                      stream=True,
-                      timeout=DOWNLOAD_TIMEOUT_SECONDS,
-                      allow_redirects=False) as resp:
+    with requests.request('GET', url,
+                          headers=headers,
+                          stream=True,
+                          timeout=DOWNLOAD_TIMEOUT_SECONDS,
+                          allow_redirects=False) as resp:
         if 'Location' in resp.headers:
             # Manually follow redirects to determine if it is a redirect to a malicious URL
             if url in seen_urls:
@@ -184,30 +186,9 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
                 raise RemoteFileException('Too many HTTP redirects from original URL: {}'.format(seen_urls[0]))
 
             new_url = urljoin(url, resp.headers['location'])
-            return fetch_url(new_url, user_agent, seen_urls)
+            return fetch_url(new_url, response_delegate, user_agent, seen_urls)
 
-        download_start_time = datetime.datetime.now()
         resp.raise_for_status()
-        downloaded_bytes = 0
-        if 'Content-Length' in resp.headers:
-            try:
-                content_length = int(resp.headers['Content-Length'])
-                if content_length > MAX_REMOTE_CONVERT_SIZE:
-                    raise RemoteFileException('Not fetching remote file as it exceeds the maximum size for conversion.')
-            except ValueError:
-                pass
-
-        mimetype = resp.headers.get('Content-Type')
-        if mimetype:
-            mimetype = mimetype.split(';')[0]
-
-        source_format = None
-
-        if mimetype:
-            try:
-                source_format = conversion_format_from_mimetype(mimetype)
-            except ConversionFormatError:
-                pass  # Fall back to extension, in cases where HTTP server send back 'text/plain' for MD, for example
 
         file_name = basename(url_obj.path)
 
@@ -223,37 +204,118 @@ def fetch_url(url: str, user_agent: typing.Optional[str] = None,
                 file_name = file_name.decode('ascii')
             file_name = unquote(file_name)
 
+        if response_delegate:
+            return response_delegate(file_name, resp)
+        return file_name
+
+
+def download_from_response(file_name: str,
+                           resp: Response,
+                           download: typing.Union[str, bool] = False,
+                           return_content: bool = False) -> typing.Union[bytes, typing.Tuple[str, ConversionFormatId]]:
+    """
+    Download data from the `response`.
+
+    The `download` and `return_content` arguments are mutually exclusive (only one can be truthy at a time and they
+    can't both be false).
+
+    If `download` is True, then the file will be downloaded to a temporary file. The temporary file will not be deleted
+    at the end of this function. The calling function should clean it up. If `download` is a string the the file will
+    be downloaded to that path.
+
+    If `return_content` is true, then the content is downloaded and returned (as bytes).
+    """
+    if bool(download) == bool(return_content):
+        raise ValueError('One of download or return_content must be set, not both or neither.')
+
+    if 'Content-Length' in resp.headers:
+        try:
+            content_length = int(resp.headers['Content-Length'])
+            if content_length > MAX_REMOTE_CONVERT_SIZE:
+                raise RemoteFileException('Not fetching remote file as it exceeds the maximum size for conversion.')
+        except ValueError:
+            pass
+
+    if download:
+        source_format = None
+        mimetype = resp.headers.get('Content-Type')
+        if mimetype:
+            mimetype = mimetype.split(';')[0]
+        if mimetype:
+            try:
+                source_format = conversion_format_from_mimetype(mimetype)
+            except ConversionFormatError:
+                pass  # Fall back to extension, in cases where HTTP server send back 'text/plain' for MD, for example
+
         if not source_format:
             try:
                 source_format = conversion_format_from_path(file_name)
             except ValueError:
                 raise ConversionFormatError(
-                    'Unable to determine conversion format from mimetype "{}" or path "{}".'.format(mimetype,
-                                                                                                    url_obj.path))
+                    'Unable to determine conversion format from mimetype "{}" or file name "{}".'.format(mimetype,
+                                                                                                         file_name))
+        if isinstance(download, str):
+            output_path = download
+            with open(download, 'wb') as download_to:
+                stream_download(resp, download_to)
+        else:
+            # it's just a boolean so create a temp file for download
+            with tempfile.NamedTemporaryFile(delete=False) as temp_download_to:
+                try:
+                    stream_download(resp, temp_download_to)
+                except Exception:
+                    os.unlink(temp_download_to.name)
+                    raise
+                output_path = temp_download_to.name
+        return output_path, source_format
+    else:
+        # Don't download, read the file and return its contents
+        download_to = BytesIO()
+        stream_download(resp, download_to)
+        download_to.seek(0)
+        return download_to.read()
 
-        with tempfile.NamedTemporaryFile(delete=False) as download_to:
-            try:
-                for chunk in resp.iter_content(chunk_size=STREAM_CHUNK_SIZE):
-                    download_seconds = datetime.datetime.now() - download_start_time
-                    if download_seconds.total_seconds() > MAX_DOWNLOAD_TIME_SECONDS:
-                        raise RemoteFileException(
-                            'Time for download took more than {} seconds ({})'.format(MAX_DOWNLOAD_TIME_SECONDS,
-                                                                                      download_seconds))
 
-                    if not chunk:
-                        continue
+def stream_download(resp: Response, download_to: typing.IO) -> None:
+    """Stream the `resp` content as bytes, to the download_to file-like object."""
+    downloaded_bytes = 0
+    download_start_time = datetime.datetime.now()
+    for chunk in resp.iter_content(chunk_size=STREAM_CHUNK_SIZE):
+        download_seconds = datetime.datetime.now() - download_start_time
+        if download_seconds.total_seconds() > MAX_DOWNLOAD_TIME_SECONDS:
+            raise RemoteFileException(
+                'Time for download took more than {} seconds ({})'.format(MAX_DOWNLOAD_TIME_SECONDS,
+                                                                          download_seconds))
 
-                    downloaded_bytes += len(chunk)
+        if not chunk:
+            continue
 
-                    if downloaded_bytes > MAX_REMOTE_CONVERT_SIZE:
-                        raise RemoteFileException('Remote file exceeded size limit while streaming.')
+        downloaded_bytes += len(chunk)
 
-                    download_to.write(chunk)
-            except Exception:
-                os.unlink(download_to.name)
-                raise
+        if downloaded_bytes > MAX_REMOTE_CONVERT_SIZE:
+            raise RemoteFileException('Remote file exceeded size limit while streaming.')
 
-        return file_name, ConverterIo(ConverterIoType.PATH, download_to.name, source_format)
+        download_to.write(chunk)
+
+
+def download_for_conversion(file_name: str, resp: Response) -> typing.Tuple[str, ConverterIo]:
+    """
+    Download a remote file to a tmp location, then generate a `ConverterIO`.
+
+    The conversion_format wil try to be determined from the response mimetype then a fallback to file extensions.
+
+    Returns the filename of the source and a ConversionIo for the source.
+    """
+    # This cast is because we know the return value has this type based on the arguments to `download_from_response`
+    download_path, source_format = typing.cast(typing.Tuple[str, ConversionFormatId],
+                                               download_from_response(file_name, resp, True))
+    return file_name, ConverterIo(ConverterIoType.PATH, download_path, source_format)
+
+
+def get_response_content(file_name: str, resp: Response) -> bytes:
+    """Download the content in `resp` and return its content as bytes."""
+    # with these options, the return value from `download_from_response` will be bytes
+    return typing.cast(bytes, download_from_response(file_name, resp, False, True))
 
 
 class ConverterContext(typing.NamedTuple):

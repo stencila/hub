@@ -11,8 +11,12 @@
                 <p>Content not editable</p>
             </div>
             <div class="message-body">
-                This file is not editable because you do not have a {{ source.provider_name }} account connected. Add
-                one on the <a href="{% url 'socialaccount_connections' %}">Account Connections Page</a>.
+                {% if source.provider_name == 'URL' %}
+                    This file is not editable as saving changes back to URLs is not supported.
+                {% else %}
+                 This file is not editable because you do not have a {{ source.provider_name }} account connected. Add
+                    one on the <a href="{% url 'socialaccount_connections' %}">Account Connections Page</a>.
+                {% endif %}
             </div>
         </article>
     {% endif %}

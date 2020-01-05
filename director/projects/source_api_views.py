@@ -13,6 +13,7 @@ from googleapiclient.errors import HttpError
 from rest_framework.views import APIView
 
 from lib.conversion_types import ConversionFormatId
+from lib.converter_facade import fetch_url
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid, GoogleDocsFacade
 from lib.social_auth_token import user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
@@ -22,7 +23,7 @@ from projects.project_models import PublishedItem
 from projects.project_views import ProjectPermissionsMixin
 from projects.shared import PUBLISHED_FILE_NAME
 from projects.source_content_facade import make_source_content_facade
-from projects.source_models import GoogleDocsSource
+from projects.source_models import GoogleDocsSource, UrlSource
 from projects.source_operations import utf8_path_join
 from projects.source_views import ConverterMixin
 
@@ -73,6 +74,86 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
                 'success': False,
                 'errors': form.errors.get_json_data()
             })
+
+
+class SourceLinkView(ProjectPermissionsMixin, APIView):
+    project_permission_required = ProjectPermissionType.EDIT
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        self.get_project(request.user, pk)
+
+        data = request.data
+
+        source_type = data['source_type']
+
+        error = None
+
+        directory = data['directory']
+
+        if source_type == 'gdoc':
+            try:
+                self.link_google_doc(request.user, data, directory)
+            except LinkException as e:
+                error = str(e)
+        elif source_type == 'url':
+            self.link_url(data, directory)
+        else:
+            error = 'Unknown source type {}'.format(source_type)
+
+        return JsonResponse({
+            'success': not error,
+            'error': error
+        })
+
+    def link_google_doc(self, user: User, request_body: dict, directory: str) -> None:
+        token = user_social_token(user, 'google')
+
+        if token is None:
+            raise LinkException('Can\'t link as no Google account is connected to Stencila Hub.')
+
+        doc_id = request_body['document_id']
+
+        if not doc_id:
+            raise LinkException('A document ID or URL was not provided.')
+
+        try:
+            doc_id = extract_google_document_id_from_url(doc_id)
+        except ValueError:
+            pass  # not a URL, could just a be the ID
+
+        if not google_document_id_is_valid(doc_id):
+            raise LinkException('"{}" is not a valid Google Document ID.'.format(doc_id))
+
+        google_app = SocialApp.objects.filter(provider='google').first()
+
+        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, token)
+
+        try:
+            document = gdf.get_document(doc_id)
+        except HttpError:
+            raise LinkException('Could not retrieve the document, please check the ID/URL.')
+
+        title = document['title']
+
+        source = GoogleDocsSource(
+            doc_id=doc_id,
+            project=self.project,
+            path=utf8_path_join(directory, title.replace('/', '-'))
+        )
+
+        source.save()
+        messages.success(self.request, 'Google Doc <em>{}</em> was linked.'.format(escape(title)), extra_tags='safe')
+
+    def link_url(self, request_body: dict, directory: str) -> None:
+        url = request_body['url']
+        file_name = fetch_url(url, user_agent=settings.STENCILA_CLIENT_USER_AGENT)
+        path = utf8_path_join(directory, file_name.replace('/', '-'))
+        source = UrlSource(url=url,
+                           project=self.project,
+                           path=path
+                           )
+        source.save()
+        messages.success(self.request, 'URL <em>{}</em> was linked.'.format(escape(url)), extra_tags='safe')
 
 
 # Views below are not DRF views, they should be
@@ -160,64 +241,3 @@ class DiskItemRemoveView(ProjectPermissionsMixin, View):
             'success': not error,
             'error': error
         })
-
-
-class SourceLinkView(ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.EDIT
-
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        self.get_project(request.user, pk)
-
-        body = json.loads(request.body)
-
-        source_type = body['source_type']
-
-        error = None
-
-        if source_type == 'gdoc':
-            try:
-                self.link_google_doc(request.user, body)
-            except LinkException as e:
-                error = str(e)
-        else:
-            error = 'Unknown source type {}'.format(source_type)
-
-        return JsonResponse({
-            'success': not error,
-            'error': error
-        })
-
-    def link_google_doc(self, user: User, request_body: dict) -> None:
-        token = user_social_token(user, 'google')
-
-        if token is None:
-            raise LinkException('Can\'t link as no Google account is connected to Stencila Hub.')
-
-        doc_id = request_body['document_id']
-
-        if not doc_id:
-            raise LinkException('A document ID or URL was not provided.')
-
-        try:
-            doc_id = extract_google_document_id_from_url(doc_id)
-        except ValueError:
-            pass  # not a URL, could just a be the ID
-
-        if not google_document_id_is_valid(doc_id):
-            raise LinkException('"{}" is not a valid Google Document ID.'.format(doc_id))
-
-        google_app = SocialApp.objects.filter(provider='google').first()
-
-        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, token)
-
-        directory = request_body['directory']
-        try:
-            document = gdf.get_document(doc_id)
-        except HttpError:
-            raise LinkException('Could not retrieve the document, please check the ID/URL.')
-
-        source = GoogleDocsSource(doc_id=doc_id)
-
-        source.project = self.project
-        source.path = utf8_path_join(directory, document['title'])
-        source.save()

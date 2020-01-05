@@ -12,12 +12,13 @@ from django.http import HttpRequest
 from github import GithubException, RateLimitExceededException
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, conversion_format_from_mimetype
+from lib.converter_facade import fetch_url, get_response_content
 from lib.github_facade import GitHubFacade
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_github_token, user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.project_models import Project
-from projects.source_models import Source, GithubSource, DiskSource, GoogleDocsSource
+from projects.source_models import Source, GithubSource, DiskSource, GoogleDocsSource, UrlSource
 from projects.source_operations import strip_directory, utf8_path_join, utf8_basename
 
 DEFAULT_TEXT_ENCODING = 'utf8'
@@ -86,6 +87,9 @@ class SourceContentFacade(object):
         if isinstance(self.source, GoogleDocsSource):
             return self.get_google_docs_source_content()
 
+        if isinstance(self.source, UrlSource):
+            return self.get_url_source_content()
+
         raise TypeError('Don\'t know how to get content for source type \'{}\''.format(type(self.source)))
 
     def get_binary_content(self) -> bytes:
@@ -97,6 +101,9 @@ class SourceContentFacade(object):
 
         if isinstance(self.source, GoogleDocsSource):
             return self.get_google_docs_source_binary_content()
+
+        if isinstance(self.source, UrlSource):
+            return self.get_url_source_binary_content()
 
         raise TypeError('Don\'t know how to get binary content for source type \'{}\''.format(type(self.source)))
 
@@ -123,6 +130,8 @@ class SourceContentFacade(object):
             supports_commit_message = True
         elif isinstance(self.source, DiskSource):
             editable = True
+        elif isinstance(self.source, UrlSource):
+            editable = False
         else:
             raise TypeError('Don\'t know how to get EditContext for source type \'{}\''.format(type(self.source)))
 
@@ -255,6 +264,13 @@ class SourceContentFacade(object):
 
     def get_google_docs_size(self) -> int:
         return len(self.get_google_docs_source_binary_content())
+
+    def get_url_source_content(self) -> str:
+        return self.get_url_source_binary_content().decode('utf8')
+
+    def get_url_source_binary_content(self) -> bytes:
+        source = typing.cast(UrlSource, self.source)
+        return fetch_url(source.url, get_response_content, settings.STENCILA_CLIENT_USER_AGENT)
 
     def get_name(self) -> str:
         """Get the name of the source (i.e. basename)."""

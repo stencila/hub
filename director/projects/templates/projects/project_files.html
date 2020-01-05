@@ -78,6 +78,12 @@
                         </span>
                             <span>Google Docs&hellip;</span>
                         </a>
+                        <a href="#" @click.prevent="showLinkModal($event, 'url', 'url')" class="dropdown-item">
+                        <span class="icon is-small">
+                            <i class="fas fa-globe" aria-hidden="true"></i>
+                        </span>
+                            <span>URL&hellip;</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -120,6 +126,8 @@
                 account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
         <googledocs-link-modal directory="{{ current_directory }}"
                                source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
+        <url-link-modal directory="{{ current_directory }}"
+                        source-link-url="{% url 'api_v1_sources_link' project.pk %}"></url-link-modal>
         <publish-modal publish-url="{% url 'api_v1_project_item_publish' project.pk %}" :published-exists="true"></publish-modal>
         {% if linked_sources %}
             <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
