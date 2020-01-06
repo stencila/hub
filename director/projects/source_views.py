@@ -501,7 +501,7 @@ class ConverterMixin:
 
         return self._converter
 
-    def do_conversion(self, source_type: ConversionFormatId,
+    def do_conversion(self, source_type: typing.Optional[ConversionFormatId],
                       source_path: str,
                       target_type: ConversionFormatId,
                       target_path: typing.Optional[str] = None) -> str:

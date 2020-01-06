@@ -7,7 +7,13 @@
 {% elif type == 'dropboxsource' %}
     <i class="fab fa-dropbox" title="Dropbox"></i>
 {% elif type == 'urlsource' %}
-    <i class="fas fa-globe" title="URL"></i>
+    {% if source.is_elife_url %}
+        <span class="company-logo logo-elife"></span>
+    {% elif source.is_plos_url %}
+        <span class="company-logo logo-plos"></span>
+    {% else %}
+        <i class="fas fa-globe" title="URL"></i>
+    {% endif %}
 {% elif type == 'disk' %}
     <i class="fa fa-hdd" title="Disk"></i>
 {% endif %}

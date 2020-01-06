@@ -251,8 +251,15 @@ class OpenView(View):
 
         public_id = conversion.generate_or_get_public_id()
 
-        conversion.source_format = source_io.conversion_format.value.format_id
-        conversion.target_format = target_io.conversion_format.value.format_id
+        if source_io.conversion_format:
+            conversion.source_format = source_io.conversion_format.value.format_id
+        else:
+            conversion.source_format = ''
+
+        if target_io.conversion_format:
+            conversion.target_format = target_io.conversion_format.value.format_id
+        else:
+            conversion.target_format = ''
 
         conversion.stderr = conversion_result.stderr.decode('utf8')
         conversion.stdout = conversion_result.stdout.decode('utf8')

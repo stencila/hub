@@ -12,7 +12,7 @@ from django.http import HttpRequest
 from github import GithubException, RateLimitExceededException
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, conversion_format_from_mimetype
-from lib.converter_facade import fetch_url, get_response_content
+from lib.converter_facade import fetch_url, get_response_content, is_encoda_delegate_url
 from lib.github_facade import GitHubFacade
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_github_token, user_social_token
@@ -290,14 +290,21 @@ class SourceContentFacade(object):
 
     def sync_content(self, temp_file=False) -> str:
         """
-        Download a remote source's content to disk, and return the absolute path to which the content now exists.
+        Get a path or URL that can be passed to Encoda.
 
-        If the source is a DiskSource, don't do anything as it's already on disk, just verify that it exists and return
-        the path.
+        For a UrlSource, if the URL is one that we want Encoda to handle natively (`is_encoda_delegate_url` returns
+        `True`), we will return the URL. This can the be passed to Encoda.
+
+        For other source types, this function downloads a remote source's content to disk, and returns the absolute
+        path to which the content now exists. If the source is a DiskSource, don't do anything as it's already on disk,
+        just verify that it exists and return the path.
 
         If `temp_file` is `True` then the content is downloaded to a `NamedTemporaryFile`. The temp file is not deleted,
         but it is closed. The temporary path is returned from this method.
         """
+        if isinstance(self.source, UrlSource) and is_encoda_delegate_url(self.source.url):
+            return self.source.url
+
         if isinstance(self.source, DiskSource):
             if self.disk_file_facade.item_type(self.file_path) != ItemType.FILE:
                 raise TypeError('Item at {} is not a file.'.format(self.file_path))
@@ -313,7 +320,10 @@ class SourceContentFacade(object):
         return self.disk_file_facade.full_file_path(self.file_path)
 
     @property
-    def source_type(self) -> ConversionFormatId:
+    def source_type(self) -> typing.Optional[ConversionFormatId]:
+        if isinstance(self.source, UrlSource) and is_encoda_delegate_url(self.source.url):
+            return None  # let encoda handle the source type
+
         if self._source_type is None:
             source_mimetype = None
             if not isinstance(self.source, DiskSource):

@@ -194,7 +194,7 @@
 
                     <td class="has-text-centered">
                         {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
-                            <span>{% include 'projects/_source_type_icon.html' with type=directory_entry.source.type %}</span>
+                            <span>{% include 'projects/_source_type_icon.html' with type=directory_entry.source.type source=directory_entry.source %}</span>
                         {% endif %}
                     </td>
 

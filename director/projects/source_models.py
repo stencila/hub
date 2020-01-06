@@ -1,6 +1,7 @@
 import enum
 import typing
 from io import BytesIO
+from urllib.parse import urlparse, ParseResult
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.contenttypes.models import ContentType
@@ -182,8 +183,35 @@ class UrlSource(Source):
 
     url = models.URLField(help_text='The URL of the remote file.')
 
+    _url_obj: typing.Optional[ParseResult] = None
+
     def __str__(self) -> str:
         return self.url
+
+    def _parse_url(self) -> ParseResult:
+        if self._url_obj is None:
+            self._url_obj = urlparse(self.url)
+        return self._url_obj
+
+    @property
+    def hostname_lower(self) -> typing.Optional[str]:
+        hostname = self._parse_url().hostname
+        return hostname.lower() if hostname else None
+
+    @property
+    def is_elife_url(self) -> bool:
+        return self.hostname_lower == 'elifesciences.org'
+
+    @property
+    def is_plos_url(self) -> bool:
+        return self.hostname_lower == 'journals.plos.org'
+
+    @property
+    def mimetype(self) -> str:
+        if self.is_elife_url or self.is_plos_url:
+            return 'text/html'
+
+        return super(UrlSource, self).mimetype
 
 
 class GithubSource(Source):

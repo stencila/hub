@@ -36,9 +36,9 @@ class ConverterIoType(enum.Enum):
 
 class ConverterIo(typing.NamedTuple):
     io_type: ConverterIoType
-    # data is either data to be converted (io_type == PIPE) or the path to the file to be converted (io_type == PATH)
+    # data can be bytes to be converted (io_type == PIPE) or the path/url to the file to be converted (io_type == PATH)
     data: typing.Union[None, str, bytes]
-    conversion_format: ConversionFormatId
+    conversion_format: typing.Optional[ConversionFormatId]
 
     @property
     def as_path_shell_arg(self) -> str:
@@ -96,6 +96,18 @@ def convert_raw_content_url(url: str) -> str:
         return 'https://hackmd.io/{}/download'.format(hackmd_match.group(1))
 
     return url
+
+
+def is_encoda_delegate_url(url: typing.Optional[str]) -> bool:
+    """Check if the URL can be passed straight to Encoda for it to fetch."""
+    url_obj = urlparse(url)
+
+    hostname = url_obj.hostname
+
+    if not hostname:
+        return False
+
+    return hostname.lower() in ['journals.plos.org', 'elifesciences.org']
 
 
 class ServiceId(enum.Enum):
@@ -331,11 +343,18 @@ class ConverterFacade(object):
 
     def convert(self, input_data: ConverterIo, output_data: ConverterIo,
                 context: typing.Optional[ConverterContext]) -> subprocess.CompletedProcess:
+        if output_data.conversion_format is None:
+            raise ValueError('The output_data conversion format must be specified.')
+
         convert_args: typing.List[str] = [
             'convert',
-            '--from', input_data.conversion_format.value.format_id,
             '--to', output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg, output_data.as_path_shell_arg]
+
+        if input_data.conversion_format:
+            # Only specify the input format if set, otherwise Encoda can try to figure it out
+            convert_args.insert(1, '--from')
+            convert_args.insert(2, input_data.conversion_format.value.format_id)
 
         if context:
             if context.output_intermediary:
