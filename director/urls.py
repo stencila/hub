@@ -4,113 +4,87 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.defaults import permission_denied, page_not_found
 
-import projects.urls
-from accounts.urls import urlpatterns as accounts_patterns
-from dev_views import test_view
-from stencila_open.urls import urlpatterns as open_patterns
-from api_urls import urlpatterns as api_patterns
-from stencila_admin.urls import urlpatterns as stencila_admin_patterns
-from checkouts.views import (
-    CheckoutListView,
-    CheckoutCreateView,
-    CheckoutReadView,
-    CheckoutOpenView,
-    CheckoutSaveView,
-    CheckoutCloseView)
-from users.views import (
-    UsernameChangeView,
-    UserSettingsView,
-    UserSignupView,
-    UserSigninView,
-    UserSignoutView,
-    BetaTokenView)
-from views import (
-    AboutView,
-    ContactView,
-    HelpView,
-    HomeView,
-    IcoView,
-    Test403View,
-    Test404View,
-    Test500View,
-    PrivacyView,
-    StatusView,
-    TermsView, IeUnsupportedView, error_500_view)
+import checkouts.views
+import users.views
+import views
+# specify sub paths as their own patterns to make it easier to see which root paths are defined in urlpatterns
+# this will make it easier to keep the DISALLOWED_ACCOUNT_SLUGS up to date
+from lib.constants import UrlRoot
+
+about_patterns = [
+    path('', views.AboutView.as_view(), name='about'),
+    path('contact/', views.ContactView.as_view(), name='contact'),
+    path('help/', views.HelpView.as_view(), name='help'),
+    path('privacy-policy/', views.PrivacyView.as_view(), name='privacy-policy'),
+    path('terms-and-conditions/', views.TermsView.as_view(), name='terms-and-conditions'),
+]
+
+# for use with Django TV >_<
+test_patterns = [
+    path('403/', views.Test403View.as_view()),
+    path('404/', views.Test404View.as_view()),
+    path('500/', views.Test500View.as_view()),
+]
 
 urlpatterns = [
-    # Project CRUD
-    path('projects/', include(projects.urls)),
-
-    # Checkout CRUD
-    path('checkouts/', include([
-        path('', CheckoutListView.as_view(), name='checkout_list'),
-        path('create/', CheckoutCreateView.as_view(), name='checkout_create'),
-        path('<int:pk>/', CheckoutReadView.as_view(), name='checkout_read'),
-        path('<int:pk>/open/', CheckoutOpenView.as_view(), name='checkout_open'),
-        path('<int:pk>/save/', CheckoutSaveView.as_view(), name='checkout_save'),
-        path('<int:pk>/close/', CheckoutCloseView.as_view(), name='checkout_close')
-    ])),
-    # Shortcut to `checkout_create`
-    path('checkout/', CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
-
-    # User sign in, settings etc
-    path('beta/', BetaTokenView.as_view(), name='user_beta'),
-    path('me/', UserSettingsView.as_view(), name='user_settings'),
-    path('me/signup/', UserSignupView.as_view(), name='user_signup'),
-    path('me/signin/', UserSigninView.as_view(), name='user_signin'),
-    path('me/signout/', UserSignoutView.as_view(), name='user_signout'),
-    path('me/username/', UsernameChangeView.as_view(), name='user_change_username'),
-    path('me/avatar/', include('avatar.urls')),
-    path('me/', include('allauth.urls')),
-
-    # Staff admin
-    path('admin/', admin.site.urls),
-
+    # All in alphabetical order. Patterns that are fully defined in urlpatterns come first
     # Home page
-    path('', HomeView.as_view(), name='home'),
+    path('', views.HomeView.as_view(), name='home'),
 
-    # About pages etc
-    path('about/', AboutView.as_view(), name='about'),
-    path('about/contact/', ContactView.as_view(), name='contact'),
-    path('about/help/', HelpView.as_view(), name='help'),
-    path('about/privacy-policy/', PrivacyView.as_view(), name='privacy-policy'),
-    path('about/terms-and-conditions/', TermsView.as_view(), name='terms-and-conditions'),
-
-    # Accounts App
-    path('accounts/', include(accounts_patterns)),
-
-    # Open App
-    path('open/', include(open_patterns)),
-
-    # Stencila Admin App (not Django Admin)
-    path('stencila-admin/', include(stencila_admin_patterns)),
-
-    # API
-    path('api/', include(api_patterns)),
-
-    path('ie-unsupported/', IeUnsupportedView.as_view(), name='ie-unsupported'),
-
-    # Testing errors
-    path('test/403', Test403View.as_view()),
-    path('test/404', Test404View.as_view()),
-    path('test/500', Test500View.as_view()),
-
-    # status
-    path('system-status/', StatusView.as_view()),
+    # Beta Token Getting View
+    path(UrlRoot.beta.value + '/', users.views.BetaTokenView.as_view(), name='user_beta'),
 
     # ico for old browsers
-    path('favicon.ico', IcoView.as_view()),
+    path(UrlRoot.favicon.value, views.IcoView.as_view()),
 
-    path('dev_test', test_view)
+    # Redirect IE users to this view
+    path(UrlRoot.ie_unsupported.value + '/', views.IeUnsupportedView.as_view(), name='ie-unsupported'),
+
+    # status
+    path(UrlRoot.system_status.value + '/', views.StatusView.as_view()),
+
+    # Patterns that include other urlpatterns or files
+
+    # About pages etc
+    path(UrlRoot.about.value + '/', include(about_patterns)),
+
+    # Accounts App
+    path(UrlRoot.accounts.value + '/', include('accounts.urls')),
+
+    # Staff (Django) admin
+    path(UrlRoot.admin.value + '/', admin.site.urls),
+
+    # API
+    path(UrlRoot.api.value + '/', include('api_urls')),
+
+    # Checkouts App
+    path(UrlRoot.checkouts.value + '/', include('checkouts.urls')),
+    # Shortcut to `checkout_create`
+    path(UrlRoot.checkout.value + '/', checkouts.views.CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
+
+    # User sign in, settings etc
+    path(UrlRoot.me.value + '/', include('users.urls')),
+
+    # StencilaOpen App
+    path(UrlRoot.open.value + '/', include('stencila_open.urls')),
+
+    # Projects App
+    path(UrlRoot.projects.value + '/', include('projects.urls')),
+
+    # Stencila Admin App (not Django Admin)
+    path(UrlRoot.stencila_admin.value + '/', include('stencila_admin.urls')),
+
+    # Testing errors
+    path(UrlRoot.test.value + '/', include(test_patterns)),
 ]
 
 handler403 = permission_denied
 handler404 = page_not_found
-handler500 = error_500_view
+handler500 = views.error_500_view
 
 if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns = [
-        path('debug/', include(debug_toolbar.urls)),
-    ] + urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+                      path(UrlRoot.debug.value + '/', include(debug_toolbar.urls)),
+                  ] + urlpatterns + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
