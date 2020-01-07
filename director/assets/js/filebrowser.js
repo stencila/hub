@@ -32,7 +32,8 @@ function jsonFetch (url, body, callback) {
   }).then(response => {
     return response.json()
   }).then(jsonBody => {
-    callback(jsonBody.success, jsonBody.error)
+    const errors = jsonBody.errors !== undefined ? jsonBody.errors : jsonBody.error
+    callback(jsonBody.success, errors)
   }, error => {
     callback(false, 'An unknown error occurred.')
   }).catch(error => {
@@ -1006,14 +1007,21 @@ Vue.component('url-link-modal', {
   data () {
     return {
       url: '',
-      errorMessage: null,
+      urlErrorMessage: null,
+      filenameErrorMessage: null,
       inProgress: false,
-      visible: false
+      visible: false,
+      autoFilename: true,
+      filename: ''
     }
   },
   methods: {
     show () {
+      this.autoFilename = true
       this.visible = true
+      this.filename = ''
+      this.urlErrorMessage = null
+      this.filenameErrorMessage = null
     },
     hide () {
       if (this.inProgress) {
@@ -1022,21 +1030,47 @@ Vue.component('url-link-modal', {
 
       this.visible = false
     },
+    filenameChange () {
+      this.autoFilename = false
+      this.filenameErrorMessage = null
+    },
+    generateFilename () {
+      if (!this.autoFilename)
+        return
+
+      this.filename = this.url.replace(/^https?:\/\//, '').replace(/\/|=|\?|\.\\/g, '-')
+    },
     performLink () {
-      this.errorMessage = null
+      this.urlErrorMessage = null
+      this.filenameErrorMessage = null
 
       if (this.destination === '') {
-        this.errorMessage = 'URL must not be empty.'
+        this.urlErrorMessage = 'URL must not be empty.'
+        return
+      }
+
+      if (this.filename === '') {
+        this.filenameErrorMessage = 'Filename must not be empty.'
+      }
+
+      if (this.filename.indexOf('/') !== -1 || this.filename.indexOf(':') !== -1 || this.filename.indexOf('\\') !== -1 || this.filename.indexOf(';') !== -1) {
+        this.filenameErrorMessage = 'The filename must not contain the characters: /, :, \\ or ;.'
+      }
+
+      if (this.urlErrorMessage !== null || this.filenameErrorMessage !== null) {
         return
       }
 
       this.inProgress = true
-      linkSource(this.sourceLinkUrl, 'url', this.directory, {url: this.url}, (success, errorMessage) => {
+      linkSource(this.sourceLinkUrl, 'url', this.directory, {
+        url: this.url, filename: this.filename
+      }, (success, errorMessages) => {
         this.inProgress = false
         if (success) {
           location.reload()
         } else {
-          this.errorMessage = errorMessage
+          this.urlErrorMessage = errorMessages['url']
+          this.filenameErrorMessage = errorMessages['filename']
         }
       })
     }
@@ -1059,10 +1093,15 @@ Vue.component('url-link-modal', {
     '    <section class="modal-card-body">' +
     '      <div class="control">' +
     '        <label class="label">URL</label>' +
-    '        <input class="input is-medium" type="text" placeholder="URL" v-model="url">' +
-    '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
+    '        <input class="input is-medium" type="text" placeholder="URL" v-model="url" @keyup="generateFilename()" @change="generateFilename()">' +
+    '        <p v-if="urlErrorMessage != null" class="has-text-danger">{{ urlErrorMessage }}</p>' +
     '      </div>' +
     '      <p class="help">For example, <em>https://hackmd.io/[document_id]</document_id></em></p>' +
+    '      <div class="control">' +
+    '        <label class="label">Filename</label>' +
+    '        <input class="input is-medium" type="text" placeholder="Filename" v-model="filename" @keyup="filenameChange()">' +
+    '        <p v-if="filenameErrorMessage != null" class="has-text-danger">{{ filenameErrorMessage }}</p>' +
+    '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
     '      <button class="button is-primary" @click.prevent="performLink()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">Link</button>' +

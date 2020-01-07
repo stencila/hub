@@ -1,9 +1,12 @@
 import json
+import typing
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils.html import escape
@@ -87,6 +90,7 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
         source_type = data['source_type']
 
         error = None
+        errors: typing.Dict[str, str] = {}
 
         directory = data['directory']
 
@@ -96,14 +100,20 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
             except LinkException as e:
                 error = str(e)
         elif source_type == 'url':
-            self.link_url(data, directory)
+            self.link_url(data, directory, errors)
         else:
             error = 'Unknown source type {}'.format(source_type)
 
-        return JsonResponse({
-            'success': not error,
-            'error': error
-        })
+        resp: typing.Dict[str, typing.Any] = {
+            'success': not error and not errors
+        }
+
+        if errors:
+            resp['errors'] = errors
+        else:
+            resp['error'] = error
+
+        return JsonResponse(resp)
 
     def link_google_doc(self, user: User, request_body: dict, directory: str) -> None:
         token = user_social_token(user, 'google')
@@ -144,10 +154,26 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
         source.save()
         messages.success(self.request, 'Google Doc <em>{}</em> was linked.'.format(escape(title)), extra_tags='safe')
 
-    def link_url(self, request_body: dict, directory: str) -> None:
+    def link_url(self, request_body: dict, directory: str, errors: dict) -> None:
         url = request_body['url']
-        file_name = fetch_url(url, user_agent=settings.STENCILA_CLIENT_USER_AGENT)
-        path = utf8_path_join(directory, file_name.replace('/', '-'))
+
+        try:
+            URLValidator()(url)
+        except ValidationError:
+            errors['url'] = '"{}" is not a valid URL.'.format(url)
+
+        filename = request_body['filename']
+
+        if filename == '':
+            errors['filename'] = 'The filename must be set.'
+        elif '/' in filename or ':' in filename or '\\' in filename or ';' in filename:
+            errors['filename'] = 'The filename must not contain the characters /, :, \\ or ;.'
+
+        if errors:
+            return
+
+        fetch_url(url, user_agent=settings.STENCILA_CLIENT_USER_AGENT)
+        path = utf8_path_join(directory, filename.replace('/', '-'))
         source = UrlSource(url=url,
                            project=self.project,
                            path=path
