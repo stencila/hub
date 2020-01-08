@@ -26,6 +26,7 @@ FREE_PRODUCT = {
 }
 
 FREE_PLAN = {
+    'pk': 0,
     'price_description': 'Free',
     'product': FREE_PRODUCT
 }

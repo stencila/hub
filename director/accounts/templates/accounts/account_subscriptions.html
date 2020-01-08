@@ -23,7 +23,7 @@
                     {% with subscription=account_subscription.subscription %}
                         <tr>
                             <td>
-                                <a href="{% url "account_subscription_detail" account.pk subscription.id %}">{{ subscription.plan }}</a>
+                                <a href="{% if account.slug %}{% url "account_subscription_detail_slug" account.slug subscription.id %}{% else %}{% url "account_subscription_detail" account.pk subscription.id %}{% endif %}">{{ subscription.plan }}</a>
                             </td>
                             <td>{{ subscription.status|capfirst }}</td>
                             <td>{{ subscription.current_period_start }}</td>

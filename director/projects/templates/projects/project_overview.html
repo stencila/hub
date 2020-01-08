@@ -4,7 +4,11 @@
 
 {% block project_content %}
     <div>
-        <p>This project is connected to the account: <strong><a href="{% url 'account_profile' project.account.pk %}">{{ project.account.name }}</a></strong></p>
+        <p>This project is connected to the account:
+            <strong>
+                <a href="{% if project.account.slug %}{% url 'account_profile_slug' project.account.slug %}{% else %}{% url 'account_profile' project.account.pk %}{% endif %}">{{ project.account.name }}</a>
+            </strong>
+        </p>
         <br/>
     </div>
     <div class="columns">

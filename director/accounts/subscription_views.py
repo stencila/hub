@@ -33,8 +33,9 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.request_permissions_guard(request, pk)
+    def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.request_permissions_guard(request, pk, account_slug)
         # Plans are retrieved from Products. We assume 1 Plan per Product although there technically could be more
         products = Product.objects.all()
 
@@ -61,8 +62,9 @@ class SubscriptionListView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, pk: int) -> HttpRequest:
-        self.request_permissions_guard(request, pk)
+    def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpRequest:
+        self.request_permissions_guard(request, pk, account_slug)
 
         account_resource_allowance(self.account)
 
@@ -79,8 +81,9 @@ class SubscriptionDetailView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, pk: int, subscription_id: str) -> HttpResponse:
-        self.request_permissions_guard(request, pk)
+    def get(self, request: HttpRequest, subscription_id: str, pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.request_permissions_guard(request, pk, account_slug)
         subscription = Subscription.objects.get(id=subscription_id)
 
         return render(request, 'accounts/account_subscription.html', self.get_render_context({
@@ -91,8 +94,9 @@ class SubscriptionDetailView(AccountPermissionsMixin, View):
 class AccountSubscriptionCancelView(AccountPermissionsMixin, View):
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def post(self, request: HttpRequest, pk: int, subscription_id: str) -> HttpResponse:
-        self.request_permissions_guard(request, pk)
+    def post(self, request: HttpRequest, subscription_id: str, pk: typing.Optional[int] = None,
+             account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.request_permissions_guard(request, pk, account_slug)
         subscription = Subscription.objects.get(id=subscription_id)
 
         product_name = subscription.plan.product.name
@@ -109,6 +113,9 @@ class AccountSubscriptionCancelView(AccountPermissionsMixin, View):
 
         messages.success(request, cancel_message)
 
+        if account_slug:
+            return redirect('account_subscriptions_slug', account_slug)
+
         return redirect('account_subscriptions', pk)
 
 
@@ -121,8 +128,13 @@ class AccountSubscriptionAddView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, pk: int, plan_pk: int) -> HttpResponse:
-        self.request_permissions_guard(request, pk)
+    def get(self, request: HttpRequest, plan_pk: int, pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.request_permissions_guard(request, pk, account_slug)
+
+        if plan_pk == 0:
+            raise NotImplementedError('TODO: This is special – user is unsubscribing from their current plan(s).')
+
         plan = get_object_or_404(Plan, pk=plan_pk)
 
         verified_emails = request.user.emailaddress_set.filter(verified=True).order_by('email')
@@ -145,8 +157,9 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
-        self.request_permissions_guard(request, pk)
+    def post(self, request: HttpRequest, pk: typing.Optional[int] = None,
+             account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.request_permissions_guard(request, pk, account_slug)
 
         data = json.loads(request.body)
 
@@ -188,6 +201,9 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
         messages.success(request, 'Sign up to {} subscription was successful.'.format(plan.name))
 
-        return JsonResponse({'success': True, 'customer_id': dj_customer.djstripe_id,
-                             'redirect': reverse('account_subscription_detail',
-                                                 args=(self.account.pk, subscription.id))})
+        if account_slug:
+            post_redirect = reverse('account_subscription_detail_slug', args=(account_slug, subscription.id))
+        else:
+            post_redirect = reverse('account_subscription_detail', args=(self.account.pk, subscription.id))
+
+        return JsonResponse({'success': True, 'customer_id': dj_customer.djstripe_id, 'redirect': post_redirect})

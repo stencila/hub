@@ -31,7 +31,7 @@
                         <br>
                     {% endif %}
                 {% else %}
-                    <p class="is-uppercase-heading has-bottom-margin">Add project access</p>
+                    <p class="is-uppercase-heading has-bottom-margin">Add project access for team <em>{{ team.name }}</em></p>
                     <form method="post">
                         {% csrf_token %}
                         <div class="control field">
@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="column">
                                     <button class="button is-primary" type="submit" name="action" value="add_project">
-                                        Add project
+                                        Add Access
                                     </button>
                                 </div>
                             </div>

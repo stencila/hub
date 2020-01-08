@@ -37,7 +37,7 @@
                             {% if is_subscribed %}
                                 <button class="button is-disabled">Subscribed</button>
                             {% else %}
-                                <a href="{% url 'account_subscriptions_add' account.pk plan.pk %}"
+                                <a href="{% if account.slug %}{% url 'account_subscriptions_add_slug' account.slug plan.pk %}{% else %}{% url 'account_subscriptions_add' account.pk plan.pk %}{% endif %}"
                                    class="button is-primary">Subscribe</a>
                             {% endif %}
                         </div>

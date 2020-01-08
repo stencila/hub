@@ -8,8 +8,8 @@ from django.conf import settings
 from django.db import models
 
 from accounts.models import Account
+from lib.data_cleaning import SlugType, clean_slug
 from lib.enum_choice import EnumChoice
-
 from projects.source_models import Source
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -30,6 +30,9 @@ def generate_project_token(project: 'Project') -> str:
 
 
 class Project(models.Model):
+    class Meta:
+        unique_together = [['slug', 'account']]
+
     account = models.ForeignKey(
         Account,
         on_delete=models.PROTECT,
@@ -124,6 +127,12 @@ class Project(models.Model):
 
     )
 
+    slug = models.SlugField(
+        null=True,
+        blank=True,
+        help_text='An identifier for the Project, used in the URL. It must be unique for the account.'
+    )
+
     def __str__(self):
         return 'Project #{}'.format(self.id)
 
@@ -149,7 +158,6 @@ class Project(models.Model):
         """Get, or create, a project from an address."""
         # TODO Transform the address into type etc
         return Project.get_or_create(
-            type=None,
             address=address,
             creator=creator
         )
@@ -193,6 +201,8 @@ class Project(models.Model):
         self.get_first_source().push(archive)
 
     def save(self, *args, **kwargs) -> None:
+        self.slug = clean_slug(self.slug, SlugType.PROJECT)
+
         if not self.token:
             self.token = generate_project_token(self)
 

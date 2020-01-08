@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
 
@@ -34,12 +33,17 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
             messages.error(request, 'This account has reached the maximum number of teams allowed by its current '
                                     'subscription. {}'.format(upgrade_message), extra_tags='safe')
-            return redirect(reverse('account_team_list', args=(self.account.id,)))
+
+            if self.account.slug:
+                return redirect('account_team_list_slug', self.account.slug)
+
+            return redirect('account_team_list', self.account.id)
 
         return None
 
-    def get(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def get(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
         assert self.account_fetch_result is not None
 
         max_teams_redirect = self.test_team_create_quota(request, team_pk)
@@ -59,8 +63,9 @@ class TeamDetailView(AccountPermissionsMixin, View):
             "form": form
         }))
 
-    def post(self, request: HttpRequest, account_pk: int, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def post(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
+             account_slug: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -82,7 +87,9 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
             messages.success(request, "Team <em>{}</em> was {} successfully".format(escape(team.name), update_verb),
                              extra_tags='safe')
-            return redirect(reverse('account_team_list', args=(self.account.id,)))
+            if account_slug:
+                return redirect('account_team_list_slug', account_slug)
+            return redirect('account_team_list', self.account.id)
 
         return render(request, "accounts/team_detail.html", self.get_render_context({
             "team": team,
@@ -92,8 +99,9 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
 
 class TeamListView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, account_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def get(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
 
         if not self.account_permissions:
             raise PermissionDenied
@@ -106,8 +114,9 @@ class TeamListView(AccountPermissionsMixin, View):
 
 
 class TeamMembersView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def get(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
         team = fetch_team_for_account(self.account, team_pk)
 
         current_members = list(map(lambda u: u.username, team.members.all()))
@@ -118,8 +127,9 @@ class TeamMembersView(AccountPermissionsMixin, View):
             "current_members": json.dumps(current_members)
         }))
 
-    def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
+             account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -146,12 +156,16 @@ class TeamMembersView(AccountPermissionsMixin, View):
                             team.members.remove(user)
                             messages.success(request, "{} was removed from team {}.".format(user.username, team))
 
-        return redirect(reverse('account_team_members', args=(account_pk, team_pk)))
+        if account_slug:
+            return redirect('account_team_members_slug', account_slug, team_pk)
+
+        return redirect('account_team_members', account_pk, team_pk)
 
 
 class TeamProjectsView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def get(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
+            account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
         team = fetch_team_for_account(self.account, team_pk)
         project_roles = ProjectRole.objects.all()
         all_projects = self.account.projects.all()
@@ -176,8 +190,9 @@ class TeamProjectsView(AccountPermissionsMixin, View):
             "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
         }))
 
-    def post(self, request: HttpRequest, account_pk: int, team_pk: int) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk)
+    def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
+             account_slug: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_slug)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -217,4 +232,7 @@ class TeamProjectsView(AccountPermissionsMixin, View):
                                  'message': "Access to the project '{}' was updated for this team.".format(
                                      project_agent_role.project.get_name())})
 
-        return redirect(reverse("account_team_projects", args=(self.account.pk, team.pk)))
+        if account_slug:
+            return redirect('account_team_projects_slug', account_slug, team.pk)
+
+        return redirect('account_team_projects', self.account.pk, team.pk)

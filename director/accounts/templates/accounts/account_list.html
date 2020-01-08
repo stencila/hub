@@ -23,7 +23,8 @@
                 {% for account_role in object_list %}
                     <tr>
                         <td>
-                            <a class="is-uppercase-heading" href="{% url 'account_profile' account_role.account.id %}"
+                            <a class="is-uppercase-heading"
+                               href="{% if account_role.account.slug %}{% url 'account_profile_slug' account_role.account.slug %}{% else %}{% url 'account_profile' account_role.account.id %}{% endif %}"
                                title="{{ account_role.account }}">
                                 {{ account_role.account }}
                             </a>

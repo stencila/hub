@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
 
+from lib.data_cleaning import clean_slug, SlugType
 from lib.enum_choice import EnumChoice
 
 
@@ -57,6 +58,18 @@ class Account(models.Model):
         blank=True,
         help_text='Logo for the account. Please use an image that is 100 x 100 px or smaller. '
     )
+
+    slug = models.SlugField(
+        null=True,
+        blank=True,
+        unique=True,
+        help_text='A unique identifier for the account, used in the URL.'
+    )
+
+    def save(self, *args, **kwargs) -> None:
+        self.slug = clean_slug(self.slug, SlugType.ACCOUNT)
+
+        super(Account, self).save(*args, **kwargs)
 
     def get_administrators(self) -> typing.Iterable[User]:
         """Return users who have administrative permissions on the account."""
