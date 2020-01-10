@@ -1,9 +1,9 @@
 <div class="column" style="flex: none; width: 190px">
     <nav class="panel">
-        {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='profile' url_name='account_profile' url_name_slug='account_profile_slug' icon_class='inbox' tab_name='Profile' %}
-        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='members' url_name='account_access' url_name_slug='account_access_slug' icon_class='user' tab_name='Members' %}
-        {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='teams' url_name='account_team_list' url_name_slug='account_team_list_slug' icon_class='users' tab_name='Teams' %}
-        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='settings' url_name='account_settings' url_name_slug='account_settings_slug' icon_class='cog' tab_name='Settings' %}
-        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='subscriptions' url_name='account_subscriptions' url_name_slug='account_subscriptions_slug' icon_class='dollar' tab_name='Subscriptions' %}
+        {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='profile' url_name='account_profile' icon_class='inbox' tab_name='Profile' %}
+        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='members' url_name='account_access' icon_class='user' tab_name='Members' %}
+        {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='teams' url_name='account_team_list' icon_class='users' tab_name='Teams' %}
+        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='settings' url_name='account_settings' icon_class='cog' tab_name='Settings' %}
+        {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='subscriptions' url_name='account_subscriptions' icon_class='dollar' tab_name='Subscriptions' %}
     </nav>
 </div>

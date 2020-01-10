@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load account_permissions resource_allowance %}
+{% load account_permissions resource_allowance account_urls %}
 {% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
     <div class="columns">
@@ -32,7 +32,7 @@
                         {% if account_permissions|account_permissions_contain:'administer' %}
                             <p class="level-item">
                                 <a class="button is-primary"
-                                   href="{% if account.slug %}{% url 'account_team_create_slug' account.slug %}{% else %}{% url 'account_team_create' account.id %}{% endif %}">
+                                   href="{% account_url 'account_team_create' account %}">
                                     <span class="icon"><i class="fas fa-plus"></i></span>
                                     <span>New Team</span>
                                 </a>
@@ -48,7 +48,7 @@
                         <div class="level">
                             <div class="level-left">
                                 <a class="is-uppercase-heading"
-                                   href="{% if account.slug %}{% url 'account_team_detail_slug' account.slug team.id %}{% else %}{% url 'account_team_detail' account.id team.id %}{% endif %}"
+                                   href="{% account_url 'account_team_detail' account team.id %}"
                                    title="Team {{ team.name }}">
                                     {{ team.name }}
                                 </a>

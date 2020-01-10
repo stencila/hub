@@ -2,26 +2,26 @@ import typing
 
 from django import template
 
-from projects.project_models import Project
-from projects.url_helpers import project_url_reverse
+from accounts.models import Account
+from accounts.url_helpers import account_url_reverse
 
 register = template.Library()
 
 
-class ProjectUrlNode(template.Node):
-    project: template.Variable
+class AccountUrlNode(template.Node):
+    account: template.Variable
     view_name: template.Variable
     args: typing.List[template.Variable]
 
-    def __init__(self, view_name: str, project: str, args: str) -> None:
-        self.project = template.Variable(project)
+    def __init__(self, view_name: str, account: str, args: str) -> None:
+        self.account = template.Variable(account)
         self.view_name = template.Variable(view_name)
         self.args = list(map(template.Variable, args))
 
     def render(self, context):
-        project: Project = self.project.resolve(context)
-        if not isinstance(project, Project):
-            raise TypeError('The first variable to the templatetag must be a Project instance.')
+        account: Account = self.account.resolve(context)
+        if not isinstance(account, Account):
+            raise TypeError('The first variable to the templatetag must be an Account instance.')
 
         view_name: str = self.view_name.resolve(context)
 
@@ -30,16 +30,16 @@ class ProjectUrlNode(template.Node):
 
         resolved_args = list(map(lambda a: a.resolve(context), self.args))
 
-        return project_url_reverse(view_name, resolved_args, project=project)
+        return account_url_reverse(view_name, resolved_args, account=account)
 
 
 @register.tag
-def project_url(parser, token):
+def account_url(parser, token):
     try:
-        tag_name, view_name, project, *args = token.split_contents()
+        tag_name, view_name, account, *args = token.split_contents()
     except ValueError:
         raise template.TemplateSyntaxError(
             "%r tag requires at least two args" % token.contents.split()[0]
         )
 
-    return ProjectUrlNode(view_name, project, args)
+    return AccountUrlNode(view_name, account, args)

@@ -1,8 +1,9 @@
+{% load account_urls %}
 {% if is_admin %}
-    Please visit the <a href="{% url 'account_subscriptions_plan_list' account.id %}" target="_blank" rel="noopener">
+    Please visit the <a href="{% account_url 'account_subscriptions_plan_list' account %}" target="_blank" rel="noopener">
     Account Subscriptions</a>
     page to upgrade or add a subscription.
 {% else %}
-    An account administrator can upgrade or add a subscription at the <a href="{% url 'account_subscriptions_plan_list' account.id %}" target="_blank" rel="noopener">
+    An account administrator can upgrade or add a subscription at the <a href="{% account_url 'account_subscriptions_plan_list' account %}" target="_blank" rel="noopener">
     Account Subscriptions</a> page.
 {% endif %}

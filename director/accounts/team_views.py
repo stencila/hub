@@ -7,13 +7,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.utils.html import escape
 from django.views import View
 
 from accounts.db_facade import fetch_team_for_account
 from accounts.forms import TeamForm
 from accounts.models import Team, AccountPermissionType
+from accounts.url_helpers import account_redirect
 from accounts.views import AccountPermissionsMixin
 from lib.resource_allowance import resource_limit_met, QuotaName, get_subscription_upgrade_text
 from projects.permission_models import ProjectRole, ProjectAgentRole, AgentType
@@ -34,10 +35,7 @@ class TeamDetailView(AccountPermissionsMixin, View):
             messages.error(request, 'This account has reached the maximum number of teams allowed by its current '
                                     'subscription. {}'.format(upgrade_message), extra_tags='safe')
 
-            if self.account.slug:
-                return redirect('account_team_list_slug', self.account.slug)
-
-            return redirect('account_team_list', self.account.id)
+            return account_redirect('account_team_list', account=self.account)
 
         return None
 
@@ -87,9 +85,7 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
             messages.success(request, "Team <em>{}</em> was {} successfully".format(escape(team.name), update_verb),
                              extra_tags='safe')
-            if account_slug:
-                return redirect('account_team_list_slug', account_slug)
-            return redirect('account_team_list', self.account.id)
+            return account_redirect('account_team_list', account=self.account)
 
         return render(request, "accounts/team_detail.html", self.get_render_context({
             "team": team,
@@ -156,10 +152,7 @@ class TeamMembersView(AccountPermissionsMixin, View):
                             team.members.remove(user)
                             messages.success(request, "{} was removed from team {}.".format(user.username, team))
 
-        if account_slug:
-            return redirect('account_team_members_slug', account_slug, team_pk)
-
-        return redirect('account_team_members', account_pk, team_pk)
+        return account_redirect('account_team_members', [team_pk], account=self.account)
 
 
 class TeamProjectsView(AccountPermissionsMixin, View):
@@ -232,7 +225,4 @@ class TeamProjectsView(AccountPermissionsMixin, View):
                                  'message': "Access to the project '{}' was updated for this team.".format(
                                      project_agent_role.project.get_name())})
 
-        if account_slug:
-            return redirect('account_team_projects_slug', account_slug, team.pk)
-
-        return redirect('account_team_projects', self.account.pk, team.pk)
+        return account_redirect('account_team_projects', [team.pk], account=self.account)

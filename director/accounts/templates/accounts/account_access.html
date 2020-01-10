@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static account_urls %}
 {% block title %}Account {{ account.name }} : Members{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
@@ -129,7 +129,7 @@
                     updateData.set('account_user_role_id', accountUserRoleId)
                     updateData.set('role_id', this.accessRoles[accountUserRoleId])
 
-                    fetch(`{% url 'account_access' account.id %}`, {
+                    fetch(`{% account_url 'account_access' account %}`, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',

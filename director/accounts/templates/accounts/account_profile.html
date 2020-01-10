@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load avatar_tags project_urls %}
+{% load avatar_tags project_urls account_urls %}
 {% block title %}Account {{ account.pk }}{% endblock %}
 {% block content %}
 <div class="columns">
@@ -83,7 +83,7 @@
                                 <div class="media">
                                     <div class="media-content">
                                         <p class="title is-6">
-                                            <a href="{% if account.slug %}{% url 'account_team_detail_slug' account.slug team.pk %}{% else %}{% url 'account_team_detail' account.pk team.pk %}{% endif %}">{{ team.name }}</a>
+                                            <a href="{% account_url 'account_team_detail' account team.pk %}">{{ team.name }}</a>
                                         </p>
                                     </div>
                                 </div>

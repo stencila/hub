@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static escape_extras resource_allowance project_urls %}
+{% load crispy_forms_tags static escape_extras resource_allowance project_urls account_urls %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
@@ -139,7 +139,7 @@
                 This project is publicly visible. Anyone can view it but only collaborators can change it.
                 <br>
                 Your subscription does not allow private Projects. Please
-                <a href="{% url "account_subscriptions_plan_list" object.account.pk %}">add or upgrade your subscription</a> to enable
+                <a href="{% account_url 'account_subscriptions_plan_list' object.account %}">add or upgrade your subscription</a> to enable
                 private Projects.
             {% else %}
                 <div class="field">

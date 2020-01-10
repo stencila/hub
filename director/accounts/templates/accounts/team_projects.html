@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static escape_extras account_permissions %}
+{% load static escape_extras account_permissions account_urls %}
 {% block title %}{{ team }} : Projects {% endblock %}
 {% block content %}
 <div class="columns">
@@ -133,7 +133,7 @@
                             roleData.set('action', 'set_role')
                             roleData.set('project_agent_role_id', agentRoleId)
                             roleData.set('role_id', roleId)
-                            fetch(`{% url 'account_team_projects' account.pk team.pk %}`, {
+                            fetch(`{% account_url 'account_team_projects' account team.pk %}`, {
                                 method: 'POST',
                                 headers: {
                                     'Accept': 'application/json',

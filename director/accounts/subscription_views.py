@@ -5,13 +5,13 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.views import View
 from djstripe import settings as djstripe_settings
 from djstripe.models import Product, Plan, Customer, PaymentMethod, Subscription
 
 from accounts.models import AccountPermissionType, AccountSubscription
 from accounts.static_product_config import FREE_PRODUCT, FREE_PLAN
+from accounts.url_helpers import account_url_reverse, account_redirect
 from accounts.views import AccountPermissionsMixin
 from lib.resource_allowance import account_resource_allowance
 
@@ -113,10 +113,7 @@ class AccountSubscriptionCancelView(AccountPermissionsMixin, View):
 
         messages.success(request, cancel_message)
 
-        if account_slug:
-            return redirect('account_subscriptions_slug', account_slug)
-
-        return redirect('account_subscriptions', pk)
+        return account_redirect('account_subscriptions', account=self.account)
 
 
 class AccountSubscriptionAddView(AccountPermissionsMixin, View):
@@ -201,9 +198,6 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
         messages.success(request, 'Sign up to {} subscription was successful.'.format(plan.name))
 
-        if account_slug:
-            post_redirect = reverse('account_subscription_detail_slug', args=(account_slug, subscription.id))
-        else:
-            post_redirect = reverse('account_subscription_detail', args=(self.account.pk, subscription.id))
+        post_redirect = account_url_reverse('account_subscription_detail', [subscription.id], account=self.account)
 
         return JsonResponse({'success': True, 'customer_id': dj_customer.djstripe_id, 'redirect': post_redirect})

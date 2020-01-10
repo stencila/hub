@@ -8,13 +8,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.shortcuts import render
 from django.views.generic import View, ListView, CreateView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm, AccountCreateForm
 from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
+from accounts.url_helpers import account_url_reverse, account_redirect
 
 User = get_user_model()
 
@@ -204,10 +204,8 @@ class AccountAccessView(AccountPermissionsMixin, View):
                         account_user_role.role = new_role
                         account_user_role.save()
                         messages.success(request, "Role updated for user {}".format(account_user_role.user.username))
-        if pk is not None:
-            return redirect('account_access', pk)
 
-        return redirect('account_access_slug', account_slug)
+        return account_redirect('account_access', account=self.account)
 
 
 class AccountSettingsView(AccountPermissionsMixin, UpdateView):
@@ -218,10 +216,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     slug_url_kwarg = 'account_slug'
 
     def get_success_url(self) -> str:
-        if self.object.slug:
-            return reverse('account_profile_slug', kwargs={'account_slug': self.object.slug})
-
-        return reverse('account_profile', kwargs={'pk': self.object.pk})
+        return account_url_reverse('account_profile', account=self.object)
 
     def get_context_data(self, **kwargs):
         self.perform_account_fetch(self.request.user, self.object.pk)
@@ -244,6 +239,4 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        if self.object.slug:
-            return reverse('account_profile_slug', kwargs={'account_slug': self.object.slug})
-        return reverse('account_profile', kwargs={'pk': self.object.pk})
+        return account_url_reverse('account_profile', account=self.object)

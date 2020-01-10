@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load account_urls %}
 {% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
     <div class="columns is-centered">
@@ -24,7 +25,7 @@
                     <tr>
                         <td>
                             <a class="is-uppercase-heading"
-                               href="{% if account_role.account.slug %}{% url 'account_profile_slug' account_role.account.slug %}{% else %}{% url 'account_profile' account_role.account.id %}{% endif %}"
+                               href="{% account_url 'account_profile' account_role.account %}"
                                title="{{ account_role.account }}">
                                 {{ account_role.account }}
                             </a>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
 {% block scripts %}
     {{ block.super }}
@@ -67,7 +67,7 @@
           }
 
           try {
-            const response = await fetch('{% if account.slug %}{% url 'account_subscription_signup_slug' account.slug %}{% else %}{% url 'account_subscription_signup' account.pk %}{% endif %}', {
+            const response = await fetch('{% account_url 'account_subscription_signup' account %}', {
               method: 'post',
               headers: {
                 'Content-Type': 'application/json',
