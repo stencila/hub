@@ -27,7 +27,7 @@ class AccountFetchResult(typing.NamedTuple):
 def fetch_account(user: AbstractUser, account_pk: typing.Optional[int] = None,
                   slug: typing.Optional[str] = None) -> AccountFetchResult:
     """
-    Fetch an `Account`, raising a 404 if the `Account` with `account_pk` does not exist.
+    Fetch an `Account`, raising a 404 if the `Account` with `account_pk` or `slug` does not exist.
 
     Returns an `AccountFetchResult`. If the `user` does not have access to the `Account` then
     `AccountFetchResult.user_roles` and `AccountFetchResult.user_permissions` will be empty sets.

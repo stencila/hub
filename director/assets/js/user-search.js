@@ -19,12 +19,13 @@ Vue.component('user-autocomplete', {
         'skipResults': {
             type: Array,
             required: false,
-            default: []
+            default: function () {
+              return []
+            }
         }
     },
     data() {
         return {
-            skipResults: [],
             data: [],
             nameSearch: '',
             selected: null,

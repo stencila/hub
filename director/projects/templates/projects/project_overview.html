@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-
+{% load project_urls %}
 {% block title %}{{ project.name }} : Overview{% endblock %}
 
 {% block project_content %}
@@ -19,31 +19,6 @@
                 <p class="has-text-grey-light">No project description yet</p>
             {% endif %}
         </div>
-        {% comment %}
-          <div class="column id="id-project-actions">
-            <div class="row">
-                <a class="button is-fullwidth is-primary"
-                    href="{% url 'checkout_create' %}?project={{ project.id }}" target="_blank" title="Open">
-                    <span class="icon is-small">
-                      <i class="fa fa-pencil-alt"></i>
-                    </span>
-                    <span>Open</span>
-                </a>
-            </div>
-            <div class="row is-top-padding">
-                <a class="button is-fullwidth" href="{% url 'project_archive' object.id %}">
-                    <span class="icon"><i class="fas fa-download"></i></span>
-                    <span>Download</span>
-                </a>
-            </div>
-            <div class="row is-top-padding">
-                <button class="button is-fullwidth" type="button" @click="startSession">
-                    <span class="icon is-small"><i class="fas fa-rocket"></i></span>
-                    <span>Launch Session</span>
-                </button>
-            </div>
-          </div>
-          {% endcomment %}
     </div>
     <div class="columns">
         <div class="column is-12">
@@ -87,7 +62,7 @@
           data () {
             return {
               sessionStartUrl: '{% url "session_start_v1"  project.token cloud_environ %}',
-              fileCheckoutUrl: '{% url "project_pull" project.id %}',
+              fileCheckoutUrl: '{% project_url 'project_pull' project %}',
               terminalSetup: false,
               checkoutInProgress: false
             }

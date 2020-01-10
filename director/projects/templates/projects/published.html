@@ -1,20 +1,10 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static escape_extras resource_allowance %}
-{% block title %}Project {{ project.pk }} : Sharing{% endblock %}
-{% block styles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bulma-switch.min.css' %}">
-    {{ block.super }}
-{% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
-{% endblock %}
+{% load project_urls %}
+{% block title %}Project {{ project.pk }} : Published Content{% endblock %}
 {% block project_content %}
-    <iframe class="published-display" src="{% url 'project_published_content_view' project.pk slug %}"></iframe>
+    <iframe class="published-display" src="{% project_url 'project_published_content_view' project slug %}"></iframe>
     <div class="has-text-right">
-        <a href="{% url 'project_published_content_view' project.pk slug %}" target="_blank" rel="noopener"
+        <a href="{% project_url 'project_published_content_view' project slug %}" target="_blank" rel="noopener"
            class="button is-primary">
             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
             <span>Open In New Tab</span>

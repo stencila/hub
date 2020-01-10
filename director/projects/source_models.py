@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db import models
-from django.urls import reverse
 from polymorphic.models import PolymorphicModel
 
 from lib.conversion_types import mimetype_from_path
@@ -75,9 +74,6 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
     @property
     def type_id(self) -> str:
         return AvailableSourceType.get_project_type_id(type(self))
-
-    def get_absolute_url(self):
-        return reverse('source_detail', args=[self.type_id, self.pk])
 
     def pull(self) -> BytesIO:
         raise NotImplementedError('Pull is not implemented for class {}'.format(self.__class__.__name__))

@@ -1,6 +1,5 @@
 from django.http import HttpRequest
 from django.shortcuts import redirect
-from django.urls import reverse
 
 from lib.browser_detection import user_agent_is_internet_explorer
 
@@ -11,7 +10,7 @@ def ie_detect_middleware(get_response):
         if user_agent_is_internet_explorer(request.META.get('HTTP_USER_AGENT')):
             if 'ie-unsupported' not in request.path:
                 # prevent redirect loops
-                return redirect(reverse('ie-unsupported'))
+                return redirect('ie-unsupported')
 
         return get_response(request)
 

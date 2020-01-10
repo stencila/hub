@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-
+{%  load project_urls %}
 {% block title %}Sessions{% endblock %}
 
 {% block content %}
-    <h1>Sessions for <a href="{% url "project_update" project.pk %}">{{ project }}</a></h1>
+    <h1>Sessions for <a href="{% project_url 'project_overview' project %}">{{ project }}</a></h1>
     <table class="table is-fullwidth">
         <thead>
             <tr>

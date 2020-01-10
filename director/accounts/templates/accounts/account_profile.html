@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load avatar_tags %}
+{% load avatar_tags project_urls %}
 {% block title %}Account {{ account.pk }}{% endblock %}
 {% block content %}
 <div class="columns">
@@ -33,7 +33,7 @@
                     {% for project in projects %}
                         <div class="level">
                             <div class="level-left">
-                                <a class="is-uppercase-heading" href="{% url 'project_overview' project.id %}" title="Open">
+                                <a class="is-uppercase-heading" href="{% project_url 'project_overview' project %}" title="Open">
                                     {{ project.name|default:'Unnamed project' }}
                                 </a>
                             </div>

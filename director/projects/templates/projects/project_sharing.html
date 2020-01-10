@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static escape_extras resource_allowance %}
+{% load crispy_forms_tags static escape_extras resource_allowance project_urls %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
@@ -14,7 +14,7 @@
 {% block project_content %}
     <div id="project-role">
         <delete-confirm-modal
-                form-action="{% url 'project_sharing_roles' object.id %}"
+                form-action="{% project_url 'project_sharing_roles' object %}"
                 :delete-modal-visible="deleteModalVisible" z
                 delete-action="remove_role"
                 delete-id-name="project_agent_role_id"
@@ -71,7 +71,7 @@
             </tbody>
         </table>
         <p class="is-uppercase-heading has-bottom-margin">Add people</p>
-        <form class="field" method="POST" action="{% url 'project_sharing_roles' object.id %}">
+        <form class="field" method="POST" action="{% project_url 'project_sharing_roles' object %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -98,7 +98,7 @@
             </div>
         </form>
         <p class="is-uppercase-heading has-top-margin has-bottom-margin">Add team</p>
-        <form class="field" ethod="POST" action="{% url 'project_sharing_roles' object.id %}">
+        <form class="field" ethod="POST" action="{% project_url 'project_sharing_roles' object %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -151,7 +151,8 @@
                     </label>
                 </div>
             {% endif %}
-        </br>
+            <br>
+        </div>
     </div>
     <script src="{% static "js/user-search.js" %}"></script>
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
@@ -179,7 +180,7 @@
             Vue.set(this.updateInProgress, projectAgentRoleId, true)
             Vue.set(this.updateCompleted, projectAgentRoleId, false)
 
-            fetch(`{% url 'project_sharing_roles' object.id %}`, {
+            fetch(`{% project_url 'project_sharing_roles' object %}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -204,7 +205,7 @@
             publicSettingData.set('action', 'set_public')
             publicSettingData.set('is_public', this.isPublic)
 
-            fetch(`{% url 'project_sharing_roles' object.id %}`, {
+            fetch(`{% project_url 'project_sharing_roles' object %}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

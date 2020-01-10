@@ -93,7 +93,7 @@ class UsernameChangeView(LoginRequiredMixin, FormView):
         except IntegrityError:
             messages.error(self.request, "Username can not be changed to '{}' as it is already in use.".format(
                 form.cleaned_data['username']))
-            return redirect(reverse('user_change_username'))
+            return redirect('user_change_username')
 
         messages.success(self.request, "Your username was changed to '{}'.".format(form.cleaned_data['username']))
         return super(UsernameChangeView, self).form_valid(form)

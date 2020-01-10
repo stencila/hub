@@ -115,6 +115,8 @@ class SourceContentFacade(object):
                 self.size = self.get_disk_source_size()
             elif isinstance(self.source, GoogleDocsSource):
                 self.size = self.get_google_docs_size()
+            elif isinstance(self.source, UrlSource):
+                self.size = self.get_url_source_size()
             else:
                 raise TypeError('Don\'t know how to get size for source type \'{}\''.format(type(self.source)))
         return self.size
@@ -269,8 +271,13 @@ class SourceContentFacade(object):
         return self.get_url_source_binary_content().decode('utf8')
 
     def get_url_source_binary_content(self) -> bytes:
-        source = typing.cast(UrlSource, self.source)
-        return fetch_url(source.url, get_response_content, settings.STENCILA_CLIENT_USER_AGENT)
+        if self.content_cache is None:
+            source = typing.cast(UrlSource, self.source)
+            self.content_cache = fetch_url(source.url, get_response_content, settings.STENCILA_CLIENT_USER_AGENT)
+        return typing.cast(bytes, self.content_cache)
+
+    def get_url_source_size(self) -> int:
+        return len(self.get_url_source_binary_content())
 
     def get_name(self) -> str:
         """Get the name of the source (i.e. basename)."""

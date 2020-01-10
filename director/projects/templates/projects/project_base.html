@@ -1,53 +1,53 @@
 {% extends 'base.html' %}
-{% load project_permissions %}
+{% load project_permissions project_urls %}
 {% block content %}
 <div class="columns">
     <div class="column" style="flex: none; width: 190px">
         <nav class="panel">
-            <a href="{% url 'project_overview' project.pk %}"
+            <a href="{% project_url 'project_overview' project %}"
                 class="panel-block{% if project_tab == 'overview' %} is-active{% endif %}">
                 Overview
             </a>
             {% if project.published_item %}
-                <a href="{% url 'project_published_view' project.pk project.published_item.slug %}"
+                <a href="{% project_url 'project_published_view' project project.published_item.slug %}"
                    class="panel-block{% if project_tab == 'published' %} is-active{% endif %}">
                    Published
                 </a>
             {% endif %}
-            <a href="{% url 'project_files' project.pk %}"
+            <a href="{% project_url 'project_files' project %}"
                 class="panel-block{% if project_tab == 'files' %} is-active{% endif %}">
                 Files
             </a>
             <div class="panel-block-secondary{% if project_tab == 'files' %} is-active{% endif %}">
-                <a href="{% url 'project_files' project.pk %}" class="panel-block{% if project_subtab == 'current' %} is-active{% endif %}">
+                <a href="{% project_url 'project_files' project %}" class="panel-block{% if project_subtab == 'current' %} is-active{% endif %}">
                     Current
                 </a>
-                <a href="{% url 'project_archives' project.pk %}" class="panel-block{% if project_subtab == 'archives' %} is-active{% endif %}">
+                <a href="{% project_url 'project_archives' project %}" class="panel-block{% if project_subtab == 'archives' %} is-active{% endif %}">
                     Archives
                 </a>
             </div>
             {% if project_permissions|project_permissions_contain:'manage' %}
-            <a href="{% url 'project_activity' project.pk %}"
+            <a href="{% project_url 'project_activity' project %}"
                 class="panel-block{% if project_tab == 'activity' %} is-active{% endif %}">
                 Activity
             </a>
-            <a href="{% url 'project_sharing' project.pk %}"
+            <a href="{% project_url 'project_sharing' project %}"
                 class="panel-block{% if project_tab == 'sharing' %} is-active{% endif %}">
                 Sharing
             </a>
-            <a href="{% url 'project_settings_metadata' project.pk %}"
+            <a href="{% project_url 'project_settings_metadata' project %}"
                 class="panel-block{% if project_tab == 'settings' %} is-active{% endif %}">
                 Settings
             </a>
             <div class="panel-block-secondary{% if project_tab == 'settings' %} is-active{% endif %}">
-                <a href="{% url 'project_settings_metadata' project.pk %}" class="panel-block{% if project_subtab == 'metadata' %} is-active{% endif %}">
+                <a href="{% project_url 'project_settings_metadata' project %}" class="panel-block{% if project_subtab == 'metadata' %} is-active{% endif %}">
                     Meta-data
                 </a>
-                <a href="{% url 'project_settings_access' project.pk %}" class="panel-block{% if project_subtab == 'access' %} is-active{% endif %}">
+                <a href="{% project_url 'project_settings_access' project %}" class="panel-block{% if project_subtab == 'access' %} is-active{% endif %}">
                     Access
                 </a>
                 {% if FEATURE_PROJECT_SESSION_SETTINGS %}
-                    <a href="{% url 'project_settings_sessions' project.pk %}" class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">
+                    <a href="{% project_url 'project_settings_sessions' project %}" class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">
                         Sessions
                     </a>
                 {% endif %}

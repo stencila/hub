@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.urls import reverse
 from django.utils.html import escape
 from django.utils.text import slugify
 from django.views.generic.base import View
@@ -29,6 +28,7 @@ from projects.source_content_facade import make_source_content_facade
 from projects.source_models import GoogleDocsSource, UrlSource
 from projects.source_operations import utf8_path_join
 from projects.source_views import ConverterMixin
+from projects.url_helpers import project_url_reverse
 
 
 class LinkException(Exception):
@@ -38,9 +38,9 @@ class LinkException(Exception):
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int):  # type: ignore
+    def post(self, request: HttpRequest, **kwargs):  # type: ignore
         """Create or update the `PublishedItem` for this Project."""
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, kwargs)
 
         try:
             pi = PublishedItem.objects.get(project=project)
@@ -54,7 +54,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
         if form.is_valid():
             original_path = form.cleaned_data['path']
 
-            source = self.get_source(request.user, pk, form.cleaned_data.get('source_id'))
+            source = self.get_source(request.user, kwargs, form.cleaned_data.get('source_id'))
             scf = make_source_content_facade(request.user, original_path, source, project)
 
             published_path = scf.disk_file_facade.full_file_path(PUBLISHED_FILE_NAME)
@@ -70,7 +70,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             return JsonResponse({
                 'success': True,
-                'url': reverse('project_published_view', args=(project.pk, pi.slug))
+                'url': project_url_reverse('project_published_view', [pi.slug], project=project)
             })
         else:
             return JsonResponse({

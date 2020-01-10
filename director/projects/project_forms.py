@@ -14,7 +14,7 @@ from .project_models import Project, PublishedItem
 class ProjectCreateForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['account', 'name', 'description', 'public']
+        fields = ['account', 'name', 'description', 'public', 'slug']
         widgets = {
             'name': forms.TextInput()
         }
@@ -83,7 +83,7 @@ class ProjectSharingForm(forms.ModelForm):
 class ProjectSettingsMetadataForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'slug']
         widgets = {
             'name': forms.TextInput()
         }

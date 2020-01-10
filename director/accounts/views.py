@@ -205,9 +205,9 @@ class AccountAccessView(AccountPermissionsMixin, View):
                         account_user_role.save()
                         messages.success(request, "Role updated for user {}".format(account_user_role.user.username))
         if pk is not None:
-            return redirect(reverse('account_access', args=(pk,)))
+            return redirect('account_access', pk)
 
-        return redirect(reverse('account_access_slug', args=(account_slug,)))
+        return redirect('account_access_slug', account_slug)
 
 
 class AccountSettingsView(AccountPermissionsMixin, UpdateView):
@@ -219,9 +219,9 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
 
     def get_success_url(self) -> str:
         if self.object.slug:
-            return reverse("account_profile_slug", kwargs={'account_slug': self.object.slug})
+            return reverse('account_profile_slug', kwargs={'account_slug': self.object.slug})
 
-        return reverse("account_profile", kwargs={'pk': self.object.pk})
+        return reverse('account_profile', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         self.perform_account_fetch(self.request.user, self.object.pk)
@@ -245,5 +245,5 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
 
     def get_success_url(self) -> str:
         if self.object.slug:
-            return reverse("account_profile_slug", kwargs={'account_slug': self.object.slug})
-        return reverse("account_profile", kwargs={'pk': self.object.pk})
+            return reverse('account_profile_slug', kwargs={'account_slug': self.object.slug})
+        return reverse('account_profile', kwargs={'pk': self.object.pk})

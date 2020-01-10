@@ -1,5 +1,5 @@
 """Implement the urlpatterns for the case when the URL starts with the account slug instead of /accounts/."""
-from django.urls import path
+from django.urls import path, include
 
 import accounts.views as accounts_views
 import accounts.subscription_views as subscription_views
@@ -36,5 +36,6 @@ urlpatterns = [
          subscription_views.AccountSubscriptionCancelView.as_view(),
          name='account_subscription_cancel_slug'),
     path(AccountUrlRoot.subscription_signup.value + '/', subscription_views.SubscriptionSignupView.as_view(),
-         name='account_subscription_signup_slug')
+         name='account_subscription_signup_slug'),
+    path('<slug:project_slug>/', include('projects.slug_urls'))
 ]

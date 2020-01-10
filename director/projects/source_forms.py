@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from django import forms
 from django.core.exceptions import ValidationError
 
-from lib.forms import ModelFormWithSubmit, FormWithSubmit
+from lib.forms import ModelFormWithSubmit
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid
 from .source_models import GithubSource, GoogleDocsSource
 
@@ -25,10 +25,6 @@ class PathField(forms.CharField):
             if re.match(r'^\.+$', part):
                 raise ValidationError('The path must not contain "." or ".." as components.')
         return cleaned_value
-
-
-class DiskFileSourceForm(FormWithSubmit):
-    path = PathField(required=True)
 
 
 class GithubSourceForm(ModelFormWithSubmit):

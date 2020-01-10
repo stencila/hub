@@ -123,9 +123,8 @@ class ProjectHostSessionsViewTests(TestCase):
 
         self.assertEqual(session_request, mock_session_request_class.objects.get.return_value)
 
-    @mock.patch('projects.project_host_views.reverse')
     @mock.patch('projects.project_host_views.redirect')
-    def test_create_session_request(self, mock_redirect, mock_reverse):
+    def test_create_session_request(self, mock_redirect):
         """
         `create_session_request` should get a `SessionRequest` back from the `create_session_request` method of the
         `CloudSessionFacade`, and set its pk into the session, then return a redirect to the view for checking
@@ -137,8 +136,7 @@ class ProjectHostSessionsViewTests(TestCase):
 
         self.view.session_facade.create_session_request.assert_called_with(self.environ)
         self.assertEqual(response, mock_redirect.return_value)
-        mock_redirect.assert_called_with(mock_reverse.return_value)
-        mock_reverse.assert_called_with('session_queue_v0', args=(self.token,))
+        mock_redirect.assert_called_with('session_queue_v0', self.token)
 
         self.assertEqual(self.request.session["SESSION_REQUEST_ID_token"],
                          self.view.session_facade.create_session_request.return_value.pk)

@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load humanize static escape_extras source_extras project_permissions %}
+{% load humanize static escape_extras source_extras project_permissions project_urls %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 {% block project_header_right %}
@@ -66,7 +66,7 @@
                         <span>Dropbox</span>
                     </a>
                     {% endcomment %}
-                        <a href="{% url 'githubsource_create' project.pk %}" @click="showLinkModal($event, 'github', 'github')" class="dropdown-item">
+                        <a href="{% project_url 'githubsource_create' project %}" @click="showLinkModal($event, 'github', 'github')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-github" aria-hidden="true"></i>
                         </span>
@@ -98,7 +98,7 @@
 {% endblock %}
 {% block project_content %}
     <script>
-      const g_filePullUrl = "{% url 'project_pull' project.id %}"
+      const g_filePullUrl = "{% project_url 'project_pull' project %}"
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
       const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
@@ -118,10 +118,10 @@
         <remove-item-modal directory-path="{{ current_directory }}"></remove-item-modal>
         <convert-modal
                 :existing-files="fileList"
-                source-convert-url="{% url 'source_convert' project.pk %}"
+                source-convert-url="{% project_url 'source_convert' project %}"
         ></convert-modal>
         <upload-progress-modal
-                upload-url="{% url 'filesource_upload' project.id %}?directory={{ current_directory }}"></upload-progress-modal>
+                upload-url="{% project_url 'filesource_upload' project %}?directory={{ current_directory }}"></upload-progress-modal>
         <unsupported-social-provider-modal
                 account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
         <googledocs-link-modal directory="{{ current_directory }}"
@@ -153,7 +153,7 @@
                 {% for breadcrumb in breadcrumbs %}
                     <li {% if forloop.last %}class="is-active"{% endif %}>
                         <a href="
-                                {% if breadcrumb.path %}{% url 'project_files_path' project.pk breadcrumb.path %}{% else %}{% url 'project_files' project.pk %}{% endif %}">
+                                {% if breadcrumb.path %}{% project_url 'project_files_path' project breadcrumb.path %}{% else %}{% project_url 'project_files' project %}{% endif %}">
                             <span>
                                 {{ breadcrumb.name }}
                             </span>

@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load humanize static escape_extras source_extras crispy_forms_tags project_permissions %}
+{% load humanize static escape_extras source_extras crispy_forms_tags project_permissions project_urls %}
 
 {% block title %}Project {{ project.pk }}: Files{% endblock %}
 
@@ -36,7 +36,7 @@
                     <td>{{ archive.created|date:"SHORT_DATETIME_FORMAT" }}</td>
                     <td>{{ archive.size|filesizeformat }}</td>
                     <td>
-                        <a class="icon" href="{% url 'project_named_archive_download' project.pk archive.name %}"
+                        <a class="icon" href="{% project_url 'project_named_archive_download' project archive.name %}"
                            title="Download">
                             <i class="fas fa-download"></i>
                         </a>

@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, Http404, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils.html import escape
@@ -18,8 +18,8 @@ from django.views.generic import CreateView, DetailView
 
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
 from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
@@ -31,77 +31,53 @@ from projects.source_content_facade import SourceEditContext, SourceContentFacad
 from projects.source_models import DiskSource, GoogleDocsSource
 from projects.source_operations import strip_directory, utf8_path_join, utf8_basename, \
     utf8_dirname
+from projects.url_helpers import project_redirect
 from .models import Project, DropboxSource, GithubSource
-from .source_forms import GithubSourceForm, DiskFileSourceForm, GoogleDocsSourceForm
+from .source_forms import GithubSourceForm, GoogleDocsSourceForm
 
 
-class SourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, CreateView):
+def project_files_redirect(url_kwargs: dict, dirname: str) -> HttpResponse:
+    """Redirect to the correct file browse URL, taking into account if we are in "slug" mode and inside a directory."""
+    return project_redirect('project_files_path' if dirname else 'project_files', [dirname] if dirname else [],
+                            url_kwargs)
+
+
+class SourceCreateView(ProjectPermissionsMixin, CreateView):
     """A base class for view for creating new project sources."""
 
     project_permission_required = ProjectPermissionType.EDIT
 
     def get_initial(self):
         return {
-            'project': self.get_project(self.request.user, self.kwargs['pk'])
+            'project': self.get_project(self.request.user, self.kwargs)
         }
 
-    def get_redirect(self, pk: int) -> HttpResponse:
-        if self.request.GET.get('directory'):
-            return redirect("project_files_path", pk, self.request.GET['directory'])
+    def get_redirect(self, url_kwargs: dict) -> HttpResponse:
+        account_slug = url_kwargs.get('account_slug')
+        project_slug = url_kwargs.get('project_slug')
+
+        if account_slug and project_slug:
+            args = [account_slug, project_slug]
+            slug_suffix = '_slug'
         else:
-            return redirect("project_files", pk)
+            args = [url_kwargs['pk']]
+            slug_suffix = ''
+
+        if self.request.GET.get('directory'):
+            args.append(self.request.GET.get('directory'))
+            redirect_name = 'project_files_path' + slug_suffix
+        else:
+            redirect_name = 'project_files' + slug_suffix
+
+        return redirect(redirect_name, *args)
 
     def form_valid(self, form):
         """Override to set the project for the `Source` and redirect back to that project."""
-        pk = self.kwargs['pk']
         file_source = form.save(commit=False)
-        file_source.project = get_object_or_404(Project, pk=pk)
+        file_source.project = self.get_project(self.request.user, self.kwargs)
         file_source.save()
 
-        return self.get_redirect(pk)
-
-
-class FileSourceCreateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
-    """A view for creating a new, emtpy local file in the project."""
-
-    form_class = DiskFileSourceForm
-    template_name = 'projects/filesource_create.html'
-    project_permission_required = ProjectPermissionType.EDIT
-
-    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        self.get_project(request.user, pk)
-
-        return self.get_response(request, self.form_class())
-
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
-
-        form = self.form_class(request.POST)
-
-        if form.is_valid():
-            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-            dff.create_file(utf8_path_join(self.current_directory, form.cleaned_data['path']))
-
-            if self.current_directory:
-                return redirect("project_files_path", pk, self.current_directory)
-            else:
-                return redirect("project_files", pk, )
-
-        return self.get_response(request, form)
-
-    def get_response(self, request: HttpRequest, form: DiskFileSourceForm) -> HttpResponse:
-        return render(request,
-                      self.template_name,
-                      self.get_render_context({
-                          'current_directory': self.current_directory,
-                          'form': form
-                      })
-                      )
-
-    @property
-    def current_directory(self) -> str:
-        return self.request.GET.get('directory', '')
+        return self.get_redirect(self.kwargs)
 
 
 class DropboxSourceCreateView(SourceCreateView):
@@ -125,7 +101,7 @@ class GithubSourceCreateView(SourceCreateView):
             messages.error(request, 'Can not link a Github repository as you do not have a Github account connected to '
                                     'your Stencila Hub account.<br/>Please connect your Github account on the '
                                     '<a href="{}">Account Connections page</a>.'.format(social_url), extra_tags='safe')
-            return redirect('project_files', kwargs['pk'])
+            return project_redirect('project_files', url_kwargs=kwargs)
 
         return super(GithubSourceCreateView, self).get(request, *args, **kwargs)
 
@@ -154,21 +130,11 @@ class GoogleDocsSourceCreateView(SourceCreateView):
         return self.get_redirect(pk)
 
 
-class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailView):
+class FileSourceUploadView(ProjectPermissionsMixin, View):
     """A view for uploading one or more files into the project."""
 
-    model = Project
-    template_name = 'projects/filesource_upload.html'
-    project_permission_required = ProjectPermissionType.EDIT
-
-    def get_context_data(self, **kwargs):
-        self.get_project(self.request.user, self.kwargs['pk'])
-        context_data = super().get_context_data(**kwargs)
-        context_data['upload_directory'] = self.request.GET.get('directory', '')
-        return context_data
-
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+    def post(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, kwargs)
 
         directory = request.GET.get('directory', '')
         files = request.FILES.getlist('file')
@@ -219,30 +185,25 @@ class FileSourceUploadView(LoginRequiredMixin, ProjectPermissionsMixin, DetailVi
 
 
 class ContentFacadeMixin(object):
-    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
-        source = self.get_source(request.user, project_pk, pk)  # type: ignore
+    def get_content_facade(self, request: HttpRequest, url_kwargs: dict, pk: int, path: str) -> SourceContentFacade:
+        source = self.get_source(request.user, url_kwargs, pk)  # type: ignore
         return make_source_content_facade(request.user, path, source,
-                                          self.get_project(request.user, project_pk))  # type: ignore
+                                          self.get_project(request.user, url_kwargs))  # type: ignore
 
 
 class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
-        content_facade = self.get_content_facade(request, project_pk, pk, path)
-        return self.process_get(project_pk, path, content_facade)
+    def get(self, request: HttpRequest, pk: int, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, kwargs, pk, path)
+        return self.process_get(kwargs, path, content_facade)
 
-    def process_get(self, project_pk: int, path: str, content_facade: SourceContentFacade) -> HttpResponse:
+    def process_get(self, url_kwargs: dict, path: str, content_facade: SourceContentFacade) -> HttpResponse:
         file_content = content_facade.get_binary_content()
 
         if content_facade.error_exists:
             content_facade.add_messages_to_request(self.request)
-
-            dirname = utf8_dirname(path)
-
-            if dirname:
-                return redirect('project_files_path', project_pk, dirname)
-            return redirect('project_files', project_pk)
+            return project_files_redirect(url_kwargs, utf8_dirname(path))
 
         response = HttpResponse(file_content, content_type='application/octet-stream')
 
@@ -279,43 +240,39 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
     def get_default_commit_message(request: HttpRequest):
         return 'Commit from Stencila Hub User {}'.format(request.user)
 
-    def process_get(self, request: HttpRequest, project_pk: int, path: str,
+    def process_get(self, request: HttpRequest, url_kwargs: dict, path: str,
                     content_facade: SourceContentFacade) -> HttpResponse:
         edit_context = content_facade.get_edit_context()
 
         if edit_context is None:
             content_facade.add_messages_to_request(request)
-            dirname = utf8_dirname(path)
-
-            if dirname:
-                return redirect('project_files_path', project_pk, dirname)
-            return redirect('project_files', project_pk)
+            return project_files_redirect(url_kwargs, utf8_dirname(path))
 
         return self.render(request, edit_context, {
             'default_commit_message': self.get_default_commit_message(request)
         })
 
-    def get(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
-        content_facade = self.get_content_facade(request, project_pk, pk, path)
-        return self.process_get(request, project_pk, path, content_facade)
+    def get(self, request: HttpRequest, pk: int, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, kwargs, pk, path)
+        return self.process_get(request, kwargs, path, content_facade)
 
     @staticmethod
     def get_github_repository_path(source, file_path):
         repo_path = utf8_path_join(source.subpath, strip_directory(file_path, source.path))
         return repo_path
 
-    def post(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> HttpResponse:  # type: ignore
-        self.pre_post_check(request, project_pk)
+    def post(self, request: HttpRequest, pk: int, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        self.pre_post_check(request, kwargs)
 
-        content_facade = self.get_content_facade(request, project_pk, pk, path)
-        return self.perform_post(request, project_pk, path, content_facade)
+        content_facade = self.get_content_facade(request, kwargs, pk, path)
+        return self.perform_post(request, kwargs, path, content_facade)
 
-    def pre_post_check(self, request: HttpRequest, project_pk: int) -> None:
-        self.perform_project_fetch(request.user, project_pk)
+    def pre_post_check(self, request: HttpRequest, url_kwargs: dict) -> None:
+        self.perform_project_fetch(request.user, url_kwargs)
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
-    def perform_post(self, request: HttpRequest, project_pk: int, path: str,
+    def perform_post(self, request: HttpRequest, url_kwargs: dict, path: str,
                      content_facade: SourceContentFacade) -> HttpResponse:
         commit_message = request.POST.get('commit_message') or self.get_default_commit_message(request)
 
@@ -346,17 +303,13 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
 
         content_facade.add_messages_to_request(request)
 
+        dirname = utf8_dirname(path)
+
         if error_exists or not update_success:
             edit_context = content_facade.get_edit_context(content_override)
 
             if edit_context is None or content_facade.error_exists:
-                content_facade.add_messages_to_request(self.request)
-
-                dirname = utf8_dirname(path)
-
-                if dirname:
-                    return redirect('project_files_path', project_pk, dirname)
-                return redirect('project_files', project_pk)
+                return project_files_redirect(url_kwargs, dirname)
 
             return self.render(request, edit_context, {
                 'commit_message': commit_message,
@@ -364,131 +317,35 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
             })
 
         messages.success(request, 'Content of {} updated.'.format(os.path.basename(path)))
-        directory = os.path.dirname(path)
-        if directory:
-            reverse_name = 'project_files_path'
-            args = (project_pk, directory,)  # type: ignore
-        else:
-            reverse_name = 'project_files'
-            args = (project_pk,)  # type: ignore
-        return redirect(reverse(reverse_name, args=args))
+
+        return project_files_redirect(url_kwargs, dirname)
 
 
 class DiskFileSourceDownloadView(SourceDownloadView):
-    def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
-        content_facade = self.get_content_facade(request, project_pk, -1, path)
-        return self.process_get(project_pk, path, content_facade)
+    def get(self, request: HttpRequest, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, kwargs, -1, path)
+        return self.process_get(kwargs, path, content_facade)
 
-    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
-        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
+    def get_content_facade(self, request: HttpRequest, url_kwargs: dict, pk: int, path: str) -> SourceContentFacade:
+        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, url_kwargs))
 
 
 class DiskFileSourceOpenView(SourceOpenView):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get_content_facade(self, request: HttpRequest, project_pk: int, pk: int, path: str) -> SourceContentFacade:
-        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, project_pk))
+    def get_content_facade(self, request: HttpRequest, url_kwargs: dict, pk: int, path: str) -> SourceContentFacade:
+        return make_source_content_facade(request.user, path, DiskSource(), self.get_project(request.user, url_kwargs))
 
-    def get(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
-        content_facade = self.get_content_facade(request, project_pk, -1, path)
-        return self.process_get(request, project_pk, path, content_facade)
+    def get(self, request: HttpRequest, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        content_facade = self.get_content_facade(request, kwargs, -1, path)
+        return self.process_get(request, kwargs, path, content_facade)
 
-    def post(self, request: HttpRequest, project_pk: int, path: str) -> HttpResponse:  # type: ignore
-        self.pre_post_check(request, project_pk)
+    def post(self, request: HttpRequest, path: str, **kwargs) -> HttpResponse:  # type: ignore
+        self.pre_post_check(request, kwargs)
 
-        content_facade = self.get_content_facade(request, project_pk, -1, path)
+        content_facade = self.get_content_facade(request, kwargs, -1, path)
 
-        return self.perform_post(request, project_pk, path, content_facade)
-
-
-class DiskFileSourceUpdateView(LoginRequiredMixin, ProjectPermissionsMixin, View):
-    form_class = DiskFileSourceForm
-    template_name = 'projects/source_update.html'
-    project_permission_required = ProjectPermissionType.EDIT
-
-    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
-
-        form = self.form_class(initial={'path': path})
-
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-        if not dff.item_exists(path):
-            raise Http404
-
-        return self.get_response(request, project, form, path)
-
-    def get_response(self, request: HttpRequest, project: Project, form: DiskFileSourceForm, path: str) -> HttpResponse:
-        return render(request, self.template_name, {
-            'project': project,
-            'current_path': path,
-            'form': form
-        })
-
-    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
-
-        form = self.form_class(request.POST, initial={'path': path})
-
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-        if not dff.item_exists(path):
-            raise Http404
-
-        if form.is_valid():
-            dff.move_file(path, form.cleaned_data['path'])
-            messages.success(request, '"{}" was moved to "{}".'.format(path, form.cleaned_data['path']))
-
-            directory = request.GET.get('from', '')
-
-            if directory:
-                return redirect('project_files_path', pk, directory)
-            else:
-                return redirect('project_files', pk)
-
-        return self.get_response(request, project, form, path)
-
-
-class DiskFileSourceDeleteView(LoginRequiredMixin, ProjectPermissionsMixin, View):
-    template_name = 'confirm_delete.html'
-    project_permission_required = ProjectPermissionType.EDIT
-
-    def get(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
-
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-        if not dff.item_exists(path):
-            messages.warning(request, '{} does not exist in this project.'.format(path))
-            return self.get_completion_redirect(pk)
-
-        return render(request, self.template_name, {
-            'object': path
-        })
-
-    def post(self, request: HttpRequest, pk: int, path: str) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
-
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-        if not dff.item_exists(path):
-            messages.warning(request, '{} does not exist in this project.'.format(path))
-            return self.get_completion_redirect(pk)
-
-        dff.remove_item(path)
-        messages.success(request, '{} was deleted.'.format(path))
-
-        return self.get_completion_redirect(pk)
-
-    def get_completion_redirect(self, pk: int) -> HttpResponse:
-        if self.current_directory:
-            return redirect('project_files_path', pk, self.current_directory)
-
-        return redirect('project_files', pk)
-
-    @property
-    def current_directory(self) -> str:
-        return self.request.GET.get('from', '')
+        return self.perform_post(request, kwargs, path, content_facade)
 
 
 class ConverterMixin:
@@ -590,8 +447,8 @@ class ConverterMixin:
 class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+    def post(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, kwargs)
 
         body = json.loads(request.body)
 
@@ -603,7 +460,7 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         if '/' in target_name:
             raise ValueError('Target name can not contain /')
 
-        source = self.get_source(request.user, pk, source_id)
+        source = self.get_source(request.user, kwargs, source_id)
         scf = make_source_content_facade(request.user, source_path, source, project)
 
         target_path = utf8_path_join(utf8_dirname(source_path), target_name)
