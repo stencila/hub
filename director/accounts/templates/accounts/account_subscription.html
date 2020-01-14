@@ -1,77 +1,74 @@
-{% extends "base.html" %}
-{% load static account_urls %}
+{% extends 'accounts/account_base.html' %}
+{% load account_urls %}
 {% block title %}{{ subscription.plan }} Subscription{% endblock %}
-{% block content %}
-    <div class="columns">
-        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
-        <section class="column" id="id_subscription_detail">
-            <p class="title is-capitalized">{{ subscription.plan }} Subscription</p>
-            <div>
-                <div class="level">
-                    <div class="level-left">Subscribing User Email</div>
-                    <div class="level-right">{{ subscription.customer }}</div>
+{% block account_content %}
+    <section class="column" id="id_subscription_detail">
+        <p class="title is-capitalized">{{ subscription.plan }} Subscription</p>
+        <div>
+            <div class="level">
+                <div class="level-left">Subscribing User Email</div>
+                <div class="level-right">{{ subscription.customer }}</div>
+            </div>
+            <div class="level">
+                <div class="level-left">Start Date</div>
+                <div class="level-right">{{ subscription.current_period_start }}</div>
+            </div>
+            <div class="level">
+                <div class="level-left">Billing End Date</div>
+                <div class="level-right">{{ subscription.current_period_end }}</div>
+            </div>
+            <div class="level">
+                <div class="level-left"></div>
+                <div class="level-right">
+                    <button class="button is-danger" @click="cancelModalVisible = true">Cancel
+                        Subscription&hellip;
+                    </button>
                 </div>
-                <div class="level">
-                    <div class="level-left">Start Date</div>
-                    <div class="level-right">{{ subscription.current_period_start }}</div>
-                </div>
-                <div class="level">
-                    <div class="level-left">Billing End Date</div>
-                    <div class="level-right">{{ subscription.current_period_end }}</div>
-                </div>
-                <div class="level">
-                    <div class="level-left"></div>
-                    <div class="level-right">
-                        <button class="button is-danger" @click="cancelModalVisible = true">Cancel
-                            Subscription&hellip;
+            </div>
+        </div>
+        <div class="modal" :class="{'is-active': cancelModalVisible}">
+            <form method="post" action="{% account_url 'account_subscription_cancel' account subscription.id %}">
+                {% csrf_token %}
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title">
+                            <span class="icon"><i class="fas fa-ban"></i></span>
+                            <span>Cancel {{ subscription.plan.product.name }} Subscription</span>
+                        </p>
+                    </header>
+                    <section class="modal-card-body">
+                        <h5 class="title is-5">Are you sure you want to cancel this subscription
+                            for {{ subscription.plan.product.name }}?</h5>
+                        <p>You can cancel the subscription immediately or keep in until the end of its current
+                            billing period.</p>
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="cancel_at" value="period_end" checked>
+                                Cancel at end of period
+                            </label>
+                            <label class="radio">
+                                <input type="radio" name="cancel_at" value="immediately">
+                                Cancel immediately
+                            </label>
+                        </div>
+                    </section>
+                    <footer class="modal-card-foot" style="justify-content: space-between">
+                        <button class="button" @click.prevent="cancelModalVisible = false">Keep Plan
                         </button>
-                    </div>
+                        <input type="submit" class="button is-danger"
+                               value="Cancel Subscription">
+                    </footer>
                 </div>
-            </div>
-            <div class="modal" :class="{'is-active': cancelModalVisible}">
-                <form method="post" action="{% account_url 'account_subscription_cancel' account subscription.id %}">
-                    {% csrf_token %}
-                    <div class="modal-background"></div>
-                    <div class="modal-card">
-                        <header class="modal-card-head">
-                            <p class="modal-card-title">
-                                <span class="icon"><i class="fas fa-ban"></i></span>
-                                <span>Cancel {{ subscription.plan.product.name }} Subscription</span>
-                            </p>
-                        </header>
-                        <section class="modal-card-body">
-                            <h5 class="title is-5">Are you sure you want to cancel this subscription
-                                for {{ subscription.plan.product.name }}?</h5>
-                            <p>You can cancel the subscription immediately or keep in until the end of its current
-                                billing period.</p>
-                            <div class="control">
-                                <label class="radio">
-                                    <input type="radio" name="cancel_at" value="period_end" checked>
-                                    Cancel at end of period
-                                </label>
-                                <label class="radio">
-                                    <input type="radio" name="cancel_at" value="immediately">
-                                    Cancel immediately
-                                </label>
-                            </div>
-                        </section>
-                        <footer class="modal-card-foot" style="justify-content: space-between">
-                            <button class="button" @click.prevent="cancelModalVisible = false">Keep Plan
-                            </button>
-                            <input type="submit" class="button is-danger"
-                                   value="Cancel Subscription">
-                        </footer>
-                    </div>
-                </form>
-            </div>
-        </section>
-        <script>
-          new Vue({
-            el: '#id_subscription_detail',
-            data: {
-              cancelModalVisible: false
-            }
-          })
-        </script>
-    </div>
+            </form>
+        </div>
+    </section>
+    <script>
+      new Vue({
+        el: '#id_subscription_detail',
+        data: {
+          cancelModalVisible: false
+        }
+      })
+    </script>
 {% endblock %}

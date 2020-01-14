@@ -1,12 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'accounts/account_base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Account {{account.pk}} : Settings{% endblock %}
-{% block content %}
-<div class="columns">
-	{% include "accounts/_account_nav.html" with account=account tab="settings" %}
+{% block title %}Account {{ account.pk }} : Settings{% endblock %}
+{% block account_content %}
     <div class="column">
-        {% include "accounts/_account_header.html" with account=account %}
         {% crispy form %}
     </div>
-</div>
 {% endblock %}

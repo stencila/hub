@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load account_urls %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+            {% block breadcrumb_items %}
+                <li><a href="/">Home</a></li>
+                <li><a href="{% url 'account_list' %}">Accounts</a></li>
+                <li><a href="{% account_url 'account_profile' account %}">{{ account.name }}</a></li>
+            {% endblock %}
+        </ul>
+    </nav>
+    <hr>
+    <div class="columns">
+        {% include "accounts/_account_nav.html" with account=account %}
+        {% block account_content %}
+        {% endblock %}
+    </div>
+{% endblock %}

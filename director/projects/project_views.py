@@ -28,7 +28,7 @@ from projects.permission_facade import fetch_project_for_user, ProjectFetchResul
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
-from projects.project_data import get_projects
+from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
 from projects.project_puller import ProjectSourcePuller
 from projects.shared import PUBLISHED_FILE_NAME
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
@@ -201,28 +201,18 @@ class ProjectPermissionsMixin(object):
                                    storage_limit)
 
 
-class FilterOption(typing.NamedTuple):
-    key: str
-    label: str
-
-
 class ProjectListView(BetaTokenRequiredMixin, View):
     def get(self, request: HttpRequest) -> HttpResponse:
         if not request.user.is_authenticated:
             filter_options: typing.Iterable[FilterOption] = []
         else:
-            filter_options = (
-                FilterOption('created', 'Created by me'),
-                FilterOption('account', 'Account projects'),
-                FilterOption('shared', 'Shared with me'),
-                FilterOption('public', 'Public')
-            )
+            filter_options = FILTER_OPTIONS
 
-        filter_key, projects = get_projects(request.user, request.GET.get('filter'))
+        filter_option, projects, *_ = get_projects(request.user, request.GET.get('filter'))
 
         return render(request, 'projects/project_list.html', {
             'object_list': projects,
-            'filter_key': filter_key,
+            'filter': filter_option,
             'filter_options': filter_options
         })
 
@@ -738,11 +728,16 @@ class PublishedView(ProjectPermissionsMixin, PublishedViewBase):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get(self, request: HttpRequest, slug: str, **kwargs) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, kwargs)
-        self.get_file_facade(project, slug)
+        self.get_project(request.user, kwargs)
 
-        return render(request, 'projects/published.html',
-                      self.get_render_context({'slug': slug, 'project_tab': 'published'}))
+        context = {'slug': slug, 'project_tab': 'published'}
+
+        # TODO: this can't be included until the CSS namespacing/sandboxing works to include the content directly
+        # dff = self.get_file_facade(project, slug)
+        # with open(dff.full_file_path(PUBLISHED_FILE_NAME), 'r') as f:
+        #    context['content'] = f.read()
+
+        return render(request, 'projects/published.html', self.get_render_context(context))
 
 
 class PublishedContentView(ProjectPermissionsMixin, PublishedViewBase):
@@ -753,9 +748,14 @@ class PublishedContentView(ProjectPermissionsMixin, PublishedViewBase):
 
         dff = self.get_file_facade(project, slug)
 
-        resp = FileResponse(open(dff.full_file_path(PUBLISHED_FILE_NAME), 'rb'))
-        resp['Content-Type'] = 'text/html'
-        return resp
+        context = {
+            'theme_name': 'eLife',
+        }
+
+        with open(dff.full_file_path(PUBLISHED_FILE_NAME), 'r') as f:
+            context['content'] = f.read()
+
+        return render(request, 'projects/published_container.html', context)
 
 
 class PublishedMediaView(ProjectPermissionsMixin, PublishedViewBase):

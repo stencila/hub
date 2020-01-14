@@ -5,6 +5,7 @@ from django.urls import include, path
 from django.views.defaults import permission_denied, page_not_found
 
 import checkouts.views
+import user_views
 import users.views
 import views
 # specify sub paths as their own patterns to make it easier to see which root paths are defined in urlpatterns
@@ -29,7 +30,7 @@ test_patterns = [
 urlpatterns = [
     # All in alphabetical order. Patterns that are fully defined in urlpatterns come first
     # Home page
-    path('', views.HomeView.as_view(), name='home'),
+    path('', user_views.HomeView.as_view(), name='home'),
 
     # Beta Token Getting View
     path(UrlRoot.beta.value + '/', users.views.BetaTokenView.as_view(), name='user_beta'),

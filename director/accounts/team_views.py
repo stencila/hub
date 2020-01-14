@@ -55,10 +55,12 @@ class TeamDetailView(AccountPermissionsMixin, View):
             for field in form.fields.values():
                 field.disabled = True
 
-        return render(request, "accounts/team_detail.html", self.get_render_context({
-            "team": team,
-            "account": self.account,
-            "form": form
+        return render(request, 'accounts/team_detail.html', self.get_render_context({
+            'tab': 'teams',
+            'team_tab': 'metadata',
+            'team': team,
+            'account': self.account,
+            'form': form
         }))
 
     def post(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
@@ -87,10 +89,12 @@ class TeamDetailView(AccountPermissionsMixin, View):
                              extra_tags='safe')
             return account_redirect('account_team_list', account=self.account)
 
-        return render(request, "accounts/team_detail.html", self.get_render_context({
-            "team": team,
-            "account": self.account,
-            "form": form
+        return render(request, 'accounts/team_detail.html', self.get_render_context({
+            'tab': 'teams',
+            'team_tab': 'metadata',
+            'team': team,
+            'account': self.account,
+            'form': form
         }))
 
 
@@ -103,9 +107,10 @@ class TeamListView(AccountPermissionsMixin, View):
             raise PermissionDenied
         # Assume if they have any Roles for the Account they have access to this page
 
-        return render(request, "accounts/account_teams.html", self.get_render_context({
-            "account": self.account,
-            "teams": self.account.teams.all
+        return render(request, 'accounts/account_teams.html', self.get_render_context({
+            'tab': 'teams',
+            'account': self.account,
+            'teams': self.account.teams.all
         }))
 
 
@@ -117,10 +122,13 @@ class TeamMembersView(AccountPermissionsMixin, View):
 
         current_members = list(map(lambda u: u.username, team.members.all()))
 
-        return render(request, "accounts/team_members.html", self.get_render_context({
-            "account": self.account,
-            "team": team,
-            "current_members": json.dumps(current_members)
+        return render(request, 'accounts/team_members.html', self.get_render_context({
+            'tab': 'teams',
+            'team_tab': 'members',
+            'tab': 'teams',
+            'account': self.account,
+            'team': team,
+            'current_members': json.dumps(current_members)
         }))
 
     def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
@@ -170,17 +178,19 @@ class TeamProjectsView(AccountPermissionsMixin, View):
         # this filtering can't be done by the ORM due to using GenericForeignKey
         # Shouldn't be dealing with millions of projects per account so should be OK
 
-        return render(request, "accounts/team_projects.html", self.get_render_context({
-            "account": self.account,
-            "team": team,
-            "total_project_count": all_projects.count(),
-            "existing_project_roles": existing_project_roles,
-            "unassigned_projects": list(unassigned_projects),
-            "project_roles": project_roles,
-            "project_roles_map": json.dumps(
+        return render(request, 'accounts/team_projects.html', self.get_render_context({
+            'tab': 'teams',
+            'team_tab': 'projects',
+            'account': self.account,
+            'team': team,
+            'total_project_count': all_projects.count(),
+            'existing_project_roles': existing_project_roles,
+            'unassigned_projects': list(unassigned_projects),
+            'project_roles': project_roles,
+            'project_roles_map': json.dumps(
                 {existing_project_role.pk: existing_project_role.role_id for existing_project_role in
                  existing_project_roles}),
-            "AGENT_ROLE_ID_PREFIX": AGENT_ROLE_ID_PREFIX
+            'AGENT_ROLE_ID_PREFIX': AGENT_ROLE_ID_PREFIX
         }))
 
     def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,

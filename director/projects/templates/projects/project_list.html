@@ -28,7 +28,7 @@
                 <nav class="panel">
                     {% for filter_option in filter_options %}
                     <a href="{{ request.path }}?filter={{ filter_option.key }}"
-                    class="panel-block{% if filter_option.key == filter_key %} is-active{% endif %}">
+                    class="panel-block{% if filter_option == filter %} is-active{% endif %}">
                     {{ filter_option.label }}
                 </a>
                 {% endfor %}

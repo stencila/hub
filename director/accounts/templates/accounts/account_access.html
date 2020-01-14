@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'accounts/account_base.html' %}
 {% load static account_urls %}
 {% block title %}Account {{ account.name }} : Members{% endblock %}
 {% block styles %}
@@ -10,11 +10,8 @@
     <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
 {% endblock %}
-{% block content %}
-<div class="columns">
-    {% include "accounts/_account_nav.html" with account=account tab="members" %}
+{% block account_content %}
     <section id="account-access" class="column">
-        {% include "accounts/_account_header.html" with account=account %}        
         <delete-confirm-modal
                 :delete-modal-visible="deleteModalVisible"
                 delete-action="delete_access"
@@ -33,7 +30,8 @@
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
-                    <user-autocomplete @username-selected="usernameSelected" :skip-results="currentUsers"></user-autocomplete>
+                    <user-autocomplete @username-selected="usernameSelected"
+                                       :skip-results="currentUsers"></user-autocomplete>
                 </div>
                 <div class="column">
                     <div class="field">
@@ -56,12 +54,15 @@
             </div>
         </form>
         <div class="container">
-          <p class="has-top-margin"> You can add users to {{ account.name }} and assign two different roles to them: <em>Admin</em> or <em>Member</em>.</p>
-          <br/>
-          <p> <strong>Account admin</strong> can: delete {{ account.name }}; update the billing details; give other users access
-            to the account (including giving them administrative permission); create and add teams to the account.</p>
-          <p> <strong>Account member</strong> can only add projects to {{ account.name }}.</p>
-          <br/>
+            <p class="has-top-margin"> You can add users to {{ account.name }} and assign two different roles to them:
+                <em>Admin</em> or <em>Member</em>.</p>
+            <br/>
+            <p><strong>Account admin</strong> can: delete {{ account.name }}; update the billing details; give other
+                users access
+                to the account (including giving them administrative permission); create and add teams to the account.
+            </p>
+            <p><strong>Account member</strong> can only add projects to {{ account.name }}.</p>
+            <br/>
         </div>
         <table class="table is-fullwidth">
             <thead>
@@ -98,55 +99,54 @@
     <script src="{% static "js/user-search.js" %}"></script>
     <script src="{% static "js/delete-confirm-modal.js" %}"></script>
     <script>
-        new Vue({
-            el: '#account-access',
-            delimiters: ['[[', ']]'],
-            data: {
-                deleteModalVisible: false,
-                deleteRoleId: null,
-                deleteRoleUsername: null,
-                selectedUsername: "",
-                currentUsers: JSON.parse("{{ current_usernames|escapejs }}"),
-                accessRoles: JSON.parse("{{ access_roles_map|escapejs }}")
-            },
-            methods: {
-                usernameSelected(username) {
-                    this.selectedUsername = username
-                },
-                showDeleteModal(roleId, roleUsername) {
-                    this.deleteModalVisible = true
-                    this.deleteRoleId = roleId
-                    this.deleteRoleUsername = roleUsername
-                },
-                hideDeleteModal() {
-                    this.deleteModalVisible = false
-                    this.deleteRoleId = null
-                    this.deleteRoleUsername = null
-                },
-                accessChanged(accountUserRoleId) {
-                    let updateData = new FormData()
-                    updateData.set('action', 'set_role')
-                    updateData.set('account_user_role_id', accountUserRoleId)
-                    updateData.set('role_id', this.accessRoles[accountUserRoleId])
+      new Vue({
+        el: '#account-access',
+        delimiters: ['[[', ']]'],
+        data: {
+          deleteModalVisible: false,
+          deleteRoleId: null,
+          deleteRoleUsername: null,
+          selectedUsername: '',
+          currentUsers: JSON.parse("{{ current_usernames|escapejs }}"),
+          accessRoles: JSON.parse("{{ access_roles_map|escapejs }}")
+        },
+        methods: {
+          usernameSelected (username) {
+            this.selectedUsername = username
+          },
+          showDeleteModal (roleId, roleUsername) {
+            this.deleteModalVisible = true
+            this.deleteRoleId = roleId
+            this.deleteRoleUsername = roleUsername
+          },
+          hideDeleteModal () {
+            this.deleteModalVisible = false
+            this.deleteRoleId = null
+            this.deleteRoleUsername = null
+          },
+          accessChanged (accountUserRoleId) {
+            let updateData = new FormData()
+            updateData.set('action', 'set_role')
+            updateData.set('account_user_role_id', accountUserRoleId)
+            updateData.set('role_id', this.accessRoles[accountUserRoleId])
 
-                    fetch(`{% account_url 'account_access' account %}`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRFToken': utils.cookie('csrftoken'),
-                        },
-                        credentials: 'same-origin',
-                        body: updateData
-                    }).then(response => response.json()
-                        , failureResponse => {
-                            console.log(failureResponse)
-                        }).then(responseBody => {
-                            alert(responseBody.message)
-                        }
-                    )
-                }
-            }
-        })
+            fetch(`{% account_url 'account_access' account %}`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': utils.cookie('csrftoken'),
+              },
+              credentials: 'same-origin',
+              body: updateData
+            }).then(response => response.json()
+              , failureResponse => {
+                console.log(failureResponse)
+              }).then(responseBody => {
+                alert(responseBody.message)
+              }
+            )
+          }
+        }
+      })
     </script>
-</div>
 {% endblock %}

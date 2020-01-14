@@ -1,30 +1,28 @@
-{% extends "base.html" %}
-{% load static account_urls %}
+{% extends 'accounts/account_base.html' %}
+{% load account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
-{% block content %}
-    <div class="columns">
-        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
-        <section class="column">
-            <p class="title is-capitalized">Select your Plan</p>
-            <p class="has-bottom-margin">Choose the plan that fits your needs best.</p>
-            <div class="columns">
-                {% for product, plan, is_subscribed  in product_plans %}
-                    <div class="column">
-                        <div class="box">
-                            <div class="media-content">
-                                <div class="content">
-                                    <p>
-                                    <h4 class="title is-4">
-                                        {{ product.name }}
-                                    </h4>
-                                    <h5 class="subtitle is-5">{{ product.extension.tag_line }}</h5>
-                                    <br/>
-                                    </p>
-                                </div>
+{% block account_content %}
+    <section class="column">
+        <p class="title is-capitalized">Select your Plan</p>
+        <p class="has-bottom-margin">Choose the plan that fits your needs best.</p>
+        <div class="columns">
+            {% for product, plan, is_subscribed  in product_plans %}
+                <div class="column">
+                    <div class="box">
+                        <div class="media-content">
+                            <div class="content">
+                                <p>
+                                <h4 class="title is-4">
+                                    {{ product.name }}
+                                </h4>
+                                <h5 class="subtitle is-5">{{ product.extension.tag_line }}</h5>
+                                <br/>
+                                </p>
                             </div>
-                            {{ product.description|safe }}
-                            <nav class="level is-mobile">
-                                <div class="level-left">
+                        </div>
+                        {{ product.description|safe }}
+                        <nav class="level is-mobile">
+                            <div class="level-left">
                             <span class="level-item">
                             {% if plan.price_description %}
                                 {{ plan.price_description }}
@@ -32,18 +30,17 @@
                                 ${{ plan.amount }} per {{ plan.interval }}
                             {% endif %}
                             </span>
-                                </div>
-                            </nav>
-                            {% if is_subscribed %}
-                                <button class="button is-disabled">Subscribed</button>
-                            {% else %}
-                                <a href="{% account_url 'account_subscriptions_add' account plan.pk %}"
-                                   class="button is-primary">Subscribe</a>
-                            {% endif %}
-                        </div>
+                            </div>
+                        </nav>
+                        {% if is_subscribed %}
+                            <button class="button is-disabled">Subscribed</button>
+                        {% else %}
+                            <a href="{% account_url 'account_subscriptions_add' account plan.pk %}"
+                               class="button is-primary">Subscribe</a>
+                        {% endif %}
                     </div>
-                {% endfor %}
-            </div>
-        </section>
-    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 {% endblock %}

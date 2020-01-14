@@ -1,62 +1,58 @@
-{% extends "base.html" %}
-{% load static account_urls %}
+{% extends 'accounts/account_base.html' %}
+{% load account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
-{% block content %}
-    <div class="columns">
-        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
-        <section class="column">
-            <p class="title is-capitalized">Account Subscriptions</p>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Plan</th>
-                    <th>Status</th>
-                    <th>Billing Start</th>
-                    <th>Billing End</th>
-                    <th>Cancellation Date</th>
-                    <th>Customer</th>
-                </tr>
-                </thead>
-                <tbody>
+{% block account_content %}
+    <section class="column">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Billing Start</th>
+                <th>Billing End</th>
+                <th>Cancellation Date</th>
+                <th>Customer</th>
+            </tr>
+            </thead>
+            <tbody>
 
-                {% for account_subscription in account_subscriptions %}
-                    {% with subscription=account_subscription.subscription %}
-                        <tr>
-                            <td>
-                                <a href="{% account_url 'account_subscription_detail' account subscription.id %}">{{ subscription.plan }}</a>
-                            </td>
-                            <td>{{ subscription.status|capfirst }}</td>
-                            <td>{{ subscription.current_period_start }}</td>
-                            <td>{{ subscription.current_period_end }}</td>
-                            <td>
-                                {% if not subscription.canceled_at %}
-                                    {% if subscription.cancel_at_period_end %}
-                                        End of current billing period
-                                    {% else %}
-                                        &mdash;
-                                    {% endif %}
-                                {% else %}
-                                    {{ subscription.canceled_at }}
-                                {% endif %}
-                            </td>
-                            <td>{{ subscription.customer }}</td>
-                        </tr>
-                    {% endwith %}
-                {% empty %}
+            {% for account_subscription in account_subscriptions %}
+                {% with subscription=account_subscription.subscription %}
                     <tr>
-                        <td colspan="6">No current subscriptions</td>
+                        <td>
+                            <a href="{% account_url 'account_subscription_detail' account subscription.id %}">{{ subscription.plan }}</a>
+                        </td>
+                        <td>{{ subscription.status|capfirst }}</td>
+                        <td>{{ subscription.current_period_start }}</td>
+                        <td>{{ subscription.current_period_end }}</td>
+                        <td>
+                            {% if not subscription.canceled_at %}
+                                {% if subscription.cancel_at_period_end %}
+                                    End of current billing period
+                                {% else %}
+                                    &mdash;
+                                {% endif %}
+                            {% else %}
+                                {{ subscription.canceled_at }}
+                            {% endif %}
+                        </td>
+                        <td>{{ subscription.customer }}</td>
                     </tr>
-                {% endfor %}
+                {% endwith %}
+            {% empty %}
                 <tr>
-                    <td colspan="5">
-                    </td>
-                    <td class="has-text-centered">
-                        <a class="button is-primary" href="{% account_url 'account_subscriptions_plan_list' account %}">Add
-                            Subscription&hellip;</a>
-                    </td>
+                    <td colspan="6">No current subscriptions</td>
                 </tr>
-                </tbody>
-            </table>
-        </section>
-    </div>
+            {% endfor %}
+            <tr>
+                <td colspan="5">
+                </td>
+                <td class="has-text-centered">
+                    <a class="button is-primary" href="{% account_url 'account_subscriptions_plan_list' account %}">Add
+                        Subscription&hellip;</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
 {% endblock %}

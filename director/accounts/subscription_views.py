@@ -53,6 +53,7 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
             product_plans.append(ProductPlan(product, plan, plan in subscription_plans))
 
         return render(request, 'accounts/plan_list.html', self.get_render_context({
+            'tab': 'subscriptions',
             'product_plans': product_plans
         }))
 
@@ -72,6 +73,7 @@ class SubscriptionListView(AccountPermissionsMixin, View):
             '-subscription__current_period_start')
 
         return render(request, 'accounts/account_subscriptions.html', self.get_render_context({
+            'tab': 'subscriptions',
             'account_subscriptions': account_subscriptions
         }))
 
@@ -87,6 +89,7 @@ class SubscriptionDetailView(AccountPermissionsMixin, View):
         subscription = Subscription.objects.get(id=subscription_id)
 
         return render(request, 'accounts/account_subscription.html', self.get_render_context({
+            'tab': 'subscriptions',
             'subscription': subscription
         }))
 
@@ -144,7 +147,8 @@ class AccountSubscriptionAddView(AccountPermissionsMixin, View):
 
         # TODO: If no verified emails, redirect to the email setup page
 
-        context = {'plan': plan, 'STRIPE_PUBLIC_KEY': djstripe_settings.STRIPE_PUBLIC_KEY, 'emails': verified_emails}
+        context = {'plan': plan, 'STRIPE_PUBLIC_KEY': djstripe_settings.STRIPE_PUBLIC_KEY, 'emails': verified_emails,
+                   'tab': 'subscriptions'}
 
         return render(request, 'accounts/subscription_add.html', self.get_render_context(context))
 

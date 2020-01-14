@@ -97,6 +97,7 @@ class AccountProfileView(AccountPermissionsMixin, View):
             # Non-members don't get to see who is on account
             users = []
         return render(request, 'accounts/account_profile.html', self.get_render_context({
+            'tab': 'profile',
             'account': self.account,
             'projects': self.account.projects.all,
             'users': users,
@@ -120,6 +121,7 @@ class AccountAccessView(AccountPermissionsMixin, View):
         current_usernames = list(map(lambda ar: ar.user.username, access_roles))
 
         return render(request, 'accounts/account_access.html', self.get_render_context({
+            'tab': 'members',
             'account': self.account,
             'access_roles': access_roles,
             'access_roles_map': json.dumps(access_roles_map),
@@ -222,6 +224,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
         self.perform_account_fetch(self.request.user, self.object.pk)
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
+        kwargs['tab'] = 'settings'
         return self.get_render_context(super(AccountSettingsView, self).get_context_data(**kwargs))
 
 

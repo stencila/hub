@@ -19,7 +19,7 @@ from django.views.generic import CreateView, DetailView
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
 from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType
+from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
@@ -361,7 +361,7 @@ class ConverterMixin:
     def do_conversion(self, source_type: typing.Optional[ConversionFormatId],
                       source_path: str,
                       target_type: ConversionFormatId,
-                      target_path: typing.Optional[str] = None) -> str:
+                      target_path: typing.Optional[str] = None, standalone: bool = False) -> str:
         """
         Perform a conversion (with Encoda).
 
@@ -375,7 +375,9 @@ class ConverterMixin:
         converter_input = ConverterIo(ConverterIoType.PATH, source_path, source_type)
         converter_output = ConverterIo(ConverterIoType.PATH, target_path, target_type)
 
-        convert_result = self.converter.convert(converter_input, converter_output, None)
+        context = ConverterContext(standalone=standalone)
+
+        convert_result = self.converter.convert(converter_input, converter_output, context)
 
         if convert_result.returncode != 0:
             raise RuntimeError('Convert process failed. Stderr is: {}'.format(
@@ -423,7 +425,7 @@ class ConverterMixin:
 
             temp_output_path = self.do_conversion(scf.source_type, input_path, ConversionFormatId.docx)
 
-            with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
+            with open(temp_output_path, 'rb') as temp_output:  # reopen after data has been written
                 output_content = temp_output.read()  # this is in DOCX after conversion
         finally:
             if use_temp_input_path and input_path and os.path.exists(input_path):
@@ -434,14 +436,14 @@ class ConverterMixin:
         return output_content, DOCX_MIMETYPES[0]
 
     def source_convert(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_path: str,
-                       target_name: str, target_type: ConversionFormatId) -> None:
+                       target_name: str, target_type: ConversionFormatId, standalone: bool = False) -> None:
         if target_type == ConversionFormatId.gdoc:
             self.convert_to_google_docs(request, project, scf, target_name, target_path)
         else:
             absolute_input_path = scf.sync_content()
             absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
 
-            self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path)
+            self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path, standalone)
 
 
 class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMixin, View):

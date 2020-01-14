@@ -1,21 +1,14 @@
-{% extends "base.html" %}
-{% load crispy_forms_tags account_permissions %}
-{% block title %}Team{% endblock %}
-{% block content %}
-<div class="columns">
-    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
-    <div class="column">
-        {% include "accounts/_team_header.html" with account=account team=team team_tab="metadata" %}
-        <form method="POST">
-            {% crispy form %}
-            {% if account_permissions|account_permissions_contain:'administer' %}
+{% extends 'accounts/team_base.html' %}
+{% load crispy_forms_tags account_permissions account_urls %}
+{% block team_content %}
+    <form method="POST">
+        {% crispy form %}
+        {% if account_permissions|account_permissions_contain:'administer' %}
             <div class="field">
                 <div class="control">
                     <input type="submit" class="button is-primary" value="Save">
                 </div>
             </div>
-            {% endif %}
-        </form>
-    </div>
-</div>    
+        {% endif %}
+    </form>
 {% endblock %}

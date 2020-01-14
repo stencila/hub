@@ -2,23 +2,29 @@
 {% load account_urls %}
 {% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
-    <div class="columns is-centered">
-        <div class="column is-three-quarters">
-            <div class="level">
-                <div class="level-left">
-                    <div class="level-item">
-                        <h2 class="title">Accounts</h2>
-                    </div>
-                </div>
-                <div class="level-right">
-                    <p class="level-item">
-                        <a class="button is-primary" href="{% url 'account_create' %}">
-                            <span class="icon"><i class="fas fa-plus"></i></span>
-                            <span>New Account</span>
-                        </a>
-                    </p>
-                </div>
+    <div class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <nav class="breadcrumb" aria-label="breadcrumbs">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="{% url 'account_list' %}">Accounts</a></li>
+                    </ul>
+                </nav>
             </div>
+        </div>
+        <div class="level-right">
+            <p class="level-item">
+                <a class="button is-primary" href="{% url 'account_create' %}">
+                    <span class="icon"><i class="fas fa-plus"></i></span>
+                    <span>New Account</span>
+                </a>
+            </p>
+        </div>
+    </div>
+    <hr>
+    <div class="columns is-centered">
+        <div class="column">
             <table class="table is-fullwidth is-item-list">
                 <tbody>
                 {% for account_role in object_list %}

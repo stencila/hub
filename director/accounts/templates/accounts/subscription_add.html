@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% load static account_urls %}
+{% extends 'accounts/account_base.html' %}
+{% load account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
 {% block scripts %}
     {{ block.super }}
@@ -95,45 +95,44 @@
       })
     </script>
 {% endblock %}
-{% block content %}
-    <div class="columns">
-        {% include "accounts/_account_nav.html" with account=account tab="subscriptions" %}
-        <section class="column">
-            <p class="title is-capitalized">Subscription Purchase: {{ plan }}</p>
-            <div class="stacked-item">
-                <p>You are subscribing the account <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
-            </div>
-            <div class="stacked-item">
-                <h4 class="title is-4">1. Select Email Address</h4>
-                <p>This is the email address that will be used for communication (for example, invoices) by our payment processor.</p>
-                <div class="field">
-                    <label class="label" for="account_email_select">Email Address</label>
-                    <div class="control">
-                        <div class="select">
-                            <select id="account_email_select">
-                                {% for email in emails %}
-                                    <option value="{{ email.email }}">{{ email.email }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+{% block account_content %}
+    <section class="column">
+        <p class="title is-capitalized">Subscription Purchase: {{ plan }}</p>
+        <div class="stacked-item">
+            <p>You are subscribing the account <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
+        </div>
+        <div class="stacked-item">
+            <h4 class="title is-4">1. Select Email Address</h4>
+            <p>This is the email address that will be used for communication (for example, invoices) by our payment
+                processor.</p>
+            <div class="field">
+                <label class="label" for="account_email_select">Email Address</label>
+                <div class="control">
+                    <div class="select">
+                        <select id="account_email_select">
+                            {% for email in emails %}
+                                <option value="{{ email.email }}">{{ email.email }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
             </div>
-            <div class="stacked-item">
-                <h4 class="title is-4">2. Enter Credit Card Details</h4>
-                <div id="stripe-card-element" class="MyCardElement">
-                </div>
-                <article class="message is-danger is-hidden" id="stripe-error-element">
-                    <div class="message-body">
+        </div>
+        <div class="stacked-item">
+            <h4 class="title is-4">2. Enter Credit Card Details</h4>
+            <div id="stripe-card-element" class="MyCardElement">
+            </div>
+            <article class="message is-danger is-hidden" id="stripe-error-element">
+                <div class="message-body">
 
-                    </div>
-                </article>
-            </div>
-            <div class="stacked-item">
-                <h4 class="title is-4">3. Subscribe</h4>
-                <p>Your credit card will be charged <strong>${{ plan.amount }}</strong> every <strong>{{ plan.interval }}</strong>.</p>
-                <button class="button is-primary" id="stripe-submit">Subscribe</button>
-            </div>
-        </section>
-    </div>
+                </div>
+            </article>
+        </div>
+        <div class="stacked-item">
+            <h4 class="title is-4">3. Subscribe</h4>
+            <p>Your credit card will be charged <strong>${{ plan.amount }}</strong> every
+                <strong>{{ plan.interval }}</strong>.</p>
+            <button class="button is-primary" id="stripe-submit">Subscribe</button>
+        </div>
+    </section>
 {% endblock %}

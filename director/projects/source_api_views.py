@@ -59,7 +59,8 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             published_path = scf.disk_file_facade.full_file_path(PUBLISHED_FILE_NAME)
 
-            self.source_convert(request, project, scf, published_path, PUBLISHED_FILE_NAME, ConversionFormatId.html)
+            self.source_convert(request, project, scf, published_path, PUBLISHED_FILE_NAME, ConversionFormatId.html,
+                                False)
 
             pi.path = data['path']
             pi.slug = slugify(data['slug'])

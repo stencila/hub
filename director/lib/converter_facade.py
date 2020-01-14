@@ -333,6 +333,7 @@ def get_response_content(file_name: str, resp: Response) -> bytes:
 class ConverterContext(typing.NamedTuple):
     output_intermediary: bool = False
     maybe_zip: bool = False
+    standalone: bool = True
 
 
 class ConverterFacade(object):
@@ -342,7 +343,7 @@ class ConverterFacade(object):
         self.converter_binary = converter_binary
 
     def convert(self, input_data: ConverterIo, output_data: ConverterIo,
-                context: typing.Optional[ConverterContext]) -> subprocess.CompletedProcess:
+                context: typing.Optional[ConverterContext] = None) -> subprocess.CompletedProcess:
         if output_data.conversion_format is None:
             raise ValueError('The output_data conversion format must be specified.')
 
@@ -366,6 +367,9 @@ class ConverterFacade(object):
             if context.maybe_zip:
                 # If output contains media it will be zipped up
                 convert_args.append('--zip=maybe')
+
+            if context.standalone is False:
+                convert_args.append('--standalone=false')
 
         input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None
 

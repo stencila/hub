@@ -1,157 +1,152 @@
-{% extends "base.html" %}
+{% extends 'accounts/team_base.html' %}
 {% load static escape_extras account_permissions account_urls %}
-{% block title %}{{ team }} : Projects {% endblock %}
-{% block content %}
-<div class="columns">
-    {% include "accounts/_account_nav.html" with account=account tab="teams" %}
-    <div class="column">
-        {% include "accounts/_team_header.html" with account=account team=team team_tab="projects" %}
-        <section id="team-projects">
-            {% if account_permissions|account_permissions_contain:'administer' %}
-                <delete-confirm-modal
-                        :delete-modal-visible="deleteModalVisible"
-                        delete-action="remove_project"
-                        delete-id-name="agent_role_id"
-                        :delete-id-value="deleteRoleId"
-                        delete-button-label="Remove"
-                        @modal-hide="hideDeleteModal()">
-                    <template slot="title">Remove project access?</template>
-                    <template slot="csrf_token">{% csrf_token %}</template>
-                    <template slot="body">Are you sure you want to remove access to <em>[[ removeProjectName ]]</em>
-                        from
-                        <em>{{ team.name }}</em>?
-                    </template>
-                </delete-confirm-modal>
-                {% if total_project_count == 0 or unassigned_projects|length == 0 %}
-                    {% if total_project_count == 0 %}
-                        <p>There are no Projects for this account, please <a href="{% url 'project_create' %}">create a
-                            Project</a>, then come back here to grant this Team access to it.</p>
-                    {% else %}
-                        <p>This team already has access to all projects in this Account.</p>
-                        <br>
-                    {% endif %}
+{% block title %}{{ block.super }}: Projects{% endblock %}
+{% block team_content %}
+    <section id="team-projects">
+        {% if account_permissions|account_permissions_contain:'administer' %}
+            <delete-confirm-modal
+                    :delete-modal-visible="deleteModalVisible"
+                    delete-action="remove_project"
+                    delete-id-name="agent_role_id"
+                    :delete-id-value="deleteRoleId"
+                    delete-button-label="Remove"
+                    @modal-hide="hideDeleteModal()">
+                <template slot="title">Remove project access?</template>
+                <template slot="csrf_token">{% csrf_token %}</template>
+                <template slot="body">Are you sure you want to remove access to <em>[[ removeProjectName ]]</em>
+                    from
+                    <em>{{ team.name }}</em>?
+                </template>
+            </delete-confirm-modal>
+            {% if total_project_count == 0 or unassigned_projects|length == 0 %}
+                {% if total_project_count == 0 %}
+                    <p>There are no Projects for this account, please <a href="{% url 'project_create' %}">create a
+                        Project</a>, then come back here to grant this Team access to it.</p>
                 {% else %}
-                    <p class="is-uppercase-heading has-bottom-margin">Add project access for team <em>{{ team.name }}</em></p>
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="control field">
-                            <div class="columns">
-                                <div class="column">
-                                    <div class="select">
-                                        <select name="project_id">
-                                            {% for project in unassigned_projects %}
-                                            <option value="{{ project.id }}">{{ project.name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <div class="select">
-                                        <select name="role_id">
-                                            {% for project_role in project_roles %}
-                                            <option value="{{ project_role.id }}">{{ project_role.name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="column">
-                                    <button class="button is-primary" type="submit" name="action" value="add_project">
-                                        Add Access
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    <p>This team already has access to all projects in this Account.</p>
                     <br>
                 {% endif %}
+            {% else %}
+                <p class="is-uppercase-heading has-bottom-margin">Add project access for team <em>{{ team.name }}</em>
+                </p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="control field">
+                        <div class="columns">
+                            <div class="column">
+                                <div class="select">
+                                    <select name="project_id">
+                                        {% for project in unassigned_projects %}
+                                            <option value="{{ project.id }}">{{ project.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="select">
+                                    <select name="role_id">
+                                        {% for project_role in project_roles %}
+                                            <option value="{{ project_role.id }}">{{ project_role.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <button class="button is-primary" type="submit" name="action" value="add_project">
+                                    Add Access
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <br>
             {% endif %}
-            {% if total_project_count != 0 %}
-                <table class="table is-fullwidth">
-                    <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Role</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for project_agent_role in existing_project_roles %}
-                        <tr>
-                            <td>{{ project_agent_role.project.name }}</td>
-                            <td>
-                                {% if account_permissions|account_permissions_contain:'administer' %}
-                                    {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
-                                {% else %}
-                                    {{ project_agent_role.role.name }}
-                                {% endif %}
-                            </td>
-                            <td class="field has-text-right">
-                                {% if account_permissions|account_permissions_contain:'administer' %}
-                                    <button class="button is-danger"
-                                            @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
-                                        Remove access&hellip;
-                                    </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">This team does not have access to any projects.</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </section>
-        {% if account_permissions|account_permissions_contain:'administer' %}
-            <script src="{% static "js/user-search.js" %}"></script>
-            <script src="{% static "js/delete-confirm-modal.js" %}"></script>
-            <script>
-                new Vue({
-                    el: '#team-projects',
-                    delimiters: ['[[', ']]'],
-                    data: {
-                        deleteModalVisible: false,
-                        deleteRoleId: null,
-                        removeProjectName: null,
-                        teamRoles: JSON.parse('{{ project_roles_map|escapejs }}')
-                    },
-                    methods: {
-                        showDeleteModal(roleId, projectName) {
-                            this.deleteModalVisible = true
-                            this.deleteRoleId = roleId
-                            this.removeProjectName = projectName
-                        },
-                        hideDeleteModal() {
-                            this.deleteModalVisible = false
-                            this.deleteRoleId = null
-                            this.removeProjectName = null
-                        },
-                        roleChanged(agentRoleId) {
-                            let roleId = this.teamRoles[agentRoleId]
-                            let roleData = new FormData()
-                            roleData.set('action', 'set_role')
-                            roleData.set('project_agent_role_id', agentRoleId)
-                            roleData.set('role_id', roleId)
-                            fetch(`{% account_url 'account_team_projects' account team.pk %}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'X-CSRFToken': utils.cookie('csrftoken'),
-                                },
-                                credentials: 'same-origin',
-                                body: roleData
-                            }).then(response => response.json()
-                                , failureResponse => {
-                                    console.log(failureResponse)
-                                }).then(responseBody => {
-                                alert(responseBody.message)
-                            })
-                        }
-                    }
-                })
-            </script>
         {% endif %}
-    </div>
-</div>
+        {% if total_project_count != 0 %}
+            <table class="table is-fullwidth">
+                <thead>
+                <tr>
+                    <th>Project</th>
+                    <th>Role</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project_agent_role in existing_project_roles %}
+                    <tr>
+                        <td>{{ project_agent_role.project.name }}</td>
+                        <td>
+                            {% if account_permissions|account_permissions_contain:'administer' %}
+                                {% include "accounts/_project_role_select.html" with project_agent_role=project_agent_role %}
+                            {% else %}
+                                {{ project_agent_role.role.name }}
+                            {% endif %}
+                        </td>
+                        <td class="field has-text-right">
+                            {% if account_permissions|account_permissions_contain:'administer' %}
+                                <button class="button is-danger"
+                                        @click.prevent="showDeleteModal({{ project_agent_role.pk }}, '{{ project_agent_role.project.name|escape_single_quotes }}')">
+                                    Remove access&hellip;
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">This team does not have access to any projects.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+    {% if account_permissions|account_permissions_contain:'administer' %}
+        <script src="{% static "js/user-search.js" %}"></script>
+        <script src="{% static "js/delete-confirm-modal.js" %}"></script>
+        <script>
+          new Vue({
+            el: '#team-projects',
+            delimiters: ['[[', ']]'],
+            data: {
+              deleteModalVisible: false,
+              deleteRoleId: null,
+              removeProjectName: null,
+              teamRoles: JSON.parse('{{ project_roles_map|escapejs }}')
+            },
+            methods: {
+              showDeleteModal (roleId, projectName) {
+                this.deleteModalVisible = true
+                this.deleteRoleId = roleId
+                this.removeProjectName = projectName
+              },
+              hideDeleteModal () {
+                this.deleteModalVisible = false
+                this.deleteRoleId = null
+                this.removeProjectName = null
+              },
+              roleChanged (agentRoleId) {
+                let roleId = this.teamRoles[agentRoleId]
+                let roleData = new FormData()
+                roleData.set('action', 'set_role')
+                roleData.set('project_agent_role_id', agentRoleId)
+                roleData.set('role_id', roleId)
+                fetch(`{% account_url 'account_team_projects' account team.pk %}`, {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': utils.cookie('csrftoken'),
+                  },
+                  credentials: 'same-origin',
+                  body: roleData
+                }).then(response => response.json()
+                  , failureResponse => {
+                    console.log(failureResponse)
+                  }).then(responseBody => {
+                  alert(responseBody.message)
+                })
+              }
+            }
+          })
+        </script>
+    {% endif %}
 {% endblock %}

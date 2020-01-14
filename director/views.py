@@ -5,27 +5,12 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
 import _version
 from lib.browser_detection import user_agent_is_internet_explorer
 from lib.health_check import migrations_pending
-
-
-class HomeView(View):
-    """Home page view."""
-
-    def get(self, *args, **kwargs):
-        if self.request.user.is_authenticated:
-            return redirect('project_list')
-        else:
-            url = reverse('user_signin')
-            token = self.request.GET.get('token')
-            if token:
-                url += '?token={}'.format(token)
-            return redirect(url)
 
 
 class StatusView(View):
