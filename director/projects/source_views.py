@@ -478,6 +478,3 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         return JsonResponse({
             'success': True
         })
-
-
-67
