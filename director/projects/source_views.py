@@ -426,10 +426,10 @@ class ConverterMixin:
             with open(temp_output_path, 'r+b') as temp_output:  # reopen after data has been written
                 output_content = temp_output.read()  # this is in DOCX after conversion
         finally:
-            if use_temp_input_path and os.path.exists(input_path):
+            if use_temp_input_path and input_path and os.path.exists(input_path):
                 unlink(input_path)
 
-            if os.path.exists(temp_output_path):
+            if temp_output_path and os.path.exists(temp_output_path):
                 unlink(temp_output_path)
         return output_content, DOCX_MIMETYPES[0]
 
