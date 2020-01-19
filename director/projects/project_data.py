@@ -54,7 +54,7 @@ def get_projects(user: User, filter_key: typing.Optional[str],
     available_results = projects.count()
 
     if limit:
-        remaining_results = available_results - limit
+        remaining_results = max(available_results - limit, 0)
         projects = projects[:limit]
     else:
         remaining_results = None
