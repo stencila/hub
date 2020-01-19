@@ -8277,7 +8277,7 @@ button.message[type="submit"] {
   align-items: center;
   background-color: #4a4a4a;
   border-radius: 2px 2px 0 0;
-  color: #fff;
+  color: rgba(0, 0, 0, 0.7);
   display: flex;
   font-weight: 700;
   justify-content: space-between;
@@ -8303,7 +8303,7 @@ button.message[type="submit"] {
   border-radius: 2px;
   border-style: solid;
   border-width: 0 0 0 4px;
-  color: #4a4a4a;
+  color: #3b3108;
   padding: 1.25em 1.5em;
 }
 
@@ -19526,12 +19526,24 @@ button:hover:not(.btn-primary[disabled])[type="submit"] {
   border-color: #ff3860;
 }
 
-.message.is-danger .message-header {
+.message.is-warning {
+  border-color: #ffdd57;
+}
+
+.message.is-info {
+  border-color: #209cee;
+}
+
+.message.is-info .message-header, .message.is-danger .message-header {
   color: rgba(0, 0, 0, 0.7);
 }
 
+.message .message-body {
+  color: #3b3108 !important;
+}
+
 .message-body {
-  padding: 0rem 1.5rem 1rem;
+  padding: 0 1.5rem 1rem;
 }
 
 .message-header {

@@ -9,11 +9,21 @@
     &.is-danger
         border-color: $danger
 
+    &.is-warning
+        border-color: $warning
+
+    &.is-info
+        border-color: $info
+
+    &.is-info,&.is-danger
         .message-header
             color: rgba(0, 0, 0, 0.7)
+    .message-body
+        color: #3b3108 !important
+
 
 .message-body
-    padding: 0rem 1.5rem 1rem    
+    padding: 0 1.5rem 1rem
 
 .message-header
     +uppercase-heading()
