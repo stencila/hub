@@ -47,15 +47,19 @@ RUN apt-get update \
       libnss3 \
       lsb-release \
       xdg-utils \
-      wget \
-      nodejs \
-      npm \
+      wget
+
+# Add the NPM13 repository and then install nodejs/npm. Must be done after the previous step since curl is required
+RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
+ && apt-get update \
+ && apt-get install -y \
+    nodejs \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install gunicorn
-RUN npm install -g @stencila/encoda@0.83.0
+RUN npm install @stencila/encoda@0.83.0
 
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
