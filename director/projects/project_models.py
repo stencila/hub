@@ -129,7 +129,7 @@ class Project(models.Model):
     )
 
     def __str__(self):
-        return 'Project #{}'.format(self.id)
+        return self.name
 
     @staticmethod
     def create(project_type, creator):
