@@ -48,17 +48,18 @@ RUN apt-get update \
       lsb-release \
       xdg-utils \
       wget \
+      nodejs \
+      npm \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install gunicorn
+RUN npm install -g @stencila/encoda@0.83.0
 
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
 USER director
-
-RUN curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s ${STENCILA_CLI_VERSION}
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
