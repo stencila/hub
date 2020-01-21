@@ -11,6 +11,7 @@ from accounts.models import Account
 from lib.data_cleaning import SlugType, clean_slug
 from lib.enum_choice import EnumChoice
 from projects.source_models import Source
+from projects.validators import validate_publish_url_path
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
 PROJECT_KEY_LENGTH = 32
@@ -306,7 +307,26 @@ class ProjectEvent(models.Model):
 
 
 class PublishedItem(models.Model):
-    project = models.OneToOneField(Project, on_delete=models.CASCADE, help_text='Project this item belongs to.',
-                                   related_name='published_item')
-    path = models.TextField(blank=False, null=False, help_text='The path to the published file (in HTML format).')
-    slug = models.SlugField(blank=False, null=False, help_text='Slug to be used in the URL.')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, help_text='Project this item belongs to.',
+                                related_name='published_items')
+    path = models.TextField(blank=True, null=True,
+                            help_text='The relative path to the published file (in HTML format). Relative to the '
+                                      'published item storage directory.')
+    url_path = models.TextField(blank=False, null=False,
+                                help_text='The path used to access the published item on the web, relative to the '
+                                          'account/project.', validators=[validate_publish_url_path])
+    created = models.DateTimeField(auto_now_add=True, help_text='The date/time the item was first published.')
+    updated = models.DateTimeField(auto_now=True, help_text='The date/time the item was last published.')
+    source = models.ForeignKey(Source, on_delete=models.DO_NOTHING, null=True,
+                               help_text='The source item of this publication. May be null for a DiskSource.')
+    source_path = models.TextField(blank=True, null=True,
+                                   help_text='The path of the file that was published. May be null/blank for sources '
+                                             'like URLs where we just fetch the content.')
+
+    class Meta:
+        unique_together = (('project', 'url_path'),)
+
+    def save(self, *args, **kwargs):
+        # Remove leading/trailing / in URL path
+        self.url_path = self.url_path.strip('/')
+        super(PublishedItem, self).save(*args, **kwargs)

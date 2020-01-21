@@ -23,19 +23,18 @@ from lib.resource_allowance import QuotaName, resource_limit_met, get_subscripti
     StorageLimitExceededException, account_resource_limit
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
-from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_highest_permission, get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
+from projects.project_models import PublishedItem
 from projects.project_puller import ProjectSourcePuller
-from projects.shared import PUBLISHED_FILE_NAME
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
     path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
-    to_utf8
+    to_utf8, relative_path_join, utf8_dirname
 from projects.url_helpers import project_url_reverse, project_redirect
 from users.views import BetaTokenRequiredMixin
 from .models import Project
@@ -702,74 +701,49 @@ class ProjectExecutaView(ProjectPermissionsMixin, View):
         return render(request, 'projects/executa-test.html', {'project': project})
 
 
-class PublishedViewBase(View):
-    @staticmethod
-    def get_file_facade(project: Project, slug: str) -> DiskFileFacade:
-        published_item = project.published_item
-
-        if not published_item:
-            raise Http404
-
-        if published_item.slug != slug:
-            raise Http404
-
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-        try:
-            if dff.item_type(PUBLISHED_FILE_NAME) != ItemType.FILE:
-                raise Http404
-        except OSError:
-            raise Http404
-
-        return dff
-
-
-class PublishedView(ProjectPermissionsMixin, PublishedViewBase):
+class PublishedListView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, slug: str, **kwargs) -> HttpResponse:  # type: ignore
-        self.get_project(request.user, kwargs)
-
-        context = {'slug': slug, 'project_tab': 'published'}
-
-        # TODO: this can't be included until the CSS namespacing/sandboxing works to include the content directly
-        # dff = self.get_file_facade(project, slug)
-        # with open(dff.full_file_path(PUBLISHED_FILE_NAME), 'r') as f:
-        #    context['content'] = f.read()
-
-        return render(request, 'projects/published.html', self.get_render_context(context))
-
-
-class PublishedContentView(ProjectPermissionsMixin, PublishedViewBase):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, slug: str, **kwargs) -> FileResponse:  # type: ignore
+    def get(self, request: HttpRequest, **kwargs) -> HttpRequest:  # type: ignore
         project = self.get_project(request.user, kwargs)
 
-        dff = self.get_file_facade(project, slug)
+        context = {
+            'project_tab': 'published',
+            'published_items': PublishedItem.objects.filter(project=project).order_by('url_path')
+        }
+        return render(request, 'projects/published_list.html', self.get_render_context(context))
+
+
+class PublishedContentView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, path: str, **kwargs) -> FileResponse:  # type: ignore
+        project = self.get_project(request.user, kwargs)
+
+        pi = PublishedItem.objects.get(project=project, url_path=path)
 
         context = {
             'theme_name': 'eLife',
         }
 
-        with open(dff.full_file_path(PUBLISHED_FILE_NAME), 'r') as f:
+        with open(pi.path, 'r', encoding='utf8') as f:
             context['content'] = f.read()
 
         return render(request, 'projects/published_container.html', context)
 
 
-class PublishedMediaView(ProjectPermissionsMixin, PublishedViewBase):
+class PublishedMediaView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, slug: str, media_path: str, **kwargs) -> FileResponse:  # type: ignore
+    def get(self, request: HttpRequest, path: str, media_path: str, **kwargs) -> FileResponse:  # type: ignore
         project = self.get_project(request.user, kwargs)
 
-        dff = self.get_file_facade(project, slug)
+        pi = PublishedItem.objects.get(project=project, url_path=path)
 
-        media_dir = '{}.media/'.format(PUBLISHED_FILE_NAME)
+        # rebuild the media path
+        media_path = '{}.html.media/{}'.format(pi.pk, media_path)
 
-        if not media_path.startswith(media_dir):
-            raise Http404
+        full_path = relative_path_join(utf8_dirname(pi.path), media_path)
 
-        resp = FileResponse(open(dff.full_file_path(media_path), 'rb'))
+        resp = FileResponse(open(full_path, 'rb'))
         return resp

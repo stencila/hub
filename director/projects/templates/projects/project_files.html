@@ -128,7 +128,10 @@
                                source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
         <url-link-modal directory="{{ current_directory }}"
                         source-link-url="{% url 'api_v1_sources_link' project.pk %}"></url-link-modal>
-        <publish-modal publish-url="{% url 'api_v1_project_item_publish' project.pk %}" :published-exists="true"></publish-modal>
+        <publish-modal
+                publish-url="{% url 'api_v1_project_item_publish' project.pk %}"
+                project-url="http{% if request.is_secure %}s{% endif %}://{{ request.get_host }}{% project_url 'project_overview' project %}"
+        ></publish-modal>
         {% if linked_sources %}
             <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
                                   delete-action="unlink_source"

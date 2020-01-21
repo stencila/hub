@@ -280,7 +280,7 @@ class ProjectArchiveForm(FormWithSubmit):
 class PublishedItemForm(forms.ModelForm):
     class Meta:
         model = PublishedItem
-        fields = ['path', 'slug']
+        fields = ['source_path', 'path', 'url_path']
 
     source_id = forms.IntegerField(required=False)
 

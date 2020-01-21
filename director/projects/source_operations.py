@@ -71,6 +71,10 @@ def generate_project_archive_directory(project_storage_root: str, project: Proje
     return utf8_path_join(project_storage_root, 'archives', '{}'.format(project.id))
 
 
+def generate_project_publish_directory(project_storage_root: str, project: Project) -> str:
+    return utf8_path_join(project_storage_root, 'published', '{}'.format(project.account_id), '{}'.format(project.id))
+
+
 def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:
     yield from os.scandir(to_utf8(path))
 

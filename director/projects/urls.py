@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.urls import include, path, re_path
 
+from lib.constants import ProjectUrlRoot
 from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView,
                                          ProjectSessionSetupView)
 from projects.project_views import (ProjectListView, ProjectCreateView, ProjectOverviewView, ProjectFilesView,
@@ -8,7 +9,7 @@ from projects.project_views import (ProjectListView, ProjectCreateView, ProjectO
                                     ProjectSettingsMetadataView, ProjectSettingsAccessView, ProjectSettingsSessionsView,
                                     ProjectArchiveDownloadView, ProjectDeleteView, ProjectPullView, ProjectArchiveView,
                                     ProjectNamedArchiveDownloadView, ProjectExecutaView,
-                                    PublishedView, PublishedContentView, PublishedMediaView)
+                                    PublishedContentView, PublishedMediaView, PublishedListView)
 from projects.source_views import (FileSourceUploadView, DropboxSourceCreateView,
                                    GithubSourceCreateView, SourceOpenView,
                                    DiskFileSourceOpenView, GoogleDocsSourceCreateView,
@@ -20,41 +21,55 @@ urlpatterns = [
 
     path('create/', ProjectCreateView.as_view(), name='project_create'),
 
-    path('<int:pk>/', ProjectOverviewView.as_view(), name='project_overview'),
+    path('<int:pk>/', include([
+        path('', ProjectOverviewView.as_view(), name='project_overview'),
 
-    path('<int:pk>/files/browse/', ProjectFilesView.as_view(), name='project_files'),
-    path('<int:pk>/files/browse/<path:path>', ProjectFilesView.as_view(), name='project_files_path'),
-    path('<int:pk>/files/upload/', FileSourceUploadView.as_view(), name='filesource_upload'),
-    path('<int:pk>/files/pull/', ProjectPullView.as_view(), name='project_pull'),
+        path(ProjectUrlRoot.files.value + '/', include([
+            path('browse/', ProjectFilesView.as_view(), name='project_files'),
+            path('browse/<path:path>', ProjectFilesView.as_view(), name='project_files_path'),
+            path('upload/', FileSourceUploadView.as_view(), name='filesource_upload'),
+            path('pull/', ProjectPullView.as_view(), name='project_pull'),
+            path('link/dropbox/', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
+            path('link/github/', GithubSourceCreateView.as_view(), name='githubsource_create'),
+            path('link/googledocs/', GoogleDocsSourceCreateView.as_view(), name='googledocssource_create'),
+            path('convert/', SourceConvertView.as_view(), name='source_convert')
+        ])),
 
-    path('<int:pk>/files/link/dropbox/', DropboxSourceCreateView.as_view(), name='dropboxsource_create'),
-    path('<int:pk>/files/link/github/', GithubSourceCreateView.as_view(), name='githubsource_create'),
-    path('<int:pk>/files/link/googledocs/', GoogleDocsSourceCreateView.as_view(), name='googledocssource_create'),
-    path('<int:pk>/files/convert/', SourceConvertView.as_view(), name='source_convert'),
+        path(ProjectUrlRoot.activity.value + '/', ProjectActivityView.as_view(), name='project_activity'),
+        path(ProjectUrlRoot.sharing.value + '/', ProjectSharingView.as_view(), name='project_sharing'),
+        path(ProjectUrlRoot.sharing.value + '/roles/', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
+        path(ProjectUrlRoot.settings.value + '/metadata/', ProjectSettingsMetadataView.as_view(),
+             name='project_settings_metadata'),
+        path(ProjectUrlRoot.settings.value + '/access/', ProjectSettingsAccessView.as_view(),
+             name='project_settings_access'),
+        path(ProjectUrlRoot.archives.value + '/', ProjectArchiveView.as_view(), name='project_archives'),
+        path(ProjectUrlRoot.archives.value + '/<name>', ProjectNamedArchiveDownloadView.as_view(),
+             name='project_named_archive_download'),
 
-    path('<int:project_pk>/files/<int:pk>/open/<path:path>', SourceOpenView.as_view(), name='file_source_open'),
-    path('<int:project_pk>/files/open/<path:path>', DiskFileSourceOpenView.as_view(), name='disk_file_source_open'),
+        path(ProjectUrlRoot.archive.value + '/', ProjectArchiveDownloadView.as_view(), name='project_archive'),
+        path(ProjectUrlRoot.delete.value + '/', ProjectDeleteView.as_view(), name='project_delete'),
+        path(ProjectUrlRoot.executa.value + '/', ProjectExecutaView.as_view(), name='project_executa'),
 
-    path('<int:project_pk>/files/<int:pk>/download/<path:path>', SourceDownloadView.as_view(),
-         name='file_source_download'),
-    path('<int:project_pk>/files/download/<path:path>', DiskFileSourceDownloadView.as_view(),
-         name='disk_file_source_download'),
+        path(ProjectUrlRoot.published.value + '/', PublishedListView.as_view(),
+             name='project_published_list'),
+        re_path(r'^(?P<path>.*)/\d+\.html\.media/(?P<media_path>.*)', PublishedMediaView.as_view(),
+                name='project_published_media_view'),
+        path('<path:path>/', PublishedContentView.as_view(),
+             name='project_published_content'),
+    ])),
 
-    path('<int:pk>/activity/', ProjectActivityView.as_view(), name='project_activity'),
-    path('<int:pk>/sharing/', ProjectSharingView.as_view(), name='project_sharing'),
-    path('<int:pk>/sharing/roles/', ProjectRoleUpdateView.as_view(), name='project_sharing_roles'),
-    path('<int:pk>/settings/metadata/', ProjectSettingsMetadataView.as_view(), name='project_settings_metadata'),
-    path('<int:pk>/settings/access/', ProjectSettingsAccessView.as_view(), name='project_settings_access'),
-    path('<int:pk>/archives/', ProjectArchiveView.as_view(), name='project_archives'),
-    path('<int:pk>/archives/<name>', ProjectNamedArchiveDownloadView.as_view(), name='project_named_archive_download'),
+    path('<int:project_pk>/' + ProjectUrlRoot.files.value + '/<int:pk>/open/<path:path>', SourceOpenView.as_view(),
+         name='file_source_open'),
+    path('<int:project_pk>/' + ProjectUrlRoot.files.value + '/open/<path:path>', DiskFileSourceOpenView.as_view(),
+         name='disk_file_source_open'),
 
-    path('<int:pk>/published/<slug:slug>/', PublishedView.as_view(), name='project_published_view'),
-    path('<int:pk>/published/<slug:slug>/content/', PublishedContentView.as_view(),
-         name='project_published_content_view'),
-    path('<int:pk>/published/<slug:slug>/content/<path:media_path>', PublishedMediaView.as_view(),
-         name='project_published_media_view'),
+    path('<int:project_pk>/' + ProjectUrlRoot.files.value + '/<int:pk>/download/<path:path>',
+         SourceDownloadView.as_view(), name='file_source_download'),
+    path('<int:project_pk>/' + ProjectUrlRoot.files.value + '/download/<path:path>',
+         DiskFileSourceDownloadView.as_view(), name='disk_file_source_download'),
 
     # Per project Host API
+    # TODO: These are probably redundant – replace with slug?
     path('<str:token>/host/', include([
         path('v0/', include([
             path('manifest', ProjectHostManifestView.as_view(), {'version': 0}),
@@ -72,12 +87,6 @@ urlpatterns = [
 
     path('<str:token>/session-setup/<path:environ>', ProjectSessionSetupView.as_view(),
          name='project_session_setup'),
-
-    path('<int:pk>/archive/', ProjectArchiveDownloadView.as_view(), name='project_archive'),
-
-    path('<int:pk>/delete/', ProjectDeleteView.as_view(), name='project_delete'),
-
-    path('<int:pk>/executa/', ProjectExecutaView.as_view(), name='project_executa'),
 
     # Type-specific views
     # path('files/<int:pk>/', FilesSourceReadView.as_view(), name='filesproject_read'),

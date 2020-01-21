@@ -1,0 +1,64 @@
+{% extends 'projects/project_base.html' %}
+{% load project_urls static %}
+{% block title %}Project {{ project.pk }}: Published{% endblock %}
+{% block project_content %}
+    <div id="published-items">
+        <delete-confirm-modal :delete-modal-visible="deleteModalVisible"
+                              delete-action="delete"
+                              delete-id-name="pk"
+                              :delete-id-value="deleteItemPk"
+                              delete-button-label="Unpublish"
+                              :form-action="deleteFormAction"
+                              :ajax-submit="true"
+                              @modal-hide="hideDeleteModal()"
+                              @form-submitted="unpublishComplete"
+        >
+            <template slot="title"><i class="fa fa-trash"></i> Unpublish <em>[[ publishedItemDescription ]]</em>?
+            </template>
+            <template slot="csrf_token">{% csrf_token %}</template>
+            <template slot="body">
+                <p>Are you sure you want to unpublish the Published Item with path <em>[[ publishedItemDescription
+                    ]]</em>?</p>
+                <p>The source item will not be deleted.</p>
+            </template>
+        </delete-confirm-modal>
+        <table class="table is-fullwidth">
+            <thead>
+            <tr>
+                <th>Relative Path</th>
+                <th>Date First Published</th>
+                <th>Date Last Published</th>
+                <th class="has-text-centered">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for published_item in published_items %}
+                <tr>
+                    <td>
+                        <a href="{% project_url 'project_published_content' project published_item.url_path %}">
+                            {{ published_item.url_path }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ published_item.created }}
+                    </td>
+                    <td>
+                        {{ published_item.updated }}
+                    </td>
+                    <td class="has-text-centered">
+                        <published-action-menu
+                                index="{{ forloop.counter0 }}"
+                                item-pk="{{ published_item.pk }}"
+                                url-path="{{ published_item.url_path }}"
+                                delete-action="{% url 'api_v1_published_item_delete' published_item.pk %}"
+                                :ajax-submit="true"
+                        ></published-action-menu>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script src="{% static 'js/delete-confirm-modal.js' %}"></script>
+    <script src="{% static 'js/published-list.js' %}"></script>
+{% endblock %}

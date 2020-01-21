@@ -1,4 +1,6 @@
 import json
+import os
+import shutil
 import typing
 
 from allauth.socialaccount.models import SocialApp
@@ -8,8 +10,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.utils.html import escape
-from django.utils.text import slugify
 from django.views.generic.base import View
 from googleapiclient.errors import HttpError
 from rest_framework.views import APIView
@@ -19,20 +21,31 @@ from lib.converter_facade import fetch_url
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid, GoogleDocsFacade
 from lib.social_auth_token import user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
+from projects.permission_facade import fetch_project_for_user
 from projects.permission_models import ProjectPermissionType
 from projects.project_forms import PublishedItemForm
-from projects.project_models import PublishedItem
+from projects.project_models import PublishedItem, Project
 from projects.project_views import ProjectPermissionsMixin
-from projects.shared import PUBLISHED_FILE_NAME
 from projects.source_content_facade import make_source_content_facade
-from projects.source_models import GoogleDocsSource, UrlSource
-from projects.source_operations import utf8_path_join
+from projects.source_models import GoogleDocsSource, UrlSource, Source
+from projects.source_operations import utf8_path_join, generate_project_publish_directory
 from projects.source_views import ConverterMixin
 from projects.url_helpers import project_url_reverse
 
 
 class LinkException(Exception):
     pass
+
+
+def get_project_publish_directory(project: Project) -> str:
+    return generate_project_publish_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+
+
+def setup_publish_directory(project: Project) -> None:
+    """Create directories and sub-directories to store HTML output for published files."""
+    publish_dir = get_project_publish_directory(project)
+    if not os.path.exists(publish_dir):
+        os.makedirs(publish_dir, True)
 
 
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
@@ -42,42 +55,81 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
         """Create or update the `PublishedItem` for this Project."""
         project = self.get_project(request.user, kwargs)
 
-        try:
-            pi = PublishedItem.objects.get(project=project)
-        except PublishedItem.DoesNotExist:
-            pi = PublishedItem(project=project)
-
         data = request.data
 
         form = PublishedItemForm(data, initial={'project': project})
 
         if form.is_valid():
+            try:
+                pi = PublishedItem.objects.get(project=project, url_path=form.cleaned_data['url_path'])
+            except PublishedItem.DoesNotExist:
+                pi = PublishedItem(project=project, url_path=form.cleaned_data['url_path'])
+
+            pi.save()  # get the PK
+
             original_path = form.cleaned_data['path']
 
             source = self.get_source(request.user, kwargs, form.cleaned_data.get('source_id'))
             scf = make_source_content_facade(request.user, original_path, source, project)
 
-            published_path = scf.disk_file_facade.full_file_path(PUBLISHED_FILE_NAME)
+            published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
 
-            self.source_convert(request, project, scf, published_path, PUBLISHED_FILE_NAME, ConversionFormatId.html,
-                                False)
+            absolute_input_path = scf.sync_content()
 
-            pi.path = data['path']
-            pi.slug = slugify(data['slug'])
+            self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path,
+                               False)
+
+            pi.source_path = data['path']
+            pi.path = published_path
+            pi.url_path = form.cleaned_data['url_path']
+            if isinstance(source, Source):
+                pi.source = source
+            else:
+                pi.source = None
             pi.save()
 
-            messages.success(request, 'The file <em>{}</em> was published successfully.'.format(escape(original_path)),
-                             extra_tags='safe')
+            success_message = 'The file <em>{}</em> was published successfully to <a href="{}">{}</a>'.format(
+                escape(original_path),
+                project_url_reverse('project_published_content', [pi.url_path], project=project),
+                pi.url_path
+            )
+            messages.success(request, success_message, extra_tags='safe')
 
             return JsonResponse({
                 'success': True,
-                'url': project_url_reverse('project_published_view', [pi.slug], project=project)
             })
         else:
             return JsonResponse({
                 'success': False,
                 'errors': form.errors.get_json_data()
             })
+
+
+class PublishedItemDeleteView(ProjectPermissionsMixin, APIView):
+    project_permission_required = ProjectPermissionType.EDIT
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        pi = get_object_or_404(PublishedItem, pk=pk)
+        self.project_fetch_result = fetch_project_for_user(request.user, project=pi.project)
+        pi_url_path = pi.url_path
+        self.test_required_project_permission()
+        if os.path.exists(pi.path):
+            os.unlink(pi.path)
+
+        media_dir = pi.path + '.media'
+        if os.path.exists(media_dir):
+            shutil.rmtree(media_dir)
+
+        pi.delete()
+
+        if request.is_ajax():
+            return JsonResponse(
+                {'success': True, 'message': 'Item at {} was successfully unpublished.'.format(pi_url_path)})
+
+        messages.success(request, 'Item at <em>{}</em> was successfully unpublished.'.format(escape(pi_url_path)),
+                         extra_tags='safe')
+
+        return HttpResponse(status=204)
 
 
 class SourceLinkView(ProjectPermissionsMixin, APIView):

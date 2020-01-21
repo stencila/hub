@@ -36,19 +36,22 @@ def add_roles_to_permissions_sets(roles_set: typing.Set[ProjectRole],
             permissions_set.add(permission_type)
 
 
-def fetch_project_for_user(user: AbstractUser, project_pk: typing.Optional[typing.Union[str, int]],
-                           account_slug: typing.Optional[str],
-                           project_slug: typing.Optional[str]) -> ProjectFetchResult:
+def fetch_project_for_user(user: AbstractUser, project_pk: typing.Optional[typing.Union[str, int]] = None,
+                           account_slug: typing.Optional[str] = None,
+                           project_slug: typing.Optional[str] = None,
+                           project: typing.Optional[Project] = None) -> ProjectFetchResult:
+    # A Project can be passed in to prevent fetching again
+    if not project:
+        if account_slug or project_slug:
+            if not account_slug or not project_slug:
+                # For some reason we only have one of these
+                raise ValueError('Both account_slug and project_slug must be provided.')
+            project = get_object_or_404(Project, account__slug=account_slug, slug=project_slug)
+        elif project_pk:
+            project = get_object_or_404(Project, pk=project_pk)
 
-    if account_slug or project_slug:
-        if not account_slug or not project_slug:
-            # For some reason we only have one of these
-            raise ValueError('Both account_slug and project_slug must be provided.')
-        project = get_object_or_404(Project, account__slug=account_slug, slug=project_slug)
-    elif project_pk:
-        project = get_object_or_404(Project, pk=project_pk)
-    else:
-        raise ValueError('Either pk or account_slug and project_slug must be provided.')
+    if not project:
+        raise ValueError('Either pk or account_slug and project_slug or project must be provided.')
     user_teams = Team.objects.filter(members=user) if user.is_authenticated else []
 
     project_agent_roles = ProjectAgentRole.filter_with_user_teams(user, user_teams, project=project)

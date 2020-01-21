@@ -650,8 +650,8 @@ Vue.component('publish-modal', {
       type: String,
       required: true
     },
-    publishedExists: {
-      type: Boolean,
+    projectUrl: {
+      type: String,
       required: true
     }
   },
@@ -664,10 +664,19 @@ Vue.component('publish-modal', {
       path: null,
       slug: null,
       slugError: null,
-      errorMessage: ''
+      errorMessage: '',
+      urlPath: ''
+    }
+  },
+  computed: {
+    publishedUrl() {
+      return this.projectUrl + this.urlPath
     }
   },
   methods: {
+    publishDisabled() {
+        return this.urlPath === '' || this.publishInProgress
+    },
     slugifyPath (path) {
       const splitPath = path.split('/')
       const fileNameAndExt = splitExt(splitPath[splitPath.length - 1])
@@ -696,7 +705,7 @@ Vue.component('publish-modal', {
         body: JSON.stringify({
           'source_id': this.sourceId,
           'path': this.path,
-          'slug': this.slug
+          'url_path': this.urlPath
         }),
         headers: {
           'X-CSRFToken': utils.cookie('csrftoken'),
@@ -708,7 +717,7 @@ Vue.component('publish-modal', {
       }).then(data => {
         const success = data.success
         if (success) {
-          window.location = data.url
+          window.location.reload()
           return
         } else {
           if (data.errors.slug) {
@@ -741,21 +750,20 @@ Vue.component('publish-modal', {
     '      <div class="content-container">' +
     '        <p>' +
     '          File <em>{{ sourceName }}</em> will be converted to HTML and published for this project.' +
-    '          <span v-if="publishedExists">The existing published file will be replaced.</span>' +
     '        </p>' +
     '      </div>' +
     '      <div class="field">' +
     '        <div class="control">' +
-    '          <label class="label">Enter a slug to use in the URL</label>' +
-    '          <input class="input is-medium" type="text" placeholder="Slug" v-model="slug">' +
-    '          <p class="help">A slug is used in the URL of your published file and can help with SEO. It must only ' +
-    'contain letters, numbers and dashes.</p>' +
+    '          <label class="label">URL Path</label>' +
+    '          <input class="input is-medium" type="text" placeholder="Path" v-model="urlPath">' +
+    '          <p class="help">The relative path of the published item URL, which is appended to this Project\'s URL</p>' +
+    '          <p class="help">URL after publishing: <strong>{{ publishedUrl }}</strong></p>' +
     '          <p v-if="slugError != null" class="has-text-danger">{{ slugError }}</p>' +
     '        </div>' +
     '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="publish()" :disabled="publishInProgress"  :class="{\'is-loading\': publishInProgress}">Publish</button>' +
+    '      <button class="button is-primary" @click.prevent="publish()" :disabled="publishDisabled()"  :class="{\'is-loading\': publishInProgress}">Publish</button>' +
     '      <button class="button" :disabled="publishInProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div>' +

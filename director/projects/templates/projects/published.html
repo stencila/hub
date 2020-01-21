@@ -2,9 +2,9 @@
 {% load project_urls %}
 {% block title %}Project {{ project.pk }} : Published Content{% endblock %}
 {% block project_content %}
-    <iframe class="published-display" src="{% project_url 'project_published_content_view' project slug %}"></iframe>
+    <iframe class="published-display" src="{% project_url 'project_published_content' project path %}"></iframe>
     <div class="has-text-right">
-        <a href="{% project_url 'project_published_content_view' project slug %}" target="_blank" rel="noopener"
+        <a href="{% project_url 'project_published_content' project path %}" target="_blank" rel="noopener"
            class="button is-primary">
             <span class="icon"><i class="fas fa-external-link-alt"></i></span>
             <span>Open In New Tab</span>

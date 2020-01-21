@@ -43,6 +43,25 @@ class AccountUrlRoot(enum.Enum):
     subscription_signup = 'subscription-signup'
 
 
+class ProjectUrlRoot(enum.Enum):
+    """
+    These are the components that come after the Project ID or Slug in the URL.
+
+    A published item's URL path can't start with one of these values.
+    """
+
+    activity = 'activity'
+    archive = 'archive'  # archive and archives are both used
+    archives = 'archives'
+    delete = 'delete'
+    executa = 'executa'
+    files = 'files'
+    published = 'published'
+    settings = 'settings'
+    sharing = 'sharing'
+
+
 # A set of slugs that are not allowed to be used as they conflict with our URLs
 DISALLOWED_ACCOUNT_SLUGS = {u.value for u in UrlRoot}.union({'static', 'media'})
 DISALLOWED_PROJECT_SLUGS = {u.value for u in AccountUrlRoot}
+DISALLOWED_PUBLISHED_ROOTS = {u.value for u in ProjectUrlRoot}
