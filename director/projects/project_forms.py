@@ -14,10 +14,7 @@ from .project_models import Project, PublishedItem
 class ProjectCreateForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['account', 'name', 'description', 'public', 'slug']
-        widgets = {
-            'name': forms.TextInput()
-        }
+        fields = ['account', 'name', 'description', 'public']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
@@ -50,9 +47,6 @@ class ProjectGeneralForm(ModelFormWithSubmit):
     class Meta:
         model = Project
         fields = ['name', 'description', 'public']
-        widgets = {
-            'name': forms.TextInput()
-        }
 
 
 class ProjectSharingForm(forms.ModelForm):
@@ -83,10 +77,7 @@ class ProjectSharingForm(forms.ModelForm):
 class ProjectSettingsMetadataForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['name', 'description', 'slug']
-        widgets = {
-            'name': forms.TextInput()
-        }
+        fields = ['name', 'description']
 
 
 class ProjectSettingsAccessForm(forms.ModelForm):

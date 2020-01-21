@@ -46,36 +46,36 @@ def project_url_parameters(view_name: str, args: typing.Optional[typing.List[typ
     """
     args = args or []
     account_slug = None
-    project_slug = None
+    project_name = None
     project_pk = None
     if (url_kwargs is None) == (project is None):
         raise TypeError('One of url_kwargs or project must be set, not both or neither.')
     if url_kwargs:
         # kwargs mode
-        if 'account_slug' in url_kwargs and 'project_slug' in url_kwargs:
+        if 'account_slug' in url_kwargs and 'project_name' in url_kwargs:
             account_slug = url_kwargs['account_slug']
-            project_slug = url_kwargs['project_slug']
+            project_name = url_kwargs['project_name']
         else:
             project_pk = url_kwargs.get('pk', url_kwargs.get('project_pk'))
 
-        if project_pk is None and (account_slug is None or project_slug is None):
-            raise TypeError('No Project PK or Slugs could be found in url_kwargs')
+        if project_pk is None and (account_slug is None or project_name is None):
+            raise TypeError('No Project PK or Names could be found in url_kwargs')
     else:
         # Project is not None since we checked this above
         # but mypy does not understand this
         if project is None:
             raise TypeError('Project is None even though we checked this above! Thanks MyPy')
 
-        if project.slug and project.account.slug:
+        if project.account.slug:
             account_slug = project.account.slug
-            project_slug = project.slug
+            project_name = project.name
         else:
             project_pk = project.pk
 
         # no need to check that we have a values as project.pk should always be set
-    if account_slug and project_slug:
+    if account_slug and project_name:
         view_name += '_slug'
-        args.insert(0, project_slug)
+        args.insert(0, project_name)
         args.insert(0, account_slug)
     else:
         args.insert(0, project_pk)

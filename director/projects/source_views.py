@@ -54,10 +54,10 @@ class SourceCreateView(ProjectPermissionsMixin, CreateView):
 
     def get_redirect(self, url_kwargs: dict) -> HttpResponse:
         account_slug = url_kwargs.get('account_slug')
-        project_slug = url_kwargs.get('project_slug')
+        project_name = url_kwargs.get('project_name')
 
-        if account_slug and project_slug:
-            args = [account_slug, project_slug]
+        if account_slug and project_name:
+            args = [account_slug, project_name]
             slug_suffix = '_slug'
         else:
             args = [url_kwargs['pk']]

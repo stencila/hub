@@ -28,11 +28,8 @@ class AccountSettingsForm(CleanSlugMixin, forms.ModelForm):
             'name': forms.TextInput,
         }
 
-    def clean_slug(self):
-        return clean_slug(self.cleaned_data['slug'], SlugType.ACCOUNT)
 
-
-class AccountCreateForm(ModelFormWithCreate):
+class AccountCreateForm(CleanSlugMixin, ModelFormWithCreate):
     helper = FormHelper()
     helper.layout = Layout(
         'name',

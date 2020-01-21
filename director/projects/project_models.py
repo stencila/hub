@@ -32,7 +32,7 @@ def generate_project_token(project: 'Project') -> str:
 
 class Project(models.Model):
     class Meta:
-        unique_together = [['slug', 'account']]
+        unique_together = [['name', 'account']]
 
     account = models.ForeignKey(
         Account,
@@ -42,10 +42,10 @@ class Project(models.Model):
         blank=False
     )
 
-    name = models.TextField(
-        null=True,
+    name = models.SlugField(
+        null=False,
         blank=False,
-        help_text="Name of the project"
+        help_text="Name of the project, an identifier used in URLs. Must be unique within the Project's account"
     )
 
     creator = models.ForeignKey(
@@ -128,12 +128,6 @@ class Project(models.Model):
 
     )
 
-    slug = models.SlugField(
-        null=True,
-        blank=True,
-        help_text='An identifier for the Project, used in the URL. It must be unique for the account.'
-    )
-
     def __str__(self):
         return 'Project #{}'.format(self.id)
 
@@ -202,7 +196,7 @@ class Project(models.Model):
         self.get_first_source().push(archive)
 
     def save(self, *args, **kwargs) -> None:
-        self.slug = clean_slug(self.slug, SlugType.PROJECT)
+        self.name = clean_slug(self.name, SlugType.PROJECT)
 
         if not self.token:
             self.token = generate_project_token(self)

@@ -37,5 +37,5 @@ urlpatterns = [
          name='account_subscription_cancel_slug'),
     path(AccountUrlRoot.subscription_signup.value + '/', subscription_views.SubscriptionSignupView.as_view(),
          name='account_subscription_signup_slug'),
-    path('<slug:project_slug>/', include('projects.slug_urls'))
+    path('<slug:project_name>/', include('projects.slug_urls'))
 ]

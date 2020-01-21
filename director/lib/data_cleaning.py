@@ -27,6 +27,6 @@ def clean_slug(slug: typing.Optional[str], usage: SlugType) -> typing.Optional[s
             invalid = True
 
     if invalid:
-        raise ValidationError('The slug "{}" is reserved and can not be used.'.format(slug))
+        raise ValidationError('The name "{}" is reserved and can not be used.'.format(slug))
 
     return slug

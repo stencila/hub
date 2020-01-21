@@ -91,8 +91,8 @@ class ProjectPermissionsMixin(object):
         if self.project_fetch_result is None:
             pk = self.get_project_pk(url_kwargs)
             account_slug = url_kwargs.get('account_slug')
-            project_slug = url_kwargs.get('project_slug')
-            self.project_fetch_result = fetch_project_for_user(user, pk, account_slug, project_slug)
+            project_name = url_kwargs.get('project_name')
+            self.project_fetch_result = fetch_project_for_user(user, pk, account_slug, project_name)
 
     def get_render_context(self, context: dict) -> dict:
         context['environ'] = DEFAULT_ENVIRON

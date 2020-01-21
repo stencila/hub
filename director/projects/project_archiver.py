@@ -4,7 +4,6 @@ import zipfile
 from datetime import datetime
 
 from django.utils import timezone
-from django.utils.text import slugify
 
 from projects.project_models import ProjectEvent, ProjectEventType
 from projects.project_puller import ProjectSourcePuller
@@ -26,7 +25,7 @@ class ProjectArchiver(object):
     def generate_archive_name(self, prefix: typing.Optional[str]) -> str:
         prefix = '{}-'.format(prefix) if prefix else ''
 
-        formatted_name = slugify(self.project.name)[:32] if self.project.name else ''
+        formatted_name = self.project.name[:32]
 
         if not formatted_name:
             formatted_name = '{}'.format(self.project.id)
