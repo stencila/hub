@@ -91,7 +91,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             success_message = 'The file <em>{}</em> was published successfully to <a href="{}">{}</a>'.format(
                 escape(original_path),
-                reverse('project_published_content', args=(self.object.account.name, self.object.name, pi.url_path)),
+                reverse('project_published_content', args=(project.account.name, project.name, pi.url_path)),
                 pi.url_path
             )
             messages.success(request, success_message, extra_tags='safe')
