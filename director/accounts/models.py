@@ -8,9 +8,10 @@ import typing
 
 import djstripe.models
 from django.contrib.auth.models import User, AbstractUser
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
+from django.utils.text import slugify
 
 from lib.data_cleaning import clean_slug, SlugType
 from lib.enum_choice import EnumChoice
@@ -248,7 +249,21 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
     linked to an `Account`.
     """
     if sender is User and created:
-        account = Account.objects.create(name='{}\'s Personal Account'.format(instance.username))
+        suffix_number = 2
+        suffix = ''
+        while True:
+            if suffix_number == 100:
+                raise RuntimeError("Suffix number hit 100.")
+
+            account_name = '{}-personal-account{}'.format(slugify(sender.username), suffix)
+
+            try:
+                account = Account.objects.create(name=account_name)
+                break
+            except IntegrityError:
+                suffix = '-{}'.format(suffix_number)
+                suffix_number += 1
+
         admin_role = AccountRole.objects.get(name='Account admin')
         AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
 

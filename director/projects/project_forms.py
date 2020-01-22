@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.text import slugify
 
 from accounts.models import Account
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
@@ -28,10 +29,10 @@ class ProjectCreateForm(ModelFormWithSubmit):
             if accounts.count() == 1:
                 initial['account'] = accounts[0].pk
             elif accounts.count() > 1:
-                personal_account_name = "{}'s Personal Account".format(request.user.username)
+                personal_account_prefix = '{}-personal-account'.format(slugify(request.user.username))
 
                 for account in accounts:
-                    if account.name == personal_account_name:
+                    if account.name.startswith(personal_account_prefix):
                         initial['account'] = account.pk
                         break
 

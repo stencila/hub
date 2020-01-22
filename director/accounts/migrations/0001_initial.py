@@ -3,6 +3,8 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+from django.utils.text import slugify
+from django.db import IntegrityError
 
 ACCOUNT_MEMBER_NAME = 'Account member'
 ACCOUNT_ADMIN_NAME = 'Account admin'
@@ -64,13 +66,25 @@ def create_account_for_users(apps, schema_editor):
         if account_user_role.count() != 0:
             continue
 
-        account = Account.objects.create(name='{}\'s Personal Account'.format(user.username))
+        suffix_number = 2
+        suffix = ''
+        while True:
+            if suffix_number == 100:
+                raise RuntimeError("Suffix number hit 100.")
+
+            account_name = '{}-personal-account{}'.format(slugify(user.username), suffix)
+
+            try:
+                account = Account.objects.create(name=account_name)
+                break
+            except IntegrityError:
+                suffix = '-{}'.format(suffix_number)
+                suffix_number += 1
 
         AccountUserRole.objects.create(role=admin_role, account=account, user=user)
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -104,9 +118,12 @@ class Migration(migrations.Migration):
             name='AccountUserRole',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_roles', to='accounts.Account')),
-                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+', to='accounts.AccountRole')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='account_roles', to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_roles',
+                                              to='accounts.Account')),
+                ('role', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='+',
+                                           to='accounts.AccountRole')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='account_roles',
+                                           to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
