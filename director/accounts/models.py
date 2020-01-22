@@ -46,11 +46,11 @@ class Account(models.Model):
     Users can create additional Accounts linking them to multiple Projects and Teams.
     """
 
-    name = models.TextField(
+    name = models.SlugField(
         null=False,
         blank=False,
         unique=True,
-        help_text='Name of the account'
+        help_text='Name of the account. Must be unique.'
     )
 
     logo = models.ImageField(
@@ -59,15 +59,8 @@ class Account(models.Model):
         help_text='Logo for the account. Please use an image that is 100 x 100 px or smaller. '
     )
 
-    slug = models.SlugField(
-        null=True,
-        blank=True,
-        unique=True,
-        help_text='A unique identifier for the account, used in the URL.'
-    )
-
     def save(self, *args, **kwargs) -> None:
-        self.slug = clean_slug(self.slug, SlugType.ACCOUNT)
+        self.name = clean_slug(self.name, SlugType.ACCOUNT)
 
         super(Account, self).save(*args, **kwargs)
 
@@ -91,7 +84,7 @@ class Account(models.Model):
         return users
 
     def __str__(self) -> str:
-        return self.name if self.name else 'Account #{}'.format(self.pk)
+        return self.name
 
     @property
     def plan(self) -> typing.Union[djstripe.models.Plan, dict]:

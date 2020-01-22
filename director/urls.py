@@ -79,7 +79,7 @@ urlpatterns = [
     path(UrlRoot.test.value + '/', include(test_patterns)),
 
     # Custom Roots (they start with a slug)
-    path('<slug:account_slug>/', include('accounts.slug_urls'))
+    path('<slug:account_name>/', include('accounts.slug_urls'))
 ]
 
 handler403 = permission_denied

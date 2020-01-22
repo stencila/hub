@@ -20,10 +20,7 @@ def url_slug_suffix_and_args(project: Project) -> typing.Tuple[str, typing.List[
     account slug and project slug. Otherwise the first argument will be the project PK. Likewise the suffix for the
     view name will be '_slug' in slug mode and nothing ('') in non-slug mode.
     """
-    if project.account.slug:
-        return '_slug', [project.account.slug, project.name]
-
-    return '', [project.pk]
+    return '_slug', [project.account.name, project.name]
 
 
 @register.simple_tag

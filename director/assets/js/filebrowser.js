@@ -685,8 +685,6 @@ Vue.component('publish-modal', {
       return fileName.match(slugChars).join('').replace(/ /g, '-').substring(0, 50).toLowerCase()
     },
     show (sourceId, path) {
-      this.slugError = null
-      this.slug = this.slugifyPath(path)
       this.sourceId = sourceId
       this.path = path
       this.visible = true
@@ -699,7 +697,6 @@ Vue.component('publish-modal', {
     },
     publish () {
       this.publishInProgress = true
-      this.slugError = null
       fetch(this.publishUrl, {
         method: 'POST',
         body: JSON.stringify({
@@ -720,8 +717,8 @@ Vue.component('publish-modal', {
           window.location.reload()
           return
         } else {
-          if (data.errors.slug) {
-            this.slugError = data.errors.slug[0].message
+          if (data.errors.url) {
+            this.slugError = data.errors.url[0].message
           } else {
             alert('An error occurred during publish, please check the console.')
             console.error(data.errors)

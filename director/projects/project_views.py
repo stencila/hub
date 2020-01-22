@@ -90,9 +90,9 @@ class ProjectPermissionsMixin(object):
     def perform_project_fetch(self, user: AbstractUser, url_kwargs: dict) -> None:
         if self.project_fetch_result is None:
             pk = self.get_project_pk(url_kwargs)
-            account_slug = url_kwargs.get('account_slug')
+            account_name = url_kwargs.get('account_name')
             project_name = url_kwargs.get('project_name')
-            self.project_fetch_result = fetch_project_for_user(user, pk, account_slug, project_name)
+            self.project_fetch_result = fetch_project_for_user(user, pk, account_name, project_name)
 
     def get_render_context(self, context: dict) -> dict:
         context['environ'] = DEFAULT_ENVIRON

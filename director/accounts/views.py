@@ -26,8 +26,8 @@ class AccountPermissionsMixin(LoginRequiredMixin):
     required_account_permission: AccountPermissionType
 
     def perform_account_fetch(self, user: AbstractUser, pk: typing.Optional[int] = None,
-                              slug: typing.Optional[str] = None) -> None:
-        self.account_fetch_result = fetch_account(user, pk, slug)
+                              name: typing.Optional[str] = None) -> None:
+        self.account_fetch_result = fetch_account(user, pk, name)
 
     def get_render_context(self, context: dict) -> dict:
         context['account_permissions'] = self.account_permissions
@@ -69,9 +69,9 @@ class AccountPermissionsMixin(LoginRequiredMixin):
         return False
 
     def request_permissions_guard(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
-                                  account_slug: typing.Optional[str] = None) -> None:
+                                  account_name: typing.Optional[str] = None) -> None:
         """Test that the current user has `required_account_permission`, raising `PermissionDenied` if not."""
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+        self.perform_account_fetch(request.user, account_pk, account_name)
         if not self.has_permission(self.required_account_permission):
             raise PermissionDenied('User must have {} permission to do this.'.format(self.required_account_permission))
 
@@ -86,8 +86,8 @@ class AccountListView(LoginRequiredMixin, ListView):
 
 class AccountProfileView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_slug)
+            account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, pk, account_name)
 
         teams = self.account.teams.all()
         if self.has_any_permissions((AccountPermissionType.ADMINISTER, AccountPermissionType.MODIFY)):
@@ -107,8 +107,8 @@ class AccountProfileView(AccountPermissionsMixin, View):
 
 class AccountAccessView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_slug)
+            account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, pk, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -131,8 +131,8 @@ class AccountAccessView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, pk: typing.Optional[int] = None,
-             account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_slug)
+             account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, pk, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -215,7 +215,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     form_class = AccountSettingsForm
     template_name = 'accounts/account_settings.html'
     required_account_permission = AccountPermissionType.ADMINISTER
-    slug_url_kwarg = 'account_slug'
+    slug_url_kwarg = 'account_name'
 
     def get_success_url(self) -> str:
         return account_url_reverse('account_profile', account=self.object)
@@ -232,7 +232,7 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
     model = Account
     form_class = AccountCreateForm
     template_name = 'accounts/account_create.html'
-    slug_url_kwarg = 'account_slug'
+    slug_url_kwarg = 'account_name'
 
     def form_valid(self, form):
         """If the account creation form is valid them make the current user the account creator."""

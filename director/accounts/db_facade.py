@@ -25,20 +25,20 @@ class AccountFetchResult(typing.NamedTuple):
 
 
 def fetch_account(user: AbstractUser, account_pk: typing.Optional[int] = None,
-                  slug: typing.Optional[str] = None) -> AccountFetchResult:
+                  name: typing.Optional[str] = None) -> AccountFetchResult:
     """
-    Fetch an `Account`, raising a 404 if the `Account` with `account_pk` or `slug` does not exist.
+    Fetch an `Account`, raising a 404 if the `Account` with `account_pk` or `name` does not exist.
 
     Returns an `AccountFetchResult`. If the `user` does not have access to the `Account` then
     `AccountFetchResult.user_roles` and `AccountFetchResult.user_permissions` will be empty sets.
     """
-    if (account_pk is None) == (slug is None):
-        raise ValueError('Only provide one of account_pk or slug.')
+    if (account_pk is None) == (name is None):
+        raise ValueError('Only provide one of account_pk or name.')
 
     if account_pk is not None:
         account = get_object_or_404(Account, pk=account_pk)
     else:
-        account = get_object_or_404(Account, slug=slug)
+        account = get_object_or_404(Account, name=name)
     account_user_roles = AccountUserRole.objects.filter(account=account, user=user)
 
     user_roles: typing.Set[AccountUserRole] = set()

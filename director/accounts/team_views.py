@@ -40,8 +40,8 @@ class TeamDetailView(AccountPermissionsMixin, View):
         return None
 
     def get(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+            account_name: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
         assert self.account_fetch_result is not None
 
         max_teams_redirect = self.test_team_create_quota(request, team_pk)
@@ -64,8 +64,8 @@ class TeamDetailView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
-             account_slug: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+             account_name: typing.Optional[str] = None, team_pk: typing.Optional[int] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -100,8 +100,8 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
 class TeamListView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+            account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
 
         if not self.account_permissions:
             raise PermissionDenied
@@ -116,8 +116,8 @@ class TeamListView(AccountPermissionsMixin, View):
 
 class TeamMembersView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+            account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
         team = fetch_team_for_account(self.account, team_pk)
 
         current_members = list(map(lambda u: u.username, team.members.all()))
@@ -132,8 +132,8 @@ class TeamMembersView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
-             account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+             account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -165,8 +165,8 @@ class TeamMembersView(AccountPermissionsMixin, View):
 
 class TeamProjectsView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
-            account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+            account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
         team = fetch_team_for_account(self.account, team_pk)
         project_roles = ProjectRole.objects.all()
         all_projects = self.account.projects.all()
@@ -194,8 +194,8 @@ class TeamProjectsView(AccountPermissionsMixin, View):
         }))
 
     def post(self, request: HttpRequest, team_pk: int, account_pk: typing.Optional[int] = None,
-             account_slug: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_pk, account_slug)
+             account_name: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_pk, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied

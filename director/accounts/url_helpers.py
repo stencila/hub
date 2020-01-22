@@ -45,34 +45,21 @@ def account_url_parameters(view_name: str, args: typing.Optional[typing.List[typ
     The args list will be updated with either PK or slugs prepended to it.
     """
     args = args or []
-    account_slug = None
-    account_pk = None
-    if (url_kwargs is None) == (account is None):
-        raise TypeError('One of url_kwargs or account must be set, not both or neither.')
-    if url_kwargs:
-        # kwargs mode
-        if 'account_slug' in url_kwargs:
-            account_slug = url_kwargs['account_slug']
+
+    if account:
+        account_name = account.name
+    elif url_kwargs:
+        if 'account_name' in url_kwargs:
+            account_name = url_kwargs['account_name']
+        elif 'pk' in url_kwargs:
+            account = typing.cast(Account, Account.objects.get(pk=url_kwargs['pk']))
+            account_name = account.name
         else:
-            account_pk = url_kwargs.get('pk')
-
-        if account_pk is None and account_slug is None:
-            raise TypeError('No Account PK or Slug could be found in url_kwargs')
+            raise TypeError('No Account PK or Name could be found in url_kwargs')
     else:
-        # Account is not None since we checked this above
-        # but mypy does not understand this
-        if account is None:
-            raise TypeError('Account is None even though we checked this above! Thanks MyPy')
+        raise TypeError('One of url_kwargs or account must be set.')
 
-        if account.slug:
-            account_slug = account.slug
-        else:
-            account_pk = account.pk
+    view_name += '_slug'
+    args.insert(0, account_name)
 
-        # no need to check that we have a values as account.pk should always be set
-    if account_slug:
-        view_name += '_slug'
-        args.insert(0, account_slug)
-    else:
-        args.insert(0, account_pk)
     return view_name, args

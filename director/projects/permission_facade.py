@@ -37,21 +37,21 @@ def add_roles_to_permissions_sets(roles_set: typing.Set[ProjectRole],
 
 
 def fetch_project_for_user(user: AbstractUser, project_pk: typing.Optional[typing.Union[str, int]] = None,
-                           account_slug: typing.Optional[str] = None,
+                           account_name: typing.Optional[str] = None,
                            project_name: typing.Optional[str] = None,
                            project: typing.Optional[Project] = None) -> ProjectFetchResult:
     # A Project can be passed in to prevent fetching again
     if not project:
-        if account_slug or project_name:
-            if not account_slug or not project_name:
+        if account_name or project_name:
+            if not account_name or not project_name:
                 # For some reason we only have one of these
-                raise ValueError('Both account_slug and project_name must be provided.')
-            project = get_object_or_404(Project, account__slug=account_slug, name=project_name)
+                raise ValueError('Both account_name and project_name must be provided.')
+            project = get_object_or_404(Project, account__name=account_name, name=project_name)
         elif project_pk:
             project = get_object_or_404(Project, pk=project_pk)
 
     if not project:
-        raise ValueError('Either pk or account_slug and project_name or project must be provided.')
+        raise ValueError('Either pk or account_name and project_name or project must be provided.')
     user_teams = Team.objects.filter(members=user) if user.is_authenticated else []
 
     project_agent_roles = ProjectAgentRole.filter_with_user_teams(user, user_teams, project=project)
