@@ -219,12 +219,13 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     template_name = 'accounts/account_settings.html'
     required_account_permission = AccountPermissionType.ADMINISTER
     slug_url_kwarg = 'account_name'
+    slug_field = 'name'
 
     def get_success_url(self) -> str:
         return reverse('account_profile', args=(self.object.name,))
 
     def get_context_data(self, **kwargs):
-        self.perform_account_fetch(self.request.user, self.object.pk)
+        self.perform_account_fetch(self.request.user, self.object.name)
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
         kwargs['tab'] = 'settings'
@@ -236,6 +237,7 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
     form_class = AccountCreateForm
     template_name = 'accounts/account_create.html'
     slug_url_kwarg = 'account_name'
+    slug_field = 'name'
 
     def form_valid(self, form):
         """If the account creation form is valid them make the current user the account creator."""
