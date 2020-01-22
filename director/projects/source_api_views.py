@@ -51,9 +51,9 @@ def setup_publish_directory(project: Project) -> None:
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, account_name: str, project_name: str):  # type: ignore
+    def post(self, request: HttpRequest, pk: int):  # type: ignore
         """Create or update the `PublishedItem` for this Project."""
-        project = self.get_project(request.user, account_name, project_name)
+        project = self.get_project(request.user, pk=pk)
 
         data = request.data
 
@@ -69,7 +69,8 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             original_path = form.cleaned_data['path']
 
-            source = self.get_source(request.user, account_name, project_name, form.cleaned_data.get('source_id'))
+            source = self.get_source(request.user, project.account.name, project.name,
+                                     form.cleaned_data.get('source_id'))
             scf = make_source_content_facade(request.user, original_path, source, project)
 
             published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))

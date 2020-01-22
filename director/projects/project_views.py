@@ -162,6 +162,7 @@ class ProjectPermissionsMixin(object):
 
     def get_source(self, user: AbstractUser, account_name: str, project_name: str, source_pk: typing.Optional[int]) \
             -> typing.Union[Source, DiskSource]:
+        # TODO: this should accept a project that we have already fetched before
         self.perform_project_fetch(user, account_name, project_name)
         self.test_required_project_permission()
 
