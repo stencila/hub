@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load project_urls %}
 {% block title %}Projects{% endblock %}
 
 {% block content %}
@@ -59,7 +58,7 @@
                 {% for project in object_list %}
                     <div class="level">
                         <div class="level-left">
-                            <a class="is-uppercase-heading" href="{% project_url 'project_overview' project %}" title="{{ project.get_name }}">
+                            <a class="is-uppercase-heading" href="{% url 'project_overview' project.account.name project.name %}" title="{{ project.get_name }}">
                                 {{ project.get_name }}
                             </a>
                         </div>
@@ -97,7 +96,7 @@
                                 </span>
                                 <span>Open</span>
                             </a>
-                            <a class="card-footer-item" href="{% project_url 'project_update' project %}" title="Settings">
+                            <a class="card-footer-item" href="{% url 'project_update' project.account.name project.name %}" title="Settings">
                                 <span class="icon">
                                     <i class="fas fa-cog"></i>
                                 </span>

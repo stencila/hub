@@ -8,13 +8,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.views.generic import View, ListView, CreateView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm, AccountCreateForm
 from accounts.models import Account, AccountUserRole, AccountRole, AccountPermissionType
-from accounts.url_helpers import account_url_reverse, account_redirect
 
 User = get_user_model()
 
@@ -25,9 +25,8 @@ class AccountPermissionsMixin(LoginRequiredMixin):
     account_fetch_result: typing.Optional[AccountFetchResult] = None
     required_account_permission: AccountPermissionType
 
-    def perform_account_fetch(self, user: AbstractUser, pk: typing.Optional[int] = None,
-                              name: typing.Optional[str] = None) -> None:
-        self.account_fetch_result = fetch_account(user, pk, name)
+    def perform_account_fetch(self, user: AbstractUser, name: typing.Optional[str] = None) -> None:
+        self.account_fetch_result = fetch_account(user, name=name)
 
     def get_render_context(self, context: dict) -> dict:
         context['account_permissions'] = self.account_permissions
@@ -68,10 +67,9 @@ class AccountPermissionsMixin(LoginRequiredMixin):
 
         return False
 
-    def request_permissions_guard(self, request: HttpRequest, account_pk: typing.Optional[int] = None,
-                                  account_name: typing.Optional[str] = None) -> None:
+    def request_permissions_guard(self, request: HttpRequest, account_name: str) -> None:
         """Test that the current user has `required_account_permission`, raising `PermissionDenied` if not."""
-        self.perform_account_fetch(request.user, account_pk, account_name)
+        self.perform_account_fetch(request.user, account_name)
         if not self.has_permission(self.required_account_permission):
             raise PermissionDenied('User must have {} permission to do this.'.format(self.required_account_permission))
 
@@ -84,10 +82,17 @@ class AccountListView(LoginRequiredMixin, ListView):
         return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
 
 
+class AccountNameRedirectView(View):
+    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:
+        """Redirect old-style (id-based) URLs to new ones that use `name` as a slug."""
+        account = get_object_or_404(Account, pk=pk)
+        path = path or ''
+        return redirect('/{}/{}'.format(account.name, path), permanent=True)
+
+
 class AccountProfileView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
-            account_name: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_name)
+    def get(self, request: HttpRequest, account_name: str) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_name)
 
         teams = self.account.teams.all()
         if self.has_any_permissions((AccountPermissionType.ADMINISTER, AccountPermissionType.MODIFY)):
@@ -106,9 +111,8 @@ class AccountProfileView(AccountPermissionsMixin, View):
 
 
 class AccountAccessView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, pk: typing.Optional[int] = None,
-            account_name: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_name)
+    def get(self, request: HttpRequest, account_name: str) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -130,9 +134,8 @@ class AccountAccessView(AccountPermissionsMixin, View):
             'current_usernames': json.dumps(current_usernames)
         }))
 
-    def post(self, request: HttpRequest, pk: typing.Optional[int] = None,
-             account_name: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_account_fetch(request.user, pk, account_name)
+    def post(self, request: HttpRequest, account_name: str) -> HttpResponse:
+        self.perform_account_fetch(request.user, account_name)
 
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
@@ -207,7 +210,7 @@ class AccountAccessView(AccountPermissionsMixin, View):
                         account_user_role.save()
                         messages.success(request, "Role updated for user {}".format(account_user_role.user.username))
 
-        return account_redirect('account_access', account=self.account)
+        return redirect('account_access', self.account.name)
 
 
 class AccountSettingsView(AccountPermissionsMixin, UpdateView):
@@ -218,7 +221,7 @@ class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     slug_url_kwarg = 'account_name'
 
     def get_success_url(self) -> str:
-        return account_url_reverse('account_profile', account=self.object)
+        return reverse('account_profile', args=(self.object.name,))
 
     def get_context_data(self, **kwargs):
         self.perform_account_fetch(self.request.user, self.object.pk)
@@ -242,4 +245,4 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return account_url_reverse('account_profile', account=self.object)
+        return reverse('account_profile', args=(self.object.name,))

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load account_urls %}
 {% block title %}Account {{ account.pk }} : Teams{% endblock %}
 {% block content %}
     <div class="level">
@@ -31,7 +30,7 @@
                     <tr>
                         <td>
                             <a class="is-uppercase-heading"
-                               href="{% account_url 'account_profile' account_role.account %}"
+                               href="{% url 'account_profile' account_role.account.name %}"
                                title="{{ account_role.account }}">
                                 {{ account_role.account }}
                             </a>

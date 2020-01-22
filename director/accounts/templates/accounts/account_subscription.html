@@ -1,5 +1,4 @@
 {% extends 'accounts/account_base.html' %}
-{% load account_urls %}
 {% block title %}{{ subscription.plan }} Subscription{% endblock %}
 {% block account_content %}
     <section class="column" id="id_subscription_detail">
@@ -27,7 +26,7 @@
             </div>
         </div>
         <div class="modal" :class="{'is-active': cancelModalVisible}">
-            <form method="post" action="{% account_url 'account_subscription_cancel' account subscription.id %}">
+            <form method="post" action="{% url 'account_subscription_cancel' account.name subscription.id %}">
                 {% csrf_token %}
                 <div class="modal-background"></div>
                 <div class="modal-card">

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load project_urls %}
 {% block title %}Running Sessions{% endblock %}
 {% block content %}
     <h3 class="title is-3">Running Sessions</h3>
@@ -18,7 +17,7 @@
             <tr>
                 <td>{{ session.id }}</td>
                 <td>
-                    <a href="{% project_url 'project_overview' session.project %}">{{ session.project }}</a>
+                    <a href="{% url 'project_overview' session.account.name session.name.project %}">{{ session.project }}</a>
                 </td>
                 <td>
                     {{ session.status.name }}

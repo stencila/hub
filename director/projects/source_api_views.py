@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import View
 from googleapiclient.errors import HttpError
@@ -30,7 +31,6 @@ from projects.source_content_facade import make_source_content_facade
 from projects.source_models import GoogleDocsSource, UrlSource, Source
 from projects.source_operations import utf8_path_join, generate_project_publish_directory
 from projects.source_views import ConverterMixin
-from projects.url_helpers import project_url_reverse
 
 
 class LinkException(Exception):
@@ -51,9 +51,9 @@ def setup_publish_directory(project: Project) -> None:
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, **kwargs):  # type: ignore
+    def post(self, request: HttpRequest, account_name: str, project_name: str):  # type: ignore
         """Create or update the `PublishedItem` for this Project."""
-        project = self.get_project(request.user, kwargs)
+        project = self.get_project(request.user, account_name, project_name)
 
         data = request.data
 
@@ -69,7 +69,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             original_path = form.cleaned_data['path']
 
-            source = self.get_source(request.user, kwargs, form.cleaned_data.get('source_id'))
+            source = self.get_source(request.user, account_name, project_name, form.cleaned_data.get('source_id'))
             scf = make_source_content_facade(request.user, original_path, source, project)
 
             published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
@@ -90,7 +90,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
             success_message = 'The file <em>{}</em> was published successfully to <a href="{}">{}</a>'.format(
                 escape(original_path),
-                project_url_reverse('project_published_content', [pi.url_path], project=project),
+                reverse('project_published_content', args=(self.object.account.name, self.object.name, pi.url_path)),
                 pi.url_path
             )
             messages.success(request, success_message, extra_tags='safe')
@@ -136,7 +136,7 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        self.get_project(request.user, pk)
+        self.get_project(request.user, pk=pk)
 
         data = request.data
 
@@ -241,7 +241,7 @@ class DiskItemCreateView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
@@ -273,7 +273,7 @@ class DiskItemMoveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 
@@ -301,7 +301,7 @@ class DiskItemRemoveView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
 

@@ -1,6 +1,6 @@
-{% load account_permissions account_urls %}
+{% load account_permissions %}
 {% if account_permissions|account_permissions_contain:permission_required %}
-    <a href="{% account_url url_name account %}"
+    <a href="{% url url_name account.name %}"
         class="panel-block{% if tab == tab_id %} is-active{% endif %}">
         {{ tab_name }}
     </a>

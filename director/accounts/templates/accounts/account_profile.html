@@ -1,5 +1,5 @@
 {% extends 'accounts/account_base.html' %}
-{% load avatar_tags project_urls account_urls %}
+{% load avatar_tags %}
 {% block title %}Account {{ account.name|default:account.pk }}{% endblock %}
 {% block account_content %}
     <div class="column">
@@ -31,7 +31,7 @@
                     {% for project in projects %}
                         <div class="level">
                             <div class="level-left">
-                                <a class="is-uppercase-heading" href="{% project_url 'project_overview' project %}"
+                                <a class="is-uppercase-heading" href="{% url 'project_overview' project.account.name project.name %}"
                                    title="Open">
                                     {{ project.name|default:'Unnamed project' }}
                                 </a>
@@ -82,7 +82,7 @@
                             <div class="media">
                                 <div class="media-content">
                                     <p class="title is-6">
-                                        <a href="{% account_url 'account_team_detail' account team.pk %}">{{ team.name }}</a>
+                                        <a href="{% url 'account_team_detail' account.name team.pk %}">{{ team.name }}</a>
                                     </p>
                                 </div>
                             </div>

@@ -35,7 +35,6 @@ from projects.source_operations import list_project_virtual_directory, path_entr
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
     path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
     to_utf8, relative_path_join, utf8_dirname
-from projects.url_helpers import project_url_reverse, project_redirect
 from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
@@ -64,34 +63,40 @@ class ProjectTab(Enum):
     SETTINGS_SESSIONS = 'sessions'
 
 
+class ProjectNamedRedirect(View):
+    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:
+        """Redirect old-style (id-based) URLs to new ones that use `name` as a slug."""
+        project = get_object_or_404(Project, pk=pk)
+        path = path or ''
+        return redirect('/{}/{}/{}'.format(project.account.name, project.name, path), permanent=True)
+
+
 class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
-    @staticmethod
-    def get_project_pk(url_kwargs: dict) -> typing.Optional[str]:
-        return url_kwargs.get('project_pk', url_kwargs.get('pk'))
-
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.perform_project_fetch(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs) -> HttpResponse:
+        self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).get(request, *args, **kwargs)  # type: ignore
+        return super(ProjectPermissionsMixin, self).get(request, account_name, project_name, *args,  # type: ignore
+                                                        **kwargs)
 
-    def post(self, request: HttpRequest, *args, **kwargs):
-        self.perform_project_fetch(request.user, kwargs)
+    def post(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+        self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).post(request, *args, **kwargs)  # type: ignore
+        return super(ProjectPermissionsMixin, self).post(request, account_name, project_name, *args,  # type: ignore
+                                                         **kwargs)
 
-    def delete(self, request: HttpRequest, *args, **kwargs):
-        self.perform_project_fetch(request.user, kwargs)
+    def delete(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+        self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).delete(request, *args, **kwargs)  # type: ignore
 
-    def perform_project_fetch(self, user: AbstractUser, url_kwargs: dict) -> None:
+        return super(ProjectPermissionsMixin, self).delete(request, account_name, project_name, *args,  # type: ignore
+                                                           **kwargs)
+
+    def perform_project_fetch(self, user: AbstractUser, account_name: typing.Optional[str] = None,
+                              project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> None:
         if self.project_fetch_result is None:
-            pk = self.get_project_pk(url_kwargs)
-            account_name = url_kwargs.get('account_name')
-            project_name = url_kwargs.get('project_name')
             self.project_fetch_result = fetch_project_for_user(user, pk, account_name, project_name)
 
     def get_render_context(self, context: dict) -> dict:
@@ -149,18 +154,15 @@ class ProjectPermissionsMixin(object):
         if self.project_permission_required is not None and not self.has_permission(self.project_permission_required):
             raise PermissionDenied
 
-    def get_project(self, user: AbstractUser, url_kwargs_or_pk: typing.Union[dict, int]) -> Project:
-        if isinstance(url_kwargs_or_pk, int):
-            url_kwargs = {'pk': url_kwargs_or_pk}
-        else:
-            url_kwargs = url_kwargs_or_pk
-        self.perform_project_fetch(user, url_kwargs)
+    def get_project(self, user: AbstractUser, account_name: typing.Optional[str] = None,
+                    project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> Project:
+        self.perform_project_fetch(user, account_name, project_name, pk)
         self.test_required_project_permission()
         return self.project
 
-    def get_source(self, user: AbstractUser, url_kwargs: dict, source_pk: typing.Optional[int]) \
+    def get_source(self, user: AbstractUser, account_name: str, project_name: str, source_pk: typing.Optional[int]) \
             -> typing.Union[Source, DiskSource]:
-        self.perform_project_fetch(user, url_kwargs)
+        self.perform_project_fetch(user, account_name, project_name)
         self.test_required_project_permission()
 
         if not source_pk:
@@ -173,7 +175,7 @@ class ProjectPermissionsMixin(object):
             raise Http404
 
     def get_object(self, *args, **kwargs):
-        self.perform_project_fetch(self.request.user, self.kwargs)
+        self.perform_project_fetch(self.request.user, self.kwargs['account_name'], self.kwargs['project_name'])
         return self.project_fetch_result.project
 
     @property
@@ -184,8 +186,8 @@ class ProjectPermissionsMixin(object):
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
         return get_highest_permission(self.project_permissions)
 
-    def get_project_puller(self, request: HttpRequest, url_kwargs: dict) -> ProjectSourcePuller:
-        self.perform_project_fetch(request.user, url_kwargs)
+    def get_project_puller(self, request: HttpRequest, account_name: str, project_name: str) -> ProjectSourcePuller:
+        self.perform_project_fetch(request.user, account_name, project_name)
 
         self.test_required_project_permission()
 
@@ -266,7 +268,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return project_url_reverse('project_overview', project=self.object)
+        return reverse('project_overview', args=(self.object.account.name, self.object.name))
 
 
 class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
@@ -287,8 +289,9 @@ class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
 class ProjectFilesView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, path: typing.Optional[str] = None, **kwargs) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+            path: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_project_fetch(request.user, account_name, project_name)
 
         self.test_required_project_permission()
 
@@ -328,13 +331,14 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             })
                       )
 
-    def post(self, request: HttpRequest, path: typing.Optional[str] = None, **kwargs) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, kwargs)
+    def post(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+             path: typing.Optional[str] = None) -> HttpResponse:
+        self.perform_project_fetch(request.user, account_name, project_name)
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
         if request.POST.get('action') == 'unlink_source':
-            source = self.get_source(request.user, kwargs, request.POST.get('source_id'))
+            source = self.get_source(request.user, account_name, project_name, request.POST.get('source_id'))
 
             if isinstance(source, (FileSource, DiskSource)):
                 raise TypeError("Can't unlink a File source")
@@ -351,8 +355,8 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 class ProjectPullView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def post(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore
-        puller = self.get_project_puller(request, kwargs)
+    def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
+        puller = self.get_project_puller(request, account_name, project_name)
         try:
             puller.pull()
         except StorageLimitExceededException:
@@ -412,8 +416,8 @@ class ProjectSharingView(ProjectPermissionsMixin, DetailView):
 
 
 class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
-    def post(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore  # doesn't match parent signature
-        self.perform_project_fetch(request.user, kwargs)
+    def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
+        self.perform_project_fetch(request.user, account_name, project_name)
         if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied
 
@@ -503,7 +507,7 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
                 messages.success(request,
                                  'Account access added for {}.'.format(project_agent_role.agent_description))
 
-        return project_redirect('project_sharing', url_kwargs=kwargs)
+        return redirect('project_sharing', account_name, project_name)
 
 
 class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
@@ -520,7 +524,7 @@ class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_success_url(self) -> str:
-        return project_url_reverse('project_settings_metadata', project=self.object)
+        return reverse('project_settings_metadata', args=(self.object.account.name, self.object.name))
 
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsMetadataView, self).get_context_data(**kwargs)
@@ -536,7 +540,7 @@ class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_success_url(self) -> str:
-        return project_url_reverse('project_settings_access', project=self.object)
+        return reverse('project_settings_access', args=(self.object.account.name, self.object.name))
 
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsAccessView, self).get_context_data(**kwargs)
@@ -562,14 +566,14 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
         return self.form_class.initial(self.object)
 
     def get_success_url(self) -> str:
-        return project_url_reverse('project_settings_sessions', project=self.object)
+        return reverse('project_settings_sessions', args=(self.object.account.name, self.object.name))
 
 
 class ProjectArchiveDownloadView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         archive = project.pull()
         body = archive.getvalue()
@@ -600,8 +604,8 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
     template_name = 'projects/project_archives.html'
 
-    def get(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore  # doesn't match parent signature
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str, ) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, account_name, project_name)
 
         return render(request, self.template_name, self.get_archives_render_context(project))
 
@@ -616,8 +620,8 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         })
 
     @staticmethod
-    def get_archives_redirect(url_kwargs: dict) -> HttpResponse:
-        return project_redirect('project_archives', url_kwargs=url_kwargs)
+    def get_archives_redirect(account_name: str, project_name: str) -> HttpResponse:
+        return redirect('project_archives', account_name, project_name)
 
     def list_archives(self, project: Project):
         archives_directory = self.get_archives_directory(project)
@@ -635,9 +639,9 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
             archives = []  # type: ignore
         return archives
 
-    def post(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore
+    def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
         self.project_permission_required = ProjectPermissionType.EDIT
-        project = self.get_project(request.user, kwargs)
+        project = self.get_project(request.user, account_name, project_name)
 
         if request.POST.get('action') == 'remove_archive':
             archive_name = request.POST.get('archive_name')
@@ -655,14 +659,14 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
                 else:
                     messages.warning(request, 'Archive {} does not exist.'.format(archive_name))
 
-            return self.get_archives_redirect(kwargs)
+            return self.get_archives_redirect(account_name, project_name)
 
         form = ProjectArchiveForm(request.POST)
 
         if not form.is_valid():
             return render(request, self.template_name, self.get_archives_render_context(project))
 
-        puller = self.get_project_puller(request, kwargs)
+        puller = self.get_project_puller(request, account_name, project_name)
 
         archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, puller)
 
@@ -673,14 +677,15 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
         else:
             messages.success(request, 'Archive created successfully.')
 
-        return self.get_archives_redirect(kwargs)
+        return self.get_archives_redirect(account_name, project_name)
 
 
 class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, name: str, **kwargs) -> FileResponse:  # type: ignore
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+            name: str) -> FileResponse:
+        project = self.get_project(request.user, account_name, project_name)
 
         archives_directory = self.get_archives_directory(project)
         archive_path = self.get_archive_path(archives_directory, name)
@@ -695,8 +700,8 @@ class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin,
 class ProjectExecutaView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, **kwargs) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, account_name, project_name)
 
         return render(request, 'projects/executa-test.html', {'project': project})
 
@@ -704,8 +709,8 @@ class ProjectExecutaView(ProjectPermissionsMixin, View):
 class PublishedListView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, **kwargs) -> HttpRequest:  # type: ignore
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str) -> HttpRequest:  # type: ignore
+        project = self.get_project(request.user, account_name, project_name)
 
         context = {
             'project_tab': 'published',
@@ -717,8 +722,9 @@ class PublishedListView(ProjectPermissionsMixin, View):
 class PublishedContentView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, path: str, **kwargs) -> FileResponse:  # type: ignore
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+            path: str) -> FileResponse:
+        project = self.get_project(request.user, account_name, project_name)
 
         pi = PublishedItem.objects.get(project=project, url_path=path)
 
@@ -735,8 +741,9 @@ class PublishedContentView(ProjectPermissionsMixin, View):
 class PublishedMediaView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, path: str, media_path: str, **kwargs) -> FileResponse:  # type: ignore
-        project = self.get_project(request.user, kwargs)
+    def get(self, request: HttpRequest, account_name: str, project_name: str, path: str,  # type: ignore
+            media_path: str) -> FileResponse:
+        project = self.get_project(request.user, account_name, project_name)
 
         pi = PublishedItem.objects.get(project=project, url_path=path)
 

@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load project_urls account_urls %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
     <h3 class="title is-3">Hi! 👋 Welcome to Stencila Hub</h3>
@@ -57,7 +56,7 @@
                         {% for project in project_fetch_result.projects %}
                             <tr>
                                 <td>
-                                    <a href="{% project_url 'project_overview' project %}">{{ project.name }}</a>
+                                    <a href="{% url 'project_overview' project.account.name project.name %}">{{ project.name }}</a>
                                 </td>
                                 <td class="has-text-right">
                                     {{ project.account.name }}
@@ -126,7 +125,7 @@
                 {% for account_role in account_roles %}
                     <div class="level">
                         <div class="level-left">
-                            <a href="{% account_url 'account_profile' account_role.account %}">
+                            <a href="{% url 'account_profile' account_role.account.name %}">
                                 {{ account_role.account.name }}
                             </a>
                         </div>

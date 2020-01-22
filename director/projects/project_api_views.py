@@ -34,7 +34,7 @@ class ManifestView(ProjectPermissionsMixin, APIView):
         if request.user.is_anonymous or not request.user.is_staff:
             raise PermissionDenied
 
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         json_rpc_response = False
 
@@ -67,7 +67,7 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk)
+        project = self.get_project(request.user, pk=pk)
 
         if not self.has_permission(ProjectPermissionType.MANAGE):
             raise PermissionDenied('You do not have permission to edit this Project.')

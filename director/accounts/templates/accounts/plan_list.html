@@ -1,5 +1,4 @@
 {% extends 'accounts/account_base.html' %}
-{% load account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
 {% block account_content %}
     <section class="column">
@@ -35,7 +34,7 @@
                         {% if is_subscribed %}
                             <button class="button is-disabled">Subscribed</button>
                         {% else %}
-                            <a href="{% account_url 'account_subscriptions_add' account plan.pk %}"
+                            <a href="{% url 'account_subscriptions_add' account.name plan.pk %}"
                                class="button is-primary">Subscribe</a>
                         {% endif %}
                     </div>

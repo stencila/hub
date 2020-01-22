@@ -1,9 +1,8 @@
 {% extends 'accounts/account_base.html' %}
-{% load  account_urls %}
 {% block title %}Team {{ team.name }}{% endblock %}
 {% block breadcrumb_items %}
     {{ block.super }}
-    <li><a href="{% account_url 'account_team_detail' account team.pk %}">{{ team.name }}</a></li>
+    <li><a href="{% url 'account_team_detail' account.name team.pk %}">{{ team.name }}</a></li>
 {% endblock %}
 {% block account_content %}
     <div class="column">

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static project_urls %}
+{% load static %}
 {% block title %}Edit {{ file_path }}{% endblock %}
 
 {% block content %}
@@ -40,7 +40,7 @@
                     <input type="submit" class="button is-primary" value="Save">
                 </div>
                 <div class="control">
-                    <a href="{% if file_directory %}{% project_url 'project_files_path' project file_directory %}{% else %}{% project_url 'project_files' project %}{% endif %}"
+                    <a href="{% if file_directory %}{% url 'project_files_path' project.account.name project.name file_directory %}{% else %}{% url 'project_files' project.account.name project.name %}{% endif %}"
                        class="button"
                     >Cancel</a>
                 </div>

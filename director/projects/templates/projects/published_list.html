@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load project_urls static %}
+{% load static %}
 {% block title %}Project {{ project.pk }}: Published{% endblock %}
 {% block project_content %}
     <div id="published-items">
@@ -35,7 +35,7 @@
             {% for published_item in published_items %}
                 <tr>
                     <td>
-                        <a href="{% project_url 'project_published_content' project published_item.url_path %}">
+                        <a href="{% url 'project_published_content' project.account.name project.name published_item.url_path %}">
                             {{ published_item.url_path }}
                         </a>
                     </td>

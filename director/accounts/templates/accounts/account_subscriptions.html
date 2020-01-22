@@ -1,5 +1,4 @@
 {% extends 'accounts/account_base.html' %}
-{% load account_urls %}
 {% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
 {% block account_content %}
     <section class="column">
@@ -20,7 +19,7 @@
                 {% with subscription=account_subscription.subscription %}
                     <tr>
                         <td>
-                            <a href="{% account_url 'account_subscription_detail' account subscription.id %}">{{ subscription.plan }}</a>
+                            <a href="{% url 'account_subscription_detail' account.name subscription.id %}">{{ subscription.plan }}</a>
                         </td>
                         <td>{{ subscription.status|capfirst }}</td>
                         <td>{{ subscription.current_period_start }}</td>
@@ -48,7 +47,7 @@
                 <td colspan="5">
                 </td>
                 <td class="has-text-centered">
-                    <a class="button is-primary" href="{% account_url 'account_subscriptions_plan_list' account %}">Add
+                    <a class="button is-primary" href="{% url 'account_subscriptions_plan_list' account.name %}">Add
                         Subscription&hellip;</a>
                 </td>
             </tr>

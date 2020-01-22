@@ -1,21 +1,20 @@
-{% load account_urls %}
 <p class="is-uppercase-heading has-bottom-margin">Team <em>{{ team.name }}</em></p>
 <div class="tabs">
     <ul>
         <li {% if team_tab == "metadata" %}class="is-active"{% endif %}>
-            <a {% if team.id %}href="{% account_url 'account_team_detail' account team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
+            <a {% if team.id %}href="{% url 'account_team_detail' account.name team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
                 <span class="icon is-small"><i class="fas fa-inbox" aria-hidden="true"></i></span>
                 <span>Details</span>
             </a>
         </li>
         <li {% if team_tab == "members" %}class="is-active"{% endif %}>
-            <a {% if team.id %}href="{% account_url 'account_team_members' account team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
+            <a {% if team.id %}href="{% url 'account_team_members' account.name team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
                 <span class="icon is-small"><i class="fas fa-user" aria-hidden="true"></i></span>
                 <span>Members</span>
             </a>
         </li>
         <li {% if team_tab == "projects" %}class="is-active"{% endif %}>
-            <a {% if team.id %}href="{% account_url 'account_team_projects' account team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
+            <a {% if team.id %}href="{% url 'account_team_projects' account.name team.id %}"{% else %}class="is-disabled has-text-grey"{% endif %}>
                 <span class="icon is-small"><i class="fas fa-box" aria-hidden="true"></i></span>
                 <span>Projects</span>
             </a>

@@ -1,12 +1,11 @@
 {% extends 'projects/project_base.html' %}
-{% load project_urls account_urls %}
 {% block title %}{{ project.name }} : Overview{% endblock %}
 
 {% block project_content %}
     <div>
         <p>This project is connected to the account:
             <strong>
-                <a href="{% account_url 'account_profile' project.account %}">{{ project.account.name }}</a>
+                <a href="{% url 'account_profile' project.account.name %}">{{ project.account.name }}</a>
             </strong>
         </p>
         <br/>
@@ -64,7 +63,7 @@
           data () {
             return {
               sessionStartUrl: '{% url "session_start_v1"  project.token cloud_environ %}',
-              fileCheckoutUrl: '{% project_url 'project_pull' project %}',
+              fileCheckoutUrl: '{% url 'project_pull' project.account.name project.name %}',
               terminalSetup: false,
               checkoutInProgress: false
             }

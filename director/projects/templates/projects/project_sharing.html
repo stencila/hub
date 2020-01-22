@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static escape_extras resource_allowance project_urls account_urls %}
+{% load crispy_forms_tags static escape_extras resource_allowance %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
 {% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
@@ -14,7 +14,7 @@
 {% block project_content %}
     <div id="project-role">
         <delete-confirm-modal
-                form-action="{% project_url 'project_sharing_roles' object %}"
+                form-action="{% url 'project_sharing_roles' object.account.name object.name %}"
                 :delete-modal-visible="deleteModalVisible" z
                 delete-action="remove_role"
                 delete-id-name="project_agent_role_id"
@@ -71,7 +71,7 @@
             </tbody>
         </table>
         <p class="is-uppercase-heading has-bottom-margin">Add people</p>
-        <form class="field" method="POST" action="{% project_url 'project_sharing_roles' object %}">
+        <form class="field" method="POST" action="{% url 'project_sharing_roles' object.account.name object.name %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -98,7 +98,7 @@
             </div>
         </form>
         <p class="is-uppercase-heading has-top-margin has-bottom-margin">Add team</p>
-        <form class="field" ethod="POST" action="{% project_url 'project_sharing_roles' object %}">
+        <form class="field" ethod="POST" action="{% url 'project_sharing_roles' object.account.name object.name %}">
             {% csrf_token %}
             <div class="columns">
                 <div class="column is-two-thirds">
@@ -139,7 +139,7 @@
                 This project is publicly visible. Anyone can view it but only collaborators can change it.
                 <br>
                 Your subscription does not allow private Projects. Please
-                <a href="{% account_url 'account_subscriptions_plan_list' object.account %}">add or upgrade your subscription</a> to enable
+                <a href="{% url 'account_subscriptions_plan_list' object.account.name %}">add or upgrade your subscription</a> to enable
                 private Projects.
             {% else %}
                 <div class="field">
@@ -180,7 +180,7 @@
             Vue.set(this.updateInProgress, projectAgentRoleId, true)
             Vue.set(this.updateCompleted, projectAgentRoleId, false)
 
-            fetch(`{% project_url 'project_sharing_roles' object %}`, {
+            fetch(`{% url 'project_sharing_roles' object.account.name object.name %}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -205,7 +205,7 @@
             publicSettingData.set('action', 'set_public')
             publicSettingData.set('is_public', this.isPublic)
 
-            fetch(`{% project_url 'project_sharing_roles' object %}`, {
+            fetch(`{% url 'project_sharing_roles' object.account.name object.name %}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',

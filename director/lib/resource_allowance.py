@@ -3,10 +3,10 @@ import json
 import typing
 from pathlib import Path
 
+from django.urls import reverse
 from djstripe.models import Subscription
 
 from accounts.models import Account, AccountSubscription, ProductExtension, Team
-from accounts.url_helpers import account_url_reverse
 from lib import data_size
 from projects.project_models import Project
 
@@ -18,7 +18,8 @@ def get_subscription_upgrade_text(is_account_admin: bool, account: Account):
     Returns an empty string if the user is not an admin for the given account.
     """
     sub_link = '<a href="{}" target="_blank" rel="noopener">Account Subscriptions</a>'.format(
-        account_url_reverse('account_subscriptions_plan_list', account=account))
+        reverse('account_subscriptions_plan_list', args=(account.name,))
+    )
 
     if is_account_admin:
         message_start = 'Please visit the '

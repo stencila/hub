@@ -1,66 +1,66 @@
 {% extends 'base.html' %}
-{% load project_permissions project_urls account_urls %}
+{% load project_permissions %}
 {% block content %}
     <nav class="breadcrumb" aria-label="breadcrumbs">
         <ul>
             <li><a href="/">Home</a></li>
             <li><a href="{% url 'account_list' %}">Accounts</a></li>
-            <li><a href="{% account_url 'account_profile' project.account %}">{{ project.account.name }}</a></li>
-            <li><a href="{% project_url 'project_overview' project %}">{{ project.name }}</a></li>
+            <li><a href="{% url 'account_profile' project.account.name %}">{{ project.account.name }}</a></li>
+            <li><a href="{% url 'project_overview' project.account.name project.name %}">{{ project.name }}</a></li>
         </ul>
     </nav>
     <hr>
     <div class="columns">
         <div class="column" style="flex: none; width: 190px">
             <nav class="panel">
-                <a href="{% project_url 'project_overview' project %}"
+                <a href="{% url 'project_overview' project.account.name project.name %}"
                    class="panel-block{% if project_tab == 'overview' %} is-active{% endif %}">
                     Overview
                 </a>
                 {% if project.published_items %}
-                    <a href="{% project_url 'project_published_list' project %}"
+                    <a href="{% url 'project_published_list' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'published' %} is-active{% endif %}">
                         Published
                     </a>
                 {% endif %}
-                <a href="{% project_url 'project_files' project %}"
+                <a href="{% url 'project_files' project.account.name project.name %}"
                    class="panel-block{% if project_tab == 'files' %} is-active{% endif %}">
                     Files
                 </a>
                 <div class="panel-block-secondary{% if project_tab == 'files' %} is-active{% endif %}">
-                    <a href="{% project_url 'project_files' project %}"
+                    <a href="{% url 'project_files' project.account.name project.name %}"
                        class="panel-block{% if project_subtab == 'current' %} is-active{% endif %}">
                         Current
                     </a>
-                    <a href="{% project_url 'project_archives' project %}"
+                    <a href="{% url 'project_archives' project.account.name project.name %}"
                        class="panel-block{% if project_subtab == 'archives' %} is-active{% endif %}">
                         Archives
                     </a>
                 </div>
                 {% if project_permissions|project_permissions_contain:'manage' %}
-                    <a href="{% project_url 'project_activity' project %}"
+                    <a href="{% url 'project_activity' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'activity' %} is-active{% endif %}">
                         Activity
                     </a>
-                    <a href="{% project_url 'project_sharing' project %}"
+                    <a href="{% url 'project_sharing' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'sharing' %} is-active{% endif %}">
                         Sharing
                     </a>
-                    <a href="{% project_url 'project_settings_metadata' project %}"
+                    <a href="{% url 'project_settings_metadata' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'settings' %} is-active{% endif %}">
                         Settings
                     </a>
                     <div class="panel-block-secondary{% if project_tab == 'settings' %} is-active{% endif %}">
-                        <a href="{% project_url 'project_settings_metadata' project %}"
+                        <a href="{% url 'project_settings_metadata' project.account.name project.name %}"
                            class="panel-block{% if project_subtab == 'metadata' %} is-active{% endif %}">
                             Meta-data
                         </a>
-                        <a href="{% project_url 'project_settings_access' project %}"
+                        <a href="{% url 'project_settings_access' project.account.name project.name %}"
                            class="panel-block{% if project_subtab == 'access' %} is-active{% endif %}">
                             Access
                         </a>
                         {% if FEATURE_PROJECT_SESSION_SETTINGS %}
-                            <a href="{% project_url 'project_settings_sessions' project %}"
+                            <a href="{% url 'project_settings_sessions' project.account.name project.name %}"
                                class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">
                                 Sessions
                             </a>
