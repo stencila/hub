@@ -35,7 +35,6 @@ from projects.source_operations import list_project_virtual_directory, path_entr
     list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
     path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
     to_utf8, relative_path_join, utf8_dirname
-from users.views import BetaTokenRequiredMixin
 from .models import Project
 from .project_forms import (
     ProjectCreateForm,
@@ -203,7 +202,7 @@ class ProjectPermissionsMixin(object):
                                    storage_limit)
 
 
-class ProjectListView(BetaTokenRequiredMixin, View):
+class ProjectListView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         if not request.user.is_authenticated:
             filter_options: typing.Iterable[FilterOption] = []

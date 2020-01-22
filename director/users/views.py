@@ -57,14 +57,14 @@ class UserSettingsView(LoginRequiredMixin, TemplateView):
     template_name = "users/settings.html"
 
 
-class UserSignupView(BetaTokenRequiredMixin, SignupView):
+class UserSignupView(SignupView):
     """Override allauth SignupView to custom URL and template name."""
 
     template_name = 'users/signup.html'
     form_class = UserSignupForm
 
 
-class UserSigninView(BetaTokenRequiredMixin, LoginView):
+class UserSigninView(LoginView):
     """Override allauth LoginView to custom URL and template name."""
 
     template_name = 'users/signin.html'

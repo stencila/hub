@@ -18,7 +18,6 @@ from projects.nixster_client import NixsterClient
 from projects.project_views import ProjectPermissionsMixin
 from projects.session_models import Session, SessionRequest
 from projects.source_operations import utf8_path_join, utf8_normpath
-from users.views import BetaTokenRequiredMixin
 
 SESSION_URL_SESSION_KEY_FORMAT = 'CLOUD_SESSION_URL_{}_{}'
 SESSION_REQUEST_SESSION_KEY_FORMAT = 'SESSION_REQUEST_ID_{}'
@@ -260,7 +259,7 @@ class ProjectHostSessionsView(CloudClientMixin, ProjectHostBaseView):
         return self.generate_response(request, environ, session_key, token, session, extra_auth_params)
 
 
-class ProjectSessionSetupView(View, BetaTokenRequiredMixin, ProjectPermissionsMixin):
+class ProjectSessionSetupView(ProjectPermissionsMixin, View):
     def post(self, request: HttpRequest, token: str, environ: str):  # type: ignore
         project = get_object_or_404(Project, token=token)
 
