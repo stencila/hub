@@ -9,7 +9,7 @@ def set_slugs_from_name(apps, schema):
 
     for project in Project.objects.filter(slug__isnull=True) | Project.objects.filter(slug=''):
         if project.name:
-            slug = slugify(project.name)
+            slug = slugify(project.name)[:50]
         else:
             slug = 'project-{}'.format(project.pk)
 

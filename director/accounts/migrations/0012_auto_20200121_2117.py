@@ -9,7 +9,7 @@ def set_slugs_from_name(apps, schema):
 
     for account in Account.objects.filter(slug__isnull=True) | Account.objects.filter(slug=''):
         if account.name:
-            slug = slugify(account.name)
+            slug = slugify(account.name)[:50]
         else:
             slug = 'account-{}'.format(account.pk)
 
