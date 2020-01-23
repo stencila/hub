@@ -50,6 +50,7 @@
         {% block footer %}{% include "_footer.html" %}{% endblock %}
         </div>
         <script type="text/javascript" src="{% static 'js/hamburger.js' %}" defer></script>
+        {% block end_scripts %}{% endblock %}
         {% if user.is_authenticated and not user.details.auto %}
             {% intercom_tag %}
         {% endif %}

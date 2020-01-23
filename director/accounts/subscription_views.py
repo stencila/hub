@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.views import View
 from djstripe import settings as djstripe_settings
 from djstripe.models import Product, Plan, Customer, PaymentMethod, Subscription
+from stripe.error import InvalidRequestError
 
 from accounts.models import AccountPermissionType, AccountSubscription
 from accounts.static_product_config import FREE_PRODUCT, FREE_PLAN
@@ -160,6 +161,16 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
         customer_id = data.get('customer_id')
 
+        coupon_code = data.get('coupon_code')
+
+        try:
+            plan = Plan.objects.get(id=data['plan'])
+        except Plan.DoesNotExist:
+            raise ValueError("TODO: Raise better error for missing Plan")
+
+        if not plan.product.extension.is_purchasable and not coupon_code:
+            raise ValueError('This product is only purchasable with a coupon.')
+
         if not customer_id:
             email = request.user.emailaddress_set.filter(email=data['email'], verified=True).first()
 
@@ -168,14 +179,15 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
             dj_customer, created = Customer.get_or_create(subscriber=request.user)
 
-            PaymentMethod.attach(data['payment_method'], dj_customer)
+            if not coupon_code:
+                PaymentMethod.attach(data['payment_method'], dj_customer)
 
-            customer = dj_customer.api_retrieve()
+                customer = dj_customer.api_retrieve()
 
-            customer['invoice_settings'] = {'default_payment_method': data['payment_method']}
-            customer.save()
+                customer['invoice_settings'] = {'default_payment_method': data['payment_method']}
+                customer.save()
 
-            dj_customer.sync_from_stripe_data(customer)
+                dj_customer.sync_from_stripe_data(customer)
         else:
             try:
                 dj_customer = Customer.objects.get(djstripe_id=customer_id)
@@ -186,11 +198,9 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
                 raise PermissionDenied('The current user does not own this Customer.')
 
         try:
-            plan = Plan.objects.get(id=data['plan'])
-        except Plan.DoesNotExist:
-            raise ValueError("TODO: Raise better error for missing Plan")
-
-        subscription = dj_customer.subscribe(plan)
+            subscription = dj_customer.subscribe(plan, coupon=coupon_code)
+        except InvalidRequestError as e:
+            return JsonResponse({'success': False, 'error': e.user_message})
 
         AccountSubscription.objects.create(account=self.account, subscription=subscription)
 

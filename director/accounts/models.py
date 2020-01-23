@@ -238,6 +238,9 @@ class ProductExtension(models.Model):
     product = models.OneToOneField(djstripe.models.Product, on_delete=models.PROTECT, related_name='extension')
     allowances = models.TextField(help_text='Allowances granted in JSON format.')  # Another contender for JSONField
     tag_line = models.TextField(help_text='A short tag line for the product.')
+    is_purchasable = models.BooleanField(null=False, default=True,
+                                         help_text='Can this Produce be purchased, False means only can be bought with '
+                                                   'a coupon.')
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):

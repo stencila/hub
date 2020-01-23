@@ -147,6 +147,7 @@ def plan_setup():
 
         pe.allowances = json.dumps(plan_definition[PlanDefinitionKey.QUOTA])
         pe.tag_line = plan_definition[PlanDefinitionKey.TAG_LINE]
+        pe.is_purchasable = plan_definition[PlanDefinitionKey.IS_PURCHASABLE]
         pe.save()
 
 

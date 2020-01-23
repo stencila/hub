@@ -4,6 +4,7 @@
     {{ block.super }}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+      let subscribeVueWrapper = null
       const planId = '{{ plan.id }}'
       const stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}')
       const stripeElements = stripe.elements()
@@ -35,67 +36,89 @@
         }
       }
 
-      document.addEventListener('DOMContentLoaded', function () {
-        const card = stripeElements.create('card', {style: stripeStyle})
-        card.mount('#stripe-card-element')
+      function getEmail () {
+        const emailSelect = document.getElementById('account_email_select')
+        return emailSelect.options[emailSelect.selectedIndex].value
+      }
 
-        card.addEventListener('change', ({error}) => {
+      async function subscriptionSignup (paymentMethod, couponCode) {
+        subscribeVueWrapper.setSignupError('')
 
-          showError(error)
+        const body = {
+          email: getEmail(),
+          plan: planId
+        }
 
-        })
+        if (paymentMethod) {
+          body.payment_method = paymentMethod.id
+        } else {
+          body.coupon_code = couponCode
+        }
 
-        const stripeSubmit = document.getElementById('stripe-submit')
-
-        stripeSubmit.addEventListener('click', async () => {
-          stripeSubmit.classList.add('is-loading')
-          showError(null)
-          const emailSelect = document.getElementById('account_email_select')
-          const email = emailSelect.options[emailSelect.selectedIndex].value
-          const {paymentMethod, error} = await stripe.createPaymentMethod('card', card, {
-            billing_details: {
-              email: email,
+        try {
+          const response = await fetch('{% url 'account_subscription_signup' account.name %}', {
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRFToken': utils.cookie('csrftoken'),
             },
+            credentials: 'same-origin',
+            body: JSON.stringify(body)
+          })
+          const responseData = await response.json()
+          // The customer and subscription has been created
+          if (responseData.success) {
+            window.location = responseData.redirect
+          } else {
+            subscribeVueWrapper.setSignupError(responseData.error)
+          }
+        } catch (error) {
+          // Handle error from server if customer wasn't created
+          console.error(error)
+          alert('Error occured, please check the Error Console.')
+        }
+      }
+
+      {% if plan.product.extension.is_purchasable %}
+        document.addEventListener('DOMContentLoaded', function () {
+          const card = stripeElements.create('card', {style: stripeStyle})
+          card.mount('#stripe-card-element')
+
+          card.addEventListener('change', ({error}) => {
+
+            showError(error)
+
           })
 
-          showError(error)
+          const stripeSubmit = document.getElementById('stripe-submit')
 
-          if (error) {
-            stripeSubmit.classList.remove('is-loading')
-            return
-          }
+          stripeSubmit.addEventListener('click', async () => {
+            stripeSubmit.classList.add('is-loading')
+            showError(null)
 
-          try {
-            const response = await fetch('{% url 'account_subscription_signup' account.name %}', {
-              method: 'post',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRFToken': utils.cookie('csrftoken'),
+            const {paymentMethod, error} = await stripe.createPaymentMethod('card', card, {
+              billing_details: {
+                email: getEmail(),
               },
-              credentials: 'same-origin',
-              body: JSON.stringify({
-                email: email,
-                payment_method: paymentMethod.id,
-                plan: planId
-              })
             })
-            const responseData = await response.json()
-            // The customer and subscription has been created
-            if (responseData.success) {
-              window.location = responseData.redirect
+
+            showError(error)
+
+            if (error) {
+              stripeSubmit.classList.remove('is-loading')
+              return
             }
-          } catch (error) {
-            // Handle error from server if customer wasn't created
-            console.error(error)
-          }
-          stripeSubmit.classList.remove('is-loading')
+            await subscriptionSignup(paymentMethod, null)
+
+            stripeSubmit.classList.remove('is-loading')
+          })
         })
-      })
+      {% endif %}
     </script>
 {% endblock %}
 {% block account_content %}
-    <section class="column">
+    <section class="column" id="payment-container">
         <p class="title is-capitalized">Subscription Purchase: {{ plan }}</p>
         <div class="stacked-item">
             <p>You are subscribing the account <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
@@ -117,21 +140,101 @@
                 </div>
             </div>
         </div>
+        <hr>
         <div class="stacked-item">
-            <h4 class="title is-4">2. Enter Credit Card Details</h4>
-            <div id="stripe-card-element" class="MyCardElement">
-            </div>
-            <article class="message is-danger is-hidden" id="stripe-error-element">
-                <div class="message-body">
+            <h4 class="title is-4">2. Payment</h4>
+            <b-tabs v-model="paymentTab">
+                {% if plan.product.extension.is_purchasable %}
+                    <b-tab-item label="Credit Card">
+                        <p class="has-bottom-margin">
+                            <strong>Subscribe using your Credit Card for monthly recurring billing.</strong>
+                        </p>
+                        <div id="stripe-card-element">
+                        </div>
+                        <article class="message is-danger is-hidden" id="stripe-error-element">
+                            <div class="message-body">
 
-                </div>
-            </article>
+                            </div>
+                        </article>
+                    </b-tab-item>
+                {% endif %}
+                <b-tab-item label="Coupon">
+                    <p class="has-bottom-margin">
+                        <strong>Subscribe to an Plan using a coupon code.</strong>
+                    </p>
+                    <div class="field">
+                        <div class="field">
+                            <p class="control has-icons-left" :class="{'is-danger': couponError !== ''}">
+                                <input class="input" type="text" placeholder="Coupon Code" v-model="couponCode">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                            </p>
+                            <p v-if="couponError !== ''" class="help is-danger">[[ couponError ]]</p>
+                        </div>
+                    </div>
+                </b-tab-item>
+            </b-tabs>
         </div>
+        <hr>
         <div class="stacked-item">
             <h4 class="title is-4">3. Subscribe</h4>
-            <p>Your credit card will be charged <strong>${{ plan.amount }}</strong> every
-                <strong>{{ plan.interval }}</strong>.</p>
-            <button class="button is-primary" id="stripe-submit">Subscribe</button>
+            <div v-if="isCreditCardTab">
+                <p class="has-bottom-margin">Your credit card will be charged <strong>${{ plan.amount }}</strong> every
+                    <strong>{{ plan.interval }}</strong>.
+                </p>
+                <button class="button is-primary" id="stripe-submit">Subscribe</button>
+            </div>
+            <div v-if="!isCreditCardTab">
+                <p class="has-bottom-margin">
+                    Your subscription is paid for by your coupon.
+                </p>
+                <button class="button is-primary" :class="{'is-loading': submitInProgress}" :disabled="submitInProgress"
+                        @click="couponSubscribe()">Subscribe
+                </button>
+            </div>
+            <div v-if="signupError !== ''">
+                <p class="has-text-danger has-top-margin">
+                    Error during subscription: [[ signupError ]]
+                </p>
+            </div>
         </div>
     </section>
+{% endblock %}
+{% block end_scripts %}
+    <script>
+      const ccPurchasable = {% if plan.product.extension.is_purchasable %}true{% else %}false{% endif %}
+      subscribeVueWrapper = new Vue({
+        el: '#payment-container',
+        delimiters: ['[[', ']]'],
+        data: {
+          paymentTab: 0,
+          couponCode: '',
+          submitInProgress: false,
+          couponError: '',
+          signupError: ''
+        },
+        computed: {
+          isCreditCardTab () {
+            return ccPurchasable && this.paymentTab === 0
+          }
+        },
+        methods: {
+          async couponSubscribe () {
+            this.couponError = ''
+
+            if (this.couponCode === '') {
+              this.couponError = 'Please enter a Coupon Code.'
+              return
+            }
+            this.submitInProgress = true
+            await subscriptionSignup(null, this.couponCode)
+            this.submitInProgress = false
+          },
+          setSignupError (error) {
+            this.signupError = error
+          }
+        }
+      })
+    </script>
 {% endblock %}

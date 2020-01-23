@@ -23,10 +23,14 @@
                         <nav class="level is-mobile">
                             <div class="level-left">
                             <span class="level-item">
-                            {% if plan.price_description %}
-                                {{ plan.price_description }}
+                            {% if product.extension.is_purchasable %}
+                                {% if plan.price_description %}
+                                    {{ plan.price_description }}
+                                {% else %}
+                                    ${{ plan.amount }} per {{ plan.interval }}
+                                {% endif %}
                             {% else %}
-                                ${{ plan.amount }} per {{ plan.interval }}
+                                &nbsp;
                             {% endif %}
                             </span>
                             </div>
@@ -34,8 +38,19 @@
                         {% if is_subscribed %}
                             <button class="button is-disabled">Subscribed</button>
                         {% else %}
-                            <a href="{% url 'account_subscriptions_add' account.name plan.pk %}"
-                               class="button is-primary">Subscribe</a>
+                            {% if plan.pk == 0 %}
+                                {# TODO: Make this a better UI #}
+                               <button class="button is-disabled"
+                                       onclick="alert('To switch back to Stencila Basic, unsubscribe from your active Subscriptions.')">Subscribe</button>
+                            {% else %}
+                                {% if product.extension.is_purchasable %}
+                                    <a href="{% url 'account_subscriptions_add' account.name plan.pk %}"
+                                       class="button is-primary">Subscribe</a>
+                                {% else %}
+                                    <a href="mailto:hello@stenci.la"
+                                       class="button is-primary">Contact Us To Subscribe</a>
+                                {% endif %}
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
