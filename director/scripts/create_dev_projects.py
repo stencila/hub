@@ -23,7 +23,7 @@ def run(*args):
         account=accounts[0],
         creator=random_account_member(accounts[0]),
         public=True,
-        name='The project name',
+        name='first-project',
         description='''
 The project description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut la
 bore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex eacom
@@ -33,12 +33,14 @@ xcepteur sint occaecat cupidatat non roident, sunt in culpa qui officia deserunt
     )
 
     Project.objects.create(
+        name='second-project',
         account=accounts[1],
         creator=random_account_member(accounts[1]),
         public=True
     )
 
     Project.objects.create(
+        name='third-project',
         account=accounts[2],
         creator=random_account_member(accounts[2]),
         public=False
