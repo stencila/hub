@@ -49,7 +49,7 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
         ]
 
         for product in products:
-            plan = product.plan_set.first()
+            plan = product.plan_set.filter(active=True).first()
             product_plans.append(ProductPlan(product, plan, plan in subscription_plans))
 
         return render(request, 'accounts/plan_list.html', self.get_render_context({
@@ -131,7 +131,7 @@ class AccountSubscriptionAddView(AccountPermissionsMixin, View):
         if plan_pk == 0:
             raise NotImplementedError('TODO: This is special – user is unsubscribing from their current plan(s).')
 
-        plan = get_object_or_404(Plan, pk=plan_pk)
+        plan = get_object_or_404(Plan, pk=plan_pk, active=True)
 
         verified_emails = request.user.emailaddress_set.filter(verified=True).order_by('email')
 
@@ -164,7 +164,7 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
         coupon_code = data.get('coupon_code')
 
         try:
-            plan = Plan.objects.get(id=data['plan'])
+            plan = Plan.objects.get(id=data['plan'], active=True)
         except Plan.DoesNotExist:
             raise ValueError("TODO: Raise better error for missing Plan")
 
