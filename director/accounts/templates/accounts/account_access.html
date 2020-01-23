@@ -44,6 +44,18 @@
                                 </select>
                             </div>
                         </div>
+                        <a href="javascript:void(0)" class="help tooltip-link">
+                            How do account roles differ?
+                            <span class="tooltip-q">?
+                                <div class="tooltip" style="z-index: 100">
+                                    <p class="is-uppercase-heading has-bottom-margin">Account roles</p>
+                                    <p>
+                                        Account <strong>members</strong> can add projects to the account; <strong>admins</strong> can also make
+                                        other users members of an account, add teams to the account, and change account settings.
+                                    </p>
+                                </div>
+                            </span>
+                        </a>
                     </div>
                 </div>
                 <div class="column">
@@ -53,17 +65,6 @@
                 </div>
             </div>
         </form>
-        <div class="container">
-            <p class="has-top-margin"> You can add users to {{ account.name }} and assign two different roles to them:
-                <em>Admin</em> or <em>Member</em>.</p>
-            <br/>
-            <p><strong>Account admin</strong> can: delete {{ account.name }}; update the billing details; give other
-                users access
-                to the account (including giving them administrative permission); create and add teams to the account.
-            </p>
-            <p><strong>Account member</strong> can only add projects to {{ account.name }}.</p>
-            <br/>
-        </div>
         <table class="table is-fullwidth">
             <thead>
             <tr>
