@@ -255,7 +255,7 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
             if suffix_number == 100:
                 raise RuntimeError("Suffix number hit 100.")
 
-            account_name = '{}-personal-account{}'.format(slugify(sender.username), suffix)
+            account_name = '{}-personal-account{}'.format(slugify(instance.username), suffix)[:50]
 
             try:
                 account = Account.objects.create(name=account_name)
