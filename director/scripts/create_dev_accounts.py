@@ -12,9 +12,9 @@ def run(*args):
     assert settings.DEBUG
 
     for account in [
-        'Hapuku University',
-        'Craigiburn College',
-        'Acme Ltd'
+        'hapuku-university',
+        'craigiburn-college',
+        'acme-ltd'
     ]:
         Account.objects.create(
             name=account,
