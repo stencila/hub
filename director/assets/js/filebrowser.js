@@ -46,7 +46,7 @@ function extensionFromType (type) {
     return '.jats.xml'
   }
 
-  if (['md', 'html', 'docx', 'rmd', 'ipynb'].indexOf(type) !== -1) {
+  if (['md', 'html', 'docx', 'rmd', 'ipynb', 'jsonld', 'gdoc'].indexOf(type) !== -1) {
     return `.${type}`
   }
 
@@ -187,6 +187,7 @@ Vue.component('item-action-menu', {
         ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
         ['text/html', 'html', 'HTML'],
         ['text/xml+jats', 'jats', 'JATS'],
+        ['application/ld+json', 'jsonld', 'JSON-LD'],
         ['application/x-ipynb+json', 'ipynb', 'Jupyter Notebook'],
         ['text/markdown', 'md', 'Markdown'],
         ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word'],
