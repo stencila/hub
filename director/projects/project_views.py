@@ -752,5 +752,9 @@ class PublishedMediaView(ProjectPermissionsMixin, View):
 
         full_path = relative_path_join(utf8_dirname(pi.path), media_path)
 
-        resp = FileResponse(open(full_path, 'rb'))
-        return resp
+        try:
+            fp = open(full_path, 'rb')
+        except FileNotFoundError:
+            raise Http404
+
+        return FileResponse(fp)  # FileResponse closes the pointer when finished
