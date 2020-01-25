@@ -10,6 +10,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
+from django.forms import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404, FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -218,6 +220,20 @@ class ProjectListView(View):
         })
 
 
+def project_save(form: ModelForm, saveable: typing.Union[ModelForm, Project]) -> bool:
+    """Try to save the `saveable`, and handle the IntegrityError if raised."""
+    try:
+        saveable.save()
+        return True
+    except IntegrityError as e:
+        # We have to assume that this is due to the project name not being unique
+        if 'projects_project.name' in str(e):
+            form.add_error('name',
+                           'The Project name "{}" is already in use in this Account.'.format(form.cleaned_data['name']))
+            return False
+        raise
+
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     form_class = ProjectCreateForm
     template_name = "projects/project_create.html"
@@ -264,7 +280,10 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
         self.object = form.save(commit=False)
         self.object.creator = self.request.user
-        self.object.save()
+
+        if not project_save(form, self.object):
+            return self.form_invalid(form)
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
@@ -510,13 +529,6 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         return redirect('project_sharing', account_name, project_name)
 
 
-class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
-    model = Project
-    fields: typing.List[str] = []
-    template_name = 'projects/project_settings.html'
-    project_permission_required = ProjectPermissionType.MANAGE
-
-
 class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
     model = Project
     form_class = ProjectSettingsMetadataForm
@@ -531,6 +543,12 @@ class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
         context_data['project_tab'] = ProjectTab.SETTINGS.value
         context_data['project_subtab'] = ProjectTab.SETTINGS_METADATA.value
         return context_data
+
+    def form_valid(self, form: ModelForm):
+        """If the form is valid, save the associated model."""
+        if project_save(form, form):
+            return super().form_valid(form)
+        return super().form_invalid(form)
 
 
 class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
