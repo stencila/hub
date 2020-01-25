@@ -157,6 +157,9 @@ Vue.component('item-action-menu', {
     })
   },
   computed: {
+    editTarget () {
+      return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
+    },
     allowDownload () {
       return this.downloadUrl !== ''
     },
@@ -238,7 +241,7 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item">{{ editMenuText }}</a>' +
+    '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item" :target="editTarget" rel="noopener">{{ editMenuText }}</a>' +
     '      <a v-if="allowDesktopLaunch" href="#" class="dropdown-item" @click.prevent="launchDesktopEditor()">Open in Stencila Desktop</a>' +
     '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
