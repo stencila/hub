@@ -60,25 +60,32 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
         form = PublishedItemForm(data, initial={'project': project})
 
         if form.is_valid():
-            try:
-                pi = PublishedItem.objects.get(project=project, url_path=form.cleaned_data['url_path'])
-            except PublishedItem.DoesNotExist:
-                pi = PublishedItem(project=project, url_path=form.cleaned_data['url_path'])
-
-            pi.save()  # get the PK
+            pi, created = PublishedItem.objects.get_or_create(project=project, url_path=form.cleaned_data['url_path'])
 
             original_path = form.cleaned_data['path']
 
-            source = self.get_source(request.user, project.account.name, project.name,
-                                     form.cleaned_data.get('source_id'))
-            scf = make_source_content_facade(request.user, original_path, source, project)
+            try:
+                source = self.get_source(request.user, project.account.name, project.name,
+                                         form.cleaned_data.get('source_id'))
+                scf = make_source_content_facade(request.user, original_path, source, project)
 
-            published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
+                published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
 
-            absolute_input_path = scf.sync_content()
+                if os.path.exists(published_path):
+                    os.unlink(published_path)
 
-            self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path,
-                               False)
+                if os.path.exists(published_path + '.media'):
+                    shutil.rmtree(published_path)
+
+                absolute_input_path = scf.sync_content()
+
+                self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path,
+                                   False)
+            except RuntimeError:
+                # Without this we can end up with items without paths
+                if created:
+                    pi.delete()
+                raise
 
             pi.source_path = data['path']
             pi.path = published_path

@@ -663,8 +663,7 @@ Vue.component('publish-modal', {
       publishInProgress: false,
       sourceId: null,
       path: null,
-      slug: null,
-      slugError: null,
+      urlError: null,
       errorMessage: '',
       urlPath: ''
     }
@@ -677,13 +676,6 @@ Vue.component('publish-modal', {
   methods: {
     publishDisabled() {
         return this.urlPath === '' || this.publishInProgress
-    },
-    slugifyPath (path) {
-      const splitPath = path.split('/')
-      const fileNameAndExt = splitExt(splitPath[splitPath.length - 1])
-      const fileName = fileNameAndExt[0]
-      const slugChars = /(\s|\w|\d|-|_)/gi
-      return fileName.match(slugChars).join('').replace(/ /g, '-').substring(0, 50).toLowerCase()
     },
     show (sourceId, path) {
       this.sourceId = sourceId
@@ -719,7 +711,11 @@ Vue.component('publish-modal', {
           return
         } else {
           if (data.errors.url) {
-            this.slugError = data.errors.url[0].message
+            this.urlError = ''
+            const urlErrors = data.errors.url.map(errorDict => {
+              return errorDict.mean
+            })
+            this.urlError = urlErrors.join(' ')
           } else {
             alert('An error occurred during publish, please check the console.')
             console.error(data.errors)
@@ -756,7 +752,7 @@ Vue.component('publish-modal', {
     '          <input class="input is-medium" type="text" placeholder="Path" v-model="urlPath">' +
     '          <p class="help">The relative path of the published item URL, which is appended to this Project\'s URL</p>' +
     '          <p class="help">URL after publishing: <strong>{{ publishedUrl }}</strong></p>' +
-    '          <p v-if="slugError != null" class="has-text-danger">{{ slugError }}</p>' +
+    '          <p v-if="urlError != null" class="has-text-danger">{{ urlError }}</p>' +
     '        </div>' +
     '      </div>' +
     '    </section>' +
