@@ -8,9 +8,10 @@ from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
@@ -20,6 +21,7 @@ from accounts.db_facade import user_is_account_admin
 from lib import data_size
 from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
+from lib.github_facade import GitHubFacade
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
@@ -28,7 +30,7 @@ from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_content_facade import SourceEditContext, SourceContentFacade, make_source_content_facade
-from projects.source_models import DiskSource, GoogleDocsSource
+from projects.source_models import DiskSource, GoogleDocsSource, Source
 from projects.source_operations import strip_directory, utf8_path_join, utf8_basename, \
     utf8_dirname
 from .models import Project, DropboxSource, GithubSource
@@ -174,21 +176,71 @@ class FileSourceUploadView(ProjectPermissionsMixin, View):
             return HttpResponse(status=response_status)
 
 
+def get_source(user: User, project: Project, path: str) -> typing.Optional[typing.Union[Source, DiskSource]]:
+    """
+    Locate a `Source` that contains the file at `path`.
+
+    Iterate up through the directory tree of the path until Source(s) mapped to that path are found. Then check if that
+    file exists in the source.
+
+    Fall back to DiskSource if no file is found in any linked Sources.
+    """
+    original_path = path
+
+    gh_facade: typing.Optional[GitHubFacade] = None
+
+    while True:
+        sources = Source.objects.filter(path=path, project=project)
+
+        if sources:
+            if path == original_path:
+                # This source should be one without sub files
+                return sources[0]
+            else:
+                # These may be Github, etc, sources mapped into the same directory. Find one that has a file at the path
+
+                for source in sources:
+                    if isinstance(source, GithubSource):
+                        source = typing.cast(GithubSource, source)
+
+                        if gh_facade is None:
+                            gh_token = user_github_token(user)
+                            gh_facade = GitHubFacade(source.repo, gh_token)
+
+                        relative_path = utf8_path_join(source.subpath, strip_directory(original_path, source.path))
+                        if gh_facade.path_exists(relative_path):
+                            return source  # this source has the file so it must be this one?
+
+                        # if not, continue on, keep going up the tree to find the root source
+                    else:
+                        raise RuntimeError('Don\'t know how to examine the contents of {}'.format(type(source)))
+
+        if path == '.':
+            break
+        path = utf8_dirname(path)
+        if path == '/' or path == '':
+            path = '.'
+
+    # Fall Back to DiskSource
+    return DiskSource()
+
+
 class ContentFacadeMixin(object):
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str, pk: int,
+    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
                            path: str) -> SourceContentFacade:
         # type ignores because mypy doesn't trust us to use this only one a class which has these methods
-        source = self.get_source(request.user, account_name, project_name, pk)  # type: ignore
-        project = self.get_project(request.user, account_name, account_name)  # type: ignore
+        project = self.get_project(request.user, account_name, project_name)  # type: ignore
+        source = get_source(request.user, project, path)
         return make_source_content_facade(request.user, path, source, project)  # type: ignore
 
 
 class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str, pk: int,  # type: ignore
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> HttpResponse:
-        content_facade = self.get_content_facade(request, account_name, project_name, pk, path)
+        raise NotImplementedError
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.process_get(account_name, project_name, path, content_facade)
 
     def process_get(self, account_name: str, project_name: str, path: str,
@@ -246,9 +298,9 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
             'default_commit_message': self.get_default_commit_message(request)
         })
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str, pk: int,  # type: ignore
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> HttpResponse:
-        content_facade = self.get_content_facade(request, account_name, project_name, pk, path)
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.process_get(request, account_name, project_name, path, content_facade)
 
     @staticmethod
@@ -256,11 +308,11 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
         repo_path = utf8_path_join(source.subpath, strip_directory(file_path, source.path))
         return repo_path
 
-    def post(self, request: HttpRequest, account_name: str, project_name: str, pk: int,  # type: ignore
+    def post(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
              path: str) -> HttpResponse:
         self.pre_post_check(request, account_name, project_name)
 
-        content_facade = self.get_content_facade(request, account_name, project_name, pk, path)
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.perform_post(request, account_name, project_name, path, content_facade)
 
     def pre_post_check(self, request: HttpRequest, account_name: str, project_name: str) -> None:
@@ -320,10 +372,10 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
 class DiskFileSourceDownloadView(SourceDownloadView):
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> HttpResponse:
-        content_facade = self.get_content_facade(request, account_name, project_name, -1, path)
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.process_get(account_name, project_name, path, content_facade)
 
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str, pk: int,
+    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
                            path: str) -> SourceContentFacade:
         project = self.get_project(request.user, account_name, project_name)
         return make_source_content_facade(request.user, path, DiskSource(), project)
@@ -332,20 +384,22 @@ class DiskFileSourceDownloadView(SourceDownloadView):
 class DiskFileSourceOpenView(SourceOpenView):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str, pk: int,
+    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
                            path: str) -> SourceContentFacade:
         project = self.get_project(request.user, account_name=account_name, project_name=project_name)
         return make_source_content_facade(request.user, path, DiskSource(), project)
 
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> HttpResponse:
-        content_facade = self.get_content_facade(request, account_name, project_name, -1, path)
+        raise NotImplementedError
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.process_get(request, account_name, project_name, path, content_facade)
 
     def post(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
              path: str) -> HttpResponse:
+        raise NotImplementedError
         self.pre_post_check(request, account_name, project_name)
-        content_facade = self.get_content_facade(request, account_name, project_name, -1, path)
+        content_facade = self.get_content_facade(request, account_name, project_name, path)
 
         return self.perform_post(request, account_name, project_name, path, content_facade)
 
@@ -464,7 +518,11 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         if '/' in target_name:
             raise ValueError('Target name can not contain /')
 
-        source = self.get_source(request.user, account_name, project_name, source_id)
+        if source_id:
+            source = get_object_or_404(Source, project=project, pk=source_id)
+        else:
+            source = DiskSource()
+
         scf = make_source_content_facade(request.user, source_path, source, project)
 
         target_path = utf8_path_join(utf8_dirname(source_path), target_name)
@@ -480,3 +538,18 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         return JsonResponse({
             'success': True
         })
+
+
+class SourcePreviewView(LoginRequiredMixin, ProjectPermissionsMixin, View):
+    """
+    Convert a source file to HTML and return the generated HTML.
+
+    Will attempt to load an existing PublishedItem for the source, if one exists. It will also compare the file/sources
+    modification time with that of the PublishedItem and regenerate the HTML if the source data has changed.
+    """
+
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+            path: str) -> HttpResponse:
+        pass

@@ -1,4 +1,5 @@
 from django.urls import path, include, re_path
+from django.views.generic import RedirectView
 
 from lib.constants import ProjectUrlRoot
 from projects import project_views
@@ -9,6 +10,7 @@ urlpatterns = [
     path('', project_views.ProjectOverviewView.as_view(), name='project_overview'),
 
     path(ProjectUrlRoot.files.value + '/', include([
+        path('', RedirectView.as_view(pattern_name='project_files', permanent=True)),
         path('browse/', project_views.ProjectFilesView.as_view(), name='project_files'),
         path('browse/<path:path>', project_views.ProjectFilesView.as_view(), name='project_files_path'),
 
@@ -22,15 +24,11 @@ urlpatterns = [
              name='googledocssource_create'),
         path('convert/', source_views.SourceConvertView.as_view(), name='source_convert'),
 
-        path('<int:pk>/open/<path:path>', source_views.SourceOpenView.as_view(),
+        path('open/<path:path>', source_views.SourceOpenView.as_view(),
              name='file_source_open'),
-        path('open/<path:path>', source_views.DiskFileSourceOpenView.as_view(),
-             name='disk_file_source_open'),
 
-        path('<int:pk>/download/<path:path>', source_views.SourceDownloadView.as_view(),
-             name='file_source_download'),
-        path('download/<path:path>', source_views.DiskFileSourceDownloadView.as_view(),
-             name='disk_file_source_download')
+        path('download/<path:path>', source_views.SourceDownloadView.as_view(),
+             name='file_source_download')
     ])),
     path(ProjectUrlRoot.archives.value + '/', project_views.ProjectArchiveView.as_view(), name='project_archives'),
     path(ProjectUrlRoot.archives.value + '/<name>', project_views.ProjectNamedArchiveDownloadView.as_view(),

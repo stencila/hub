@@ -7,20 +7,9 @@ from django.urls import reverse
 from lib.google_docs_facade import build_google_document_url
 from projects.project_models import Project
 from projects.source_item_models import DirectoryListEntry, DirectoryEntryType
-from projects.source_models import DiskSource, GoogleDocsSource
+from projects.source_models import GoogleDocsSource
 
 register = template.Library()
-
-
-def url_slug_suffix_and_args(project: Project) -> typing.Tuple[str, typing.List[str]]:
-    """
-    Get the suffix for a view name and the args for the reverse function.
-
-    If we're in slug mode (i.e. account and project both have a slug) then the first two args for a Project url are the
-    account slug and project slug. Otherwise the first argument will be the project PK. Likewise the suffix for the
-    view name will be '_slug' in slug mode and nothing ('') in non-slug mode.
-    """
-    return '', [project.account.name, project.name]
 
 
 @register.simple_tag
@@ -29,22 +18,14 @@ def source_path(project: Project, directory_entry: DirectoryListEntry) -> str:
         source = typing.cast(GoogleDocsSource, directory_entry.source)
         return build_google_document_url(source.doc_id)
 
-    view_name_suffix, args = url_slug_suffix_and_args(project)
-
-    args.append(directory_entry.path)
+    args = [project.account.name, project.name, directory_entry.path]
 
     if directory_entry.is_directory and directory_entry.path:
-        view_name = 'project_files_path' + view_name_suffix
+        view_name = 'project_files_path'
         return reverse(view_name, args=args)
 
     if directory_entry.type == DirectoryEntryType.FILE:
-        if isinstance(directory_entry.source, DiskSource):
-            view_name_base = 'disk_file_source_open'
-        else:
-            view_name_base = 'file_source_open'
-            args.insert(-1, directory_entry.source.pk)
-
-        return reverse(view_name_base + view_name_suffix, args=args)
+        return reverse('file_source_open', args=args)
 
     return ""
 
@@ -54,17 +35,7 @@ def download_url(project: Project, directory_entry: DirectoryListEntry) -> str:
     if directory_entry.is_directory:
         return ''
 
-    view_name_suffix, args = url_slug_suffix_and_args(project)
-
-    if not isinstance(directory_entry.source, DiskSource):
-        view_base = 'file_source_download'
-        args.append(directory_entry.source.pk)
-    else:
-        view_base = 'disk_file_source_download'
-
-    args.append(directory_entry.path)
-
-    return reverse(view_base + view_name_suffix, args=args)
+    return reverse('file_source_download', args=(project.account.name, project.name, directory_entry.path))
 
 
 def mimetype_text_editable(mimetype: str) -> bool:

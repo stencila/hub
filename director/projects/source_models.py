@@ -36,6 +36,10 @@ class DiskSource(object):
 class Source(PolymorphicModel, MimeTypeDetectMixin):
     provider_name = ''
 
+    # Some sources have "sub" files, e.g a GitHub source isn't content, its sub-files are. cf. google docs, URL, where
+    # the source itself IS the content
+    has_sub_files: bool = False
+
     project = models.ForeignKey(
         'Project',
         null=True,
@@ -81,6 +85,10 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
     def push(self, archive: typing.Union[str, typing.IO]) -> None:
         raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
 
+    def save(self, *args, **kwargs):
+        # Make sure there are no leading or trailing slashes in the path to make them consistent
+        self.path = self.path.strip('/')
+        super().save(*args, **kwargs)
 
 # Source classes in alphabetical order
 #
@@ -214,6 +222,8 @@ class GithubSource(Source):
     """A project hosted on Github."""
 
     provider_name = 'GitHub'
+
+    has_sub_files = True
 
     repo = models.TextField(
         null=False,

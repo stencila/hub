@@ -72,7 +72,16 @@ def generate_project_archive_directory(project_storage_root: str, project: Proje
 
 
 def generate_project_publish_directory(project_storage_root: str, project: Project) -> str:
-    return utf8_path_join(project_storage_root, 'published', '{}'.format(project.account_id), '{}'.format(project.id))
+    """
+    Generate the path to a directory that stores a published item.
+
+    When changing the format here, please update the version in the path. After this path is generated it is stored on a
+    PublishedItem in full, so we don't need to call this function again to generate a path, and don't need to worry
+    about changing the format.
+    The current format is STORAGE_ROOT/published/v2/<account_id // 1000>/<account_id>/<project_id>.
+    """
+    return utf8_path_join(project_storage_root, 'published', 'v2', '{}'.format(project.account_id // 1000),
+                          '{}'.format(project.account_id), '{}'.format(project.id))
 
 
 def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:

@@ -1,8 +1,9 @@
 import typing
+import urllib
 from datetime import datetime
 
 import pytz
-from github import Github
+from github import Github, GithubObject
 from github.Repository import Repository
 
 
@@ -12,9 +13,36 @@ class GithubDirectoryEntry(typing.NamedTuple):
     last_modified: datetime
 
 
+class HubGithubRepository(Repository):
+    """Implements extra methods that the base Repository does not provide."""
+
+    def get_contents_head(self, path, ref=GithubObject.NotSet):
+        """
+        calls: `HEAD /repos/:owner/:repo/contents/:path` <http://developer.github.com/v3/repos/contents>.
+
+        Pretty much the same as the get_contents method in Repository but uses HEAD so we don't have to get the content.
+        """
+        assert isinstance(path, str), path
+        assert ref is GithubObject.NotSet or isinstance(ref, str), ref
+        # Path of '/' should be the empty string.
+        if path == '/':
+            path = ''
+        url_parameters = dict()
+        if ref is not GithubObject.NotSet:
+            url_parameters["ref"] = ref
+
+        # This does not raise an exception but we are using it becaue the requestJsonAndCheck method doesn't work if
+        # there is no response body
+        return self._requester.requestJson(
+            "HEAD",
+            self.url + "/contents/" + urllib.parse.quote(path),
+            parameters=url_parameters
+        )
+
+
 class GitHubFacade(object):
     _github_connector: typing.Optional[Github] = None
-    _repository: typing.Optional[Repository] = None
+    _repository: typing.Optional[HubGithubRepository] = None
 
     def __init__(self, repository_path: str, access_token: typing.Optional[str] = None) -> None:
         self.repository_path = repository_path
@@ -27,9 +55,11 @@ class GitHubFacade(object):
         return self._github_connector
 
     @property
-    def repository(self) -> Repository:
+    def repository(self) -> HubGithubRepository:
         if self._repository is None:
-            self._repository = self.github_connector.get_repo(self.repository_path)
+            repository = self.github_connector.get_repo(self.repository_path)
+            repository.__class__ = HubGithubRepository
+            self._repository = repository
         return self._repository
 
     def list_directory(self, relative_path: str) -> typing.Iterable[GithubDirectoryEntry]:
@@ -54,6 +84,10 @@ class GitHubFacade(object):
 
     def get_size(self, relative_path: str) -> int:
         return self.repository.get_contents(relative_path).size
+
+    def path_exists(self, relative_path: str) -> bool:
+        status_code, headers, body = self.repository.get_contents_head(relative_path)
+        return status_code == 200
 
     @property
     def allows_editing(self) -> bool:

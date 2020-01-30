@@ -28,7 +28,7 @@ from projects.project_forms import PublishedItemForm
 from projects.project_models import PublishedItem, Project
 from projects.project_views import ProjectPermissionsMixin
 from projects.source_content_facade import make_source_content_facade
-from projects.source_models import GoogleDocsSource, UrlSource, Source
+from projects.source_models import GoogleDocsSource, UrlSource, Source, DiskSource
 from projects.source_operations import utf8_path_join, generate_project_publish_directory
 from projects.source_views import ConverterMixin
 
@@ -60,13 +60,18 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
         form = PublishedItemForm(data, initial={'project': project})
 
         if form.is_valid():
+            source_id = form.cleaned_data.get('source_id')
+
+            if source_id:
+                source = get_object_or_404(Source, project=project, pk=source_id)
+            else:
+                source = DiskSource()
+
             pi, created = PublishedItem.objects.get_or_create(project=project, url_path=form.cleaned_data['url_path'])
 
             original_path = form.cleaned_data['path']
 
             try:
-                source = self.get_source(request.user, project.account.name, project.name,
-                                         form.cleaned_data.get('source_id'))
                 scf = make_source_content_facade(request.user, original_path, source, project)
 
                 published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))

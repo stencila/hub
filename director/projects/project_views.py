@@ -161,21 +161,6 @@ class ProjectPermissionsMixin(object):
         self.test_required_project_permission()
         return self.project
 
-    def get_source(self, user: AbstractUser, account_name: str, project_name: str, source_pk: typing.Optional[int]) \
-            -> typing.Union[Source, DiskSource]:
-        # TODO: this should accept a project that we have already fetched before
-        self.perform_project_fetch(user, account_name, project_name)
-        self.test_required_project_permission()
-
-        if not source_pk:
-            # assume it's a file source and read from disk
-            return DiskSource()
-
-        try:
-            return self.project.sources.get(pk=source_pk)
-        except Source.DoesNotExist:
-            raise Http404
-
     def get_object(self, *args, **kwargs):
         self.perform_project_fetch(self.request.user, self.kwargs['account_name'], self.kwargs['project_name'])
         return self.project_fetch_result.project
@@ -352,12 +337,17 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
 
     def post(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
              path: typing.Optional[str] = None) -> HttpResponse:
-        self.perform_project_fetch(request.user, account_name, project_name)
+        project = self.get_project(request.user, account_name, project_name)
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
         if request.POST.get('action') == 'unlink_source':
-            source = self.get_source(request.user, account_name, project_name, request.POST.get('source_id'))
+            source_id = request.POST.get('source_id')
+
+            if source_id:
+                source = get_object_or_404(Source, project=project, pk=source_id)
+            else:
+                source = DiskSource()
 
             if isinstance(source, (FileSource, DiskSource)):
                 raise TypeError("Can't unlink a File source")
