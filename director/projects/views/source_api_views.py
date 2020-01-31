@@ -56,9 +56,12 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
                 source = DiskSource()
 
             pi, created = PublishedItem.objects.get_or_create(project=project,
-                                                              source_path=form.cleaned_data['path'],
+                                                              source_path=form.cleaned_data['source_path'],
                                                               defaults={'url_path': url_path}
                                                               )
+            if url_path != pi.url_path:
+                pi.url_path = url_path
+                pi.save()
 
             self.convert_and_publish(request.user, project, pi, created, source, source_path)
 

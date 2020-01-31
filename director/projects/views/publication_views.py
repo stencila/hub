@@ -1,3 +1,5 @@
+import typing
+
 from django.http import HttpRequest, FileResponse, Http404, HttpResponse
 from django.shortcuts import render
 from django.views import View
@@ -19,7 +21,8 @@ class PublishedListView(ProjectPermissionsMixin, View):
 
         context = {
             'project_tab': 'published',
-            'published_items': PublishedItem.objects.filter(project=project).order_by('url_path')
+            'published_items': PublishedItem.objects.filter(project=project, url_path__isnull=False).exclude(
+                url_path='').order_by('url_path')
         }
         return render(request, 'projects/published_list.html', self.get_render_context(context))
 
@@ -36,12 +39,13 @@ class PublishedContentView(ProjectPermissionsMixin, View):
         return self.published_item_render(request, pi)
 
     @staticmethod
-    def published_item_render(request: HttpRequest, published_item: PublishedItem) -> HttpResponse:
+    def published_item_render(request: HttpRequest, published_item: PublishedItem,
+                              title: typing.Optional[str] = None) -> HttpResponse:
         context = {
             'theme_name': 'eLife',
             'project': published_item.project,
-            'source_path': published_item.source_path
-
+            'source_path': published_item.source_path,
+            'title': title
         }
         with open(published_item.path, 'r', encoding='utf8') as f:
             context['content'] = f.read()
@@ -115,4 +119,4 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
         if created or scf.source_modification_time > pi.updated or not pi.path:
             self.convert_and_publish(request.user, project, pi, created, source, path)
 
-        return self.published_item_render(request, pi)
+        return self.published_item_render(request, pi, 'HTML Preview of {}'.format(pi.source_path))

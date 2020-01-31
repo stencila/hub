@@ -269,7 +269,7 @@ class ConverterMixin:
                 os.unlink(published_path)
 
             if os.path.exists(published_path + '.media'):
-                shutil.rmtree(published_path)
+                shutil.rmtree(published_path + '.media')
 
             absolute_input_path = scf.sync_content()
 

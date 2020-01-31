@@ -17,7 +17,7 @@
                    class="panel-block{% if project_tab == 'overview' %} is-active{% endif %}">
                     Overview
                 </a>
-                {% if project.published_items %}
+                {% if project.has_url_published_items %}
                     <a href="{% url 'project_published_list' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'published' %} is-active{% endif %}">
                         Published

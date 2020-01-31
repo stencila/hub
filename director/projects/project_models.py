@@ -241,6 +241,10 @@ class Project(models.Model):
             dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self)
             dff.write_file_content(name, zipfile.read(name))
 
+    @property
+    def has_url_published_items(self) -> bool:
+        return self.published_items.filter(url_path__isnull=False).exclude(url_path='').count() != 0
+
 
 class ProjectEventType(EnumChoice):
     SOURCE_PULL = 'SOURCE_PULL'
