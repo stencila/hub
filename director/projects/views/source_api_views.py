@@ -17,7 +17,6 @@ from django.views.generic.base import View
 from googleapiclient.errors import HttpError
 from rest_framework.views import APIView
 
-from lib.conversion_types import ConversionFormatId
 from lib.converter_facade import fetch_url
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid, GoogleDocsFacade
 from lib.social_auth_token import user_social_token
@@ -25,27 +24,14 @@ from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_facade import fetch_project_for_user
 from projects.permission_models import ProjectPermissionType
 from projects.project_forms import PublishedItemForm
-from projects.project_models import PublishedItem, Project
-from projects.project_views import ProjectPermissionsMixin
-from projects.source_content_facade import make_source_content_facade
+from projects.project_models import PublishedItem
 from projects.source_models import GoogleDocsSource, UrlSource, Source, DiskSource
-from projects.source_operations import utf8_path_join, generate_project_publish_directory
-from projects.source_views import ConverterMixin
+from projects.source_operations import utf8_path_join
+from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
 
 
 class LinkException(Exception):
     pass
-
-
-def get_project_publish_directory(project: Project) -> str:
-    return generate_project_publish_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-
-def setup_publish_directory(project: Project) -> None:
-    """Create directories and sub-directories to store HTML output for published files."""
-    publish_dir = get_project_publish_directory(project)
-    if not os.path.exists(publish_dir):
-        os.makedirs(publish_dir, True)
 
 
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
@@ -61,51 +47,30 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
         if form.is_valid():
             source_id = form.cleaned_data.get('source_id')
+            url_path = form.cleaned_data.get('url_path')
+            source_path = form.cleaned_data['source_path']
 
             if source_id:
                 source = get_object_or_404(Source, project=project, pk=source_id)
             else:
                 source = DiskSource()
 
-            pi, created = PublishedItem.objects.get_or_create(project=project, url_path=form.cleaned_data['url_path'])
+            pi, created = PublishedItem.objects.get_or_create(project=project,
+                                                              source_path=form.cleaned_data['path'],
+                                                              defaults={'url_path': url_path}
+                                                              )
 
-            original_path = form.cleaned_data['path']
+            self.convert_and_publish(request.user, project, pi, created, source, source_path)
 
-            try:
-                scf = make_source_content_facade(request.user, original_path, source, project)
-
-                published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
-
-                if os.path.exists(published_path):
-                    os.unlink(published_path)
-
-                if os.path.exists(published_path + '.media'):
-                    shutil.rmtree(published_path)
-
-                absolute_input_path = scf.sync_content()
-
-                self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path,
-                                   False)
-            except RuntimeError:
-                # Without this we can end up with items without paths
-                if created:
-                    pi.delete()
-                raise
-
-            pi.source_path = data['path']
-            pi.path = published_path
-            pi.url_path = form.cleaned_data['url_path']
-            if isinstance(source, Source):
-                pi.source = source
+            if pi.url_path:
+                published_url = reverse('project_published_content', args=(project.account.name, project.name,
+                                                                           pi.url_path))
+                published_to = ' to <a href="{}">{}</a>'.format(published_url, pi.url_path)
             else:
-                pi.source = None
-            pi.save()
+                published_to = ''
 
-            success_message = 'The file <em>{}</em> was published successfully to <a href="{}">{}</a>'.format(
-                escape(original_path),
-                reverse('project_published_content', args=(project.account.name, project.name, pi.url_path)),
-                pi.url_path
-            )
+            success_message = 'The file <em>{}</em> was published successfully{}.'.format(escape(source_path),
+                                                                                          published_to)
             messages.success(request, success_message, extra_tags='safe')
 
             return JsonResponse({

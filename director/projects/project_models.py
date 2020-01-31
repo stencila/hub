@@ -304,23 +304,21 @@ class PublishedItem(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, help_text='Project this item belongs to.',
                                 related_name='published_items')
     path = models.TextField(blank=True, null=True,
-                            help_text='The relative path to the published file (in HTML format). Relative to the '
-                                      'published item storage directory.')
-    url_path = models.TextField(blank=False, null=False,
+                            help_text='The full path to the published file (in HTML format).')
+    url_path = models.TextField(blank=True, null=True,
                                 help_text='The path used to access the published item on the web, relative to the '
                                           'account/project.', validators=[validate_publish_url_path])
     created = models.DateTimeField(auto_now_add=True, help_text='The date/time the item was first published.')
     updated = models.DateTimeField(auto_now=True, help_text='The date/time the item was last published.')
     source = models.ForeignKey(Source, on_delete=models.DO_NOTHING, null=True,
                                help_text='The source item of this publication. May be null for a DiskSource.')
-    source_path = models.TextField(blank=True, null=True,
-                                   help_text='The path of the file that was published. May be null/blank for sources '
-                                             'like URLs where we just fetch the content.')
+    source_path = models.TextField(help_text='The path of the file that was published.')
 
     class Meta:
         unique_together = (('project', 'url_path'),)
 
     def save(self, *args, **kwargs):
         # Remove leading/trailing / in URL path
-        self.url_path = self.url_path.strip('/')
+        if self.url_path:
+            self.url_path = self.url_path.strip('/')
         super(PublishedItem, self).save(*args, **kwargs)

@@ -9,6 +9,7 @@ from django.utils.text import slugify
 
 from accounts.models import Account
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
+from projects.source_models import Source
 from .project_models import Project, PublishedItem
 
 
@@ -272,7 +273,7 @@ class ProjectArchiveForm(FormWithSubmit):
 class PublishedItemForm(forms.ModelForm):
     class Meta:
         model = PublishedItem
-        fields = ['source_path', 'path', 'url_path']
+        fields = ['source_path', 'url_path']
 
     source_id = forms.IntegerField(required=False)
 
@@ -286,9 +287,7 @@ class PublishedItemForm(forms.ModelForm):
         source_id = cleaned_data.get('source_id')
 
         if source_id:
-            source = project.sources.filter(pk=self.cleaned_data['source_id']).first()
-        else:
-            source = None
-
-        if source is None:
-            self.add_error('source_id', 'Source with {} does not exist on this project.'.format(self.cleaned_data))
+            try:
+                project.sources.get(pk=source_id)
+            except Source.DoesNotExist:
+                self.add_error('source_id', 'Source with id {} does not exist on this project.'.format(self.source_id))

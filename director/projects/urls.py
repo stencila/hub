@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.urls import include, path, re_path
 
-from projects.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView, ProjectSessionRequestView,
-                                         ProjectSessionSetupView)
-from projects.project_views import (ProjectListView, ProjectCreateView, ProjectSettingsSessionsView,
-                                    ProjectNamedRedirect)
+from projects.views.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView,
+                                               ProjectSessionRequestView, ProjectSessionSetupView)
+from projects.views.project_views import (ProjectListView, ProjectCreateView, ProjectSettingsSessionsView,
+                                          ProjectNamedRedirect)
 
 urlpatterns = [
     # Generic views

@@ -1,9 +1,10 @@
 from django.urls import path, include, re_path
 from django.views.generic import RedirectView
 
+import projects.views.publication_views
 from lib.constants import ProjectUrlRoot
-from projects import project_views
-from projects import source_views
+from projects.views import project_views
+from projects.views import source_views
 
 urlpatterns = [
     # These patterns are listed in the same order they appear in the sidebar menu (more or less)
@@ -28,7 +29,13 @@ urlpatterns = [
              name='file_source_open'),
 
         path('download/<path:path>', source_views.SourceDownloadView.as_view(),
-             name='file_source_download')
+             name='file_source_download'),
+
+        re_path(r'^preview/(.*)/(?P<pi_pk>\d+)\.html\.media/(?P<media_path>.*)',
+                projects.views.publication_views.PreviewMediaView.as_view(),
+                name='project_preview_media_view'),
+        path('preview/<path:path>', projects.views.publication_views.SourcePreviewView.as_view(),
+             name='file_source_preview'),
     ])),
     path(ProjectUrlRoot.archives.value + '/', project_views.ProjectArchiveView.as_view(), name='project_archives'),
     path(ProjectUrlRoot.archives.value + '/<name>', project_views.ProjectNamedArchiveDownloadView.as_view(),
@@ -49,10 +56,11 @@ urlpatterns = [
 
     path(ProjectUrlRoot.executa.value + '/', project_views.ProjectExecutaView.as_view(), name='project_executa'),
 
-    path(ProjectUrlRoot.published.value + '/', project_views.PublishedListView.as_view(),
+    path(ProjectUrlRoot.published.value + '/', projects.views.publication_views.PublishedListView.as_view(),
          name='project_published_list'),
-    re_path(r'^(?P<path>.*)/\d+\.html\.media/(?P<media_path>.*)', project_views.PublishedMediaView.as_view(),
+    re_path(r'^(?P<path>.*)/\d+\.html\.media/(?P<media_path>.*)',
+            projects.views.publication_views.PublishedMediaView.as_view(),
             name='project_published_media_view'),
-    path('<path:path>/', project_views.PublishedContentView.as_view(),
+    path('<path:path>/', projects.views.publication_views.PublishedContentView.as_view(),
          name='project_published_content'),
 ]

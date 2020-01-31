@@ -697,7 +697,7 @@ Vue.component('publish-modal', {
         method: 'POST',
         body: JSON.stringify({
           'source_id': this.sourceId,
-          'path': this.path,
+          'source_path': this.path,
           'url_path': this.urlPath
         }),
         headers: {

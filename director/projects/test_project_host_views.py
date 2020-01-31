@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from projects.cloud_session_controller import CloudSessionFacade, ActiveSessionsExceededException
 from projects.permission_facade import ProjectFetchResult
-from projects.project_host_views import ProjectHostSessionsView, ProjectSessionRequestView
+from projects.views.project_host_views import ProjectHostSessionsView, ProjectSessionRequestView
 from projects.project_models import Project
 from projects.session_models import Session, SessionRequest
 

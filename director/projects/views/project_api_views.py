@@ -11,7 +11,7 @@ from lib.sparkla import generate_manifest
 from projects.api_serializers import ProjectSerializer
 from projects.permission_models import ProjectPermissionType
 from projects.project_data import get_projects
-from projects.project_views import ProjectPermissionsMixin
+from projects.views.mixins import ProjectPermissionsMixin
 
 
 class ProjectListView(generics.ListAPIView):

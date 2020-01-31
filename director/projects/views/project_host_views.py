@@ -15,9 +15,9 @@ from projects.cloud_session_controller import CloudClient, CloudSessionFacade, A
     SessionException
 from projects.models import Project
 from projects.nixster_client import NixsterClient
-from projects.project_views import ProjectPermissionsMixin
 from projects.session_models import Session, SessionRequest
 from projects.source_operations import utf8_path_join, utf8_normpath
+from projects.views.mixins import ProjectPermissionsMixin
 
 SESSION_URL_SESSION_KEY_FORMAT = 'CLOUD_SESSION_URL_{}_{}'
 SESSION_REQUEST_SESSION_KEY_FORMAT = 'SESSION_REQUEST_ID_{}'

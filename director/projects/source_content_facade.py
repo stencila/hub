@@ -1,7 +1,8 @@
 import json
 import tempfile
 import typing
-from os.path import splitext
+from datetime import datetime
+from os.path import splitext, getmtime
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_constants
 from django.http import HttpRequest
+from django.utils import timezone
 from github import GithubException, RateLimitExceededException
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, conversion_format_from_mimetype
@@ -342,6 +344,16 @@ class SourceContentFacade(object):
                 self._source_type = conversion_format_from_mimetype(source_mimetype)
 
         return self._source_type
+
+    @property
+    def source_modification_time(self) -> datetime:
+        if isinstance(self.source, DiskSource):
+            try:
+                file_mod_time = getmtime(self.disk_file_facade.full_file_path(self.file_path))
+            except FileNotFoundError:
+                return timezone.now()
+            return timezone.make_aware(datetime.fromtimestamp(file_mod_time))
+        return self.source.updated
 
 
 def make_source_content_facade(user: User, file_path: str, source: typing.Union[Source, DiskSource],

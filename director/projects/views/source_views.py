@@ -1,14 +1,11 @@
 import json
 import os
-import tempfile
 import typing
-from os import unlink
 
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,26 +16,24 @@ from django.views.generic import CreateView, DetailView
 
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
-from lib.conversion_types import DOCX_MIMETYPES, ConversionFormatId, mimetype_from_path
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
-from lib.github_facade import GitHubFacade
+from lib.conversion_types import ConversionFormatId
 from lib.google_docs_facade import GoogleDocsFacade
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
 from projects.permission_models import ProjectPermissionType
-from projects.project_views import ProjectPermissionsMixin
+from projects.views.mixins import ProjectPermissionsMixin, ContentFacadeMixin, ConverterMixin
 from projects.source_content_facade import SourceEditContext, SourceContentFacade, make_source_content_facade
 from projects.source_models import DiskSource, GoogleDocsSource, Source
 from projects.source_operations import strip_directory, utf8_path_join, utf8_basename, \
     utf8_dirname
-from .models import Project, DropboxSource, GithubSource
-from .source_forms import GithubSourceForm, GoogleDocsSourceForm
+from projects.models import DropboxSource, GithubSource
+from projects.source_forms import GithubSourceForm, GoogleDocsSourceForm
 
 
 def project_files_redirect(account_name: str, project_name: str, dirname: str) -> HttpResponse:
-    """Redirect to the correct file browse URL, taking into account if we are in "slug" mode and inside a directory."""
+    """Redirect to the correct file browse URL, taking into account if we are in inside a directory."""
     return redirect('project_files_path' if dirname else 'project_files', account_name, project_name, dirname or None)
 
 
@@ -176,64 +171,6 @@ class FileSourceUploadView(ProjectPermissionsMixin, View):
             return HttpResponse(status=response_status)
 
 
-def get_source(user: User, project: Project, path: str) -> typing.Optional[typing.Union[Source, DiskSource]]:
-    """
-    Locate a `Source` that contains the file at `path`.
-
-    Iterate up through the directory tree of the path until Source(s) mapped to that path are found. Then check if that
-    file exists in the source.
-
-    Fall back to DiskSource if no file is found in any linked Sources.
-    """
-    original_path = path
-
-    gh_facade: typing.Optional[GitHubFacade] = None
-
-    while True:
-        sources = Source.objects.filter(path=path, project=project)
-
-        if sources:
-            if path == original_path:
-                # This source should be one without sub files
-                return sources[0]
-            else:
-                # These may be Github, etc, sources mapped into the same directory. Find one that has a file at the path
-
-                for source in sources:
-                    if isinstance(source, GithubSource):
-                        source = typing.cast(GithubSource, source)
-
-                        if gh_facade is None:
-                            gh_token = user_github_token(user)
-                            gh_facade = GitHubFacade(source.repo, gh_token)
-
-                        relative_path = utf8_path_join(source.subpath, strip_directory(original_path, source.path))
-                        if gh_facade.path_exists(relative_path):
-                            return source  # this source has the file so it must be this one?
-
-                        # if not, continue on, keep going up the tree to find the root source
-                    else:
-                        raise RuntimeError('Don\'t know how to examine the contents of {}'.format(type(source)))
-
-        if path == '.':
-            break
-        path = utf8_dirname(path)
-        if path == '/' or path == '':
-            path = '.'
-
-    # Fall Back to DiskSource
-    return DiskSource()
-
-
-class ContentFacadeMixin(object):
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
-                           path: str) -> SourceContentFacade:
-        # type ignores because mypy doesn't trust us to use this only one a class which has these methods
-        project = self.get_project(request.user, account_name, project_name)  # type: ignore
-        source = get_source(request.user, project, path)
-        return make_source_content_facade(request.user, path, source, project)  # type: ignore
-
-
 class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
@@ -369,139 +306,6 @@ class SourceOpenView(LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeM
         return project_files_redirect(account_name, project_name, dirname)
 
 
-class DiskFileSourceDownloadView(SourceDownloadView):
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> HttpResponse:
-        content_facade = self.get_content_facade(request, account_name, project_name, path)
-        return self.process_get(account_name, project_name, path, content_facade)
-
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
-                           path: str) -> SourceContentFacade:
-        project = self.get_project(request.user, account_name, project_name)
-        return make_source_content_facade(request.user, path, DiskSource(), project)
-
-
-class DiskFileSourceOpenView(SourceOpenView):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
-                           path: str) -> SourceContentFacade:
-        project = self.get_project(request.user, account_name=account_name, project_name=project_name)
-        return make_source_content_facade(request.user, path, DiskSource(), project)
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> HttpResponse:
-        raise NotImplementedError
-        content_facade = self.get_content_facade(request, account_name, project_name, path)
-        return self.process_get(request, account_name, project_name, path, content_facade)
-
-    def post(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-             path: str) -> HttpResponse:
-        raise NotImplementedError
-        self.pre_post_check(request, account_name, project_name)
-        content_facade = self.get_content_facade(request, account_name, project_name, path)
-
-        return self.perform_post(request, account_name, project_name, path, content_facade)
-
-
-class ConverterMixin:
-    _converter: typing.Optional[ConverterFacade] = None
-
-    @property
-    def converter(self) -> ConverterFacade:
-        if self._converter is None:
-            self._converter = ConverterFacade(settings.STENCILA_BINARY)
-
-        return self._converter
-
-    def do_conversion(self, source_type: typing.Optional[ConversionFormatId],
-                      source_path: str,
-                      target_type: ConversionFormatId,
-                      target_path: typing.Optional[str] = None, standalone: bool = False) -> str:
-        """
-        Perform a conversion (with Encoda).
-
-        If `target_path` is not set then a `NamedTemporaryFile` is created and its path returned. The temporary file
-        is not cleaned up.
-        """
-        if not target_path:
-            with tempfile.NamedTemporaryFile(delete=False) as temp_output:
-                target_path = temp_output.name
-
-        converter_input = ConverterIo(ConverterIoType.PATH, source_path, source_type)
-        converter_output = ConverterIo(ConverterIoType.PATH, target_path, target_type)
-
-        context = ConverterContext(standalone=standalone)
-
-        convert_result = self.converter.convert(converter_input, converter_output, context)
-
-        if convert_result.returncode != 0:
-            raise RuntimeError('Convert process failed. Stderr is: {}'.format(
-                convert_result.stderr.decode('ascii')))
-
-        return target_path
-
-    def convert_to_google_docs(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_name: str,
-                               target_path: str) -> None:
-        """
-        Convert a document to Google Docs.
-
-        If the document is already in DOCX or HTML format it will just be uploaded, otherwise it is first converted to
-        DOCX. The document is uploaded in DOCX/HTML and Google takes care of converting to Google Docs format.
-        """
-        if scf.source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
-            output_content, output_mime_type = self.convert_source_for_google_docs(scf)
-        else:
-            output_mime_type = mimetype_from_path(scf.file_path) or 'application/octet-stream'
-            output_content = scf.get_binary_content()
-        gdf = scf.google_docs_facade
-
-        if gdf is None:
-            raise TypeError('Google Docs Facade was not set up. Check that app tokens are good.')
-
-        new_doc_id = gdf.create_document(target_name, output_content, output_mime_type)
-        existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
-        new_source = gdf.create_source_from_document(project, utf8_dirname(target_path), new_doc_id)
-        if existing_source is not None:
-            gdf.trash_document(existing_source.doc_id)
-            messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(target_name))
-            existing_source.doc_id = new_source.doc_id
-            existing_source.save()
-        else:
-            new_source.save()
-
-    def convert_source_for_google_docs(self, scf: SourceContentFacade) -> typing.Tuple[bytes, str]:
-        # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
-        temp_output_path = None
-        input_path = None
-        # if the source is not from Disk then the content should be saved to a temp path beforehand
-        use_temp_input_path = not isinstance(scf.source, DiskSource)
-        try:
-            input_path = scf.sync_content(use_temp_input_path)
-
-            temp_output_path = self.do_conversion(scf.source_type, input_path, ConversionFormatId.docx)
-
-            with open(temp_output_path, 'rb') as temp_output:  # reopen after data has been written
-                output_content = temp_output.read()  # this is in DOCX after conversion
-        finally:
-            if use_temp_input_path and input_path and os.path.exists(input_path):
-                unlink(input_path)
-
-            if temp_output_path and os.path.exists(temp_output_path):
-                unlink(temp_output_path)
-        return output_content, DOCX_MIMETYPES[0]
-
-    def source_convert(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_path: str,
-                       target_name: str, target_type: ConversionFormatId, standalone: bool = False) -> None:
-        if target_type == ConversionFormatId.gdoc:
-            self.convert_to_google_docs(request, project, scf, target_name, target_path)
-        else:
-            absolute_input_path = scf.sync_content()
-            absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
-
-            self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path, standalone)
-
-
 class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMixin, View):
     project_permission_required = ProjectPermissionType.EDIT
 
@@ -538,18 +342,3 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         return JsonResponse({
             'success': True
         })
-
-
-class SourcePreviewView(LoginRequiredMixin, ProjectPermissionsMixin, View):
-    """
-    Convert a source file to HTML and return the generated HTML.
-
-    Will attempt to load an existing PublishedItem for the source, if one exists. It will also compare the file/sources
-    modification time with that of the PublishedItem and regenerate the HTML if the source data has changed.
-    """
-
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> HttpResponse:
-        pass

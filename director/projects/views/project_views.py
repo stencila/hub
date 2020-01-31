@@ -7,12 +7,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import AbstractUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.forms import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, Http404, FileResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
@@ -20,35 +19,31 @@ from django.views.generic import View, CreateView, UpdateView, DetailView, Delet
 from github import RateLimitExceededException
 
 from accounts.db_facade import user_is_account_admin
-from accounts.models import Team, Account
+from accounts.models import Team
 from lib.resource_allowance import QuotaName, resource_limit_met, get_subscription_upgrade_text, \
-    StorageLimitExceededException, account_resource_limit
+    StorageLimitExceededException
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
-from projects.permission_facade import fetch_project_for_user, ProjectFetchResult
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
-    get_highest_permission, get_roles_under_permission
+    get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
-from projects.project_models import PublishedItem
-from projects.project_puller import ProjectSourcePuller
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
-    list_project_filesystem_directory, combine_virtual_and_real_entries, generate_project_archive_directory, \
-    path_is_in_directory, utf8_scandir, utf8_isdir, utf8_realpath, utf8_path_join, utf8_path_exists, utf8_unlink, \
-    to_utf8, relative_path_join, utf8_dirname
-from .models import Project
-from .project_forms import (
+    list_project_filesystem_directory, combine_virtual_and_real_entries, path_is_in_directory, utf8_scandir, \
+    utf8_isdir, utf8_path_exists, utf8_unlink, to_utf8
+from projects.views.mixins import ProjectPermissionsMixin, ArchivesDirMixin
+from projects.models import Project
+from projects.project_forms import (
     ProjectCreateForm,
     ProjectSharingForm,
     ProjectSettingsMetadataForm,
     ProjectSettingsAccessForm,
     ProjectSettingsSessionsForm,
     ProjectArchiveForm)
+from projects.views.shared import DEFAULT_ENVIRON
 
 User = get_user_model()
-
-DEFAULT_ENVIRON = 'stencila/core'
 
 
 class ProjectTab(Enum):
@@ -70,123 +65,6 @@ class ProjectNamedRedirect(View):
         project = get_object_or_404(Project, pk=pk)
         path = path or ''
         return redirect('/{}/{}/{}'.format(project.account.name, project.name, path), permanent=True)
-
-
-class ProjectPermissionsMixin(object):
-    project_fetch_result: typing.Optional[ProjectFetchResult] = None
-    project_permission_required: typing.Optional[ProjectPermissionType] = None
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs) -> HttpResponse:
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).get(request, account_name, project_name, *args,  # type: ignore
-                                                        **kwargs)
-
-    def post(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).post(request, account_name, project_name, *args,  # type: ignore
-                                                         **kwargs)
-
-    def delete(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-
-        return super(ProjectPermissionsMixin, self).delete(request, account_name, project_name, *args,  # type: ignore
-                                                           **kwargs)
-
-    def perform_project_fetch(self, user: AbstractUser, account_name: typing.Optional[str] = None,
-                              project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> None:
-        if self.project_fetch_result is None:
-            self.project_fetch_result = fetch_project_for_user(user, pk, account_name, project_name)
-
-    def get_render_context(self, context: dict) -> dict:
-        context['environ'] = DEFAULT_ENVIRON
-        context['project'] = self.project
-        context['project_roles'] = self.project_roles
-        context['project_permissions'] = self.project_permissions
-        context['account'] = self.account
-        return context
-
-    def get_context_data(self, **kwargs) -> dict:
-        context_data = super().get_context_data(**kwargs)  # type: ignore
-        # this should only be used as a mixin to a view that will have the get_context_data function
-
-        return self.get_render_context(context_data)
-
-    def _test_project_fetch_result_set(self) -> None:
-        if self.project_fetch_result is None:
-            raise ValueError("project_fetch_result not set")
-
-    # mypy is told to ignore the return from these properties as it doesn't understand that
-    # _test_project_fetch_result_set does a None check
-
-    @property
-    def project(self) -> Project:
-        self._test_project_fetch_result_set()
-        return self.project_fetch_result.project  # type: ignore
-
-    @property
-    def project_permissions(self) -> typing.Set[ProjectPermissionType]:
-        self._test_project_fetch_result_set()
-        return self.project_fetch_result.agent_permissions  # type: ignore
-
-    @property
-    def project_roles(self) -> typing.Set[ProjectRole]:
-        self._test_project_fetch_result_set()
-        return self.project_fetch_result.agent_roles  # type: ignore
-
-    @property
-    def account(self) -> Account:
-        self._test_project_fetch_result_set()
-        return self.project.account  # type: ignore
-
-    def has_permission(self, permission: ProjectPermissionType) -> bool:
-        return self.has_any_permissions((permission,))
-
-    def has_any_permissions(self, permissions: typing.Iterable[ProjectPermissionType]) -> bool:
-        for permission in permissions:
-            if permission in self.project_permissions:
-                return True
-
-        return False
-
-    def test_required_project_permission(self) -> None:
-        if self.project_permission_required is not None and not self.has_permission(self.project_permission_required):
-            raise PermissionDenied
-
-    def get_project(self, user: AbstractUser, account_name: typing.Optional[str] = None,
-                    project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> Project:
-        self.perform_project_fetch(user, account_name, project_name, pk)
-        self.test_required_project_permission()
-        return self.project
-
-    def get_object(self, *args, **kwargs):
-        self.perform_project_fetch(self.request.user, self.kwargs['account_name'], self.kwargs['project_name'])
-        return self.project_fetch_result.project
-
-    @property
-    def is_account_admin(self):
-        pass
-
-    @property
-    def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
-        return get_highest_permission(self.project_permissions)
-
-    def get_project_puller(self, request: HttpRequest, account_name: str, project_name: str) -> ProjectSourcePuller:
-        self.perform_project_fetch(request.user, account_name, project_name)
-
-        self.test_required_project_permission()
-
-        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files.')
-
-        authentication = LinkedSourceAuthentication(user_github_token(request.user))
-
-        storage_limit = typing.cast(int, account_resource_limit(self.project.account, QuotaName.STORAGE_LIMIT))
-
-        return ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request,
-                                   storage_limit)
 
 
 class ProjectListView(View):
@@ -598,16 +476,6 @@ class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
     project_permission_required = ProjectPermissionType.MANAGE
 
 
-class ArchivesDirMixin(object):
-    @staticmethod
-    def get_archives_directory(project: Project) -> str:
-        return generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
-
-    @staticmethod
-    def get_archive_path(archives_directory, name) -> str:
-        return utf8_realpath(utf8_path_join(archives_directory, name))
-
-
 class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
     template_name = 'projects/project_archives.html'
@@ -712,57 +580,3 @@ class ProjectExecutaView(ProjectPermissionsMixin, View):
         project = self.get_project(request.user, account_name, project_name)
 
         return render(request, 'projects/executa-test.html', {'project': project})
-
-
-class PublishedListView(ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str) -> HttpRequest:  # type: ignore
-        project = self.get_project(request.user, account_name, project_name)
-
-        context = {
-            'project_tab': 'published',
-            'published_items': PublishedItem.objects.filter(project=project).order_by('url_path')
-        }
-        return render(request, 'projects/published_list.html', self.get_render_context(context))
-
-
-class PublishedContentView(ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> FileResponse:
-        project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
-
-        context = {
-            'theme_name': 'eLife',
-        }
-
-        with open(pi.path, 'r', encoding='utf8') as f:
-            context['content'] = f.read()
-
-        return render(request, 'projects/published_container.html', context)
-
-
-class PublishedMediaView(ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str, path: str,  # type: ignore
-            media_path: str) -> FileResponse:
-        project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
-
-        # rebuild the media path
-        media_path = '{}.html.media/{}'.format(pi.pk, media_path)
-
-        full_path = relative_path_join(utf8_dirname(pi.path), media_path)
-
-        try:
-            fp = open(full_path, 'rb')
-        except FileNotFoundError:
-            raise Http404
-
-        return FileResponse(fp)  # FileResponse closes the pointer when finished
