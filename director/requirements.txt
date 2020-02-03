@@ -6,7 +6,7 @@ django-configurations==2.2
 django-crispy-forms==1.8.1
 django-intercom==0.1.2
 django-polymorphic==2.1.2
-django-sendgrid-v5==0.8.0
+django-sendgrid-v5==0.8.1
 django-storages==1.7.2
 djangorestframework==3.10.3
 djangorestframework-jwt==1.11.0
