@@ -8,7 +8,7 @@ from os import DirEntry
 from github import GithubException
 
 from lib.github_facade import GitHubFacade
-from projects.project_models import Project
+from projects.project_models import Project, Snapshot
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource, \
@@ -82,6 +82,20 @@ def generate_project_publish_directory(project_storage_root: str, project: Proje
     """
     return utf8_path_join(project_storage_root, 'published', 'v2', '{}'.format(project.account_id // 1000),
                           '{}'.format(project.account_id), '{}'.format(project.id))
+
+
+def generate_snapshot_directory(project_storage_root: str, snapshot: Snapshot) -> str:
+    """
+    Generate the directory that stores the files for a Snapshot.
+
+    After the path is generated it is stored on a Snapshot instance, so it's safe to change the return format, as it's
+    only used once at generation time.
+
+    The current format is STORAGE_ROOT/snapshots/<account_id // 1000>/<account_id>/<project_id>.
+    """
+    return utf8_path_join(project_storage_root, 'snapshots', '{}'.format(snapshot.project.account_id // 1000),
+                          '{}'.format(snapshot.project.account_id), '{}'.format(snapshot.project.id),
+                          '{}'.format(snapshot.version_number))
 
 
 def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:

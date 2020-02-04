@@ -2,7 +2,7 @@ from django.urls import path
 
 from projects.views.source_api_views import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
     ItemPublishView, PublishedItemDeleteView
-from projects.views.project_api_views import ProjectDetailView, ManifestView, ProjectListView
+from projects.views.project_api_views import ProjectDetailView, ManifestView, ProjectListView, SnapshotView
 
 urlpatterns = [
     path('', ProjectListView.as_view(), name='api_v1_project_list'),
@@ -13,5 +13,6 @@ urlpatterns = [
     path('<int:pk>/item-publish/', ItemPublishView.as_view(), name='api_v1_project_item_publish'),
     path('<int:pk>/sources/link', SourceLinkView.as_view(), name='api_v1_sources_link'),
     path('<int:pk>/manifest/', ManifestView.as_view(), name='api_v1_project_manifest'),
+    path('<int:pk>/snapshot/', SnapshotView.as_view(), name='api_v1_project_snapshot'),
     path('published-items/<int:pk>/delete/', PublishedItemDeleteView.as_view(), name='api_v1_published_item_delete')
 ]

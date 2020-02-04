@@ -66,7 +66,8 @@
                         <span>Dropbox</span>
                     </a>
                     {% endcomment %}
-                        <a href="{% url 'githubsource_create' project.account.name project.name %}" @click="showLinkModal($event, 'github', 'github')" class="dropdown-item">
+                        <a href="{% url 'githubsource_create' project.account.name project.name %}"
+                           @click="showLinkModal($event, 'github', 'github')" class="dropdown-item">
                         <span class="icon is-small">
                             <i class="fab fa-github" aria-hidden="true"></i>
                         </span>
@@ -93,6 +94,14 @@
                 <span v-if="!pullInProgress">Pull Linked Sources</span>
                 <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
             </a>
+                <a @click="snapshotProject" class="button is-outlined" :disabled="snapshotInProgress || snapshotComplete">
+                    <span class="icon is-small">
+                        <i class="fas fa-camera"></i>
+                    </span>
+                    <span v-if="!snapshotComplete && !snapshotInProgress">Snapshot Files</span>
+                    <span v-if="!snapshotComplete && snapshotInProgress">Snapshot In Progress</span>
+                    <span v-if="snapshotComplete">Snapshot Complete</span>
+                </a>
         {% endif %}
     </div>
 {% endblock %}
@@ -102,6 +111,7 @@
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
       const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
+      const g_snapshotUrl = '{% url 'api_v1_project_snapshot' project.pk %}'
     </script>
     <div id="file-browser" ref="file-browser-root"
          data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
@@ -130,7 +140,8 @@
                         source-link-url="{% url 'api_v1_sources_link' project.pk %}"></url-link-modal>
         <publish-modal
                 publish-url="{% url 'api_v1_project_item_publish' project.pk %}"
-                project-url="http{% if request.is_secure %}s{% endif %}://{{ request.get_host }}{% url 'project_overview' project.account.name project.name %}"
+                project-url="http{% if request.is_secure %}s{% endif %}://
+                        {{ request.get_host }}{% url 'project_overview' project.account.name project.name %}"
         ></publish-modal>
         {% if linked_sources %}
             <delete-confirm-modal :delete-modal-visible="unlinkModalVisible"
@@ -156,6 +167,7 @@
                 {% for breadcrumb in breadcrumbs %}
                     <li {% if forloop.last %}class="is-active"{% endif %}>
                         <a href="
+
                                 {% if breadcrumb.path %}{% url 'project_files_path' project.account.name project.name breadcrumb.path %}{% else %}{% url 'project_files' project.account.name project.name %}{% endif %}">
                             <span>
                                 {{ breadcrumb.name }}
@@ -167,13 +179,13 @@
         </nav>
         <table class="table is-fullwidth is-striped" id="files-table">
             <thead>
-                <tr class="table-header">
-                    <th>Browse</th>
-                    <th>{# main file #}</th>
-                    <th class="has-text-centered">Source</th>
-                    <th>Updated</th>
-                    <th class="has-text-centered">Actions</th>
-                </tr>
+            <tr class="table-header">
+                <th>Browse</th>
+                <th>{# main file #}</th>
+                <th class="has-text-centered">Source</th>
+                <th>Updated</th>
+                <th class="has-text-centered">Actions</th>
+            </tr>
             </thead>
             <tbody id="file_list_body">
             {% for directory_entry in items %}

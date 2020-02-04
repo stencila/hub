@@ -1253,6 +1253,8 @@ const g_actionBar = new Vue({
     newMenuVisible: false,
     linkMenuVisible: false,
     pullInProgress: false,
+    snapshotInProgress: false,
+    snapshotComplete: false,
     deleteModalVisible: false,
     unlinkSourceId: null,
     unlinkSourceDescription: ''
@@ -1261,9 +1263,38 @@ const g_actionBar = new Vue({
     showFileUploadSelect () {
       this.$refs['file-upload'].click()
     },
+    snapshotProject () {
+      if (this.snapshotInProgress)
+        return
+
+      this.snapshotInProgress = true
+      fetch(g_snapshotUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRFToken': utils.cookie('csrftoken'),
+        },
+        credentials: 'same-origin'
+      }).then(
+        response => {
+          this.snapshotInProgress = false
+          response.json().then(data => {
+            if (data.success === false)
+              alert(data.error)
+            else
+              this.snapshotComplete = true
+          })
+        },
+        failureResponse => {
+          this.snapshotInProgress = false
+          alert(failureResponse)
+        })
+    },
     pullFiles () {
+      if (this.pullInProgress)
+        return
       this.pullInProgress = true
-      fetch(g_filePullUrl, {
+      fetch(g_snapshotUrl, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -1274,7 +1305,7 @@ const g_actionBar = new Vue({
         response => {
           this.pullInProgress = false
           response.json().then(data => {
-            if (data.success === false && data.reload === true)
+            if (data.success === true && data.reload === true)
               window.location = window.location
           })
         },

@@ -1,6 +1,7 @@
 import json
 import typing
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views import View
@@ -11,6 +12,7 @@ from lib.sparkla import generate_manifest
 from projects.api_serializers import ProjectSerializer
 from projects.permission_models import ProjectPermissionType
 from projects.project_data import get_projects
+from projects.snapshots import ProjectSnapshotter, SnapshotInProgressError
 from projects.views.mixins import ProjectPermissionsMixin
 
 
@@ -60,6 +62,21 @@ class ManifestView(ProjectPermissionsMixin, APIView):
             response = manifest
 
         return JsonResponse(response, safe=False)
+
+
+class SnapshotView(ProjectPermissionsMixin, APIView):
+    project_permission_required = ProjectPermissionType.EDIT
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, pk=pk)
+
+        snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
+        try:
+            snapshotter.snapshot_project(request, project, request.data.get('tag'))
+            return JsonResponse({'success': True})
+        except SnapshotInProgressError:
+            return JsonResponse(
+                {'success': False, 'error': 'A snapshot is already in progress for Project {}.'.format(pk)})
 
 
 # These are not DRF Views but they probably should be

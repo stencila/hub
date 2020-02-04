@@ -32,7 +32,7 @@ def generate_project_token(project: 'Project') -> str:
 
 class Project(models.Model):
     class Meta:
-        unique_together = [['name', 'account']]
+        unique_together = [['name', 'account'], ['id', 'snapshot_in_progress']]
 
     account = models.ForeignKey(
         Account,
@@ -126,6 +126,11 @@ class Project(models.Model):
         related_name='main_file_project',
         help_text='If the Project\'s main file is inside a linked Source, this is its id.'
 
+    )
+
+    snapshot_in_progress = models.BooleanField(
+        default=False,
+        help_text='Should be set true when a Snapshot begins for a project.'
     )
 
     def __str__(self):
@@ -326,3 +331,19 @@ class PublishedItem(models.Model):
         if self.url_path:
             self.url_path = self.url_path.strip('/')
         super(PublishedItem, self).save(*args, **kwargs)
+
+
+class Snapshot(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, help_text='Project this snapshot belongs to.',
+                                related_name='snapshots')
+    path = models.TextField(help_text='The path to the snapshot directory on disk.')
+    created = models.DateTimeField(auto_now_add=True, help_text='The date/time the Snapshot instance was created.')
+    snapshot_time = models.DateTimeField(null=True, blank=True, help_text='The time that Snapshot operation happened, '
+                                                                          'null if the snapshot has not yet been '
+                                                                          'performed.')
+    version_number = models.PositiveIntegerField(verbose_name='Each snapshot should have an incremental version.')
+    tag = models.SlugField(null=True, blank=True, help_text='A tag to identify the snapshot easily. Must be unique for '
+                                                            'the project.')
+
+    class Meta:
+        unique_together = (('project', 'version_number'), ('project', 'tag'))
