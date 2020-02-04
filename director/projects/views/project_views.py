@@ -51,6 +51,7 @@ class ProjectTab(Enum):
     FILES = 'files'
     FILES_CURRENT = 'current'
     FILES_ARCHIVES = 'archives'
+    FILES_SNAPSHOTS = 'snapshots'
     ACTIVITY = 'activity'
     SHARING = 'sharing'
     SETTINGS = 'settings'
@@ -580,3 +581,19 @@ class ProjectExecutaView(ProjectPermissionsMixin, View):
         project = self.get_project(request.user, account_name, project_name)
 
         return render(request, 'projects/executa-test.html', {'project': project})
+
+
+class ProjectSnapshotListView(ProjectPermissionsMixin, View):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
+        project = self.get_project(request.user, account_name, project_name)
+
+        return render(request, 'projects/snapshot_list.html',
+                      self.get_render_context({
+                          'project': project,
+                          'snapshots': project.snapshots.order_by('-version_number'),
+                          'project_tab': ProjectTab.FILES.value,
+                          'project_subtab': ProjectTab.FILES_SNAPSHOTS.value
+                      }
+                      ))

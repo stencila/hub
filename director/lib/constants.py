@@ -59,6 +59,7 @@ class ProjectUrlRoot(enum.Enum):
     published = 'published'
     settings = 'settings'
     sharing = 'sharing'
+    snapshots = 'snapshots'
 
 
 # A set of slugs that are not allowed to be used as they conflict with our URLs

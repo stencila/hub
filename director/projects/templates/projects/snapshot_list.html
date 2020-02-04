@@ -1,0 +1,26 @@
+{% extends 'projects/project_base.html' %}
+{% block title %}Project {{ project.name }}: Snapshots{% endblock %}
+{% block project_content %}
+<table class="table is-fullwidth">
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Snapshot Date</th>
+            <th>Tag</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for snapshot in snapshots %}
+            <tr>
+                <td>{{ snapshot.version_number }}</td>
+                <td>{{ snapshot.snapshot_time }}</td>
+                <td>{{ snapshot.tag|default:'–' }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="3">No snapshots for this project.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

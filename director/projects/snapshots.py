@@ -2,6 +2,7 @@ import typing
 from shutil import copytree
 
 from django.http import HttpRequest
+from django.utils import timezone
 
 from lib.resource_allowance import account_resource_limit, QuotaName
 from lib.social_auth_token import user_github_token
@@ -50,6 +51,7 @@ class ProjectSnapshotter:
 
             snapshot.path = generate_snapshot_directory(self.storage_root, snapshot)
             copytree(project_puller.project_directory, snapshot.path)
+            snapshot.snapshot_time = timezone.now()
             snapshot.save()
         finally:
             project.snapshot_in_progress = False

@@ -32,6 +32,10 @@
                        class="panel-block{% if project_subtab == 'current' %} is-active{% endif %}">
                         Current
                     </a>
+                    <a href="{% url 'project_snapshots' project.account.name project.name %}"
+                       class="panel-block{% if project_subtab == 'snapshots' %} is-active{% endif %}">
+                        Snapshots
+                    </a>
                     <a href="{% url 'project_archives' project.account.name project.name %}"
                        class="panel-block{% if project_subtab == 'archives' %} is-active{% endif %}">
                         Archives

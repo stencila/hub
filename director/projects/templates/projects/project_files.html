@@ -1,7 +1,7 @@
 {% extends 'projects/project_base.html' %}
 {% load humanize static escape_extras source_extras project_permissions %}
 
-{% block title %}Project {{ project.pk }}: Files{% endblock %}
+{% block title %}Project {{ project.name }}: Files{% endblock %}
 {% block project_header_right %}
     <div class="level-item buttons" id="file-action-bar">
         {% if project_permissions|project_permissions_contain:'edit' %}

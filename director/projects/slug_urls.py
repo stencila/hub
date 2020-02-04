@@ -52,6 +52,9 @@ urlpatterns = [
     path(ProjectUrlRoot.settings.value + '/access/', project_views.ProjectSettingsAccessView.as_view(),
          name='project_settings_access'),
 
+    path(ProjectUrlRoot.snapshots.value + '/', project_views.ProjectSnapshotListView.as_view(),
+         name='project_snapshots'),
+
     path(ProjectUrlRoot.delete.value + '/', project_views.ProjectDeleteView.as_view(), name='project_delete'),
 
     path(ProjectUrlRoot.executa.value + '/', project_views.ProjectExecutaView.as_view(), name='project_executa'),
