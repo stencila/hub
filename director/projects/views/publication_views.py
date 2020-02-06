@@ -49,7 +49,14 @@ class PublishedContentView(ProjectPermissionsMixin, View):
         }
         with open(published_item.path, 'r', encoding='utf8') as f:
             context['content'] = f.read()
-        return render(request, 'projects/published_container.html', context)
+        resp = render(request, 'projects/published_container.html', context)
+
+        if 'elife' in request.GET:
+            resp['Content-Security-Policy'] = 'frame-ancestors https://elifesciences.org https://*.elifesciences.org;'
+            resp['X-Frame-Options'] = 'allow-from https://elifesciences.org'
+            resp['X-Frame-Options'] = 'allow-from https://*.elifesciences.org'
+
+        return resp
 
 
 class PublishedMediaView(ProjectPermissionsMixin, View):
