@@ -179,7 +179,6 @@ class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
 
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> HttpResponse:
-        raise NotImplementedError
         content_facade = self.get_content_facade(request, account_name, project_name, path)
         return self.process_get(account_name, project_name, path, content_facade)
 
