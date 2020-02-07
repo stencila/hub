@@ -32,9 +32,12 @@ from projects.models import DropboxSource, GithubSource
 from projects.source_forms import GithubSourceForm, GoogleDocsSourceForm
 
 
-def project_files_redirect(account_name: str, project_name: str, dirname: str) -> HttpResponse:
+def project_files_redirect(account_name: str, project_name: str, dir_path: typing.Optional[str]) -> HttpResponse:
     """Redirect to the correct file browse URL, taking into account if we are in inside a directory."""
-    return redirect('project_files_path' if dirname else 'project_files', account_name, project_name, dirname or None)
+    if dir_path:
+        return redirect('project_files_path', account_name, project_name, dir_path)
+
+    return redirect('project_files', account_name, project_name)
 
 
 class SourceCreateView(ProjectPermissionsMixin, CreateView):
