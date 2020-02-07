@@ -51,6 +51,10 @@ def rate_limit_decorator(func):
     return wrapper
 
 
+class NonFileError(TypeError):
+    """Raised if we are trying to do some file-related thing with a non file (directory)."""
+
+
 class SourceContentFacade(object):
     file_path: str
     source: typing.Union[Source, DiskSource]
@@ -316,7 +320,7 @@ class SourceContentFacade(object):
 
         if isinstance(self.source, DiskSource):
             if self.disk_file_facade.item_type(self.file_path) != ItemType.FILE:
-                raise TypeError('Item at {} is not a file.'.format(self.file_path))
+                raise NonFileError('Item at {} is not a file.'.format(self.file_path))
         else:
             if temp_file:
                 with tempfile.NamedTemporaryFile(delete=False) as temp_input:
