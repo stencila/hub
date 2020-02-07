@@ -1,7 +1,7 @@
 import typing
 
 from django.http import HttpRequest, FileResponse, Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 
 from projects.permission_models import ProjectPermissionType
@@ -33,8 +33,7 @@ class PublishedContentView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
+        pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
         return self.published_item_render(request, pi)
 
@@ -65,8 +64,7 @@ class PublishedMediaView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str, path: str,  # type: ignore
             media_path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
+        pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
         # rebuild the media path
         media_path = '{}.html.media/{}'.format(pi.pk, media_path)
@@ -87,8 +85,7 @@ class PreviewMediaView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str, pi_pk: str,  # type: ignore
             media_path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, pk=pi_pk)
+        pi = get_object_or_404(PublishedItem, project=project, pk=pi_pk)
 
         # rebuild the media path
         media_path = '{}.html.media/{}'.format(pi.pk, media_path)
