@@ -127,3 +127,15 @@ Test coverage reports, generated on Travis, are available on Codecov [here](http
 We use PyUp to keep track of security and regular updates to packages this repo depends upon. See 
 [here](https://pyup.io/repos/github/stencila/hub) for current status and [`pyup.yml`](pyup.yml) for the configuration. 
 PyUp is currently configured to create an automatic pull request each week with any new updates that are necessary.
+
+
+### Tagging a Release
+
+Hub is versioned in three parts, in the format `major.minor.patch`, e.g. `1.2.3`, major = 1, minor =2 , patch = 3.
+
+Incrementing the version number can be done with one of three `make` commands: `increment-patch`, `increment-minor` or 
+`increment-major`. These will increment the patch, minor or major component, respectively. Then a new git commit will
+be created. To create a tag of the commit, use the `make tag` command.
+
+These steps can be combined into one with the `tag-patch`, `tag-minor` and `tag-major` commands, which will both 
+increment the version and create the tag. It wil also push the tag and master to `origin`.
