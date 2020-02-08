@@ -353,7 +353,7 @@ class Dev(Common):
     NOSE_ARGS = [
         '--with-coverage',
         '--cover-package=projects.cloud_session_controller',
-        '--cover-package=projects.project_host_views',
+        '--cover-package=projects.views.project_host_views',
         '--cover-package=projects.source_operations',
         '--cover-package=projects.source_forms',
         '--cover-html',
