@@ -210,6 +210,7 @@ tag: git-dirty-check
 	git tag -a v$(DIRECTOR_VERSION) -m "Hub version $(DIRECTOR_VERSION)"
 
 push-tags:
+	git push master origin
 	git push --tags origin
 
 tag-major: increment-major tag push-tags
