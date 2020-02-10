@@ -1,12 +1,12 @@
 import typing
 
 from django.http import HttpRequest, FileResponse, Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import PublishedItem
-from projects.source_content_facade import make_source_content_facade
+from projects.source_content_facade import make_source_content_facade, NonFileError
 from projects.source_models import Source
 from projects.source_operations import relative_path_join, utf8_dirname
 from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
@@ -33,8 +33,7 @@ class PublishedContentView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
             path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
+        pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
         return self.published_item_render(request, pi)
 
@@ -65,8 +64,7 @@ class PublishedMediaView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str, path: str,  # type: ignore
             media_path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, url_path=path)
+        pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
         # rebuild the media path
         media_path = '{}.html.media/{}'.format(pi.pk, media_path)
@@ -87,8 +85,7 @@ class PreviewMediaView(ProjectPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str, project_name: str, pi_pk: str,  # type: ignore
             media_path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
-
-        pi = PublishedItem.objects.get(project=project, pk=pi_pk)
+        pi = get_object_or_404(PublishedItem, project=project, pk=pi_pk)
 
         # rebuild the media path
         media_path = '{}.html.media/{}'.format(pi.pk, media_path)
@@ -124,6 +121,12 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
                                                           source=source if isinstance(source, Source) else None)
 
         if created or scf.source_modification_time > pi.updated or not pi.path:
-            self.convert_and_publish(request.user, project, pi, created, source, path)
+            try:
+                self.convert_and_publish(request.user, project, pi, created, source, path)
+            except NonFileError:
+                if created:
+                    pi.delete()
+                # User might have just entered a bad URL to try to preview, just go back to file view
+                return redirect('project_files', account_name, project_name)
 
         return self.published_item_render(request, pi, 'HTML Preview of {}'.format(pi.source_path))

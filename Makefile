@@ -209,6 +209,16 @@ increment-patch: git-dirty-check
 tag: git-dirty-check
 	git tag -a v$(DIRECTOR_VERSION) -m "Hub version $(DIRECTOR_VERSION)"
 
+push-tags:
+	git push origin master
+	git push --tags origin
+
+tag-major: increment-major tag push-tags
+
+tag-minor: increment-minor tag push-tags
+
+tag-patch: increment-patch tag push-tags
+
 
 ####################################################################################
 # Desktop
