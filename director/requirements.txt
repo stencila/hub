@@ -3,7 +3,7 @@ Django==3.0.3
 django-avatar==4.1.0
 django-allauth==0.41.0
 django-configurations==2.2
-django-crispy-forms==1.7.2
+django-crispy-forms==1.8.1
 django-intercom==0.1.2
 django-polymorphic==2.1.2
 django-sendgrid-v5==0.8.0
