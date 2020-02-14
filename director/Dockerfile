@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV STENCILA_CLI_VERSION v0.33.4
 
 # apt dependencies from gconf-service onwards are for puppeteer support for Stencila CLI
 RUN apt-get update \
@@ -49,7 +48,8 @@ RUN apt-get update \
       xdg-utils \
       wget
 
-# Add the NPM13 repository and then install nodejs/npm. Must be done after the previous step since curl is required
+# Add the Nodesource repository and then install nodejs/npm. 
+# Must be done after the previous step since curl is required
 RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
  && apt-get update \
  && apt-get install -y \
@@ -58,8 +58,9 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+RUN npm install @stencila/encoda@0.85.3
+
 RUN pip3 install gunicorn
-RUN npm install @stencila/encoda@0.83.0
 
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
