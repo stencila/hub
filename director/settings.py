@@ -385,8 +385,11 @@ class Prod(Common):
     # It is being run behind Google Cloud Load Balancer, so look for this header
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-    # enforce HTTPS
-    SECURE_SSL_REDIRECT = True
+    # Enforce HTTPS
+    # Allow override to be able to test other prod settings during development
+    # in a Docker container (ie. locallocally not behind a HTTPS load balancer)
+    # See `make director-rundocker`
+    SECURE_SSL_REDIRECT = values.BooleanValue(True)
 
     SECURE_REDIRECT_EXEMPT = [r'^system-status/$']
 

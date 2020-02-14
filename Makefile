@@ -167,10 +167,12 @@ director-docker-versioned-build: git-dirty-check director/Dockerfile
 
 # Run the Docker image passing through
 # environment variables required for `Prod` settings
-# but using development database and static files
+# but using development database and static files.
+# Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
 director-rundocker: director-static
 	$(EV) \
 	docker run \
+		-e DJANGO_SECURE_SSL_REDIRECT="False" \
 		-e DJANGO_SECRET_KEY \
 		-e DJANGO_JWT_SECRET \
 		-e DJANGO_BETA_TOKEN \
