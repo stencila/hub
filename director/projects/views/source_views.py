@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
 from django.views.generic import CreateView, DetailView
+import oauth2client.client
 
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
@@ -334,7 +335,14 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
         target_path = utf8_path_join(utf8_dirname(source_path), target_name)
         target_type = ConversionFormatId.from_id(target_id)
 
-        self.source_convert(request, project, scf, target_path, target_name, target_type)
+        try:
+            self.source_convert(request, project, scf, target_path, target_name, target_type)
+        except oauth2client.client.Error:
+            return JsonResponse({
+                'success': False,
+                'error': 'Could not authenticate with your Google account. Please try logging into Stencila Hub with '
+                         'your Google account to refresh the token.'}
+            )
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)
