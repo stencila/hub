@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractUser, User
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, Http404
 
 from accounts.models import Account
 from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES
@@ -271,11 +271,13 @@ class ConverterMixin:
             if os.path.exists(published_path + '.media'):
                 shutil.rmtree(published_path + '.media')
 
-            absolute_input_path = scf.sync_content()
+            try:
+                absolute_input_path = scf.sync_content()
+            except FileNotFoundError:
+                raise Http404
 
-            self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path,
-                               False)
-        except RuntimeError:
+            self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path, False)
+        except (RuntimeError, Http404):
             # Without this we can end up with items without paths
             if pi_created:
                 pi.delete()

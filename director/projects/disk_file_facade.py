@@ -93,7 +93,7 @@ class DiskFileFacade(object):
 
     def item_type(self, relative_path: str) -> ItemType:
         if not self.item_exists(relative_path):
-            raise OSError('Can not determine type of {} as it does not exist.'.format(relative_path))
+            raise FileNotFoundError('Can not determine type of {} as it does not exist.'.format(relative_path))
 
         full_path = self.full_file_path(relative_path)
 
