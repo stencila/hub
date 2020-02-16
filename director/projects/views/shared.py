@@ -33,6 +33,9 @@ def get_source(user: User, project: Project, path: str) -> typing.Union[Source, 
 
     Fall back to DiskSource if no file is found in any linked Sources.
     """
+    # the paths won't match if the incoming path has a trailing slash as the paths on the source doesn't (shouldn't)
+    path = path.rstrip('/')
+
     original_path = path
 
     gh_facade: typing.Optional[GitHubFacade] = None
