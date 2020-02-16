@@ -253,7 +253,11 @@ class ConverterMixin:
         if target_type == ConversionFormatId.gdoc:
             self.convert_to_google_docs(request, project, scf, target_name, target_path)
         else:
-            absolute_input_path = scf.sync_content()
+            try:
+                absolute_input_path = scf.sync_content()
+            except FileNotFoundError:
+                raise Http404
+
             absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
 
             self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path, standalone)
