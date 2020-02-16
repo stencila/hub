@@ -9,6 +9,10 @@ DOCX_MIMETYPES = ('application/vnd.openxmlformats-officedocument.wordprocessingm
                   'application/vnd.ms-word.template.macroEnabled.12')
 
 
+class UnknownMimeTypeError(ValueError):
+    pass
+
+
 class ConversionFormat(typing.NamedTuple):
     format_id: str
     mimetypes: typing.Iterable[str]
@@ -91,15 +95,15 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
 def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
     try:
         return ConversionFormatId.from_mimetype(mimetype)
-    except ValueError:
-        raise ConversionFormatError('Unable to create ConversionFormatId from {}'.format(mimetype))
+    except UnknownMimeTypeError:
+        raise ConversionFormatError('Unable to create ConversionFormatId from mimetype {}'.format(mimetype))
 
 
 def conversion_format_from_path(path: str) -> ConversionFormatId:
     mimetype = mimetype_from_path(path)
 
     if not mimetype:
-        raise ValueError('MIME type could not be determined for path: {}'.format(mimetype))
+        raise UnknownMimeTypeError('MIME type could not be determined for path: {}'.format(path))
     return conversion_format_from_mimetype(mimetype)
 
 

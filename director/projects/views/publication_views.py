@@ -1,14 +1,17 @@
 import typing
 
+from django.contrib import messages
 from django.http import HttpRequest, FileResponse, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.html import escape
 from django.views import View
 
+from lib.conversion_types import UnknownMimeTypeError
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import PublishedItem
 from projects.source_content_facade import make_source_content_facade, NonFileError
 from projects.source_models import Source
-from projects.source_operations import relative_path_join, utf8_dirname
+from projects.source_operations import relative_path_join, utf8_dirname, utf8_basename
 from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
 from projects.views.shared import get_source
 
@@ -123,9 +126,12 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
         if created or scf.source_modification_time > pi.updated or not pi.path:
             try:
                 self.convert_and_publish(request.user, project, pi, created, source, path)
-            except NonFileError:
-                if created:
-                    pi.delete()
+            except (NonFileError, UnknownMimeTypeError) as e:
+                if isinstance(e, UnknownMimeTypeError):
+                    messages.error(request,
+                                   'Unable to preview <em>{}</em> as its file type could not be determined.'.format(
+                                       escape(utf8_basename(path))), extra_tags='safe')
+
                 # User might have just entered a bad URL to try to preview, just go back to file view
                 return redirect('project_files', account_name, project_name)
 

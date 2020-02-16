@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, Http404
 
 from accounts.models import Account
-from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES
+from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES, UnknownMimeTypeError
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
 from lib.resource_allowance import account_resource_limit, QuotaName
 from lib.social_auth_token import user_github_token
@@ -281,7 +281,7 @@ class ConverterMixin:
                 raise Http404
 
             self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path, False)
-        except (RuntimeError, Http404):
+        except (RuntimeError, Http404, UnknownMimeTypeError):
             # Without this we can end up with items without paths
             if pi_created:
                 pi.delete()

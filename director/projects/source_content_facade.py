@@ -342,7 +342,7 @@ class SourceContentFacade(object):
             if not isinstance(self.source, DiskSource):
                 source_mimetype = self.source.mimetype
 
-            if source_mimetype is None or source_mimetype == 'Unknown':  # don't simplify, mypy will barf 3 lines down
+            if source_mimetype is None or source_mimetype == 'Unknown':
                 self._source_type = conversion_format_from_path(self.file_path)
             else:
                 self._source_type = conversion_format_from_mimetype(source_mimetype)

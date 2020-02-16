@@ -144,11 +144,6 @@ Vue.component('item-action-menu', {
       type: String,
       required: false,
       default: ''
-    },
-    allowPublish: {
-      type: Boolean,
-      required: false,
-      default: false
     }
   },
   data () {
@@ -252,11 +247,11 @@ Vue.component('item-action-menu', {
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
-    '      <a v-if="allowPublish" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
+    '      <a v-if="hasConvertActions" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
-    '      <a v-if="allowPublish" href="#" class="dropdown-item" @click.prevent="publishFile()">Publish&hellip;</a>' +
+    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()">Publish&hellip;</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'

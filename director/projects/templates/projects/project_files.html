@@ -223,7 +223,6 @@
                                 :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
                                 :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
                                 :allow-unlink="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
-                                :allow-publish="{% if project_permissions|project_permissions_contain:'edit' and directory_entry|can_be_main_file:project %}true{% else %}false{% endif %}"
                                 {% if directory_entry|is_text_editable %}
                                 editor-url="{% source_path project directory_entry %}"
                                 edit-menu-text="{{ directory_entry|edit_menu_text }}"
