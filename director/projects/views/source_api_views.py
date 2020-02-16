@@ -17,6 +17,7 @@ from django.views.generic.base import View
 from googleapiclient.errors import HttpError
 from rest_framework.views import APIView
 
+from lib.conversion_types import UnknownMimeTypeError
 from lib.converter_facade import fetch_url
 from lib.google_docs_facade import extract_google_document_id_from_url, google_document_id_is_valid, GoogleDocsFacade
 from lib.social_auth_token import user_social_token
@@ -63,7 +64,19 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
                 pi.url_path = url_path
                 pi.save()
 
-            self.convert_and_publish(request.user, project, pi, created, source, source_path)
+            try:
+                self.convert_and_publish(request.user, project, pi, created, source, source_path)
+            except (RuntimeError, UnknownMimeTypeError) as e:
+                resp_body: typing.Dict[str, typing.Any] = {'success': False}
+                if isinstance(e, UnknownMimeTypeError):
+                    resp_body['errors'] = ['Unable to determine the type of the file at {}.'.format(source_path)]
+                if created:
+                    pi.delete()
+                return JsonResponse(resp_body)
+            except Exception:
+                if created:
+                    pi.delete()
+                raise
 
             if pi.url_path:
                 published_url = reverse('project_published_content', args=(project.account.name, project.name,
