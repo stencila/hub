@@ -185,6 +185,7 @@ class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
 
     def process_get(self, account_name: str, project_name: str, path: str,
                     content_facade: SourceContentFacade) -> HttpResponse:
+        # TODO: see if this can return a handle for streaming response
         file_content = content_facade.get_binary_content()
 
         if content_facade.error_exists:

@@ -1,5 +1,18 @@
 {% extends 'projects/file_browser/_entry_row.html' %}
+{% load source_extras %}
 {% block directory_link %}{% url 'snapshot_files_path' project.account.name project.name snapshot.version_number directory_entry.path %}{% endblock %}
 {% block source_column %}{% endblock %}
-{% block actions_column %}<td></td>{% endblock %}
+{% block actions_column %}
+    <td class="has-text-centered">
+        {% if not directory_entry.is_directory %}
+            <snapshot-item-action-menu
+                    download-url="{% url 'snapshot_files_download' project.account.name project.name snapshot.version_number directory_entry.path %}"
+                    {% if directory_entry|is_text_editable %}
+                    view-url="{% url 'snapshot_files_view' project.account.name project.name snapshot.version_number directory_entry.path  %}"
+                    {% endif %}
+                    index="{{ forloop.counter0 }}"
+            ></snapshot-item-action-menu>
+        {% endif %}
+    </td>
+{% endblock %}
 {% block browser_colspan %}5{% endblock %}

@@ -461,7 +461,7 @@ class OpenMediaView(View):
         if not path_is_in_directory(file_path, conversion_dir):
             raise PermissionDenied('Media file is not inside conversion directory.')
 
-        if not os.path.exists(file_path):
+        if not os.path.exists(file_path) or os.path.isdir(file_path):
             raise Http404
 
         return FileResponse(open(file_path, 'rb'))

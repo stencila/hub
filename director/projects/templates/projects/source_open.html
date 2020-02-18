@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Edit {{ file_path }}{% endblock %}
+{% block title %}{% if file_editable %}Editing{% else %}Viewing{% endif %} {{ file_path }}{% endblock %}
 
 {% block content %}
     <h2 class="title is-2">{{ project.name }}</h2>
@@ -11,11 +11,15 @@
                 <p>Content not editable</p>
             </div>
             <div class="message-body">
-                {% if source.provider_name == 'URL' %}
-                    This file is not editable as saving changes back to URLs is not supported.
+                {% if snapshot %}
+                    This file is not editable as it is part of a snapshot.
                 {% else %}
-                 This file is not editable because you do not have a {{ source.provider_name }} account connected. Add
-                    one on the <a href="{% url 'socialaccount_connections' %}">Account Connections Page</a>.
+                    {% if source.provider_name == 'URL' %}
+                        This file is not editable as saving changes back to URLs is not supported.
+                    {% else %}
+                     This file is not editable because you do not have a {{ source.provider_name }} account connected. Add
+                        one on the <a href="{% url 'socialaccount_connections' %}">Account Connections Page</a>.
+                    {% endif %}
                 {% endif %}
             </div>
         </article>
