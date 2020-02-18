@@ -3,7 +3,7 @@ from django.views.generic import RedirectView
 
 import projects.views.publication_views
 from lib.constants import ProjectUrlRoot
-from projects.views import project_views
+from projects.views import project_views, snapshot_views
 from projects.views import source_views
 
 urlpatterns = [
@@ -52,8 +52,13 @@ urlpatterns = [
     path(ProjectUrlRoot.settings.value + '/access/', project_views.ProjectSettingsAccessView.as_view(),
          name='project_settings_access'),
 
-    path(ProjectUrlRoot.snapshots.value + '/', project_views.ProjectSnapshotListView.as_view(),
-         name='project_snapshots'),
+    path(ProjectUrlRoot.snapshots.value + '/', include([
+        path('', project_views.ProjectSnapshotListView.as_view(), name='project_snapshots'),
+        path('<int:version>/files/', snapshot_views.FileBrowserView.as_view(), name='snapshot_files'),
+        path('<int:version>/files/<path:path>', snapshot_views.FileBrowserView.as_view(),
+             name='snapshot_files_path'
+             )
+    ])),
 
     path(ProjectUrlRoot.delete.value + '/', project_views.ProjectDeleteView.as_view(), name='project_delete'),
 

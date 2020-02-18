@@ -1,0 +1,29 @@
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <ul>
+        {% for breadcrumb in breadcrumbs %}
+            <li {% if forloop.last %}class="is-active"{% endif %}>
+                {% include breadcrumb_template %}
+            </li>
+        {% endfor %}
+    </ul>
+</nav>
+<table class="table is-fullwidth is-striped" id="files-table">
+    <thead>
+    <tr class="table-header">
+        <th>Browse</th>
+        <th>{# main file #}</th>
+        {% block source_header %}<th class="has-text-centered">Source</th>{% endblock %}
+        <th>Updated</th>
+        <th class="has-text-centered">Actions</th>
+    </tr>
+    </thead>
+    <tbody id="file_list_body">
+    {% for directory_entry in items %}
+        {% include row_template %}
+    {% empty %}
+        <tr>
+            <td colspan="{% block browser_colspan %}6{% endblock %}">There are no items in this directory.</td>
+        </tr>
+    {% endfor %}
+    <tbody>
+</table>

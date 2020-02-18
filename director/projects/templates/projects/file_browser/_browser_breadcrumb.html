@@ -1,0 +1,7 @@
+{% with pn=project.name an=project.account.name bcp=breadcrumb.path %}
+<a href="{% if bcp %}{% url 'project_files_path' an pn bcp %}{% else %}{% url 'project_files' an pn %}{% endif %}">
+    <span>
+        {{ breadcrumb.name }}
+    </span>
+</a>
+{% endwith %}

@@ -7,6 +7,7 @@
             <th>Version</th>
             <th>Snapshot Date</th>
             <th>Tag</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -15,10 +16,13 @@
                 <td>{{ snapshot.version_number }}</td>
                 <td>{{ snapshot.snapshot_time }}</td>
                 <td>{{ snapshot.tag|default:'–' }}</td>
+                <td class="has-text-centered">
+                    <a href="{% url 'snapshot_files' project.account.name  project.name snapshot.version_number %}">Browse Files</a>
+                </td>
             </tr>
         {% empty %}
             <tr>
-                <td colspan="3">No snapshots for this project.</td>
+                <td colspan="4">No snapshots for this project.</td>
             </tr>
         {% endfor %}
     </tbody>

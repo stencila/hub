@@ -1,0 +1,54 @@
+{% load humanize source_extras project_permissions %}
+<tr>
+    <td>
+        <p class="table-icon-label">
+            <i class="fa fa-{{ directory_entry|file_icon }}"></i>
+            {% if directory_entry.is_directory %}
+                <a href="{% block directory_link %}{% source_path project directory_entry %}{% endblock %}">
+            {% endif %}
+            {{ directory_entry.name }}
+            {% if directory_entry.is_directory %}
+                </a>
+            {% endif %}
+        </p>
+    </td>
+
+    <td class="has-text-right title-caption">
+        {% if directory_entry|is_main_file:project %}Main File{% endif %}
+    </td>
+
+    {% block source_column %}
+    <td class="has-text-centered">
+        {% if directory_entry.source.type != 'filesource' or not directory_entry.is_directory %}
+            <span>{% include 'projects/_source_type_icon.html' with type=directory_entry.source.type source=directory_entry.source %}</span>
+        {% endif %}
+    </td>
+    {% endblock %}
+
+    <td>{{ directory_entry.modification_date|naturaltime }}</td>
+
+    {% block actions_column %}
+    <td class="has-text-centered">
+        <item-action-menu
+                :has-edit-permission="{% if project_permissions|project_permissions_contain:'edit' %}true{% else %}false{% endif %}"
+                :allow-rename="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.allow_rename %}true{% else %}false{% endif %}"
+                :allow-delete="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.allow_remove %}true{% else %}false{% endif %}"
+                :allow-desktop-launch="{% if directory_entry.name == 'manifest.xml' %}true{% else %}false{% endif %}"
+                :allow-edit="{% if directory_entry|is_text_editable %}true{% else %}false{% endif %}"
+                :allow-unlink="{% if project_permissions|project_permissions_contain:'edit' and directory_entry.source.type != 'disk' %}true{% else %}false{% endif %}"
+                {% if directory_entry|is_text_editable %}
+                editor-url="{% source_path project directory_entry %}"
+                edit-menu-text="{{ directory_entry|edit_menu_text }}"
+                {% endif %}
+                preview-url="{% url 'file_source_preview' project.account.name project.name directory_entry.path %}"
+                download-url="{% download_url project directory_entry %}"
+                source-type="{{ directory_entry.source.type }}"
+                source-identifier="{{ directory_entry.source.pk }}"
+                source-description="{{ directory_entry.source.description }}"
+                file-type="{% if directory_entry.is_directory %}directory{% else %}{{ directory_entry.mimetype }}{% endif %}"
+                absolute-path="{{ directory_entry.path|escape }}"
+                index="{{ forloop.counter0 }}"
+                file-name="{{ directory_entry.name }}"></item-action-menu>
+    </td>
+    {% endblock %}
+</tr>

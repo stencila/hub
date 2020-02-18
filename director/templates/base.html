@@ -4,7 +4,7 @@
 <html>
 
     <head>
-        <title>{% block title %}{% endblock %} : Stencila</title>
+        <title>{% block title %}{{ page_title|default:'' }}{% endblock %} : Stencila</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">

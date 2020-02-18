@@ -275,14 +275,36 @@ def os_dir_entry_to_directory_list_entry(virtual_path: str, dir_entry: os.DirEnt
 
 def list_project_filesystem_directory(project_storage_root: str, project: Project,
                                       relative_directory: typing.Optional[str]) -> typing.List[DirectoryListEntry]:
+    """List the directory `relative_directory`, which is relative to the `Project`'s storage root."""
     relative_directory = relative_directory or ''
     directory_to_list = get_filesystem_project_path(project_storage_root, project, relative_directory)
 
     if not utf8_isdir(directory_to_list):
         return []
 
+    return directory_entries(directory_to_list, relative_directory)
+
+
+def directory_entries(directory_to_list: str, relative_directory: str) -> typing.List:
+    """
+    List the directory at `directory_to_list` and then return a list of `DirectoryListEntry`'s.
+
+    The entries are sorted with directories first, then alphabetically. The `relative_directory` argument is required to
+    build a path to the item for end-user consumption (i.e. the full path will be what the user should see, not the
+    actual full path on disk).
+    """
     return sorted(list(map(functools.partial(os_dir_entry_to_directory_list_entry, relative_directory),
                            utf8_scandir(directory_to_list))))
+
+
+def list_snapshot_directory(snapshot: Snapshot,
+                            relative_directory: typing.Optional[str]) -> typing.List[DirectoryListEntry]:
+    """Generate a list of files in the directory `relative_directory`, relative to the `snapshot` root."""
+    relative_directory = relative_directory or ''
+    directory_to_list = snapshot_path(snapshot, relative_directory)
+    if not utf8_isdir(directory_to_list):
+        return []
+    return directory_entries(directory_to_list, relative_directory)
 
 
 def get_filesystem_project_path(project_storage_root: str, project: Project, relative_path: str) -> str:
@@ -296,6 +318,19 @@ def get_filesystem_project_path(project_storage_root: str, project: Project, rel
     if not path_is_in_directory(project_path, project_storage_directory, True):
         raise OSError("Attempting to access path outside of project root.")
     return project_path
+
+
+def snapshot_path(snapshot: Snapshot, relative_path: str) -> str:
+    """
+    Get the path of a file relative to the `Snapshot`'s  directory.
+
+    If path traversal is attempted (e.g. relative path contains '/../' then an OSError is raised.
+    """
+    snapshot_real_path = utf8_realpath(snapshot.path)
+    full_path = utf8_realpath(utf8_path_join(snapshot_real_path, relative_path))
+    if not path_is_in_directory(full_path, snapshot_real_path, True):
+        raise OSError("Attempting to access path outside of project root.")
+    return full_path
 
 
 def combine_virtual_and_real_entries(virtual_files: typing.List[DirectoryListEntry],
@@ -314,7 +349,7 @@ def combine_virtual_and_real_entries(virtual_files: typing.List[DirectoryListEnt
     return sorted(virtual_files + list(filter(lambda e: name_getter(e) not in virtual_names, real_files)))
 
 
-def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[PathEntry]:
+def path_entry_iterator(path: typing.Optional[str] = '', root_name: str = 'Files') -> typing.Iterable[PathEntry]:
     """
     Iterate each component of the `path` to generate `PathEntry` objects.
 
@@ -328,7 +363,7 @@ def path_entry_iterator(path: typing.Optional[str] = '') -> typing.Iterable[Path
     PathEntry('baz', 'foo/bar/baz')
     """
     path = path or ''
-    yield PathEntry('Files', '')
+    yield PathEntry(root_name, '')
 
     if path:
         split_path = list(filter(lambda component: component != '.', path.split('/')))

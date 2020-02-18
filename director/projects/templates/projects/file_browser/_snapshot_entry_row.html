@@ -1,0 +1,5 @@
+{% extends 'projects/file_browser/_entry_row.html' %}
+{% block directory_link %}{% url 'snapshot_files_path' project.account.name project.name snapshot.version_number directory_entry.path %}{% endblock %}
+{% block source_column %}{% endblock %}
+{% block actions_column %}<td></td>{% endblock %}
+{% block browser_colspan %}5{% endblock %}

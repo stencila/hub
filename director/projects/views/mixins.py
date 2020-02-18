@@ -119,10 +119,6 @@ class ProjectPermissionsMixin(object):
         return self.project_fetch_result.project
 
     @property
-    def is_account_admin(self):
-        pass
-
-    @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
         return get_highest_permission(self.project_permissions)
 

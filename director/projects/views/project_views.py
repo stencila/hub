@@ -177,6 +177,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         self.perform_project_fetch(request.user, account_name, project_name)
 
         self.test_required_project_permission()
+        # TODO: Combine the above two lines into self.get_project?
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
