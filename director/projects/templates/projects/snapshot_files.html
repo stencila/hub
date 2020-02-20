@@ -4,5 +4,6 @@
     <div id="snapshot-file-browser">
         {% include 'projects/file_browser/_snapshot_browser_table.html' with browse_url='snapshot_files_path' row_template='projects/file_browser/_snapshot_entry_row.html' breadcrumb_template='projects/file_browser/_snapshot_breadcrumb.html' %}
     </div>
+    <script src="{% static "js/file-actions-mixins.js" %}"></script>
     <script src="{% static 'js/snapshot-filebrowser.js' %}"></script>
 {% endblock %}

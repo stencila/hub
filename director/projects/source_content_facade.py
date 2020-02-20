@@ -21,7 +21,8 @@ from lib.social_auth_token import user_github_token, user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.project_models import Project
 from projects.source_models import Source, GithubSource, DiskSource, GoogleDocsSource, UrlSource
-from projects.source_operations import strip_directory, utf8_path_join, utf8_basename
+from projects.source_operations import strip_directory
+from lib.path_operations import utf8_path_join, utf8_basename
 
 DEFAULT_TEXT_ENCODING = 'utf8'
 
@@ -301,7 +302,7 @@ class SourceContentFacade(object):
         for message in self.message_iterator():
             messages.add_message(request, message.level, message.message)
 
-    def sync_content(self, temp_file=False) -> str:
+    def sync_content(self, temp_file: bool = False) -> str:
         """
         Get a path or URL that can be passed to Encoda.
 

@@ -10,6 +10,8 @@
                     {% if directory_entry|is_text_editable %}
                     view-url="{% url 'snapshot_files_view' project.account.name project.name snapshot.version_number directory_entry.path  %}"
                     {% endif %}
+                    file-type="{% if directory_entry.is_directory %}directory{% else %}{{ directory_entry.mimetype }}{% endif %}"
+                    preview-url="{% url 'snapshot_files_preview' project.account.name project.name snapshot.version_number directory_entry.path  %}"
                     index="{{ forloop.counter0 }}"
             ></snapshot-item-action-menu>
         {% endif %}

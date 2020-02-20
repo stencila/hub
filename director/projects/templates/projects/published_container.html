@@ -19,7 +19,7 @@
 <body>
 {{ content|safe }}
 <div>
-    <a href="{% url 'file_source_download' project.account.name project.name source_path %}">Download Source</a>
+    <a href="{{ download_url }}">Download Source</a>
 </div>
 </body>
 </html>

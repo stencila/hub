@@ -24,7 +24,7 @@ from lib.conversion_types import ConversionFormatId, conversion_format_from_path
 from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, \
     ConverterContext, GoogleDocs403Exception, download_for_conversion
 from lib.sparkla import generate_manifest
-from projects.source_operations import path_is_in_directory
+from lib.path_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
 from .forms import UrlForm, FileForm, FeedbackForm
 from .models import Conversion, ConversionFeedback

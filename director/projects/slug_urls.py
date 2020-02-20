@@ -31,7 +31,7 @@ urlpatterns = [
         path('download/<path:path>', source_views.SourceDownloadView.as_view(),
              name='file_source_download'),
 
-        re_path(r'^preview/(.*)/(?P<pi_pk>\d+)\.html\.media/(?P<media_path>.*)',
+        re_path(r'^preview/(?P<pi_pk>\d+)\.html\.media/(?P<media_path>.*)',
                 projects.views.publication_views.PreviewMediaView.as_view(),
                 name='project_preview_media_view'),
         path('preview/<path:path>', projects.views.publication_views.SourcePreviewView.as_view(),
@@ -63,6 +63,12 @@ urlpatterns = [
              ),
         path('<int:version>/view/<path:path>', snapshot_views.ContentView.as_view(),
              name='snapshot_files_view'
+             ),
+        re_path(r'^(?P<version>\d+)/preview/(?P<pi_pk>\d+)\.html\.media/(?P<media_path>.*)',
+                snapshot_views.PreviewMediaView.as_view(),
+                name='project_preview_media_view'),
+        path('<int:version>/preview/<path:path>', snapshot_views.PreviewView.as_view(),
+             name='snapshot_files_preview'
              )
     ])),
 

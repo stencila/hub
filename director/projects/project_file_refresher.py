@@ -5,8 +5,9 @@ from django.core.files import File
 from projects.project_models import Project
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication, FileSource
-from projects.source_operations import recursive_directory_list, to_utf8, generate_project_storage_directory, \
-    utf8_path_join, strip_directory
+from projects.source_operations import recursive_directory_list, generate_project_storage_directory, \
+    strip_directory
+from lib.path_operations import to_utf8, utf8_path_join
 
 
 class ProjectFileRefresher(object):

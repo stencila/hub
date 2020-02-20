@@ -27,8 +27,8 @@ from projects.permission_models import ProjectPermissionType
 from projects.views.mixins import ProjectPermissionsMixin, ContentFacadeMixin, ConverterMixin
 from projects.source_content_facade import SourceEditContext, SourceContentFacade, make_source_content_facade
 from projects.source_models import DiskSource, GoogleDocsSource, Source
-from projects.source_operations import strip_directory, utf8_path_join, utf8_basename, \
-    utf8_dirname
+from projects.source_operations import strip_directory
+from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
 from projects.models import DropboxSource, GithubSource
 from projects.source_forms import GithubSourceForm, GoogleDocsSourceForm
 

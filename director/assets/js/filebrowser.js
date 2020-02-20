@@ -63,6 +63,7 @@ function splitExt (fileName) {
 }
 
 Vue.component('item-action-menu', {
+  mixins: [g_fileActionsCommon],
   props: {
     hasEditPermission: {
       type: Boolean,
@@ -115,21 +116,12 @@ Vue.component('item-action-menu', {
       required: false,
       default: ''
     },
-    previewUrl: {
-      type: String,
-      required: false,
-      default: ''
-    },
     editMenuText: {
       type: String,
       required: false,
       default: ''
     },
-    fileType: {
-      type: String,
-      required: false,
-      default: ''
-    },
+
     sourceIdentifier: {
       type: String,
       required: false,
@@ -151,11 +143,6 @@ Vue.component('item-action-menu', {
       active: false
     }
   },
-  mounted () {
-    this.$root.$on('menu-hide', () => {
-      this.active = false
-    })
-  },
   computed: {
     editTarget () {
       return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
@@ -169,6 +156,9 @@ Vue.component('item-action-menu', {
     hasConvertActions () {
       return this.hasEditPermission && this.convertTargets.length > 0
     },
+    isConvertible () {
+      return this.hasEditPermission && this.hasConvertTargets()
+    },
     hasFileManageActions () {
       return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowPublish
     },
@@ -181,39 +171,8 @@ Vue.component('item-action-menu', {
     shouldDisplayConvertFileManageDivider () {
       return this.hasConvertActions && this.hasFileManageActions
     },
-    convertTargets () {
-      if (!this.hasEditPermission) {
-        return []
-      }
-
-      const convertibleDefinitions = [
-        ['application/vnd.google-apps.document', 'gdoc', 'Google Docs'],
-        ['text/html', 'html', 'HTML'],
-        ['text/xml+jats', 'jats', 'JATS'],
-        ['application/ld+json', 'jsonld', 'JSON-LD'],
-        ['application/x-ipynb+json', 'ipynb', 'Jupyter Notebook'],
-        ['text/markdown', 'md', 'Markdown'],
-        ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'docx', 'Microsoft Word'],
-        ['text/rmarkdown', 'rmd', 'RMarkdown']
-      ]
-
-      const convertibleMimetypes = convertibleDefinitions.map(typeDef => typeDef[0])
-
-      if (convertibleMimetypes.indexOf(this.fileType) === -1)
-        return []
-
-      return convertibleDefinitions.filter(typeDefinition => typeDefinition[0] !== this.fileType).map(typeDefinition => typeDefinition.slice(1))
-    }
   },
   methods: {
-    toggle () {
-      if (this.active) {
-        this.active = false
-      } else {
-        this.$root.$emit('menu-hide')
-        this.active = true
-      }
-    },
     showRenameModal () {
       const itemType = this.fileType === 'directory' ? 'Directory' : 'File'
       this.$root.$emit('rename-modal-show', this.fileName, 'Rename', itemType)
@@ -247,7 +206,7 @@ Vue.component('item-action-menu', {
     '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
-    '      <a v-if="hasConvertActions" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
@@ -673,13 +632,13 @@ Vue.component('publish-modal', {
     }
   },
   computed: {
-    publishedUrl() {
+    publishedUrl () {
       return this.projectUrl + this.urlPath
     }
   },
   methods: {
-    publishDisabled() {
-        return this.urlPath === '' || this.publishInProgress
+    publishDisabled () {
+      return this.urlPath === '' || this.publishInProgress
     },
     show (sourceId, path) {
       this.sourceId = sourceId

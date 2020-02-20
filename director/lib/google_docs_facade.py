@@ -13,7 +13,7 @@ from oauth2client.client import GoogleCredentials
 
 from projects.project_models import Project
 from projects.source_models import GoogleDocsSource
-from projects.source_operations import utf8_path_join
+from lib.path_operations import utf8_path_join
 
 GOOGLE_DOCUMENT_URL_FORMAT = 'https://docs.google.com/document/d/{}/edit'
 GOOGLE_DOCUMENT_URL_RE = r'^(https://)?docs.google.com/document/d/([^/]+)/.*'

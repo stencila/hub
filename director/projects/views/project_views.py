@@ -30,8 +30,8 @@ from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
-    list_project_filesystem_directory, combine_virtual_and_real_entries, path_is_in_directory, utf8_scandir, \
-    utf8_isdir, utf8_path_exists, utf8_unlink, to_utf8
+    list_project_filesystem_directory, combine_virtual_and_real_entries
+from lib.path_operations import to_utf8, utf8_isdir, utf8_path_exists, utf8_unlink, utf8_scandir, path_is_in_directory
 from projects.views.mixins import ProjectPermissionsMixin, ArchivesDirMixin
 from projects.models import Project
 from projects.project_forms import (

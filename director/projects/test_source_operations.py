@@ -4,11 +4,12 @@ from unittest import mock
 
 from django.test import TestCase
 
+from lib.path_operations import normalise_path, path_is_in_directory
 from projects.source_item_models import DirectoryListEntry, DirectoryEntryType
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication
-from projects.source_operations import sources_in_directory, path_entry_iterator, normalise_path, \
-    path_is_in_directory, strip_directory, determine_entry_type, list_linked_source_directory, \
-    IncorrectDirectoryException, iterate_github_source, make_directory_entry
+from projects.source_operations import sources_in_directory, path_entry_iterator, strip_directory, \
+    determine_entry_type, list_linked_source_directory, IncorrectDirectoryException, iterate_github_source, \
+    make_directory_entry
 
 
 class NormalisePathTest(TestCase):

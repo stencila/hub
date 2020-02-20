@@ -8,7 +8,8 @@ from lib.github_facade import GitHubFacade
 from lib.social_auth_token import user_github_token
 from projects.project_models import Project
 from projects.source_models import Source, DiskSource, GithubSource
-from projects.source_operations import generate_project_publish_directory, utf8_path_join, strip_directory, utf8_dirname
+from projects.source_operations import generate_project_publish_directory, strip_directory
+from lib.path_operations import utf8_path_join, utf8_dirname
 
 DEFAULT_ENVIRON = 'stencila/core'
 

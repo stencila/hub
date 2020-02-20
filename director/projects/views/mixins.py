@@ -21,7 +21,8 @@ from projects.project_models import Project, PublishedItem
 from projects.project_puller import ProjectSourcePuller
 from projects.source_content_facade import SourceContentFacade, make_source_content_facade
 from projects.source_models import LinkedSourceAuthentication, GoogleDocsSource, DiskSource, Source
-from projects.source_operations import generate_project_archive_directory, utf8_realpath, utf8_path_join, utf8_dirname
+from projects.source_operations import generate_project_archive_directory
+from lib.path_operations import utf8_path_join, utf8_dirname, utf8_realpath
 from projects.views.shared import DEFAULT_ENVIRON, get_project_publish_directory, get_source
 
 
@@ -259,11 +260,13 @@ class ConverterMixin:
             self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path, standalone)
 
     def convert_and_publish(self, user: User, project: Project, pi: PublishedItem, pi_created: bool,
-                            source: typing.Union[Source, DiskSource], source_path: str) -> None:
+                            source: typing.Union[Source, DiskSource], source_path: str,
+                            scf: typing.Optional[SourceContentFacade] = None) -> None:
         try:
-            scf = make_source_content_facade(user, source_path, source, project)
+            if not scf:
+                scf = make_source_content_facade(user, source_path, source, project)
 
-            published_path = os.path.join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
+            published_path = utf8_path_join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
 
             if os.path.exists(published_path):
                 os.unlink(published_path)

@@ -1,4 +1,5 @@
 Vue.component('snapshot-item-action-menu', {
+  mixins: [g_fileActionsCommon],
   props: {
     downloadUrl: {
       type: String,
@@ -20,21 +21,6 @@ Vue.component('snapshot-item-action-menu', {
       active: false
     }
   },
-  mounted () {
-    this.$root.$on('menu-hide', () => {
-      this.active = false
-    })
-  },
-  methods: {
-    toggle () {
-      if (this.active) {
-        this.active = false
-      } else {
-        this.$root.$emit('menu-hide')
-        this.active = true
-      }
-    },
-  },
   template: '' +
     '<div class="dropdown item-actions-dropdown" @click="toggle()" :class="{ \'is-active\':active }">' +
     '  <div class="dropdown-trigger">' +
@@ -44,6 +30,7 @@ Vue.component('snapshot-item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="downloadUrl != \'\'" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="viewUrl != \'\'" :href="viewUrl" class="dropdown-item">View</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'

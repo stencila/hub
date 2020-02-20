@@ -27,7 +27,7 @@ from projects.permission_models import ProjectPermissionType
 from projects.project_forms import PublishedItemForm
 from projects.project_models import PublishedItem
 from projects.source_models import GoogleDocsSource, UrlSource, Source, DiskSource
-from projects.source_operations import utf8_path_join
+from lib.path_operations import utf8_path_join
 from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
 
 

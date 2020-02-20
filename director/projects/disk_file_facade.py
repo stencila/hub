@@ -5,8 +5,9 @@ from enum import Enum
 
 from lib.resource_allowance import get_directory_size
 from projects.project_models import Project
-from projects.source_operations import generate_project_storage_directory, relative_path_join, utf8_path_exists, \
-    utf8_makedirs, to_utf8, utf8_isdir, utf8_unlink, utf8_path_join, utf8_basename, utf8_rename, utf8_dirname
+from projects.source_operations import generate_project_storage_directory
+from lib.path_operations import to_utf8, utf8_path_join, utf8_isdir, utf8_basename, utf8_dirname, utf8_path_exists, \
+    utf8_unlink, utf8_makedirs, utf8_rename, relative_path_join
 
 
 class ItemType(Enum):

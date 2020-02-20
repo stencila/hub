@@ -3,15 +3,16 @@ import typing
 from django.contrib import messages
 from django.http import HttpRequest, FileResponse, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
 
 from lib.conversion_types import UnknownMimeTypeError
+from lib.path_operations import utf8_basename
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import PublishedItem
 from projects.source_content_facade import make_source_content_facade, NonFileError
 from projects.source_models import Source
-from projects.source_operations import relative_path_join, utf8_dirname, utf8_basename
 from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
 from projects.views.shared import get_source
 
@@ -30,35 +31,48 @@ class PublishedListView(ProjectPermissionsMixin, View):
         return render(request, 'projects/published_list.html', self.get_render_context(context))
 
 
+def published_item_render(request: HttpRequest, published_item: PublishedItem, download_url: str,
+                          title: typing.Optional[str] = None) -> HttpResponse:
+    context = {
+        'theme_name': 'eLife',
+        'title': title,
+        'download_url': download_url
+    }
+    with open(published_item.path, 'r', encoding='utf8') as f:
+        context['content'] = f.read()
+    resp = render(request, 'projects/published_container.html', context)
+
+    if 'elife' in request.GET:
+        resp['Content-Security-Policy'] = 'frame-ancestors https://elifesciences.org https://*.elifesciences.org;'
+        resp['X-Frame-Options'] = 'allow-from https://elifesciences.org'
+        resp['X-Frame-Options'] = 'allow-from https://*.elifesciences.org'
+
+    return resp
+
+
+def send_media_response(pi: PublishedItem, media_path: str) -> FileResponse:
+    # rebuild the media path
+    full_path = pi.media_path(media_path)
+
+    try:
+        fp = open(full_path, 'rb')
+    except FileNotFoundError:
+        raise Http404
+
+    return FileResponse(fp)  # FileResponse closes the pointer when finished
+
+
 class PublishedContentView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
     def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> FileResponse:
+            path: str) -> HttpResponse:
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
-        return self.published_item_render(request, pi)
-
-    @staticmethod
-    def published_item_render(request: HttpRequest, published_item: PublishedItem,
-                              title: typing.Optional[str] = None) -> HttpResponse:
-        context = {
-            'theme_name': 'eLife',
-            'project': published_item.project,
-            'source_path': published_item.source_path,
-            'title': title
-        }
-        with open(published_item.path, 'r', encoding='utf8') as f:
-            context['content'] = f.read()
-        resp = render(request, 'projects/published_container.html', context)
-
-        if 'elife' in request.GET:
-            resp['Content-Security-Policy'] = 'frame-ancestors https://elifesciences.org https://*.elifesciences.org;'
-            resp['X-Frame-Options'] = 'allow-from https://elifesciences.org'
-            resp['X-Frame-Options'] = 'allow-from https://*.elifesciences.org'
-
-        return resp
+        return published_item_render(request, pi,
+                                     reverse('file_source_download', args=(project.account.name, project.name,
+                                                                           pi.source_path)))
 
 
 class PublishedMediaView(ProjectPermissionsMixin, View):
@@ -69,17 +83,7 @@ class PublishedMediaView(ProjectPermissionsMixin, View):
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
-        # rebuild the media path
-        media_path = '{}.html.media/{}'.format(pi.pk, media_path)
-
-        full_path = relative_path_join(utf8_dirname(pi.path), media_path)
-
-        try:
-            fp = open(full_path, 'rb')
-        except FileNotFoundError:
-            raise Http404
-
-        return FileResponse(fp)  # FileResponse closes the pointer when finished
+        return send_media_response(pi, media_path)
 
 
 class PreviewMediaView(ProjectPermissionsMixin, View):
@@ -89,18 +93,7 @@ class PreviewMediaView(ProjectPermissionsMixin, View):
             media_path: str) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, pk=pi_pk)
-
-        # rebuild the media path
-        media_path = '{}.html.media/{}'.format(pi.pk, media_path)
-
-        full_path = relative_path_join(utf8_dirname(pi.path), media_path)
-
-        try:
-            fp = open(full_path, 'rb')
-        except FileNotFoundError:
-            raise Http404
-
-        return FileResponse(fp)  # FileResponse closes the pointer when finished
+        return send_media_response(pi, media_path)
 
 
 class SourcePreviewView(ConverterMixin, PublishedContentView):
@@ -125,7 +118,7 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
 
         if created or scf.source_modification_time > pi.updated or not pi.path:
             try:
-                self.convert_and_publish(request.user, project, pi, created, source, path)
+                self.convert_and_publish(request.user, project, pi, created, source, path, scf)
             except (NonFileError, UnknownMimeTypeError) as e:
                 if isinstance(e, UnknownMimeTypeError):
                     messages.error(request,
@@ -135,4 +128,7 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
                 # User might have just entered a bad URL to try to preview, just go back to file view
                 return redirect('project_files', account_name, project_name)
 
-        return self.published_item_render(request, pi, 'HTML Preview of {}'.format(pi.source_path))
+        return published_item_render(request, pi,
+                                     reverse('file_source_download', args=(project.account.name, project.name,
+                                                                           pi.source_path)),
+                                     'HTML Preview of {}'.format(pi.source_path))

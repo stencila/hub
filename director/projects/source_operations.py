@@ -3,64 +3,17 @@ import functools
 import os
 import typing
 from operator import attrgetter
-from os import DirEntry
 
 from github import GithubException
 
 from lib.github_facade import GitHubFacade
+from lib.path_operations import utf8_path_join, utf8_isdir, utf8_basename, utf8_realpath, utf8_scandir, \
+    normalise_path, path_is_in_directory
 from projects.project_models import Project, Snapshot
 from projects.source_item_models import PathEntry, DirectoryListEntry, DirectoryEntryType
 
 from projects.source_models import Source, FileSource, GithubSource, LinkedSourceAuthentication, DiskSource, \
     GoogleDocsSource, UrlSource
-
-PathType = typing.Union[str, bytes]
-
-
-def to_utf8(s: PathType) -> bytes:
-    """If a `str` is passed in, return its utf8 encoding, ff `bytes`, assume it is already utf8 and just return it."""
-    return s.encode('utf8') if isinstance(s, str) else s
-
-
-def utf8_path_join(*args: PathType) -> str:
-    """Encode `str` typed args into `bytes` using utf8 then passes all to `os.path.join`."""
-    return os.path.join(*list(map(to_utf8, args))).decode('utf8')
-
-
-def utf8_normpath(path: PathType) -> str:
-    return os.path.normpath(to_utf8(path)).decode('utf8')
-
-
-def utf8_isdir(path: PathType) -> bool:
-    return os.path.isdir(to_utf8(path))
-
-
-def utf8_basename(path: PathType) -> str:
-    return os.path.basename(to_utf8(path)).decode('utf8')
-
-
-def utf8_dirname(path: PathType) -> str:
-    return os.path.dirname(to_utf8(path)).decode('utf8')
-
-
-def utf8_realpath(path: PathType) -> str:
-    return os.path.realpath(to_utf8(path)).decode('utf8')
-
-
-def utf8_path_exists(path: PathType) -> bool:
-    return os.path.exists(to_utf8(path))
-
-
-def utf8_unlink(path: PathType) -> None:
-    os.unlink(to_utf8(path))
-
-
-def utf8_makedirs(path: PathType, *args, **kwargs) -> None:
-    os.makedirs(to_utf8(path), *args, **kwargs)
-
-
-def utf8_rename(src: PathType, dest: PathType):
-    os.rename(to_utf8(src), to_utf8(dest))
 
 
 def generate_project_storage_directory(project_storage_root: str, project: Project) -> str:
@@ -84,6 +37,17 @@ def generate_project_publish_directory(project_storage_root: str, project: Proje
                           '{}'.format(project.account_id), '{}'.format(project.id))
 
 
+def generate_snapshot_publish_directory(project_storage_root: str, snapshot: Snapshot) -> str:
+    """
+    Generate the path to a a directory that stores a published item for a snapshot.
+
+    This will be inside the project published directory, in a snapshots subfolder.
+    The current format is: <PROJECT_PUBLISHED_DIR>/snapshots/<snapshot_version>
+    """
+    return utf8_path_join(generate_project_publish_directory(project_storage_root, snapshot.project), 'snapshots',
+                          '{}'.format(snapshot.version_number))
+
+
 def generate_snapshot_directory(project_storage_root: str, snapshot: Snapshot) -> str:
     """
     Generate the directory that stores the files for a Snapshot.
@@ -98,35 +62,6 @@ def generate_snapshot_directory(project_storage_root: str, snapshot: Snapshot) -
                           '{}'.format(snapshot.version_number))
 
 
-def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:
-    yield from os.scandir(to_utf8(path))
-
-
-def normalise_path(path: str, append_slash: bool = False) -> str:
-    if path == '.' or path == '':
-        return ''
-
-    append_slash = append_slash or path.endswith('/')
-
-    return utf8_normpath(path) + ('/' if append_slash else '')
-
-
-def path_is_in_directory(path: str, directory: str, allow_matching: bool = False) -> bool:
-    path = normalise_path(path)
-    directory = normalise_path(directory, True)
-
-    if path.startswith(directory):
-        return True
-
-    if not allow_matching:
-        return False
-
-    if not path.endswith('/'):
-        path += '/'
-
-    return path == directory
-
-
 def strip_directory(path: str, directory: str) -> str:
     path = normalise_path(path)
     directory = normalise_path(directory, True)
@@ -135,21 +70,6 @@ def strip_directory(path: str, directory: str) -> str:
         return path[len(directory):]
 
     raise ValueError("Path {} is not in directory {}".format(path, directory))
-
-
-def relative_path_join(directory: str, relative_path: str) -> str:
-    """
-    Join `relative_path` on to `directory`.
-
-    Then ensure that the generated path is inside the `director`y (i.e. relative_path does not contain path traversal
-    components).
-    """
-    full_path = utf8_realpath(utf8_path_join(directory, relative_path))
-
-    if path_is_in_directory(full_path, directory):
-        return full_path
-
-    raise ValueError("Path {} is not in directory {}".format(full_path, directory))
 
 
 def determine_entry_type(source: Source, relative_path: str) -> DirectoryEntryType:

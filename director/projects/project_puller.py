@@ -11,8 +11,8 @@ from projects.project_models import Project, ProjectEvent, ProjectEventType
 from projects.source_content_facade import make_source_content_facade
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication, DiskSource
-from projects.source_operations import list_project_virtual_directory, generate_project_storage_directory, \
-    utf8_path_join, utf8_path_exists, utf8_isdir, utf8_unlink, to_utf8, utf8_makedirs
+from projects.source_operations import list_project_virtual_directory, generate_project_storage_directory
+from lib.path_operations import to_utf8, utf8_path_join, utf8_isdir, utf8_path_exists, utf8_unlink, utf8_makedirs
 
 
 class ProjectSourcePuller(object):

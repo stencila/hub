@@ -7,8 +7,8 @@ from django.utils import timezone
 
 from projects.project_models import ProjectEvent, ProjectEventType
 from projects.project_puller import ProjectSourcePuller
-from projects.source_operations import generate_project_archive_directory, path_is_in_directory, utf8_makedirs, \
-    utf8_path_join, to_utf8
+from projects.source_operations import generate_project_archive_directory
+from lib.path_operations import to_utf8, utf8_path_join, utf8_makedirs, path_is_in_directory
 from .models import Project
 
 
