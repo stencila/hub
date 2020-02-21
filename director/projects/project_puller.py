@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from lib.resource_allowance import get_directory_size, StorageLimitExceededException
-from projects.project_models import Project, ProjectEvent, ProjectEventType
+from projects.project_models import Project, ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.source_content_facade import make_source_content_facade
 from projects.source_item_models import DirectoryEntryType
 from projects.source_models import LinkedSourceAuthentication, DiskSource
@@ -44,14 +44,15 @@ class ProjectSourcePuller(object):
 
     def pull(self, only_file_sources: bool = False) -> None:
         """Perform the pull of the project files."""
-        event = ProjectEvent(event_type=ProjectEventType.SOURCE_PULL.name, project=self.project)
-        event.save()
+        event = ProjectEvent.objects.create(event_type=ProjectEventType.SOURCE_PULL.name, project=self.project,
+                                            user=self.request.user, level=ProjectEventLevel.INFORMATIONAL.value)
         utf8_makedirs(self.project_directory, exist_ok=True)
         try:
             self.pull_directory(only_file_sources=only_file_sources)
             event.success = True
         except Exception as e:
             event.message = str(e)
+            event.level = ProjectEventLevel.ERROR.value
             event.success = False
             raise
         finally:

@@ -3,8 +3,7 @@ from django.views.generic import RedirectView
 
 import projects.views.publication_views
 from lib.constants import ProjectUrlRoot
-from projects.views import project_views, snapshot_views
-from projects.views import source_views
+from projects.views import project_views, snapshot_views, source_views
 
 urlpatterns = [
     # These patterns are listed in the same order they appear in the sidebar menu (more or less)

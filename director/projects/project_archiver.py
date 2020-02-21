@@ -3,9 +3,10 @@ import typing
 import zipfile
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.utils import timezone
 
-from projects.project_models import ProjectEvent, ProjectEventType
+from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.project_puller import ProjectSourcePuller
 from projects.source_operations import generate_project_archive_directory
 from lib.path_operations import to_utf8, utf8_path_join, utf8_makedirs, path_is_in_directory
@@ -16,11 +17,13 @@ class ProjectArchiver(object):
     archive_root: str
     project: Project
     puller: ProjectSourcePuller
+    user: User
 
-    def __init__(self, archive_root: str, project: Project, puller: ProjectSourcePuller) -> None:
+    def __init__(self, archive_root: str, project: Project, user: User, puller: ProjectSourcePuller) -> None:
         self.archive_root = archive_root
         self.project = project
         self.puller = puller
+        self.user = user
 
     def generate_archive_name(self, prefix: typing.Optional[str]) -> str:
         prefix = '{}-'.format(prefix) if prefix else ''
@@ -46,8 +49,8 @@ class ProjectArchiver(object):
 
         project_dir = self.puller.project_directory
 
-        event = ProjectEvent(event_type=ProjectEventType.ARCHIVE.name, project=self.project)
-        event.save()
+        event = ProjectEvent.objects.create(event_type=ProjectEventType.ARCHIVE.name, project=self.project,
+                                            user=self.user, level=ProjectEventLevel.INFORMATIONAL.value)
 
         archive_name = self.generate_archive_name(name_prefix)
 
@@ -57,6 +60,7 @@ class ProjectArchiver(object):
             self.archive_directory(output_path, project_dir)
             event.success = True
         except Exception as e:
+            event.level = ProjectEventLevel.ERROR.value
             event.success = False
             event.message = str(e)
             raise

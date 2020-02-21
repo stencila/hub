@@ -4,14 +4,16 @@ import typing
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.utils import timezone
 from django.views import View
 from rest_framework import generics
 from rest_framework.views import APIView
 
 from lib.sparkla import generate_manifest
-from projects.api_serializers import ProjectSerializer
+from projects.api_serializers import ProjectSerializer, ProjectEventSerializer
 from projects.permission_models import ProjectPermissionType
 from projects.project_data import get_projects
+from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.snapshots import ProjectSnapshotter, SnapshotInProgressError
 from projects.views.mixins import ProjectPermissionsMixin
 
@@ -20,8 +22,17 @@ class ProjectListView(generics.ListAPIView):
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
-        filter_key, projects = get_projects(self.request.user, None)
-        return projects
+        fetch_result = get_projects(self.request.user, None)
+        return fetch_result.projects
+
+
+class ProjectEventListView(generics.ListAPIView, ProjectPermissionsMixin):  # type: ignore # due to get_object override
+    serializer_class = ProjectEventSerializer
+    project_permission_required = ProjectPermissionType.MANAGE
+
+    def get_queryset(self):
+        project = self.get_project(self.request.user, pk=self.kwargs['project_pk'])
+        return ProjectEvent.objects.filter(project=project)
 
 
 class ManifestView(ProjectPermissionsMixin, APIView):
@@ -71,12 +82,26 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
         project = self.get_project(request.user, pk=pk)
 
         snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
+        event = ProjectEvent.objects.create(event_type=ProjectEventType.SNAPSHOT.name, project=project,
+                                            user=request.user, level=ProjectEventLevel.INFORMATIONAL.value)
         try:
             snapshotter.snapshot_project(request, project, request.data.get('tag'))
             return JsonResponse({'success': True})
         except SnapshotInProgressError:
+            in_progress_message = 'A snapshot is already in progress for Project {}.'.format(pk)
+            event.level = ProjectEventLevel.WARNING.value
+            event.message = in_progress_message
+            event.save()
             return JsonResponse(
-                {'success': False, 'error': 'A snapshot is already in progress for Project {}.'.format(pk)})
+                {'success': False, 'error': in_progress_message})
+        except Exception as e:
+            event.level = ProjectEventLevel.ERROR.value
+            event.message = str(e)
+            event.save()
+            raise
+        finally:
+            event.finished = timezone.now()
+            event.save()
 
 
 # These are not DRF Views but they probably should be

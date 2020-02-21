@@ -546,7 +546,7 @@ class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
 
         puller = self.get_project_puller(request, account_name, project_name)
 
-        archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, puller)
+        archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, request.user, puller)
 
         try:
             archiver.archive_project(form.cleaned_data['tag'])

@@ -2,6 +2,7 @@ import os
 import shutil
 import tempfile
 import typing
+import warnings
 from os import unlink
 
 from django.conf import settings
@@ -31,18 +32,21 @@ class ProjectPermissionsMixin(object):
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
     def get(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs) -> HttpResponse:
+        warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
         return super(ProjectPermissionsMixin, self).get(request, account_name, project_name, *args,  # type: ignore
                                                         **kwargs)
 
     def post(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+        warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
         return super(ProjectPermissionsMixin, self).post(request, account_name, project_name, *args,  # type: ignore
                                                          **kwargs)
 
     def delete(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+        warnings.warn("ProjectPermissionsMixin DELETE", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
 

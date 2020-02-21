@@ -6,12 +6,13 @@ from io import BytesIO
 
 from django.conf import settings
 from django.db import models
+from django_extensions.db.fields.json import JSONField
 
 from accounts.models import Account
 from lib.data_cleaning import SlugType, clean_slug
 from lib.enum_choice import EnumChoice
-from projects.source_models import Source
 from lib.path_operations import utf8_dirname, relative_path_join
+from projects.source_models import Source
 from projects.validators import validate_publish_url_path
 
 TOKEN_HASH_FUNCTION = hashlib.sha256
@@ -255,12 +256,26 @@ class Project(models.Model):
 class ProjectEventType(EnumChoice):
     SOURCE_PULL = 'SOURCE_PULL'
     ARCHIVE = 'ARCHIVE'
+    SNAPSHOT = 'SNAPSHOT'
 
 
 PROJECT_EVENT_LONG_TYPE_LOOKUP = {
     ProjectEventType.SOURCE_PULL.name: 'Source Pull to Disk',  # type: ignore # mypy does not understand enums
-    ProjectEventType.ARCHIVE.name: 'Archive'  # type: ignore # mypy does not understand enums
+    ProjectEventType.ARCHIVE.name: 'Archive',  # type: ignore # mypy does not understand enums
+    ProjectEventType.SNAPSHOT.name: 'Snapshot'  # type: ignore # mypy does not understand enums
 }
+
+
+class ProjectEventLevel(EnumChoice):
+    # Don't renumber these (adding more is fine) as it will change the relationship of the existing records
+    EMERGENCY = 0
+    ALERT = 1
+    CRITICAL = 2
+    ERROR = 3
+    WARNING = 4
+    NOTICE = 5
+    INFORMATIONAL = 6
+    DEBUG = 7
 
 
 class ProjectEvent(models.Model):
@@ -301,6 +316,23 @@ class ProjectEvent(models.Model):
                                 related_name='events',
                                 help_text='The Project that this Event is for.'
                                 )
+
+    user = models.ForeignKey(
+        'auth.User',
+        null=True,
+        blank=True,
+        help_text='The user who performed/triggered this event.',
+        on_delete=models.SET_NULL
+    )
+
+    level = models.IntegerField(null=False, default=ProjectEventLevel.INFORMATIONAL.value,
+                                choices=ProjectEventLevel.as_choices(), help_text='The "log level" of the event.')
+
+    # There's no JSON field that automatically uses TEXT storage in dev (SQLite) then switches to native JSON in
+    # production (PostgreSQL), so just use a non-native one. If Django ever implements such a feature then we should
+    # consider migrating
+    log = JSONField(null=True, blank=True, help_text='Log messages, in the DB they are stored as text but are '
+                                                     'automatically JSON (de)serialized on writing/reading.')
 
     class Meta:
         ordering = ['-started']

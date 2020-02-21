@@ -1,53 +1,64 @@
 {% extends 'projects/project_base.html' %}
-{% load crispy_forms_tags static %}
+{% load static %}
 
 {% block title %}Project {{ project.pk }}: Activity{% endblock %}
 
 {% block project_content %}
-    <table class="table is-bordered is-striped is-full-width">
-        <thead>
-        <tr>
-            <th>Type</th>
-            <th>Started</th>
-            <th>Finished</th>
-            <th>Success</th>
-            <th>Message</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for event in project.events.all %}
+    <div id="project-activity-view">
+
+    </div>
+    {% comment %}
+    <div id="table_activity_container">
+        <table class="table is-bordered is-striped is-full-width">
+            <thead>
             <tr>
-                <td>
-                    {{ event.long_type }}
-                </td>
-                <td>
-                    {{ event.started|date:"SHORT_DATETIME_FORMAT" }}
-                </td>
-                <td>
-                    {% if event.finished %}
-                        {{ event.finished|date:"SHORT_DATETIME_FORMAT" }}
-                    {% else %}
-                        &mdash;
-                    {% endif %}
-                </td>
-                <td>
-                    {% if event.success %}
-                        Yes
-                    {% elif event.success is False%}
-                        No
-                    {% else %}
-                        &mdash;
-                    {% endif %}
-                </td>
-                <td>
-                    {{ event.message|default_if_none:"—"}}
-                </td>
+                <th>Type</th>
+                <th>Started</th>
+                <th>Finished</th>
+                <th>Success</th>
+                <th>Message</th>
             </tr>
-        {% empty %}
-            <tr>
-                <td colspan="5">No project activity yet.</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {% for event in project.events.all %}
+                <tr>
+                    <td>
+                        {{ event.long_type }}
+                    </td>
+                    <td>
+                        {{ event.started|date:"SHORT_DATETIME_FORMAT" }}
+                    </td>
+                    <td>
+                        {% if event.finished %}
+                            {{ event.finished|date:"SHORT_DATETIME_FORMAT" }}
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if event.success %}
+                            Yes
+                        {% elif event.success is False %}
+                            No
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ event.message|default_if_none:"—" }}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">No project activity yet.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endcomment %}
+    <script>
+        const g_eventApiUrl = '{% url 'api_v1_project_event_list' project.pk %}'
+    </script>
+    <script src="{% static 'js/project-events.js' %}"></script>
 {% endblock %}

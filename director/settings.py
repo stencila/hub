@@ -293,6 +293,8 @@ class Common(Configuration):
             'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
             'rest_framework.authentication.SessionAuthentication'
         ),
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+        'PAGE_SIZE': 100
     }
 
     STRIPE_LIVE_PUBLIC_KEY = values.Value('')
