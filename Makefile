@@ -215,11 +215,20 @@ push-tags:
 	git push origin master
 	git push --tags origin
 
-tag-major: increment-major tag push-tags
+tag-major:
+	make increment-major
+	make tag
+	make push-tags
 
-tag-minor: increment-minor tag push-tags
+tag-minor:
+	make increment-minor
+	make tag
+	make push-tags
 
-tag-patch: increment-patch tag push-tags
+tag-patch:
+	make increment-patch
+	make tag
+	make push-tags
 
 
 ####################################################################################
