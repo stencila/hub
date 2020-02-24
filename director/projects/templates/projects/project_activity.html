@@ -59,6 +59,8 @@
     {% endcomment %}
     <script>
         const g_eventApiUrl = '{% url 'api_v1_project_event_list' project.pk %}'
+        const g_projectEventTypes = JSON.parse('{{ project_event_types|escapejs }}')
     </script>
+    <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/project-events.js' %}"></script>
 {% endblock %}

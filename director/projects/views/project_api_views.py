@@ -1,6 +1,7 @@
 import json
 import typing
 
+import django_filters
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -29,10 +30,25 @@ class ProjectListView(generics.ListAPIView):
 class ProjectEventListView(generics.ListAPIView, ProjectPermissionsMixin):  # type: ignore # due to get_object override
     serializer_class = ProjectEventSerializer
     project_permission_required = ProjectPermissionType.MANAGE
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_fields = ['event_type']
 
     def get_queryset(self):
         project = self.get_project(self.request.user, pk=self.kwargs['project_pk'])
-        return ProjectEvent.objects.filter(project=project)
+
+        filtered = ProjectEvent.objects.filter(project=project)
+
+        if 'success' in self.request.query_params:
+            success = self.request.query_params['success']
+
+            if success == 'true':
+                filtered = filtered.filter(success=True)
+            elif success == 'false':
+                filtered = filtered.filter(success=False)
+            elif success == 'null':
+                filtered = filtered.filter(success__isnull=True)
+
+        return filtered
 
 
 class ManifestView(ProjectPermissionsMixin, APIView):

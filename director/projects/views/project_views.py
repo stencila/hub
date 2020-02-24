@@ -28,6 +28,7 @@ from projects.permission_models import ProjectPermissionType, ProjectRole, Proje
     get_roles_under_permission
 from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
+from projects.project_models import ProjectEventType, PROJECT_EVENT_LONG_TYPE_LOOKUP
 from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
 from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
     list_project_filesystem_directory, combine_virtual_and_real_entries
@@ -270,6 +271,11 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs) -> dict:
         context_data = super().get_context_data(**kwargs)
         context_data['project_tab'] = ProjectTab.ACTIVITY.value
+        context_data['project_event_types'] = json.dumps(
+            list(
+                map(lambda t: [t.name, PROJECT_EVENT_LONG_TYPE_LOOKUP[t.name]], ProjectEventType)
+            )
+        )
         return context_data
 
 
