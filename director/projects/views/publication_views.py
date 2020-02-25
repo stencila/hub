@@ -8,7 +8,7 @@ from django.utils.html import escape
 from django.views import View
 
 from lib.conversion_types import UnknownMimeTypeError
-from lib.path_operations import utf8_basename
+from lib.path_operations import utf8_basename, utf8_dirname
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import PublishedItem
 from projects.source_content_facade import make_source_content_facade, NonFileError
@@ -119,13 +119,26 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
         if created or scf.source_modification_time > pi.updated or not pi.path:
             try:
                 self.convert_and_publish(request.user, project, pi, created, source, path, scf)
-            except (NonFileError, UnknownMimeTypeError) as e:
-                if isinstance(e, UnknownMimeTypeError):
+            except (NonFileError, UnknownMimeTypeError, RuntimeError) as e:
+                filename = utf8_basename(path)
+                directory = utf8_dirname(path)
+
+                # by default, no message since the user might have just entered a bad URL
+                message_format: typing.Optional[str] = None
+
+                if isinstance(e, RuntimeError):
+                    message_format = 'Unable to preview <em>{}</em> as it could not be converted to HTML. Please ' \
+                                     'check the Project Activity page for more information.'
+                elif isinstance(e, UnknownMimeTypeError):
+                    message_format = 'Unable to preview <em>{}</em> as its file type could not be determined.'
                     messages.error(request,
                                    'Unable to preview <em>{}</em> as its file type could not be determined.'.format(
                                        escape(utf8_basename(path))), extra_tags='safe')
 
-                # User might have just entered a bad URL to try to preview, just go back to file view
+                if message_format:
+                    messages.error(request, message_format.format(escape(filename)), extra_tags='safe')
+                if directory:
+                    return redirect('project_files_path', account_name, project, directory)
                 return redirect('project_files', account_name, project_name)
 
         return published_item_render(request, pi,

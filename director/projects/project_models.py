@@ -257,12 +257,14 @@ class ProjectEventType(EnumChoice):
     SOURCE_PULL = 'SOURCE_PULL'
     ARCHIVE = 'ARCHIVE'
     SNAPSHOT = 'SNAPSHOT'
+    CONVERT = 'CONVERT'
 
 
 PROJECT_EVENT_LONG_TYPE_LOOKUP = {
     ProjectEventType.SOURCE_PULL.name: 'Source Pull to Disk',  # type: ignore # mypy does not understand enums
     ProjectEventType.ARCHIVE.name: 'Archive',  # type: ignore # mypy does not understand enums
-    ProjectEventType.SNAPSHOT.name: 'Snapshot'  # type: ignore # mypy does not understand enums
+    ProjectEventType.SNAPSHOT.name: 'Snapshot',  # type: ignore # mypy does not understand enums
+    ProjectEventType.CONVERT.name: 'Encoda Convert'  # type: ignore # mypy does not understand enums
 }
 
 

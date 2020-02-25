@@ -1,6 +1,6 @@
 let g_projectEventTypeLookup = null
 
-function getProjectEventDescription(shortType) {
+function getProjectEventDescription (shortType) {
   if (g_projectEventTypeLookup === null) {
     g_projectEventTypeLookup = {}
     g_projectEventTypes.forEach((typeAndDescription) => {
@@ -10,6 +10,121 @@ function getProjectEventDescription(shortType) {
 
   return g_projectEventTypeLookup[shortType]
 }
+
+function longDate(dateString) {
+  return moment(dateString).format('YYYY-MM-DD HH:mm:ssZ')
+}
+
+Vue.component('event-log-message', {
+  props: {
+    message: {
+      required: false
+    }
+  },
+  filters: {
+
+  },
+  computed: {
+    tag () {
+      if (!this.message.tag)
+        return ''
+
+      return this.message.tag
+    },
+    time () {
+      if (!this.message.time)
+        return ''
+
+      return longDate(this.message.time)
+    },
+    messageBody () {
+      if (Array.isArray(this.message)) {
+        let output = ''
+
+        this.message.forEach((v) => {
+          if (typeof v === 'string')
+            output += v
+          else
+            output += JSON.stringify(v)
+        })
+        return output
+      }
+
+      if(typeof this.message === 'string')
+        return this.message
+
+      if (!this.message.message)
+        return ''
+
+      return this.message.message
+    },
+    level () {
+      if (this.message.level === undefined)
+        return 2
+
+      return this.message.level
+    },
+    levelClass () {
+      const c = ['is-danger', 'is-warning', 'is-info', 'is-success'][this.level]
+      return {[c]: true}
+    }
+  },
+  template: '' +
+    '<article class="message is-small" :class="levelClass">' +
+    '  <div class="message-header">' +
+    '    <p><strong>{{ this.tag }}</strong> {{ this.time }}</p>' +
+    '  </div>' +
+    '  <div class="message-body">' +
+    '    {{ this.messageBody }}' +
+    '  </div>' +
+    '</article>'
+})
+
+Vue.component('event-detail-modal', {
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
+    },
+    event: {
+      type: Object,
+      required: false,
+      default: {}
+    }
+  },
+  methods: {
+    hideDetailModal () {
+      this.$root.$emit('hide-detail-modal')
+    }
+  },
+  computed: {
+    log () {
+      if (!this.event.log)
+        return []
+
+      if (typeof this.event.log === 'string')
+        return [this.event.log]
+
+      return this.event.log
+    }
+  },
+  template: '' +
+    '<b-modal :active="visible" :width="640" scroll="keep" :can-cancel="[\'escape\', \'outside\']" @close="hideDetailModal()">' +
+    '  <header class="modal-card-head">' +
+    '    <p class="modal-card-title"><slot name="title"></slot></p>' +
+    '    <button class="delete" aria-label="close" @click="hideDetailModal()"></button>' +
+    '  </header>' +
+    '  <section class="modal-card-body">' +
+    '    <h5 class="title is-5">Message</h5>' +
+    '    <p class="has-bottom-margin">{{ event.message }}</p>' +
+    '    <h5 v-if="log.length" class="title is-5">Log Messages</h5>' +
+    '    <event-log-message :key="index" v-for="(message, index) in log" :message="message"></event-log-message>' +
+    '  </section>' +
+    '  <footer class="modal-card-foot">' +
+    '    <a class="button" href="#" @click.prevent="hideDetailModal()">Close</a>' +
+    '  </footer>' +
+    '</b-modal>',
+})
 
 Vue.component('event-row', {
   props: {
@@ -24,12 +139,15 @@ Vue.component('event-row', {
       if (isSuccess === null)
         return '&mdash;'
 
-      const iconClass = isSuccess ? 'check' : 'cross'
+      const iconClass = isSuccess ? 'check' : 'times'
       const colorClass = isSuccess ? '' : 'has-text-danger'
 
       return `<span class="icon ${colorClass}">` +
         `<i class="fas fa-${iconClass}-circle"></i>` +
         '</span>'
+    },
+    hasLog() {
+      return Object.keys(this.event.log).length > 0
     }
   },
   filters: {
@@ -37,12 +155,26 @@ Vue.component('event-row', {
       return getProjectEventDescription(shortType)
     },
     longDate: function (dateString) {
-        if(dateString === null)
-          return '—'
+      if (dateString === null)
+        return '—'
 
-      return moment(dateString).format('YYYY-MM-DD HH:mm:ssZ')
+      return longDate(dateString)
     },
-
+    eventMessage (message) {
+      if (message === null)
+        return '-'
+      const originalLength = message.length
+      message = message.substring(0, 100)
+      message = message.split(' ').slice(0, 10).join(' ')
+      if (message.length < originalLength)
+        message += '…'
+      return message
+    }
+  },
+  methods: {
+    showMessageModal () {
+      this.$emit('show-detail-modal', event)
+    }
   },
   template: '' +
     '<tr>' +
@@ -50,10 +182,10 @@ Vue.component('event-row', {
     '  <td>{{ event.started  | longDate }}</td>' +
     '  <td>{{ event.finished | longDate }}</td>' +
     '  <td class="has-text-centered" v-html="successIcon"></td>' +
-    '  <td>{{ event.message }}</td>' +
+    '  <td>{{ event.message | eventMessage }}' +
+    '   <br/><a v-if="(event.message && event.message.length) || hasLog" @click="showMessageModal()">Details</a></td>' +
     '</tr>'
 })
-
 
 const projectEventList = new Vue({
   el: '#project-activity-view',
@@ -65,8 +197,9 @@ const projectEventList = new Vue({
     fetchInProgress: false,
     projectEventTypes: g_projectEventTypes,
     eventFilter: '',
-    successFilter: ''
-
+    successFilter: '',
+    detailModalVisible: false,
+    detailModalEvent: {}
   },
   methods: {
     loadEvents () {
@@ -96,23 +229,34 @@ const projectEventList = new Vue({
         this.nextUrl = data.next
         this.previousUrl = data.previous
       }).catch(() => {
-          this.fetchInProgress = false
+        this.fetchInProgress = false
       })
     },
-    loadPrevious() {
+    loadPrevious () {
       this.currentUrl = this.previousUrl
       this.loadEvents()
     },
-    loadNext() {
+    loadNext () {
       this.currentUrl = this.nextUrl
       this.loadEvents()
     },
+    showDetailModal (event) {
+      this.detailModalEvent = event
+      this.detailModalVisible = true
+    },
+    hideDetailModal () {
+      this.detailModalVisible = false
+    }
   },
-  mounted (){
+  mounted () {
     this.loadEvents()
+    this.$root.$on('hide-detail-modal', () => {
+      this.hideDetailModal()
+    })
   },
   template: '' +
     '<div>' +
+    '<event-detail-modal :visible.sync="detailModalVisible" :event="detailModalEvent"></event-detail-modal>' +
     '<div class="columns">' +
     '  <div class="column">' +
     '   <div class="field">' +
@@ -127,7 +271,7 @@ const projectEventList = new Vue({
     '  </div>' +
     '  <div class="column">' +
     '   <div class="field">' +
-    '     <label class="label">Successful</label>' +
+    '     <label class="label">Success</label>' +
     '     <div class="control">' +
     '       <select @change="loadEvents()" class="select" v-model="successFilter">' +
     '         <option value="">Any</option>' +
@@ -139,7 +283,7 @@ const projectEventList = new Vue({
     '   </div>' +
     '  </div>' +
     '</div>' +
-    '<table class="table is-fullwidth is-bordered">' +
+    '<table class="table is-fullwidth is-bordered is-striped">' +
     '  <thead>' +
     '    <tr>' +
     '      <th>Type</th>' +
@@ -150,7 +294,8 @@ const projectEventList = new Vue({
     '    </tr>' +
     '  </thead>' +
     '  <tbody>' +
-    '  <event-row v-for="event in events" :key="event.pk" :event="event"/>' +
+    '  <event-row v-if="!fetchInProgress" v-for="event in events" :key="event.pk" :event="event" ' +
+    '    v-on:show-detail-modal="showDetailModal(event)" v-on:hide-detail-modal="hideDetailModal()"/>' +
     '  <tr v-if="fetchInProgress || events.length === 0">' +
     '    <td colspan="5">' +
     '      <span v-if="!fetchInProgress">No events found.</span>' +

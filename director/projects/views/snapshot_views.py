@@ -10,11 +10,11 @@ from django.utils.html import escape
 from django.views.generic.base import View
 
 from lib.conversion_types import conversion_format_from_path, UnknownMimeTypeError, ConversionFormatId
+from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import Snapshot, PublishedItem
 from projects.source_operations import list_snapshot_directory, path_entry_iterator, snapshot_path, \
     generate_snapshot_publish_directory
-from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
 from projects.views.mixins import ProjectPermissionsMixin, ConverterMixin
 from projects.views.project_views import ProjectTab
 from projects.views.publication_views import published_item_render, send_media_response
@@ -112,21 +112,28 @@ class PreviewView(ConverterMixin, SnapshotView):
             # don't bother checking modification time since snapshots shouldn't change
             try:
                 source_type = conversion_format_from_path(file_path)
-                self.do_conversion(source_type, file_path, ConversionFormatId.html, published_path, False)
+                self.do_conversion(snapshot.project, request.user, source_type, file_path, ConversionFormatId.html,
+                                   published_path, False)
                 pi.path = published_path
                 pi.save()
-            except RuntimeError:
+            except Exception as e:
                 if created:
                     pi.delete()
-                raise
-            except UnknownMimeTypeError:
-                if created:
-                    pi.delete()
-                messages.error(request,
-                               'Unable to preview <em>{}</em> as its file type could not be determined.'.format(
-                                   escape(utf8_basename(path))), extra_tags='safe')
-                dirname = utf8_dirname(path)
 
+                if not isinstance(e, (UnknownMimeTypeError, RuntimeError)):
+                    raise
+
+                filename = escape(utf8_basename(path))
+
+                if isinstance(e, UnknownMimeTypeError):
+                    error_format = 'Unable to preview <em>{}</em> as its file type could not be determined.'
+                else:
+                    error_format = 'Unable to preview <em>{}</em> as it could not be converted to HTML. Please ' \
+                                   'check the Project Activity page for more information.'
+
+                messages.error(request, error_format.format(filename), extra_tags='safe')
+
+                dirname = utf8_dirname(path)
                 redirect_args = [snapshot.project.account.name, snapshot.project.name, snapshot.version_number]
 
                 if dirname:

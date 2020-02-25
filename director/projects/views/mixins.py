@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import tempfile
@@ -10,20 +11,21 @@ from django.contrib import messages
 from django.contrib.auth.models import AbstractUser, User
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, Http404
+from django.utils import timezone
 
 from accounts.models import Account
 from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES, UnknownMimeTypeError
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
+from lib.path_operations import utf8_path_join, utf8_dirname, utf8_realpath, utf8_basename
 from lib.resource_allowance import account_resource_limit, QuotaName
 from lib.social_auth_token import user_github_token
 from projects.permission_facade import ProjectFetchResult, fetch_project_for_user
 from projects.permission_models import ProjectPermissionType, ProjectRole, get_highest_permission
-from projects.project_models import Project, PublishedItem
+from projects.project_models import Project, PublishedItem, ProjectEvent, ProjectEventType
 from projects.project_puller import ProjectSourcePuller
 from projects.source_content_facade import SourceContentFacade, make_source_content_facade
 from projects.source_models import LinkedSourceAuthentication, GoogleDocsSource, DiskSource, Source
 from projects.source_operations import generate_project_archive_directory
-from lib.path_operations import utf8_path_join, utf8_dirname, utf8_realpath
 from projects.views.shared import DEFAULT_ENVIRON, get_project_publish_directory, get_source
 
 
@@ -172,7 +174,7 @@ class ConverterMixin:
 
         return self._converter
 
-    def do_conversion(self, source_type: typing.Optional[ConversionFormatId],
+    def do_conversion(self, project: Project, user: User, source_type: typing.Optional[ConversionFormatId],
                       source_path: str,
                       target_type: ConversionFormatId,
                       target_path: typing.Optional[str] = None, standalone: bool = False) -> str:
@@ -191,12 +193,35 @@ class ConverterMixin:
 
         context = ConverterContext(standalone=standalone)
 
+        source_type_desc = ' from {}'.format(source_type.name) if source_type else ''
+
+        event = ProjectEvent.objects.create(event_type=ProjectEventType.CONVERT.name, project=project, user=user,
+                                            message='Conversion of {}{} to {}'.format(
+                                                utf8_basename(source_path), source_type_desc, target_type.name
+                                            ))
+
         convert_result = self.converter.convert(converter_input, converter_output, context)
 
-        if convert_result.returncode != 0:
-            raise RuntimeError('Convert process failed. Stderr is: {}'.format(
-                convert_result.stderr.decode('ascii')))
+        std_err = convert_result.stderr.decode('ascii')
 
+        if std_err:
+            try:
+                # split on new line, decode JSOn
+                event.log = list(map(json.loads, filter(lambda x: x, std_err.split('\n'))))
+            except (TypeError, ValueError):
+                event.log = {
+                    'stderr': std_err
+                }
+
+        event.finished = timezone.now()
+
+        if convert_result.returncode != 0:
+            event.success = False
+            event.save()
+            raise RuntimeError('Convert process failed. Stderr is: {}'.format(std_err))
+
+        event.success = True
+        event.save()
         return target_path
 
     def convert_to_google_docs(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_name: str,
@@ -208,7 +233,7 @@ class ConverterMixin:
         DOCX. The document is uploaded in DOCX/HTML and Google takes care of converting to Google Docs format.
         """
         if scf.source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
-            output_content, output_mime_type = self.convert_source_for_google_docs(scf)
+            output_content, output_mime_type = self.convert_source_for_google_docs(project, request.user, scf)
         else:
             output_mime_type = mimetype_from_path(scf.file_path) or 'application/octet-stream'
             output_content = scf.get_binary_content()
@@ -228,7 +253,8 @@ class ConverterMixin:
         else:
             new_source.save()
 
-    def convert_source_for_google_docs(self, scf: SourceContentFacade) -> typing.Tuple[bytes, str]:
+    def convert_source_for_google_docs(self, project: Project, user: User, scf: SourceContentFacade) \
+            -> typing.Tuple[bytes, str]:
         # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
         temp_output_path = None
         input_path = None
@@ -237,7 +263,7 @@ class ConverterMixin:
         try:
             input_path = scf.sync_content(use_temp_input_path)
 
-            temp_output_path = self.do_conversion(scf.source_type, input_path, ConversionFormatId.docx)
+            temp_output_path = self.do_conversion(project, user, scf.source_type, input_path, ConversionFormatId.docx)
 
             with open(temp_output_path, 'rb') as temp_output:  # reopen after data has been written
                 output_content = temp_output.read()  # this is in DOCX after conversion
@@ -261,7 +287,8 @@ class ConverterMixin:
 
             absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
 
-            self.do_conversion(scf.source_type, absolute_input_path, target_type, absolute_output_path, standalone)
+            self.do_conversion(project, request.user, scf.source_type, absolute_input_path, target_type,
+                               absolute_output_path, standalone)
 
     def convert_and_publish(self, user: User, project: Project, pi: PublishedItem, pi_created: bool,
                             source: typing.Union[Source, DiskSource], source_path: str,
@@ -283,7 +310,8 @@ class ConverterMixin:
             except FileNotFoundError:
                 raise Http404
 
-            self.do_conversion(scf.source_type, absolute_input_path, ConversionFormatId.html, published_path, False)
+            self.do_conversion(project, user, scf.source_type, absolute_input_path, ConversionFormatId.html,
+                               published_path, False)
         except (RuntimeError, Http404, UnknownMimeTypeError):
             # Without this we can end up with items without paths
             if pi_created:

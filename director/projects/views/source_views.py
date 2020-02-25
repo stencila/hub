@@ -2,6 +2,7 @@ import json
 import os
 import typing
 
+import oauth2client.client
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
@@ -13,24 +14,23 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views import View
 from django.views.generic import CreateView, DetailView
-import oauth2client.client
 
 from accounts.db_facade import user_is_account_admin
 from lib import data_size
 from lib.conversion_types import ConversionFormatId
 from lib.google_docs_facade import GoogleDocsFacade
+from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
 from lib.resource_allowance import account_resource_limit, QuotaName, StorageLimitExceededException, \
     get_subscription_upgrade_text
 from lib.social_auth_token import user_social_token, user_github_token
 from projects.disk_file_facade import DiskFileFacade
+from projects.models import DropboxSource, GithubSource
 from projects.permission_models import ProjectPermissionType
-from projects.views.mixins import ProjectPermissionsMixin, ContentFacadeMixin, ConverterMixin
 from projects.source_content_facade import SourceEditContext, SourceContentFacade, make_source_content_facade
+from projects.source_forms import GithubSourceForm, GoogleDocsSourceForm
 from projects.source_models import DiskSource, GoogleDocsSource, Source
 from projects.source_operations import strip_directory
-from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
-from projects.models import DropboxSource, GithubSource
-from projects.source_forms import GithubSourceForm, GoogleDocsSourceForm
+from projects.views.mixins import ProjectPermissionsMixin, ContentFacadeMixin, ConverterMixin
 
 
 def project_files_redirect(account_name: str, project_name: str, dir_path: typing.Optional[str]) -> HttpResponse:
@@ -344,6 +344,12 @@ class SourceConvertView(LoginRequiredMixin, ProjectPermissionsMixin, ConverterMi
                 'error': 'Could not authenticate with your Google account. Please try logging into Stencila Hub with '
                          'your Google account to refresh the token.'}
             )
+        except RuntimeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Conversion of your document failed. Please check the Project Activity page for more '
+                         'information.'
+            })
 
         for message in scf.message_iterator():
             messages.add_message(request, message.level, message.message)
