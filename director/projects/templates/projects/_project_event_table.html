@@ -1,0 +1,11 @@
+{% load static %}
+<div id="project-activity-view">
+
+</div>
+<script>
+  const g_displayProjectColumn = {% if display_project_column %}true{% else %}false{% endif %}
+  const g_eventApiUrl = '{{ api_url }}'
+  const g_projectEventTypes = JSON.parse('{{ project_event_types|escapejs }}')
+</script>
+<script src="{% static 'js/moment.min.js' %}"></script>
+<script src="{% static 'js/project-events.js' %}"></script>

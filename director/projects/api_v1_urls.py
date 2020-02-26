@@ -3,7 +3,7 @@ from django.urls import path
 from projects.views.source_api_views import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
     ItemPublishView, PublishedItemDeleteView
 from projects.views.project_api_views import ProjectDetailView, ManifestView, ProjectListView, SnapshotView, \
-    ProjectEventListView
+    ProjectEventListView, AdminProjectEventListView
 
 urlpatterns = [
     path('', ProjectListView.as_view(), name='api_v1_project_list'),
@@ -16,5 +16,6 @@ urlpatterns = [
     path('<int:pk>/manifest/', ManifestView.as_view(), name='api_v1_project_manifest'),
     path('<int:pk>/snapshot/', SnapshotView.as_view(), name='api_v1_project_snapshot'),
     path('<int:project_pk>/events/', ProjectEventListView.as_view(), name='api_v1_project_event_list'),
-    path('published-items/<int:pk>/delete/', PublishedItemDeleteView.as_view(), name='api_v1_published_item_delete')
+    path('published-items/<int:pk>/delete/', PublishedItemDeleteView.as_view(), name='api_v1_published_item_delete'),
+    path('project-events/', AdminProjectEventListView.as_view(), name='api_v1_admin_project_events')
 ]

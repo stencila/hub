@@ -4,7 +4,7 @@ from django.urls import include, path, re_path
 from projects.views.project_host_views import (ProjectHostManifestView, ProjectHostSessionsView,
                                                ProjectSessionRequestView, ProjectSessionSetupView)
 from projects.views.project_views import (ProjectListView, ProjectCreateView, ProjectSettingsSessionsView,
-                                          ProjectNamedRedirect)
+                                          ProjectNamedRedirect, AdminProjectEventView)
 
 urlpatterns = [
     # Generic views
@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('<int:pk>/', ProjectNamedRedirect.as_view(), name='project_named_redirect'),
     path('<int:pk>/<path:path>', ProjectNamedRedirect.as_view(), name='project_named_redirect_path'),
+    path('events/', AdminProjectEventView.as_view(), name='admin_project_events'),
     # Per project Host API
     # TODO: These are probably redundant – replace with slug?
     path('<str:token>/host/', include([

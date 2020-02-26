@@ -131,6 +131,11 @@ Vue.component('event-row', {
     event: {
       type: Object,
       required: true,
+    },
+    displayProjectColumn: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   computed: {
@@ -178,6 +183,7 @@ Vue.component('event-row', {
   },
   template: '' +
     '<tr>' +
+    '  <td v-if="displayProjectColumn">{{ event.project.name }}</td>' +
     '  <td>{{ event.event_type | eventDescription }}</td>' +
     '  <td>{{ event.started  | longDate }}</td>' +
     '  <td>{{ event.finished | longDate }}</td>' +
@@ -199,29 +205,45 @@ const projectEventList = new Vue({
     eventFilter: '',
     successFilter: '',
     detailModalVisible: false,
-    detailModalEvent: {}
+    detailModalEvent: {},
+    displayProjectColumn: g_displayProjectColumn,
+    originalUrl: ''
   },
   methods: {
-    loadEvents () {
+    loadEvents (isFilterChange) {
       if (this.fetchInProgress)
         return
 
-      const filters = {}
+      const splitUrl = this.currentUrl.split('?')
+
+      let params
+      if(splitUrl.length > 1)
+        params = new URLSearchParams(splitUrl[1])
+      else
+        params = new URLSearchParams()
+
+      if (isFilterChange) {
+        if (params.has('limit'))
+          params.delete('limit')
+
+        if (params.has('offset'))
+          params.delete('offset')
+      }
 
       if (this.eventFilter !== '') {
-        filters['event_type'] = this.eventFilter
+        params.set('event_type', this.eventFilter)
+      } else if (params.has('event_type')) {
+        params.delete('event_type')
       }
 
       if (this.successFilter !== '') {
-        filters['success'] = this.successFilter
+        params.set('success', this.eventFilter)
+      } else if (params.has('success')) {
+        params.delete('success')
       }
 
-      const queryString = Object.keys(filters).map((key) => {
-        return encodeURIComponent(key) + '=' + encodeURIComponent(filters[key])
-      }).join('&')
-
       this.fetchInProgress = true
-      fetch(`${this.currentUrl}?${queryString}`).then((response) => {
+      fetch(`${this.originalUrl}?${params.toString()}`).then((response) => {
         this.fetchInProgress = false
         return response.json()
       }).then((data) => {
@@ -246,9 +268,15 @@ const projectEventList = new Vue({
     },
     hideDetailModal () {
       this.detailModalVisible = false
+    },
+  },
+  computed: {
+     loadingColspan() {
+      return this.displayProjectColumn ? 6: 5
     }
   },
   mounted () {
+    this.originalUrl = this.currentUrl
     this.loadEvents()
     this.$root.$on('hide-detail-modal', () => {
       this.hideDetailModal()
@@ -262,7 +290,7 @@ const projectEventList = new Vue({
     '   <div class="field">' +
     '     <label class="label">Event Type</label>' +
     '     <div class="control">' +
-    '       <select @change="loadEvents()" class="select" v-model="eventFilter">' +
+    '       <select @change="loadEvents(true)" class="select" v-model="eventFilter">' +
     '         <option value="">All</option>' +
     '         <option :key="index" v-for="(item, index) in projectEventTypes" :value="item[0]">{{ item[1] }}</option>' +
     '       </select>' +
@@ -286,6 +314,7 @@ const projectEventList = new Vue({
     '<table class="table is-fullwidth is-bordered is-striped">' +
     '  <thead>' +
     '    <tr>' +
+    '      <th v-if="displayProjectColumn">Project</th>' +
     '      <th>Type</th>' +
     '      <th>Started</th>' +
     '      <th>Finished</th>' +
@@ -295,9 +324,10 @@ const projectEventList = new Vue({
     '  </thead>' +
     '  <tbody>' +
     '  <event-row v-if="!fetchInProgress" v-for="event in events" :key="event.pk" :event="event" ' +
-    '    v-on:show-detail-modal="showDetailModal(event)" v-on:hide-detail-modal="hideDetailModal()"/>' +
+    '   :display-project-column="displayProjectColumn" v-on:show-detail-modal="showDetailModal(event)" ' +
+    '   v-on:hide-detail-modal="hideDetailModal()"/>' +
     '  <tr v-if="fetchInProgress || events.length === 0">' +
-    '    <td colspan="5">' +
+    '    <td :colspan="loadingColspan">' +
     '      <span v-if="!fetchInProgress">No events found.</span>' +
     '      <span v-if="fetchInProgress">Loading events.</span>' +
     '    </td>' +

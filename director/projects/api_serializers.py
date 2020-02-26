@@ -12,6 +12,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectEventSerializer(serializers.ModelSerializer):
     log = JSONField()
+    project = ProjectSerializer()
 
     class Meta:
         model = ProjectEvent

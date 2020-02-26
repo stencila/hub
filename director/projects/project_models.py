@@ -337,7 +337,7 @@ class ProjectEvent(models.Model):
                                                      'automatically JSON (de)serialized on writing/reading.')
 
     class Meta:
-        ordering = ['-started']
+        ordering = ['-pk']
 
     @property
     def long_type(self) -> str:

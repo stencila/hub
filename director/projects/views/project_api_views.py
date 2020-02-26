@@ -8,6 +8,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils import timezone
 from django.views import View
 from rest_framework import generics
+from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
 from lib.sparkla import generate_manifest
@@ -27,17 +28,16 @@ class ProjectListView(generics.ListAPIView):
         return fetch_result.projects
 
 
-class ProjectEventListView(generics.ListAPIView, ProjectPermissionsMixin):  # type: ignore # due to get_object override
+class ProjectEventListViewBase(generics.ListAPIView):
     serializer_class = ProjectEventSerializer
-    project_permission_required = ProjectPermissionType.MANAGE
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['event_type']
 
+    def get_base_queryset(self):
+        raise NotImplementedError('Subclasses must implement get_base_queryset')
+
     def get_queryset(self):
-        project = self.get_project(self.request.user, pk=self.kwargs['project_pk'])
-
-        filtered = ProjectEvent.objects.filter(project=project)
-
+        filtered = self.get_base_queryset()
         if 'success' in self.request.query_params:
             success = self.request.query_params['success']
 
@@ -49,6 +49,21 @@ class ProjectEventListView(generics.ListAPIView, ProjectPermissionsMixin):  # ty
                 filtered = filtered.filter(success__isnull=True)
 
         return filtered
+
+
+class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  # type: ignore # get_object override
+    project_permission_required = ProjectPermissionType.MANAGE
+
+    def get_base_queryset(self):
+        project = self.get_project(self.request.user, pk=self.kwargs['project_pk'])
+        return ProjectEvent.objects.filter(project=project)
+
+
+class AdminProjectEventListView(ProjectEventListViewBase):
+    permission_classes = [IsAdminUser]
+
+    def get_base_queryset(self):
+        return ProjectEvent.objects.all()
 
 
 class ManifestView(ProjectPermissionsMixin, APIView):
