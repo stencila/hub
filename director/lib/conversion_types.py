@@ -95,7 +95,7 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
 def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
     try:
         return ConversionFormatId.from_mimetype(mimetype)
-    except UnknownMimeTypeError:
+    except (UnknownMimeTypeError, ValueError):
         raise ConversionFormatError('Unable to create ConversionFormatId from mimetype {}'.format(mimetype))
 
 
