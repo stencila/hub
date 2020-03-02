@@ -237,7 +237,7 @@ const projectEventList = new Vue({
       }
 
       if (this.successFilter !== '') {
-        params.set('success', this.eventFilter)
+        params.set('success', this.successFilter)
       } else if (params.has('success')) {
         params.delete('success')
       }
