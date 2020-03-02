@@ -117,9 +117,12 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
                                             user=request.user, level=ProjectEventLevel.INFORMATIONAL.value)
         try:
             snapshotter.snapshot_project(request, project, request.data.get('tag'))
+            event.success = True
+            event.save()
             return JsonResponse({'success': True})
         except SnapshotInProgressError:
             in_progress_message = 'A snapshot is already in progress for Project {}.'.format(pk)
+            event.success = False
             event.level = ProjectEventLevel.WARNING.value
             event.message = in_progress_message
             event.save()
@@ -127,6 +130,7 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
                 {'success': False, 'error': in_progress_message})
         except Exception as e:
             event.level = ProjectEventLevel.ERROR.value
+            event.success = False
             event.message = str(e)
             event.save()
             raise
