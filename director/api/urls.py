@@ -5,6 +5,7 @@ from api.views_docs import schema_view, swagger_view
 from api.views_status import StatusView
 from api.views_tokens import TokensViewSet
 from projects.api.urls import urlpatterns as projects_urls
+from projects.api.views_execution import RpcTransactionView
 from users.api.urls import urlpatterns as users_urls
 
 router = routers.SimpleRouter()
@@ -19,4 +20,5 @@ urlpatterns = [
     # API URLs for each app
     path("projects/", include(projects_urls)),
     path("users/", include(users_urls)),
+    path('rpc-transactions/', RpcTransactionView.as_view())
 ] + router.urls
