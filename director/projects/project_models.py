@@ -333,6 +333,7 @@ class ProjectEvent(models.Model):
     # There's no JSON field that automatically uses TEXT storage in dev (SQLite) then switches to native JSON in
     # production (PostgreSQL), so just use a non-native one. If Django ever implements such a feature then we should
     # consider migrating
+    # TODO: Convert to FallbackJSONField
     log = JSONField(null=True, blank=True, help_text='Log messages, in the DB they are stored as text but are '
                                                      'automatically JSON (de)serialized on writing/reading.')
 
