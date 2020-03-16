@@ -16,7 +16,7 @@ django-filter==2.2.0
 dj_database_url==0.5.0
 dj-stripe==2.2.3
 google-api-python-client==1.8.0
-google-cloud-storage==1.19.1
+google-cloud-storage==1.26.0
 Pillow==6.2.0
 pyjwt==1.7.1
 psycopg2-binary==2.8.3
