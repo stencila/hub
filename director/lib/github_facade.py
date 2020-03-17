@@ -18,7 +18,7 @@ class HubGithubRepository(Repository):
 
     def get_contents_head(self, path, ref=GithubObject.NotSet):
         """
-        calls: `HEAD /repos/:owner/:repo/contents/:path` <http://developer.github.com/v3/repos/contents>.
+        Call `HEAD /repos/:owner/:repo/contents/:path` <http://developer.github.com/v3/repos/contents>.
 
         Pretty much the same as the get_contents method in Repository but uses HEAD so we don't have to get the content.
         """
