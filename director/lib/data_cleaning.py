@@ -1,6 +1,7 @@
 import enum
 import typing
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from lib.constants import DISALLOWED_ACCOUNT_SLUGS, DISALLOWED_PROJECT_SLUGS
@@ -30,3 +31,11 @@ def clean_slug(slug: typing.Optional[str], usage: SlugType) -> typing.Optional[s
         raise ValidationError('The name "{}" is reserved and can not be used.'.format(slug))
 
     return slug
+
+
+def logged_in_or_none(user: User) -> typing.Optional[User]:
+    """Since `AnonymousUser`s can't be saved to the DB, return None if user is anonymous."""
+    if user.is_anonymous:
+        return None
+
+    return user

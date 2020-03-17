@@ -6,6 +6,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from lib.data_cleaning import logged_in_or_none
 from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.project_puller import ProjectSourcePuller
 from projects.source_operations import generate_project_archive_directory
@@ -50,7 +51,8 @@ class ProjectArchiver(object):
         project_dir = self.puller.project_directory
 
         event = ProjectEvent.objects.create(event_type=ProjectEventType.ARCHIVE.name, project=self.project,
-                                            user=self.user, level=ProjectEventLevel.INFORMATIONAL.value)
+                                            user=logged_in_or_none(self.user),
+                                            level=ProjectEventLevel.INFORMATIONAL.value)
 
         archive_name = self.generate_archive_name(name_prefix)
 

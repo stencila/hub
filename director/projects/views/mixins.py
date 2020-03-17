@@ -16,6 +16,7 @@ from django.utils import timezone
 from accounts.models import Account
 from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES, UnknownMimeTypeError
 from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
+from lib.data_cleaning import logged_in_or_none
 from lib.path_operations import utf8_path_join, utf8_dirname, utf8_realpath, utf8_basename
 from lib.resource_allowance import account_resource_limit, QuotaName
 from lib.social_auth_token import user_github_token
@@ -195,7 +196,8 @@ class ConverterMixin:
 
         source_type_desc = ' from {}'.format(source_type.name) if source_type else ''
 
-        event = ProjectEvent.objects.create(event_type=ProjectEventType.CONVERT.name, project=project, user=user,
+        event = ProjectEvent.objects.create(event_type=ProjectEventType.CONVERT.name, project=project,
+                                            user=logged_in_or_none(user),
                                             message='Conversion of {}{} to {}'.format(
                                                 utf8_basename(source_path), source_type_desc, target_type.name
                                             ))

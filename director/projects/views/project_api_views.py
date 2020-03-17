@@ -11,6 +11,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
+from lib.data_cleaning import logged_in_or_none
 from lib.sparkla import generate_manifest
 from projects.api_serializers import ProjectSerializer, ProjectEventSerializer
 from projects.permission_models import ProjectPermissionType
@@ -114,7 +115,8 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
 
         snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
         event = ProjectEvent.objects.create(event_type=ProjectEventType.SNAPSHOT.name, project=project,
-                                            user=request.user, level=ProjectEventLevel.INFORMATIONAL.value)
+                                            user=logged_in_or_none(request.user),
+                                            level=ProjectEventLevel.INFORMATIONAL.value)
         try:
             snapshotter.snapshot_project(request, project, request.data.get('tag'))
             event.success = True
