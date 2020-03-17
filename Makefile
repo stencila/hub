@@ -231,6 +231,7 @@ tag-patch:
 	make push-tags
 
 ####################################################################################
+<<<<<<<
 # Secrets
 
 secrets-encrypt:
@@ -242,3 +243,44 @@ secrets-decrypt:
 	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
 	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
 	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
+
+=======
+# Desktop
+
+# Setup locally
+desktop/node_modules: desktop/package.json
+	cd desktop && npm install
+	touch $@
+desktop-setup: desktop/node_modules
+
+# Collect static files
+desktop/node_modules/stencila/dist/:
+	mkdir -p $@
+desktop/static/dist/: desktop/node_modules desktop/node_modules/stencila/dist/
+	mkdir -p $@
+	rsync --verbose --archive --recursive --delete desktop/node_modules/stencila/dist/ $@
+	touch $@
+desktop-static: desktop-setup desktop/static/dist/
+
+# Run locally
+desktop-run: desktop-static
+	cd desktop && JWT_SECRET='not-a-secret' npm start
+
+# Build Docker image
+# This copies static JS, CSS & HTML into the image to be served from there
+desktop-build: desktop/Dockerfile desktop-static
+	docker build --tag stencila/hub-desktop desktop
+
+# Run Docker image
+# This mounts the `desktop/dars` folder into the Docker container
+desktop-rundocker: desktop-build
+	docker run \
+		-e JWT_SECRET='not-a-secret' \
+		-it --rm -p 4000:4000 -v $$PWD/desktop/projects:/home/desktop/projects:rw stencila/hub-desktop
+
+# Push Docker image to Docker hub
+desktop-deploy: desktop-build
+	docker push stencila/hub-desktop
+
+
+>>>>>>>
