@@ -15,20 +15,32 @@
     ],
     "packageRules": [
       {
-        "paths": ["package.json", "requirements.txt"],
+        "paths": ["requirements.txt"],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "Deps"
+      },
+      {
+        "paths": ["package.json"],
         "depTypeList": ["dependencies"],
-        "rangeStrategy": "pin"
+        "rangeStrategy": "pin",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "Deps"
       },
       {
         "groupName": "Python dev dependencies",
         "paths": ["requirements-dev.txt"],
-        "rangeStrategy": "pin"
+        "rangeStrategy": "pin",
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "Dev deps"
       },
       {
         "groupName": "Javascript dev dependencies",
         "paths": ["package.json"],
         "depTypeList": ["devDependencies"],
-        "rangeStrategy": "pin"
+        "rangeStrategy": "pin",
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "Dev deps"
       }
     ]
   }
