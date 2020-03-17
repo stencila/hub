@@ -30,7 +30,6 @@ We also welcome your suggestions or code contributions for feature you'd like to
 
 - Create Projects
     - Upload, manage and edit files and data in the browser (with [Monaco Editor](https://microsoft.github.io/monaco-editor/index.html))
-    - Start building executable documents by launching a Stencila Desktop session for your Project
 - Link Remote Sources (Github, Google Drive 🦄 and Dropbox 🦄)
     - Seamlessly integrate all code and data no matter the source
 - Allow Projects to be publicly accessible (or added to the Project Gallery 🦄)
