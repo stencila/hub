@@ -15,11 +15,11 @@ sass.compiler = require('node-sass')
 const sassDev = function() {
   return gulp.src([
     './node_modules/@stencila/style/sass/**/*.sass',
-    './assets/sass/**/*.sass'
+    './director/assets/sass/**/*.sass'
   ])
   .pipe(sass(sassOptions).on('error', sass.logError))
   .pipe(autoprefixer())
-  .pipe(gulp.dest('./assets/css'))
+  .pipe(gulp.dest('./director/assets/css'))
 }
 
 const sassBuild = function() {
@@ -28,16 +28,16 @@ const sassBuild = function() {
   
   return gulp.src([
     './node_modules/@stencila/style/sass/**/*.sass',
-    './assets/sass/**/*.sass'
+    './director/assets/sass/**/*.sass'
   ])
   .pipe(sass(sassOptions).on('error', sass.logError))
   .pipe(autoprefixer())
-  .pipe(gulp.dest('./assets/css'))
+  .pipe(gulp.dest('./director/assets/css'))
 }
 
 const watch = function(done) {
     gulp.watch('./node_modules/@stencila/style/sass/**/*.sass', { ignoreInitial: false }, gulp.series(sassDev))
-    gulp.watch('./assets/sass/**/*.sass', { ignoreInitial: false }, gulp.series(sassDev))
+    gulp.watch('./director/assets/sass/**/*.sass', { ignoreInitial: false }, gulp.series(sassDev))
     done()
 };
 
