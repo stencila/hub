@@ -96,11 +96,6 @@ Vue.component('item-action-menu', {
       required: false,
       default: false
     },
-    allowDesktopLaunch: {
-      type: Boolean,
-      required: false,
-      default: false
-    },
     allowEdit: {
       type: Boolean,
       required: false,
@@ -151,7 +146,7 @@ Vue.component('item-action-menu', {
       return this.downloadUrl !== ''
     },
     hasOpenActions () {
-      return this.allowEdit || this.allowDesktopLaunch
+      return this.allowEdit
     },
     hasConvertActions () {
       return this.hasEditPermission && this.convertTargets.length > 0
@@ -182,9 +177,6 @@ Vue.component('item-action-menu', {
     },
     showUnlinkModal () {
       this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
-    },
-    launchDesktopEditor () {
-      sessionWaitController.launchDesktopEditor(this.absolutePath)
     },
     startConvert (targetType, targetTypeName) {
       this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)

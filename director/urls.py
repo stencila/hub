@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.defaults import permission_denied, page_not_found
 
-import checkouts.views
 import user_views
 import users.views
 import views
@@ -57,11 +56,6 @@ urlpatterns = [
 
     # API
     path(UrlRoot.api.value + '/', include('api_urls')),
-
-    # Checkouts App
-    path(UrlRoot.checkouts.value + '/', include('checkouts.urls')),
-    # Shortcut to `checkout_create`
-    path(UrlRoot.checkout.value + '/', checkouts.views.CheckoutCreateView.as_view(), name='checkout_create_shortcut'),
 
     # User sign in, settings etc
     path(UrlRoot.me.value + '/', include('users.urls')),

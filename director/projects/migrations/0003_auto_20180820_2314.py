@@ -42,7 +42,6 @@ class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('checkouts', '0006_auto_20180723_1614'),
         ('projects', '0002_auto_20180723_0004_squashed_0004_auto_20180723_1708'),
     ]
 

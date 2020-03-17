@@ -6,9 +6,6 @@
 !/conversion-cleanup.sh
 !/*.py
 !/accounts
-!/checkouts
-!/editors
-!/hosts
 !/lib
 !/projects
 !/templates

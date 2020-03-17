@@ -70,9 +70,6 @@ class Common(Configuration):
         'users',
         'accounts',
         'projects',
-        'editors',
-        'hosts',
-        'checkouts',
         'stencila_open'
     ]
 
