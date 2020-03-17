@@ -1,9 +1,8 @@
-coverage==4.5.4
-bump2version==0.5.11
+bump2version==1.0.0
+coverage==5.0.4
 django-nose==1.4.6
-flake8==3.7.8
-mypy==0.740
-pydocstyle==4.0.1
+flake8==3.7.9
+mypy==0.770
+pydocstyle==5.0.2
 pydot==1.4.1
-#pygraphviz==1.5
-pyparsing==2.4.2
+pyparsing==2.4.6
