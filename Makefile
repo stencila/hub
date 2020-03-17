@@ -80,23 +80,23 @@ director-venv-dev:
 	touch $(VENV_DIR)
 
 # Build directory of external third party JS and CSS
-director/extern: director/package.json
-	cd director && npm install
+director/extern: package.json
+	npm install
 	mkdir -p $@/js
-	cp director/node_modules/vue/dist/vue.min.js $@/js
-	cp director/node_modules/vue-upload-component/dist/vue-upload-component.min.js $@/js
-	cp director/node_modules/moment/min/moment.min.js $@/js
-	cp director/node_modules/vue-resource/dist/vue-resource.min.js $@/js
-	cp director/node_modules/buefy/dist/buefy.min.js $@/js/buefy.min.js
-	cp director/node_modules/@stencila/executa/dist/browser/index.js $@/js/executa-index.js
+	cp node_modules/vue/dist/vue.min.js $@/js
+	cp node_modules/vue-upload-component/dist/vue-upload-component.min.js $@/js
+	cp node_modules/moment/min/moment.min.js $@/js
+	cp node_modules/vue-resource/dist/vue-resource.min.js $@/js
+	cp node_modules/buefy/dist/buefy.min.js $@/js/buefy.min.js
+	cp node_modules/@stencila/executa/dist/browser/index.js $@/js/executa-index.js
 	mkdir -p $@/js/monaco-editor/min/vs
-	cp -R director/node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
+	cp -R node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
 
-	cp -R director/node_modules/@stencila/components/dist/stencila-components/ $@/stencila-components/
+	cp -R node_modules/@stencila/components/dist/stencila-components/ $@/stencila-components/
 
 	mkdir -p $@/css
-	cp director/node_modules/buefy/dist/buefy.min.css $@/css
-	cp director/node_modules/bulma-switch/dist/css/bulma-switch.min.css $@/css
+	cp node_modules/buefy/dist/buefy.min.css $@/css
+	cp node_modules/bulma-switch/dist/css/bulma-switch.min.css $@/css
 	touch $@
 
 # Create UML models
@@ -229,16 +229,3 @@ tag-patch:
 	make increment-patch
 	make tag
 	make push-tags
-
-####################################################################################
-# Secrets
-
-secrets-encrypt:
-	$(VE) python make.py encrypt_secret secrets/director-allauth.json
-	$(VE) python make.py encrypt_secret secrets/director_dev_secrets.py
-	$(VE) python make.py encrypt_secret secrets/stencila-general-test-serviceaccount.json
-
-secrets-decrypt:
-	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
-	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
-	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
