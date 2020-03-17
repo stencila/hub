@@ -12,6 +12,13 @@
     ],
     "schedule": [
       "Friday"
+    ],
+    "packageRules": [
+      {
+        "groupName": "Python dev dependencies",
+        "paths": ["director/requirements-dev.txt"],
+        "updateTypes": ["pin"]
+      }
     ]
   }
 }
