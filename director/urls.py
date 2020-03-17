@@ -66,9 +66,6 @@ urlpatterns = [
     # Projects App
     path(UrlRoot.projects.value + '/', include('projects.urls')),
 
-    # Stencila Admin App (not Django Admin)
-    path(UrlRoot.stencila_admin.value + '/', include('stencila_admin.urls')),
-
     # Testing errors
     path(UrlRoot.test.value + '/', include(test_patterns)),
 

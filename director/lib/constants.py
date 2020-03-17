@@ -19,7 +19,6 @@ class UrlRoot(enum.Enum):
     me = 'me'
     open = 'open'
     projects = 'projects'
-    stencila_admin = 'stencila-admin'
     system_status = 'system-status'
     test = 'test'
 
