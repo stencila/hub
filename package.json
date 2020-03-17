@@ -13,6 +13,9 @@
     "schedule": [
       "before 12pm on Friday"
     ],
+    "pip_requirements": {
+      "fileMatch": ["requirements.txt", "requirements-dev.txt"]
+    },
     "packageRules": [
       {
         "paths": ["requirements.txt"],
