@@ -15,9 +15,20 @@
     ],
     "packageRules": [
       {
+        "paths": ["package.json", "requirements.txt"],
+        "depTypeList": ["dependencies"],
+        "rangeStrategy": "pin"
+      },
+      {
         "groupName": "Python dev dependencies",
-        "paths": ["director/requirements-dev.txt"],
-        "updateTypes": ["pin"]
+        "paths": ["requirements-dev.txt"],
+        "rangeStrategy": "pin"
+      },
+      {
+        "groupName": "Javascript dev dependencies",
+        "paths": ["package.json"],
+        "depTypeList": ["devDependencies"],
+        "rangeStrategy": "pin"
       }
     ]
   }
