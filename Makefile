@@ -269,16 +269,3 @@ desktop-rundocker: desktop-build
 desktop-deploy: desktop-build
 	docker push stencila/hub-desktop
 
-
-####################################################################################
-# Secrets
-
-secrets-encrypt:
-	$(VE) python make.py encrypt_secret secrets/director-allauth.json
-	$(VE) python make.py encrypt_secret secrets/director_dev_secrets.py
-	$(VE) python make.py encrypt_secret secrets/stencila-general-test-serviceaccount.json
-
-secrets-decrypt:
-	$(VE) python make.py decrypt_secret secrets/director-allauth.json.enc
-	$(VE) python make.py decrypt_secret secrets/director_dev_secrets.py.enc
-	$(VE) python make.py decrypt_secret secrets/stencila-general-test-serviceaccount.json.enc
