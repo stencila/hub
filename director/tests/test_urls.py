@@ -40,8 +40,11 @@ signin = [200, title("Sign in")]
 # Expectations can be an integer response code, a
 # a string regex pattern, or a list of either of those
 Check = namedtuple("Check", "path anon joe mary")
+
+
 def check(path, anon=None, joe=None, mary=None):
     return Check(path, anon, joe, mary)
+
 
 # Skip a test
 # Useful to quickly skipping a test
@@ -193,6 +196,7 @@ checks = [
 # For finer grained control see https://docs.pytest.org/en/latest/warnings.html
 # pytestmark = pytest.mark.filterwarnings("error")
 
+
 @pytest.mark.django_db
 class Fixture(TestCase):
     """Setup the database as a test fixture"""
@@ -207,8 +211,7 @@ class Fixture(TestCase):
             account=joes_account, creator=joe, public=False, name="private-project"
         )
 
-        mary = User.objects.create_user(username="mary", password="mary")
-        marys_account = Account.objects.get(name="mary-personal-account")
+        User.objects.create_user(username="mary", password="mary")
 
 
 @pytest.mark.django_db
