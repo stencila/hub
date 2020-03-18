@@ -1,15 +1,6 @@
 {% extends 'accounts/account_base.html' %}
 {% load static %}
 {% block title %}Account {{ account.name }} : Members{% endblock %}
-{% block styles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
-    {{ block.super }}
-{% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
-{% endblock %}
 {% block account_content %}
     <section id="account-access" class="column">
         <delete-confirm-modal

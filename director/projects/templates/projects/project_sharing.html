@@ -1,16 +1,6 @@
 {% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags static escape_extras resource_allowance %}
 {% block title %}Project {{ project.pk }} : Sharing{% endblock %}
-{% block styles %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/buefy.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bulma-switch.min.css' %}">
-    {{ block.super }}
-{% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'js/buefy.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vue-resource.min.js' %}"></script>
-{% endblock %}
 {% block project_content %}
     <div id="project-role">
         <delete-confirm-modal
