@@ -25,7 +25,7 @@
   "devDependencies": {
     "@stencila/dev-config": "1.4.20",
     "gulp": "4.0.2",
-    "gulp-autoprefixer": "6.1.0",
+    "gulp-autoprefixer": "7.0.1",
     "gulp-sass": "4.0.2",
     "node-sass": "4.13.1",
     "sass-module-importer": "1.4.0"
