@@ -2,9 +2,11 @@
 Functional tests of Hub URLs
 
 These are pretty much "smoke tests" with the main aim being to catch
-severe regressions. Although they serve their purpose, prefer
-unit tests over these.
+severe regressions. Although they serve this purpose quite well, prefer
+writing unit tests over relying on these tests, particularly
+for test driven development.
 """
+
 from collections import namedtuple
 import re
 from django.contrib.auth.models import User
@@ -15,105 +17,181 @@ import pytest
 from accounts.models import Account
 from projects.models import Project
 
-# Shorthand functions fro creating regexes to match response HTML against
+# Shorthand functions for creating regexes to match response HTML against
 
 
 def title(title):
     """Create a regex for the <title> tag"""
-    return f"<title>{title} : Stencila</title>"
+    return "<title>{} : Stencila</title>".format(title)
 
 
 def link(href):
-    """Create a regex for a link (<a>) tag"""
-    return f'<a (.+?)?href="{href}"'
+    """Create a regex for a <a> tag"""
+    return '<a ([^>]*?)href="{}"'.format(href)
 
 
 # Shorthand sets of expectations for certain pages
 
 signin = [200, title("Sign in")]
 
-# Each test is for a path and defines the expected
-# response for each test user
-test = namedtuple("Test", "path anon joe")
-tests = [
-    test("/", signin, title("Dashboard")),
-    test("/me", signin, title("User settings")),
-    test("/me/password/change/", signin, title("Password Change")),
-    test("/me/email/", signin, title("Manage e-mail addresses")),
-    test("/me/social/connections/", signin, title("")),
-    test("/me/avatar/change/", signin, title("")),
-    test("/me/username/", signin, title("Change Username : Stencila")),
-    test(
+# Define a check
+# Each check is for a path and defines the expected
+# response for each user
+# Expectations can be an integer response code, a
+# a string regex pattern, or a list of either of those
+Check = namedtuple("Check", "path anon joe mary")
+def check(path, anon=None, joe=None, mary=None):
+    return Check(path, anon, joe, mary)
+
+# Skip a test
+# Useful to quickly skipping a test
+# instead of having to comment out multiple lines
+def Skip(path, *args, **kwargs):
+    print("Skipping {}".format(path))
+    return None
+
+
+# fmt: off
+checks = [
+    check(
+        "/",
+        anon=signin,
+        joe=title("Dashboard")
+    ),
+    check(
+        "/me",
+        anon=signin,
+        joe=title("User settings")
+    ),
+    check(
+        "/me/password/change/",
+        anon=signin,
+        joe=title("Password Change")
+    ),
+    check(
+        "/me/email/",
+        anon=signin,
+        joe=title("Manage e-mail addresses")
+    ),
+    check(
+        "/me/social/connections/",
+        anon=signin,
+        joe=title("")
+    ),
+    check(
+        "/me/avatar/change/",
+        anon=signin,
+        joe=title("")
+    ),
+    check(
+        "/me/username/",
+        anon=signin,
+        joe=title("Change Username : Stencila")
+    ),
+    check(
         "/accounts",
-        signin,
-        [title("Account  : Teams"), link(reverse("account_create"))],
+        anon=signin,
+        joe=[title("Account  : Teams"), link(reverse("account_create"))],
     ),
-    test("/joe-personal-account", signin, title("Account joe-personal-account")),
-    test(
+    check(
+        "/joe-personal-account",
+        anon=signin,
+        joe=title("Account joe-personal-account")
+    ),
+    check(
         "/joe-personal-account/members",
-        signin,
-        title("Account joe-personal-account : Members"),
+        anon=signin,
+        joe=title("Account joe-personal-account : Members"),
     ),
-    test("/joe-personal-account/teams", signin, title("Account 1 : Teams")),
-    test("/joe-personal-account/settings", signin, title("Account 1 : Settings")),
-    test(
+    check(
+        "/joe-personal-account/teams",
+        anon=signin,
+        joe=title("Account 1 : Teams")
+    ),
+    check(
+        "/joe-personal-account/settings",
+        anon=signin,
+        joe=title("Account 1 : Settings")
+    ),
+    check(
         "/joe-personal-account/subscriptions",
-        signin,
-        title("Account joe-personal-account : Subscriptions"),
+        anon=signin,
+        joe=title("Account joe-personal-account : Subscriptions"),
     ),
-    test("/joe-personal-account/subscriptions/add", signin, "plan"),
-    test(
+    check(
+        "/joe-personal-account/subscriptions/add",
+        anon=signin,
+        joe="plan"
+    ),
+    check(
         "/projects",
-        title("Projects"),
-        [title("Projects"), link(reverse("project_create"))],
+        anon=title("Projects"),
+        joe=[title("Projects"), link(reverse("project_create"))],
     ),
-    test(
+    # Most (all?) of the following tests generate the warning for all(?) users:
+    #  warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
+    check(
         "/joe-personal-account/public-project",
-        title("public-project : Overview"),
-        title("public-project : Overview"),
+        anon=title("public-project : Overview"),
+        joe=title("public-project : Overview"),
+        mary=title("public-project : Overview")
     ),
-    test(
+    check(
         "/joe-personal-account/private-project",
-        403,
-        title("private-project : Overview"),
+        anon=403,
+        joe=title("private-project : Overview"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/files",
-        403,
-        title("Project private-project: Files"),
+        anon=403,
+        joe=title("Project private-project: Files"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/snapshots",
-        403,
-        title("Project private-project: Snapshots"),
+        anon=403,
+        joe=title("Project private-project: Snapshots"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/archives",
-        403,
-        title("Project 2: Files"),
+        anon=403,
+        joe=title("Project 2: Files"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/activity",
-        403,
-        title("Project 2: Activity"),
+        anon=403,
+        joe=title("Project 2: Activity"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/sharing",
-        403,
-        title("Project 2 : Sharing"),
+        anon=403,
+        joe=title("Project 2 : Sharing"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/settings/metadata",
-        403,
-        title("Project 2 : Settings : Metadata"),
+        anon=403,
+        joe=title("Project 2 : Settings : Metadata"),
+        mary=403
     ),
-    test(
+    check(
         "/joe-personal-account/private-project/settings/access",
-        403,
-        title("Project 2 : Settings : Access"),
+        anon=403,
+        joe=title("Project 2 : Settings : Access"),
+        mary=403
     ),
 ]
+# fmt: on
 
+
+# The following turns warnings into errors to help debug where those
+# are being generated.
+# For finer grained control see https://docs.pytest.org/en/latest/warnings.html
+# pytestmark = pytest.mark.filterwarnings("error")
 
 @pytest.mark.django_db
 class Fixture(TestCase):
@@ -129,6 +207,9 @@ class Fixture(TestCase):
             account=joes_account, creator=joe, public=False, name="private-project"
         )
 
+        mary = User.objects.create_user(username="mary", password="mary")
+        marys_account = Account.objects.get(name="mary-personal-account")
+
 
 @pytest.mark.django_db
 class AnonTest(Fixture):
@@ -137,17 +218,25 @@ class AnonTest(Fixture):
     who = "anon"
 
     def test_urls(self):
-        for test in tests:
-            response = self.client.get(test.path, follow=True)
+        for check in checks:
+            if not isinstance(check, Check):
+                continue
+
+            expects = getattr(check, self.who)
+            if expects is None:
+                continue
+
+            response = self.client.get(check.path, follow=True)
             content = response.content.decode("utf-8")
-            expects = getattr(test, self.who)
             for expect in expects if isinstance(expects, list) else [expects]:
                 if isinstance(expect, int):
                     assert response.status_code == expect
                 elif isinstance(expect, str):
                     self.assertIsNotNone(
                         re.search(expect, content),
-                        f'Could not find regex "{expect}" in path {test.path}',
+                        'Could not find regex "{}" in path {}'.format(
+                            expect, check.path
+                        ),
                     )
                 else:
                     raise Exception(
@@ -157,10 +246,21 @@ class AnonTest(Fixture):
 
 @pytest.mark.django_db
 class JoeTest(AnonTest):
-    """Test response status codes for test user Joe"""
+    """Test responses for test user Joe"""
 
     who = "joe"
 
     def setUp(self):
         super().setUp()
         self.client.login(username="joe", password="joe")
+
+
+@pytest.mark.django_db
+class MaryTest(AnonTest):
+    """Test responses for test user Mary"""
+
+    who = "mary"
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username="mary", password="mary")
