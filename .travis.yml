@@ -25,12 +25,12 @@ script:
   - make director-lint-types
   - make director-lint-docs
   # Run tests in a development virtual environment
-  - make director-test
+  - make director-cover
   # Build production Docker image
   - make director-build
 
 after_script:
   # Run Codeclimate test reporter
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --prefix $TRAVIS_BUILD_DIR/director
-  # Run Codecov tet reporter
+  # Run Codecov test uploader
   - curl -s https://codecov.io/bash | bash
