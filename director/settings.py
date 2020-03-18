@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import sys
 import warnings
 from configurations import Configuration, values
 
