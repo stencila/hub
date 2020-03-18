@@ -83,15 +83,8 @@ director-venv-dev:
 director/extern: package.json
 	npm install
 	
-	mkdir -p $@/js
-	cp node_modules/moment/min/moment.min.js $@/js
-	
 	mkdir -p $@/js/monaco-editor/min/vs
 	cp -R node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
-
-	mkdir -p $@/css
-	cp node_modules/bulma-switch/dist/css/bulma-switch.min.css $@/css
-	touch $@
 
 # Create UML models
 director-models: $(VENV_DIR)
