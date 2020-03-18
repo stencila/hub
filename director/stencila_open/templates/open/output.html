@@ -11,9 +11,6 @@
     {% include 'open/_output_footer.html' %}
 {% endblock %}
 {% block open_scripts %}
-    {% if request.user.is_staff %}
-        <script src="{% static 'js/executa-index.js' %}"></script>
-    {% endif %}
     <script>
       var CURRENT_THEME = 'stencila'
 
