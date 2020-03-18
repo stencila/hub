@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import View
 from googleapiclient.errors import HttpError
+from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from lib.conversion_types import UnknownMimeTypeError
@@ -38,7 +39,7 @@ class LinkException(Exception):
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int):  # type: ignore
+    def post(self, request: Request, pk: int):  # type: ignore
         """Create or update the `PublishedItem` for this Project."""
         project = self.get_project(request.user, pk=pk)
 
@@ -129,7 +130,7 @@ class PublishedItemDeleteView(ProjectPermissionsMixin, APIView):
 class SourceLinkView(ProjectPermissionsMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+    def post(self, request: Request, pk: int) -> HttpResponse:  # type: ignore
         self.get_project(request.user, pk=pk)
 
         data = request.data

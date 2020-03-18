@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views import View
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
+from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from lib.data_cleaning import logged_in_or_none
@@ -110,7 +111,7 @@ class ManifestView(ProjectPermissionsMixin, APIView):
 class SnapshotView(ProjectPermissionsMixin, APIView):
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+    def post(self, request: Request, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk=pk)
 
         snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
