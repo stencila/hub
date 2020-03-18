@@ -79,20 +79,13 @@ director-venv-dev:
 	$(VE) pip3 install -r director/requirements-dev.txt
 	touch $(VENV_DIR)
 
-# Build directory of external third party JS and CSS
-director/extern: package.json
-	npm install
-	
-	mkdir -p $@/js/monaco-editor/min/vs
-	cp -R node_modules/monaco-editor/min/vs/* $@/js/monaco-editor/min/vs/
-
 # Create UML models
 director-models: $(VENV_DIR)
 	$(DJ) graph_models -a -o director/models.png
 
 # Build any static files
 # Needs `$(VENV_DIR)` to setup virtualenv for Django collectstatic
-director-static: $(VENV_DIR) director/extern
+director-static: $(VENV_DIR)
 	$(DJ) collectstatic --noinput
 
 # Create migrations
@@ -114,11 +107,11 @@ director-migrate-devdb: $(VENV_DIR)
 	$(DJ) migrate
 
 # Run development server
-director-run: $(VENV_DIR) director/extern
+director-run: $(VENV_DIR)
 	$(DJ) runserver
 
 # Run development server with production settings
-director-runprod: $(VENV_DIR) director/extern
+director-runprod: $(VENV_DIR)
 	$(EV) \
 	export DJANGO_CONFIGURATION=Prod; \
 	$(DJ) runserver
