@@ -1,6 +1,6 @@
 import time
+from unittest import mock
 
-from _pytest.monkeypatch import MonkeyPatch
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
@@ -16,17 +16,9 @@ class OpenIdGrantViewTests(APITestCase):
 
     url = reverse("api_openid_grant")
 
-    def setUp(self):
-        self.monkeypatch = MonkeyPatch()
-
     def post_token(self, claims):
         """Make a request payload with token"""
         return self.client.post(self.url, {"token": jwt_encode_handler(claims)})
-
-    def mock_google_verify(self):
-        self.monkeypatch.setattr(
-            google.oauth2.id_token, "verify_token", self.verify_token
-        )
 
     @staticmethod
     def verify_token(token, *args, **kwargs):
@@ -63,23 +55,23 @@ class OpenIdGrantViewTests(APITestCase):
         assert response.data == "Invalid token audience"
 
     def test_unverified_email(self):
-        self.mock_google_verify()
-        response = self.post_token({"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0]})
+        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
+            response = self.post_token({"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0]})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == "Email address has not been verified"
 
     def test_existing_email(self):
         User.objects.create_user("joe", "joe@example.com")
 
-        self.mock_google_verify()
-        response = self.post_token(
-            {
-                "iss": GOOGLE_ISS,
-                "aud": GOOGLE_AUDS[0],
-                "email_verified": True,
-                "email": "joe@example.com",
-            }
-        )
+        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
+            response = self.post_token(
+                {
+                    "iss": GOOGLE_ISS,
+                    "aud": GOOGLE_AUDS[0],
+                    "email_verified": True,
+                    "email": "joe@example.com",
+                }
+            )
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == "joe"
 
@@ -92,17 +84,17 @@ class OpenIdGrantViewTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
 
     def test_new_email(self):
-        self.mock_google_verify()
-        response = self.post_token(
-            {
-                "iss": GOOGLE_ISS,
-                "aud": GOOGLE_AUDS[0],
-                "email_verified": True,
-                "email": "mary@example.org",
-                "given_name": "Mary",
-                "family_name": "Morris"
-            }
-        )
+        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
+            response = self.post_token(
+                {
+                    "iss": GOOGLE_ISS,
+                    "aud": GOOGLE_AUDS[0],
+                    "email_verified": True,
+                    "email": "mary@example.org",
+                    "given_name": "Mary",
+                    "family_name": "Morris"
+                }
+            )
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == "mary"
 
