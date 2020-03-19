@@ -8,16 +8,18 @@ from users.api_urls import urlpatterns as user_urls
 
 urlpatterns = [
     # Provide /login and /logout URLs for DRF's browsable API interface
-    path('', include('rest_framework.urls')),
-    
+    path("", include("rest_framework.urls")),
     # API schema
-    path('schema/', get_schema_view(
-        title="Stencila Hub API",
-        url="/api/",
-        urlconf='api_urls',
-        description="RESTful API for the Stencila Hub"
-    ), name='api_schema'),
-    
+    path(
+        "schema/",
+        get_schema_view(
+            title="Stencila Hub API",
+            url="/api/",
+            urlconf="api_urls",
+            description="RESTful API for the Stencila Hub",
+        ),
+        name="api_schema",
+    ),
     # ReDoc API documentation
     # ReDoc is nice (although it does not have the ability to try executing API endpoints (?))
     # but it does not play nicely with the `operationId`s produced by DRF (it leads to very busy
@@ -25,14 +27,10 @@ urlpatterns = [
     #  path('docs/', TemplateView.as_view(
     #     template_name='api_redoc.html'
     #  ), name='api_docs'),
-    
     # Swagger UI
-    path('ui/', TemplateView.as_view(
-        template_name='api_swagger.html',
-    ), name='api_ui'),
-    
+    path("ui/", TemplateView.as_view(template_name="api_swagger.html",), name="api_ui"),
     # API URLs for each app
-    path('auth/', include(auth_urls)),
-    path('projects/', include(project_urls)),
-    path('users/', include(user_urls)),
+    path("auth/", include(auth_urls)),
+    path("projects/", include(project_urls)),
+    path("users/", include(user_urls)),
 ]

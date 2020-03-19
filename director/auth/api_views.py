@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 
 GOOGLE_ISS = "https://accounts.google.com"
 
+
 class OpenIdAuthView(APIView):
     authentication_classes = ()
     permission_classes = ()
