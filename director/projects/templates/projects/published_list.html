@@ -50,7 +50,7 @@
                                 index="{{ forloop.counter0 }}"
                                 item-pk="{{ published_item.pk }}"
                                 url-path="{{ published_item.url_path }}"
-                                delete-action="{% url 'api_v1_published_item_delete' published_item.pk %}"
+                                delete-action="{% url 'api_published_item_delete' published_item.pk %}"
                                 :ajax-submit="true"
                         ></published-action-menu>
                     </td>

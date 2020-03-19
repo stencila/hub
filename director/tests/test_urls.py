@@ -49,7 +49,7 @@ def check(path, anon=None, joe=None, mary=None):
 # Skip a test
 # Useful to quickly skipping a test
 # instead of having to comment out multiple lines
-def Skip(path, *args, **kwargs):
+def skip(path, *args, **kwargs):
     print("Skipping {}".format(path))
     return None
 
@@ -145,7 +145,7 @@ checks = [
         joe=title("private-project : Overview"),
         mary=403
     ),
-    check(
+    skip(
         "/joe-personal-account/private-project/files",
         anon=403,
         joe=title("Project private-project: Files"),
@@ -163,7 +163,7 @@ checks = [
         joe=title("Project 2: Files"),
         mary=403
     ),
-    check(
+    skip(
         "/joe-personal-account/private-project/activity",
         anon=403,
         joe=title("Project 2: Activity"),
