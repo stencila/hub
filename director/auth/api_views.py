@@ -1,17 +1,15 @@
 import time
+import typing
 
 from django.contrib.auth import login
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
-from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import slugify
 from google.auth.transport import requests
 from google.oauth2 import id_token
 import jwt
-from rest_framework_jwt.views import VerifyJSONWebToken
 from rest_framework_jwt.serializers import (
     jwt_payload_handler,
-    jwt_decode_handler,
     jwt_encode_handler,
 )
 from rest_framework import serializers
@@ -28,9 +26,7 @@ GOOGLE_AUDS = [
 
 
 class OpenIdTokenSerializer(serializers.Serializer):
-    """
-    Checks that a token is provided
-    """
+    """Checks that a token is provided."""
 
     token = serializers.CharField(required=True)
 
@@ -101,24 +97,47 @@ class OpenIdGrantView(APIView):
         return Response({"token": token, "username": str(user)})
 
     @staticmethod
-    def generate_username(email, given_name, family_name) -> str:
-        email_name = slugify(email.split("@")[0]) if email else None
-        username = email_name
-        trial = 1
-        while (
-            not username or User.objects.filter(username=username).count() > 0
-        ) and trial < 1000:
-            trial += 1
-            if trial == 2 and given_name:
-                username = slugify(given_name)
-            if trial == 3 and given_name and family_name:
-                username = slugify(given_name + " " + family_name)
-            elif trial == 4 and email:
-                username = slugify(email)
-            elif trial > 5:
-                base = slugify(email_name) if email_name else "user"
-                username = "{}{}".format(base, trial - 5)
-        return username
+    def generate_username(
+        email: typing.Optional[str],
+        given_name: typing.Optional[str],
+        family_name: typing.Optional[str],
+    ) -> str:
+        """
+        Generate a username from an email address, given name and/or family name.
+
+        See tests for examples.
+        """
+
+        def check_name(name):
+            username = slugify(name)
+            if name and User.objects.filter(username=username).count() == 0:
+                return username
+            else:
+                return None
+
+        email_name = check_name(email.split("@")[0]) if email else None
+        if email_name:
+            return email_name
+
+        given_slug = check_name(given_name) if given_name else None
+        if given_slug:
+            return given_slug
+
+        name_slug = (
+            check_name(given_name + " " + family_name)
+            if given_name and family_name
+            else None
+        )
+        if name_slug:
+            return name_slug
+
+        email_slug = check_name(email) if email else None
+        if email_slug:
+            return email_slug
+
+        base_name = email_name if email_name else "user"
+        existing = User.objects.filter(username__startswith=base_name + "-").count()
+        return "{}-{}".format(base_name, existing + 1)
 
 
 def bad_request(message: str) -> Response:

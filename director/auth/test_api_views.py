@@ -4,9 +4,8 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
-from rest_framework_jwt.serializers import jwt_payload_handler, jwt_encode_handler
+from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
-import google.oauth2.id_token
 import jwt
 
 from auth.api_views import OpenIdGrantView, GOOGLE_ISS, GOOGLE_AUDS
@@ -92,7 +91,7 @@ class OpenIdGrantViewTests(APITestCase):
                     "email_verified": True,
                     "email": "mary@example.org",
                     "given_name": "Mary",
-                    "family_name": "Morris"
+                    "family_name": "Morris",
                 }
             )
         assert response.status_code == status.HTTP_200_OK
@@ -106,18 +105,24 @@ class OpenIdGrantViewTests(APITestCase):
     def test_generate_username(self):
         gen = OpenIdGrantView.generate_username
 
-        assert gen(None, None, None) == 'user1'
-        User.objects.create_user("user1")
-        
-        assert gen(None, None, None) == 'user2'
+        assert gen(None, None, None) == "user-1"
+        User.objects.create_user("user-1")
 
-        assert gen('joe@example.com', None, None) == 'joe'
+        assert gen(None, None, None) == "user-2"
+        User.objects.create_user("user-2")
+
+        assert gen(None, None, None) == "user-3"
+
+        assert gen("joe@example.com", None, None) == "joe"
         User.objects.create_user("joe")
 
-        assert gen('joe@example.org', None, None) == 'joeexampleorg'
+        assert gen("joe@example.org", None, None) == "joeexampleorg"
         User.objects.create_user("joeexampleorg")
 
-        assert gen('joe@example.biz', "Joseph", None) == 'joseph'
+        assert gen("joe@example.biz", "Joseph", None) == "joseph"
         User.objects.create_user("joseph")
 
-        assert gen('joe@example.nz', "Joseph", "James") == 'joseph-james'
+        assert gen("joe@example.nz", "Joseph", "James") == "joseph-james"
+        User.objects.create_user("joseph-james")
+
+        assert gen("joe@example.us", "Joseph", "James") == "joeexampleus"
