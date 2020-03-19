@@ -63,7 +63,6 @@ EV := test -f director/env.sh && source director/env.sh || source director/env-e
 DJ ?= $(VE) $(EV) python3 director/manage.py
 
 # Setup virtual environment
-.PHONY: $(VENV_DIR)
 $(VENV_DIR): director/requirements.txt
 	python3 -m venv $(VENV_DIR)
 	$(VE) pip3 install -r director/requirements.txt
@@ -152,10 +151,14 @@ director-lint-types:
 director-lint-docs:
 	$(VE) pydocstyle --match-dir='^(?!venv|node_modules|\\.|migrations|tests|scripts|storage).*' director
 
+
 # Run tests
 director-test: $(VENV_DIR)
-	$(DJ) test director
+	$(VE) cd director && pytest
 
+# Run tests with coverage
+director-cover: $(VENV_DIR)
+	$(VE) cd director && pytest --cov=.  --cov-report term --cov-report html --cov-report xml
 
 # Build Docker image
 director-build: director/Dockerfile

@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-import sys
 import warnings
 from configurations import Configuration, values
 
@@ -330,11 +329,6 @@ class Dev(Common):
         'django_extensions'
     ]
 
-    TESTING = sys.argv[1:2] == ['test']
-
-    if TESTING:
-        INSTALLED_APPS.append('django_nose')
-
     # Additional middleware only used in development
     MIDDLEWARE = [
                      'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -346,20 +340,6 @@ class Dev(Common):
     # JWT secret can be set but has a default value
     # when in development which is shared with stencila/cloud
     JWT_SECRET = values.Value('not-a-secret')
-
-    TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-    NOSE_ARGS = [
-        '--with-coverage',
-        '--cover-package=projects.cloud_session_controller',
-        '--cover-package=projects.views.project_host_views',
-        '--cover-package=projects.source_operations',
-        '--cover-package=projects.source_forms',
-        '--cover-html',
-        '--cover-html-dir=' + os.path.join(Common.BASE_DIR, 'coverage'),
-        '--cover-xml',
-        '--cover-xml-file=' + os.path.join(Common.BASE_DIR, 'coverage.xml')
-    ]
 
     STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration (Test)'
     STENCILA_GITHUB_APPLICATION_URL = 'https://github.com/organizations/stencila/settings/apps/' \

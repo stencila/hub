@@ -1,0 +1,13 @@
+[run]
+omit = 
+    */test_*
+    */migrations/*
+    scripts/create_dev_*
+    manage.py
+    wsgi.py
+
+[html]
+directory = coverage
+
+[xml]
+output = coverage.xml
