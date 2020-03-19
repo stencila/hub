@@ -46,8 +46,8 @@ def check(path, anon=None, joe=None, mary=None):
     return Check(path, anon, joe, mary)
 
 
-# Skip a test
-# Useful to quickly skipping a test
+# Skip a check
+# Change `check` to `skip`
 # instead of having to comment out multiple lines
 def skip(path, *args, **kwargs):
     print("Skipping {}".format(path))
