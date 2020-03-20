@@ -31,6 +31,7 @@ class ProjectListView(generics.ListAPIView):
 
 
 class ProjectEventListViewBase(generics.ListAPIView):
+    swagger_schema = None
     serializer_class = ProjectEventSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['event_type']
@@ -54,6 +55,7 @@ class ProjectEventListViewBase(generics.ListAPIView):
 
 
 class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  # type: ignore # get_object override
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_base_queryset(self):
@@ -62,6 +64,7 @@ class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  
 
 
 class AdminProjectEventListView(ProjectEventListViewBase):
+    swagger_schema = None
     permission_classes = [IsAdminUser]
 
     def get_base_queryset(self):
@@ -69,6 +72,7 @@ class AdminProjectEventListView(ProjectEventListViewBase):
 
 
 class ManifestView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
     def get(self, request: HttpResponse, pk: int) -> HttpResponse:  # type: ignore
         return self.dispatch_response(request, pk)
 
@@ -109,6 +113,7 @@ class ManifestView(ProjectPermissionsMixin, APIView):
 
 
 class SnapshotView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: Request, pk: int) -> HttpResponse:  # type: ignore
@@ -144,6 +149,7 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
 
 # These are not DRF Views but they probably should be
 class ProjectDetailView(ProjectPermissionsMixin, View):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.VIEW
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore

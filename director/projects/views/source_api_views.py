@@ -37,6 +37,7 @@ class LinkException(Exception):
 
 
 class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: Request, pk: int):  # type: ignore
@@ -101,6 +102,7 @@ class ItemPublishView(ProjectPermissionsMixin, ConverterMixin, APIView):
 
 
 class PublishedItemDeleteView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
@@ -128,6 +130,7 @@ class PublishedItemDeleteView(ProjectPermissionsMixin, APIView):
 
 
 class SourceLinkView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: Request, pk: int) -> HttpResponse:  # type: ignore
@@ -233,6 +236,7 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
 # Views below are not DRF views, they should be
 
 class DiskItemCreateView(ProjectPermissionsMixin, View):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
@@ -265,6 +269,7 @@ class DiskItemCreateView(ProjectPermissionsMixin, View):
 
 
 class DiskItemMoveView(ProjectPermissionsMixin, View):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
@@ -293,6 +298,7 @@ class DiskItemMoveView(ProjectPermissionsMixin, View):
 
 
 class DiskItemRemoveView(ProjectPermissionsMixin, View):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
