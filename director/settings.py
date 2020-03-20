@@ -299,6 +299,8 @@ class Common(Configuration):
     # django-rest-knox settings
     # See http://james1345.github.io/django-rest-knox/settings/
     REST_KNOX = {
+        # The Prefix to use in the Authorization header
+        'AUTH_HEADER_PREFIX': 'UAT',
         # Period until token expires.  None will create tokens that never expire.
         'TOKEN_TTL': datetime.timedelta(days=90),
     }
@@ -306,6 +308,8 @@ class Common(Configuration):
     # django-rest-framework-jwt settings
     # See https://jpadilla.github.io/django-rest-framework-jwt/#additional-settings
     JWT_AUTH = {
+        # The Prefix to use in the Authorization header
+        'JWT_AUTH_HEADER_PREFIX': 'JWT',
         # Period until token expires. Generally recommended to be <15 mins
         'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=10),
         # Allow token to be refreshed within a given period from initial issuance

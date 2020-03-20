@@ -8,13 +8,63 @@ from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
 import jwt
 
-from auth.api_views import ObtainView, GOOGLE_ISS, GOOGLE_AUDS
+from auth.api_views import GrantView, GOOGLE_ISS, GOOGLE_AUDS
 
 
-class ObtainViewOpenIdTests(APITestCase):
-    """Test obtaining an authentication token using an OpenId token."""
+class TokenFlowTests(APITestCase):
+    """Test granting, verifying, refreshing, and revoking tokens."""
 
-    url = reverse("api_auth_obtain")
+    def test_uat(self):
+        User.objects.create_user("sam", password="sam")
+        response = self.client.post(
+            reverse("api_auth_grant"), {"username": "sam", "password": "sam"}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["username"] == "sam"
+        token = response.data["token"]
+
+        # self.client.credentials(HTTP_AUTHORIZATION='UAT ' + token)
+        # response = self.client.get(reverse("api_project_list"))
+        # assert response.status_code == status.HTTP_200_OK
+
+        response = self.client.post(reverse("api_auth_refresh"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] == token
+
+        response = self.client.post(reverse("api_auth_verify"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] == token
+
+        response = self.client.post(reverse("api_auth_revoke"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] is None
+
+        response = self.client.post(reverse("api_auth_verify"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] is None
+
+    def test_jwt(self):
+        User.objects.create_user("jane", password="jane")
+        response = self.client.post(
+            reverse("api_auth_grant"),
+            {"username": "jane", "password": "jane", "token_type": "jwt"},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["username"] == "jane"
+        token = response.data["token"]
+
+        response = self.client.post(reverse("api_auth_verify"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] == token
+
+        response = self.client.post(reverse("api_auth_refresh"), {"token": token})
+        assert response.status_code == status.HTTP_200_OK
+
+
+class GrantViewOpenIdTests(APITestCase):
+    """Test granting an authentication token using an OpenId token."""
+
+    url = reverse("api_auth_grant")
 
     def post_token(self, claims, **kwargs):
         """Post a request with an OpenId token parameter."""
@@ -107,7 +157,7 @@ class ObtainViewOpenIdTests(APITestCase):
         assert user.last_name == "Morris"
 
     def test_generate_username(self):
-        gen = ObtainView.generate_username
+        gen = GrantView.generate_username
 
         assert gen(None, None, None) == "user-1"
         User.objects.create_user("user-1")
