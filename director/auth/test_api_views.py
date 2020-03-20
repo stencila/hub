@@ -8,16 +8,19 @@ from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
 import jwt
 
-from auth.api_views import OpenIdView, GOOGLE_ISS, GOOGLE_AUDS
+from auth.api_views import ObtainView, GOOGLE_ISS, GOOGLE_AUDS
 
 
-class OpenIdViewTests(APITestCase):
+class ObtainViewOpenIdTests(APITestCase):
+    """Test obtaining an authentication token using an OpenId token."""
 
-    url = reverse("api_auth_openid")
+    url = reverse("api_auth_obtain")
 
-    def post_token(self, claims):
-        """Make a request payload with token."""
-        return self.client.post(self.url, {"token": jwt_encode_handler(claims)})
+    def post_token(self, claims, **kwargs):
+        """Post a request with an OpenId token parameter."""
+        data = {"openid": jwt_encode_handler(claims)}
+        data.update(kwargs)
+        return self.client.post(self.url, data)
 
     @staticmethod
     def verify_token(token, *args, **kwargs):
@@ -26,41 +29,41 @@ class OpenIdViewTests(APITestCase):
 
     def test_no_token(self):
         response = self.client.post(self.url)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_bad_token(self):
-        response = self.client.post(self.url, {"token": "foo"})
+        response = self.client.post(self.url, {"openid": "foo"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Bad token: Not enough segments"
+        assert response.data["detail"] == "Bad token: Not enough segments"
 
     def test_token_expired(self):
         response = self.post_token({"exp": time.time() - 10})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Token has expired"
+        assert response.data["detail"] == "Token has expired"
 
     def test_missing_issuer(self):
         response = self.post_token({"exp": time.time() + 10})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Invalid token issuer"
+        assert response.data["detail"] == "Invalid token issuer"
 
     def test_invalid_issuer(self):
         response = self.post_token({"iss": "https://example.com"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Invalid token issuer"
+        assert response.data["detail"] == "Invalid token issuer"
 
     def test_invalid_audience(self):
         response = self.post_token({"iss": GOOGLE_ISS, "aud": "foo"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Invalid token audience"
+        assert response.data["detail"] == "Invalid token audience"
 
     def test_unverified_email(self):
         with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
             response = self.post_token({"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0]})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data == "Email address has not been verified"
+        assert response.data["detail"] == "Email address has not been verified"
 
     def test_existing_email(self):
-        User.objects.create_user("joe", "joe@example.com")
+        User.objects.create_user("pete", "pete@example.com")
 
         with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
             response = self.post_token(
@@ -68,15 +71,16 @@ class OpenIdViewTests(APITestCase):
                     "iss": GOOGLE_ISS,
                     "aud": GOOGLE_AUDS[0],
                     "email_verified": True,
-                    "email": "joe@example.com",
-                }
+                    "email": "pete@example.com",
+                },
+                token_type="jwt",
             )
         assert response.status_code == status.HTTP_200_OK
-        assert response.data["username"] == "joe"
+        assert response.data["username"] == "pete"
 
         token = response.data["token"]
         claims = self.verify_token(token)
-        assert claims["username"] == "joe"
+        assert claims["username"] == "pete"
 
         # Can use the returned API token
         response = self.client.post(reverse("api_auth_verify"), {"token": token})
@@ -103,7 +107,7 @@ class OpenIdViewTests(APITestCase):
         assert user.last_name == "Morris"
 
     def test_generate_username(self):
-        gen = OpenIdView.generate_username
+        gen = ObtainView.generate_username
 
         assert gen(None, None, None) == "user-1"
         User.objects.create_user("user-1")

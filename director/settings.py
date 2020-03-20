@@ -11,6 +11,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+import datetime
 import os
 import warnings
 from configurations import Configuration, values
@@ -60,6 +61,7 @@ class Common(Configuration):
         'storages',
         'rest_framework',
         'drf_yasg',
+        'knox',
         'django_filters',
         'django_intercom',
         'djstripe',
@@ -286,11 +288,29 @@ class Common(Configuration):
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-            'rest_framework.authentication.SessionAuthentication'
+            'rest_framework.authentication.SessionAuthentication',
+            'knox.auth.TokenAuthentication',
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
         ),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
         'PAGE_SIZE': 50
+    }
+
+    # django-rest-knox settings
+    # See http://james1345.github.io/django-rest-knox/settings/
+    REST_KNOX = {
+        # Period until token expires.  None will create tokens that never expire.
+        'TOKEN_TTL': datetime.timedelta(days=90),
+    }
+
+    # django-rest-framework-jwt settings
+    # See https://jpadilla.github.io/django-rest-framework-jwt/#additional-settings
+    JWT_AUTH = {
+        # Period until token expires. Generally recommended to be <15 mins
+        'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=10),
+        # Allow token to be refreshed within a given period from initial issuance
+        'JWT_ALLOW_REFRESH': True,
+        'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=1),
     }
 
     STRIPE_LIVE_PUBLIC_KEY = values.Value('')

@@ -1,27 +1,26 @@
 import time
 import typing
 
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import slugify
 from google.auth.transport import requests
 from google.oauth2 import id_token
 import jwt
+import knox.views
 from rest_framework_jwt.serializers import (
     jwt_payload_handler,
     jwt_encode_handler,
-    JSONWebTokenSerializer,
     RefreshJSONWebTokenSerializer,
     VerifyJSONWebTokenSerializer,
 )
 from rest_framework_jwt.views import (
-    ObtainJSONWebToken,
     RefreshJSONWebToken,
     VerifyJSONWebToken,
 )
 from rest_framework import serializers
-from rest_framework import status
+from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import generics
@@ -32,97 +31,86 @@ GOOGLE_AUDS = [
     "110435422451-kafa0mb5tt5c5nfqou4kussbnslfajbv.apps.googleusercontent.com"
 ]
 
-# The following overrides of classes from `rest_framework_jwt`
-# are just to customize their representation in the API schema
-# The ref_name = None prevents the request data from being shown
-# as a model.
 
+class ObtainSerializer(serializers.Serializer):
 
-class ObtainSerializer(JSONWebTokenSerializer):
-    class Meta:
-        ref_name = None
+    username = serializers.CharField(required=False, help_text="User's username")
 
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        help_text="User's password",
+        style={"input_type": "password", "placeholder": "Password"},
+    )
 
-class ObtainView(ObtainJSONWebToken):
-    """
-    Obtain an authentication token from a username and password.
+    openid = serializers.CharField(
+        write_only=True, required=False, help_text="An OpenID Connect JSON Web Token."
+    )
 
-    Receives a POST with a user's username and password.
-    Returns a token that can be used for authenticated requests.
-    """
-
-    serializer_class = ObtainSerializer
-
-
-class RefreshSerializer(RefreshJSONWebTokenSerializer):
-    class Meta:
-        ref_name = None
-
-
-class VerifyView(VerifyJSONWebToken):
-    """
-    Verify an authentication token.
-    
-    Receives a POST with a token.
-    Returns the same token if it is valid.
-    """
-
-    serializer_class = RefreshSerializer
-
-
-class RefreshSerializer(RefreshJSONWebTokenSerializer):
-    class Meta:
-        ref_name = None
-
-
-class RefreshView(RefreshJSONWebToken):
-    """
-    Refresh an authentication token.
-
-    Receives a POST with an previously obtained token.
-    Returns a refreshed token (with new expiration) based on
-    existing token.
-    
-    If 'orig_iat' field (original issued-at-time) is found, will first check
-    if it's within expiration window, then copy it to the new token.
-    """
-
-    serializer_class = RefreshSerializer
-
-
-class OpenIdSerializer(serializers.Serializer):
-    """Checks that a token is POSTed."""
-
-    token = serializers.CharField(required=True)
+    token_type = serializers.ChoiceField(
+        ["uat", "jwt"],
+        default="uat",
+        help_text="The type of authentication token desired.",
+    )
 
     class Meta:
         ref_name = None
 
 
-class OpenIdView(generics.GenericAPIView):
+class ObtainView(generics.GenericAPIView):
     """
-    Obtain an authentication token from an OpenID Connect token.
+    Obtain an authentication token.
 
-    Receives a POST with an OpenID token issued by a third party.
-    Returns a token that can be used for authenticated requests.
+    Receives a POST with either (a) user's username and password,
+    or (b) an OpenID Connect JSON Web Token.
+    Returns the username, token_type and a token that can be used for authenticated requests.
     Currently, only OpenID tokens issued by Google are accepted.
     """
 
-    authentication_classes = ()
     permission_classes = ()
-    serializer_class = OpenIdSerializer
+    serializer_class = ObtainSerializer
 
     def post(self, request: Request) -> Response:
-        serializer = OpenIdSerializer(data=request.data)
+        serializer = ObtainSerializer(data=request.data)
         if serializer.is_valid():
-            token = serializer.validated_data.get("token")
+            username = serializer.validated_data.get("username")
+            password = serializer.validated_data.get("password")
+            openid = serializer.validated_data.get("openid")
+            token_type = serializer.validated_data.get("token_type")
         else:
-            return bad_request(serializer.errors)
+            raise ParseError(serializer.errors)
 
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+        elif openid:
+            user = self.login_openid(request, openid)
+        else:
+            user = request.user
+
+        if not user:
+            raise AuthenticationFailed()
+        elif not user.is_authenticated:
+            raise NotAuthenticated()
+
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
+        if token_type == "jwt":
+            token = jwt_encode_handler(jwt_payload_handler(user))
+        else:
+            response = knox.views.LoginView().post(request)
+            token = response.data["token"]
+
+        return Response(
+            {"token": token, "token_type": token_type, "username": str(user)}
+        )
+
+    @staticmethod
+    def login_openid(request, token):
+        """Login using an OpenID token."""
         try:
             unverified_claims = jwt.decode(token, None, False)
         except Exception as exc:
-            return bad_request("Bad token: {}".format(str(exc)))
+            raise ParseError("Bad token: {}".format(str(exc)))
 
         # Validates token following recommendations at
         # https://developers.google.com/identity/protocols/oauth2/openid-connect#validatinganidtoken
@@ -130,22 +118,22 @@ class OpenIdView(generics.GenericAPIView):
 
         exp = unverified_claims.get("exp")
         if exp and float(exp) < time.time():
-            return bad_request("Token has expired")
+            raise ParseError("Token has expired")
 
         if unverified_claims.get("iss") != GOOGLE_ISS:
-            return bad_request("Invalid token issuer")
+            raise ParseError("Invalid token issuer")
 
         if unverified_claims.get("aud") not in GOOGLE_AUDS:
-            return bad_request("Invalid token audience")
+            raise ParseError("Invalid token audience")
 
         transport = requests.Request()
         try:
             claims = id_token.verify_token(token, transport)
         except ValueError:
-            return bad_request("Token could not be verified")
+            raise ParseError("Token could not be verified")
 
         if not claims.get("email_verified"):
-            return bad_request("Email address has not been verified")
+            raise ParseError("Email address has not been verified")
 
         email = claims.get("email")
         given_name = claims.get("given_name")
@@ -156,15 +144,12 @@ class OpenIdView(generics.GenericAPIView):
         try:
             user = User.objects.get(email=email)
         except ObjectDoesNotExist:
-            username = self.generate_username(email, given_name, family_name)
+            username = ObtainView.generate_username(email, given_name, family_name)
             user = User.objects.create_user(
                 username, email=email, first_name=given_name, last_name=family_name
             )
 
-        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-
-        token = jwt_encode_handler(jwt_payload_handler(user))
-        return Response({"token": token, "username": str(user)})
+        return user
 
     @staticmethod
     def generate_username(
@@ -210,5 +195,44 @@ class OpenIdView(generics.GenericAPIView):
         return "{}-{}".format(base_name, existing + 1)
 
 
-def bad_request(message: str) -> Response:
-    return Response(message, status=status.HTTP_400_BAD_REQUEST)
+# The following overrides of classes from `rest_framework_jwt`
+# are just to customize their representation in the API schema.
+# But in the future, more overrides could be done.
+# The ref_name = None prevents the request data from being shown
+# as a model.
+
+
+class VerifySerializer(VerifyJSONWebTokenSerializer):
+    class Meta:
+        ref_name = None
+
+
+class VerifyView(VerifyJSONWebToken):
+    """
+    Verify a JWT authentication token.
+
+    Receives a POST with a token.
+    Returns the same token if it is valid.
+    """
+
+    serializer_class = VerifySerializer
+
+
+class RefreshSerializer(RefreshJSONWebTokenSerializer):
+    class Meta:
+        ref_name = None
+
+
+class RefreshView(RefreshJSONWebToken):
+    """
+    Refresh a JWT  authentication token.
+
+    Receives a POST with an previously obtained token.
+    Returns a refreshed token (with new expiration) based on
+    existing token.
+
+    If 'orig_iat' field (original issued-at-time) is found, will first check
+    if it's within expiration window, then copy it to the new token.
+    """
+
+    serializer_class = RefreshSerializer
