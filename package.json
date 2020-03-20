@@ -10,8 +10,7 @@
   "dependencies": {
     "@stencila/style": "1.2.0",
     "bulma": "0.7.5",
-    "hamburgers": "1.1.3",
-    "monaco-editor": "0.14.3"
+    "hamburgers": "1.1.3"
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.22",
