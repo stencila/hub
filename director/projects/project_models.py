@@ -41,13 +41,14 @@ class Project(models.Model):
         on_delete=models.PROTECT,
         related_name='projects',
         null=False,
-        blank=False
+        blank=False,
+        help_text="Account that the project is linked to."
     )
 
     name = models.SlugField(
         null=False,
         blank=False,
-        help_text="Name of the project, an identifier used in URLs. Must be unique within the Project's account"
+        help_text="Name of the project. Used as an identifier in URLs. Must be unique within the project's account."
     )
 
     creator = models.ForeignKey(
@@ -55,23 +56,23 @@ class Project(models.Model):
         null=True,  # Should only be null if the creator is deleted
         on_delete=models.SET_NULL,
         related_name='projects_created',
-        help_text='User who created project'
+        help_text='User who created the project.'
     )
 
     created = models.DateTimeField(
         auto_now_add=True,
-        help_text='When this project was created'
+        help_text='When the project was created.'
     )
 
     public = models.BooleanField(
         default=False,
-        help_text='Should this project be publicly visible?'
+        help_text='Is the project be publicly visible?'
     )
 
     description = models.TextField(
         null=True,
         blank=True,
-        help_text="Brief description of the project"
+        help_text="Brief description of the project."
     )
 
     token = models.TextField(

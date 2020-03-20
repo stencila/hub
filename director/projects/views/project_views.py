@@ -271,7 +271,7 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs) -> dict:
         context_data = super().get_context_data(**kwargs)
         context_data['project_tab'] = ProjectTab.ACTIVITY.value
-        context_data['api_url'] = reverse('api_v1_project_event_list', args=(self.project.pk,))
+        context_data['api_url'] = reverse('api_project_event_list', args=(self.project.pk,))
         context_data['project_event_types'] = json.dumps(
             list(
                 map(lambda t: [t.name, PROJECT_EVENT_LONG_TYPE_LOOKUP[t.name]], ProjectEventType)
@@ -287,7 +287,7 @@ class AdminProjectEventView(View):
 
         return render(request, 'projects/admin_project_activity.html', {
             'display_project_column': True,
-            'api_url': reverse('api_v1_admin_project_events'),
+            'api_url': reverse('api_admin_project_events'),
             'project_event_types': json.dumps(
                 list(
                     map(lambda t: [t.name, PROJECT_EVENT_LONG_TYPE_LOOKUP[t.name]], ProjectEventType)

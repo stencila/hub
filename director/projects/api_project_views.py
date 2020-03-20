@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.views import View
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser
+from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from lib.data_cleaning import logged_in_or_none
@@ -22,6 +23,12 @@ from projects.views.mixins import ProjectPermissionsMixin
 
 
 class ProjectListView(generics.ListAPIView):
+    """
+    Get a list of projects.
+
+    Returns a list of project that the authenticated user has access to.
+    """
+
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
@@ -30,6 +37,7 @@ class ProjectListView(generics.ListAPIView):
 
 
 class ProjectEventListViewBase(generics.ListAPIView):
+    swagger_schema = None
     serializer_class = ProjectEventSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['event_type']
@@ -53,6 +61,7 @@ class ProjectEventListViewBase(generics.ListAPIView):
 
 
 class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  # type: ignore # get_object override
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_base_queryset(self):
@@ -61,6 +70,7 @@ class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  
 
 
 class AdminProjectEventListView(ProjectEventListViewBase):
+    swagger_schema = None
     permission_classes = [IsAdminUser]
 
     def get_base_queryset(self):
@@ -68,6 +78,8 @@ class AdminProjectEventListView(ProjectEventListViewBase):
 
 
 class ManifestView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
+
     def get(self, request: HttpResponse, pk: int) -> HttpResponse:  # type: ignore
         return self.dispatch_response(request, pk)
 
@@ -108,9 +120,10 @@ class ManifestView(ProjectPermissionsMixin, APIView):
 
 
 class SnapshotView(ProjectPermissionsMixin, APIView):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.EDIT
 
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
+    def post(self, request: Request, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk=pk)
 
         snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
@@ -143,6 +156,7 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
 
 # These are not DRF Views but they probably should be
 class ProjectDetailView(ProjectPermissionsMixin, View):
+    swagger_schema = None
     project_permission_required = ProjectPermissionType.VIEW
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore

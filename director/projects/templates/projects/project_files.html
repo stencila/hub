@@ -110,13 +110,13 @@
       const g_filePullUrl = "{% url 'project_pull' project.account.name project.name %}"
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
-      const g_projectUpdateUrl = '{% url 'api_v1_project_detail' project.pk %}'
-      const g_snapshotUrl = '{% url 'api_v1_project_snapshot' project.pk %}'
+      const g_projectUpdateUrl = "{% url 'api_project_detail' project.pk %}"
+      const g_snapshotUrl = "{% url 'api_project_snapshot' project.pk %}"
     </script>
     <div id="file-browser" ref="file-browser-root"
-         data-item-create-url="{% url 'api_v1_project_item_create' project.id %}"
-         data-item-rename-url="{% url 'api_v1_project_item_move' project.id %}"
-         data-item-remove-url="{% url 'api_v1_project_item_remove' project.id %}">
+         data-item-create-url="{% url 'api_project_item_create' project.id %}"
+         data-item-rename-url="{% url 'api_project_item_move' project.id %}"
+         data-item-remove-url="{% url 'api_project_item_remove' project.id %}">
         <add-item-modal
                 directory-path="{{ current_directory }}"
         ></add-item-modal>
@@ -135,11 +135,11 @@
         <unsupported-social-provider-modal
                 account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
         <googledocs-link-modal directory="{{ current_directory }}"
-                               source-link-url="{% url 'api_v1_sources_link' project.pk %}"></googledocs-link-modal>
+                               source-link-url="{% url 'api_sources_link' project.pk %}"></googledocs-link-modal>
         <url-link-modal directory="{{ current_directory }}"
-                        source-link-url="{% url 'api_v1_sources_link' project.pk %}"></url-link-modal>
+                        source-link-url="{% url 'api_sources_link' project.pk %}"></url-link-modal>
         <publish-modal
-                publish-url="{% url 'api_v1_project_item_publish' project.pk %}"
+                publish-url="{% url 'api_project_item_publish' project.pk %}"
                 project-url="http{% if request.is_secure %}s{% endif %}://
                         {{ request.get_host }}{% url 'project_overview' project.account.name project.name %}"
         ></publish-modal>

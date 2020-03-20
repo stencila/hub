@@ -10,6 +10,7 @@ USER_QUERY_MIN_LENGTH = 3
 
 
 class UserSearch(generics.ListAPIView):
+    swagger_schema = None
     serializer_class = UserSerializer
 
     def get_queryset(self) -> QuerySet:

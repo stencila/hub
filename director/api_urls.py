@@ -1,14 +1,21 @@
 from django.urls import path, include
-from users.api_v1_urls import urlpatterns as user_v1_patterns
-from projects.api_v1_urls import urlpatterns as project_v1_patterns
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
+from django.views.generic import TemplateView
+
+from auth.api_urls import urlpatterns as auth_urls
+from projects.api_urls import urlpatterns as project_urls
+from users.api_urls import urlpatterns as user_urls
+
+from api_views import schema_view
 
 urlpatterns = [
-    path('v1/', include([
-        path('grant-token/', obtain_jwt_token),
-        path('refresh-token/', refresh_jwt_token),
-        path('verify-token/', verify_jwt_token),
-        path('users/', include(user_v1_patterns)),
-        path('projects/', include(project_v1_patterns))
-    ]))
+    # API schema
+    path("schema/", schema_view, name="api_schema"),
+    # Swagger Docs
+    path(
+        "docs/", TemplateView.as_view(template_name="api_swagger.html"), name="api_ui"
+    ),
+    # API URLs for each app
+    path("auth/", include(auth_urls)),
+    path("projects/", include(project_urls)),
+    path("users/", include(user_urls)),
 ]

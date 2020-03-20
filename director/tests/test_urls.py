@@ -1,5 +1,5 @@
 """
-Functional tests of Hub URLs
+Functional tests of Hub URLs.
 
 These are pretty much "smoke tests" with the main aim being to catch
 severe regressions. Although they serve this purpose quite well, prefer
@@ -21,12 +21,12 @@ from projects.models import Project
 
 
 def title(title):
-    """Create a regex for the <title> tag"""
+    """Create a regex for the <title> tag."""
     return "<title>{} : Stencila</title>".format(title)
 
 
 def link(href):
-    """Create a regex for a <a> tag"""
+    """Create a regex for a <a> tag."""
     return '<a ([^>]*?)href="{}"'.format(href)
 
 
@@ -46,10 +46,10 @@ def check(path, anon=None, joe=None, mary=None):
     return Check(path, anon, joe, mary)
 
 
-# Skip a test
-# Useful to quickly skipping a test
+# Skip a check
+# Change `check` to `skip`
 # instead of having to comment out multiple lines
-def Skip(path, *args, **kwargs):
+def skip(path, *args, **kwargs):
     print("Skipping {}".format(path))
     return None
 
@@ -145,7 +145,7 @@ checks = [
         joe=title("private-project : Overview"),
         mary=403
     ),
-    check(
+    skip(
         "/joe-personal-account/private-project/files",
         anon=403,
         joe=title("Project private-project: Files"),
@@ -163,7 +163,7 @@ checks = [
         joe=title("Project 2: Files"),
         mary=403
     ),
-    check(
+    skip(
         "/joe-personal-account/private-project/activity",
         anon=403,
         joe=title("Project 2: Activity"),
@@ -199,7 +199,7 @@ checks = [
 
 @pytest.mark.django_db
 class Fixture(TestCase):
-    """Setup the database as a test fixture"""
+    """Setup the database as a test fixture."""
 
     def setUp(self):
         joe = User.objects.create_user(username="joe", password="joe")
@@ -216,7 +216,7 @@ class Fixture(TestCase):
 
 @pytest.mark.django_db
 class AnonTest(Fixture):
-    """Test URL response status codes for unauthenticated users"""
+    """Test URL response status codes for unauthenticated users."""
 
     who = "anon"
 
@@ -249,7 +249,7 @@ class AnonTest(Fixture):
 
 @pytest.mark.django_db
 class JoeTest(AnonTest):
-    """Test responses for test user Joe"""
+    """Test responses for test user Joe."""
 
     who = "joe"
 
@@ -260,7 +260,7 @@ class JoeTest(AnonTest):
 
 @pytest.mark.django_db
 class MaryTest(AnonTest):
-    """Test responses for test user Mary"""
+    """Test responses for test user Mary."""
 
     who = "mary"
 
