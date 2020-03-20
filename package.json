@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@stencila/style": "1.2.0",
-    "bulma": "0.7.5",
+    "bulma": "0.8.0",
     "hamburgers": "1.1.3"
   },
   "devDependencies": {
