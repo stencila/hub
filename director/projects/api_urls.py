@@ -2,7 +2,7 @@ from django.urls import path
 
 from projects.views.source_api_views import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
     ItemPublishView, PublishedItemDeleteView
-from projects.views.project_api_views import ProjectDetailView, ManifestView, ProjectListView, SnapshotView, \
+from projects.api_project_views import ProjectDetailView, ManifestView, ProjectListView, SnapshotView, \
     ProjectEventListView, AdminProjectEventListView
 
 urlpatterns = [

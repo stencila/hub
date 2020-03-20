@@ -23,6 +23,12 @@ from projects.views.mixins import ProjectPermissionsMixin
 
 
 class ProjectListView(generics.ListAPIView):
+    """
+    Get a list of projects.
+
+    Returns a list of project that the authenticated user has access to.
+    """
+
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
@@ -73,6 +79,7 @@ class AdminProjectEventListView(ProjectEventListViewBase):
 
 class ManifestView(ProjectPermissionsMixin, APIView):
     swagger_schema = None
+
     def get(self, request: HttpResponse, pk: int) -> HttpResponse:  # type: ignore
         return self.dispatch_response(request, pk)
 
