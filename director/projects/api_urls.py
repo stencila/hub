@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from projects.views.source_api_views import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
     ItemPublishView, PublishedItemDeleteView
@@ -6,7 +6,8 @@ from projects.api_project_views import ProjectDetailView, ManifestView, ProjectL
     ProjectEventListView, AdminProjectEventListView
 
 urlpatterns = [
-    path('', ProjectListView.as_view(), name='api_project_list'),
+    re_path(r"/?", ProjectListView.as_view(), name='api_project_list'),
+
     path('<int:pk>', ProjectDetailView.as_view(), name='api_project_detail'),
     path('<int:pk>/item-create/', DiskItemCreateView.as_view(), name='api_project_item_create'),
     path('<int:pk>/item-move/', DiskItemMoveView.as_view(), name='api_project_item_move'),
