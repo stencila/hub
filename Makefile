@@ -14,7 +14,8 @@ lint: director-lint
 
 test: director-test
 
-build: router-build director-build
+build: director-build
+	make -C router build
 
 static: director-static
 
@@ -30,24 +31,6 @@ ifneq ($(GIT_BRANCH),master)
 else
 	git diff-index --quiet --cached HEAD -- && git diff-files --quiet --ignore-submodules --
 endif
-
-
-####################################################################################
-# Router
-
-# Build Docker image
-router-build: router/Dockerfile
-	docker build --tag stencila/hub-router router
-
-# Run Docker image
-router-rundocker: router-build
-	docker run -it --rm --net=host \
-	           -v $$PWD/router/nginx.conf:/etc/nginx/conf.d/default.conf:ro stencila/hub-router
-
-# Push Docker image to Docker hub
-router-deploy: router-build
-	docker push stencila/hub-router
-
 
 ####################################################################################
 # Director
