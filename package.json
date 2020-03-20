@@ -23,7 +23,7 @@
     "vue-upload-component": "2.8.20"
   },
   "devDependencies": {
-    "@stencila/dev-config": "1.4.20",
+    "@stencila/dev-config": "1.4.22",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "6.1.0",
     "gulp-sass": "4.0.2",
