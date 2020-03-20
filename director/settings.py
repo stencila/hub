@@ -59,6 +59,7 @@ class Common(Configuration):
         'polymorphic',
         'storages',
         'rest_framework',
+        'drf_yasg',
         'django_filters',
         'django_intercom',
         'djstripe',

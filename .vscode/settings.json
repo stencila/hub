@@ -2,5 +2,12 @@
     "python.linting.pylintEnabled": false,
     "python.linting.pydocstyleEnabled": true,
     "python.linting.enabled": true,
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "cSpell.words": [
+        "oauth",
+        "pytest",
+        "pytestmark",
+        "signin",
+        "stencila"
+    ]
 }

@@ -8,20 +8,20 @@ from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
 import jwt
 
-from auth.api_views import OpenIdGrantView, GOOGLE_ISS, GOOGLE_AUDS
+from auth.api_views import OpenIdView, GOOGLE_ISS, GOOGLE_AUDS
 
 
-class OpenIdGrantViewTests(APITestCase):
+class OpenIdViewTests(APITestCase):
 
-    url = reverse("api_openid_grant")
+    url = reverse("api_auth_openid")
 
     def post_token(self, claims):
-        """Make a request payload with token"""
+        """Make a request payload with token."""
         return self.client.post(self.url, {"token": jwt_encode_handler(claims)})
 
     @staticmethod
     def verify_token(token, *args, **kwargs):
-        """Mock: decodes but does not verify token"""
+        """Mock: decodes but does not verify token."""
         return jwt.decode(token, None, False)
 
     def test_no_token(self):
@@ -79,7 +79,7 @@ class OpenIdGrantViewTests(APITestCase):
         assert claims["username"] == "joe"
 
         # Can use the returned API token
-        response = self.client.post(reverse("api_token_verify"), {"token": token})
+        response = self.client.post(reverse("api_auth_verify"), {"token": token})
         assert response.status_code == status.HTTP_200_OK
 
     def test_new_email(self):
@@ -103,7 +103,7 @@ class OpenIdGrantViewTests(APITestCase):
         assert user.last_name == "Morris"
 
     def test_generate_username(self):
-        gen = OpenIdGrantView.generate_username
+        gen = OpenIdView.generate_username
 
         assert gen(None, None, None) == "user-1"
         User.objects.create_user("user-1")
