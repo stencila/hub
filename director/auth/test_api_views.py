@@ -14,7 +14,7 @@ from auth.api_views import GrantView, GOOGLE_ISS, GOOGLE_AUDS
 class TokenFlowTests(APITestCase):
     """Test granting, verifying, refreshing, and revoking tokens."""
 
-    def test_uat(self):
+    def test_success(self):
         User.objects.create_user("sam", password="sam")
         response = self.client.post(
             reverse("api_auth_grant"), {"username": "sam", "password": "sam"}
@@ -22,10 +22,6 @@ class TokenFlowTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == "sam"
         token = response.data["token"]
-
-        # self.client.credentials(HTTP_AUTHORIZATION='UAT ' + token)
-        # response = self.client.get(reverse("api_project_list"))
-        # assert response.status_code == status.HTTP_200_OK
 
         response = self.client.post(reverse("api_auth_refresh"), {"token": token})
         assert response.status_code == status.HTTP_200_OK
@@ -43,22 +39,34 @@ class TokenFlowTests(APITestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["token"] is None
 
-    def test_jwt(self):
-        User.objects.create_user("jane", password="jane")
-        response = self.client.post(
-            reverse("api_auth_grant"),
-            {"username": "jane", "password": "jane", "token_type": "jwt"},
+    def test_failure(self):
+        response = self.client.post(reverse("api_auth_grant"))
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["detail"] == "Authentication credentials were not provided."
         )
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["username"] == "jane"
-        token = response.data["token"]
 
-        response = self.client.post(reverse("api_auth_verify"), {"token": token})
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["token"] == token
+        response = self.client.post(reverse("api_auth_grant"), {"username": "foo"})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data["detail"] == "Authentication credentials were not provided."
 
-        response = self.client.post(reverse("api_auth_refresh"), {"token": token})
-        assert response.status_code == status.HTTP_200_OK
+        response = self.client.post(
+            reverse("api_auth_grant"), {"username": "evil", "password": "hackz"}
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data["detail"] == "Incorrect authentication credentials."
+
+        response = self.client.post(
+            reverse("api_auth_grant"), {"openid": "bar"}
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["detail"] == "Bad token: Not enough segments"
+
+        response = self.client.post(
+            reverse("api_auth_verify")
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["token"][0] == "This field is required."
 
 
 class GrantViewOpenIdTests(APITestCase):
@@ -66,20 +74,22 @@ class GrantViewOpenIdTests(APITestCase):
 
     url = reverse("api_auth_grant")
 
-    def post_token(self, claims, **kwargs):
+    def post_token(self, claims):
         """Post a request with an OpenId token parameter."""
         data = {"openid": jwt_encode_handler(claims)}
-        data.update(kwargs)
         return self.client.post(self.url, data)
 
     @staticmethod
     def verify_token(token, *args, **kwargs):
-        """Mock: decodes but does not verify token."""
+        """Mock: decodes but does not verify OpenId token."""
         return jwt.decode(token, None, False)
 
     def test_no_token(self):
         response = self.client.post(self.url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["detail"] == "Authentication credentials were not provided."
+        )
 
     def test_bad_token(self):
         response = self.client.post(self.url, {"openid": "foo"})
@@ -122,17 +132,13 @@ class GrantViewOpenIdTests(APITestCase):
                     "aud": GOOGLE_AUDS[0],
                     "email_verified": True,
                     "email": "pete@example.com",
-                },
-                token_type="jwt",
+                }
             )
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == "pete"
 
-        token = response.data["token"]
-        claims = self.verify_token(token)
-        assert claims["username"] == "pete"
-
         # Can use the returned API token
+        token = response.data["token"]
         response = self.client.post(reverse("api_auth_verify"), {"token": token})
         assert response.status_code == status.HTTP_200_OK
 

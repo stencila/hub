@@ -285,27 +285,28 @@ class Common(Configuration):
 
     REST_FRAMEWORK = {
         'DEFAULT_PERMISSION_CLASSES': (
+            # Default is for API endpoints to require the user to be authenticated
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
+            # Default is for Django session or API token authentication
             'rest_framework.authentication.SessionAuthentication',
-            'knox.auth.TokenAuthentication',
-            'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
+            'knox.auth.TokenAuthentication'
         ),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
         'PAGE_SIZE': 50
     }
 
-    # django-rest-knox settings
+    # django-rest-knox settings for API tokens
     # See http://james1345.github.io/django-rest-knox/settings/
     REST_KNOX = {
         # The Prefix to use in the Authorization header
-        'AUTH_HEADER_PREFIX': 'UAT',
+        'AUTH_HEADER_PREFIX': 'API',
         # Period until token expires.  None will create tokens that never expire.
-        'TOKEN_TTL': datetime.timedelta(days=90),
+        'TOKEN_TTL': datetime.timedelta(days=7),
     }
 
-    # django-rest-framework-jwt settings
+    # django-rest-framework-jwt settings for JWT execution session tokens
     # See https://jpadilla.github.io/django-rest-framework-jwt/#additional-settings
     JWT_AUTH = {
         # The Prefix to use in the Authorization header

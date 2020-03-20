@@ -10,21 +10,16 @@ from google.oauth2 import id_token
 import jwt
 import knox.views
 import knox.auth
-from rest_framework_jwt.serializers import (
-    jwt_payload_handler,
-    jwt_decode_handler,
-    jwt_encode_handler,
-    RefreshJSONWebTokenSerializer,
-)
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, ParseError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import generics
 
-# JWT claims verified for OpenID JWTs issued by Google
+# Claims verified for OpenID JWTs issued by Google
 GOOGLE_ISS = "https://accounts.google.com"
 GOOGLE_AUDS = [
+    # Stencila Google Docs addon
     "110435422451-kafa0mb5tt5c5nfqou4kussbnslfajbv.apps.googleusercontent.com"
 ]
 
@@ -44,12 +39,6 @@ class GrantSerializer(serializers.Serializer):
         write_only=True, required=False, help_text="An OpenID Connect JSON Web Token."
     )
 
-    token_type = serializers.ChoiceField(
-        ["uat", "jwt"],
-        default="uat",
-        help_text="Type of authentication token desired.",
-    )
-
     class Meta:
         ref_name = None
 
@@ -59,9 +48,7 @@ class GrantView(generics.GenericAPIView):
     Grant an authentication token.
 
     Receives a POST with either (a) user's username and password, or (b) an OpenID Connect JSON Web Token.
-    Use `token_type` "uat" for persistent, but revokable, user authentication tokens.
-    Use `token_type` "jwt" for ephemeral, but refreshable, JSON Web Tokens.
-    Returns the `username`, `token_type` and a `token` that can be used for authenticated requests.
+    Returns the `username`, and an `token` that can be used for authenticated API requests.
     Currently, only OpenID tokens issued by Google are accepted.
     """
 
@@ -74,7 +61,6 @@ class GrantView(generics.GenericAPIView):
             username = serializer.validated_data.get("username")
             password = serializer.validated_data.get("password")
             openid = serializer.validated_data.get("openid")
-            token_type = serializer.validated_data.get("token_type")
         else:
             raise ParseError(serializer.errors)
 
@@ -91,12 +77,8 @@ class GrantView(generics.GenericAPIView):
             raise NotAuthenticated()
 
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-
-        if token_type == "jwt":
-            token = jwt_encode_handler(jwt_payload_handler(user))
-        else:
-            response = knox.views.LoginView().post(request)
-            token = response.data["token"]
+        response = knox.views.LoginView().post(request)
+        token = response.data["token"]
 
         response = Response({"token": token, "username": str(user)})
         return response
@@ -196,25 +178,15 @@ class TokenSerializer(serializers.Serializer):
 
     token = serializers.CharField(help_text="Authentication token")
 
-    token_type = serializers.ChoiceField(
-        ["uat", "jwt"], required=False, help_text="Type of the authentication token.",
-    )
-
     class Meta:
         ref_name = None
-
-    def validate(self, data):
-        if data.get("token_type") is None:
-            if len(data["token"].split(".")) == 3:
-                data["token_type"] = "jwt"
-        return data
 
 
 class VerifyView(generics.GenericAPIView):
     """
     Verify a authentication token.
 
-    Receives a POST with a `token` and `token_type`.
+    Receives a POST with a `token`.
     Returns the same token if it is valid, `"token": null` if not.
     """
 
@@ -225,18 +197,14 @@ class VerifyView(generics.GenericAPIView):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
             token = serializer.validated_data.get("token")
-            token_type = serializer.validated_data.get("token_type")
         else:
             raise ParseError(serializer.errors)
 
         try:
-            if token_type == "jwt":
-                jwt_decode_handler(token)
-            else:
-                auth = knox.auth.TokenAuthentication()
-                auth.authenticate_credentials(token.encode("utf-8"))
+            auth = knox.auth.TokenAuthentication()
+            auth.authenticate_credentials(token.encode("utf-8"))
             return Response({"token": token})
-        except Exception:
+        except AuthenticationFailed:
             return Response({"token": None})
 
 
@@ -244,9 +212,8 @@ class RefreshView(generics.GenericAPIView):
     """
     Refresh an authentication token.
 
-    Receives a POST with an previously granted token.
-    Returns a refreshed token (with new expiration) based on
-    existing token.
+    Receives a POST with a previously granted token.
+    Returns the refreshed token (with new expiration).
     """
 
     permission_classes = ()
@@ -256,26 +223,21 @@ class RefreshView(generics.GenericAPIView):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
             token = serializer.validated_data.get("token")
-            token_type = serializer.validated_data.get("token_type")
         else:
             raise ParseError(serializer.errors)
 
-        if token_type == "jwt":
-            refreshed = RefreshJSONWebTokenSerializer().validate({"token": token})
-            return Response({"token": refreshed["token"]})
-        else:
-            # Just authenticating the token will refesh it; the same token
-            # is returned.
-            auth = knox.auth.TokenAuthentication()
-            auth.authenticate_credentials(token.encode("utf-8"))
-            return Response({"token": token})
+        # Just authenticating the token will refresh it; the same token
+        # is returned.
+        auth = knox.auth.TokenAuthentication()
+        auth.authenticate_credentials(token.encode("utf-8"))
+        return Response({"token": token})
 
 
 class RevokeView(generics.GenericAPIView):
     """
     Revoke an authentication token.
 
-    Receives a POST with an previously granted token.
+    Receives a POST with a previously granted token.
     Returns `"token": null` if successful.
     """
 
@@ -286,14 +248,10 @@ class RevokeView(generics.GenericAPIView):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
             token = serializer.validated_data.get("token")
-            token_type = serializer.validated_data.get("token_type")
         else:
             raise ParseError(serializer.errors)
 
-        if token_type == "jwt":
-            raise ParseError("JWT tokens can not be revoked")
-        else:
-            auth = knox.auth.TokenAuthentication()
-            user, token_instance = auth.authenticate_credentials(token.encode("utf-8"))
-            token_instance.delete()
-            return Response({"token": None})
+        auth = knox.auth.TokenAuthentication()
+        user, token_instance = auth.authenticate_credentials(token.encode("utf-8"))
+        token_instance.delete()
+        return Response({"token": None})
