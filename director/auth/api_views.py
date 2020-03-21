@@ -57,12 +57,10 @@ class GrantView(generics.GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = GrantSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data.get("username")
-            password = serializer.validated_data.get("password")
-            openid = serializer.validated_data.get("openid")
-        else:
-            raise ParseError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data.get("username")
+        password = serializer.validated_data.get("password")
+        openid = serializer.validated_data.get("openid")
 
         if username and password:
             user = authenticate(request, username=username, password=password)
@@ -195,10 +193,8 @@ class VerifyView(generics.GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid():
-            token = serializer.validated_data.get("token")
-        else:
-            raise ParseError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data.get("token")
 
         try:
             auth = knox.auth.TokenAuthentication()
@@ -221,10 +217,8 @@ class RefreshView(generics.GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid():
-            token = serializer.validated_data.get("token")
-        else:
-            raise ParseError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data.get("token")
 
         # Just authenticating the token will refresh it; the same token
         # is returned.
@@ -246,10 +240,8 @@ class RevokeView(generics.GenericAPIView):
 
     def post(self, request: Request) -> Response:
         serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid():
-            token = serializer.validated_data.get("token")
-        else:
-            raise ParseError(serializer.errors)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.validated_data.get("token")
 
         auth = knox.auth.TokenAuthentication()
         user, token_instance = auth.authenticate_credentials(token.encode("utf-8"))

@@ -43,30 +43,43 @@ class TokenFlowTests(APITestCase):
         response = self.client.post(reverse("api_auth_grant"))
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
-            response.data["detail"] == "Authentication credentials were not provided."
+            response.data["message"] == "Authentication credentials were not provided."
         )
 
         response = self.client.post(reverse("api_auth_grant"), {"username": "foo"})
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data["detail"] == "Authentication credentials were not provided."
+        assert (
+            response.data["message"] == "Authentication credentials were not provided."
+        )
 
         response = self.client.post(
             reverse("api_auth_grant"), {"username": "evil", "password": "hackz"}
         )
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        assert response.data["detail"] == "Incorrect authentication credentials."
+        assert response.data["message"] == "Incorrect authentication credentials."
 
-        response = self.client.post(
-            reverse("api_auth_grant"), {"openid": "bar"}
-        )
+        response = self.client.post(reverse("api_auth_grant"), {"openid": "bar"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Bad token: Not enough segments"
+        assert response.data["message"] == "Bad token: Not enough segments"
 
-        response = self.client.post(
-            reverse("api_auth_verify")
-        )
+        response = self.client.post(reverse("api_auth_verify"))
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["token"][0] == "This field is required."
+        assert response.data["message"] == "Invalid input."
+        assert response.data["errors"] == [
+            {"field": "token", "message": "This field is required."}
+        ]
+
+        response = self.client.post(reverse("api_auth_verify"), {"token": "blah"})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["token"] is None
+
+        response = self.client.post(reverse("api_auth_refresh"), {"token": "blah"})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data["message"] == "Invalid token."
+
+        response = self.client.post(reverse("api_auth_revoke"), {"token": "blah"})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.data["message"] == "Invalid token."
 
 
 class GrantViewOpenIdTests(APITestCase):
@@ -88,39 +101,39 @@ class GrantViewOpenIdTests(APITestCase):
         response = self.client.post(self.url)
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
-            response.data["detail"] == "Authentication credentials were not provided."
+            response.data["message"] == "Authentication credentials were not provided."
         )
 
     def test_bad_token(self):
         response = self.client.post(self.url, {"openid": "foo"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Bad token: Not enough segments"
+        assert response.data["message"] == "Bad token: Not enough segments"
 
     def test_token_expired(self):
         response = self.post_token({"exp": time.time() - 10})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Token has expired"
+        assert response.data["message"] == "Token has expired"
 
     def test_missing_issuer(self):
         response = self.post_token({"exp": time.time() + 10})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Invalid token issuer"
+        assert response.data["message"] == "Invalid token issuer"
 
     def test_invalid_issuer(self):
         response = self.post_token({"iss": "https://example.com"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Invalid token issuer"
+        assert response.data["message"] == "Invalid token issuer"
 
     def test_invalid_audience(self):
         response = self.post_token({"iss": GOOGLE_ISS, "aud": "foo"})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Invalid token audience"
+        assert response.data["message"] == "Invalid token audience"
 
     def test_unverified_email(self):
         with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
             response = self.post_token({"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0]})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.data["detail"] == "Email address has not been verified"
+        assert response.data["message"] == "Email address has not been verified"
 
     def test_existing_email(self):
         User.objects.create_user("pete", "pete@example.com")

@@ -293,6 +293,7 @@ class Common(Configuration):
             'rest_framework.authentication.SessionAuthentication',
             'knox.auth.TokenAuthentication'
         ),
+        'EXCEPTION_HANDLER': 'api_handlers.custom_exception_handler',
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
         'PAGE_SIZE': 50
     }
