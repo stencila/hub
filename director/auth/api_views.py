@@ -15,6 +15,8 @@ from rest_framework.exceptions import AuthenticationFailed, NotAuthenticated, Pa
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import generics
+from drf_yasg.utils import swagger_auto_schema
+
 
 # Claims verified for OpenID JWTs issued by Google
 GOOGLE_ISS = "https://accounts.google.com"
@@ -25,6 +27,7 @@ GOOGLE_AUDS = [
 
 
 class GrantSerializer(serializers.Serializer):
+    """Validates the request data."""
 
     username = serializers.CharField(required=False, help_text="User's username")
 
@@ -43,6 +46,17 @@ class GrantSerializer(serializers.Serializer):
         ref_name = None
 
 
+class GrantResponse(serializers.Serializer):
+    """Documents the response data."""
+
+    token = serializers.CharField(help_text="Authentication token.")
+
+    username = serializers.CharField(help_text="The username of the user that was authenticated.")
+
+    class Meta:
+        ref_name = None
+
+
 class GrantView(generics.GenericAPIView):
     """
     Grant an authentication token.
@@ -55,6 +69,7 @@ class GrantView(generics.GenericAPIView):
     permission_classes = ()
     serializer_class = GrantSerializer
 
+    @swagger_auto_schema(responses={200: GrantResponse})
     def post(self, request: Request) -> Response:
         serializer = GrantSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
