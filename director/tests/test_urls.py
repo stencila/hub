@@ -145,7 +145,7 @@ checks = [
         joe=title("private-project : Overview"),
         mary=403
     ),
-    skip(
+    check(
         "/joe-personal-account/private-project/files",
         anon=403,
         joe=title("Project private-project: Files"),
@@ -163,7 +163,7 @@ checks = [
         joe=title("Project 2: Files"),
         mary=403
     ),
-    skip(
+    check(
         "/joe-personal-account/private-project/activity",
         anon=403,
         joe=title("Project 2: Activity"),

@@ -63,14 +63,15 @@ lint-types:
 lint-docs:
 	$(VE) pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts|storage).*' .
 
-
 # Run tests
 test: venv
-	$(VE) pytest
+	$(VE) pytest --ignore ./tests
+	$(VE) pytest ./tests
 
 # Run tests with coverage
 cover: venv
-	$(VE) pytest --cov=. --cov-report term --cov-report html --cov-report xml
+	$(VE) pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
+	$(VE) pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
 
 # Build Docker image
 build: Dockerfile

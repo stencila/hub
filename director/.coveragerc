@@ -1,5 +1,6 @@
 [run]
 omit = 
+    venv/**/*
     */test_*
     */migrations/*
     scripts/create_dev_*
