@@ -4,6 +4,14 @@
 #   https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-multiplatform?view=azure-devops
 # For docs on building and pushing Docker images
 #   https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+# For a guide to triggering build on tags, see:
+#   https://medium.com/faun/azure-pipelines-and-git-tag-quirks-1daaba61713a
+
+trigger:
+  branches:
+    include:
+    - master
+    - refs/tags/*
 
 jobs:
   - job: test
@@ -50,7 +58,7 @@ jobs:
         displayName: Tag and release
   
   - job: deploy
-    condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     pool:
       vmImage: ubuntu-latest
     steps:
