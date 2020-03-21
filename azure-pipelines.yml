@@ -1,0 +1,66 @@
+# Azure Pipelines config
+#
+# For docs on multi-platform setup see:
+#   https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-multiplatform?view=azure-devops
+# For docs on building and pushing Docker images
+#   https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+jobs:
+  - job: test
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.6'
+
+      - script: make -C director venv-dev
+        displayName: Setup dev environment
+
+      - script: make -C director lint
+        displayName: Lint
+
+      - script: make -C director cover
+        displayName: Test
+
+      - script: bash <(curl -s https://codecov.io/bash)
+        condition: succeeded()
+        displayName: Upload coverage
+
+  - job: release
+    dependsOn: test
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 12.x
+        displayName: Install Node.js
+
+      - script: |
+          npm ci
+          npx semantic-release
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+        displayName: Tag and release
+  
+  - job: deploy
+    condition: and(eq(variables['Build.SourceBranch'], 'refs/heads/master'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: Docker@2
+        displayName: Build director image
+        inputs:
+          command: buildAndPush
+          dockerfile: director/Dockerfile
+          containerRegistry: DockerHub
+          repository: stencila/hub-director
+          tags: |
+            $(Build.BuildNumber)
+            latest
