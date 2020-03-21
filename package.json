@@ -86,7 +86,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "sed -i -e 's!.*:${nextRelease.version}!g' director/version.py"
+          "prepareCmd": "sed -i -e 's!.*!${nextRelease.version}!g' director/version.py"
         }
       ],
       "@semantic-release/git",
