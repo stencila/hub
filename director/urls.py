@@ -55,7 +55,7 @@ urlpatterns = [
     path(UrlRoot.admin.value + '/', admin.site.urls),
 
     # API
-    path(UrlRoot.api.value + '/', include('api_urls')),
+    path(UrlRoot.api.value + '/', include('api.urls')),
 
     # User sign in, settings etc
     path(UrlRoot.me.value + '/', include('users.urls')),

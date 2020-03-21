@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from auth.api_views import GrantView, VerifyView, RefreshView, RevokeView
+from auth.api.views import GrantView, VerifyView, RefreshView, RevokeView
 
 urlpatterns = [
     re_path(r"grant/?", GrantView.as_view(), name="api_auth_grant"),

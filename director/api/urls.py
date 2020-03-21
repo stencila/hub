@@ -1,11 +1,11 @@
 from django.urls import path, include
 from django.views.generic import TemplateView
 
-from auth.api_urls import urlpatterns as auth_urls
-from projects.api_urls import urlpatterns as project_urls
-from users.api_urls import urlpatterns as user_urls
+from auth.api.urls import urlpatterns as auth_urls
+from projects.api.urls import urlpatterns as project_urls
+from users.api.urls import urlpatterns as user_urls
 
-from api_views import schema_view
+from api.views import schema_view
 
 urlpatterns = [
     # API schema

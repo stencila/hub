@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from rest_framework import generics
 
-from users.serializers import UserSerializer
+from users.api.serializers import UserSerializer
 
 User = get_user_model()
 

@@ -8,7 +8,7 @@ from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
 import jwt
 
-from auth.api_views import GrantView, GOOGLE_ISS, GOOGLE_AUDS
+from auth.api.views import GrantView, GOOGLE_ISS, GOOGLE_AUDS
 
 
 class TokenFlowTests(APITestCase):

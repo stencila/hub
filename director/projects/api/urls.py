@@ -1,12 +1,12 @@
-from django.urls import path, re_path
+from django.urls import path
 
-from projects.views.source_api_views import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
+from projects.api.views_sources import DiskItemCreateView, DiskItemMoveView, DiskItemRemoveView, SourceLinkView, \
     ItemPublishView, PublishedItemDeleteView
-from projects.api_project_views import ProjectDetailView, ManifestView, ProjectListView, SnapshotView, \
+from projects.api.views_projects import ProjectDetailView, ManifestView, ProjectListView, SnapshotView, \
     ProjectEventListView, AdminProjectEventListView
 
 urlpatterns = [
-    re_path(r"/?", ProjectListView.as_view(), name='api_project_list'),
+    path("", ProjectListView.as_view(), name='api_project_list'),
 
     path('<int:pk>', ProjectDetailView.as_view(), name='api_project_detail'),
     path('<int:pk>/item-create/', DiskItemCreateView.as_view(), name='api_project_item_create'),

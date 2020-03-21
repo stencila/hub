@@ -14,12 +14,13 @@ from rest_framework.views import APIView
 
 from lib.data_cleaning import logged_in_or_none
 from lib.sparkla import generate_manifest
-from projects.api_serializers import ProjectSerializer, ProjectEventSerializer
 from projects.permission_models import ProjectPermissionType
 from projects.project_data import get_projects
 from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.snapshots import ProjectSnapshotter, SnapshotInProgressError
 from projects.views.mixins import ProjectPermissionsMixin
+
+from projects.api.serializers import ProjectSerializer, ProjectEventSerializer
 
 
 class ProjectListView(generics.ListAPIView):

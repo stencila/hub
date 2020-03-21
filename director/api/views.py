@@ -17,7 +17,7 @@ schema_view = get_schema_view(
         default_version="v1",
         description="RESTful API for the Stencila Hub",
     ),
-    urlconf="api_urls",
+    urlconf="api.urls",
     public=True,
     permission_classes=(permissions.AllowAny,),
     generator_class=CustomOpenAPISchemaGenerator,
