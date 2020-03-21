@@ -1,9 +1,9 @@
 [run]
 omit = 
-    venv/**/*
     */test_*
     */migrations/*
-    scripts/create_dev_*
+    scripts/*
+    venv/*
     manage.py
     wsgi.py
 
