@@ -1,8 +1,10 @@
 coverage==5.0.4
-pytest-django==3.8.0
-pytest-cov==2.8.1
+django-debug-toolbar==2.2
+django-extensions==2.2.8
 flake8==3.7.9
 mypy==0.770
 pydocstyle==5.0.2
 pydot==1.4.1
 pyparsing==2.4.6
+pytest-cov==2.8.1
+pytest-django==3.8.0
