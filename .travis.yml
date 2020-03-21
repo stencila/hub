@@ -11,7 +11,7 @@ services:
 
 install:
   # Setup a development virtual environment
-  - make director-venv-dev
+  - make -C director venv-dev
 
 before_script:
   # Download Codeclimate test reporter
@@ -21,13 +21,14 @@ before_script:
 
 script:
   # Run linting checks
-  - make director-lint-code
-  - make director-lint-types
-  - make director-lint-docs
-  # Run tests in a development virtual environment
-  - make director-cover
-  # Build production Docker image
-  - make director-build
+  - make -C director lint-code
+  - make -C director lint-types
+  - make -C director lint-docs
+  # Run tests
+  - make -C director cover
+  # Build production Docker images
+  - make -C director build
+  - make -C router build
 
 after_script:
   # Run Codeclimate test reporter

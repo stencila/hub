@@ -2,13 +2,17 @@
 # For why this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
 
 *
-!/requirements.txt
-!/conversion-cleanup.sh
+
 !/*.py
+!/conversion-cleanup.sh
+!/requirements.txt
+
 !/accounts
+!/api
+!/auth
 !/lib
 !/projects
-!/templates
 !/scripts
 !/stencila_open
+!/templates
 !/users

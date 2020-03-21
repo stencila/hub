@@ -6,4 +6,4 @@ build:
 # config file mounted
 run: build
 	docker run -it --rm --net=host \
-	           -v $$PWD/router/nginx.conf:/etc/nginx/conf.d/default.conf:ro stencila/hub-router
+	           -v $$PWD/nginx.conf:/etc/nginx/conf.d/default.conf:ro stencila/hub-router
