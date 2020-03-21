@@ -1,6 +1,6 @@
 {
   "name": "@stencila/hub",
-  "version": "0.8.27",
+  "version": "0.0.0",
   "author": "Stencila Hub Contributors (https://github.com/stencila/hub/graphs/contributors)",
   "license": "Apache-2.0",
   "scripts": {
@@ -13,6 +13,7 @@
     "hamburgers": "1.1.3"
   },
   "devDependencies": {
+    "@semantic-release/exec": "5.0.0",
     "@stencila/dev-config": "1.4.22",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
@@ -74,6 +75,22 @@
         "semanticCommitType": "chore",
         "semanticCommitScope": "Dev deps"
       }
+    ]
+  },
+  "release": {
+    "extends": "@stencila/semantic-release-config",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "sed -i -e 's!.*:${nextRelease.version}!g' director/version.py"
+        }
+      ],
+      "@semantic-release/git",
+      "@semantic-release/github"
     ]
   }
 }

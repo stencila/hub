@@ -8,13 +8,13 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
-import _version
+import version
 from lib.browser_detection import user_agent_is_internet_explorer
 from lib.health_check import migrations_pending
 
 
 class StatusView(View):
-    """A view that returns the current date for health checker purposes."""
+    """A view that returns the current date and version for health checker purposes."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
         if migrations_pending():
@@ -22,7 +22,7 @@ class StatusView(View):
 
         resp = JsonResponse({
             'time': datetime.datetime.utcnow().isoformat(),
-            'version': _version.__version__
+            'version': version.__version__
         })
         resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         resp['Pragma'] = 'no-cache'
