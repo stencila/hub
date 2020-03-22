@@ -93,8 +93,7 @@ class GrantView(generics.GenericAPIView):
         response = knox.views.LoginView().post(request)
         token = response.data["token"]
 
-        response = Response({"token": token, "username": str(user)})
-        return response
+        return Response({"token": token, "username": str(user)})
 
     @staticmethod
     def authenticate_openid(request, token):
