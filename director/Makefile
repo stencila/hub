@@ -8,6 +8,13 @@ EV := test -f ./env.sh && . ./env.sh || . ./env-example.sh ;
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(VE) $(EV) python3 manage.py
 
+all: setup run
+
+# Setup
+# This exists just for consistency across projects;
+# aliases to setting up the dev environment.
+setup: venv-dev
+
 # Setup virtual environment
 venv: requirements.txt
 	python3 -m venv venv
