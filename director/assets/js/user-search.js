@@ -57,7 +57,7 @@ Vue.component('user-autocomplete', {
             }, (response) => {
                 console.error(response)
             }).then(data => {
-                this.data = data.map((item) => {
+                this.data = data.results.map((item) => {
                     return item.username
                 }).filter((username) => {
                     return this.skipResults.indexOf(username) === -1;
