@@ -11,7 +11,7 @@ django-polymorphic==2.1.2
 django-rest-knox==4.1.0
 django-sendgrid-v5==0.8.1
 django-storages==1.7.2
-Django==2.2.10
+Django==2.2.11
 djangorestframework-jwt==1.11.0
 djangorestframework==3.11.0
 drf-yasg==1.17.1
