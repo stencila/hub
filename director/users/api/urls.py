@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import re_path
 
 from users.api.views import UserSearch
 
 urlpatterns = [
-    path('search', UserSearch.as_view())
+    re_path(r"search/?", UserSearch.as_view())
 ]
