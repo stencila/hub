@@ -1,3 +1,5 @@
+import os.path
+
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.generators import OpenAPISchemaGenerator
@@ -10,12 +12,14 @@ class CustomOpenAPISchemaGenerator(OpenAPISchemaGenerator):
         schema.basePath = "/api"
         return schema
 
+with open(os.path.join(os.path.dirname(__file__), "docs.md"), "r", encoding="utf-8") as file:
+    description = file.read()
 
 schema_view = get_schema_view(
     openapi.Info(
         title="Stencila Hub API",
         default_version="v1",
-        description="RESTful API for the Stencila Hub",
+        description=description,
     ),
     urlconf="api.urls",
     public=True,

@@ -1,0 +1,3 @@
+# Authentication
+
+Some routes require an API authentication token. To obtain a token [`POST /auth/grant`](#operations-auth-auth_grant_create) with `username` and `password`, or an OpenID Connect token. Then use the token in the `Authorization` header of subsequent requests with the prefix `API` e.g. `curl -X GET -H "Authorization: API 48866b1e38a2e9db0baada2140b2327937f4a3636dd5f2dfd8c212341c88d34" "https://hub.stenci.la/api/projects/"`.

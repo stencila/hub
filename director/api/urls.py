@@ -12,7 +12,7 @@ urlpatterns = [
     path("schema/", schema_view, name="api_schema"),
     # Swagger Docs
     path(
-        "docs/", TemplateView.as_view(template_name="api_swagger.html"), name="api_ui"
+        "docs/", TemplateView.as_view(template_name="api_swagger.html"), name="api_docs"
     ),
     # API URLs for each app
     path("auth/", include(auth_urls)),
