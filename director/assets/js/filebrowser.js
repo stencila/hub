@@ -192,16 +192,18 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item" :target="editTarget" rel="noopener">{{ editMenuText }}</a>' +
+    '      <div class="dropdown-item" v-if="allowEdit" style="width: 100%; text-align: left"><a :href="editorUrl"  :target="editTarget" rel="noopener"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a></div>' +
     '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
-    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
+    '      <span v-if="convertTargets.length" class="dropdown-item" style="font-weight: bold; text-align: left"><span class="icon"><i class="fas fa-recycle"></i></span>Save As</span>' +
+    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])" style="margin-left: 25px;">{{ convertTarget[1] }}&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
-    '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
-    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
-    '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
-    '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
-    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
-    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()">Publish&hellip;</a>' +
+    '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()"><span class="icon"><i class="fas fa-i-cursor"></i></span>Rename&hellip;</a>' +
+    '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()"><span class="icon"><i class="fas fa-trash"></i></span>Delete&hellip;</a>' +
+    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()"><span class="icon"><i class="fas fa-unlink"></i></span>Unlink&hellip;</a>' +
+    '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
+    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()"><span class="icon"><i class="fas fa-book-open"></i></span>Publish&hellip;</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye"></i></span>Preview</a>' +
+    '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item"><span class="icon"><i class="fas fa-download"></i></i></span>Download</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
