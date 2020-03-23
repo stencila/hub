@@ -286,6 +286,13 @@ class Common(Configuration):
     SPARKLA_PROJECT_ROOT = values.Value('')
 
     REST_FRAMEWORK = {
+        # Use camel casing for everything (inputs and outputs)
+        'DEFAULT_RENDERER_CLASSES': (
+            'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+        ),
+        'DEFAULT_PARSER_CLASSES': (
+            'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        ),
         'DEFAULT_PERMISSION_CLASSES': (
             # Default is for API endpoints to require the user to be authenticated
             'rest_framework.permissions.IsAuthenticated',
@@ -307,6 +314,16 @@ class Common(Configuration):
         'AUTH_HEADER_PREFIX': 'API',
         # Period until token expires.  None will create tokens that never expire.
         'TOKEN_TTL': datetime.timedelta(days=7),
+    }
+
+    SWAGGER_SETTINGS = {
+        'SECURITY_DEFINITIONS': {
+            'API': {
+                'type': 'apiKey',
+                'name': 'Authorization',
+                'in': 'header'
+            }
+        }
     }
 
     # django-rest-framework-jwt settings for JWT execution session tokens

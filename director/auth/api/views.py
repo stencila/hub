@@ -51,7 +51,21 @@ class GrantResponse(serializers.Serializer):
 
     token = serializers.CharField(help_text="Authentication token.")
 
-    username = serializers.CharField(help_text="The username of the user that was authenticated.")
+    id = serializers.IntegerField(
+        help_text="The id of the user that was authenticated."
+    )
+
+    username = serializers.CharField(
+        help_text="The username of the user that was authenticated."
+    )
+
+    first_name = serializers.CharField(
+        help_text="The first name of the user that was authenticated."
+    )
+
+    last_name = serializers.CharField(
+        help_text="The last name of the user that was authenticated."
+    )
 
     class Meta:
         ref_name = None
@@ -93,7 +107,15 @@ class GrantView(generics.GenericAPIView):
         response = knox.views.LoginView().post(request)
         token = response.data["token"]
 
-        return Response({"token": token, "username": str(user)})
+        return Response(
+            {
+                "token": token,
+                "id": user.id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+            }
+        )
 
     @staticmethod
     def authenticate_openid(request, token):
