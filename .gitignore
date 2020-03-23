@@ -1,6 +1,6 @@
-# Ignore secrets & storage
-secrets
-storage
+# Warning: a `.gitignore` in the `director` subdirectory will override
+# the `files` setting in `package.json` when packaging. So keep this
+# as the only `.gitigore` file.
 
 # Ignore Pycharm/IntelliJ Project Dir
 .idea
@@ -8,12 +8,21 @@ storage
 # Ignore macOS .DS_Store
 .DS_Store
 
-# Ignore the caches
+# Ignore compiled Python files etc
+*.pyc
 .mypy_cache
 
-cover
+# Ignore coverage reports
 .coverage
+coverage
+coverage.xml
 
 node_modules
 
-venv
+# Ignore director virtualenvs, collected static files etc
+/director/db.sqlite3
+/director/env.sh
+/director/secrets
+/director/static
+/director/storage
+/director/venv

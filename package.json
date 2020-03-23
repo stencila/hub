@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "author": "Stencila Hub Contributors (https://github.com/stencila/hub/graphs/contributors)",
   "license": "Apache-2.0",
+  "files": [
+    "director/static"
+  ],
   "scripts": {
     "build": "gulp build",
     "start": "gulp"

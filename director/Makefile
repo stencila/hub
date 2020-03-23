@@ -30,8 +30,10 @@ venv-dev: requirements.txt requirements-dev.txt
 
 # Build any static files
 # Needs `venv` to setup virtualenv for Django collectstatic
+# Uses Prod to avoid collecting static assets from packages not used in production e.g debug-toolbar
 static: venv
-	$(DJ) collectstatic --noinput
+	export DJANGO_CONFIGURATION="Prod"; $(DJ) collectstatic --noinput
+.PHONY: static
 
 # Create migrations
 migrations: venv
