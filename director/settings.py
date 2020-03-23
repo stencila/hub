@@ -14,7 +14,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import datetime
 import os
 import warnings
+
 from configurations import Configuration, values
+
+from version import __version__
 
 # TODO: the UserWarning might start to not be raised as of psycopg2 v2.8+ but until then suppress it
 warnings.filterwarnings('ignore', category=UserWarning, module='psycopg2')
@@ -172,7 +175,6 @@ class Common(Configuration):
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-    # Can be set using `DJANGO_STATIC_URL` env var
     STATIC_URL = values.Value('/static/')
 
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -402,6 +404,9 @@ class Prod(Common):
     INSTALLED_APPS = Common.INSTALLED_APPS + [
         'raven.contrib.django.raven_compat'
     ]
+
+    # Use unpkg.com CDN to serve static assets
+    STATIC_URL = values.Value('https://unpkg.com/@stencila/hub@{}/director/static/'.format(__version__))
 
     INTERCOM_APPID = values.Value('')
     # JWT secret must be set as environment
