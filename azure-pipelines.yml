@@ -41,6 +41,14 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.6'
+        displayName: Install Python
+
+      - script: make -C director static
+        displayName: Collect static files
+  
       - task: NodeTool@0
         inputs:
           versionSpec: 12.x
