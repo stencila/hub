@@ -5,7 +5,7 @@ from drf_yasg import openapi
 from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions, serializers, exceptions, views
+from rest_framework import permissions, serializers, exceptions, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -59,13 +59,19 @@ class MigrationsPending(exceptions.APIException):
     default_code = "migrations_pending"
 
 
-class StatusView(views.APIView):
+class StatusView(generics.GenericAPIView):
+    """
+    Get the current system status.
+    
+    Primarily intended as an endpoint for load balancers and other network infrastructure
+    to check the status of the instance. Returns a 50X status code if the instance is not healthy.
+    """    
 
     permission_classes = (permissions.AllowAny,)
 
     @swagger_auto_schema(responses={200: StatusResponse})
     def get(self, request: Request) -> Response:
-        """Get the current system status."""
+        # Raise an exception so that maintainers are alerted of the need to do migrations
         if migrations_pending():
             raise MigrationsPending()
 
