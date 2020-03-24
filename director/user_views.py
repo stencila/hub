@@ -14,6 +14,11 @@ class HomeView(View):
     """Home page view."""
 
     def get(self, request: HttpRequest, *args, **kwargs):
+        # TODO: We are manually sending OK since GLB always hits / to do a health check. this is a known bug being
+        # tracked here:
+        # https://github.com/kubernetes/ingress-gce/issues/42
+        # https://github.com/ory/k8s/issues/113#issuecomment-596281449
+
         user_agent = request.META.get('HTTP_USER_AGENT', '')
 
         if 'GoogleHC' in user_agent:
