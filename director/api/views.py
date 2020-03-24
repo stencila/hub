@@ -62,10 +62,10 @@ class MigrationsPending(exceptions.APIException):
 class StatusView(generics.GenericAPIView):
     """
     Get the current system status.
-    
+
     Primarily intended as an endpoint for load balancers and other network infrastructure
     to check the status of the instance. Returns a 50X status code if the instance is not healthy.
-    """    
+    """
 
     permission_classes = (permissions.AllowAny,)
 

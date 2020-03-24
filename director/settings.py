@@ -304,7 +304,11 @@ class Common(Configuration):
         ),
         'EXCEPTION_HANDLER': 'api.handlers.custom_exception_handler',
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-        'PAGE_SIZE': 50
+        'PAGE_SIZE': 50,
+
+        # Use JSON by default when using the test client
+        # https://www.django-rest-framework.org/api-guide/testing/#setting-the-default-format
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     }
 
     # django-rest-knox settings for API tokens
