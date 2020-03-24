@@ -421,7 +421,7 @@ class Prod(Common):
 
     # Do not redirect the status check to HTTPS so that
     # HTTP health checks will still work.
-    SECURE_REDIRECT_EXEMPT = [r'^api/status/?$']
+    SECURE_REDIRECT_EXEMPT = [r'^api/status/?$', r'^/?$']
 
     # Additional apps only used in production
     INSTALLED_APPS = Common.INSTALLED_APPS + [
