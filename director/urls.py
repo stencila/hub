@@ -40,9 +40,6 @@ urlpatterns = [
     # Redirect IE users to this view
     path(UrlRoot.ie_unsupported.value + '/', views.IeUnsupportedView.as_view(), name='ie-unsupported'),
 
-    # status
-    path(UrlRoot.system_status.value + '/', views.StatusView.as_view()),
-
     # Patterns that include other urlpatterns or files
 
     # About pages etc

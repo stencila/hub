@@ -1,33 +1,12 @@
-import datetime
-
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
-import version
 from lib.browser_detection import user_agent_is_internet_explorer
-from lib.health_check import migrations_pending
-
-
-class StatusView(View):
-    """A view that returns the current date and version for health checker purposes."""
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        if migrations_pending():
-            return HttpResponse('Instance is not healthy: there are unapplied migrations.', status=500)
-
-        resp = JsonResponse({
-            'time': datetime.datetime.utcnow().isoformat(),
-            'version': version.__version__
-        })
-        resp['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        resp['Pragma'] = 'no-cache'
-        resp['Expires'] = '0'
-        return resp
 
 
 class AboutView(TemplateView):
