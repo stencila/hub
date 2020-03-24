@@ -53,6 +53,12 @@ create-devdb: venv
 migrate-devdb: venv
 	$(DJ) migrate
 
+# Migrate the production database
+# Setting the DJANGO_CONFIGURATION to prod is necessary
+# to avoid attempting to import apps that are not available in prod e.g. debug toolbar
+migrate-proddb:
+    DJANGO_CONFIGURATION="Prod" python3 manage.py migrate
+
 # Run development server
 run: venv
 	$(DJ) runserver
