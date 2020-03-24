@@ -426,12 +426,10 @@ class Prod(Common):
     STATIC_URL = values.Value('https://unpkg.com/@stencila/hub@{}/director/static/'.format(__version__))
 
     INTERCOM_APPID = values.Value('')
+
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
-
-    # Ensure that the beta token is set
-    BETA_TOKEN = values.SecretValue()
 
     # Use GoogleCloudStorage for uploads
     DEFAULT_FILE_STORAGE = 'lib.storage.CustomPublicGoogleCloudStorage'
