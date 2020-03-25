@@ -298,9 +298,10 @@ class Common(Configuration):
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            # Default is for Django session or API token authentication
+            # Default is for token and Django session authentication
+            'api.auth.BasicAuthentication',
+            'knox.auth.TokenAuthentication',
             'rest_framework.authentication.SessionAuthentication',
-            'knox.auth.TokenAuthentication'
         ),
         'EXCEPTION_HANDLER': 'api.handlers.custom_exception_handler',
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
@@ -315,7 +316,9 @@ class Common(Configuration):
     # See http://james1345.github.io/django-rest-knox/settings/
     REST_KNOX = {
         # The Prefix to use in the Authorization header
-        'AUTH_HEADER_PREFIX': 'API',
+        'AUTH_HEADER_PREFIX': 'Token',
+        # Automatically refresh the token when it is used
+        'AUTO_REFRESH': True,
         # Period until token expires.  None will create tokens that never expire.
         'TOKEN_TTL': datetime.timedelta(days=7),
     }

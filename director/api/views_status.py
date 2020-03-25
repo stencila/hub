@@ -1,45 +1,12 @@
 import datetime
-import os.path
 
-from drf_yasg import openapi
-from drf_yasg.generators import OpenAPISchemaGenerator
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg.views import get_schema_view
 from rest_framework import permissions, serializers, exceptions, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from lib.health_check import migrations_pending
 import version
-
-
-# API schema and documentation
-
-
-class CustomOpenAPISchemaGenerator(OpenAPISchemaGenerator):
-    def get_schema(self, *args, **kwargs):
-        schema = super().get_schema(*args, **kwargs)
-        schema.basePath = "/api"
-        return schema
-
-
-with open(
-    os.path.join(os.path.dirname(__file__), "docs.md"), "r", encoding="utf-8"
-) as file:
-    description = file.read()
-
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Stencila Hub API", default_version="v1", description=description,
-    ),
-    urlconf="api.urls",
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-    generator_class=CustomOpenAPISchemaGenerator,
-).without_ui()
-
-
-# System status
 
 
 class StatusResponse(serializers.Serializer):

@@ -30,7 +30,7 @@ def custom_exception_handler(exc, context):
     if response is not None:
         data = {}
 
-        message = exc.default_detail
+        message = getattr(exc, 'default_detail', None)
         if "detail" in response.data:
             message = str(response.data["detail"])
             del response.data["detail"]

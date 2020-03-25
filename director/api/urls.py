@@ -1,24 +1,22 @@
 from django.urls import path, include, re_path
-from django.views.generic import TemplateView
+from rest_framework import routers
 
-from auth.api.urls import urlpatterns as auth_urls
-from projects.api.urls import urlpatterns as project_urls
-from users.api.urls import urlpatterns as user_urls
+from api.views_docs import schema_view, swagger_view
+from api.views_status import StatusView
+from api.views_tokens import TokensViewSet
+from projects.api.urls import urlpatterns as projects_urls
+from users.api.urls import urlpatterns as users_urls
 
-from api.views import schema_view, StatusView
+router = routers.SimpleRouter()
+router.register(r"tokens", TokensViewSet, "api-tokens")
 
 urlpatterns = [
     # System status
-    re_path(r"status/?", StatusView.as_view(), name="api_status"),
-
+    re_path(r"status/?", StatusView.as_view(), name="api-status"),
     # API schema and docs
-    path("schema/", schema_view, name="api_schema"),
-    path(
-        "docs/", TemplateView.as_view(template_name="api_swagger.html"), name="api_docs"
-    ),
-
+    path("schema/", schema_view, name="api-schema"),
+    path("docs/", swagger_view, name="api-docs"),
     # API URLs for each app
-    path("auth/", include(auth_urls)),
-    path("projects/", include(project_urls)),
-    path("users/", include(user_urls)),
-]
+    path("projects/", include(projects_urls)),
+    path("users/", include(users_urls)),
+] + router.urls

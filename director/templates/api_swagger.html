@@ -20,6 +20,7 @@
             line-height: 180%;
         }
         #swagger-ui .markdown code {
+            color: inherit;
             padding: 2px 5px;
         }
     </style>
@@ -30,7 +31,7 @@
     <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
     <script>
     const ui = SwaggerUIBundle({
-        url: "{% url 'api_schema' %}",
+        url: "{% url 'api-schema' %}",
         dom_id: '#swagger-ui',
         presets: [
             SwaggerUIBundle.presets.apis,
