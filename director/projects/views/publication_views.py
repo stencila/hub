@@ -34,7 +34,7 @@ class PublishedListView(ProjectPermissionsMixin, View):
 def published_item_render(request: HttpRequest, published_item: PublishedItem, download_url: str,
                           title: typing.Optional[str] = None) -> HttpResponse:
     context = {
-        'theme_name': 'eLife',
+        'theme_name': request.GET.get('theme'),
         'title': title,
         'download_url': download_url
     }
