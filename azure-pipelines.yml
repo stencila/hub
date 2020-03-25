@@ -20,7 +20,7 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.6'
+          versionSpec: '3.7'
 
       - script: make -C director venv-dev
         displayName: Setup dev environment
@@ -43,7 +43,7 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.6'
+          versionSpec: '3.7'
         displayName: Install Python
 
       - script: make -C director static

@@ -80,13 +80,13 @@ lint-docs:
 
 # Run tests
 test: venv
-	$(VE) pytest --ignore ./tests
-	$(VE) pytest ./tests
+	$(VE) python3 -m pytest --ignore ./tests
+	$(VE) python3 -m pytest ./tests
 
 # Run tests with coverage
 cover: venv
-	$(VE) pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
-	$(VE) pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
+	$(VE) python3 -m pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
+	$(VE) python3 -m pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
 
 # Build Docker image
 build: Dockerfile
@@ -94,9 +94,9 @@ build: Dockerfile
 
 # Run the Docker image passing through
 # environment variables required for `Prod` settings
-# but using development database and static files.
+# but using development database
 # Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
-run-docker: build static
+run-docker: build
 	$(EV) \
 	docker run \
 		-e DJANGO_SECURE_SSL_REDIRECT="False" \
@@ -104,7 +104,6 @@ run-docker: build static
 		-e DJANGO_JWT_SECRET \
 		-e DJANGO_BETA_TOKEN \
 		-e DJANGO_SENDGRID_API_KEY \
-		-v $$PWD/static:/home/director/static:ro \
 		-v $$PWD/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
