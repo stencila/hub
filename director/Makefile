@@ -1,12 +1,12 @@
-# Shortcut to activate the virtual environment during development
-VE := . venv/bin/activate ;
+# Shortcut to refer to programs in the virtual environment during development
+VE := venv/bin
 
 # Shortcut to set required environment variables during development
 # Uses a custom `env.sh` or falls back to `env-example.sh`
 EV := test -f ./env.sh && . ./env.sh || . ./env-example.sh ;
 
 # Shortcut to run a Django manage.py task in the virtual environment
-DJ ?= $(VE) $(EV) python3 manage.py
+DJ ?= $(EV) $(VE)/python3 manage.py
 
 all: setup run
 
@@ -18,14 +18,14 @@ setup: venv-dev
 # Setup virtual environment
 venv: requirements.txt
 	python3 -m venv venv
-	$(VE) pip3 install -r requirements.txt
+	$(VE)/pip3 install -r requirements.txt
 	touch venv
 
 # Setup DEV virtual environment
 venv-dev: requirements.txt requirements-dev.txt
 	python3 -m venv venv
-	$(VE) pip3 install -r requirements.txt
-	$(VE) pip3 install -r requirements-dev.txt
+	$(VE)/pip3 install -r requirements.txt
+	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
 
 # Build any static files
@@ -68,25 +68,25 @@ lint: lint-code lint-types lint-docs
 	
 # Lint code
 lint-code:
-	$(VE) flake8 --exclude=venv,migrations,storage --max-line-length=120 .
+	$(VE)/flake8 --exclude=venv,migrations,storage --max-line-length=120 .
 
 # Lint types
 lint-types:
-	$(VE) mypy --config-file mypy.ini .
+	$(VE)/mypy --config-file mypy.ini .
 
 # Lint docs
 lint-docs:
-	$(VE) pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts|storage).*' .
+	$(VE)/pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts|storage).*' .
 
 # Run tests
 test: venv
-	$(VE) python3 -m pytest --ignore ./tests
-	$(VE) python3 -m pytest ./tests
+	$(VE)/python3 -m pytest --ignore ./tests
+	$(VE)/python3 -m pytest ./tests
 
 # Run tests with coverage
 cover: venv
-	$(VE) python3 -m pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
-	$(VE) python3 -m pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
+	$(VE)/python3 -m pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
+	$(VE)/python3 -m pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
 
 # Build Docker image
 build: Dockerfile
