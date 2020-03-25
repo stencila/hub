@@ -3,9 +3,8 @@
 </div>
 <br>
 
-[![Build](https://travis-ci.org/stencila/hub.svg?branch=master)](https://travis-ci.org/stencila/hub)
+[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.hub?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=5&branchName=master)
 [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
-[![Maintainability](https://api.codeclimate.com/v1/badges/0d6cbfb262152e2b9242/maintainability)](https://codeclimate.com/github/stencila/hub/maintainability)
 [![License](https://img.shields.io/badge/License-Apache%202.0-3262eb.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Stencila is an open source platform for authoring, collaborating on, and sharing data driven documents. This is the 
