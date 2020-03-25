@@ -82,9 +82,9 @@ The `director` directory contains the Django application. In most instances you 
 `make` commands:
 
 ```bash
-make director-venv  # set up the virtual environment and install requirements
-make director-create-devdb  # populate the dev DB with test accounts (usernames == passwords)
-make director-run  # start the Django server
+make setup  # set up the virtual environment and install requirements
+make -C director create-devdb  # populate the dev DB with test accounts (usernames == passwords)
+make run  # start the Django server
 ```
 
 Alternatively you can follow standard Python virtualenv setup methods to put the virtualenv in your preferred location,
@@ -104,14 +104,14 @@ build the production Docker image. See [here](https://travis-ci.org/stencila/hub
 
 Three forms of code quality analysis are currently available. 
 
-- `make director-code` runs [`flake8`](http://flake8.pycqa.org) for code style checking.
+- `make -C director code` runs [`flake8`](http://flake8.pycqa.org) for code style checking.
 
-- `make director-types` runs [`mypy`](http://mypy-lang.org/) for static type checking using the 
+- `make -C director types` runs [`mypy`](http://mypy-lang.org/) for static type checking using the 
   [`director/mypy.ini`](director/mypy.ini) config file.
 
-- `make director-docs` runs [`pydocstyle`](http://www.pydocstyle.org) for checks on docstrings.
+- `make -C director docs` runs [`pydocstyle`](http://www.pydocstyle.org) for checks on docstrings.
 
-Running `make director-lint` will perform all three checks.
+Running `make lint` will perform all three checks.
 
 We use Codeclimate for additional monitoring of code quality and maintainability, beyond that provided by running the 
 linting commands described above. See [here](https://codeclimate.com/github/stencila/hub) for current status.
