@@ -363,7 +363,7 @@ class ConversionTheme(typing.NamedTuple):
 
 THEMES = [
     ConversionTheme('stencila', 'Stencila'),
-    ConversionTheme('eLife', 'eLife'),
+    ConversionTheme('elife', 'eLife'),
     ConversionTheme('nature', 'Nature'),
     ConversionTheme('plos', 'PLOS')
 ]
