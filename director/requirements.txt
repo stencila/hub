@@ -25,7 +25,7 @@ psycopg2-binary==2.8.3
 PyGithub==1.43.8
 pyjwt==1.7.1
 raven==6.10.0
-requests==2.22.0
+requests==2.23.0
 sh==1.12.14
 shortuuid==0.5.0
 stencila-schema==0.42.1
