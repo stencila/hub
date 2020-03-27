@@ -27,5 +27,5 @@ pyjwt==1.7.1
 raven==6.10.0
 requests==2.23.0
 sh==1.12.14
-shortuuid==0.5.0
+shortuuid==1.0.1
 stencila-schema==0.42.1
