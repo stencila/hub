@@ -6,8 +6,16 @@ const UPLOAD_STATUS = {
 }
 
 const SOURCE_TYPE_NAME_LOOKUP = {
-  'googledocssource': 'Google Docs',
-  'githubsource': 'Github'
+  googledocssource: 'Google Docs',
+  githubsource: 'Github'
+}
+
+
+
+FORMAT_LABELS = {
+  ipynb: 'Jupyter Notebook',
+  docx: 'Reproducible Word',
+  pdf: 'Reproducible PDF'
 }
 
 function rootPathJoin (directory, fileName) {
@@ -178,8 +186,8 @@ Vue.component('item-action-menu', {
     showUnlinkModal () {
       this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
     },
-    startConvert (targetType, targetTypeName) {
-      this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
+    startConvert (targetType) {
+      this.$root.$emit('convert-modal-show', targetType, this.convertTargets, this.sourceIdentifier, this.fileName, this.absolutePath)
     },
     publishFile () {
       this.$root.$emit('publish-modal-show', this.sourceIdentifier, this.absolutePath)
@@ -192,10 +200,11 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <div class="dropdown-item" v-if="allowEdit" style="width: 100%; text-align: left"><a :href="editorUrl"  :target="editTarget" rel="noopener"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a></div>' +
+    '      <a :href="editorUrl" :target="editTarget" rel="noopener" class="dropdown-item"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a>' +
     '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
-    '      <span v-if="convertTargets.length" class="dropdown-item" style="font-weight: bold; text-align: left"><span class="icon"><i class="fas fa-recycle"></i></span>Save As</span>' +
-    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])" style="margin-left: 25px;">{{ convertTarget[1] }}&hellip;</a>' +
+    '      <span v-if="convertTargets.length" class="dropdown-item grouping-header"><span class="icon"><i class="fas fa-file-export"></i></span>Save As</span>' +
+    '      <a v-for="convertTarget in mainConvertTargets" href="#" class="dropdown-item indent" @click.prevent="startConvert(convertTarget[0])">{{ convertTarget[1] }}&hellip;</a>' +
+    '      <a v-if="convertTargets.length" href="#" class="dropdown-item indent" @click.prevent="startConvert(\'\')">Other&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
     '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()"><span class="icon"><i class="fas fa-i-cursor"></i></span>Rename&hellip;</a>' +
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()"><span class="icon"><i class="fas fa-trash"></i></span>Delete&hellip;</a>' +
@@ -368,7 +377,7 @@ Vue.component('rename-item-modal', {
     '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
+    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress" :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
     '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
@@ -492,10 +501,12 @@ Vue.component('convert-modal', {
       sourcePath: '',
       targetTypeName: '',
       targetType: '',
+      convertTargets: [],
       targetName: '',
       convertInProgress: false,
       confirmExistingFileOverwrite: false,
-      errorMessage: null
+      errorMessage: null,
+      manualNameChange: false
     }
   },
   computed: {
@@ -507,14 +518,21 @@ Vue.component('convert-modal', {
     }
   },
   mounted () {
-    this.$root.$on('convert-modal-show', (targetType, targetTypeName, sourceIdentifier, sourceName, sourcePath) => {
+    this.$root.$on('convert-modal-show', (targetType, convertTargets, sourceIdentifier, sourceName, sourcePath) => {
       this.sourceIdentifier = sourceIdentifier
       this.sourceName = sourceName
       this.sourcePath = sourcePath
-      const sourceNameAndExt = splitExt(sourceName)
-      this.targetName = sourceNameAndExt[0] + extensionFromType(targetType)
-      this.targetType = targetType
-      this.targetTypeName = targetTypeName
+
+      if (targetType === '')
+        this.targetType = convertTargets[0][0]
+      else
+        this.targetType = targetType
+      this.generateTargetName()
+
+      this.convertTargets = convertTargets
+
+      this.manualNameChange = false
+
       this.visible = true
     })
 
@@ -552,8 +570,18 @@ Vue.component('convert-modal', {
       })
     },
     nameChange () {
+      this.manualNameChange = true
       this.errorMessage = null
       this.confirmExistingFileOverwrite = false
+    },
+    generateTargetName() {
+      const sourceNameAndExt = splitExt(this.sourceName)
+      this.targetName = sourceNameAndExt[0] + extensionFromType(this.targetType)
+    },
+    targetTypeChange() {
+      if (!this.manualNameChange) {
+        this.generateTargetName()
+      }
     }
   },
   template: '' +
@@ -561,12 +589,16 @@ Vue.component('convert-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Save as {{ targetTypeName }}</p>' +
+    '      <p class="modal-card-title">Save As</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
-    '      <div class="content-container">' +
-    '        <p>File <em>{{ sourceName }}</em> will be saved as {{ targetTypeName }}. The original file will be preserved.</p>' +
+    '      <div class="field">' +
+    '          <label class="label">Convert <em>{{ sourceName }}</em> To:</label>' +
+    '          <select class="select" @change="targetTypeChange" v-model="targetType">' +
+    '              <option v-for="convertTarget in convertTargets" :value="convertTarget[0]">{{ convertTarget[1] }}</option>' +
+    '          </select>' +
+    '      <p><small>The original file will be preserved.</small></p>' +
     '      </div>' +
     '      <div class="field">' +
     '        <div class="control">' +
