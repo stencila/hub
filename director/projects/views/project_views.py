@@ -617,7 +617,6 @@ class ProjectSnapshotListView(ProjectPermissionsMixin, View):
                       self.get_render_context({
                           'project': project,
                           'snapshots': project.snapshots.order_by('-version_number'),
-                          'project_tab': ProjectTab.FILES.value,
-                          'project_subtab': ProjectTab.FILES_SNAPSHOTS.value
+                          'project_tab': ProjectTab.FILES_SNAPSHOTS.value
                       }
                       ))

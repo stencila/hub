@@ -7,7 +7,7 @@ from projects.views import project_views, snapshot_views, source_views
 
 urlpatterns = [
     # These patterns are listed in the same order they appear in the sidebar menu (more or less)
-    path('', project_views.ProjectOverviewView.as_view(), name='project_overview'),
+    path('', RedirectView.as_view(pattern_name='project_files', permanent=True), name='project_overview'),
 
     path(ProjectUrlRoot.files.value + '/', include([
         path('', RedirectView.as_view(pattern_name='project_files', permanent=True)),
