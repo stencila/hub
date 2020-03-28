@@ -2,11 +2,19 @@
 {% block title %}Team {{ team.name }}{% endblock %}
 {% block breadcrumb_items %}
     {{ block.super }}
-    <li><a href="{% url 'account_team_detail' account.name team.pk %}">{{ team.name }}</a></li>
+    <li>
+        {% if team.pk %}
+            <a href="{% url 'account_team_detail' account.name team.pk %}">{{ team.name }}</a>
+        {% else %}
+            <a href="{% url 'account_team_create' account.name %}">Create</a>
+        {% endif %}
+    </li>
 {% endblock %}
 {% block account_content %}
     <div class="column">
+        {% if team.pk %}{# don't show on create #}
         {% include 'accounts/_team_header.html' with account=account team=team %}
+        {%  endif %}
         {% block team_content %}{% endblock %}
     </div>
 {% endblock %}

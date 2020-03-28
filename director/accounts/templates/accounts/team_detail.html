@@ -1,14 +1,64 @@
 {% extends 'accounts/team_base.html' %}
-{% load crispy_forms_tags account_permissions %}
+{% load crispy_forms_tags account_permissions static %}
 {% block team_content %}
-    <form method="POST">
-        {% crispy form %}
-        {% if account_permissions|account_permissions_contain:'administer' %}
-            <div class="field">
-                <div class="control">
-                    <input type="submit" class="button is-primary" value="Save">
+    <div id="team-details">
+        <form method="POST">
+            {% crispy form %}
+            {% if account_permissions|account_permissions_contain:'administer' %}
+                <delete-confirm-modal
+                        :delete-modal-visible="deleteModalVisible"
+                        delete-action="remove_team"
+                        delete-id-name="team_id"
+                        delete-id-value="{{ team.id }}"
+                        delete-button-label="Delete"
+                        @modal-hide="hideDeleteModal()">
+                    <template slot="title">Delete Team <em>{{ team }}</em>?</template>
+                    <template slot="csrf_token">{% csrf_token %}</template>
+                    <template slot="body">Are you sure you want to delete the team <em>{{ team }}?</em></template>
+                </delete-confirm-modal>
+                <div class="field">
+                    <div class="control">
+                        <div class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <input type="submit" class="button is-primary" value="Save">
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <div class="level-item">
+                                    {% if team.pk %}
+                                        <button type="button" class="button is-danger" @click.prevent="showDeleteModal()">Delete&hellip;</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        {% endif %}
-    </form>
+            {% endif %}
+        </form>
+    </div>
+    <script src="{% static "js/user-search.js" %}"></script>
+    <script src="{% static "js/delete-confirm-modal.js" %}"></script>
+    <script>
+      new Vue({
+        el: '#team-details',
+        delimiters: ['[[', ']]'],
+        data: {
+          deleteModalVisible: false,
+          removeProjectName: null,
+        },
+        methods: {
+          showDeleteModal (roleId, projectName) {
+            this.deleteModalVisible = true
+            this.deleteRoleId = roleId
+            this.removeProjectName = projectName
+          },
+          hideDeleteModal () {
+            this.deleteModalVisible = false
+            this.deleteRoleId = null
+            this.removeProjectName = null
+          }
+        }
+      })
+    </script>
 {% endblock %}

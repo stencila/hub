@@ -67,12 +67,17 @@ class TeamDetailView(AccountPermissionsMixin, View):
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
 
+        team = fetch_team_for_account(self.account, team_pk)
+
+        if request.POST.get('action') == 'remove_team' and team_pk:
+            team.delete()
+            messages.success(request, "Team <em>{}</em> was deleted successfully.".format(escape(team.name)),
+                             extra_tags='safe')
+            return redirect('account_team_list', self.account.name)
+
         max_teams_redirect = self.test_team_create_quota(request, team_pk)
         if max_teams_redirect:
             return max_teams_redirect
-
-        team = fetch_team_for_account(self.account, team_pk)
-
         form = TeamForm(request.POST, instance=team)
 
         if form.is_valid():
@@ -82,7 +87,7 @@ class TeamDetailView(AccountPermissionsMixin, View):
             else:
                 update_verb = "updated"
 
-            messages.success(request, "Team <em>{}</em> was {} successfully".format(escape(team.name), update_verb),
+            messages.success(request, "Team <em>{}</em> was {} successfully.".format(escape(team.name), update_verb),
                              extra_tags='safe')
             return redirect('account_team_list', self.account.name)
 
