@@ -2,7 +2,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
@@ -42,17 +41,6 @@ class TermsView(TemplateView):
 class IcoView(RedirectView):
     permanent = True
     url = '/static/img/favicon.ico'
-
-
-def error_500_view(request: HttpRequest) -> HttpResponse:
-    """
-    Handle 500 errors.
-
-    A custom 500 view which pass the request into the template context
-    so that the Sentry id is available for rendering.
-    See https://docs.sentry.io/clients/python/integrations/django/
-    """
-    return TemplateResponse(request, '500.html', context={'request': request}, status=500)
 
 
 class Test403View(View):
