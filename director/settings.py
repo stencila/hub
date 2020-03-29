@@ -105,8 +105,8 @@ class Common(Configuration):
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
-                    'lib.template_context_processors.sentry_js_url',
-                    'lib.template_context_processors.feature_toggle'
+                    'lib.template_context_processors.sentry_dsn',
+                    'lib.template_context_processors.feature_toggles'
                 ],
             },
         },
@@ -254,9 +254,6 @@ class Common(Configuration):
     # By default this is the same as the path in the hub
     STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(STENCILA_PROJECT_STORAGE_DIRECTORY)
 
-    # URL for Sentry JS error reporting
-    SENTRY_JS_URL = values.Value('')
-
     # This can be any format, it's not used in code, only humans will be looking at this
     STENCILA_HUB_VERSION = values.Value('')
 
@@ -389,8 +386,7 @@ class Dev(Common):
     # During development just print emails to console
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-    # JWT secret can be set but has a default value
-    # when in development which is shared with stencila/cloud
+    # JWT secret (must be overriden in Prod settings, see below)
     JWT_SECRET = values.Value('not-a-secret')
 
     STENCILA_GITHUB_APPLICATION_NAME = 'Stencila Hub Integration (Test)'
@@ -400,7 +396,7 @@ class Dev(Common):
 
 
 class Prod(Common):
-    """Configuration settings used in production (and staging)."""
+    """Configuration settings used in production at https://hub.stenci.la."""
 
     # Ensure debug is always false in production
     DEBUG = False
@@ -418,18 +414,13 @@ class Prod(Common):
 
     # Enforce HTTPS
     # Allow override to be able to test other prod settings during development
-    # in a Docker container (ie. locallocally not behind a HTTPS load balancer)
-    # See `make director-rundocker`
+    # in a Docker container (ie. locally not behind a HTTPS load balancer)
+    # See `make run-prod`
     SECURE_SSL_REDIRECT = values.BooleanValue(True)
 
     # Do not redirect the status check to HTTPS so that
     # HTTP health checks will still work.
     SECURE_REDIRECT_EXEMPT = [r'^api/status/?$', r'^/?$']
-
-    # Additional apps only used in production
-    INSTALLED_APPS = Common.INSTALLED_APPS + [
-        'raven.contrib.django.raven_compat'
-    ]
 
     # Use unpkg.com CDN to serve static assets
     STATIC_URL = values.Value('https://unpkg.com/@stencila/hub@{}/director/static/'.format(__version__))
@@ -450,6 +441,17 @@ class Prod(Common):
     SENDGRID_API_KEY = values.SecretValue()
 
     # Use Sentry for error reporting
-    RAVEN_CONFIG = {
-        'dsn': values.Value(environ_name='SENTRY_DSN')
-    }
+    # Note: The DSN is not a secret https://forum.sentry.io/t/dsn-private-public/6297/2
+    SENTRY_DSN = values.Value('https://6329017160394100b21be92165555d72@sentry.io/37250')
+
+    @classmethod
+    def post_setup(cls):
+        print(cls.SECURE_SSL_REDIRECT)
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+
+        sentry_sdk.init(
+            dsn=cls.SENTRY_DSN,
+            integrations=[DjangoIntegration()],
+            send_default_pii=True
+        )

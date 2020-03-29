@@ -24,8 +24,8 @@ Pillow==7.0.0
 psycopg2-binary==2.8.4
 PyGithub==1.43.8
 pyjwt==1.7.1
-raven==6.10.0
 requests==2.23.0
+sentry-sdk==0.14.3
 sh==1.12.14
 shortuuid==1.0.1
 stencila-schema==0.42.1

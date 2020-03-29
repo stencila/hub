@@ -17,10 +17,13 @@
         {% endblock %}
 
         {% block scripts %}
-            {% if SENTRY_JS_URL %}
-                <script src="//browser.sentry-cdn.com/4.6.4/bundle.min.js" crossorigin="anonymous"></script>
+            {% if SENTRY_DSN %}
+                <script
+  src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js"
+  integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt"
+  crossorigin="anonymous"></script>
                 <script>
-                    Sentry.init({ dsn: '{{ SENTRY_JS_URL }}' });
+                    Sentry.init({ dsn: '{{ SENTRY_DSN }}' });
                 </script>
             {% endif %}
             

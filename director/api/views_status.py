@@ -1,9 +1,10 @@
 import datetime
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import permissions, serializers, exceptions, generics
+from rest_framework import permissions, serializers, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
+from sentry_sdk import capture_message
 
 from lib.health_check import migrations_pending
 import version
@@ -20,12 +21,6 @@ class StatusResponse(serializers.Serializer):
         ref_name = None
 
 
-class MigrationsPending(exceptions.APIException):
-    status_code = 503
-    default_detail = "Migrations pending. Temporarily unavailable, try again later."
-    default_code = "migrations_pending"
-
-
 class StatusView(generics.GenericAPIView):
     """
     Get the current system status.
@@ -40,7 +35,8 @@ class StatusView(generics.GenericAPIView):
     def get(self, request: Request) -> Response:
         # Raise an exception so that maintainers are alerted of the need to do migrations
         if migrations_pending():
-            raise MigrationsPending()
+            capture_message("Migrations pending!", level="error")
+            return Response(status=503)
 
         response = Response(
             {

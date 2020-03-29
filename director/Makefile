@@ -63,6 +63,11 @@ migrate-proddb:
 run: venv
 	$(DJ) runserver
 
+# Run development server with production settings
+# Required secrets will need to be set in `env.sh`
+run-prod: venv
+	export DJANGO_CONFIGURATION="Prod"; $(DJ) runserver
+
 # Lint everything
 lint: lint-code lint-types lint-docs
 	
@@ -92,18 +97,14 @@ cover: venv
 build: Dockerfile
 	docker build --tag stencila/hub-director .
 
-# Run the Docker image passing through
-# environment variables required for `Prod` settings
-# but using development database
+# Run the Docker image
+# Necessary environment variables required for `Prod` settings need to
+# be set in `env.sh`
+# Uses development database
 # Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
 run-docker: build
 	$(EV) \
 	docker run \
-		-e DJANGO_SECURE_SSL_REDIRECT="False" \
-		-e DJANGO_SECRET_KEY \
-		-e DJANGO_JWT_SECRET \
-		-e DJANGO_BETA_TOKEN \
-		-e DJANGO_SENDGRID_API_KEY \
 		-v $$PWD/db.sqlite3:/home/director/db.sqlite3:rw \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \

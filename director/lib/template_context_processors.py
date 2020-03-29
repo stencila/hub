@@ -4,9 +4,11 @@ from django.conf import settings
 from django.http import HttpRequest
 
 
-def sentry_js_url(request: HttpRequest) -> typing.Dict[str, str]:
-    return {'SENTRY_JS_URL': settings.SENTRY_JS_URL}
+def sentry_dsn(request: HttpRequest) -> typing.Dict[str, str]:
+    """Set the Sentry DSN for logging of Javascript errors."""
+    return {"SENTRY_DSN": getattr(settings, 'SENTRY_DSN', None)}
 
 
-def feature_toggle(request: HttpRequest) -> typing.Dict[str, bool]:
-    return {'FEATURE_{}'.format(k): v for k, v in settings.FEATURES.items()}
+def feature_toggles(request: HttpRequest) -> typing.Dict[str, bool]:
+    """Set feature toggle variables."""
+    return {"FEATURE_{}".format(k): v for k, v in settings.FEATURES.items()}
