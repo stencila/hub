@@ -11,8 +11,16 @@
                 <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px"
                      height="28px">
                 <h1 class="title has-margin-top">Oops!</h1>
-                <p>Sorry, it looks like we are having issues. 
-                   Our team has been notified and rectify it as soon as possible!</p>
+                <p>
+                  Sorry, it seems that there is a problem with this page. 
+                  Our team has been notified and will rectify it as soon as possible!
+                </p>
+                <p>
+                  Stencila is an open source product. You can help make it better
+                  (and reduce these problems :) by <a href="https://github.com/stencila/hub#readme">
+                  contributing</a> code, documentation, 
+                  ideas, bug reports etc. 💖.
+                </p>
                 {% if sentry_event_id %}
                   <script>
                     Sentry.showReportDialog({
