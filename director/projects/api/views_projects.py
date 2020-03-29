@@ -4,7 +4,9 @@ import typing
 import django_filters
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.views import View
 from rest_framework import generics
@@ -131,11 +133,18 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
         event = ProjectEvent.objects.create(event_type=ProjectEventType.SNAPSHOT.name, project=project,
                                             user=logged_in_or_none(request.user),
                                             level=ProjectEventLevel.INFORMATIONAL.value)
+        tag = request.data.get('tag')
         try:
-            snapshotter.snapshot_project(request, project, request.data.get('tag'))
+            snapshot = snapshotter.snapshot_project(request, project, tag)
             event.success = True
             event.save()
-            return JsonResponse({'success': True})
+            return JsonResponse({'success': True, 'url': reverse('snapshot_files',
+                                                                 args=(
+                                                                     project.account.name,
+                                                                     project.name,
+                                                                     snapshot.version_number)
+                                                                 )
+                                 })
         except SnapshotInProgressError:
             in_progress_message = 'A snapshot is already in progress for Project {}.'.format(pk)
             event.success = False
@@ -144,6 +153,17 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
             event.save()
             return JsonResponse(
                 {'success': False, 'error': in_progress_message})
+        except IntegrityError as e:
+            event.level = ProjectEventLevel.ERROR.value
+            event.success = False
+            if tag:
+                # this will usually be the thing that causes an IntegrityError
+                error_message = 'A snapshot with tag "{}" already exists for Project {}.'.format(tag, pk)
+            else:
+                error_message = str(e)
+            event.message = error_message
+            event.save()
+            return JsonResponse({'success': False, 'error': error_message})
         except Exception as e:
             event.level = ProjectEventLevel.ERROR.value
             event.success = False

@@ -1134,6 +1134,113 @@ Vue.component('unsupported-social-provider-modal', {
     '</div>'
 })
 
+Vue.component('snapshot-modal', {
+  props: {
+    snapshotCreateUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      tag: '',
+      snapshotInProgress: false,
+      snapshotComplete: false,
+      snapshotError: ''
+    }
+  },
+  computed: {
+    actionButtonText () {
+      if (this.snapshotInProgress) {
+        return 'Snapshot In Progress'
+      }
+      if (this.snapshotComplete) {
+        return 'Snapshot Complete'
+      }
+      return 'Snapshot'
+    }
+  },
+  methods: {
+    hide () {
+      this.visible = false
+    },
+    show () {
+      this.visible = true
+      this.tag = ''
+    },
+    snapshot () {
+      this.snapshotInProgress = true
+      this.snapshotError = ''
+      fetch(this.snapshotCreateUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': utils.cookie('csrftoken')
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({tag: this.tag})
+      }).then(
+        response => {
+          this.snapshotInProgress = false
+          response.json().then(data => {
+            if (data.success === false)
+              this.snapshotError = data.error
+            else {
+              this.snapshotComplete = true
+              this.snapshotUrl = data.url
+            }
+          })
+        },
+        failureResponse => {
+          this.snapshotInProgress = false
+          this.snapshotComplete =  true
+          this.snapshotError = failureResponse
+        })
+    }
+  },
+  mounted () {
+    this.$root.$on('snapshot-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">Snapshot Project</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body" v-if="!snapshotComplete">' +
+    '      <p>A snapshot is an immutable copy of all this Project\'s files and sources at the current time.</p>' +
+    '      <p>All content in linked sources will be downloaded to disk and saved as regular files.</p>' +
+    '      <div class="field">' +
+    '        <label class="label" for="id_snapshot_tag">Tag</label>' +
+    '        <div class="control">' +
+    '          <input class="input" type="text" id="id_snapshot_tag" v-model="tag" placeholder="Tag (Optional)">' +
+    '          <p class="help">A tag is optional but can help identify snapshots later. It must be unique for each snapshot in this project.</p>' +
+    '        </div>' +
+    '      </div>' +
+    '      <p v-if="snapshotError !== \'\'" class="has-text-danger">' +
+    '        {{ snapshotError }}' +
+    '      </p>' +
+    '    </section>' +
+    '    <section class="modal-card-body" v-if="snapshotComplete">' +
+    '     <div class="notification is-success">' +
+    '       The snapshot was created successfully. You can view it <a :href="snapshotUrl">here</a>.' +
+  '       </div>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot" style="justify-content: space-between">' +
+    '      <button class="button is-primary" @click.prevent="snapshot()" :disabled="snapshotInProgress || snapshotComplete">{{ actionButtonText }}</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
 var fileBrowser = new Vue({
   el: '#file-browser',
   delimiters: ['[[', ']]'],
@@ -1217,8 +1324,6 @@ const g_actionBar = new Vue({
     newMenuVisible: false,
     linkMenuVisible: false,
     pullInProgress: false,
-    snapshotInProgress: false,
-    snapshotComplete: false,
     deleteModalVisible: false,
     unlinkSourceId: null,
     unlinkSourceDescription: ''
@@ -1228,37 +1333,14 @@ const g_actionBar = new Vue({
       this.$refs['file-upload'].click()
     },
     snapshotProject () {
-      if (this.snapshotInProgress)
-        return
-
-      this.snapshotInProgress = true
-      fetch(g_snapshotUrl, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'X-CSRFToken': utils.cookie('csrftoken'),
-        },
-        credentials: 'same-origin'
-      }).then(
-        response => {
-          this.snapshotInProgress = false
-          response.json().then(data => {
-            if (data.success === false)
-              alert(data.error)
-            else
-              this.snapshotComplete = true
-          })
-        },
-        failureResponse => {
-          this.snapshotInProgress = false
-          alert(failureResponse)
-        })
+      fileBrowser.$root.$emit('snapshot-modal-show')
+      return
     },
     pullFiles () {
       if (this.pullInProgress)
         return
       this.pullInProgress = true
-      fetch(g_snapshotUrl, {
+      fetch(g_filePullUrl, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',

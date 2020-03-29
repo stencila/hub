@@ -22,7 +22,7 @@ class ProjectSnapshotter:
     def __init__(self, storage_root: str) -> None:
         self.storage_root = storage_root
 
-    def snapshot_project(self, request: HttpRequest, project: Project, tag: typing.Optional[str] = None) -> None:
+    def snapshot_project(self, request: HttpRequest, project: Project, tag: typing.Optional[str] = None) -> Snapshot:
         if project.snapshot_in_progress:
             raise SnapshotInProgressError('A snapshot is already in progress for Project {}'.format(project.pk))
 
@@ -33,8 +33,6 @@ class ProjectSnapshotter:
         storage_limit = typing.cast(int, account_resource_limit(project.account, QuotaName.STORAGE_LIMIT))
         project_puller = ProjectSourcePuller(project, self.storage_root, authentication, request, storage_limit)
         try:
-            project_puller.pull()
-
             previous_version = Snapshot.objects.filter(project=project).order_by('-version_number').values(
                 'version_number').first()
 
@@ -43,12 +41,13 @@ class ProjectSnapshotter:
             else:
                 new_version = 1
 
-            snapshot = Snapshot(
+            snapshot = Snapshot.objects.create(
                 project=project,
                 version_number=new_version,
-                tag=tag
+                tag=tag or None  # default to None instead of empty string
             )
 
+            project_puller.pull()
             snapshot.path = generate_snapshot_directory(self.storage_root, snapshot)
             copytree(project_puller.project_directory, snapshot.path)
             snapshot.snapshot_time = timezone.now()
@@ -56,3 +55,5 @@ class ProjectSnapshotter:
         finally:
             project.snapshot_in_progress = False
             project.save()
+
+        return snapshot

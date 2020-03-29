@@ -94,13 +94,11 @@
                 <span v-if="!pullInProgress">Pull Linked Sources</span>
                 <span v-if="pullInProgress">Pulling Linked Sources&hellip;</span>
             </a>
-                <a @click="snapshotProject" class="button is-outlined" :disabled="snapshotInProgress || snapshotComplete">
+                <a @click="snapshotProject" class="button is-outlined">
                     <span class="icon is-small">
                         <i class="fas fa-camera"></i>
                     </span>
-                    <span v-if="!snapshotComplete && !snapshotInProgress">Snapshot Files</span>
-                    <span v-if="!snapshotComplete && snapshotInProgress">Snapshot In Progress</span>
-                    <span v-if="snapshotComplete">Snapshot Complete</span>
+                    Snapshot Files&hellip;
                 </a>
         {% endif %}
     </div>
@@ -111,7 +109,6 @@
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
       const g_projectUpdateUrl = "{% url 'api_project_detail' project.pk %}"
-      const g_snapshotUrl = "{% url 'api_project_snapshot' project.pk %}"
     </script>
     <div id="file-browser" ref="file-browser-root"
          data-item-create-url="{% url 'api_project_item_create' project.id %}"
@@ -134,6 +131,7 @@
                 upload-url="{% url 'filesource_upload' project.account.name project.name %}?directory={{ current_directory }}"></upload-progress-modal>
         <unsupported-social-provider-modal
                 account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
+        <snapshot-modal snapshot-create-url="{% url 'api_project_snapshot' project.pk %}"></snapshot-modal>
         <googledocs-link-modal directory="{{ current_directory }}"
                                source-link-url="{% url 'api_sources_link' project.pk %}"></googledocs-link-modal>
         <url-link-modal directory="{{ current_directory }}"
