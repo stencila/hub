@@ -602,22 +602,12 @@ Vue.component('convert-modal', {
     '          <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '        </div>' +
     '      </div>' +
-    '      <transition name="fade">' +
-    '        <article class="message is-warning" v-if="hasFilenameConflict">' +
-    '          <div class="message-header"><p><em>{{ targetName }}</em> already exists</p></div>' +
-    '          <div class="message-body">' +
-    '            <div class="content-container">' +
-    '              <p>Please choose a different name, or check <strong>Confirm Existing File Overwrite</strong></p>' +
-    '            </div>' +
-    '            <div class="field">' +
-    '              <div class="control">' +
-    '                <label class="checkbox">' +
-    '                  <input type="checkbox" v-model="confirmExistingFileOverwrite">Confirm Existing File Overwrite' +
-    '                </label>' +
-    '              </div>' +
-    '            </div>' +
-    '          </div>' +
-    '        </article>' +
+    '      <transition v-if="hasFilenameConflict" name="fade">' +
+    '         <p>' +
+    '          <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span><em>{{ targetName }}</em> already exists.<br>' +
+    '          Please use a different name, or confirm you want to replace it: ' + 
+    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' + 
+    '        </p>' +
     '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
