@@ -205,11 +205,6 @@
         }
 
         articleDisplay.addEventListener('load', function () {
-          {% if request.user.is_staff %}
-            window.Stencila.executa.init(
-              'http{% if request.is_secure %}s{% endif %}://{{ request.get_host }}{% url 'open_manifest' public_id %}'
-            )
-          {% endif %}
           articleDisplay.contentWindow.document.addEventListener('click', documentClick)
           updateParentTitle()
           if (themeDropdown !== null && '{{ current_theme|default:'stencila' }}' !== 'stencila') {
