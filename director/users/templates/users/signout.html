@@ -11,12 +11,15 @@
         <header class="modal-card-head">
           <p class="modal-card-title">
             <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
-            <span>Are you sure?</span>
+            <span>Sign out</span>
           </p>
         </header>
         <section class="modal-card-body">
-            You are probably wondering why we are asking...
-            it's a <a href="https://labs.detectify.com/2017/03/15/loginlogout-csrf-time-to-reconsider/">security</a> <a href="https://stackoverflow.com/questions/3521290/logout-get-or-post">measure</a>
+            <p>Are you sure?</p>
+            <small>
+            Why we are asking?
+            It's a <a href="https://labs.detectify.com/2017/03/15/loginlogout-csrf-time-to-reconsider/">security</a> <a href="https://stackoverflow.com/questions/3521290/logout-get-or-post">measure</a>
+            </small>
             {% comment %}
                 We'll also confirm guest users want to log out e.g. "You are currently a guest user with no
                 password or password recovery email address. If you logout you will not
@@ -27,7 +30,7 @@
         <footer class="modal-card-foot">
             <form class="form" method="post" action="{% url 'user_signout' %}">
                 {% csrf_token %}
-                <button class="button is-primary" type="submit">
+                <button class="button is-primary" type="submit" onclick="posthog.reset()">
                     Yes, just sign me out!
                 </button>
                 <a class="button" href="/">
