@@ -6,8 +6,16 @@ const UPLOAD_STATUS = {
 }
 
 const SOURCE_TYPE_NAME_LOOKUP = {
-  'googledocssource': 'Google Docs',
-  'githubsource': 'Github'
+  googledocssource: 'Google Docs',
+  githubsource: 'Github'
+}
+
+
+
+FORMAT_LABELS = {
+  ipynb: 'Jupyter Notebook',
+  docx: 'Reproducible Word',
+  pdf: 'Reproducible PDF'
 }
 
 function rootPathJoin (directory, fileName) {
@@ -139,9 +147,6 @@ Vue.component('item-action-menu', {
     }
   },
   computed: {
-    editTarget () {
-      return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
-    },
     allowDownload () {
       return this.downloadUrl !== ''
     },
@@ -178,8 +183,8 @@ Vue.component('item-action-menu', {
     showUnlinkModal () {
       this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
     },
-    startConvert (targetType, targetTypeName) {
-      this.$root.$emit('convert-modal-show', targetType, targetTypeName, this.sourceIdentifier, this.fileName, this.absolutePath)
+    startConvert (targetType) {
+      this.$root.$emit('convert-modal-show', targetType, this.convertTargets, this.sourceIdentifier, this.fileName, this.absolutePath)
     },
     publishFile () {
       this.$root.$emit('publish-modal-show', this.sourceIdentifier, this.absolutePath)
@@ -192,16 +197,19 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a v-if="allowEdit" :href="editorUrl" class="dropdown-item" :target="editTarget" rel="noopener">{{ editMenuText }}</a>' +
+    '      <a :href="editorUrl" target="_blank" rel="noopener" class="dropdown-item"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a>' +
     '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
-    '      <a v-for="convertTarget in convertTargets" href="#" class="dropdown-item" @click.prevent="startConvert(convertTarget[0], convertTarget[1])">Save as {{ convertTarget[1] }}&hellip;</a>' +
+    '      <span v-if="convertTargets.length" class="dropdown-item grouping-header"><span class="icon"><i class="fas fa-file-export"></i></span>Save As</span>' +
+    '      <a v-for="convertTarget in mainConvertTargets" href="#" class="dropdown-item indent" @click.prevent="startConvert(convertTarget[0])">{{ convertTarget[1] }}&hellip;</a>' +
+    '      <a v-if="convertTargets.length" href="#" class="dropdown-item indent" @click.prevent="startConvert(\'\')">Other&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
-    '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item">Download</a>' +
-    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
-    '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()">Rename&hellip;</a>' +
-    '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()">Delete&hellip;</a>' +
-    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()">Unlink&hellip;</a>' +
-    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()">Publish&hellip;</a>' +
+    '      <a v-if="allowRename" href="#" class="dropdown-item" @click.prevent="showRenameModal()"><span class="icon"><i class="fas fa-i-cursor"></i></span>Rename&hellip;</a>' +
+    '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()"><span class="icon"><i class="fas fa-trash"></i></span>Delete&hellip;</a>' +
+    '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()"><span class="icon"><i class="fas fa-unlink"></i></span>Unlink&hellip;</a>' +
+    '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
+    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()"><span class="icon"><i class="fas fa-book-open"></i></span>Publish&hellip;</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye"></i></span>Preview</a>' +
+    '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item"><span class="icon"><i class="fas fa-download"></i></i></span>Download</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
@@ -266,7 +274,7 @@ Vue.component('remove-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title"><i class="fa fa-trash"></i> Delete <em>{{ itemName }}</em>?</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-trash"></i> Delete&nbsp;<em>{{ itemName }}</em></p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
@@ -355,18 +363,17 @@ Vue.component('rename-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title"><i class="fa fa-pencil-alt"></i> {{ action }} {{ itemType }}</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-pencil-alt"></i> {{ action }}&nbsp;<em>{{ itemName }}</em></p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
     '      <div class="control">' +
-    '        <label class="label">{{ action }} <em>{{ currentPath }}</em> to</label>' +
     '        <input class="input is-medium" type="text" :placeholder="action + \' To\'" v-model="destination">' +
     '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '      </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +
-    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress"  :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
+    '      <button class="button is-primary" @click.prevent="performRename()" :disabled="inProgress" :class="{\'is-loading\': inProgress}">{{ action }}</button>' +
     '      <button class="button" :disabled="inProgress" @click.prevent="hide()">Cancel</button>' +
     '    </footer>' +
     '  </div> ' +
@@ -490,10 +497,12 @@ Vue.component('convert-modal', {
       sourcePath: '',
       targetTypeName: '',
       targetType: '',
+      convertTargets: [],
       targetName: '',
       convertInProgress: false,
       confirmExistingFileOverwrite: false,
-      errorMessage: null
+      errorMessage: null,
+      manualNameChange: false
     }
   },
   computed: {
@@ -505,14 +514,21 @@ Vue.component('convert-modal', {
     }
   },
   mounted () {
-    this.$root.$on('convert-modal-show', (targetType, targetTypeName, sourceIdentifier, sourceName, sourcePath) => {
+    this.$root.$on('convert-modal-show', (targetType, convertTargets, sourceIdentifier, sourceName, sourcePath) => {
       this.sourceIdentifier = sourceIdentifier
       this.sourceName = sourceName
       this.sourcePath = sourcePath
-      const sourceNameAndExt = splitExt(sourceName)
-      this.targetName = sourceNameAndExt[0] + extensionFromType(targetType)
-      this.targetType = targetType
-      this.targetTypeName = targetTypeName
+
+      if (targetType === '')
+        this.targetType = convertTargets[0][0]
+      else
+        this.targetType = targetType
+      this.generateTargetName()
+
+      this.convertTargets = convertTargets
+
+      this.manualNameChange = false
+
       this.visible = true
     })
 
@@ -550,8 +566,18 @@ Vue.component('convert-modal', {
       })
     },
     nameChange () {
+      this.manualNameChange = true
       this.errorMessage = null
       this.confirmExistingFileOverwrite = false
+    },
+    generateTargetName() {
+      const sourceNameAndExt = splitExt(this.sourceName)
+      this.targetName = sourceNameAndExt[0] + extensionFromType(this.targetType)
+    },
+    targetTypeChange() {
+      if (!this.manualNameChange) {
+        this.generateTargetName()
+      }
     }
   },
   template: '' +
@@ -559,36 +585,29 @@ Vue.component('convert-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Save as {{ targetTypeName }}</p>' +
+    '      <p class="modal-card-title"><i class="fas fa-file-export"></i>Save&nbsp;<em>{{ sourceName }}</em>&nbsp;as</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
-    '      <div class="content-container">' +
-    '        <p>File <em>{{ sourceName }}</em> will be saved as {{ targetTypeName }}. The original file will be preserved.</p>' +
-    '      </div>' +
-    '      <div class="field">' +
+    '      <div class="field has-addons">' +
     '        <div class="control">' +
-    '          <label class="label">Enter a name for the converted file</label>' +
+    '          <div class="select is-medium">' +
+    '            <select @change="targetTypeChange" v-model="targetType">' +
+    '              <option v-for="convertTarget in convertTargets" :value="convertTarget[0]">{{ convertTarget[1] }}</option>' +
+    '            </select>' +
+    '          </div>' +
+    '        </div>' +
+    '        <div class="control">' +
     '          <input class="input is-medium" type="text" placeholder="Converted File Name" v-model="targetName" @keypress="nameChange()">' +
     '          <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '        </div>' +
     '      </div>' +
-    '      <transition name="fade">' +
-    '        <article class="message is-warning" v-if="hasFilenameConflict">' +
-    '          <div class="message-header"><p><em>{{ targetName }}</em> already exists</p></div>' +
-    '          <div class="message-body">' +
-    '            <div class="content-container">' +
-    '              <p>Please choose a different name, or check <strong>Confirm Existing File Overwrite</strong></p>' +
-    '            </div>' +
-    '            <div class="field">' +
-    '              <div class="control">' +
-    '                <label class="checkbox">' +
-    '                  <input type="checkbox" v-model="confirmExistingFileOverwrite">Confirm Existing File Overwrite' +
-    '                </label>' +
-    '              </div>' +
-    '            </div>' +
-    '          </div>' +
-    '        </article>' +
+    '      <transition v-if="hasFilenameConflict" name="fade">' +
+    '         <p>' +
+    '          <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span><em>{{ targetName }}</em> already exists.<br>' +
+    '          Please use a different name, or confirm you want to replace it: ' + 
+    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' + 
+    '        </p>' +
     '      </transition>' +
     '    </section>' +
     '    <footer class="modal-card-foot">' +

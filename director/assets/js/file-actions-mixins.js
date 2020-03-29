@@ -9,6 +9,16 @@ const g_convertibleDefinitions = [
   ['text/rmarkdown', 'rmd', 'RMarkdown']
 ]
 
+// mapping of source type to output formats
+const g_targetFormats = {
+  __default__: {
+    main: ['docx', 'md', 'html']
+  },
+  'application/vnd.google-apps.document': {
+    main: ['docx', 'md', 'html', 'ipynb']
+  }
+}
+
 const g_fileActionsCommon = {
   props: {
     previewUrl: {
@@ -28,6 +38,21 @@ const g_fileActionsCommon = {
     },
     allowPreview () {
       return this.hasConvertTargets && this.previewUrl !== ''
+    },
+    mainConvertTargets () {
+      const convertTargets = this.convertTargets
+
+      if (convertTargets.length === 0)
+        return
+
+      let targetCodes
+
+      if (g_targetFormats[this.fileType] !== undefined)
+        targetCodes = g_targetFormats[this.fileType].main
+      else
+        targetCodes = g_targetFormats.__default__.main
+
+      return convertTargets.filter(typeDefinition => targetCodes.indexOf(typeDefinition[0]) !== -1)
     },
     convertTargets () {
       const convertibleMimetypes = g_convertibleDefinitions.map(typeDef => typeDef[0])
