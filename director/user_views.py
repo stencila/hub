@@ -14,17 +14,18 @@ class HomeView(View):
     """Home page view."""
 
     def get(self, request: HttpRequest, *args, **kwargs):
-        # TODO: We are manually sending OK since GLB always hits / to do a health check. this is a known bug being
-        # tracked here:
+        # Send OK to Google's health checker which always hits /
+        # despite sentings to the contrary.
+        # This is a known bug being tracked here:
         # https://github.com/kubernetes/ingress-gce/issues/42
         # https://github.com/ory/k8s/issues/113#issuecomment-596281449
-
         user_agent = request.META.get('HTTP_USER_AGENT', '')
-
         if 'GoogleHC' in user_agent:
             return HttpResponse('OK')
 
-        if not settings.DEBUG and not request.is_secure():
+        # Redirect to secure version. This needs to be done here to
+        # avoid sending a 302 to GoogleHC.
+        if settings.SECURE_SSL_REDIRECT and not request.is_secure():
             return redirect('https://' + request.get_host() + '/')
 
         if self.request.user.is_authenticated:
