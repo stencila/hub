@@ -274,7 +274,7 @@ Vue.component('remove-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title"><i class="fa fa-trash"></i> Delete <em>{{ itemName }}</em>?</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-trash"></i> Delete&nbsp;<em>{{ itemName }}</em></p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
@@ -363,12 +363,11 @@ Vue.component('rename-item-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title"><i class="fa fa-pencil-alt"></i> {{ action }} {{ itemType }}</p>' +
+    '      <p class="modal-card-title"><i class="fa fa-pencil-alt"></i> {{ action }}&nbsp;<em>{{ itemName }}</em></p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
     '      <div class="control">' +
-    '        <label class="label">{{ action }} <em>{{ currentPath }}</em> to</label>' +
     '        <input class="input is-medium" type="text" :placeholder="action + \' To\'" v-model="destination">' +
     '        <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '      </div>' +
