@@ -585,20 +585,19 @@ Vue.component('convert-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Save As</p>' +
+    '      <p class="modal-card-title"><i class="fas fa-file-export"></i>Save&nbsp;<em>{{ sourceName }}</em>&nbsp;as</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body">' +
-    '      <div class="field">' +
-    '          <label class="label">Convert <em>{{ sourceName }}</em> To:</label>' +
-    '          <select class="select" @change="targetTypeChange" v-model="targetType">' +
-    '              <option v-for="convertTarget in convertTargets" :value="convertTarget[0]">{{ convertTarget[1] }}</option>' +
-    '          </select>' +
-    '      <p><small>The original file will be preserved.</small></p>' +
-    '      </div>' +
-    '      <div class="field">' +
+    '      <div class="field has-addons">' +
     '        <div class="control">' +
-    '          <label class="label">Enter a name for the converted file</label>' +
+    '          <div class="select is-medium">' +
+    '            <select @change="targetTypeChange" v-model="targetType">' +
+    '              <option v-for="convertTarget in convertTargets" :value="convertTarget[0]">{{ convertTarget[1] }}</option>' +
+    '            </select>' +
+    '          </div>' +
+    '        </div>' +
+    '        <div class="control">' +
     '          <input class="input is-medium" type="text" placeholder="Converted File Name" v-model="targetName" @keypress="nameChange()">' +
     '          <p v-if="errorMessage != null" class="has-text-danger">{{ errorMessage }}</p>' +
     '        </div>' +
