@@ -20,7 +20,7 @@ drf-yasg==1.17.1
 google-api-python-client==1.8.0
 google-cloud-storage==1.19.1
 oauth2client==4.1.3
-Pillow==6.2.2
+Pillow==7.0.0
 psycopg2-binary==2.8.4
 PyGithub==1.43.8
 pyjwt==1.7.1
