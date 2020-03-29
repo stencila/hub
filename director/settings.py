@@ -105,6 +105,7 @@ class Common(Configuration):
                     'django.template.context_processors.request',
                     'django.contrib.auth.context_processors.auth',
                     'django.contrib.messages.context_processors.messages',
+                    'lib.template_context_processors.version',
                     'lib.template_context_processors.sentry_dsn',
                     'lib.template_context_processors.feature_toggles'
                 ],
@@ -452,6 +453,7 @@ class Prod(Common):
 
         sentry_sdk.init(
             dsn=cls.SENTRY_DSN,
+            release='hub@{}'.format(__version__),
             integrations=[DjangoIntegration()],
             send_default_pii=True
         )

@@ -3,6 +3,13 @@ import typing
 from django.conf import settings
 from django.http import HttpRequest
 
+from version import __version__
+
+
+def version(request: HttpRequest) -> typing.Dict[str, str]:
+    """Set the Stencila Hub version."""
+    return {"VERSION": __version__}
+
 
 def sentry_dsn(request: HttpRequest) -> typing.Dict[str, str]:
     """Set the Sentry DSN for logging of Javascript errors."""

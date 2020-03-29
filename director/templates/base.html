@@ -23,7 +23,10 @@
   integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt"
   crossorigin="anonymous"></script>
                 <script>
-                    Sentry.init({ dsn: '{{ SENTRY_DSN }}' });
+                    Sentry.init({
+                        dsn: '{{ SENTRY_DSN }}',
+                        release: 'hub@{{ VERSION }}'
+                    });
                 </script>
             {% endif %}
             
