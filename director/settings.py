@@ -397,6 +397,7 @@ class Dev(Common):
                                       'stencila-hub-integration-test/installations'
     INTERCOM_DISABLED = True
 
+
 class Prod(Common):
     """Configuration settings used in production at https://hub.stenci.la."""
 
