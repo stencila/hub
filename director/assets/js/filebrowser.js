@@ -147,9 +147,6 @@ Vue.component('item-action-menu', {
     }
   },
   computed: {
-    editTarget () {
-      return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
-    },
     allowDownload () {
       return this.downloadUrl !== ''
     },
@@ -200,7 +197,7 @@ Vue.component('item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a :href="editorUrl" :target="editTarget" rel="noopener" class="dropdown-item"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a>' +
+    '      <a :href="editorUrl" target="_blank" rel="noopener" class="dropdown-item"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a>' +
     '      <hr v-if="shouldDisplayOpenConvertDivider" class="dropdown-divider">' +
     '      <span v-if="convertTargets.length" class="dropdown-item grouping-header"><span class="icon"><i class="fas fa-file-export"></i></span>Save As</span>' +
     '      <a v-for="convertTarget in mainConvertTargets" href="#" class="dropdown-item indent" @click.prevent="startConvert(convertTarget[0])">{{ convertTarget[1] }}&hellip;</a>' +
