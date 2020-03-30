@@ -199,7 +199,6 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()"><span class="icon"><i class="fas fa-trash"></i></span>Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()"><span class="icon"><i class="fas fa-unlink"></i></span>Unlink&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
-    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()"><span class="icon"><i class="fas fa-book-open"></i></span>Publish&hellip;</a>' +
     '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye"></i></span>Preview</a>' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item"><span class="icon"><i class="fas fa-download"></i></i></span>Download</a>' +
     '    </div>' +
