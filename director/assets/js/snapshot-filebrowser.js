@@ -30,7 +30,7 @@ Vue.component('snapshot-item-action-menu', {
     '    <div class="dropdown-content">' +
     '      <a v-if="downloadUrl != \'\'" :href="downloadUrl" class="dropdown-item">Download</a>' +
     '      <a v-if="viewUrl != \'\'" :href="viewUrl" class="dropdown-item">View</a>' +
-    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview as HTML</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
