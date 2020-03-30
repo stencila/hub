@@ -355,6 +355,7 @@ class ConversionDownloadOption(typing.NamedTuple):
     format_id: str
     icon_class: str
 
+
 # This list of download options is used primarily in templates to generate buttons and
 # dropdown menu items. The `None` items are used as dividers in dropdowns.
 CONVERSION_DOWNLOAD_OPTIONS = [
