@@ -70,7 +70,7 @@ class Common(Configuration):
         'djstripe',
 
         # Our apps
-        # Uses dotted paths to AppConfig subclasses as 
+        # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/2.2/ref/applications/#configuring-applications
         'users.apps.UsersConfig',
         'accounts.apps.AccountsConfig',

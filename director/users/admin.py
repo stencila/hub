@@ -1,11 +1,12 @@
 from typing import Set
 
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
 # Unregister the default user model admin
 admin.site.unregister(User)
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -30,11 +31,11 @@ class CustomUserAdmin(UserAdmin):
             disabled_fields |= {
                 # Prevent non-superusers from changing usernames
                 'username',
-                # Prevent non-superusers from making a user staff or 
+                # Prevent non-superusers from making a user staff or
                 # a superuser
                 'is_staff',
                 'is_superuser',
-                # Prevent non-superusers from granting permissions to 
+                # Prevent non-superusers from granting permissions to
                 # specific users or groups
                 'user_permissions',
                 'groups'
