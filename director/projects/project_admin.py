@@ -8,19 +8,11 @@ from .models import Project, ProjectPermission, ProjectRole, ProjectAgentRole
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = [
-        '__str__', 'public', 'archive'
+        'id', 'account', 'name', 'public'
     ]
     list_filter = [
         'public'
     ]
-
-    def archive(self, project):
-        """Link to an archive of the project."""
-        url = reverse('project_archive', args=[project.id])
-        return format_html('<a href="{}">Archive</a>'.format(url))
-
-    archive.short_description = 'Archive'  # type: ignore
-
 
 @admin.register(ProjectPermission)
 class ProjectPermissionAdmin(admin.ModelAdmin):
