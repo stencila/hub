@@ -6,16 +6,8 @@ const UPLOAD_STATUS = {
 }
 
 const SOURCE_TYPE_NAME_LOOKUP = {
-  googledocssource: 'Google Docs',
-  githubsource: 'Github'
-}
-
-
-
-FORMAT_LABELS = {
-  ipynb: 'Jupyter Notebook',
-  docx: 'Reproducible Word',
-  pdf: 'Reproducible PDF'
+  'googledocssource': 'Google Docs',
+  'githubsource': 'Github'
 }
 
 function rootPathJoin (directory, fileName) {
@@ -147,6 +139,9 @@ Vue.component('item-action-menu', {
     }
   },
   computed: {
+    editTarget () {
+      return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
+    },
     allowDownload () {
       return this.downloadUrl !== ''
     },
@@ -160,7 +155,7 @@ Vue.component('item-action-menu', {
       return this.hasEditPermission && this.hasConvertTargets()
     },
     hasFileManageActions () {
-      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowPublish
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink
     },
     shouldDisplay () {
       return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
@@ -186,9 +181,6 @@ Vue.component('item-action-menu', {
     startConvert (targetType) {
       this.$root.$emit('convert-modal-show', targetType, this.convertTargets, this.sourceIdentifier, this.fileName, this.absolutePath)
     },
-    publishFile () {
-      this.$root.$emit('publish-modal-show', this.sourceIdentifier, this.absolutePath)
-    }
   },
   template: '' +
     '<div v-if="shouldDisplay" class="dropdown item-actions-dropdown" @click="toggle()" :class="{ \'is-active\':active }">' +
@@ -605,8 +597,8 @@ Vue.component('convert-modal', {
     '      <transition v-if="hasFilenameConflict" name="fade">' +
     '         <p>' +
     '          <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span><em>{{ targetName }}</em> already exists.<br>' +
-    '          Please use a different name, or confirm you want to replace it: ' + 
-    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' + 
+    '          Please use a different name, or confirm you want to replace it: ' +
+    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' +
     '        </p>' +
     '      </transition>' +
     '    </section>' +
