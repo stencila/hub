@@ -272,7 +272,7 @@
       }
 
       function setTheme (themeName, cb) {
-        const themeUrl = `https://unpkg.com/@stencila/thema@1.15.1/dist/themes/${themeName}/styles.css`
+        const themeUrl = `https://unpkg.com/@stencila/thema@1.16/dist/themes/${themeName}/styles.css`
 
         const loadingMask = document.getElementById('loading-mask')
 
@@ -280,7 +280,7 @@
           loadingMask.classList.remove('is-hidden')
         }, 200)
 
-        fetch(themeUrl).then(() => {
+        fetch(themeUrl, {mode: 'no-cors'}).then(() => {
           articleDisplay.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
           clearTimeout(loadingMaskShowTimeout)
           loadingMask.classList.add('is-hidden')

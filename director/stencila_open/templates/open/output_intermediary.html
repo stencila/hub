@@ -76,7 +76,7 @@
       })
 
       function setIframeTheme (el, themeName) {
-        let themeUrl = `https://unpkg.com/@stencila/thema@1.15.1/dist/themes/${themeName}/styles.css`
+        let themeUrl = `https://unpkg.com/@stencila/thema@1.16/dist/themes/${themeName}/styles.css`
         const loadingMask = document.getElementById('loading-mask')
 
         loadingMask.style.left = el.getBoundingClientRect().left + 'px'
@@ -88,7 +88,7 @@
           loadingMask.classList.remove('is-hidden')
         }, 200)
 
-        fetch(themeUrl).then(() => {
+        fetch(themeUrl, {mode: 'no-cors'}).then(() => {
           el.contentDocument.getElementsByTagName('link')[0].setAttribute('href', themeUrl)
           clearTimeout(loadingMaskShowTimeout)
           loadingMask.classList.add('is-hidden')
