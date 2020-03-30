@@ -12,7 +12,7 @@ def run(*args):
     admin = User.objects.create_user(
         username='admin',
         first_name='Admin',
-        email='admin',
+        email='admin@example.com',
         password='admin'
     )
     admin.is_staff = True
@@ -23,7 +23,7 @@ def run(*args):
     staff = User.objects.create_user(
         username='staff',
         first_name='Staff',
-        email='staff',
+        email='staff@example.com',
         password='staff'
     )
     staff.is_staff = True

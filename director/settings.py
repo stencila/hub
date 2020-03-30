@@ -70,11 +70,12 @@ class Common(Configuration):
         'djstripe',
 
         # Our apps
-
-        'users',
-        'accounts',
-        'projects',
-        'stencila_open'
+        # Uses dotted paths to AppConfig subclasses as 
+        # recommended in https://docs.djangoproject.com/en/2.2/ref/applications/#configuring-applications
+        'users.apps.UsersConfig',
+        'accounts.apps.AccountsConfig',
+        'projects.apps.ProjectsConfig',
+        'stencila_open.apps.StencilaOpenConfig'
     ]
 
     MIDDLEWARE = [
