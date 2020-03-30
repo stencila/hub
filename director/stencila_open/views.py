@@ -355,9 +355,11 @@ class ConversionDownloadOption(typing.NamedTuple):
     format_id: str
     icon_class: str
 
-
+# This list of download options is used primarily in templates to generate buttons and
+# dropdown menu items. The `None` items are used as dividers in dropdowns.
 CONVERSION_DOWNLOAD_OPTIONS = [
     ConversionDownloadOption('Reproducible Word (.docx)', ConversionFormatId.docx.value.format_id, 'far fa-file-word'),
+    ConversionDownloadOption('Reproducible PDF (.pdf)', ConversionFormatId.pdf.value.format_id, 'far fa-file-pdf'),
     None,
     ConversionDownloadOption('Jupyter Notebook (.ipynb)', ConversionFormatId.ipynb.value.format_id, 'fas fa-book'),
     ConversionDownloadOption('R Markdown (.Rmd)', ConversionFormatId.rmd.value.format_id, 'far fa-file-code'),
@@ -365,8 +367,7 @@ CONVERSION_DOWNLOAD_OPTIONS = [
     ConversionDownloadOption('JATS (.xml)', ConversionFormatId.jats.value.format_id, 'far fa-file-code'),
     ConversionDownloadOption('JSON-Linked Data (.jsonld)', ConversionFormatId.jsonld.value.format_id,
                              'far fa-file-code'),
-    ConversionDownloadOption('Semantic HTML', ConversionFormatId.html.value.format_id, 'far fa-file-code'),
-    # ConversionDownloadOption('PDF', 'pdf', 'far fa-file-pdf'),
+    ConversionDownloadOption('Semantic Web page (.html)', ConversionFormatId.html.value.format_id, 'far fa-file-code')
 ]
 
 

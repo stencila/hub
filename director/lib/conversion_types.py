@@ -38,6 +38,7 @@ class ConversionFormatId(enum.Enum):
     json = ConversionFormat('json', ['application/json'])
     jsonld = ConversionFormat('jsonld', ['application/ld+json'])
     md = ConversionFormat('md', ['text/markdown'])
+    pdf = ConversionFormat('pdf', ['application/pdf'])
     rnb = ConversionFormat('rnb', ['text/html+rstudio'], 'nb.html')
     rmd = ConversionFormat('rmd', ['text/rmarkdown'])
     xml = ConversionFormat('xml', ['application/xml'])
