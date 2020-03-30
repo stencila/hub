@@ -38,7 +38,7 @@ class ConverterIo(typing.NamedTuple):
     io_type: ConverterIoType
     # data can be bytes to be converted (io_type == PIPE) or the path/url to the file to be converted (io_type == PATH)
     data: typing.Union[None, str, bytes]
-    conversion_format: typing.Optional[ConversionFormatId]
+    conversion_format: typing.Optional[ConversionFormatId] = None
 
     @property
     def as_path_shell_arg(self) -> str:

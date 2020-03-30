@@ -22,7 +22,7 @@ from requests import HTTPError
 
 from lib.conversion_types import ConversionFormatId, conversion_format_from_path, ConversionFormatError
 from lib.converter_facade import fetch_url, ConverterFacade, ConverterIo, ConverterIoType, \
-    ConverterContext, GoogleDocs403Exception, download_for_conversion
+    ConverterContext, GoogleDocs403Exception, download_for_conversion, is_encoda_delegate_url
 from lib.sparkla import generate_manifest
 from lib.path_operations import path_is_in_directory
 from stencila_open.lib import ConversionFileStorage
@@ -51,6 +51,10 @@ class ConversionRequest:
     def source_format_valid(self) -> bool:
         if self.source_io is None:
             return False
+        if self.source_io.conversion_format is None:
+            # Will let Encoda deduce the conversion format from the
+            # source_io.data
+            return True
         return self.source_io.conversion_format in (
             ConversionFormatId.html,
             ConversionFormatId.md,
@@ -169,13 +173,16 @@ class OpenView(View):
                     self.temp_file_cleanup(cr.source_io, cr.source_file, target_file)
 
             if cr and not cr.source_format_valid():
-                messages.error(request, 'Only conversion from HTML, Markdown, Word (.docx), Jupyter Notebook, Google '
-                                        'Docs, R Markdown or Rstudio is currently supported.')
+                messages.error(request, 'File format is not currently supported.')
 
         conversion_examples = [
             ConversionExample('Jupyter Notebook <br> hosted on Github',
                               'https://github.com/stencila/examples/tree/master/jupyter/jupyter.ipynb',
                               'fab fa-github'),
+
+            ConversionExample('JATS XML article <br> published by eLife',
+                              'https://elifesciences.org/articles/51247',
+                              'company-logo logo-elife'),
 
             ConversionExample('Markdown file <br> on Hackmd.io',
                               'https://hackmd.io/RaFYCFoyTlODFxz5hPevLw',
@@ -188,6 +195,10 @@ class OpenView(View):
             ConversionExample('Article written in <br> Google Docs',
                               'https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA',
                               'fab fa-google'),
+
+            ConversionExample('JATS XML article <br> published by PLoS',
+                              'https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1003053',
+                              'company-logo logo-plos')
         ]
 
         return render(request, 'open/main.html',
@@ -228,13 +239,16 @@ class OpenView(View):
         cr = ConversionRequest()
         if url_form.is_valid():
             cr.input_url = typing.cast(str, url_form.cleaned_data['url'])  # safe to do because the form is valid
-            try:
-                file_name, source_io = fetch_url(cr.input_url, download_for_conversion,
-                                                 settings.STENCILA_CLIENT_USER_AGENT)
-                cr.source_io = source_io
-                cr.original_filename = file_name
-            except ConversionFormatError:
-                cr.invalid_source_format = True
+            if is_encoda_delegate_url(cr.input_url):
+                cr.source_io = ConverterIo(ConverterIoType.PATH, cr.input_url)
+            else:
+                try:
+                    file_name, source_io = fetch_url(cr.input_url, download_for_conversion,
+                                                     settings.STENCILA_CLIENT_USER_AGENT)
+                    cr.source_io = source_io
+                    cr.original_filename = file_name
+                except ConversionFormatError:
+                    cr.invalid_source_format = True
         return cr
 
     def create_conversion(self, request: HttpRequest, conversion_result: subprocess.CompletedProcess,
