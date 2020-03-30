@@ -1,6 +1,4 @@
 from django.contrib import admin
-from django.urls import reverse
-from django.utils.html import format_html
 
 from .models import Project, ProjectPermission, ProjectRole, ProjectAgentRole
 
@@ -13,6 +11,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = [
         'public'
     ]
+
 
 @admin.register(ProjectPermission)
 class ProjectPermissionAdmin(admin.ModelAdmin):
