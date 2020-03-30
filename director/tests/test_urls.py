@@ -58,7 +58,7 @@ def skip(path, *args, **kwargs):
 checks = [
     check(
         "/",
-        anon=signin,
+        anon=title("Open"),
         joe=title("Dashboard")
     ),
     check(

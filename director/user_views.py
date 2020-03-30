@@ -38,8 +38,4 @@ class HomeView(View):
                 'filter_options': FILTER_OPTIONS
             })
         else:
-            url = reverse('user_signin')
-            token = self.request.GET.get('token')
-            if token:
-                url += '?token={}'.format(token)
-            return redirect(url)
+            return redirect(reverse('open_main'))
