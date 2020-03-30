@@ -68,8 +68,8 @@
                         {% if user.is_anonymous %}
                             <div class="navbar-item">
                                 <a class="button is-outlined is-primary call-to-action is-fullwidth"
-                                   href="https://stenci.la/#beta-signup">
-                                    Sign up
+                                   href="{% url 'user_signin' %}">
+                                    Sign in
                                 </a>
                             </div>
                         {% endif %}
