@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}Open{% endblock %}
-{% block header %}{% include "open/open_header.html" with brand_tagline='/open' navbar_id='navbar_open' display_share=user_owns_conversion %}{% endblock %}
+{% block header %}{% include "open/open_header.html" with navbar_id='navbar_open' display_share=user_owns_conversion %}{% endblock %}
 {% block content %}
 
 
@@ -61,24 +61,22 @@
                     <div><a href="javascript:void(0)" class="help tooltip-link">What types of URLs can I enter?
                         <span class="tooltip-q">?
                             <div class="tooltip is-hidden-mobile">
-                                <p class="is-uppercase-heading has-bottom-margin">Supported sites and formats</p>
-                                <p>For these sites you can just copy and paste the URL from the document you are viewing or editing on the site.</p>
-                                <br>
-                                <h5><strong>Github</strong></h5>
-                                <p><strong>URL:</strong> https://github.com/<code>user</code>/<code>repo</code>/tree/<code>ref</code>/<code>folder</code>/<code>file</code></p>
-                                <p><strong>Formats:</strong> .md, .ipynb, .Rmd, .docx</p>
-                                <br>
-                                <p><strong>Google Docs</strong></p>
-                                <p><strong>URL:</strong> https://docs.google.com/document/d/<code>document-id</code></p>
-                                <p><strong>Format:</strong> Google Doc</p>
-                                <br>
-                                <p><strong>HackMD</strong></p>
-                                <p><strong>URL:</strong> https://hackmd.io/<code>note-id</code></p>
-                                <p><strong>Format:</strong> .md</p>
-                                {% comment %}
-                                <p><strong>eLife articles:</strong> https://elifesciences.org/articles/[article number]/</p>
-                                <p><strong>PLoS articles:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
-                                {% endcomment %}
+                              <p>For these sites you can just copy and paste the URL from the document you are viewing or editing on the site.</p>
+                              <br>
+                              <p><strong>Github</strong></p>
+                              <p>https://github.com/<code>user</code>/<code>repo</code>/tree/<code>ref</code>/<code>folder</code>/<code>file</code></p>
+                              <br>
+                              <p><strong>Google Docs</strong></p>
+                              <p>https://docs.google.com/document/d/<code>document-id</code></p>
+                              <br>
+                              <p><strong>HackMD</strong></p>
+                              <p>https://hackmd.io/<code>note-id</code></p>
+                              <br>
+                              <p><strong>eLife</strong></p>
+                              <p>https://elifesciences.org/articles/<code>article</code></p>
+                              <br>
+                              <p><strong>PLoS</strong></p>
+                              <p>https://journals.plos.org/<code>journal</code>/article?id=<code>article</code></p>
                             </div>
                         </span>
                         <div class="tooltip is-hidden-tablet">
@@ -91,15 +89,15 @@
                             <br>
                             <p><strong>Google Docs</strong></p>
                             <p><strong>URL:</strong> https://docs.google.com/document/d/<code>document-id</code></p>
-                            <p><strong>Format:</strong> Google Doc</p>
                             <br>
                             <p><strong>HackMD</strong></p>
                             <p><strong>URL:</strong> https://hackmd.io/<code>note-id</code></p>
-                            <p><strong>Format:</strong> .md</p>
-                            {% comment %}
-                            <p><strong>eLife articles:</strong> https://elifesciences.org/articles/[article number]/</p>
-                            <p><strong>PLoS articles:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
-                            {% endcomment %}
+                            <br>
+                            <p><strong>eLife</strong></p>
+                            <p><strong>URL:</strong> https://elifesciences.org/articles/<code>article</code></p>
+                            <br>
+                            <p><strong>PLoS</strong></p>
+                            <p><strong>URL:</strong> https://journals.plos.org/<code>journal</code>/article?id=<code>article</code></p>
                         </div>
                         </a>
                     </div>
@@ -156,10 +154,6 @@
                                 <p><strong>R Markdown:</strong> .rmd</p>
                                 <p><strong>R Studio Notebook:</strong> .nb.html</p>
                                 <p><strong>Word:</strong> .docx</p>
-                                {% comment %}
-                                <p><strong>eLife articles:</strong> https://elifesciences.org/articles/[article number]/</p>
-                                <p><strong>PLoS articles:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
-                                {% endcomment %}
                             </div>
                         </span>
                         <div class="tooltip is-hidden-tablet">
@@ -169,10 +163,6 @@
                             <p><strong>R Markdown:</strong> .rmd</p>
                             <p><strong>R Studio Notebook:</strong> .nb.html</p>
                             <p><strong>Word:</strong> .docx</p>
-                            {% comment %}
-                            <p><strong>eLife articles:</strong> https://elifesciences.org/articles/[article number]/</p>
-                            <p><strong>PLoS articles:</strong> https://journals.plos.org/[journal]/article?id=[article id]</p>
-                            {% endcomment %}
                         </div>
                         </a>
                     </div>
@@ -207,17 +197,19 @@
         <div class="columns is-vcentered is-centered">
           <div class="column">
               <div class="content">
-                  <header class="has-text-centered small is-uppercase-heading has-text-grey open-examples-header">
-                    Open up some examples
+                  <header class="has-text-centered small has-text-grey open-examples-header">
+                    Try some of these examples...
                   </header>
 
               <div class="columns">
                   {% for conversion_example in conversion_examples %}
                   <div class="column">
                     <p class="is-size-5 has-text-centered has-text-weight-medium">
-                      <a href="{% url 'open_main_with_url' conversion_example.url %}">
-                        <i class="fa-1 {{ conversion_example.icon_class }}"></i> {{ conversion_example.tagline|safe }}
-                        <i class="fas fa-external-link-alt is-size-7"></i>
+                      <a href="{% url 'open_main_with_url' conversion_example.url %}" target="_blank">
+                        <span class="icon is-medium">
+                          <i class="{{ conversion_example.icon_class }}"></i>
+                        </span>
+                        {{ conversion_example.tagline|safe }}
                       </a>
                     </p>
                   </div>

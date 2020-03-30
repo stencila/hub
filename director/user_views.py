@@ -1,6 +1,5 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.views import View
 
 from django.conf import settings
@@ -38,8 +37,4 @@ class HomeView(View):
                 'filter_options': FILTER_OPTIONS
             })
         else:
-            url = reverse('user_signin')
-            token = self.request.GET.get('token')
-            if token:
-                url += '?token={}'.format(token)
-            return redirect(url)
+            return redirect('open_main')

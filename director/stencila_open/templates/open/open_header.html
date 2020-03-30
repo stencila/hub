@@ -1,7 +1,4 @@
 {% extends '_header.html' %}
-{% block brand_tagline %}
-    <a href="{% url 'open_main' %}">/open</a>
-{% endblock %}
 {% block navbar_end %}
     {% if conversion_success and not hide_action_buttons %}
         <div class="is-hidden-mobile">
@@ -21,8 +18,8 @@
     {% endif %}
     {% if user.is_anonymous %}
         <div class="buttons is-hidden-mobile">
-            <a class="button is-outlined is-primary call-to-action" href="https://stenci.la/#beta-signup">
-                Sign up
+            <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signin' %}">
+                Sign in
             </a>
         </div>
     {% endif %}

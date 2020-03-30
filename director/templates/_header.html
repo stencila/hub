@@ -10,10 +10,7 @@
                     <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
                 </a>
                 <span class="navbar-item is-brand-tagline is-uppercase-heading"
-                      style="margin: 0 0.5em 0 0; padding-left: 0.5em">{% block brand_tagline %}
-                    Beta{% endblock %}</span>
-
-
+                      style="margin: 0 0.5em 0 0; padding-left: 0.5em">Beta</span>
             </div>
             <div class="navbar-menu" :class="{ 'is-active':active }">
                 <div class="navbar-start is-hidden-mobile">
@@ -21,12 +18,13 @@
                 <div class="navbar-end is-flex align-centre">
                     {% block navbar_end %}
                         {% if user.is_anonymous %}
-                            <div class="buttons">
-                                <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signin' %}">Sign
-                                    in</a>
-                                <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signup' %}">Sign
-                                    up</a>
-                            </div>
+                            {% url 'user_signin' as user_signin %}
+                            {% if request.path != user_signin %}
+                                <div class="buttons">
+                                    <a class="button is-outlined is-primary call-to-action" href="{% url 'user_signin' %}">Sign
+                                        in</a>
+                                </div>
+                            {% endif %}
                         {% else %}
                             <div class="has-dropdown">
                                 <div class="dropdown is-new-menu">
@@ -54,6 +52,7 @@
                                                 {% endif %}
                                                 <a class="dropdown-item" href="{% url 'user_settings' %}">Settings</a>
                                                 <hr class="dropdown-divider">
+                                                <a class="dropdown-item" href="{% url 'open_main' %}">Open...</a>
                                                 <a class="dropdown-item no-hover" href="{% url 'user_signout' %}">Sign
                                                     out</a>
                                             </div>
@@ -79,6 +78,4 @@
       }
     })
   }
-
-
 </script>
