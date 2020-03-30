@@ -1,6 +1,5 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.urls import reverse
 from django.views import View
 
 from django.conf import settings
@@ -38,4 +37,4 @@ class HomeView(View):
                 'filter_options': FILTER_OPTIONS
             })
         else:
-            return redirect(reverse('open_main'))
+            return redirect('open_main')
