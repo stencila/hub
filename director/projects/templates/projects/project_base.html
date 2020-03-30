@@ -21,20 +21,6 @@
                    class="panel-block{% if project_tab == 'snapshots' %} is-active{% endif %}">
                     Snapshots
                 </a>
-                <!--div class="panel-block-secondary{% if project_tab == 'files' %} is-active{% endif %}">
-                    <a href="{% url 'project_files' project.account.name project.name %}"
-                       class="panel-block{% if project_subtab == 'current' %} is-active{% endif %}">
-                        Current
-                    </a>
-                    <a href="{% url 'project_snapshots' project.account.name project.name %}"
-                       class="panel-block{% if project_subtab == 'snapshots' %} is-active{% endif %}">
-                        Snapshots
-                    </a>
-                    <a href="{% url 'project_archives' project.account.name project.name %}"
-                       class="panel-block{% if project_subtab == 'archives' %} is-active{% endif %}">
-                        Archives
-                    </a>
-                </div-->
                 {% if project_permissions|project_permissions_contain:'manage' %}
                     <a href="{% url 'project_activity' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'activity' %} is-active{% endif %}">

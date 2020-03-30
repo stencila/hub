@@ -12,10 +12,11 @@ from django.views.generic.base import View
 from lib.conversion_types import conversion_format_from_path, UnknownMimeTypeError, ConversionFormatId
 from lib.path_operations import utf8_path_join, utf8_basename, utf8_dirname
 from projects.permission_models import ProjectPermissionType
+from projects.project_archiver import SnapshotArchiver
 from projects.project_models import Snapshot, PublishedItem
 from projects.source_operations import list_snapshot_directory, path_entry_iterator, snapshot_path, \
     generate_snapshot_publish_directory
-from projects.views.mixins import ProjectPermissionsMixin, ConverterMixin
+from projects.views.mixins import ProjectPermissionsMixin, ConverterMixin, ArchivesDirMixin
 from projects.views.project_views import ProjectTab
 from projects.views.publication_views import published_item_render, send_media_response
 
@@ -156,3 +157,15 @@ class PreviewMediaView(SnapshotView):
 
         pi = get_object_or_404(PublishedItem, project=self.project, snapshot=snapshot, pk=pi_pk)
         return send_media_response(pi, media_path)
+
+
+class ArchiveView(ArchivesDirMixin, SnapshotView):
+    project_permission_required = ProjectPermissionType.VIEW
+
+    def get(self, request: HttpRequest, account_name: str, project_name: str,
+            version: int) -> FileResponse:  # type: ignore
+        snapshot = self.get_snapshot(request, account_name, project_name, version)
+        archiver = SnapshotArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, snapshot, request.user)
+        archive_path = archiver.archive_snapshot()
+
+        return FileResponse(open(archive_path, 'rb'), as_attachment=True)

@@ -1,6 +1,5 @@
 import json
 import typing
-from datetime import datetime
 from enum import Enum
 
 from django.conf import settings
@@ -11,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.forms import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.html import escape
@@ -24,24 +23,21 @@ from lib.resource_allowance import QuotaName, resource_limit_met, get_subscripti
     StorageLimitExceededException
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
+from projects.models import Project
 from projects.permission_models import ProjectPermissionType, ProjectRole, ProjectAgentRole, AgentType, \
     get_roles_under_permission
-from projects.project_archiver import ProjectArchiver
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
-from projects.project_models import ProjectEventType, PROJECT_EVENT_LONG_TYPE_LOOKUP
-from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
-from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
-    list_project_filesystem_directory, combine_virtual_and_real_entries
-from lib.path_operations import to_utf8, utf8_isdir, utf8_path_exists, utf8_unlink, utf8_scandir, path_is_in_directory
-from projects.views.mixins import ProjectPermissionsMixin, ArchivesDirMixin
-from projects.models import Project
 from projects.project_forms import (
     ProjectCreateForm,
     ProjectSharingForm,
     ProjectSettingsMetadataForm,
     ProjectSettingsAccessForm,
-    ProjectSettingsSessionsForm,
-    ProjectArchiveForm)
+    ProjectSettingsSessionsForm)
+from projects.project_models import ProjectEventType, PROJECT_EVENT_LONG_TYPE_LOOKUP
+from projects.source_models import Source, FileSource, LinkedSourceAuthentication, DiskSource
+from projects.source_operations import list_project_virtual_directory, path_entry_iterator, \
+    list_project_filesystem_directory, combine_virtual_and_real_entries
+from projects.views.mixins import ProjectPermissionsMixin
 from projects.views.shared import DEFAULT_ENVIRON
 
 User = get_user_model()
@@ -50,8 +46,6 @@ User = get_user_model()
 class ProjectTab(Enum):
     OVERVIEW = 'overview'
     FILES = 'files'
-    FILES_CURRENT = 'current'
-    FILES_ARCHIVES = 'archives'
     FILES_SNAPSHOTS = 'snapshots'
     ACTIVITY = 'activity'
     SHARING = 'sharing'
@@ -211,7 +205,6 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 'item_names': json.dumps([item.name for item in directory_items]),
                 'items': directory_items,
                 'project_tab': ProjectTab.FILES.value,
-                'project_subtab': ProjectTab.FILES_CURRENT.value,
                 'social_providers_supported': json.dumps(user_supported_social_providers(request.user))
             })
                       )
@@ -480,122 +473,11 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
         return reverse('project_settings_sessions', args=(self.object.account.name, self.object.name))
 
 
-class ProjectArchiveDownloadView(ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore  # doesn't match parent signature
-        project = self.get_project(request.user, pk=pk)
-
-        archive = project.pull()
-        body = archive.getvalue()
-
-        response = HttpResponse(body, content_type='application/x-zip-compressed')
-        response['Content-Disposition'] = 'attachment; filename={}.zip'.format(project.name)
-        return response
-
-
 class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
     model = Project
     template_name = 'projects/project_delete.html'
     success_url = reverse_lazy('project_list')
     project_permission_required = ProjectPermissionType.MANAGE
-
-
-class ProjectArchiveView(ArchivesDirMixin, ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-    template_name = 'projects/project_archives.html'
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str, ) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, account_name, project_name)
-
-        return render(request, self.template_name, self.get_archives_render_context(project))
-
-    def get_archives_render_context(self, project: Project) -> dict:
-        archives = self.list_archives(project)
-
-        return self.get_render_context({
-            'archives': archives,
-            'form': ProjectArchiveForm(),
-            'project_tab': ProjectTab.FILES.value,
-            'project_subtab': ProjectTab.FILES_ARCHIVES.value
-        })
-
-    @staticmethod
-    def get_archives_redirect(account_name: str, project_name: str) -> HttpResponse:
-        return redirect('project_archives', account_name, project_name)
-
-    def list_archives(self, project: Project):
-        archives_directory = self.get_archives_directory(project)
-        if utf8_isdir(archives_directory):
-            archives = map(lambda e: {
-                'name': e.name.decode('utf8'),
-                'size': e.stat().st_size,
-                'created': datetime.fromtimestamp(e.stat().st_ctime)
-            }, filter(lambda e: not e.name.startswith(b'.'),
-                      sorted(
-                          utf8_scandir(archives_directory), key=lambda e: e.stat().st_mtime, reverse=True)
-                      )
-                           )
-        else:
-            archives = []  # type: ignore
-        return archives
-
-    def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
-        self.project_permission_required = ProjectPermissionType.EDIT
-        project = self.get_project(request.user, account_name, project_name)
-
-        if request.POST.get('action') == 'remove_archive':
-            archive_name = request.POST.get('archive_name')
-
-            if archive_name and archive_name != '.':
-                archives_directory = self.get_archives_directory(project)
-                archive_path = self.get_archive_path(archives_directory, archive_name)
-
-                if not path_is_in_directory(archive_path, archives_directory):
-                    raise PermissionDenied
-
-                if utf8_path_exists(archive_path):
-                    utf8_unlink(archive_path)
-                    messages.success(request, 'Archive {} was deleted successfully.'.format(archive_name))
-                else:
-                    messages.warning(request, 'Archive {} does not exist.'.format(archive_name))
-
-            return self.get_archives_redirect(account_name, project_name)
-
-        form = ProjectArchiveForm(request.POST)
-
-        if not form.is_valid():
-            return render(request, self.template_name, self.get_archives_render_context(project))
-
-        puller = self.get_project_puller(request, account_name, project_name)
-
-        archiver = ProjectArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project, request.user, puller)
-
-        try:
-            archiver.archive_project(form.cleaned_data['tag'])
-        except Exception as e:
-            messages.error(request, 'Archive failed: {}'.format(e))
-        else:
-            messages.success(request, 'Archive created successfully.')
-
-        return self.get_archives_redirect(account_name, project_name)
-
-
-class ProjectNamedArchiveDownloadView(ArchivesDirMixin, ProjectPermissionsMixin, View):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            name: str) -> FileResponse:
-        project = self.get_project(request.user, account_name, project_name)
-
-        archives_directory = self.get_archives_directory(project)
-        archive_path = self.get_archive_path(archives_directory, name)
-
-        if not path_is_in_directory(archive_path, archives_directory):
-            raise PermissionDenied
-
-        return FileResponse(open(to_utf8(archive_path), 'rb'), 'application/x-zip-compressed', as_attachment=True,
-                            filename=name)
 
 
 class ProjectExecutaView(ProjectPermissionsMixin, View):
