@@ -1,0 +1,19 @@
+{% load static %}
+{% comment %}
+This HTML is primarily targetted at Google's crawler that
+targets previews in GoogleDocs (see https://github.com/stencila/gsuita/issues/16).
+However, it may also be visited by humans in which case more useful-for-human
+HTML could be generated. In particular the Hub's navbar and Web Component
+for the node from https://www.npmjs.com/package/@stencila/components.
+{% endcomment %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ node_type }}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    </head>
+    <body>
+    </body>
+</html>

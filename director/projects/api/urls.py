@@ -1,5 +1,6 @@
 from django.urls import path
 
+from rest_framework import routers
 from projects.api.views.sources import (
     DiskItemCreateView,
     DiskItemMoveView,
@@ -16,6 +17,9 @@ from projects.api.views.projects import (
     ProjectEventListView,
     AdminProjectEventListView,
 )
+
+nodes_router = routers.SimpleRouter()
+nodes_router.register('nodes', NodesViewSet, 'api-project-nodes')
 
 urlpatterns = [
     path("", ProjectListView.as_view(), name="api_project_list"),
@@ -56,4 +60,4 @@ urlpatterns = [
         AdminProjectEventListView.as_view(),
         name="api_admin_project_events",
     ),
-]
+] + nodes_router.urls
