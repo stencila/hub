@@ -113,8 +113,10 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
 
         scf = make_source_content_facade(request.user, path, source, project)
 
+        # the isinstance check is because Source might be a DiskSource which is not a subclass of Source
         pi, created = PublishedItem.objects.get_or_create(project=project, source_path=path,
-                                                          source=source if isinstance(source, Source) else None)
+                                                          source=source if isinstance(source, Source) else None,
+                                                          snapshot=None)
 
         if created or scf.source_modification_time > pi.updated or not pi.path:
             try:
