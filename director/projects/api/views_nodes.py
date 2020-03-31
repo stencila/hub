@@ -7,28 +7,27 @@ from rest_framework import mixins, permissions, serializers, status, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from projects.models import Project, Node
+from projects.models import Node
 
 
-class NodesCreateRequest(serializers.Serializer):
+class NodesCreateRequest(serializers.ModelSerializer):
     """The request data when creating a new node."""
-
-    project = serializers.PrimaryKeyRelatedField(
-        required=True,
-        queryset=Project.objects.all(),
-        help_text="The project the node is associated with.",
-    )
 
     node = serializers.JSONField(required=True, help_text="The node itself.")
 
     class Meta:
         model = Node
-        fields = ["project", "node"]
+        fields = ["project", "app", "doc", "node"]
         ref_name = None
 
 
-class NodesCreateResponse(serializers.Serializer):
+class NodesCreateResponse(serializers.ModelSerializer):
     """The response data when creating a new node."""
+
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        return obj.get_absolute_url()
 
     class Meta:
         model = Node
@@ -36,14 +35,14 @@ class NodesCreateResponse(serializers.Serializer):
         ref_name = None
 
 
-class NodeSerializer(serializers.Serializer):
-    """The response data when creating a new node or retrieving one."""
+class NodeSerializer(NodesCreateResponse):
+    """The response data when retrieving a node."""
 
     node = serializers.JSONField(source="json", help_text="The node itself.")
 
     class Meta:
         model = Node
-        fields = ["url", "project", "node"]
+        fields = ["url", "project", "app", "doc", "node"]
         ref_name = None
 
 
@@ -83,15 +82,21 @@ class NodesViewSet(
         serializer.is_valid(raise_exception=True)
 
         project = serializer.validated_data.get("project")
+        app = serializer.validated_data.get("app")
+        doc = serializer.validated_data.get("doc")
         node = serializer.validated_data.get("node")
+
         jso = json.dumps(node)
-        cid = hashlib.sha256(jso.encode("utf-8")).hexdigest()
+        fingerprint = "{}-{}-{}-{}".format(project, app, doc, jso).encode("utf-8")
+        cid = hashlib.sha256(fingerprint).hexdigest()
 
         # TODO check that the user has write access to the project
-        node, created = Node.objects.get_or_create(project=project, cid=cid, json=jso)
+        node, created = Node.objects.get_or_create(
+            project=project, app=app, doc=doc, cid=cid, json=jso
+        )
 
-        url = node.get_absolute_url()
-        return Response({"url": url}, status=status.HTTP_201_CREATED,)
+        serializer = NodesCreateResponse(node)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,)
 
     @swagger_auto_schema(responses={status.HTTP_200_OK: NodeSerializer},)
     def retrieve(self, request: Request, cid: str) -> Response:
