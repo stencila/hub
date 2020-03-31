@@ -1,11 +1,11 @@
 import datetime
 
+from django import db
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, serializers, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 from sentry_sdk import capture_message
-import psycopg2
 
 from lib.health_check import migrations_pending
 from version import __version__
@@ -37,7 +37,7 @@ class StatusView(generics.GenericAPIView):
     def get(self, request: Request) -> Response:
         try:
             pending = migrations_pending()
-        except psycopg2.OperationalError as exc:
+        except db.OperationalError as exc:
             if "could not connect to server" in str(exc):
                 # A db connectivity error.
                 # This can happen (but not always) during initial deployment warmup.
