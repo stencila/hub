@@ -371,7 +371,7 @@ class PublishedItem(models.Model):
                                           'account/project.', validators=[validate_publish_url_path])
     created = models.DateTimeField(auto_now_add=True, help_text='The date/time the item was first published.')
     updated = models.DateTimeField(auto_now=True, help_text='The date/time the item was last published.')
-    source = models.ForeignKey(Source, on_delete=models.DO_NOTHING, null=True,
+    source = models.ForeignKey(Source, on_delete=models.CASCADE, null=True,
                                help_text='The source item of this publication. May be null for a DiskSource.')
     source_path = models.TextField(help_text='The relative path of the file that was published. Relative to its '
                                              'Project or snapshot root.')
