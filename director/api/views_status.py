@@ -40,12 +40,12 @@ class StatusView(generics.GenericAPIView):
         except db.OperationalError as exc:
             if "could not connect to server" in str(exc):
                 # A db connectivity error.
-                # This can happen (but not always) during initial deployment warmup.
-                # Treat it as a migrations pending.
+                # This can happen (but not always) during both deployment startup
+                # and shutdown. So just return a 503.
                 # This is OK because broader db connectivity issues will be raised
                 # elsewhere in the deployed version.
                 # See https://github.com/stencila/hub/issues/336
-                pending = True
+                return Response(str(exc), status=503)
             else:
                 # In case this is some other sort of error re-raise it.
                 raise exc
@@ -53,11 +53,10 @@ class StatusView(generics.GenericAPIView):
         if pending:
             # Send a message to Sentry so that maintainers are alerted of the need
             # to do migrations for this version
-            capture_message(
-                "Migrations pending for v{}".format(__version__), level="error"
-            )
+            message = "Migrations pending for v{}".format(__version__)
+            capture_message(message, level="error")
             # Tell the requester we are not ready
-            return Response(status=503)
+            return Response(message, status=503)
 
         # Otherwise, just a response with a bit on info and the right headers
         response = Response(
