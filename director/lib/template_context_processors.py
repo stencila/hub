@@ -16,6 +16,11 @@ def sentry_dsn(request: HttpRequest) -> typing.Dict[str, str]:
     return {"SENTRY_DSN": getattr(settings, 'SENTRY_DSN', None)}
 
 
+def posthog_key(request: HttpRequest) -> typing.Dict[str, str]:
+    """Set the PostHog API key for product analytics."""
+    return {"POSTHOG_KEY": getattr(settings, 'POSTHOG_KEY', None)}
+
+
 def feature_toggles(request: HttpRequest) -> typing.Dict[str, bool]:
     """Set feature toggle variables."""
     return {"FEATURE_{}".format(k): v for k, v in settings.FEATURES.items()}

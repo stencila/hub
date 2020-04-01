@@ -108,6 +108,7 @@ class Common(Configuration):
                     'django.contrib.messages.context_processors.messages',
                     'lib.template_context_processors.version',
                     'lib.template_context_processors.sentry_dsn',
+                    'lib.template_context_processors.posthog_key',
                     'lib.template_context_processors.feature_toggles'
                 ],
             },
@@ -445,6 +446,9 @@ class Prod(Common):
     # Use Sentry for error reporting
     # Note: The DSN is not a secret https://forum.sentry.io/t/dsn-private-public/6297/2
     SENTRY_DSN = values.Value('https://6329017160394100b21be92165555d72@sentry.io/37250')
+
+    # Use PostHog for product analytics
+    POSTHOG_KEY = values.Value('LeXA_J7NbIow0-mEejPwazN7WvZCj-mFKSvLL5oM4w0')
 
     @classmethod
     def post_setup(cls):
