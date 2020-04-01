@@ -162,8 +162,8 @@ class PreviewMediaView(SnapshotView):
 class ArchiveView(ArchivesDirMixin, SnapshotView):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str,
-            version: int) -> FileResponse:  # type: ignore
+    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
+            version: int) -> FileResponse:
         snapshot = self.get_snapshot(request, account_name, project_name, version)
         archiver = SnapshotArchiver(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, snapshot, request.user)
         archive_path = archiver.archive_snapshot()
