@@ -135,14 +135,16 @@ checks = [
     #  warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
     check(
         "/joe-personal-account/public-project",
-        anon=title("public-project : Overview"),
-        joe=title("public-project : Overview"),
-        mary=title("public-project : Overview")
+        # Default view is files
+        anon=title("Project public-project: Files"),
+        joe=title("Project public-project: Files"),
+        mary=title("Project public-project: Files")
     ),
     check(
         "/joe-personal-account/private-project",
         anon=403,
-        joe=title("private-project : Overview"),
+        # Default view is files
+        joe=title("Project private-project: Files"),
         mary=403
     ),
     check(
@@ -155,12 +157,6 @@ checks = [
         "/joe-personal-account/private-project/snapshots",
         anon=403,
         joe=title("Project private-project: Snapshots"),
-        mary=403
-    ),
-    check(
-        "/joe-personal-account/private-project/archives",
-        anon=403,
-        joe=title("Project 2: Files"),
         mary=403
     ),
     check(
@@ -237,7 +233,7 @@ class AnonTest(Fixture):
                 elif isinstance(expect, str):
                     self.assertIsNotNone(
                         re.search(expect, content),
-                        'Could not find regex "{}" in path {}'.format(
+                        'Could not find regex "{}" in content of "{}"'.format(
                             expect, check.path
                         ),
                     )
