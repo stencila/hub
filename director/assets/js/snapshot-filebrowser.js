@@ -28,9 +28,9 @@ Vue.component('snapshot-item-action-menu', {
     '  </div>' +
     '  <div class="dropdown-menu" id="\'item-actions-menu-\' + index" role="menu">' +
     '    <div class="dropdown-content">' +
-    '      <a v-if="downloadUrl != \'\'" :href="downloadUrl" class="dropdown-item">Download</a>' +
-    '      <a v-if="viewUrl != \'\'" :href="viewUrl" class="dropdown-item">View</a>' +
-    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener">Preview</a>' +
+    '      <a v-if="downloadUrl != \'\'" :href="downloadUrl" class="dropdown-item"><span class="icon"><i class="fas fa-download"></i></span>Download</a>' +
+    '      <a v-if="viewUrl != \'\'" :href="viewUrl" class="dropdown-item"><span class="icon"><i class="fas fa-external-link-alt"></i></span>Open</a>' +
+    '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye"></i></span>Preview</a>' +
     '    </div>' +
     '  </div>' +
     '</div>'
