@@ -17,11 +17,7 @@ from lib.constants import UrlRoot
 about_patterns = [
     path("", views.AboutView.as_view(), name="about"),
     path("contact/", views.ContactView.as_view(), name="contact"),
-    path("help/", views.HelpView.as_view(), name="help"),
-    path("privacy-policy/", views.PrivacyView.as_view(), name="privacy-policy"),
-    path(
-        "terms-and-conditions/", views.TermsView.as_view(), name="terms-and-conditions"
-    ),
+    path("help/", views.HelpView.as_view(), name="help")
 ]
 
 # for use with Django TV >_<

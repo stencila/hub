@@ -26,18 +26,6 @@ class HelpView(TemplateView):
     template_name = 'about/help.html'
 
 
-class PrivacyView(TemplateView):
-    """Page displaying the details of the Privacy Policy."""
-
-    template_name = 'about/privacy.html'
-
-
-class TermsView(TemplateView):
-    """Page displaying the details of the Terms and Conditions."""
-
-    template_name = 'about/terms-conditions.html'
-
-
 class IcoView(RedirectView):
     permanent = True
     url = '/static/img/favicon.ico'
