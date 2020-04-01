@@ -12,6 +12,15 @@ admin.site.unregister(User)
 class CustomUserAdmin(UserAdmin):
     """A custom admin interface for User instances."""
 
+    list_display = [
+        'username',
+        'first_name',
+        'last_name',
+        'date_joined',
+        'last_login',
+        'is_staff',
+    ]
+
     readonly_fields = [
         'last_login',
         'date_joined',
