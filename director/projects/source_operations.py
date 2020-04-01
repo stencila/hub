@@ -15,6 +15,7 @@ from lib.path_operations import (
     utf8_scandir,
     normalise_path,
     path_is_in_directory,
+    utf8_dirname,
 )
 from projects.project_models import Project, Snapshot
 from projects.source_item_models import (
@@ -215,17 +216,19 @@ def sources_in_directory(
             except IncorrectDirectoryException:
                 pass
 
-        if path_is_in_directory(source.path, directory):
-            entry = make_directory_entry(directory, source)
+        if utf8_dirname(source.path) != directory:
+            continue
 
-            if (
-                entry.type == DirectoryEntryType.DIRECTORY
-                or entry.type == DirectoryEntryType.LINKED_SOURCE
-            ):
-                if entry.name in seen_directories:
-                    continue
-                seen_directories.add(entry.name)
-            yield entry
+        entry = make_directory_entry(directory, source)
+
+        if (
+            entry.type == DirectoryEntryType.DIRECTORY
+            or entry.type == DirectoryEntryType.LINKED_SOURCE
+        ):
+            if entry.name in seen_directories:
+                continue
+            seen_directories.add(entry.name)
+        yield entry
 
 
 def list_project_virtual_directory(
