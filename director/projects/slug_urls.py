@@ -7,7 +7,7 @@ from projects.views import project_views, snapshot_views, source_views
 
 urlpatterns = [
     # These patterns are listed in the same order they appear in the sidebar menu (more or less)
-    path('', project_views.ProjectOverviewView.as_view(), name='project_overview'),
+    path('', RedirectView.as_view(pattern_name='project_files', permanent=True), name='project_overview'),
 
     path(ProjectUrlRoot.files.value + '/', include([
         path('', RedirectView.as_view(pattern_name='project_files', permanent=True)),
@@ -36,9 +36,6 @@ urlpatterns = [
         path('preview/<path:path>', projects.views.publication_views.SourcePreviewView.as_view(),
              name='file_source_preview'),
     ])),
-    path(ProjectUrlRoot.archives.value + '/', project_views.ProjectArchiveView.as_view(), name='project_archives'),
-    path(ProjectUrlRoot.archives.value + '/<name>', project_views.ProjectNamedArchiveDownloadView.as_view(),
-         name='project_named_archive_download'),
 
     path(ProjectUrlRoot.activity.value + '/', project_views.ProjectActivityView.as_view(),
          name='project_activity'),
@@ -53,6 +50,7 @@ urlpatterns = [
 
     path(ProjectUrlRoot.snapshots.value + '/', include([
         path('', project_views.ProjectSnapshotListView.as_view(), name='project_snapshots'),
+        path('<int:version>/archive/', snapshot_views.ArchiveView.as_view(), name='snapshot_archive'),
         path('<int:version>/browse/', snapshot_views.FileBrowserView.as_view(), name='snapshot_files'),
         path('<int:version>/browse/<path:path>', snapshot_views.FileBrowserView.as_view(),
              name='snapshot_files_path'

@@ -6,16 +6,8 @@ const UPLOAD_STATUS = {
 }
 
 const SOURCE_TYPE_NAME_LOOKUP = {
-  googledocssource: 'Google Docs',
-  githubsource: 'Github'
-}
-
-
-
-FORMAT_LABELS = {
-  ipynb: 'Jupyter Notebook',
-  docx: 'Reproducible Word',
-  pdf: 'Reproducible PDF'
+  'googledocssource': 'Google Docs',
+  'githubsource': 'Github'
 }
 
 function rootPathJoin (directory, fileName) {
@@ -147,6 +139,9 @@ Vue.component('item-action-menu', {
     }
   },
   computed: {
+    editTarget () {
+      return this.fileType === 'application/vnd.google-apps.document' ? '_blank' : ''
+    },
     allowDownload () {
       return this.downloadUrl !== ''
     },
@@ -160,7 +155,7 @@ Vue.component('item-action-menu', {
       return this.hasEditPermission && this.hasConvertTargets()
     },
     hasFileManageActions () {
-      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink || this.allowPublish
+      return this.allowDelete || this.allowRename || this.allowDownload || this.allowUnlink
     },
     shouldDisplay () {
       return this.hasOpenActions || this.hasConvertActions || this.hasFileManageActions
@@ -186,9 +181,6 @@ Vue.component('item-action-menu', {
     startConvert (targetType) {
       this.$root.$emit('convert-modal-show', targetType, this.convertTargets, this.sourceIdentifier, this.fileName, this.absolutePath)
     },
-    publishFile () {
-      this.$root.$emit('publish-modal-show', this.sourceIdentifier, this.absolutePath)
-    }
   },
   template: '' +
     '<div v-if="shouldDisplay" class="dropdown item-actions-dropdown" @click="toggle()" :class="{ \'is-active\':active }">' +
@@ -207,7 +199,6 @@ Vue.component('item-action-menu', {
     '      <a v-if="allowDelete" href="#" class="dropdown-item" @click.prevent="showRemoveModal()"><span class="icon"><i class="fas fa-trash"></i></span>Delete&hellip;</a>' +
     '      <a v-if="allowUnlink" href="#" class="dropdown-item" @click.prevent="showUnlinkModal()"><span class="icon"><i class="fas fa-unlink"></i></span>Unlink&hellip;</a>' +
     '      <hr v-if="shouldDisplayConvertFileManageDivider" class="dropdown-divider">' +
-    '      <a v-if="hasConvertActions" href="#" class="dropdown-item" @click.prevent="publishFile()"><span class="icon"><i class="fas fa-book-open"></i></span>Publish&hellip;</a>' +
     '      <a v-if="allowPreview" :href="previewUrl" class="dropdown-item" target="_blank" rel="noopener"><span class="icon"><i class="fas fa-eye"></i></span>Preview</a>' +
     '      <a v-if="allowDownload" :href="downloadUrl" class="dropdown-item"><span class="icon"><i class="fas fa-download"></i></i></span>Download</a>' +
     '    </div>' +
@@ -605,8 +596,8 @@ Vue.component('convert-modal', {
     '      <transition v-if="hasFilenameConflict" name="fade">' +
     '         <p>' +
     '          <span class="icon has-text-warning"><i class="fas fa-exclamation-triangle"></i></span><em>{{ targetName }}</em> already exists.<br>' +
-    '          Please use a different name, or confirm you want to replace it: ' + 
-    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' + 
+    '          Please use a different name, or confirm you want to replace it: ' +
+    '          <span class="control"><input type="checkbox" v-model="confirmExistingFileOverwrite"></span>' +
     '        </p>' +
     '      </transition>' +
     '    </section>' +
@@ -1134,6 +1125,113 @@ Vue.component('unsupported-social-provider-modal', {
     '</div>'
 })
 
+Vue.component('snapshot-modal', {
+  props: {
+    snapshotCreateUrl: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      visible: false,
+      tag: '',
+      snapshotInProgress: false,
+      snapshotComplete: false,
+      snapshotError: ''
+    }
+  },
+  computed: {
+    actionButtonText () {
+      if (this.snapshotInProgress) {
+        return 'Snapshot In Progress'
+      }
+      if (this.snapshotComplete) {
+        return 'Snapshot Complete'
+      }
+      return 'Snapshot'
+    }
+  },
+  methods: {
+    hide () {
+      this.visible = false
+    },
+    show () {
+      this.visible = true
+      this.tag = ''
+    },
+    snapshot () {
+      this.snapshotInProgress = true
+      this.snapshotError = ''
+      fetch(this.snapshotCreateUrl, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': utils.cookie('csrftoken')
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({tag: this.tag})
+      }).then(
+        response => {
+          this.snapshotInProgress = false
+          response.json().then(data => {
+            if (data.success === false)
+              this.snapshotError = data.error
+            else {
+              this.snapshotComplete = true
+              this.snapshotUrl = data.url
+            }
+          })
+        },
+        failureResponse => {
+          this.snapshotInProgress = false
+          this.snapshotComplete =  true
+          this.snapshotError = failureResponse
+        })
+    }
+  },
+  mounted () {
+    this.$root.$on('snapshot-modal-show', this.show)
+
+    this.$root.$on('modal-hide', () => {
+      this.hide()
+    })
+  },
+  template: '' +
+    '<div class="modal" :class="{\'is-active\': visible}">' +
+    '  <div class="modal-background"></div>' +
+    '  <div class="modal-card">' +
+    '    <header class="modal-card-head">' +
+    '      <p class="modal-card-title">Snapshot Project</p>' +
+    '      <button class="delete" aria-label="close" @click="hide()"></button>' +
+    '    </header>' +
+    '    <section class="modal-card-body" v-if="!snapshotComplete">' +
+    '      <p>A snapshot is an immutable copy of all this Project\'s files and sources at the current time.</p>' +
+    '      <p>All content in linked sources will be downloaded to disk and saved as regular files.</p>' +
+    '      <div class="field">' +
+    '        <label class="label" for="id_snapshot_tag">Tag</label>' +
+    '        <div class="control">' +
+    '          <input class="input" type="text" id="id_snapshot_tag" v-model="tag" placeholder="Tag (Optional)">' +
+    '          <p class="help">A tag is optional but can help identify snapshots later. It must be unique for each snapshot in this project.</p>' +
+    '        </div>' +
+    '      </div>' +
+    '      <p v-if="snapshotError !== \'\'" class="has-text-danger">' +
+    '        {{ snapshotError }}' +
+    '      </p>' +
+    '    </section>' +
+    '    <section class="modal-card-body" v-if="snapshotComplete">' +
+    '     <div class="notification is-success">' +
+    '       The snapshot was created successfully. You can view it <a :href="snapshotUrl">here</a>.' +
+  '       </div>' +
+    '    </section>' +
+    '    <footer class="modal-card-foot" style="justify-content: space-between">' +
+    '      <button class="button is-primary" @click.prevent="snapshot()" :disabled="snapshotInProgress || snapshotComplete">{{ actionButtonText }}</button>' +
+    '    </footer>' +
+    '  </div>' +
+    '</div>'
+})
+
 var fileBrowser = new Vue({
   el: '#file-browser',
   delimiters: ['[[', ']]'],
@@ -1217,8 +1315,6 @@ const g_actionBar = new Vue({
     newMenuVisible: false,
     linkMenuVisible: false,
     pullInProgress: false,
-    snapshotInProgress: false,
-    snapshotComplete: false,
     deleteModalVisible: false,
     unlinkSourceId: null,
     unlinkSourceDescription: ''
@@ -1228,37 +1324,14 @@ const g_actionBar = new Vue({
       this.$refs['file-upload'].click()
     },
     snapshotProject () {
-      if (this.snapshotInProgress)
-        return
-
-      this.snapshotInProgress = true
-      fetch(g_snapshotUrl, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'X-CSRFToken': utils.cookie('csrftoken'),
-        },
-        credentials: 'same-origin'
-      }).then(
-        response => {
-          this.snapshotInProgress = false
-          response.json().then(data => {
-            if (data.success === false)
-              alert(data.error)
-            else
-              this.snapshotComplete = true
-          })
-        },
-        failureResponse => {
-          this.snapshotInProgress = false
-          alert(failureResponse)
-        })
+      fileBrowser.$root.$emit('snapshot-modal-show')
+      return
     },
     pullFiles () {
       if (this.pullInProgress)
         return
       this.pullInProgress = true
-      fetch(g_snapshotUrl, {
+      fetch(g_filePullUrl, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',

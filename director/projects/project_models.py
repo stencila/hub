@@ -357,6 +357,12 @@ class Snapshot(models.Model):
     tag = models.SlugField(null=True, blank=True, help_text='A tag to identify the snapshot easily. Must be unique for '
                                                             'the project.')
 
+    def __str__(self):
+        if self.tag:
+            return 'Snapshot "{}" (v{})'.format(self.tag, self.version_number)
+
+        return 'Snapshot v{}'.format(self.version_number)
+
     class Meta:
         unique_together = (('project', 'version_number'), ('project', 'tag'))
 
