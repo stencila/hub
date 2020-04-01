@@ -61,6 +61,7 @@ class ConversionRequest:
             ConversionFormatId.ipynb,
             ConversionFormatId.docx,
             ConversionFormatId.gdoc,
+            ConversionFormatId.pdf,
             ConversionFormatId.rmd,
             ConversionFormatId.rnb
         )

@@ -5,7 +5,6 @@
 {% block header %}{% include "open/open_header.html" with navbar_id='navbar_open' display_share=user_owns_conversion %}{% endblock %}
 {% block content %}
 
-
     <section class="section">
         <div class="columns">
             <div class="column is-8 is-offset-2">
@@ -154,6 +153,7 @@
                                 <p><strong>R Markdown:</strong> .rmd</p>
                                 <p><strong>R Studio Notebook:</strong> .nb.html</p>
                                 <p><strong>Word:</strong> .docx</p>
+                                <p><strong>Reproducible PDF:</strong> .pdf</p>
                             </div>
                         </span>
                         <div class="tooltip is-hidden-tablet">
@@ -163,6 +163,7 @@
                             <p><strong>R Markdown:</strong> .rmd</p>
                             <p><strong>R Studio Notebook:</strong> .nb.html</p>
                             <p><strong>Word:</strong> .docx</p>
+                            <p><strong>Reproducible PDF:</strong> .pdf</p>
                         </div>
                         </a>
                     </div>
@@ -219,11 +220,9 @@
               </div>
           </div>
     </section>
-{% endblock %}
 
-{% block footer %}
-    {% if conversion_success == None %}
-
+   {% if conversion_success == None %}
+        {# Only on start page... #}
         <section class="section has-background-white-bis open-feature-list">
           <div class="container">
               <div class="content">
@@ -325,8 +324,10 @@
             </div>
           </div>
         </section>
-
     {% endif %}
+{% endblock %}
+
+{% block footer %}
     {% block open_scripts %}
         <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
         <script>
@@ -344,8 +345,6 @@
           fileField.onchange = function () {
             if (fileField.files.length === 1) document.getElementById('id_file_form').submit()
           }
-
-
         </script>
     {% endblock %}
     {% include "open/open_footer.html" %}
