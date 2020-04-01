@@ -267,7 +267,9 @@ def mock_ghs_iterator(path, source, facade):
         raise IncorrectDirectoryException
 
     ghs_return_mock = mock.MagicMock()
-    ghs_return_mock.ghs_id = "ghs_iterator_good_return"
+    ghs_return_mock.name = source.path.split("/")[-1]
+    ghs_return_mock.ghs_id = "ghs_iterator_good_return_" + source.path
+    ghs_return_mock.type = DirectoryEntryType.DIRECTORY
     yield ghs_return_mock
 
 
@@ -319,13 +321,19 @@ class SourcesInDirectoryTest(TestCase):
         mock_ghf_init.assert_any_call("user/goodrepo", "abc123")
         mock_ghf_init.assert_any_call("user/badrepo", "abc123")
 
-        self.assertEqual(4, len(dir_list))
-        self.assertEqual("ghs_iterator_good_return", dir_list[0].ghs_id)
+        # Github sources show as directories
+        self.assertEqual("ghs_iterator_good_return_good/path", dir_list[0].ghs_id)
+        self.assertEqual("path", dir_list[0].name)
+        self.assertEqual(DirectoryEntryType.DIRECTORY, dir_list[0].type)
+
         self.assertEqual("file.py", dir_list[1].name)
         self.assertEqual(DirectoryEntryType.FILE, dir_list[1].type)
-        self.assertEqual("ghs_iterator_good_return", dir_list[2].ghs_id)
-        self.assertEqual("three", dir_list[3].name)
-        self.assertEqual(DirectoryEntryType.DIRECTORY, dir_list[3].type)
+
+        # Directories inside github sources show as directories (although it's kind of nebulous as they could be
+        # virtually generated)
+        self.assertEqual("three", dir_list[2].name)
+        self.assertEqual("ghs_iterator_good_return_good/path/three", dir_list[2].ghs_id)
+        self.assertEqual(DirectoryEntryType.DIRECTORY, dir_list[2].type)
 
 
 def source_from_id_and_path(id: int, path: str) -> mock.MagicMock:
