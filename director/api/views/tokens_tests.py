@@ -10,7 +10,7 @@ from rest_framework_jwt.serializers import jwt_encode_handler
 from rest_framework.test import APITestCase
 import jwt
 
-from api.views_tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
+from api.views.tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
 
 
 def parse_date(date_string):

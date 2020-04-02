@@ -1,9 +1,9 @@
 from django.urls import path, include, re_path
 from rest_framework import routers
 
-from api.views_docs import schema_view, swagger_view
-from api.views_status import StatusView
-from api.views_tokens import TokensViewSet
+from api.views.docs import schema_view, swagger_view
+from api.views.status import StatusView
+from api.views.tokens import TokensViewSet
 from projects.api.urls import urlpatterns as projects_urls
 from users.api.urls import urlpatterns as users_urls
 

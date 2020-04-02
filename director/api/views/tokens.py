@@ -31,7 +31,7 @@ import knox.views
 import knox.crypto
 from knox.settings import CONSTANTS as KNOX_CONSTANTS, knox_settings
 
-from .serializers import TokenSerializer
+from api.serializers import TokenSerializer
 
 
 # Claims verified for OpenID JWTs issued by Google
