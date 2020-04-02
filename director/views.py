@@ -23,44 +23,44 @@ class HomeView(View):
         # This is a known bug being tracked here:
         # https://github.com/kubernetes/ingress-gce/issues/42
         # https://github.com/ory/k8s/issues/113#issuecomment-596281449
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        if 'GoogleHC' in user_agent:
-            return HttpResponse('OK')
+        user_agent = request.META.get("HTTP_USER_AGENT", "")
+        if "GoogleHC" in user_agent:
+            return HttpResponse("OK")
 
         # Redirect to secure version. This needs to be done here to
         # avoid sending a 302 to GoogleHC.
         if settings.SECURE_SSL_REDIRECT and not request.is_secure():
-            return redirect('https://' + request.get_host() + '/')
+            return redirect("https://" + request.get_host() + "/")
 
         # Authenticated users get redirected to the user dashboard
         if self.request.user.is_authenticated:
-            return redirect('ui-user-dashboard')
+            return redirect("ui-user-dashboard")
 
         # Unauthenticated users get redirected to /open
-        return redirect('open_main')
+        return redirect("open_main")
 
 
 class AboutView(TemplateView):
     """Page displaying short overview of the Hub."""
 
-    template_name = 'about/about.html'
+    template_name = "about/about.html"
 
 
 class ContactView(TemplateView):
     """Page displaying contact information."""
 
-    template_name = 'about/contact.html'
+    template_name = "about/contact.html"
 
 
 class HelpView(TemplateView):
     """Page displaying help."""
 
-    template_name = 'about/help.html'
+    template_name = "about/help.html"
 
 
 class IcoView(RedirectView):
     permanent = True
-    url = '/static/img/favicon.ico'
+    url = "/static/img/favicon.ico"
 
 
 class Test403View(View):
@@ -104,7 +104,7 @@ class IeUnsupportedView(View):
     """A view to let users know that we don't support Internet Explorer (yet)."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
-        if not user_agent_is_internet_explorer(request.META.get('HTTP_USER_AGENT')):
-            return redirect('/')
+        if not user_agent_is_internet_explorer(request.META.get("HTTP_USER_AGENT")):
+            return redirect("/")
 
-        return render(request, 'ie-unsupported.html')
+        return render(request, "ie-unsupported.html")

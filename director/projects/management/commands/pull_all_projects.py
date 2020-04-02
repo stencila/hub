@@ -8,11 +8,13 @@ from projects.source_models import LinkedSourceAuthentication
 
 
 class Command(BaseCommand):
-    help = 'Pulls all FileSources for all projects.'
+    help = "Pulls all FileSources for all projects."
 
     def handle(self, *args, **options):
         if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files.')
+            raise RuntimeError(
+                "STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files."
+            )
 
         request = HttpRequest()
         # django messages need a request to work with, although they are only used if there is an error with a
@@ -22,7 +24,9 @@ class Command(BaseCommand):
         # Again, the Puller is not dealing with GitHubSources so it is OK if this is a stub
 
         for project in Project.objects.all():
-            print('Pulling Project {}'.format(project.id))
-            puller = ProjectSourcePuller(project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, lsa, request)
+            print("Pulling Project {}".format(project.id))
+            puller = ProjectSourcePuller(
+                project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, lsa, request
+            )
             puller.pull(True)
-            print('Finished pulling Project {}'.format(project.id))
+            print("Finished pulling Project {}".format(project.id))

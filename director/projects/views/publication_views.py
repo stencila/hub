@@ -24,28 +24,39 @@ class PublishedListView(ProjectPermissionsMixin, View):
         project = self.get_project(request.user, account_name, project_name)
 
         context = {
-            'project_tab': 'published',
-            'published_items': PublishedItem.objects.filter(project=project, url_path__isnull=False).exclude(
-                url_path='').order_by('url_path')
+            "project_tab": "published",
+            "published_items": PublishedItem.objects.filter(
+                project=project, url_path__isnull=False
+            )
+            .exclude(url_path="")
+            .order_by("url_path"),
         }
-        return render(request, 'projects/published_list.html', self.get_render_context(context))
+        return render(
+            request, "projects/published_list.html", self.get_render_context(context)
+        )
 
 
-def published_item_render(request: HttpRequest, published_item: PublishedItem, download_url: str,
-                          title: typing.Optional[str] = None) -> HttpResponse:
+def published_item_render(
+    request: HttpRequest,
+    published_item: PublishedItem,
+    download_url: str,
+    title: typing.Optional[str] = None,
+) -> HttpResponse:
     context = {
-        'theme_name': request.GET.get('theme'),
-        'title': title,
-        'download_url': download_url
+        "theme_name": request.GET.get("theme"),
+        "title": title,
+        "download_url": download_url,
     }
-    with open(published_item.path, 'r', encoding='utf8') as f:
-        context['content'] = f.read()
-    resp = render(request, 'projects/published_container.html', context)
+    with open(published_item.path, "r", encoding="utf8") as f:
+        context["content"] = f.read()
+    resp = render(request, "projects/published_container.html", context)
 
-    if 'elife' in request.GET:
-        resp['Content-Security-Policy'] = 'frame-ancestors https://elifesciences.org https://*.elifesciences.org;'
-        resp['X-Frame-Options'] = 'allow-from https://elifesciences.org'
-        resp['X-Frame-Options'] = 'allow-from https://*.elifesciences.org'
+    if "elife" in request.GET:
+        resp[
+            "Content-Security-Policy"
+        ] = "frame-ancestors https://elifesciences.org https://*.elifesciences.org;"
+        resp["X-Frame-Options"] = "allow-from https://elifesciences.org"
+        resp["X-Frame-Options"] = "allow-from https://*.elifesciences.org"
 
     return resp
 
@@ -55,7 +66,7 @@ def send_media_response(pi: PublishedItem, media_path: str) -> FileResponse:
     full_path = pi.media_path(media_path)
 
     try:
-        fp = open(full_path, 'rb')
+        fp = open(full_path, "rb")
     except FileNotFoundError:
         raise Http404
 
@@ -65,21 +76,33 @@ def send_media_response(pi: PublishedItem, media_path: str) -> FileResponse:
 class PublishedContentView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> HttpResponse:
+    def get(  # type: ignore
+        self, request: HttpRequest, account_name: str, project_name: str, path: str,
+    ) -> HttpResponse:
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
-        return published_item_render(request, pi,
-                                     reverse('file_source_download', args=(project.account.name, project.name,
-                                                                           pi.source_path)))
+        return published_item_render(
+            request,
+            pi,
+            reverse(
+                "file_source_download",
+                args=(project.account.name, project.name, pi.source_path),
+            ),
+        )
 
 
 class PublishedMediaView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str, path: str,  # type: ignore
-            media_path: str) -> FileResponse:
+    def get(  # type: ignore
+        self,
+        request: HttpRequest,
+        account_name: str,
+        project_name: str,
+        path: str,
+        media_path: str,
+    ) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, url_path=path)
 
@@ -89,8 +112,14 @@ class PublishedMediaView(ProjectPermissionsMixin, View):
 class PreviewMediaView(ProjectPermissionsMixin, View):
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str, pi_pk: str,  # type: ignore
-            media_path: str) -> FileResponse:
+    def get(  # type: ignore
+        self,
+        request: HttpRequest,
+        account_name: str,
+        project_name: str,
+        pi_pk: str,
+        media_path: str,
+    ) -> FileResponse:
         project = self.get_project(request.user, account_name, project_name)
         pi = get_object_or_404(PublishedItem, project=project, pk=pi_pk)
         return send_media_response(pi, media_path)
@@ -106,21 +135,27 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
 
     project_permission_required = ProjectPermissionType.VIEW
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str,  # type: ignore
-            path: str) -> HttpResponse:
+    def get(  # type: ignore
+        self, request: HttpRequest, account_name: str, project_name: str, path: str,
+    ) -> HttpResponse:
         project = self.get_project(request.user, account_name, project_name)
         source = get_source(request.user, project, path)
 
         scf = make_source_content_facade(request.user, path, source, project)
 
         # the isinstance check is because Source might be a DiskSource which is not a subclass of Source
-        pi, created = PublishedItem.objects.get_or_create(project=project, source_path=path,
-                                                          source=source if isinstance(source, Source) else None,
-                                                          snapshot=None)
+        pi, created = PublishedItem.objects.get_or_create(
+            project=project,
+            source_path=path,
+            source=source if isinstance(source, Source) else None,
+            snapshot=None,
+        )
 
         if created or scf.source_modification_time > pi.updated or not pi.path:
             try:
-                self.convert_and_publish(request.user, project, pi, created, source, path, scf)
+                self.convert_and_publish(
+                    request.user, project, pi, created, source, path, scf
+                )
             except (NonFileError, UnknownMimeTypeError, RuntimeError) as e:
                 filename = utf8_basename(path)
                 directory = utf8_dirname(path)
@@ -129,21 +164,38 @@ class SourcePreviewView(ConverterMixin, PublishedContentView):
                 message_format: typing.Optional[str] = None
 
                 if isinstance(e, RuntimeError):
-                    message_format = 'Unable to preview <em>{}</em> as it could not be converted to HTML. Please ' \
-                                     'check the Project Activity page for more information.'
+                    message_format = (
+                        "Unable to preview <em>{}</em> as it could not be converted to HTML. Please "
+                        "check the Project Activity page for more information."
+                    )
                 elif isinstance(e, UnknownMimeTypeError):
-                    message_format = 'Unable to preview <em>{}</em> as its file type could not be determined.'
-                    messages.error(request,
-                                   'Unable to preview <em>{}</em> as its file type could not be determined.'.format(
-                                       escape(utf8_basename(path))), extra_tags='safe')
+                    message_format = "Unable to preview <em>{}</em> as its file type could not be determined."
+                    messages.error(
+                        request,
+                        "Unable to preview <em>{}</em> as its file type could not be determined.".format(
+                            escape(utf8_basename(path))
+                        ),
+                        extra_tags="safe",
+                    )
 
                 if message_format:
-                    messages.error(request, message_format.format(escape(filename)), extra_tags='safe')
+                    messages.error(
+                        request,
+                        message_format.format(escape(filename)),
+                        extra_tags="safe",
+                    )
                 if directory:
-                    return redirect('project_files_path', account_name, project, directory)
-                return redirect('project_files', account_name, project_name)
+                    return redirect(
+                        "project_files_path", account_name, project, directory
+                    )
+                return redirect("project_files", account_name, project_name)
 
-        return published_item_render(request, pi,
-                                     reverse('file_source_download', args=(project.account.name, project.name,
-                                                                           pi.source_path)),
-                                     'HTML Preview of {}'.format(pi.source_path))
+        return published_item_render(
+            request,
+            pi,
+            reverse(
+                "file_source_download",
+                args=(project.account.name, project.name, pi.source_path),
+            ),
+            "HTML Preview of {}".format(pi.source_path),
+        )

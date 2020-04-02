@@ -18,5 +18,5 @@ def run(*args):
                 AccountUserRole.objects.create(
                     account=account,
                     user=user,
-                    role=AccountRole.objects.order_by('?').first()
+                    role=AccountRole.objects.order_by("?").first(),
                 )

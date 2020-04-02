@@ -11,7 +11,7 @@ def escape_single_quotes(string: typing.Any) -> str:
     # template tags
 
     if not string:
-        return ''
+        return ""
 
     if not isinstance(string, str):
         string = str(string)

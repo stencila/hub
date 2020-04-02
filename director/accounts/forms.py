@@ -9,32 +9,27 @@ from lib.forms import ModelFormWithCreate
 
 class CleanNameMixin:
     def clean_name(self):
-        return clean_slug(self.cleaned_data['name'], SlugType.ACCOUNT)
+        return clean_slug(self.cleaned_data["name"], SlugType.ACCOUNT)
 
 
 class AccountSettingsForm(CleanNameMixin, forms.ModelForm):
     helper = FormHelper()
     helper.layout = Layout(
-        'name',
-        'logo',
-        Submit('submit', 'Update', css_class="button is-primary")
+        "name", "logo", Submit("submit", "Update", css_class="button is-primary")
     )
 
     class Meta:
         model = Account
-        fields = ('name', 'logo')
+        fields = ("name", "logo")
 
 
 class AccountCreateForm(CleanNameMixin, ModelFormWithCreate):
     helper = FormHelper()
-    helper.layout = Layout(
-        'name',
-        'logo',
-    )
+    helper.layout = Layout("name", "logo",)
 
     class Meta:
         model = Account
-        fields = ('name', 'logo')
+        fields = ("name", "logo")
 
 
 class TeamForm(forms.ModelForm):
@@ -43,7 +38,5 @@ class TeamForm(forms.ModelForm):
 
     class Meta:
         model = Team
-        fields = ('name', 'description')
-        widgets = {
-            'name': forms.TextInput
-        }
+        fields = ("name", "description")
+        widgets = {"name": forms.TextInput}

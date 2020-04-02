@@ -15,13 +15,13 @@ def run(*args):
 
     users = User.objects.all()
     projects = Project.objects.all()
-    user_type = ContentType.objects.get(app_label='auth', model='user')
+    user_type = ContentType.objects.get(app_label="auth", model="user")
 
     for user in users:
         for project in projects:
             ProjectAgentRole.objects.create(
-              agent_id=user.pk,
-              content_type=user_type,
-              project=project,
-              role=ProjectRole.objects.order_by('?').first()
+                agent_id=user.pk,
+                content_type=user_type,
+                project=project,
+                role=ProjectRole.objects.order_by("?").first(),
             )

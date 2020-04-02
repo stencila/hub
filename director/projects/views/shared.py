@@ -8,14 +8,19 @@ from lib.github_facade import GitHubFacade
 from lib.social_auth_token import user_github_token
 from projects.project_models import Project
 from projects.source_models import Source, DiskSource, GithubSource
-from projects.source_operations import generate_project_publish_directory, strip_directory
+from projects.source_operations import (
+    generate_project_publish_directory,
+    strip_directory,
+)
 from lib.path_operations import utf8_path_join, utf8_dirname
 
-DEFAULT_ENVIRON = 'stencila/core'
+DEFAULT_ENVIRON = "stencila/core"
 
 
 def get_project_publish_directory(project: Project) -> str:
-    return generate_project_publish_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+    return generate_project_publish_directory(
+        settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project
+    )
 
 
 def setup_publish_directory(project: Project) -> None:
@@ -25,7 +30,9 @@ def setup_publish_directory(project: Project) -> None:
         os.makedirs(publish_dir, True)
 
 
-def get_source(user: User, project: Project, path: str) -> typing.Union[Source, DiskSource]:
+def get_source(
+    user: User, project: Project, path: str
+) -> typing.Union[Source, DiskSource]:
     """
     Locate a `Source` that contains the file at `path`.
 
@@ -35,7 +42,7 @@ def get_source(user: User, project: Project, path: str) -> typing.Union[Source, 
     Fall back to DiskSource if no file is found in any linked Sources.
     """
     # the paths won't match if the incoming path has a trailing slash as the paths on the source doesn't (shouldn't)
-    path = path.rstrip('/')
+    path = path.rstrip("/")
 
     original_path = path
 
@@ -59,19 +66,25 @@ def get_source(user: User, project: Project, path: str) -> typing.Union[Source, 
                             gh_token = user_github_token(user)
                             gh_facade = GitHubFacade(source.repo, gh_token)
 
-                        relative_path = utf8_path_join(source.subpath, strip_directory(original_path, source.path))
+                        relative_path = utf8_path_join(
+                            source.subpath, strip_directory(original_path, source.path)
+                        )
                         if gh_facade.path_exists(relative_path):
                             return source  # this source has the file so it must be this one?
 
                         # if not, continue on, keep going up the tree to find the root source
                     else:
-                        raise RuntimeError('Don\'t know how to examine the contents of {}'.format(type(source)))
+                        raise RuntimeError(
+                            "Don't know how to examine the contents of {}".format(
+                                type(source)
+                            )
+                        )
 
-        if path == '.':
+        if path == ".":
             break
         path = utf8_dirname(path)
-        if path == '/' or path == '':
-            path = '.'
+        if path == "/" or path == "":
+            path = "."
 
     # Fall Back to DiskSource
     return DiskSource()

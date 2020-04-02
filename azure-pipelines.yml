@@ -22,9 +22,12 @@ jobs:
         inputs:
           versionSpec: '3.7'
 
-      - script: make -C director venv-dev
-        displayName: Setup dev environment
+      - script: make -C director venv
+        displayName: Setup virtual environment
 
+      - script: make -C director format-check
+        displayName: Check formatting
+  
       - script: make -C director lint
         displayName: Lint
 

@@ -14,59 +14,126 @@ from django.http import HttpRequest, HttpResponse, Http404
 from django.utils import timezone
 
 from accounts.models import Account
-from lib.conversion_types import ConversionFormatId, mimetype_from_path, DOCX_MIMETYPES, UnknownMimeTypeError
-from lib.converter_facade import ConverterFacade, ConverterIo, ConverterIoType, ConverterContext
+from lib.conversion_types import (
+    ConversionFormatId,
+    mimetype_from_path,
+    DOCX_MIMETYPES,
+    UnknownMimeTypeError,
+)
+from lib.converter_facade import (
+    ConverterFacade,
+    ConverterIo,
+    ConverterIoType,
+    ConverterContext,
+)
 from lib.data_cleaning import logged_in_or_none
-from lib.path_operations import utf8_path_join, utf8_dirname, utf8_realpath, utf8_basename
+from lib.path_operations import (
+    utf8_path_join,
+    utf8_dirname,
+    utf8_realpath,
+    utf8_basename,
+)
 from lib.resource_allowance import account_resource_limit, QuotaName
 from lib.social_auth_token import user_github_token
 from projects.permission_facade import ProjectFetchResult, fetch_project_for_user
-from projects.permission_models import ProjectPermissionType, ProjectRole, get_highest_permission
-from projects.project_models import Project, PublishedItem, ProjectEvent, ProjectEventType
+from projects.permission_models import (
+    ProjectPermissionType,
+    ProjectRole,
+    get_highest_permission,
+)
+from projects.project_models import (
+    Project,
+    PublishedItem,
+    ProjectEvent,
+    ProjectEventType,
+)
 from projects.project_puller import ProjectSourcePuller
-from projects.source_content_facade import SourceContentFacade, make_source_content_facade
-from projects.source_models import LinkedSourceAuthentication, GoogleDocsSource, DiskSource, Source
+from projects.source_content_facade import (
+    SourceContentFacade,
+    make_source_content_facade,
+)
+from projects.source_models import (
+    LinkedSourceAuthentication,
+    GoogleDocsSource,
+    DiskSource,
+    Source,
+)
 from projects.source_operations import generate_project_archive_directory
-from projects.views.shared import DEFAULT_ENVIRON, get_project_publish_directory, get_source
+from projects.views.shared import (
+    DEFAULT_ENVIRON,
+    get_project_publish_directory,
+    get_source,
+)
 
 
 class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
-    def get(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs) -> HttpResponse:
+    def get(
+        self,
+        request: HttpRequest,
+        account_name: str,
+        project_name: str,
+        *args,
+        **kwargs,
+    ) -> HttpResponse:
         warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).get(request, account_name, project_name, *args,  # type: ignore
-                                                        **kwargs)
+        return super(ProjectPermissionsMixin, self).get(  # type: ignore
+            request, account_name, project_name, *args, **kwargs
+        )
 
-    def post(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+    def post(
+        self,
+        request: HttpRequest,
+        account_name: str,
+        project_name: str,
+        *args,
+        **kwargs,
+    ):
         warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).post(request, account_name, project_name, *args,  # type: ignore
-                                                         **kwargs)
+        return super(ProjectPermissionsMixin, self).post(  # type: ignore
+            request, account_name, project_name, *args, **kwargs
+        )
 
-    def delete(self, request: HttpRequest, account_name: str, project_name: str, *args, **kwargs):
+    def delete(
+        self,
+        request: HttpRequest,
+        account_name: str,
+        project_name: str,
+        *args,
+        **kwargs,
+    ):
         warnings.warn("ProjectPermissionsMixin DELETE", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
 
-        return super(ProjectPermissionsMixin, self).delete(request, account_name, project_name, *args,  # type: ignore
-                                                           **kwargs)
+        return super(ProjectPermissionsMixin, self).delete(  # type: ignore
+            request, account_name, project_name, *args, **kwargs,
+        )
 
-    def perform_project_fetch(self, user: AbstractUser, account_name: typing.Optional[str] = None,
-                              project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> None:
+    def perform_project_fetch(
+        self,
+        user: AbstractUser,
+        account_name: typing.Optional[str] = None,
+        project_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+    ) -> None:
         if self.project_fetch_result is None:
-            self.project_fetch_result = fetch_project_for_user(user, pk, account_name, project_name)
+            self.project_fetch_result = fetch_project_for_user(
+                user, pk, account_name, project_name
+            )
 
     def get_render_context(self, context: dict) -> dict:
-        context['environ'] = DEFAULT_ENVIRON
-        context['project'] = self.project
-        context['project_roles'] = self.project_roles
-        context['project_permissions'] = self.project_permissions
-        context['account'] = self.account
+        context["environ"] = DEFAULT_ENVIRON
+        context["project"] = self.project
+        context["project_roles"] = self.project_roles
+        context["project_permissions"] = self.project_permissions
+        context["account"] = self.account
         return context
 
     def get_context_data(self, **kwargs) -> dict:
@@ -105,7 +172,9 @@ class ProjectPermissionsMixin(object):
     def has_permission(self, permission: ProjectPermissionType) -> bool:
         return self.has_any_permissions((permission,))
 
-    def has_any_permissions(self, permissions: typing.Iterable[ProjectPermissionType]) -> bool:
+    def has_any_permissions(
+        self, permissions: typing.Iterable[ProjectPermissionType]
+    ) -> bool:
         for permission in permissions:
             if permission in self.project_permissions:
                 return True
@@ -113,43 +182,65 @@ class ProjectPermissionsMixin(object):
         return False
 
     def test_required_project_permission(self) -> None:
-        if self.project_permission_required is not None and not self.has_permission(self.project_permission_required):
+        if self.project_permission_required is not None and not self.has_permission(
+            self.project_permission_required
+        ):
             raise PermissionDenied
 
-    def get_project(self, user: AbstractUser, account_name: typing.Optional[str] = None,
-                    project_name: typing.Optional[str] = None, pk: typing.Optional[int] = None) -> Project:
+    def get_project(
+        self,
+        user: AbstractUser,
+        account_name: typing.Optional[str] = None,
+        project_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+    ) -> Project:
         self.perform_project_fetch(user, account_name, project_name, pk)
         self.test_required_project_permission()
         return self.project
 
     def get_object(self, *args, **kwargs):
-        self.perform_project_fetch(self.request.user, self.kwargs['account_name'], self.kwargs['project_name'])
+        self.perform_project_fetch(
+            self.request.user, self.kwargs["account_name"], self.kwargs["project_name"]
+        )
         return self.project_fetch_result.project
 
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
         return get_highest_permission(self.project_permissions)
 
-    def get_project_puller(self, request: HttpRequest, account_name: str, project_name: str) -> ProjectSourcePuller:
+    def get_project_puller(
+        self, request: HttpRequest, account_name: str, project_name: str
+    ) -> ProjectSourcePuller:
         self.perform_project_fetch(request.user, account_name, project_name)
 
         self.test_required_project_permission()
 
         if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError('STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files.')
+            raise RuntimeError(
+                "STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files."
+            )
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
-        storage_limit = typing.cast(int, account_resource_limit(self.project.account, QuotaName.STORAGE_LIMIT))
+        storage_limit = typing.cast(
+            int, account_resource_limit(self.project.account, QuotaName.STORAGE_LIMIT)
+        )
 
-        return ProjectSourcePuller(self.project, settings.STENCILA_PROJECT_STORAGE_DIRECTORY, authentication, request,
-                                   storage_limit)
+        return ProjectSourcePuller(
+            self.project,
+            settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
+            authentication,
+            request,
+            storage_limit,
+        )
 
 
 class ArchivesDirMixin(object):
     @staticmethod
     def get_archives_directory(project: Project) -> str:
-        return generate_project_archive_directory(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        return generate_project_archive_directory(
+            settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project
+        )
 
     @staticmethod
     def get_archive_path(archives_directory, name) -> str:
@@ -157,8 +248,9 @@ class ArchivesDirMixin(object):
 
 
 class ContentFacadeMixin(object):
-    def get_content_facade(self, request: HttpRequest, account_name: str, project_name: str,
-                           path: str) -> SourceContentFacade:
+    def get_content_facade(
+        self, request: HttpRequest, account_name: str, project_name: str, path: str
+    ) -> SourceContentFacade:
         # type ignores because mypy doesn't trust us to use this only one a class which has these methods
         project = self.get_project(request.user, account_name, project_name)  # type: ignore
         source = get_source(request.user, project, path)
@@ -175,10 +267,16 @@ class ConverterMixin:
 
         return self._converter
 
-    def do_conversion(self, project: Project, user: User, source_type: typing.Optional[ConversionFormatId],
-                      source_path: str,
-                      target_type: ConversionFormatId,
-                      target_path: typing.Optional[str] = None, standalone: bool = False) -> str:
+    def do_conversion(
+        self,
+        project: Project,
+        user: User,
+        source_type: typing.Optional[ConversionFormatId],
+        source_path: str,
+        target_type: ConversionFormatId,
+        target_path: typing.Optional[str] = None,
+        standalone: bool = False,
+    ) -> str:
         """
         Perform a conversion (with Encoda).
 
@@ -194,40 +292,51 @@ class ConverterMixin:
 
         context = ConverterContext(standalone=standalone)
 
-        source_type_desc = ' from {}'.format(source_type.name) if source_type else ''
+        source_type_desc = " from {}".format(source_type.name) if source_type else ""
 
-        event = ProjectEvent.objects.create(event_type=ProjectEventType.CONVERT.name, project=project,
-                                            user=logged_in_or_none(user),
-                                            message='Conversion of {}{} to {}'.format(
-                                                utf8_basename(source_path), source_type_desc, target_type.name
-                                            ))
+        event = ProjectEvent.objects.create(
+            event_type=ProjectEventType.CONVERT.name,
+            project=project,
+            user=logged_in_or_none(user),
+            message="Conversion of {}{} to {}".format(
+                utf8_basename(source_path), source_type_desc, target_type.name
+            ),
+        )
 
-        convert_result = self.converter.convert(converter_input, converter_output, context)
+        convert_result = self.converter.convert(
+            converter_input, converter_output, context
+        )
 
-        std_err = convert_result.stderr.decode('ascii')
+        std_err = convert_result.stderr.decode("ascii")
 
         if std_err:
             try:
                 # split on new line, decode JSOn
-                event.log = list(map(json.loads, filter(lambda x: x, std_err.split('\n'))))
+                event.log = list(
+                    map(json.loads, filter(lambda x: x, std_err.split("\n")))
+                )
             except (TypeError, ValueError):
-                event.log = {
-                    'stderr': std_err
-                }
+                event.log = {"stderr": std_err}
 
         event.finished = timezone.now()
 
         if convert_result.returncode != 0:
             event.success = False
             event.save()
-            raise RuntimeError('Convert process failed. Stderr is: {}'.format(std_err))
+            raise RuntimeError("Convert process failed. Stderr is: {}".format(std_err))
 
         event.success = True
         event.save()
         return target_path
 
-    def convert_to_google_docs(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_name: str,
-                               target_path: str) -> None:
+    def convert_to_google_docs(
+        self,
+        request: HttpRequest,
+        project: Project,
+        scf: SourceContentFacade,
+        target_name: str,
+        target_path: str,
+    ) -> None:
         """
         Convert a document to Google Docs.
 
@@ -235,28 +344,44 @@ class ConverterMixin:
         DOCX. The document is uploaded in DOCX/HTML and Google takes care of converting to Google Docs format.
         """
         if scf.source_type not in (ConversionFormatId.html, ConversionFormatId.docx):
-            output_content, output_mime_type = self.convert_source_for_google_docs(project, request.user, scf)
+            output_content, output_mime_type = self.convert_source_for_google_docs(
+                project, request.user, scf
+            )
         else:
-            output_mime_type = mimetype_from_path(scf.file_path) or 'application/octet-stream'
+            output_mime_type = (
+                mimetype_from_path(scf.file_path) or "application/octet-stream"
+            )
             output_content = scf.get_binary_content()
         gdf = scf.google_docs_facade
 
         if gdf is None:
-            raise TypeError('Google Docs Facade was not set up. Check that app tokens are good.')
+            raise TypeError(
+                "Google Docs Facade was not set up. Check that app tokens are good."
+            )
 
         new_doc_id = gdf.create_document(target_name, output_content, output_mime_type)
-        existing_source = GoogleDocsSource.objects.filter(project=project, path=target_path).first()
-        new_source = gdf.create_source_from_document(project, utf8_dirname(target_path), new_doc_id)
+        existing_source = GoogleDocsSource.objects.filter(
+            project=project, path=target_path
+        ).first()
+        new_source = gdf.create_source_from_document(
+            project, utf8_dirname(target_path), new_doc_id
+        )
         if existing_source is not None:
             gdf.trash_document(existing_source.doc_id)
-            messages.info(request, 'Existing Google Docs file "{}" was moved to the Trash.'.format(target_name))
+            messages.info(
+                request,
+                'Existing Google Docs file "{}" was moved to the Trash.'.format(
+                    target_name
+                ),
+            )
             existing_source.doc_id = new_source.doc_id
             existing_source.save()
         else:
             new_source.save()
 
-    def convert_source_for_google_docs(self, project: Project, user: User, scf: SourceContentFacade) \
-            -> typing.Tuple[bytes, str]:
+    def convert_source_for_google_docs(
+        self, project: Project, user: User, scf: SourceContentFacade
+    ) -> typing.Tuple[bytes, str]:
         # GoogleDocs can only convert from HTML or DOCX so convert to DOCX on our end first
         temp_output_path = None
         input_path = None
@@ -265,9 +390,13 @@ class ConverterMixin:
         try:
             input_path = scf.sync_content(use_temp_input_path)
 
-            temp_output_path = self.do_conversion(project, user, scf.source_type, input_path, ConversionFormatId.docx)
+            temp_output_path = self.do_conversion(
+                project, user, scf.source_type, input_path, ConversionFormatId.docx
+            )
 
-            with open(temp_output_path, 'rb') as temp_output:  # reopen after data has been written
+            with open(
+                temp_output_path, "rb"
+            ) as temp_output:  # reopen after data has been written
                 output_content = temp_output.read()  # this is in DOCX after conversion
         finally:
             if use_temp_input_path and input_path and os.path.exists(input_path):
@@ -277,8 +406,16 @@ class ConverterMixin:
                 unlink(temp_output_path)
         return output_content, DOCX_MIMETYPES[0]
 
-    def source_convert(self, request: HttpRequest, project: Project, scf: SourceContentFacade, target_path: str,
-                       target_name: str, target_type: ConversionFormatId, standalone: bool = False) -> None:
+    def source_convert(
+        self,
+        request: HttpRequest,
+        project: Project,
+        scf: SourceContentFacade,
+        target_path: str,
+        target_name: str,
+        target_type: ConversionFormatId,
+        standalone: bool = False,
+    ) -> None:
         if target_type == ConversionFormatId.gdoc:
             self.convert_to_google_docs(request, project, scf, target_name, target_path)
         else:
@@ -289,31 +426,54 @@ class ConverterMixin:
 
             absolute_output_path = scf.disk_file_facade.full_file_path(target_path)
 
-            self.do_conversion(project, request.user, scf.source_type, absolute_input_path, target_type,
-                               absolute_output_path, standalone)
+            self.do_conversion(
+                project,
+                request.user,
+                scf.source_type,
+                absolute_input_path,
+                target_type,
+                absolute_output_path,
+                standalone,
+            )
 
-    def convert_and_publish(self, user: User, project: Project, pi: PublishedItem, pi_created: bool,
-                            source: typing.Union[Source, DiskSource], source_path: str,
-                            scf: typing.Optional[SourceContentFacade] = None) -> None:
+    def convert_and_publish(
+        self,
+        user: User,
+        project: Project,
+        pi: PublishedItem,
+        pi_created: bool,
+        source: typing.Union[Source, DiskSource],
+        source_path: str,
+        scf: typing.Optional[SourceContentFacade] = None,
+    ) -> None:
         try:
             if not scf:
                 scf = make_source_content_facade(user, source_path, source, project)
 
-            published_path = utf8_path_join(get_project_publish_directory(project), '{}.html'.format(pi.pk))
+            published_path = utf8_path_join(
+                get_project_publish_directory(project), "{}.html".format(pi.pk)
+            )
 
             if os.path.exists(published_path):
                 os.unlink(published_path)
 
-            if os.path.exists(published_path + '.media'):
-                shutil.rmtree(published_path + '.media')
+            if os.path.exists(published_path + ".media"):
+                shutil.rmtree(published_path + ".media")
 
             try:
                 absolute_input_path = scf.sync_content()
             except FileNotFoundError:
                 raise Http404
 
-            self.do_conversion(project, user, scf.source_type, absolute_input_path, ConversionFormatId.html,
-                               published_path, False)
+            self.do_conversion(
+                project,
+                user,
+                scf.source_type,
+                absolute_input_path,
+                ConversionFormatId.html,
+                published_path,
+                False,
+            )
         except (RuntimeError, Http404, UnknownMimeTypeError):
             # Without this we can end up with items without paths
             if pi_created:

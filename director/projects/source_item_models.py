@@ -13,7 +13,9 @@ class DirectoryEntryType(enum.Enum):
 
     def __lt__(self, other):
         if type(self) != type(other):
-            raise TypeError("Can not compare DirectoryEntryType with non DirectoryEntryType")
+            raise TypeError(
+                "Can not compare DirectoryEntryType with non DirectoryEntryType"
+            )
 
         if self == other:
             return False
@@ -22,7 +24,9 @@ class DirectoryEntryType(enum.Enum):
             return True  # if it's a DIRECTORY it's before the other
 
         if self == DirectoryEntryType.LINKED_SOURCE:
-            return other == DirectoryEntryType.FILE  # if it's a LINKED_SOURCE it's just before a FILE
+            return (
+                other == DirectoryEntryType.FILE
+            )  # if it's a LINKED_SOURCE it's just before a FILE
 
         return False  # it must be a FILE so after others
 
@@ -35,18 +39,25 @@ class DirectoryListEntry(MimeTypeDetectMixin):
     source: typing.Union[Source, DiskSource]
     _modification_date: typing.Optional[datetime]
 
-    def __init__(self, name: typing.Union[str, bytes], path: typing.Union[str, bytes], entry_type: DirectoryEntryType,
-                 source: typing.Union[Source, DiskSource],
-                 modification_date: typing.Optional[datetime] = None) -> None:
-        self.name = name if isinstance(name, str) else name.decode('utf8')
-        self.path = path if isinstance(path, str) else path.decode('utf8')
+    def __init__(
+        self,
+        name: typing.Union[str, bytes],
+        path: typing.Union[str, bytes],
+        entry_type: DirectoryEntryType,
+        source: typing.Union[Source, DiskSource],
+        modification_date: typing.Optional[datetime] = None,
+    ) -> None:
+        self.name = name if isinstance(name, str) else name.decode("utf8")
+        self.path = path if isinstance(path, str) else path.decode("utf8")
         self.type = entry_type
         self.source = source
         self._modification_date = modification_date
 
     def __lt__(self, other) -> bool:
         if type(self) != type(other):
-            raise TypeError("Can not compare DirectoryListEntry with non DirectoryListEntry")
+            raise TypeError(
+                "Can not compare DirectoryListEntry with non DirectoryListEntry"
+            )
 
         if self.type == other.type:
             return self.name < other.name
@@ -58,7 +69,10 @@ class DirectoryListEntry(MimeTypeDetectMixin):
 
     @property
     def is_directory(self) -> bool:
-        return self.type in (DirectoryEntryType.DIRECTORY, DirectoryEntryType.LINKED_SOURCE)
+        return self.type in (
+            DirectoryEntryType.DIRECTORY,
+            DirectoryEntryType.LINKED_SOURCE,
+        )
 
     @property
     def modification_date(self) -> datetime:
