@@ -240,9 +240,6 @@ class Common(Configuration):
     # This default value is the usual value in development
     CALLBACK_URL = values.Value('http://localhost:3000')
 
-    # Token to restrict signins and signups while beta testing
-    BETA_TOKEN = values.Value('abc123')
-
     GS_PUBLIC_READABLE_PATHS = ['avatars/*']
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 

@@ -7,10 +7,6 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from lib.forms import FormWithSubmit
 
 
-class BetaTokenForm(FormWithSubmit):
-    token = forms.CharField(widget=forms.PasswordInput())
-
-
 class UsernameForm(FormWithSubmit):
     username = forms.CharField(
         max_length=150,

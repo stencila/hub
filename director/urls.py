@@ -6,7 +6,6 @@ from django.views.defaults import permission_denied, page_not_found
 from django.shortcuts import render
 from sentry_sdk import last_event_id
 
-import users.ui.views
 import views
 
 # specify sub paths as their own patterns to make it easier to see which root paths are defined in urlpatterns
@@ -30,10 +29,6 @@ urlpatterns = [
     # All in alphabetical order. Patterns that are fully defined in urlpatterns come first
     # Home page
     path("", views.HomeView.as_view(), name="home"),
-    # Beta Token Getting View
-    path(
-        UrlRoot.beta.value + "/", users.ui.views.BetaTokenView.as_view(), name="user_beta"
-    ),
     # ico for old browsers
     path(UrlRoot.favicon.value, views.IcoView.as_view()),
     # Redirect IE users to this view

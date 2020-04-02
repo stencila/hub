@@ -12,7 +12,6 @@ class UrlRoot(enum.Enum):
     accounts = 'accounts'
     admin = 'admin'
     api = 'api'
-    beta = 'beta'
     debug = 'debug'
     favicon = 'favicon.ico'
     ie_unsupported = 'ie-unsupported'
