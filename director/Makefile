@@ -13,16 +13,10 @@ all: setup run
 # Setup
 # This exists just for consistency across projects;
 # aliases to setting up the dev environment.
-setup: venv-dev
+setup: venv
 
 # Setup virtual environment
-venv: requirements.txt
-	python3 -m venv venv
-	$(VE)/pip3 install -r requirements.txt
-	touch venv
-
-# Setup DEV virtual environment
-venv-dev: requirements.txt requirements-dev.txt
+venv: requirements.txt  requirements-dev.txt
 	python3 -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
@@ -80,26 +74,26 @@ format-check: venv
 lint: lint-code lint-types lint-docs
 	
 # Lint code
-lint-code:
+lint-code: venv
 	$(VE)/flake8
 
 # Lint types
-lint-types:
+lint-types: venv
 	$(VE)/mypy --config-file mypy.ini .
 
 # Lint docs
-lint-docs:
+lint-docs: venv
 	$(VE)/pydocstyle --match-dir='^(?!venv|\\.|migrations|tests|scripts|storage).*' .
 
 # Run tests
 test: venv
-	$(VE)/python3 -m pytest --ignore ./tests
-	$(VE)/python3 -m pytest ./tests
+	$(VE)/pytest --ignore ./tests
+	$(VE)/pytest ./tests
 
 # Run tests with coverage
 cover: venv
-	$(VE)/python3 -m pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
-	$(VE)/python3 -m pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
+	$(VE)/pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
+	$(VE)/pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
 
 # Build Docker image
 build: Dockerfile
