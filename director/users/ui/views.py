@@ -9,12 +9,16 @@ from django.contrib.auth.mixins import (
     AccessMixin, LoginRequiredMixin
 )
 from django.db import IntegrityError
-from django.http import HttpResponse
-from django.shortcuts import reverse, redirect
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import reverse, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import (
     FormView, TemplateView
 )
+
+from accounts.models import AccountUserRole
+from projects.project_data import get_projects, FILTER_OPTIONS
 
 from .forms import BetaTokenForm, UsernameForm, UserSignupForm
 
@@ -97,3 +101,20 @@ class UsernameChangeView(LoginRequiredMixin, FormView):
 
         messages.success(self.request, "Your username was changed to '{}'.".format(form.cleaned_data['username']))
         return super(UsernameChangeView, self).form_valid(form)
+
+
+class UserDashboardView(LoginRequiredMixin, View):
+    """User dashboard."""
+
+    RESULTS_TO_DISPLAY = 5
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        project_fetch_result = get_projects(request.user, request.GET.get('filter'),
+                                            UserDashboardView.RESULTS_TO_DISPLAY)
+
+        account_roles = AccountUserRole.objects.filter(user=self.request.user).select_related('account')
+        return render(request, 'users/dashboard.html', {
+            'project_fetch_result': project_fetch_result,
+            'account_roles': account_roles,
+            'filter_options': FILTER_OPTIONS
+        })

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
@@ -6,6 +7,37 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View, TemplateView, RedirectView
 
 from lib.browser_detection import user_agent_is_internet_explorer
+
+
+class HomeView(View):
+    """
+    Home page view.
+
+    Served at /. Redirects to other urls depending on whether
+    the user is authenticated or not.
+    """
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        # Send OK to Google's health checker which always hits /
+        # despite sentings to the contrary.
+        # This is a known bug being tracked here:
+        # https://github.com/kubernetes/ingress-gce/issues/42
+        # https://github.com/ory/k8s/issues/113#issuecomment-596281449
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        if 'GoogleHC' in user_agent:
+            return HttpResponse('OK')
+
+        # Redirect to secure version. This needs to be done here to
+        # avoid sending a 302 to GoogleHC.
+        if settings.SECURE_SSL_REDIRECT and not request.is_secure():
+            return redirect('https://' + request.get_host() + '/')
+
+        # Authenticated users get redirected to the user dashboard
+        if self.request.user.is_authenticated:
+            return redirect('ui-user-dashboard')
+
+        # Unauthenticated users get redirected to /open
+        return redirect('open_main')
 
 
 class AboutView(TemplateView):

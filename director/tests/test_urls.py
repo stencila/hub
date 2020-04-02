@@ -67,6 +67,11 @@ checks = [
         joe=title("User settings")
     ),
     check(
+        "/me/dashboard",
+        anon=signin,
+        joe=title("Dashboard")
+    ),
+    check(
         "/me/password/change/",
         anon=signin,
         joe=title("Password Change")
