@@ -68,12 +68,20 @@ run: venv
 run-prod: venv
 	export DJANGO_CONFIGURATION="Prod"; $(DJ) runserver
 
+# Format code
+format: venv
+	$(VE)/black .
+
+# Check formatting of code (for CI)
+format-check: venv
+	$(VE)/black --check .	
+
 # Lint everything
 lint: lint-code lint-types lint-docs
 	
 # Lint code
 lint-code:
-	$(VE)/flake8 --exclude=venv,migrations,storage --max-line-length=120 .
+	$(VE)/flake8
 
 # Lint types
 lint-types:

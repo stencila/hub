@@ -25,6 +25,9 @@ jobs:
       - script: make -C director venv-dev
         displayName: Setup dev environment
 
+      - script: make -C director format-check
+        displayName: Check formatting
+  
       - script: make -C director lint
         displayName: Lint
 

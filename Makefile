@@ -6,6 +6,9 @@ setup:
 run:
 	make -C director run
 
+format:
+	make -C director format
+
 lint:
 	make -C director lint
 
