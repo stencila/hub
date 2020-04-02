@@ -13,17 +13,17 @@ class CustomUserAdmin(UserAdmin):
     """A custom admin interface for User instances."""
 
     list_display = [
-        'username',
-        'first_name',
-        'last_name',
-        'date_joined',
-        'last_login',
-        'is_staff',
+        "username",
+        "first_name",
+        "last_name",
+        "date_joined",
+        "last_login",
+        "is_staff",
     ]
 
     readonly_fields = [
-        'last_login',
-        'date_joined',
+        "last_login",
+        "date_joined",
     ]
 
     def get_form(self, request, obj=None, **kwargs):
@@ -39,15 +39,15 @@ class CustomUserAdmin(UserAdmin):
         if not is_superuser:
             disabled_fields |= {
                 # Prevent non-superusers from changing usernames
-                'username',
+                "username",
                 # Prevent non-superusers from making a user staff or
                 # a superuser
-                'is_staff',
-                'is_superuser',
+                "is_staff",
+                "is_superuser",
                 # Prevent non-superusers from granting permissions to
                 # specific users or groups
-                'user_permissions',
-                'groups'
+                "user_permissions",
+                "groups",
             }
 
         for f in disabled_fields:
@@ -64,9 +64,9 @@ class CustomUserAdmin(UserAdmin):
         That is left to the `admin` user to manage via the admin interface.
         """
         instance = form.instance
-        if instance.is_staff and instance.groups.filter(name='Staff').count() == 0:
-            group, created = Group.objects.get_or_create(name='Staff')
+        if instance.is_staff and instance.groups.filter(name="Staff").count() == 0:
+            group, created = Group.objects.get_or_create(name="Staff")
             instance.groups.add(group)
-        elif not instance.is_staff and instance.groups.filter(name='Staff').count() > 0:
-            group = Group.objects.get(name='Staff')
+        elif not instance.is_staff and instance.groups.filter(name="Staff").count() > 0:
+            group = Group.objects.get(name="Staff")
             instance.groups.remove(group)

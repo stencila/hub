@@ -5,7 +5,13 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
-from accounts.models import Account, AccountRole, AccountPermissionType, AccountUserRole, Team
+from accounts.models import (
+    Account,
+    AccountRole,
+    AccountPermissionType,
+    AccountUserRole,
+    Team,
+)
 
 User = get_user_model()
 
@@ -24,8 +30,11 @@ class AccountFetchResult(typing.NamedTuple):
     user_permissions: typing.Set[AccountPermissionType]
 
 
-def fetch_account(user: AbstractUser, account_pk: typing.Optional[int] = None,
-                  name: typing.Optional[str] = None) -> AccountFetchResult:
+def fetch_account(
+    user: AbstractUser,
+    account_pk: typing.Optional[int] = None,
+    name: typing.Optional[str] = None,
+) -> AccountFetchResult:
     """
     Fetch an `Account`, raising a 404 if the `Account` with `account_pk` or `name` does not exist.
 
@@ -33,7 +42,7 @@ def fetch_account(user: AbstractUser, account_pk: typing.Optional[int] = None,
     `AccountFetchResult.user_roles` and `AccountFetchResult.user_permissions` will be empty sets.
     """
     if (account_pk is None) == (name is None):
-        raise ValueError('Only provide one of account_pk or name.')
+        raise ValueError("Only provide one of account_pk or name.")
 
     if account_pk is not None:
         account = get_object_or_404(Account, pk=account_pk)
@@ -90,10 +99,18 @@ def fetch_team_for_account(account: Account, team_pk: typing.Optional[int]) -> T
 
 def fetch_accounts_for_user(user: AbstractUser) -> typing.Iterable[Account]:
     """Get an Iterable (map) of  `Account`s the `user` has access to (has any permissions)."""
-    return map(lambda aur: aur.account, AccountUserRole.objects.filter(user=user).select_related('account'))
+    return map(
+        lambda aur: aur.account,
+        AccountUserRole.objects.filter(user=user).select_related("account"),
+    )
 
 
 def user_is_account_admin(user: AbstractUser, account: Account) -> bool:
     """Return True if `user` has `ADMINISTER` permissions on `account`, otherwise `False`."""
     admin_roles = AccountRole.roles_with_permission(AccountPermissionType.ADMINISTER)
-    return AccountUserRole.objects.filter(user=user, account=account, role__in=admin_roles).count() != 0
+    return (
+        AccountUserRole.objects.filter(
+            user=user, account=account, role__in=admin_roles
+        ).count()
+        != 0
+    )

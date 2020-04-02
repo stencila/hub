@@ -43,21 +43,21 @@ class ProjectEventListViewBase(generics.ListAPIView):
     swagger_schema = None
     serializer_class = ProjectEventSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['event_type']
+    filterset_fields = ["event_type"]
 
     def get_base_queryset(self):
-        raise NotImplementedError('Subclasses must implement get_base_queryset')
+        raise NotImplementedError("Subclasses must implement get_base_queryset")
 
     def get_queryset(self):
         filtered = self.get_base_queryset()
-        if 'success' in self.request.query_params:
-            success = self.request.query_params['success']
+        if "success" in self.request.query_params:
+            success = self.request.query_params["success"]
 
-            if success == 'true':
+            if success == "true":
                 filtered = filtered.filter(success=True)
-            elif success == 'false':
+            elif success == "false":
                 filtered = filtered.filter(success=False)
-            elif success == 'null':
+            elif success == "null":
                 filtered = filtered.filter(success__isnull=True)
 
         return filtered
@@ -68,7 +68,7 @@ class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_base_queryset(self):
-        project = self.get_project(self.request.user, pk=self.kwargs['project_pk'])
+        project = self.get_project(self.request.user, pk=self.kwargs["project_pk"])
         return ProjectEvent.objects.filter(project=project)
 
 
@@ -98,24 +98,20 @@ class ManifestView(ProjectPermissionsMixin, APIView):
 
         json_rpc_response = False
 
-        if request.method == 'POST':
+        if request.method == "POST":
             json_rpc_response = True
 
             json_rpc = json.loads(request.body)
 
-            if json_rpc.get('method') != 'manifest':
-                raise ValueError('Request is not for manifest')
+            if json_rpc.get("method") != "manifest":
+                raise ValueError("Request is not for manifest")
 
-        manifest = generate_manifest('{}'.format(request.user.id), project=project)
+        manifest = generate_manifest("{}".format(request.user.id), project=project)
 
         response: typing.Any = None
 
         if json_rpc_response:
-            response = {
-                'jsonrpc': '2.0',
-                'result': manifest,
-                'id': json_rpc['id']
-            }
+            response = {"jsonrpc": "2.0", "result": manifest, "id": json_rpc["id"]}
         else:
             response = manifest
 
@@ -130,40 +126,52 @@ class SnapshotView(ProjectPermissionsMixin, APIView):
         project = self.get_project(request.user, pk=pk)
 
         snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
-        event = ProjectEvent.objects.create(event_type=ProjectEventType.SNAPSHOT.name, project=project,
-                                            user=logged_in_or_none(request.user),
-                                            level=ProjectEventLevel.INFORMATIONAL.value)
-        tag = request.data.get('tag')
+        event = ProjectEvent.objects.create(
+            event_type=ProjectEventType.SNAPSHOT.name,
+            project=project,
+            user=logged_in_or_none(request.user),
+            level=ProjectEventLevel.INFORMATIONAL.value,
+        )
+        tag = request.data.get("tag")
         try:
             snapshot = snapshotter.snapshot_project(request, project, tag)
             event.success = True
             event.save()
-            return JsonResponse({'success': True, 'url': reverse('snapshot_files',
-                                                                 args=(
-                                                                     project.account.name,
-                                                                     project.name,
-                                                                     snapshot.version_number)
-                                                                 )
-                                 })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "url": reverse(
+                        "snapshot_files",
+                        args=(
+                            project.account.name,
+                            project.name,
+                            snapshot.version_number,
+                        ),
+                    ),
+                }
+            )
         except SnapshotInProgressError:
-            in_progress_message = 'A snapshot is already in progress for Project {}.'.format(pk)
+            in_progress_message = "A snapshot is already in progress for Project {}.".format(
+                pk
+            )
             event.success = False
             event.level = ProjectEventLevel.WARNING.value
             event.message = in_progress_message
             event.save()
-            return JsonResponse(
-                {'success': False, 'error': in_progress_message})
+            return JsonResponse({"success": False, "error": in_progress_message})
         except IntegrityError as e:
             event.level = ProjectEventLevel.ERROR.value
             event.success = False
             if tag:
                 # this will usually be the thing that causes an IntegrityError
-                error_message = 'A snapshot with tag "{}" already exists for Project {}.'.format(tag, pk)
+                error_message = 'A snapshot with tag "{}" already exists for Project {}.'.format(
+                    tag, pk
+                )
             else:
                 error_message = str(e)
             event.message = error_message
             event.save()
-            return JsonResponse({'success': False, 'error': error_message})
+            return JsonResponse({"success": False, "error": error_message})
         except Exception as e:
             event.level = ProjectEventLevel.ERROR.value
             event.success = False
@@ -184,7 +192,7 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
         project = self.get_project(request.user, pk=pk)
 
         if not self.has_permission(ProjectPermissionType.MANAGE):
-            raise PermissionDenied('You do not have permission to edit this Project.')
+            raise PermissionDenied("You do not have permission to edit this Project.")
 
         update_data = json.loads(request.body)
 
@@ -200,6 +208,4 @@ class ProjectDetailView(ProjectPermissionsMixin, View):
         if project_updated:
             project.save()
 
-        return JsonResponse(
-            {'success': True}
-        )
+        return JsonResponse({"success": True})

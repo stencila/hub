@@ -6,20 +6,24 @@ from django.contrib.auth.models import User
 
 
 class SocialAuthProviderId(enum.Enum):
-    github = 'github'
-    google = 'google'
+    github = "github"
+    google = "google"
 
 
 def user_social_token(user: User, provider_id: str) -> typing.Optional[SocialToken]:
     if user.is_anonymous:
         return None
 
-    social_app = SocialApp.objects.filter(provider=provider_id).first()  # assume just one App with the ID is set up
+    social_app = SocialApp.objects.filter(
+        provider=provider_id
+    ).first()  # assume just one App with the ID is set up
 
     if social_app is None:
         return None
 
-    social_account = SocialAccount.objects.filter(provider=provider_id, user=user).first()
+    social_account = SocialAccount.objects.filter(
+        provider=provider_id, user=user
+    ).first()
 
     if social_account is None:
         return None
@@ -28,7 +32,7 @@ def user_social_token(user: User, provider_id: str) -> typing.Optional[SocialTok
 
 
 def user_github_token(user: User) -> typing.Optional[str]:
-    token = user_social_token(user, 'github')
+    token = user_social_token(user, "github")
     return token.token if token else None
 
 

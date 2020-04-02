@@ -18,21 +18,25 @@ from accounts.models import Account, AccountUserRole, AccountRole, AccountPermis
 
 User = get_user_model()
 
-USER_ROLE_ID_PREFIX = 'user_role_id_'
+USER_ROLE_ID_PREFIX = "user_role_id_"
 
 
 class AccountPermissionsMixin(LoginRequiredMixin):
     account_fetch_result: typing.Optional[AccountFetchResult] = None
     required_account_permission: AccountPermissionType
 
-    def perform_account_fetch(self, user: AbstractUser, name: typing.Optional[str] = None) -> None:
+    def perform_account_fetch(
+        self, user: AbstractUser, name: typing.Optional[str] = None
+    ) -> None:
         self.account_fetch_result = fetch_account(user, name=name)
 
     def get_render_context(self, context: dict) -> dict:
-        context['account_permissions'] = self.account_permissions
-        context['account_roles'] = self.account_roles
-        context['account'] = self.account
-        context['is_account_admin'] = self.has_permission(AccountPermissionType.ADMINISTER)
+        context["account_permissions"] = self.account_permissions
+        context["account_roles"] = self.account_roles
+        context["account"] = self.account
+        context["is_account_admin"] = self.has_permission(
+            AccountPermissionType.ADMINISTER
+        )
         return context
 
     def _test_account_fetch_result_set(self) -> None:
@@ -60,18 +64,26 @@ class AccountPermissionsMixin(LoginRequiredMixin):
     def has_permission(self, permission: AccountPermissionType) -> bool:
         return self.has_any_permissions((permission,))
 
-    def has_any_permissions(self, permissions: typing.Iterable[AccountPermissionType]) -> bool:
+    def has_any_permissions(
+        self, permissions: typing.Iterable[AccountPermissionType]
+    ) -> bool:
         for permission in permissions:
             if permission in self.account_permissions:
                 return True
 
         return False
 
-    def request_permissions_guard(self, request: HttpRequest, account_name: str) -> None:
+    def request_permissions_guard(
+        self, request: HttpRequest, account_name: str
+    ) -> None:
         """Test that the current user has `required_account_permission`, raising `PermissionDenied` if not."""
         self.perform_account_fetch(request.user, account_name)
         if not self.has_permission(self.required_account_permission):
-            raise PermissionDenied('User must have {} permission to do this.'.format(self.required_account_permission))
+            raise PermissionDenied(
+                "User must have {} permission to do this.".format(
+                    self.required_account_permission
+                )
+            )
 
 
 class AccountListView(LoginRequiredMixin, ListView):
@@ -79,15 +91,19 @@ class AccountListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self) -> QuerySet:
         """Only list those accounts that the user is a member of."""
-        return AccountUserRole.objects.filter(user=self.request.user).select_related('account')
+        return AccountUserRole.objects.filter(user=self.request.user).select_related(
+            "account"
+        )
 
 
 class AccountNameRedirectView(View):
-    def get(self, request: HttpRequest, pk: int, path: typing.Optional[str] = None) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, pk: int, path: typing.Optional[str] = None
+    ) -> HttpResponse:
         """Redirect old-style (id-based) URLs to new ones that use `name` as a slug."""
         account = get_object_or_404(Account, pk=pk)
-        path = path or ''
-        return redirect('/{}/{}'.format(account.name, path), permanent=True)
+        path = path or ""
+        return redirect("/{}/{}".format(account.name, path), permanent=True)
 
 
 class AccountProfileView(AccountPermissionsMixin, View):
@@ -95,19 +111,27 @@ class AccountProfileView(AccountPermissionsMixin, View):
         self.perform_account_fetch(request.user, account_name)
 
         teams = self.account.teams.all()
-        if self.has_any_permissions((AccountPermissionType.ADMINISTER, AccountPermissionType.MODIFY)):
+        if self.has_any_permissions(
+            (AccountPermissionType.ADMINISTER, AccountPermissionType.MODIFY)
+        ):
             # Members get to see who is on account
             users = [user_role.user for user_role in self.account.user_roles.all()]
         else:
             # Non-members don't get to see who is on account
             users = []
-        return render(request, 'accounts/account_profile.html', self.get_render_context({
-            'tab': 'profile',
-            'account': self.account,
-            'projects': self.account.projects.all,
-            'users': users,
-            'teams': teams
-        }))
+        return render(
+            request,
+            "accounts/account_profile.html",
+            self.get_render_context(
+                {
+                    "tab": "profile",
+                    "account": self.account,
+                    "projects": self.account.projects.all,
+                    "users": users,
+                    "teams": teams,
+                }
+            ),
+        )
 
 
 class AccountAccessView(AccountPermissionsMixin, View):
@@ -120,19 +144,27 @@ class AccountAccessView(AccountPermissionsMixin, View):
         access_roles = AccountUserRole.objects.filter(account=self.account)
         all_roles = AccountRole.objects.all()
 
-        access_roles_map = {access_role.pk: access_role.role.pk for access_role in access_roles}
+        access_roles_map = {
+            access_role.pk: access_role.role.pk for access_role in access_roles
+        }
 
         current_usernames = list(map(lambda ar: ar.user.username, access_roles))
 
-        return render(request, 'accounts/account_access.html', self.get_render_context({
-            'tab': 'members',
-            'account': self.account,
-            'access_roles': access_roles,
-            'access_roles_map': json.dumps(access_roles_map),
-            'all_roles': all_roles,
-            'USER_ROLE_ID_PREFIX': USER_ROLE_ID_PREFIX,
-            'current_usernames': json.dumps(current_usernames)
-        }))
+        return render(
+            request,
+            "accounts/account_access.html",
+            self.get_render_context(
+                {
+                    "tab": "members",
+                    "account": self.account,
+                    "access_roles": access_roles,
+                    "access_roles_map": json.dumps(access_roles_map),
+                    "all_roles": all_roles,
+                    "USER_ROLE_ID_PREFIX": USER_ROLE_ID_PREFIX,
+                    "current_usernames": json.dumps(current_usernames),
+                }
+            ),
+        )
 
     def post(self, request: HttpRequest, account_name: str) -> HttpResponse:
         self.perform_account_fetch(request.user, account_name)
@@ -146,56 +178,75 @@ class AccountAccessView(AccountPermissionsMixin, View):
 
         role_lookup = {role.pk: role for role in all_roles}
 
-        if request.POST.get('action') == 'set_role':
-            account_user_role = AccountUserRole.objects.get(pk=request.POST['account_user_role_id'])
+        if request.POST.get("action") == "set_role":
+            account_user_role = AccountUserRole.objects.get(
+                pk=request.POST["account_user_role_id"]
+            )
 
             if account_user_role.user == request.user:
-                raise ValueError('Can not set access to active user.')
+                raise ValueError("Can not set access to active user.")
             if account_user_role.account != account:
                 raise PermissionDenied
 
-            new_role = role_lookup[int(request.POST['role_id'])]
+            new_role = role_lookup[int(request.POST["role_id"])]
 
             if new_role != account_user_role.role:
                 account_user_role.role = new_role
                 account_user_role.save()
 
             return JsonResponse(
-                {'success': True, 'message': 'Access for {} updated.'.format(account_user_role.user.username)})
+                {
+                    "success": True,
+                    "message": "Access for {} updated.".format(
+                        account_user_role.user.username
+                    ),
+                }
+            )
 
-        elif request.POST.get('action') == 'add_access':
-            username = request.POST['name']
+        elif request.POST.get("action") == "add_access":
+            username = request.POST["name"]
             if username:
                 try:
                     user = User.objects.get(username=username)
                 except User.DoesNotExist:
-                    messages.error(request, 'User "{}" does not exist.'.format(username))
+                    messages.error(
+                        request, 'User "{}" does not exist.'.format(username)
+                    )
                 else:
                     if user == request.user:
                         messages.error(request, "You can not alter your own access.")
                     else:
-                        role = AccountRole.objects.get(pk=request.POST['role_id'])
+                        role = AccountRole.objects.get(pk=request.POST["role_id"])
 
-                        AccountUserRole.objects.update_or_create({
-                            'role': role
-                        }, user=user, account=account)
+                        AccountUserRole.objects.update_or_create(
+                            {"role": role}, user=user, account=account
+                        )
                         messages.success(request, "Account access updated.")
-        elif request.POST.get('action') == 'delete_access':
-            account_user_role = AccountUserRole.objects.get(pk=request.POST['user_role_id'])
+        elif request.POST.get("action") == "delete_access":
+            account_user_role = AccountUserRole.objects.get(
+                pk=request.POST["user_role_id"]
+            )
             if account_user_role.account != account:
                 raise PermissionDenied
 
             role_user = account_user_role.user
 
             if role_user == request.user:
-                messages.error(request, "You can not remove account access from yourself.")
+                messages.error(
+                    request, "You can not remove account access from yourself."
+                )
             else:
                 account_user_role.delete()
-                messages.success(request, "Access to the account for '{}' was removed.".format(role_user.username))
+                messages.success(
+                    request,
+                    "Access to the account for '{}' was removed.".format(
+                        role_user.username
+                    ),
+                )
         else:
             for post_key, value in request.POST.items():
                 if post_key.startswith(USER_ROLE_ID_PREFIX):
-                    user_role_id = post_key[len(USER_ROLE_ID_PREFIX):]
+                    user_role_id = post_key[len(USER_ROLE_ID_PREFIX) :]
                     account_user_role = AccountUserRole.objects.get(pk=user_role_id)
 
                     if account_user_role.user == request.user:
@@ -208,43 +259,52 @@ class AccountAccessView(AccountPermissionsMixin, View):
                     if new_role != account_user_role.role:
                         account_user_role.role = new_role
                         account_user_role.save()
-                        messages.success(request, "Role updated for user {}".format(account_user_role.user.username))
+                        messages.success(
+                            request,
+                            "Role updated for user {}".format(
+                                account_user_role.user.username
+                            ),
+                        )
 
-        return redirect('account_access', self.account.name)
+        return redirect("account_access", self.account.name)
 
 
 class AccountSettingsView(AccountPermissionsMixin, UpdateView):
     model = Account
     form_class = AccountSettingsForm
-    template_name = 'accounts/account_settings.html'
+    template_name = "accounts/account_settings.html"
     required_account_permission = AccountPermissionType.ADMINISTER
-    slug_url_kwarg = 'account_name'
-    slug_field = 'name'
+    slug_url_kwarg = "account_name"
+    slug_field = "name"
 
     def get_success_url(self) -> str:
-        return reverse('account_profile', args=(self.object.name,))
+        return reverse("account_profile", args=(self.object.name,))
 
     def get_context_data(self, **kwargs):
         self.perform_account_fetch(self.request.user, self.object.name)
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
-        kwargs['tab'] = 'settings'
-        return self.get_render_context(super(AccountSettingsView, self).get_context_data(**kwargs))
+        kwargs["tab"] = "settings"
+        return self.get_render_context(
+            super(AccountSettingsView, self).get_context_data(**kwargs)
+        )
 
 
 class AccountCreateView(AccountPermissionsMixin, CreateView):
     model = Account
     form_class = AccountCreateForm
-    template_name = 'accounts/account_create.html'
-    slug_url_kwarg = 'account_name'
-    slug_field = 'name'
+    template_name = "accounts/account_create.html"
+    slug_url_kwarg = "account_name"
+    slug_field = "name"
 
     def form_valid(self, form):
         """If the account creation form is valid them make the current user the account creator."""
         self.object = form.save()
-        admin_role = AccountRole.objects.get(name='Account admin')
-        AccountUserRole.objects.create(role=admin_role, account=self.object, user=self.request.user)
+        admin_role = AccountRole.objects.get(name="Account admin")
+        AccountUserRole.objects.create(
+            role=admin_role, account=self.object, user=self.request.user
+        )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
-        return reverse('account_profile', args=(self.object.name,))
+        return reverse("account_profile", args=(self.object.name,))

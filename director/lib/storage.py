@@ -12,7 +12,7 @@ class CustomPublicGoogleCloudStorage(GoogleCloudStorage):
     The paths are those that match the `GS_PUBLIC_READABLE_PATHS` setting  glob.:w
     """
 
-    public_readable_paths = setting('GS_PUBLIC_READABLE_PATHS', [])
+    public_readable_paths = setting("GS_PUBLIC_READABLE_PATHS", [])
 
     def _save(self, name, content):
         cleaned_name = super()._save(name, content)

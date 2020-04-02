@@ -18,16 +18,22 @@ from django.utils import timezone
 
 from projects.project_models import Project
 
-SESSION_POLL_TIMEOUT = 60  # default for number of seconds since update that Session info is out of date
-SESSION_QUEUE_CHECK_TIMEOUT = 120  # remove a `SessionQueue` if it hasn't been checked for this many seconds
-SESSION_QUEUE_CREATION_TIMEOUT = 300  # remove a `SessionQueue` if it is this old and has not been checked
+SESSION_POLL_TIMEOUT = (
+    60  # default for number of seconds since update that Session info is out of date
+)
+SESSION_QUEUE_CHECK_TIMEOUT = (
+    120  # remove a `SessionQueue` if it hasn't been checked for this many seconds
+)
+SESSION_QUEUE_CREATION_TIMEOUT = (
+    300  # remove a `SessionQueue` if it is this old and has not been checked
+)
 
 
 class SessionStatus(enum.Enum):
-    UNKNOWN = 'Unknown'
-    NOT_STARTED = 'Not Started'
-    RUNNING = 'Running'
-    STOPPED = 'Stopped'
+    UNKNOWN = "Unknown"
+    NOT_STARTED = "Not Started"
+    RUNNING = "Running"
+    STOPPED = "Stopped"
 
 
 class SessionManager(models.Manager):
@@ -41,21 +47,23 @@ class SessionManager(models.Manager):
         filter_kwargs = {}
 
         if status == SessionStatus.UNKNOWN:
-            filter_kwargs['last_check__isnull'] = True
+            filter_kwargs["last_check__isnull"] = True
         elif status == SessionStatus.NOT_STARTED:
-            filter_kwargs['last_check__isnull'] = False
-            filter_kwargs['started'] = None  # type: ignore
+            filter_kwargs["last_check__isnull"] = False
+            filter_kwargs["started"] = None  # type: ignore
         elif status == SessionStatus.RUNNING:
-            filter_kwargs['last_check__isnull'] = False
-            filter_kwargs['started__lt'] = timezone.now()
-            filter_kwargs['stopped__isnull'] = True
+            filter_kwargs["last_check__isnull"] = False
+            filter_kwargs["started__lt"] = timezone.now()
+            filter_kwargs["stopped__isnull"] = True
         elif status == SessionStatus.STOPPED:
-            filter_kwargs['last_check__isnull'] = False
-            filter_kwargs['stopped__lt'] = timezone.now()
+            filter_kwargs["last_check__isnull"] = False
+            filter_kwargs["stopped__lt"] = timezone.now()
 
         return super().get_queryset().filter(**filter_kwargs)
 
-    def filter_project_and_status(self, project: Project, status: SessionStatus) -> QuerySet:
+    def filter_project_and_status(
+        self, project: Project, status: SessionStatus
+    ) -> QuerySet:
         """Find `Sessions` with a particular `SessionStatus`, but only for the given `Project`."""
         return self.filter_status(status).filter(project=project)
 
@@ -70,7 +78,8 @@ class SessionManager(models.Manager):
         `Session.objects.filter_stale_status().filter(project=project)`
         """
         last_check_filter = Q(last_check=None) | Q(
-            last_check__lt=timezone.now() - timedelta(seconds=SESSION_POLL_TIMEOUT))
+            last_check__lt=timezone.now() - timedelta(seconds=SESSION_POLL_TIMEOUT)
+        )
 
         return super().get_queryset().filter(last_check_filter, stopped=None)
 
@@ -81,48 +90,45 @@ class Session(models.Model):
     objects = SessionManager()
 
     project = models.ForeignKey(
-        'Project',
+        "Project",
         null=False,
         on_delete=models.PROTECT,
         # Don't want to delete references if the container is running and we need control still
-        related_name='sessions',
+        related_name="sessions",
         db_index=True,
-        help_text='The Project that this Session belongs to.'
+        help_text="The Project that this Session belongs to.",
     )
 
     url = models.URLField(
-        help_text='URL for API access to administrate this Session',
-        db_index=True
+        help_text="URL for API access to administrate this Session", db_index=True
     )
 
     started = models.DateTimeField(
-        null=True,
-        blank=True,
-        help_text='DateTime this Session was started.'
+        null=True, blank=True, help_text="DateTime this Session was started."
     )
 
     stopped = models.DateTimeField(
         null=True,
         blank=True,
-        help_text='DateTime this Session was stopped (or that we detected it had stopped).'
+        help_text="DateTime this Session was stopped (or that we detected it had stopped).",
     )
 
     last_check = models.DateTimeField(
         null=True,
         blank=True,
-        help_text='The last time the status of this Session was checked'
+        help_text="The last time the status of this Session was checked",
     )
 
     execution_id = models.TextField(
         null=True,
         blank=True,
-        help_text='The ID used to identify this session on the execution host (e.g. Docker container ID).'
+        help_text="The ID used to identify this session on the execution host (e.g. Docker container ID).",
     )
 
     client_class_id = models.TextField(
         null=True,
         blank=True,
-        help_text='The ID of the client class that created this session.'
+        help_text="The ID of the client class that created this session.",
     )
 
     @property
@@ -145,54 +151,51 @@ class SessionParameters(models.Model):
     name = models.TextField(
         null=True,
         blank=True,
-        help_text='Names for the set of session parameters (optional). This can be used if you want to save a pre-set '
-                  'Session Parameters'
+        help_text="Names for the set of session parameters (optional). This can be used if you want to save a pre-set "
+        "Session Parameters",
     )
 
     description = models.TextField(
         null=True,
         blank=True,
-        help_text='Optional long description about the SessionParameters'
+        help_text="Optional long description about the SessionParameters",
     )
 
     memory = models.FloatField(
-        default=1,
-        null=True,
-        blank=True,
-        help_text='Gigabytes (GB) of memory allocated'
+        default=1, null=True, blank=True, help_text="Gigabytes (GB) of memory allocated"
     )
 
     cpu = models.FloatField(
         default=1,
         null=True,
         blank=True,
-        help_text='CPU shares (out of 100 per CPU) allocated'
+        help_text="CPU shares (out of 100 per CPU) allocated",
     )
 
     network = models.FloatField(
         null=True,
         blank=True,
-        help_text='Gigabytes (GB) of network transfer allocated. null = unlimited'
+        help_text="Gigabytes (GB) of network transfer allocated. null = unlimited",
     )
 
     lifetime = models.IntegerField(
         null=True,
         blank=True,
-        help_text='Minutes before the session is terminated. null = unlimited'
+        help_text="Minutes before the session is terminated. null = unlimited",
     )
 
     timeout = models.IntegerField(
         default=60,
         null=True,
         blank=True,
-        help_text='Minutes of inactivity before the session is terminated'
+        help_text="Minutes of inactivity before the session is terminated",
     )
 
     def __str__(self) -> str:
-        return self.name if self.name else 'SessionParameters #{}'.format(self.id)
+        return self.name if self.name else "SessionParameters #{}".format(self.id)
 
     def get_absolute_url(self):
-        return reverse('sessionparameters_update', args=[self.pk])
+        return reverse("sessionparameters_update", args=[self.pk])
 
     def serialize(self) -> dict:
         return {
@@ -203,7 +206,7 @@ class SessionParameters(models.Model):
             "cpu": self.cpu,
             "network": self.network,
             "lifetime": self.lifetime,
-            "timeout": self.timeout
+            "timeout": self.timeout,
         }
 
 
@@ -215,27 +218,26 @@ class SessionRequest(models.Model):
     """
 
     project = models.ForeignKey(
-        'Project',
+        "Project",
         null=False,
         on_delete=models.CASCADE,
-        related_name='session_requests',
+        related_name="session_requests",
         db_index=True,
-        help_text='The project this request is for'
+        help_text="The project this request is for",
     )
 
     created = models.DateTimeField(
         null=False,
         auto_now_add=True,
-        help_text='The date and time the request for a session was created.'
+        help_text="The date and time the request for a session was created.",
     )
 
     last_check = models.DateTimeField(
         null=False,
         auto_now=True,
-        help_text='The last time that a client queried against this request'
+        help_text="The last time that a client queried against this request",
     )
 
     environ = models.TextField(
-        null=False,
-        help_text='The environment in which to create the Session'
+        null=False, help_text="The environment in which to create the Session"
     )

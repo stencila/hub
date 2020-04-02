@@ -30,22 +30,24 @@ from projects.models import Project
 
 
 class ProjectPermissionType(EnumChoice):
-    VIEW = 'view'
-    COMMENT = 'comment'
-    SUGGEST = 'suggest'
-    EDIT = 'edit'
-    MANAGE = 'manage'
-    OWN = 'own'
+    VIEW = "view"
+    COMMENT = "comment"
+    SUGGEST = "suggest"
+    EDIT = "edit"
+    MANAGE = "manage"
+    OWN = "own"
 
     @classmethod
-    def ordered_permissions(cls) -> typing.Iterable['ProjectPermissionType']:
+    def ordered_permissions(cls) -> typing.Iterable["ProjectPermissionType"]:
         """Get a tuple of permissions in order from least to most permissive."""
         return cls.VIEW, cls.COMMENT, cls.SUGGEST, cls.EDIT, cls.MANAGE, cls.OWN  # type: ignore
         #  mypy does not understand enums
 
     def get_comparison_ordering(self, other: typing.Any) -> int:
         if type(other) != type(self):
-            raise TypeError("Can not compare ProjectPermissionType with other object types.")
+            raise TypeError(
+                "Can not compare ProjectPermissionType with other object types."
+            )
         ordered_permissions = list(self.ordered_permissions())
         self_index = ordered_permissions.index(self)
         other_index = ordered_permissions.index(other)
@@ -68,8 +70,9 @@ class ProjectPermissionType(EnumChoice):
         return self == other or self > other
 
 
-def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) -> \
-        typing.Optional[ProjectPermissionType]:
+def get_highest_permission(
+    permissions: typing.Iterable[ProjectPermissionType],
+) -> typing.Optional[ProjectPermissionType]:
     """
     Iterate over each `ProjectPermissionType` in order for highest to lowest.
 
@@ -84,10 +87,8 @@ def get_highest_permission(permissions: typing.Iterable[ProjectPermissionType]) 
 
 class ProjectPermission(models.Model):
     type = models.TextField(
-        null=False,
-        blank=False,
-        choices=ProjectPermissionType.as_choices(),
-        unique=True)
+        null=False, blank=False, choices=ProjectPermissionType.as_choices(), unique=True
+    )
 
     def as_enum(self) -> ProjectPermissionType:
         return ProjectPermissionType(self.type)
@@ -98,7 +99,7 @@ class ProjectPermission(models.Model):
 
 class ProjectRole(models.Model):
     name = models.TextField(null=False, unique=True)
-    permissions = models.ManyToManyField(ProjectPermission, related_name='roles')
+    permissions = models.ManyToManyField(ProjectPermission, related_name="roles")
 
     def permissions_text(self) -> typing.Set[str]:
         return {permission.type for permission in self.permissions.all()}
@@ -123,27 +124,20 @@ class AgentType(enum.Enum):
 class ProjectAgentRole(models.Model):
     """Model connecting `Users` or `Teams` (`Agents`) with their `Roles` (permissions) in the `Project`."""
 
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.DO_NOTHING
-    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.DO_NOTHING)
 
     agent_id = models.PositiveIntegerField(db_index=True)  # ID of the Team or User
-    agent = GenericForeignKey('content_type', 'agent_id')  # Team or User
+    agent = GenericForeignKey("content_type", "agent_id")  # Team or User
 
     project = models.ForeignKey(
-        'projects.Project',
+        "projects.Project",
         on_delete=models.CASCADE,
         null=False,
-        related_name='roles',
-        db_index=True
+        related_name="roles",
+        db_index=True,
     )
 
-    role = models.ForeignKey(
-        ProjectRole,
-        on_delete=models.CASCADE,
-        related_name='+'
-    )
+    role = models.ForeignKey(ProjectRole, on_delete=models.CASCADE, related_name="+")
 
     @classmethod
     def filter_with_agent(cls, agent: typing.Union[User, Team], **kwargs) -> QuerySet:
@@ -152,27 +146,36 @@ class ProjectAgentRole(models.Model):
 
         So this is a helper method to transform agent into id/content type.
         """
-        kwargs['agent_id'] = agent.pk
-        kwargs['content_type'] = ContentType.objects.get_for_model(agent)
+        kwargs["agent_id"] = agent.pk
+        kwargs["content_type"] = ContentType.objects.get_for_model(agent)
         return cls.objects.filter(**kwargs)
 
     @classmethod
-    def filter_with_user_teams(cls, user: typing.Optional[AbstractUser] = None,
-                               teams: typing.Optional[typing.Iterable[Team]] = None, **kwargs) -> QuerySet:
+    def filter_with_user_teams(
+        cls,
+        user: typing.Optional[AbstractUser] = None,
+        teams: typing.Optional[typing.Iterable[Team]] = None,
+        **kwargs,
+    ) -> QuerySet:
         """
         Filter for all `ProjectAgentRole`.
 
         For the `user` or any of the `teams`.
         """
         if user:
-            user_query = Q(agent_id=user.pk, content_type=ContentType.objects.get_for_model(User))
+            user_query = Q(
+                agent_id=user.pk, content_type=ContentType.objects.get_for_model(User)
+            )
         else:
             user_query = None
 
         if teams:
             team_query = None
             for team in teams:
-                single_team_query = Q(agent_id=team.pk, content_type=ContentType.objects.get_for_model(Team))
+                single_team_query = Q(
+                    agent_id=team.pk,
+                    content_type=ContentType.objects.get_for_model(Team),
+                )
                 if team_query:
                     team_query = team_query | single_team_query
                 else:
@@ -190,7 +193,9 @@ class ProjectAgentRole(models.Model):
             agent_query = None
 
         if not kwargs and not agent_query:
-            raise ValueError("Can't query for ProjectAgentRole because there are no filters.")
+            raise ValueError(
+                "Can't query for ProjectAgentRole because there are no filters."
+            )
 
         if agent_query:
             return cls.objects.filter(agent_query, **kwargs)
@@ -218,7 +223,11 @@ class ProjectAgentRole(models.Model):
 
     @property
     def agent_type(self):
-        return AgentType.USER if self.content_type == ContentType.objects.get_for_model(User) else AgentType.TEAM
+        return (
+            AgentType.USER
+            if self.content_type == ContentType.objects.get_for_model(User)
+            else AgentType.TEAM
+        )
 
 
 def record_creator_as_owner(sender, instance, created, *args, **kwargs):
@@ -228,17 +237,23 @@ def record_creator_as_owner(sender, instance, created, *args, **kwargs):
     This method is called when the Project is created and saved to record `Owner` role of the user who created the
     Project.
     """
-    owner_role = ProjectRole.objects.get(name='Owner')
+    owner_role = ProjectRole.objects.get(name="Owner")
     ct = ContentType.objects.get(model="user")
     if sender is Project and created:
-        ProjectAgentRole.objects.create(agent_id=instance.creator.pk,
-                                        content_type=ct, project=instance, role=owner_role)
+        ProjectAgentRole.objects.create(
+            agent_id=instance.creator.pk,
+            content_type=ct,
+            project=instance,
+            role=owner_role,
+        )
 
 
 post_save.connect(record_creator_as_owner, sender=Project)
 
 
-def get_roles_under_permission(highest_permission: typing.Optional[ProjectPermissionType]) -> typing.List[ProjectRole]:
+def get_roles_under_permission(
+    highest_permission: typing.Optional[ProjectPermissionType],
+) -> typing.List[ProjectRole]:
     """Return a list of `ProjectRole`s that have permissions less or equal to the given permission."""
     if highest_permission is None:
         return []

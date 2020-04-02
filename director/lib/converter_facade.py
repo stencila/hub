@@ -18,8 +18,12 @@ from django.http.multipartparser import parse_header
 from googleapiclient.errors import HttpError
 from requests import Response
 
-from lib.conversion_types import ConversionFormatId, conversion_format_from_mimetype, conversion_format_from_path, \
-    ConversionFormatError
+from lib.conversion_types import (
+    ConversionFormatId,
+    conversion_format_from_mimetype,
+    conversion_format_from_path,
+    ConversionFormatError,
+)
 from lib.google_docs_facade import extract_google_document_id_from_url, GoogleDocsFacade
 
 MAX_REMOTE_CONVERT_SIZE = 5 * 1024 * 1024
@@ -43,7 +47,7 @@ class ConverterIo(typing.NamedTuple):
     @property
     def as_path_shell_arg(self) -> str:
         if self.io_type == ConverterIoType.PIPE:
-            return '-'  # placeholder for STDIN/STDOUT
+            return "-"  # placeholder for STDIN/STDOUT
 
         return str(self.data)
 
@@ -61,7 +65,7 @@ def is_malicious_host(hostname: typing.Optional[str]) -> bool:
     if not hostname:
         return True
 
-    if hostname.lower() in ['hub-test.stenci.la', 'hub.stenci.la']:
+    if hostname.lower() in ["hub-test.stenci.la", "hub.stenci.la"]:
         return True
 
     try:
@@ -83,17 +87,19 @@ def convert_raw_content_url(url: str) -> str:
     For providers like Github that have a URL you would navigate to that is not the raw content, convert the URL to be
     that of the raw content.
     """
-    github_match = re.search(r'^https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/blob/([^?]+)', url, re.I)
+    github_match = re.search(
+        r"^https?://github\.com/([a-z0-9\-]+)/([a-z0-9\-_]+)/blob/([^?]+)", url, re.I
+    )
 
     if github_match:
-        return 'https://raw.githubusercontent.com/{}/{}/{}'.format(github_match.group(1),
-                                                                   github_match.group(2),
-                                                                   github_match.group(3))
+        return "https://raw.githubusercontent.com/{}/{}/{}".format(
+            github_match.group(1), github_match.group(2), github_match.group(3)
+        )
 
-    hackmd_match = re.search(r'^https?://hackmd\.io/([^/?]+)', url, re.I)
+    hackmd_match = re.search(r"^https?://hackmd\.io/([^/?]+)", url, re.I)
 
     if hackmd_match:
-        return 'https://hackmd.io/{}/download'.format(hackmd_match.group(1))
+        return "https://hackmd.io/{}/download".format(hackmd_match.group(1))
 
     return url
 
@@ -107,7 +113,7 @@ def is_encoda_delegate_url(url: typing.Optional[str]) -> bool:
     if not hostname:
         return False
 
-    return hostname.lower() in ['journals.plos.org', 'elifesciences.org']
+    return hostname.lower() in ["journals.plos.org", "elifesciences.org"]
 
 
 class ServiceId(enum.Enum):
@@ -119,15 +125,20 @@ class ServiceItem(typing.NamedTuple):
     item_id: str
 
 
-def fetch_google_docs_content(service_item: ServiceItem) -> typing.Tuple[str, ConverterIo]:
-    google_app = SocialApp.objects.filter(provider='google').first()
+def fetch_google_docs_content(
+    service_item: ServiceItem,
+) -> typing.Tuple[str, ConverterIo]:
+    google_app = SocialApp.objects.filter(provider="google").first()
 
     gdf = GoogleDocsFacade(google_app.client_id, google_app.secret)
     document = gdf.get_document(service_item.item_id)
     with tempfile.NamedTemporaryFile(delete=False) as download_to:
-        download_to.write(json.dumps(document).encode('utf-8'))
+        download_to.write(json.dumps(document).encode("utf-8"))
 
-    return document['title'], ConverterIo(ConverterIoType.PATH, download_to.name, ConversionFormatId.gdoc)
+    return (
+        document["title"],
+        ConverterIo(ConverterIoType.PATH, download_to.name, ConversionFormatId.gdoc),
+    )
 
 
 def fetch_service_item(service_item: ServiceItem) -> typing.Tuple[str, ConverterIo]:
@@ -135,11 +146,11 @@ def fetch_service_item(service_item: ServiceItem) -> typing.Tuple[str, Converter
         try:
             return fetch_google_docs_content(service_item)
         except HttpError as e:
-            if e.resp['status'] == '403':  # it is a string
+            if e.resp["status"] == "403":  # it is a string
                 raise GoogleDocs403Exception()
             raise
 
-    raise TypeError('Unsupported service item type {}'.format(service_item.service_id))
+    raise TypeError("Unsupported service item type {}".format(service_item.service_id))
 
 
 def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
@@ -152,9 +163,14 @@ def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
     return None
 
 
-def fetch_url(url: str, response_delegate: typing.Optional[typing.Callable[[str, Response], typing.Any]] = None,
-              user_agent: typing.Optional[str] = None,
-              seen_urls: typing.Optional[typing.List[str]] = None) -> typing.Any:
+def fetch_url(
+    url: str,
+    response_delegate: typing.Optional[
+        typing.Callable[[str, Response], typing.Any]
+    ] = None,
+    user_agent: typing.Optional[str] = None,
+    seen_urls: typing.Optional[typing.List[str]] = None,
+) -> typing.Any:
     """
     Fetch a URL, following redirects and denying access to dangerous URLs.
 
@@ -166,7 +182,7 @@ def fetch_url(url: str, response_delegate: typing.Optional[typing.Callable[[str,
     if service_item:
         return fetch_service_item(service_item)
 
-    headers = {'User-Agent': user_agent} if user_agent else None
+    headers = {"User-Agent": user_agent} if user_agent else None
 
     url = convert_raw_content_url(url)
 
@@ -176,44 +192,53 @@ def fetch_url(url: str, response_delegate: typing.Optional[typing.Callable[[str,
         raise TypeError('Url "{}" appears to have no hostname.'.format(url))
 
     if is_malicious_host(url_obj.hostname):
-        raise RemoteFileException('{} is not a valid hostname.'.format(url_obj.hostname))
+        raise RemoteFileException(
+            "{} is not a valid hostname.".format(url_obj.hostname)
+        )
 
     _, file_ext = splitext(url_obj.path)
 
     if seen_urls is None:
         seen_urls = []
 
-    with requests.request('GET', url,
-                          headers=headers,
-                          stream=True,
-                          timeout=DOWNLOAD_TIMEOUT_SECONDS,
-                          allow_redirects=False) as resp:
-        if 'Location' in resp.headers:
+    with requests.request(
+        "GET",
+        url,
+        headers=headers,
+        stream=True,
+        timeout=DOWNLOAD_TIMEOUT_SECONDS,
+        allow_redirects=False,
+    ) as resp:
+        if "Location" in resp.headers:
             # Manually follow redirects to determine if it is a redirect to a malicious URL
             if url in seen_urls:
-                raise RemoteFileException('Looping redirect found at {}'.format(url))
+                raise RemoteFileException("Looping redirect found at {}".format(url))
             seen_urls.append(url)
 
             if len(seen_urls) > MAX_HTTP_REDIRECTS:
-                raise RemoteFileException('Too many HTTP redirects from original URL: {}'.format(seen_urls[0]))
+                raise RemoteFileException(
+                    "Too many HTTP redirects from original URL: {}".format(seen_urls[0])
+                )
 
-            new_url = urljoin(url, resp.headers['location'])
+            new_url = urljoin(url, resp.headers["location"])
             return fetch_url(new_url, response_delegate, user_agent, seen_urls)
 
         resp.raise_for_status()
 
         file_name = basename(url_obj.path)
 
-        if 'Content-Disposition' in resp.headers:
-            content_disposition: typing.Union[str, bytes] = resp.headers['Content-Disposition']
+        if "Content-Disposition" in resp.headers:
+            content_disposition: typing.Union[str, bytes] = resp.headers[
+                "Content-Disposition"
+            ]
 
             if not isinstance(content_disposition, bytes):
-                content_disposition = content_disposition.encode('ascii')
+                content_disposition = content_disposition.encode("ascii")
 
             _, metadata = parse_header(content_disposition)
-            file_name = metadata.get('filename')
+            file_name = metadata.get("filename")
             if isinstance(file_name, bytes):
-                file_name = file_name.decode('ascii')
+                file_name = file_name.decode("ascii")
             file_name = unquote(file_name)
 
         if response_delegate:
@@ -221,10 +246,12 @@ def fetch_url(url: str, response_delegate: typing.Optional[typing.Callable[[str,
         return file_name
 
 
-def download_from_response(file_name: str,
-                           resp: Response,
-                           download: typing.Union[str, bool] = False,
-                           return_content: bool = False) -> typing.Union[bytes, typing.Tuple[str, ConversionFormatId]]:
+def download_from_response(
+    file_name: str,
+    resp: Response,
+    download: typing.Union[str, bool] = False,
+    return_content: bool = False,
+) -> typing.Union[bytes, typing.Tuple[str, ConversionFormatId]]:
     """
     Download data from the `response`.
 
@@ -238,21 +265,25 @@ def download_from_response(file_name: str,
     If `return_content` is true, then the content is downloaded and returned (as bytes).
     """
     if bool(download) == bool(return_content):
-        raise ValueError('One of download or return_content must be set, not both or neither.')
+        raise ValueError(
+            "One of download or return_content must be set, not both or neither."
+        )
 
-    if 'Content-Length' in resp.headers:
+    if "Content-Length" in resp.headers:
         try:
-            content_length = int(resp.headers['Content-Length'])
+            content_length = int(resp.headers["Content-Length"])
             if content_length > MAX_REMOTE_CONVERT_SIZE:
-                raise RemoteFileException('Not fetching remote file as it exceeds the maximum size for conversion.')
+                raise RemoteFileException(
+                    "Not fetching remote file as it exceeds the maximum size for conversion."
+                )
         except ValueError:
             pass
 
     if download:
         source_format = None
-        mimetype = resp.headers.get('Content-Type')
+        mimetype = resp.headers.get("Content-Type")
         if mimetype:
-            mimetype = mimetype.split(';')[0]
+            mimetype = mimetype.split(";")[0]
         if mimetype:
             try:
                 source_format = conversion_format_from_mimetype(mimetype)
@@ -264,11 +295,13 @@ def download_from_response(file_name: str,
                 source_format = conversion_format_from_path(file_name)
             except ValueError:
                 raise ConversionFormatError(
-                    'Unable to determine conversion format from mimetype "{}" or file name "{}".'.format(mimetype,
-                                                                                                         file_name))
+                    'Unable to determine conversion format from mimetype "{}" or file name "{}".'.format(
+                        mimetype, file_name
+                    )
+                )
         if isinstance(download, str):
             output_path = download
-            with open(download, 'wb') as download_to:
+            with open(download, "wb") as download_to:
                 stream_download(resp, download_to)
         else:
             # it's just a boolean so create a temp file for download
@@ -296,8 +329,10 @@ def stream_download(resp: Response, download_to: typing.IO) -> None:
         download_seconds = datetime.datetime.now() - download_start_time
         if download_seconds.total_seconds() > MAX_DOWNLOAD_TIME_SECONDS:
             raise RemoteFileException(
-                'Time for download took more than {} seconds ({})'.format(MAX_DOWNLOAD_TIME_SECONDS,
-                                                                          download_seconds))
+                "Time for download took more than {} seconds ({})".format(
+                    MAX_DOWNLOAD_TIME_SECONDS, download_seconds
+                )
+            )
 
         if not chunk:
             continue
@@ -305,12 +340,16 @@ def stream_download(resp: Response, download_to: typing.IO) -> None:
         downloaded_bytes += len(chunk)
 
         if downloaded_bytes > MAX_REMOTE_CONVERT_SIZE:
-            raise RemoteFileException('Remote file exceeded size limit while streaming.')
+            raise RemoteFileException(
+                "Remote file exceeded size limit while streaming."
+            )
 
         download_to.write(chunk)
 
 
-def download_for_conversion(file_name: str, resp: Response) -> typing.Tuple[str, ConverterIo]:
+def download_for_conversion(
+    file_name: str, resp: Response
+) -> typing.Tuple[str, ConverterIo]:
     """
     Download a remote file to a tmp location, then generate a `ConverterIO`.
 
@@ -319,8 +358,10 @@ def download_for_conversion(file_name: str, resp: Response) -> typing.Tuple[str,
     Returns the filename of the source and a ConversionIo for the source.
     """
     # This cast is because we know the return value has this type based on the arguments to `download_from_response`
-    download_path, source_format = typing.cast(typing.Tuple[str, ConversionFormatId],
-                                               download_from_response(file_name, resp, True))
+    download_path, source_format = typing.cast(
+        typing.Tuple[str, ConversionFormatId],
+        download_from_response(file_name, resp, True),
+    )
     return file_name, ConverterIo(ConverterIoType.PATH, download_path, source_format)
 
 
@@ -342,36 +383,51 @@ class ConverterFacade(object):
     def __init__(self, converter_binary: typing.List[str]) -> None:
         self.converter_binary = converter_binary
 
-    def convert(self, input_data: ConverterIo, output_data: ConverterIo,
-                context: typing.Optional[ConverterContext] = None) -> subprocess.CompletedProcess:
+    def convert(
+        self,
+        input_data: ConverterIo,
+        output_data: ConverterIo,
+        context: typing.Optional[ConverterContext] = None,
+    ) -> subprocess.CompletedProcess:
         if output_data.conversion_format is None:
-            raise ValueError('The output_data conversion format must be specified.')
+            raise ValueError("The output_data conversion format must be specified.")
 
         convert_args: typing.List[str] = [
-            'convert',
-            '--to', output_data.conversion_format.value.format_id,
-            input_data.as_path_shell_arg, output_data.as_path_shell_arg]
+            "convert",
+            "--to",
+            output_data.conversion_format.value.format_id,
+            input_data.as_path_shell_arg,
+            output_data.as_path_shell_arg,
+        ]
 
         if input_data.conversion_format:
             # Only specify the input format if set, otherwise Encoda can try to figure it out
-            convert_args.insert(1, '--from')
+            convert_args.insert(1, "--from")
             convert_args.insert(2, input_data.conversion_format.value.format_id)
 
         if context:
             if context.output_intermediary:
-                if output_data.as_path_shell_arg == '-':
-                    raise RuntimeError('Can\'t output the intermediary when sending output to STDOUT')
+                if output_data.as_path_shell_arg == "-":
+                    raise RuntimeError(
+                        "Can't output the intermediary when sending output to STDOUT"
+                    )
 
-                convert_args.append(output_data.as_path_shell_arg + '.json')
+                convert_args.append(output_data.as_path_shell_arg + ".json")
 
             if context.maybe_zip:
                 # If output contains media it will be zipped up
-                convert_args.append('--zip=maybe')
+                convert_args.append("--zip=maybe")
 
             if context.standalone is False:
-                convert_args.append('--standalone=false')
+                convert_args.append("--standalone=false")
 
-        input_pipe_data = input_data.data if input_data.io_type == ConverterIoType.PIPE else None
+        input_pipe_data = (
+            input_data.data if input_data.io_type == ConverterIoType.PIPE else None
+        )
 
-        return subprocess.run(self.converter_binary + convert_args, input=input_pipe_data, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        return subprocess.run(
+            self.converter_binary + convert_args,
+            input=input_pipe_data,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )

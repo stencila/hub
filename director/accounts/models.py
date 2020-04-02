@@ -31,8 +31,8 @@ class AccountPermissionType(EnumChoice):
     administrative permission.
     """
 
-    MODIFY = 'modify'
-    ADMINISTER = 'administer'
+    MODIFY = "modify"
+    ADMINISTER = "administer"
 
 
 class Account(models.Model):
@@ -51,13 +51,13 @@ class Account(models.Model):
         null=False,
         blank=False,
         unique=True,
-        help_text='Name of the account. Must be unique.'
+        help_text="Name of the account. Must be unique.",
     )
 
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text='Logo for the account. Please use an image that is 100 x 100 px or smaller. '
+        help_text="Logo for the account. Please use an image that is 100 x 100 px or smaller. ",
     )
 
     def save(self, *args, **kwargs) -> None:
@@ -67,7 +67,9 @@ class Account(models.Model):
 
     def get_administrators(self) -> typing.Iterable[User]:
         """Return users who have administrative permissions on the account."""
-        ownership_roles: typing.Set[AccountUserRole] = set()  # cache the roles that have ownership perms
+        ownership_roles: typing.Set[
+            AccountUserRole
+        ] = set()  # cache the roles that have ownership perms
         users: typing.Set[AbstractUser] = set()
 
         for user_role in self.user_roles.all():
@@ -89,10 +91,11 @@ class Account(models.Model):
 
     @property
     def plan(self) -> typing.Union[djstripe.models.Plan, dict]:
-        subscription = self.subscriptions.filter(subscription__status='active').first()
+        subscription = self.subscriptions.filter(subscription__status="active").first()
 
         if subscription is None:
             from accounts.static_product_config import FREE_PLAN
+
             return FREE_PLAN
 
         return subscription.subscription.plan
@@ -110,25 +113,17 @@ class Team(models.Model):
     account = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
-        help_text='Account to which the Team is linked to. Each Team can be linked to only one account.',
-        related_name='teams'
+        help_text="Account to which the Team is linked to. Each Team can be linked to only one account.",
+        related_name="teams",
     )
 
-    name = models.TextField(
-        blank=False,
-        null=False,
-        help_text='Name of the team'
-    )
+    name = models.TextField(blank=False, null=False, help_text="Name of the team")
 
-    description = models.TextField(
-        blank=True,
-        null=True,
-        help_text='Team description'
-    )
+    description = models.TextField(blank=True, null=True, help_text="Team description")
 
     members = models.ManyToManyField(
-        'auth.User',
-        help_text='Team members. Each User can be a member of multiple Teams.'
+        "auth.User",
+        help_text="Team members. Each User can be a member of multiple Teams.",
     )
 
     def __str__(self) -> str:
@@ -143,7 +138,7 @@ class AccountPermission(models.Model):
         blank=False,
         choices=AccountPermissionType.as_choices(),
         unique=True,
-        help_text='Permissions to the Account: Administer or Modify (required).'
+        help_text="Permissions to the Account: Administer or Modify (required).",
     )
 
     def __str__(self) -> str:
@@ -156,13 +151,13 @@ class AccountRole(models.Model):
     name = models.TextField(
         null=False,
         blank=False,
-        help_text='Roles which users can have assigned to the Account: Admin and Member (required).'
+        help_text="Roles which users can have assigned to the Account: Admin and Member (required).",
     )
 
     permissions = models.ManyToManyField(
         AccountPermission,
-        related_name='roles',
-        help_text='User Permissions to the Account: Administrator or Account Member.'
+        related_name="roles",
+        help_text="User Permissions to the Account: Administrator or Account Member.",
     )
 
     def permissions_text(self) -> typing.Set[str]:
@@ -186,28 +181,21 @@ class AccountUserRole(models.Model):
     """Model connecting `Users` with their `Roles` in the `Accounts`."""
 
     user = models.ForeignKey(
-        'auth.User',
+        "auth.User",
         on_delete=models.CASCADE,
         null=False,
-        related_name='account_roles',
-        db_index=True
+        related_name="account_roles",
+        db_index=True,
     )
 
     account = models.ForeignKey(
-        Account,
-        on_delete=models.CASCADE,
-        related_name='user_roles',
-        db_index=True
+        Account, on_delete=models.CASCADE, related_name="user_roles", db_index=True
     )
 
-    role = models.ForeignKey(
-        AccountRole,
-        on_delete=models.CASCADE,
-        related_name='+'
-    )
+    role = models.ForeignKey(AccountRole, on_delete=models.CASCADE, related_name="+")
 
     class Meta:
-        unique_together = (('user', 'account'),)
+        unique_together = (("user", "account"),)
 
 
 class AccountSubscription(models.Model):
@@ -219,28 +207,30 @@ class AccountSubscription(models.Model):
     """
 
     account = models.ForeignKey(
-        Account,
-        on_delete=models.CASCADE,
-        related_name='subscriptions',
-        db_index=True
+        Account, on_delete=models.CASCADE, related_name="subscriptions", db_index=True
     )
 
     subscription = models.OneToOneField(
-        djstripe.models.Subscription,
-        on_delete=models.PROTECT,
-        related_name='account'
+        djstripe.models.Subscription, on_delete=models.PROTECT, related_name="account"
     )
 
 
 class ProductExtension(models.Model):
     """Add extra properties to a `Product` since we don't have control of that model."""
 
-    product = models.OneToOneField(djstripe.models.Product, on_delete=models.PROTECT, related_name='extension')
-    allowances = models.TextField(help_text='Allowances granted in JSON format.')  # Another contender for JSONField
-    tag_line = models.TextField(help_text='A short tag line for the product.')
-    is_purchasable = models.BooleanField(null=False, default=True,
-                                         help_text='Can this Produce be purchased, False means only can be bought with '
-                                                   'a coupon.')
+    product = models.OneToOneField(
+        djstripe.models.Product, on_delete=models.PROTECT, related_name="extension"
+    )
+    allowances = models.TextField(
+        help_text="Allowances granted in JSON format."
+    )  # Another contender for JSONField
+    tag_line = models.TextField(help_text="A short tag line for the product.")
+    is_purchasable = models.BooleanField(
+        null=False,
+        default=True,
+        help_text="Can this Produce be purchased, False means only can be bought with "
+        "a coupon.",
+    )
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
@@ -253,21 +243,23 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
     """
     if sender is User and created:
         suffix_number = 2
-        suffix = ''
+        suffix = ""
         while True:
             if suffix_number == 100:
                 raise RuntimeError("Suffix number hit 100.")
 
-            account_name = '{}-personal-account{}'.format(slugify(instance.username), suffix)[:50]
+            account_name = "{}-personal-account{}".format(
+                slugify(instance.username), suffix
+            )[:50]
 
             try:
                 account = Account.objects.create(name=account_name)
                 break
             except IntegrityError:
-                suffix = '-{}'.format(suffix_number)
+                suffix = "-{}".format(suffix_number)
                 suffix_number += 1
 
-        admin_role = AccountRole.objects.get(name='Account admin')
+        admin_role = AccountRole.objects.get(name="Account admin")
         AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
 
 

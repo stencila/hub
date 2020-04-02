@@ -19,44 +19,47 @@ class MimeTypeDetectMixin(object):
 
     @property
     def mimetype(self) -> str:
-        if hasattr(self, 'source') and self.source is not None and hasattr(self.source, 'mimetype'):
+        if (
+            hasattr(self, "source")
+            and self.source is not None
+            and hasattr(self.source, "mimetype")
+        ):
             mimetype = self.source.mimetype
-            if mimetype and mimetype != 'Unknown':
+            if mimetype and mimetype != "Unknown":
                 return mimetype
 
-        return mimetype_from_path(self.path) or 'Unknown'
+        return mimetype_from_path(self.path) or "Unknown"
 
 
 class DiskSource(object):
     """Not a Source that is stored in the database but used in directory listing for files that are already on disk."""
 
-    type = 'disk'
+    type = "disk"
 
 
 class Source(PolymorphicModel, MimeTypeDetectMixin):
-    provider_name = ''
+    provider_name = ""
 
     # Some sources have "sub" files, e.g a GitHub source isn't content, its sub-files are. cf. google docs, URL, where
     # the source itself IS the content
     has_sub_files: bool = False
 
     project = models.ForeignKey(
-        'Project',
+        "Project",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='sources'
+        related_name="sources",
     )
 
     path = models.TextField(
         null=False,
-        default='.',
-        help_text='The path that the file or directory from the source is mapped to in the project'
+        default=".",
+        help_text="The path that the file or directory from the source is mapped to in the project",
     )
 
     updated = models.DateTimeField(
-        auto_now=True,
-        help_text='Time this model instance was last updated'
+        auto_now=True, help_text="Time this model instance was last updated"
     )
 
     def __str__(self) -> str:
@@ -68,7 +71,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         return str(self)
 
     @property
-    def type(self) -> typing.Type['Source']:
+    def type(self) -> typing.Type["Source"]:
         return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
 
     @property
@@ -80,15 +83,20 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         return AvailableSourceType.get_project_type_id(type(self))
 
     def pull(self) -> BytesIO:
-        raise NotImplementedError('Pull is not implemented for class {}'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            "Pull is not implemented for class {}".format(self.__class__.__name__)
+        )
 
     def push(self, archive: typing.Union[str, typing.IO]) -> None:
-        raise NotImplementedError('Push is not implemented for class {}'.format(self.__class__.__name__))
+        raise NotImplementedError(
+            "Push is not implemented for class {}".format(self.__class__.__name__)
+        )
 
     def save(self, *args, **kwargs):
         # Make sure there are no leading or trailing slashes in the path to make them consistent
-        self.path = self.path.strip('/')
+        self.path = self.path.strip("/")
         super().save(*args, **kwargs)
+
 
 # Source classes in alphabetical order
 #
@@ -105,7 +113,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
 class BitbucketSource(Source):
     """A project hosted on Bitbucket."""
 
-    provider_name = 'BitBucket'
+    provider_name = "BitBucket"
 
     class Meta:
         abstract = True
@@ -114,7 +122,7 @@ class BitbucketSource(Source):
 class DatSource(Source):
     """A project hosted on Dat."""
 
-    provider_name = 'Dat'
+    provider_name = "Dat"
 
     class Meta:
         abstract = True
@@ -123,7 +131,7 @@ class DatSource(Source):
 class DropboxSource(Source):
     """A project hosted on Dropbox."""
 
-    provider_name = 'Drop Box'
+    provider_name = "Drop Box"
 
     class Meta:
         abstract = True
@@ -131,25 +139,23 @@ class DropboxSource(Source):
 
 def files_source_file_path(instance: "FileSource", filename: str):
     # File will be uploaded to MEDIA_ROOT/files_projects/<id>/<filename>
-    return 'projects/{0}/{1}'.format(instance.id, filename)
+    return "projects/{0}/{1}".format(instance.id, filename)
 
 
 class FileSource(Source):
     """A file uploaded to the Hub."""
 
-    provider_name = 'File'
+    provider_name = "File"
 
     size = models.IntegerField(
-        null=True,
-        blank=True,
-        help_text='Size of the file in bytes'
+        null=True, blank=True, help_text="Size of the file in bytes"
     )
 
     file = models.FileField(
         null=False,
         blank=True,
         upload_to=files_source_file_path,
-        help_text='The actual file stored'
+        help_text="The actual file stored",
     )
 
     def save(self, *args, **kwargs):
@@ -164,16 +170,16 @@ class FileSource(Source):
             with self.file.open() as file:
                 return file.read().decode()
         else:
-            return ''
+            return ""
 
     def pull_binary(self) -> typing.Optional[bytearray]:
         if self.file:
-            return self.file.open('rb').read()
+            return self.file.open("rb").read()
         return None
 
     def push(self, archive: typing.Union[str, typing.IO]):
         if isinstance(archive, str):
-            f = ContentFile(archive.encode('utf-8'))
+            f = ContentFile(archive.encode("utf-8"))
         else:
             f = File(archive)
         self.file.save(self.path, f)
@@ -183,9 +189,9 @@ class FileSource(Source):
 class UrlSource(Source):
     """A source that is downloaded from a URL on demand."""
 
-    provider_name = 'URL'
+    provider_name = "URL"
 
-    url = models.URLField(help_text='The URL of the remote file.')
+    url = models.URLField(help_text="The URL of the remote file.")
 
     _url_obj: typing.Optional[ParseResult] = None
 
@@ -204,16 +210,16 @@ class UrlSource(Source):
 
     @property
     def is_elife_url(self) -> bool:
-        return self.hostname_lower == 'elifesciences.org'
+        return self.hostname_lower == "elifesciences.org"
 
     @property
     def is_plos_url(self) -> bool:
-        return self.hostname_lower == 'journals.plos.org'
+        return self.hostname_lower == "journals.plos.org"
 
     @property
     def mimetype(self) -> str:
         if self.is_elife_url or self.is_plos_url:
-            return 'text/html'
+            return "text/html"
 
         return super(UrlSource, self).mimetype
 
@@ -221,30 +227,28 @@ class UrlSource(Source):
 class GithubSource(Source):
     """A project hosted on Github."""
 
-    provider_name = 'GitHub'
+    provider_name = "GitHub"
 
     has_sub_files = True
 
     repo = models.TextField(
         null=False,
         blank=False,
-        help_text='The Github repository identifier i.e. org/repo'
+        help_text="The Github repository identifier i.e. org/repo",
     )
 
     subpath = models.TextField(
-        null=True,
-        blank=True,
-        help_text='Path to file or folder within the repository'
+        null=True, blank=True, help_text="Path to file or folder within the repository"
     )
 
     def __str__(self) -> str:
-        return '{}/{}'.format(self.repo, self.subpath or '')
+        return "{}/{}".format(self.repo, self.subpath or "")
 
 
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
 
-    provider_name = 'GitLab'
+    provider_name = "GitLab"
 
     class Meta:
         abstract = True
@@ -253,20 +257,17 @@ class GitlabSource(Source):
 class GoogleDocsSource(Source):
     """A reference to a Google Docs document."""
 
-    provider_name = 'GoogleDocs'
+    provider_name = "GoogleDocs"
 
-    doc_id = models.TextField(
-        null=False,
-        help_text='Google\'s ID of the document.'
-    )
+    doc_id = models.TextField(null=False, help_text="Google's ID of the document.")
 
     @property
     def mimetype(self) -> str:
-        return 'application/vnd.google-apps.document'
+        return "application/vnd.google-apps.document"
 
     @property
     def description(self) -> str:
-        return self.path.split('/')[-1]
+        return self.path.split("/")[-1]
 
 
 class OSFSource(Source):
@@ -276,7 +277,7 @@ class OSFSource(Source):
     See https://developer.osf.io/ for API documentation.
     """
 
-    provider_name = 'OSF'
+    provider_name = "OSF"
 
     class Meta:
         abstract = True
@@ -299,9 +300,9 @@ class SourceType(typing.NamedTuple):
 class AvailableSourceType(enum.Enum):
     """Enum for each available ConversionFormatId. For two-way lookup name to values etc."""
 
-    FILE = SourceType('file', 'File', FileSource)
-    GITHUB = SourceType('github', 'Github', GithubSource)
-    GOOGLE_DOCS = SourceType('googledocs', 'GoogleDocs', GoogleDocsSource)
+    FILE = SourceType("file", "File", FileSource)
+    GITHUB = SourceType("github", "Github", GithubSource)
+    GOOGLE_DOCS = SourceType("googledocs", "GoogleDocs", GoogleDocsSource)
 
     # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
     # doesn't understand this
@@ -330,7 +331,10 @@ class LinkedSourceAuthentication(object):
     github_token: typing.Optional[str]
     google_token: SocialToken
 
-    def __init__(self, github_token: typing.Optional[str] = None,
-                 google_token: typing.Optional[SocialToken] = None) -> None:
+    def __init__(
+        self,
+        github_token: typing.Optional[str] = None,
+        google_token: typing.Optional[SocialToken] = None,
+    ) -> None:
         self.github_token = github_token
         self.google_token = google_token

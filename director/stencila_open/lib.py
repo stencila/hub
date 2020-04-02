@@ -15,7 +15,7 @@ MAX_AGE = timedelta(days=1)
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
 
-CONVERSION_STORAGE_SUBDIR = 'conversions'
+CONVERSION_STORAGE_SUBDIR = "conversions"
 
 
 def exception_handling_unlink(path: str, file_description: str) -> None:
@@ -23,7 +23,7 @@ def exception_handling_unlink(path: str, file_description: str) -> None:
         try:
             os.unlink(path)
         except OSError:
-            LOGGER.exception('Error unlinking %s %s', file_description, path)
+            LOGGER.exception("Error unlinking %s %s", file_description, path)
 
 
 class ConversionFileStorage:
@@ -33,11 +33,16 @@ class ConversionFileStorage:
         self.root = root
 
     def generate_save_directory(self, public_id: str) -> str:
-        if not re.match(r'^([a-z0-9]{' + str(PUBLIC_ID_LENGTH) + '})', public_id, re.I):
+        if not re.match(r"^([a-z0-9]{" + str(PUBLIC_ID_LENGTH) + "})", public_id, re.I):
             raise ValueError(
-                'ID should not contain any bad characters and must be of length {}.'.format(PUBLIC_ID_LENGTH))
+                "ID should not contain any bad characters and must be of length {}.".format(
+                    PUBLIC_ID_LENGTH
+                )
+            )
 
-        return os.path.join(self.root, CONVERSION_STORAGE_SUBDIR, public_id[0], public_id[1], public_id)
+        return os.path.join(
+            self.root, CONVERSION_STORAGE_SUBDIR, public_id[0], public_id[1], public_id
+        )
 
     def create_save_directory(self, public_id: str) -> None:
         os.makedirs(self.generate_save_directory(public_id), exist_ok=True)
@@ -62,8 +67,9 @@ class ConversionFileStorage:
 
 
 def cleanup_old_conversions() -> None:
-    old_conversions = Conversion.objects.filter(created__lte=timezone.now() - MAX_AGE, is_example=False,
-                                                is_deleted=False)
+    old_conversions = Conversion.objects.filter(
+        created__lte=timezone.now() - MAX_AGE, is_example=False, is_deleted=False
+    )
 
     with transaction.atomic():
         for conversion in old_conversions:
@@ -80,11 +86,15 @@ def cleanup_old_conversions() -> None:
             else:
                 # unlink all the pieces
                 if conversion.input_file:
-                    exception_handling_unlink(conversion.input_file, 'conversion input')
+                    exception_handling_unlink(conversion.input_file, "conversion input")
 
                 if conversion.output_file:
-                    exception_handling_unlink(conversion.output_file, 'conversion output')
-                    exception_handling_unlink(conversion.output_file + '.json', 'conversion intermediary')
+                    exception_handling_unlink(
+                        conversion.output_file, "conversion output"
+                    )
+                    exception_handling_unlink(
+                        conversion.output_file + ".json", "conversion intermediary"
+                    )
 
             conversion.is_deleted = True
             conversion.save()

@@ -16,49 +16,50 @@ from .project_models import Project, PublishedItem
 class ProjectCreateForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['account', 'name', 'description', 'public']
+        fields = ["account", "name", "description", "public"]
 
     def __init__(self, *args, **kwargs):
-        request = kwargs.pop('request')
+        request = kwargs.pop("request")
         accounts = Account.objects.filter(user_roles__user=request.user).distinct()
 
-        initial = kwargs.get('initial', {})
+        initial = kwargs.get("initial", {})
 
-        if 'account' not in initial:
+        if "account" not in initial:
             # set the user's personal account as the default in the form for the new Project
 
             if accounts.count() == 1:
-                initial['account'] = accounts[0].pk
+                initial["account"] = accounts[0].pk
             elif accounts.count() > 1:
-                personal_account_prefix = '{}-personal-account'.format(slugify(request.user.username))
+                personal_account_prefix = "{}-personal-account".format(
+                    slugify(request.user.username)
+                )
 
                 for account in accounts:
                     if account.name.startswith(personal_account_prefix):
-                        initial['account'] = account.pk
+                        initial["account"] = account.pk
                         break
 
-            kwargs['initial'] = initial
+            kwargs["initial"] = initial
 
         super().__init__(*args, **kwargs)
 
-        self.fields['account'].queryset = accounts
-        self.fields['account'].empty_label = None  # remove the blank/"-----" option from select
+        self.fields["account"].queryset = accounts
+        self.fields[
+            "account"
+        ].empty_label = None  # remove the blank/"-----" option from select
 
 
 class ProjectGeneralForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['name', 'description', 'public']
+        fields = ["name", "description", "public"]
 
 
 class ProjectSharingForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['public', 'token', 'key']
-        widgets = {
-            'token': forms.TextInput(),
-            'key': forms.TextInput()
-        }
+        fields = ["public", "token", "key"]
+        widgets = {"token": forms.TextInput(), "key": forms.TextInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,26 +71,23 @@ class ProjectSharingForm(forms.ModelForm):
                     '<p class="title is-5">Public access</p>'
                     '<p class="subtitle is-6">Make this project readable by everyone!</p>'
                 ),
-                'public'
+                "public",
             ),
-            Submit('submit', 'Update', css_class="button is-primary")
+            Submit("submit", "Update", css_class="button is-primary"),
         )
 
 
 class ProjectSettingsMetadataForm(ModelFormWithSubmit):
     class Meta:
         model = Project
-        fields = ['name', 'description']
+        fields = ["name", "description"]
 
 
 class ProjectSettingsAccessForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['token', 'key']
-        widgets = {
-            'token': forms.TextInput(),
-            'key': forms.TextInput()
-        }
+        fields = ["token", "key"]
+        widgets = {"token": forms.TextInput(), "key": forms.TextInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,13 +99,11 @@ class ProjectSettingsAccessForm(forms.ModelForm):
                     '<p class="title is-6 is-uppercase-heading">API access</p>'
                     '<p class="subtitle is-6">Set tokens and keys for API access to this project</p>'
                 ),
-                'token',
-                'key',
-                HTML(
-                    '<br>'
-                )
+                "token",
+                "key",
+                HTML("<br>"),
             ),
-            Submit('submit', 'Update', css_class='button is-primary')
+            Submit("submit", "Update", css_class="button is-primary"),
         )
 
 
@@ -119,59 +115,59 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
     sessions_total = forms.IntegerField(
         required=False,
         min_value=1,
-        label='Total',
-        help_text='Maximum total number of sessions that can be created for this project. Leave blank for unlimited.'
+        label="Total",
+        help_text="Maximum total number of sessions that can be created for this project. Leave blank for unlimited.",
     )
 
     sessions_concurrent = forms.IntegerField(
         required=False,
         min_value=1,
-        label='Concurrent',
-        help_text='Maximum number of sessions allowed to run at one time for this project. Leave blank for unlimited.'
+        label="Concurrent",
+        help_text="Maximum number of sessions allowed to run at one time for this project. Leave blank for unlimited.",
     )
 
     sessions_queued = forms.IntegerField(
         required=False,
         min_value=1,
-        label='Queued',
-        help_text='Maximum number of queued requests for a session for this project. Leave blank for unlimited.'
+        label="Queued",
+        help_text="Maximum number of queued requests for a session for this project. Leave blank for unlimited.",
     )
 
     memory = forms.FloatField(
         min_value=0,
         required=False,
-        help_text='Gigabytes (GB) of memory allocated.',
-        widget=forms.NumberInput(attrs={'v-model': 'memory'})
+        help_text="Gigabytes (GB) of memory allocated.",
+        widget=forms.NumberInput(attrs={"v-model": "memory"}),
     )
 
     cpu = forms.FloatField(
-        label='CPU',
+        label="CPU",
         required=False,
         min_value=1,
         max_value=100,
-        help_text='CPU shares (out of 100 per CPU) allocated.',
-        widget=forms.NumberInput(attrs={'v-model': 'cpu'})
+        help_text="CPU shares (out of 100 per CPU) allocated.",
+        widget=forms.NumberInput(attrs={"v-model": "cpu"}),
     )
 
     network = forms.FloatField(
         min_value=0,
         required=False,
-        help_text='Gigabytes (GB) of network transfer allocated. Leave blank for unlimited.',
-        widget=forms.NumberInput(attrs={'v-model': 'network'})
+        help_text="Gigabytes (GB) of network transfer allocated. Leave blank for unlimited.",
+        widget=forms.NumberInput(attrs={"v-model": "network"}),
     )
 
     lifetime = forms.IntegerField(
         min_value=0,
         required=False,
-        help_text='Minutes before the session is terminated (even if active). Leave blank for unlimited.',
-        widget=forms.NumberInput(attrs={'v-model': 'lifetime'})
+        help_text="Minutes before the session is terminated (even if active). Leave blank for unlimited.",
+        widget=forms.NumberInput(attrs={"v-model": "lifetime"}),
     )
 
     timeout = forms.IntegerField(
         min_value=0,
         required=False,
-        help_text='Minutes of inactivity before the session is terminated. Leave blank for unlimited.',
-        widget=forms.NumberInput(attrs={'v-model': 'timeout'})
+        help_text="Minutes of inactivity before the session is terminated. Leave blank for unlimited.",
+        widget=forms.NumberInput(attrs={"v-model": "timeout"}),
     )
 
     def __init__(self, *args, **kwargs):
@@ -185,10 +181,10 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                         '<p class="title is-6 is-uppercase-heading">Session numbers</p>'
                         '<p class="subtitle is-6">Control the number of sessions for this project</p>'
                     ),
-                    'sessions_concurrent',
-                    'sessions_queued',
-                    'sessions_total',
-                    css_class="column is-half"
+                    "sessions_concurrent",
+                    "sessions_queued",
+                    "sessions_total",
+                    css_class="column is-half",
                 ),
                 Div(
                     HTML(
@@ -196,58 +192,66 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
                         '<p class="subtitle is-6">Control the parameters for each session</p>'
                         '<preset-parameters @select-preset="selectPreset"></preset-parameters>'
                     ),
-                    'memory',
-                    'cpu',
-                    'network',
-                    'lifetime',
-                    'timeout',
-                    css_class="column is-half"
+                    "memory",
+                    "cpu",
+                    "network",
+                    "lifetime",
+                    "timeout",
+                    css_class="column is-half",
                 ),
-                css_class="columns"
+                css_class="columns",
             ),
-            Submit('submit', 'Update', css_class="button is-primary")
+            Submit("submit", "Update", css_class="button is-primary"),
         )
 
     @staticmethod
     def initial(project: Project) -> dict:
         return {
-            'sessions_total': project.sessions_total,
-            'sessions_concurrent': project.sessions_concurrent,
-            'sessions_queued': project.sessions_queued,
-            'memory': project.session_parameters.memory,
-            'cpu': project.session_parameters.cpu,
-            'network': project.session_parameters.network,
-            'lifetime': project.session_parameters.lifetime,
-            'timeout': project.session_parameters.timeout
+            "sessions_total": project.sessions_total,
+            "sessions_concurrent": project.sessions_concurrent,
+            "sessions_queued": project.sessions_queued,
+            "memory": project.session_parameters.memory,
+            "cpu": project.session_parameters.cpu,
+            "network": project.session_parameters.network,
+            "lifetime": project.session_parameters.lifetime,
+            "timeout": project.session_parameters.timeout,
         }
 
     def clean(self) -> dict:
         cleaned_data = super().clean()
 
-        if cleaned_data['sessions_total'] is not None and \
-                cleaned_data['sessions_concurrent'] is not None and \
-                cleaned_data['sessions_concurrent'] > cleaned_data['sessions_total']:
-            self.add_error('sessions_concurrent',
-                           'The maximum number of concurrent Sessions must be less than the maximum total Sessions.')
+        if (
+            cleaned_data["sessions_total"] is not None
+            and cleaned_data["sessions_concurrent"] is not None
+            and cleaned_data["sessions_concurrent"] > cleaned_data["sessions_total"]
+        ):
+            self.add_error(
+                "sessions_concurrent",
+                "The maximum number of concurrent Sessions must be less than the maximum total Sessions.",
+            )
 
-        if cleaned_data['lifetime'] is not None and (
-                cleaned_data['timeout'] is None
-                or cleaned_data['timeout'] > cleaned_data['lifetime']):
-            self.add_error('timeout', 'The idle timeout must be less that the maximum lifetime of the Session.')
+        if cleaned_data["lifetime"] is not None and (
+            cleaned_data["timeout"] is None
+            or cleaned_data["timeout"] > cleaned_data["lifetime"]
+        ):
+            self.add_error(
+                "timeout",
+                "The idle timeout must be less that the maximum lifetime of the Session.",
+            )
 
         return cleaned_data
 
     def save(self, commit=True):
         project = super().save(commit=False)
 
-        project.sessions_total = self.cleaned_data['sessions_total']
-        project.sessions_concurrent = self.cleaned_data['sessions_concurrent']
-        project.sessions_queued = self.cleaned_data['sessions_queued']
-        project.session_parameters.memory = self.cleaned_data['memory']
-        project.session_parameters.cpu = self.cleaned_data['cpu']
-        project.session_parameters.network = self.cleaned_data['network']
-        project.session_parameters.lifetime = self.cleaned_data['lifetime']
-        project.session_parameters.timeout = self.cleaned_data['timeout']
+        project.sessions_total = self.cleaned_data["sessions_total"]
+        project.sessions_concurrent = self.cleaned_data["sessions_concurrent"]
+        project.sessions_queued = self.cleaned_data["sessions_queued"]
+        project.session_parameters.memory = self.cleaned_data["memory"]
+        project.session_parameters.cpu = self.cleaned_data["cpu"]
+        project.session_parameters.network = self.cleaned_data["network"]
+        project.session_parameters.lifetime = self.cleaned_data["lifetime"]
+        project.session_parameters.timeout = self.cleaned_data["timeout"]
 
         if commit:
             project.session_parameters.save()
@@ -257,37 +261,45 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
 
 
 class ProjectArchiveForm(FormWithSubmit):
-    submit_button_label = 'Create Archive'
+    submit_button_label = "Create Archive"
 
-    tag = forms.CharField(required=False, max_length=32,
-                          widget=forms.TextInput(attrs={'placeholder': 'Tag (optional)'}),
-                          help_text='Will be prepended to the name of the archive.')
+    tag = forms.CharField(
+        required=False,
+        max_length=32,
+        widget=forms.TextInput(attrs={"placeholder": "Tag (optional)"}),
+        help_text="Will be prepended to the name of the archive.",
+    )
 
     def clean_tag(self):
-        if re.match(r'(\.\.|/|:|\\)', self.cleaned_data['tag']):
+        if re.match(r"(\.\.|/|:|\\)", self.cleaned_data["tag"]):
             raise ValidationError('Tag may not contain "..", "/", ":" or "\\".')
 
-        return self.cleaned_data['tag']
+        return self.cleaned_data["tag"]
 
 
 class PublishedItemForm(forms.ModelForm):
     class Meta:
         model = PublishedItem
-        fields = ['source_path', 'url_path']
+        fields = ["source_path", "url_path"]
 
     source_id = forms.IntegerField(required=False)
 
     def clean(self):
         cleaned_data = super().clean()
-        project = cleaned_data.get('project')
+        project = cleaned_data.get("project")
 
         if not project:
             return
 
-        source_id = cleaned_data.get('source_id')
+        source_id = cleaned_data.get("source_id")
 
         if source_id:
             try:
                 project.sources.get(pk=source_id)
             except Source.DoesNotExist:
-                self.add_error('source_id', 'Source with id {} does not exist on this project.'.format(self.source_id))
+                self.add_error(
+                    "source_id",
+                    "Source with id {} does not exist on this project.".format(
+                        self.source_id
+                    ),
+                )

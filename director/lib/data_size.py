@@ -2,13 +2,13 @@ import enum
 
 
 class Units(enum.Enum):
-    B = ''
-    KB = 'kilo'
-    MB = 'mega'
-    GB = 'giga'
-    TB = 'tera'
-    PB = 'peta'
-    EB = 'exa'
+    B = ""
+    KB = "kilo"
+    MB = "mega"
+    GB = "giga"
+    TB = "tera"
+    PB = "peta"
+    EB = "exa"
 
 
 UNITS_LIST = list(Units)
@@ -26,16 +26,16 @@ def to_human(size: int) -> str:
             break
 
     if units == Units.B:
-        float_format = ':.0f'
+        float_format = ":.0f"
     else:
-        float_format = ':.1f'
+        float_format = ":.1f"
 
-    format_str = '{' + float_format + '} {}'
+    format_str = "{" + float_format + "} {}"
 
     return format_str.format(h_size, units.name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(to_bytes(2, Units.MB))
     print(to_human(1073741824))
     print(to_human(4398046511200))

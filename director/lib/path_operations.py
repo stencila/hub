@@ -7,16 +7,16 @@ PathType = typing.Union[str, bytes]
 
 def to_utf8(s: PathType) -> bytes:
     """If a `str` is passed in, return its utf8 encoding, ff `bytes`, assume it is already utf8 and just return it."""
-    return s.encode('utf8') if isinstance(s, str) else s
+    return s.encode("utf8") if isinstance(s, str) else s
 
 
 def utf8_path_join(*args: PathType) -> str:
     """Encode `str` typed args into `bytes` using utf8 then passes all to `os.path.join`."""
-    return os.path.join(*list(map(to_utf8, args))).decode('utf8')
+    return os.path.join(*list(map(to_utf8, args))).decode("utf8")
 
 
 def utf8_normpath(path: PathType) -> str:
-    return os.path.normpath(to_utf8(path)).decode('utf8')
+    return os.path.normpath(to_utf8(path)).decode("utf8")
 
 
 def utf8_isdir(path: PathType) -> bool:
@@ -24,15 +24,15 @@ def utf8_isdir(path: PathType) -> bool:
 
 
 def utf8_basename(path: PathType) -> str:
-    return os.path.basename(to_utf8(path)).decode('utf8')
+    return os.path.basename(to_utf8(path)).decode("utf8")
 
 
 def utf8_dirname(path: PathType) -> str:
-    return os.path.dirname(to_utf8(path)).decode('utf8')
+    return os.path.dirname(to_utf8(path)).decode("utf8")
 
 
 def utf8_realpath(path: PathType) -> str:
-    return os.path.realpath(to_utf8(path)).decode('utf8')
+    return os.path.realpath(to_utf8(path)).decode("utf8")
 
 
 def utf8_path_exists(path: PathType) -> bool:
@@ -56,15 +56,17 @@ def utf8_scandir(path: PathType) -> typing.Iterable[DirEntry]:
 
 
 def normalise_path(path: str, append_slash: bool = False) -> str:
-    if path == '.' or path == '':
-        return ''
+    if path == "." or path == "":
+        return ""
 
-    append_slash = append_slash or path.endswith('/')
+    append_slash = append_slash or path.endswith("/")
 
-    return utf8_normpath(path) + ('/' if append_slash else '')
+    return utf8_normpath(path) + ("/" if append_slash else "")
 
 
-def path_is_in_directory(path: str, directory: str, allow_matching: bool = False) -> bool:
+def path_is_in_directory(
+    path: str, directory: str, allow_matching: bool = False
+) -> bool:
     path = normalise_path(path)
     directory = normalise_path(directory, True)
 
@@ -74,8 +76,8 @@ def path_is_in_directory(path: str, directory: str, allow_matching: bool = False
     if not allow_matching:
         return False
 
-    if not path.endswith('/'):
-        path += '/'
+    if not path.endswith("/"):
+        path += "/"
 
     return path == directory
 

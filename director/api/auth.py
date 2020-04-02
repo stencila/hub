@@ -55,4 +55,4 @@ class BasicAuthentication(TokenAuthentication):
 
         # Pass token on to `knox.TokenAuthentication`; ignore any password supplied
         token = auth_parts[0]
-        return self.authenticate_credentials(token.encode('utf-8'))
+        return self.authenticate_credentials(token.encode("utf-8"))

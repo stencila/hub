@@ -13,12 +13,12 @@ def version(request: HttpRequest) -> typing.Dict[str, str]:
 
 def sentry_dsn(request: HttpRequest) -> typing.Dict[str, str]:
     """Set the Sentry DSN for logging of Javascript errors."""
-    return {"SENTRY_DSN": getattr(settings, 'SENTRY_DSN', None)}
+    return {"SENTRY_DSN": getattr(settings, "SENTRY_DSN", None)}
 
 
 def posthog_key(request: HttpRequest) -> typing.Dict[str, str]:
     """Set the PostHog API key for product analytics."""
-    return {"POSTHOG_KEY": getattr(settings, 'POSTHOG_KEY', None)}
+    return {"POSTHOG_KEY": getattr(settings, "POSTHOG_KEY", None)}
 
 
 def feature_toggles(request: HttpRequest) -> typing.Dict[str, bool]:

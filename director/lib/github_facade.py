@@ -25,8 +25,8 @@ class HubGithubRepository(Repository):
         assert isinstance(path, str), path
         assert ref is GithubObject.NotSet or isinstance(ref, str), ref
         # Path of '/' should be the empty string.
-        if path == '/':
-            path = ''
+        if path == "/":
+            path = ""
         url_parameters = dict()
         if ref is not GithubObject.NotSet:
             url_parameters["ref"] = ref
@@ -36,7 +36,7 @@ class HubGithubRepository(Repository):
         return self._requester.requestJson(
             "HEAD",
             self.url + "/contents/" + urllib.parse.quote(path),
-            parameters=url_parameters
+            parameters=url_parameters,
         )
 
 
@@ -44,7 +44,9 @@ class GitHubFacade(object):
     _github_connector: typing.Optional[Github] = None
     _repository: typing.Optional[HubGithubRepository] = None
 
-    def __init__(self, repository_path: str, access_token: typing.Optional[str] = None) -> None:
+    def __init__(
+        self, repository_path: str, access_token: typing.Optional[str] = None
+    ) -> None:
         self.repository_path = repository_path
         self.access_token = access_token
 
@@ -62,14 +64,22 @@ class GitHubFacade(object):
             self._repository = repository
         return self._repository
 
-    def list_directory(self, relative_path: str) -> typing.Iterable[GithubDirectoryEntry]:
-        while relative_path.endswith('/'):
+    def list_directory(
+        self, relative_path: str
+    ) -> typing.Iterable[GithubDirectoryEntry]:
+        while relative_path.endswith("/"):
             relative_path = relative_path[:-1]
 
         contents = self.repository.get_contents(relative_path)
         for content in contents:
-            last_modified = datetime.strptime(content.last_modified, '%a, %d %b %Y %H:%M:%S GMT')
-            yield GithubDirectoryEntry(content.name, content.type == 'dir', last_modified.replace(tzinfo=pytz.UTC))
+            last_modified = datetime.strptime(
+                content.last_modified, "%a, %d %b %Y %H:%M:%S GMT"
+            )
+            yield GithubDirectoryEntry(
+                content.name,
+                content.type == "dir",
+                last_modified.replace(tzinfo=pytz.UTC),
+            )
 
     def get_file_content(self, relative_path: str, encoding) -> str:
         return self.get_binary_file_content(relative_path).decode(encoding)
@@ -78,7 +88,9 @@ class GitHubFacade(object):
         f = self.repository.get_contents(relative_path)
         return f.decoded_content
 
-    def put_file_content(self, relative_path: str, content: str, commit_message: str) -> None:
+    def put_file_content(
+        self, relative_path: str, content: str, commit_message: str
+    ) -> None:
         f = self.repository.get_contents(relative_path)
         self.repository.update_file(f.path, commit_message, content, f.sha)
 

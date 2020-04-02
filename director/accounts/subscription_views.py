@@ -40,7 +40,8 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
         products = Product.objects.all()
 
         subscription_plans = [
-            account_subscription.subscription.plan for account_subscription in self.account.subscriptions.all()
+            account_subscription.subscription.plan
+            for account_subscription in self.account.subscriptions.all()
             if account_subscription.subscription.is_status_current()
         ]
 
@@ -52,10 +53,13 @@ class SubscriptionPlanListView(AccountPermissionsMixin, View):
             plan = product.plan_set.filter(active=True).first()
             product_plans.append(ProductPlan(product, plan, plan in subscription_plans))
 
-        return render(request, 'accounts/plan_list.html', self.get_render_context({
-            'tab': 'subscriptions',
-            'product_plans': product_plans
-        }))
+        return render(
+            request,
+            "accounts/plan_list.html",
+            self.get_render_context(
+                {"tab": "subscriptions", "product_plans": product_plans}
+            ),
+        )
 
 
 class SubscriptionListView(AccountPermissionsMixin, View):
@@ -68,13 +72,17 @@ class SubscriptionListView(AccountPermissionsMixin, View):
 
         account_resource_allowance(self.account)
 
-        account_subscriptions = AccountSubscription.objects.filter(account=self.account).order_by(
-            '-subscription__current_period_start')
+        account_subscriptions = AccountSubscription.objects.filter(
+            account=self.account
+        ).order_by("-subscription__current_period_start")
 
-        return render(request, 'accounts/account_subscriptions.html', self.get_render_context({
-            'tab': 'subscriptions',
-            'account_subscriptions': account_subscriptions
-        }))
+        return render(
+            request,
+            "accounts/account_subscriptions.html",
+            self.get_render_context(
+                {"tab": "subscriptions", "account_subscriptions": account_subscriptions}
+            ),
+        )
 
 
 class SubscriptionDetailView(AccountPermissionsMixin, View):
@@ -82,38 +90,48 @@ class SubscriptionDetailView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, subscription_id: str, account_name: str) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, subscription_id: str, account_name: str
+    ) -> HttpResponse:
         self.request_permissions_guard(request, account_name)
         subscription = Subscription.objects.get(id=subscription_id)
 
-        return render(request, 'accounts/account_subscription.html', self.get_render_context({
-            'tab': 'subscriptions',
-            'subscription': subscription
-        }))
+        return render(
+            request,
+            "accounts/account_subscription.html",
+            self.get_render_context(
+                {"tab": "subscriptions", "subscription": subscription}
+            ),
+        )
 
 
 class AccountSubscriptionCancelView(AccountPermissionsMixin, View):
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def post(self, request: HttpRequest, subscription_id: str, account_name: str) -> HttpResponse:
+    def post(
+        self, request: HttpRequest, subscription_id: str, account_name: str
+    ) -> HttpResponse:
         self.request_permissions_guard(request, account_name)
         subscription = Subscription.objects.get(id=subscription_id)
 
         product_name = subscription.plan.product.name
 
-        cancel_at_period_end = request.POST.get('cancel_at', 'period_end') == 'period_end'
+        cancel_at_period_end = (
+            request.POST.get("cancel_at", "period_end") == "period_end"
+        )
 
         subscription.cancel(cancel_at_period_end)
 
         if cancel_at_period_end:
-            cancel_message = 'Your {} subscription will be cancelled at the end of its current period.'.format(
-                product_name)
+            cancel_message = "Your {} subscription will be cancelled at the end of its current period.".format(
+                product_name
+            )
         else:
-            cancel_message = 'Your {} subscription was cancelled.'.format(product_name)
+            cancel_message = "Your {} subscription was cancelled.".format(product_name)
 
         messages.success(request, cancel_message)
 
-        return redirect('account_subscriptions', self.account.name)
+        return redirect("account_subscriptions", self.account.name)
 
 
 class AccountSubscriptionAddView(AccountPermissionsMixin, View):
@@ -125,28 +143,43 @@ class AccountSubscriptionAddView(AccountPermissionsMixin, View):
 
     required_account_permission = AccountPermissionType.ADMINISTER
 
-    def get(self, request: HttpRequest, plan_pk: int, account_name: str) -> HttpResponse:
+    def get(
+        self, request: HttpRequest, plan_pk: int, account_name: str
+    ) -> HttpResponse:
         self.request_permissions_guard(request, account_name)
 
         if plan_pk == 0:
-            raise NotImplementedError('TODO: This is special – user is unsubscribing from their current plan(s).')
+            raise NotImplementedError(
+                "TODO: This is special – user is unsubscribing from their current plan(s)."
+            )
 
         plan = get_object_or_404(Plan, pk=plan_pk, active=True)
 
-        verified_emails = request.user.emailaddress_set.filter(verified=True).order_by('email')
+        verified_emails = request.user.emailaddress_set.filter(verified=True).order_by(
+            "email"
+        )
 
         if verified_emails.count() == 0:
-            messages.error(request, 'You can not sign up for a new subscription as you do not have a verified email '
-                                    'address, please add or verify an email address then return to the subscriptions '
-                                    'page.')
-            return redirect('account_email')
+            messages.error(
+                request,
+                "You can not sign up for a new subscription as you do not have a verified email "
+                "address, please add or verify an email address then return to the subscriptions "
+                "page.",
+            )
+            return redirect("account_email")
 
         # TODO: If no verified emails, redirect to the email setup page
 
-        context = {'plan': plan, 'STRIPE_PUBLIC_KEY': djstripe_settings.STRIPE_PUBLIC_KEY, 'emails': verified_emails,
-                   'tab': 'subscriptions'}
+        context = {
+            "plan": plan,
+            "STRIPE_PUBLIC_KEY": djstripe_settings.STRIPE_PUBLIC_KEY,
+            "emails": verified_emails,
+            "tab": "subscriptions",
+        }
 
-        return render(request, 'accounts/subscription_add.html', self.get_render_context(context))
+        return render(
+            request, "accounts/subscription_add.html", self.get_render_context(context)
+        )
 
 
 class SubscriptionSignupView(AccountPermissionsMixin, View):
@@ -159,32 +192,40 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
 
         data = json.loads(request.body)
 
-        customer_id = data.get('customer_id')
+        customer_id = data.get("customer_id")
 
-        coupon_code = data.get('coupon_code')
+        coupon_code = data.get("coupon_code")
 
         try:
-            plan = Plan.objects.get(id=data['plan'], active=True)
+            plan = Plan.objects.get(id=data["plan"], active=True)
         except Plan.DoesNotExist:
             raise ValueError("TODO: Raise better error for missing Plan")
 
         if not plan.product.extension.is_purchasable and not coupon_code:
-            raise ValueError('This product is only purchasable with a coupon.')
+            raise ValueError("This product is only purchasable with a coupon.")
 
         if not customer_id:
-            email = request.user.emailaddress_set.filter(email=data['email'], verified=True).first()
+            email = request.user.emailaddress_set.filter(
+                email=data["email"], verified=True
+            ).first()
 
             if not email:
-                raise ValueError('Validated email address {} was not found for the customer.'.format(email.email))
+                raise ValueError(
+                    "Validated email address {} was not found for the customer.".format(
+                        email.email
+                    )
+                )
 
             dj_customer, created = Customer.get_or_create(subscriber=request.user)
 
             if not coupon_code:
-                PaymentMethod.attach(data['payment_method'], dj_customer)
+                PaymentMethod.attach(data["payment_method"], dj_customer)
 
                 customer = dj_customer.api_retrieve()
 
-                customer['invoice_settings'] = {'default_payment_method': data['payment_method']}
+                customer["invoice_settings"] = {
+                    "default_payment_method": data["payment_method"]
+                }
                 customer.save()
 
                 dj_customer.sync_from_stripe_data(customer)
@@ -195,17 +236,29 @@ class SubscriptionSignupView(AccountPermissionsMixin, View):
                 raise ValueError("TODO: Raise better error for missing Customer.")
 
             if dj_customer.subscriber != request.user:
-                raise PermissionDenied('The current user does not own this Customer.')
+                raise PermissionDenied("The current user does not own this Customer.")
 
         try:
             subscription = dj_customer.subscribe(plan, coupon=coupon_code)
         except InvalidRequestError as e:
-            return JsonResponse({'success': False, 'error': e.user_message})
+            return JsonResponse({"success": False, "error": e.user_message})
 
-        AccountSubscription.objects.create(account=self.account, subscription=subscription)
+        AccountSubscription.objects.create(
+            account=self.account, subscription=subscription
+        )
 
-        messages.success(request, 'Sign up to {} subscription was successful.'.format(plan.name))
+        messages.success(
+            request, "Sign up to {} subscription was successful.".format(plan.name)
+        )
 
-        post_redirect = reverse('account_subscription_detail', args=(account_name, subscription.id))
+        post_redirect = reverse(
+            "account_subscription_detail", args=(account_name, subscription.id)
+        )
 
-        return JsonResponse({'success': True, 'customer_id': dj_customer.djstripe_id, 'redirect': post_redirect})
+        return JsonResponse(
+            {
+                "success": True,
+                "customer_id": dj_customer.djstripe_id,
+                "redirect": post_redirect,
+            }
+        )

@@ -7,7 +7,7 @@ from projects.project_models import Project, ProjectEvent
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ['id', 'account', 'name', 'description', 'public']
+        fields = ["id", "account", "name", "description", "public"]
 
 
 class ProjectEventSerializer(serializers.ModelSerializer):
@@ -16,4 +16,13 @@ class ProjectEventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectEvent
-        fields = ['id', 'started', 'finished', 'message', 'success', 'project', 'event_type', 'log']
+        fields = [
+            "id",
+            "started",
+            "finished",
+            "message",
+            "success",
+            "project",
+            "event_type",
+            "log",
+        ]

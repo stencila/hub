@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Account, AccountPermission, AccountRole, AccountUserRole, Team, ProductExtension
+from .models import (
+    Account,
+    AccountPermission,
+    AccountRole,
+    AccountUserRole,
+    Team,
+    ProductExtension,
+)
 
 
 @admin.register(Account)
@@ -20,9 +27,7 @@ class AccountRoleAdmin(admin.ModelAdmin):
 
 @admin.register(AccountUserRole)
 class AccountUserRoleAdmin(admin.ModelAdmin):
-    list_display = [
-        'account', 'user', 'role'
-    ]
+    list_display = ["account", "user", "role"]
 
 
 @admin.register(Team)
