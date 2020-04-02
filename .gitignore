@@ -9,6 +9,7 @@
 .DS_Store
 
 # Ignore compiled Python files etc
+__pycache__
 *.pyc
 .mypy_cache
 
