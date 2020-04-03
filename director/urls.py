@@ -8,8 +8,6 @@ from sentry_sdk import last_event_id
 
 import views
 
-from general.api.urls import urlpatterns as api_general_urls
-
 # Specify sub paths as their own patterns to make it easier to see which root
 # paths are defined in urlpatterns this will make it easier to keep the
 # DISALLOWED_ACCOUNT_SLUGS up to date
@@ -25,11 +23,6 @@ test_urls = [
     path("403/", views.Test403View.as_view()),
     path("404/", views.Test404View.as_view()),
     path("500/", views.Test500View.as_view()),
-]
-
-api_urls = api_general_urls + [
-    path("projects/", include("projects.api.urls")),
-    path("users/", include("users.api.urls")),
 ]
 
 urlpatterns = [
@@ -52,7 +45,7 @@ urlpatterns = [
     # Staff (Django) admin
     path(UrlRoot.admin.value + "/", admin.site.urls),
     # API
-    path(UrlRoot.api.value + "/", include(api_urls)),
+    path(UrlRoot.api.value + "/", include("urls_api")),
     # User sign in, settings etc
     path(UrlRoot.me.value + "/", include("users.ui.urls")),
     # StencilaOpen App
