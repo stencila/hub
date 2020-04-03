@@ -14,6 +14,7 @@ from urllib.parse import urlparse, urljoin, unquote
 
 import requests
 from allauth.socialaccount.models import SocialApp
+from django.conf import settings
 from django.http.multipartparser import parse_header
 from googleapiclient.errors import HttpError
 from requests import Response
@@ -380,7 +381,9 @@ class ConverterContext(typing.NamedTuple):
 class ConverterFacade(object):
     converter_binary: typing.List[str]
 
-    def __init__(self, converter_binary: typing.List[str]) -> None:
+    def __init__(
+        self, converter_binary: typing.List[str] = settings.STENCILA_BINARY
+    ) -> None:
         self.converter_binary = converter_binary
 
     def convert(
