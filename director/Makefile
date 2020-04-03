@@ -87,13 +87,11 @@ lint-docs: venv
 
 # Run tests
 test: venv
-	$(VE)/pytest --ignore ./tests
-	$(VE)/pytest ./tests
+	$(VE)/pytest
 
-# Run tests with coverage
+# Run tests with coverage and migrations
 cover: venv
-	$(VE)/pytest --ignore ./tests --cov=. --cov-report term --cov-report html --cov-report xml
-	$(VE)/pytest ./tests --cov=. --cov-report term --cov-report html --cov-report xml --cov-append
+	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
 
 # Build Docker image
 build: Dockerfile

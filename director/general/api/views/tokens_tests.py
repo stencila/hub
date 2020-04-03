@@ -7,17 +7,17 @@ from django.utils import timezone
 from django.urls import reverse
 from rest_framework import status
 from rest_framework_jwt.serializers import jwt_encode_handler
-from rest_framework.test import APITestCase
 import jwt
 
-from api.views.tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
+from general.api.views.tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
+from general.testing import DatabaseTestCase
 
 
 def parse_date(date_string):
     return datetime.fromisoformat(date_string.replace("Z", "+00:00"))
 
 
-class TestCase(APITestCase):
+class TestCase(DatabaseTestCase):
     def list(self):
         return self.client.get(reverse("api-tokens-list"))
 

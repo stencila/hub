@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
 
 from accounts.models import Account, AccountRole, AccountUserRole
 from projects.permission_facade import fetch_project_for_user
 from projects.permission_models import ProjectPermissionType
 from projects.project_models import Project
+from general.testing import DatabaseTestCase
 
 
-class TestFetchProjectForUser(TestCase):
+class TestFetchProjectForUser(DatabaseTestCase):
     def setUp(self):
         """
         Create Account, Projects and Users for testing.
@@ -15,6 +15,8 @@ class TestFetchProjectForUser(TestCase):
         user1 is creator of project1, user2 is the creator of project2. admin created neither but is the admin of the
         account. All users and projects are in this same account.
         """
+        super().setUp()
+
         self.user1 = User.objects.create(username="user1")
         self.user2 = User.objects.create(username="user2")
         self.admin = User.objects.create(username="admin")

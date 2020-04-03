@@ -8,21 +8,28 @@ from sentry_sdk import last_event_id
 
 import views
 
-# specify sub paths as their own patterns to make it easier to see which root paths are defined in urlpatterns
-# this will make it easier to keep the DISALLOWED_ACCOUNT_SLUGS up to date
+from general.api.urls import urlpatterns as api_general_urls
+
+# Specify sub paths as their own patterns to make it easier to see which root
+# paths are defined in urlpatterns this will make it easier to keep the
+# DISALLOWED_ACCOUNT_SLUGS up to date
 from lib.constants import UrlRoot
 
-about_patterns = [
+about_urls = [
     path("", views.AboutView.as_view(), name="about"),
     path("contact/", views.ContactView.as_view(), name="contact"),
     path("help/", views.HelpView.as_view(), name="help"),
 ]
 
-# for use with Django TV >_<
-test_patterns = [
+test_urls = [
     path("403/", views.Test403View.as_view()),
     path("404/", views.Test404View.as_view()),
     path("500/", views.Test500View.as_view()),
+]
+
+api_urls = api_general_urls + [
+    path("projects/", include("projects.api.urls")),
+    path("users/", include("users.api.urls")),
 ]
 
 urlpatterns = [
@@ -39,13 +46,13 @@ urlpatterns = [
     ),
     # Patterns that include other urlpatterns or files
     # About pages etc
-    path(UrlRoot.about.value + "/", include(about_patterns)),
+    path(UrlRoot.about.value + "/", include(about_urls)),
     # Accounts App
     path(UrlRoot.accounts.value + "/", include("accounts.urls")),
     # Staff (Django) admin
     path(UrlRoot.admin.value + "/", admin.site.urls),
     # API
-    path(UrlRoot.api.value + "/", include("api.urls")),
+    path(UrlRoot.api.value + "/", include(api_urls)),
     # User sign in, settings etc
     path(UrlRoot.me.value + "/", include("users.ui.urls")),
     # StencilaOpen App
@@ -53,7 +60,7 @@ urlpatterns = [
     # Projects App
     path(UrlRoot.projects.value + "/", include("projects.urls")),
     # Testing errors
-    path(UrlRoot.test.value + "/", include(test_patterns)),
+    path(UrlRoot.test.value + "/", include(test_urls)),
     # Custom Roots (they start with a slug)
     path("<slug:account_name>/", include("accounts.slug_urls")),
 ]

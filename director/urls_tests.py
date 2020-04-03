@@ -9,13 +9,9 @@ for test driven development.
 
 from collections import namedtuple
 import re
-from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
-import pytest
 
-from accounts.models import Account
-from projects.models import Project
+from general.testing import AnonTestCase, AdaTestCase, BobTestCase
 
 # Shorthand functions for creating regexes to match response HTML against
 
@@ -39,11 +35,11 @@ signin = [200, title("Sign in")]
 # response for each user
 # Expectations can be an integer response code, a
 # a string regex pattern, or a list of either of those
-Check = namedtuple("Check", "path anon joe mary")
+Check = namedtuple("Check", "path anon ada bob")
 
 
-def check(path, anon=None, joe=None, mary=None):
-    return Check(path, anon, joe, mary)
+def check(path, anon=None, ada=None, bob=None):
+    return Check(path, anon, ada, bob)
 
 
 # Skip a check
@@ -59,134 +55,145 @@ checks = [
     check(
         "/",
         anon=title("Open"),
-        joe=title("Dashboard")
+        ada=title("Dashboard")
     ),
     check(
         "/me",
         anon=signin,
-        joe=title("User settings")
+        ada=title("User settings")
     ),
     check(
         "/me/dashboard",
         anon=signin,
-        joe=title("Dashboard")
+        ada=title("Dashboard")
     ),
     check(
         "/me/password/change/",
         anon=signin,
-        joe=title("Password Change")
+        ada=title("Password Change")
     ),
     check(
         "/me/email/",
         anon=signin,
-        joe=title("Manage e-mail addresses")
+        ada=title("Manage e-mail addresses")
     ),
     check(
         "/me/social/connections/",
         anon=signin,
-        joe=title("")
+        ada=title("")
     ),
     check(
         "/me/avatar/change/",
         anon=signin,
-        joe=title("")
+        ada=title("")
     ),
     check(
         "/me/username/",
         anon=signin,
-        joe=title("Change Username : Stencila")
+        ada=title("Change Username : Stencila")
     ),
     check(
         "/accounts",
         anon=signin,
-        joe=[title("Account  : Teams"), link(reverse("account_create"))],
+        ada=[title("Account  : Teams"), link(reverse("account_create"))],
     ),
     check(
-        "/joe-personal-account",
+        "/ada-personal-account",
         anon=signin,
-        joe=title("Account joe-personal-account")
+        ada=title("Account ada-personal-account")
     ),
     check(
-        "/joe-personal-account/members",
+        "/ada-personal-account/members",
         anon=signin,
-        joe=title("Account joe-personal-account : Members"),
+        ada=title("Account ada-personal-account : Members"),
     ),
     check(
-        "/joe-personal-account/teams",
+        "/ada-personal-account/teams",
         anon=signin,
-        joe=title("Account 1 : Teams")
+        ada=title("Account 1 : Teams")
     ),
     check(
-        "/joe-personal-account/settings",
+        "/ada-personal-account/settings",
         anon=signin,
-        joe=title("Account 1 : Settings")
+        ada=title("Account 1 : Settings")
     ),
     check(
-        "/joe-personal-account/subscriptions",
+        "/ada-personal-account/subscriptions",
         anon=signin,
-        joe=title("Account joe-personal-account : Subscriptions"),
+        ada=title("Account ada-personal-account : Subscriptions"),
     ),
     check(
-        "/joe-personal-account/subscriptions/add",
+        "/ada-personal-account/subscriptions/add",
         anon=signin,
-        joe="plan"
+        ada="plan"
     ),
     check(
         "/projects",
         anon=title("Projects"),
-        joe=[title("Projects"), link(reverse("project_create"))],
+        ada=[title("Projects"), link(reverse("project_create"))],
     ),
     # Most (all?) of the following tests generate the warning for all(?) users:
     #  warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
     check(
-        "/joe-personal-account/public-project",
+        "/ada-personal-account/ada-public-project",
         # Default view is files
-        anon=title("Project public-project: Files"),
-        joe=title("Project public-project: Files"),
-        mary=title("Project public-project: Files")
+        anon=title("Project ada-public-project: Files"),
+        ada=title("Project ada-public-project: Files"),
+        bob=title("Project ada-public-project: Files")
     ),
     check(
-        "/joe-personal-account/private-project",
+        "/ada-personal-account/ada-private-project",
         anon=403,
         # Default view is files
-        joe=title("Project private-project: Files"),
-        mary=403
+        ada=title("Project ada-private-project: Files"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/files",
+        "/ada-personal-account/ada-private-project/files",
         anon=403,
-        joe=title("Project private-project: Files"),
-        mary=403
+        ada=title("Project ada-private-project: Files"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/snapshots",
+        "/ada-personal-account/ada-private-project/snapshots",
         anon=403,
-        joe=title("Project private-project: Snapshots"),
-        mary=403
+        ada=title("Project ada-private-project: Snapshots"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/activity",
+        "/ada-personal-account/ada-private-project/activity",
         anon=403,
-        joe=title("Project 2: Activity"),
-        mary=403
+        ada=title("Project 2: Activity"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/sharing",
+        "/ada-personal-account/ada-private-project/sharing",
         anon=403,
-        joe=title("Project 2 : Sharing"),
-        mary=403
+        ada=title("Project 2 : Sharing"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/settings/metadata",
+        "/ada-personal-account/ada-private-project/settings/metadata",
         anon=403,
-        joe=title("Project 2 : Settings : Metadata"),
-        mary=403
+        ada=title("Project 2 : Settings : Metadata"),
+        bob=403
     ),
     check(
-        "/joe-personal-account/private-project/settings/access",
+        "/ada-personal-account/ada-private-project/settings/access",
         anon=403,
-        joe=title("Project 2 : Settings : Access"),
-        mary=403
+        ada=title("Project 2 : Settings : Access"),
+        bob=403
+    ),
+    # API endpoints
+    check(
+        "/api/docs",
+        anon=title("Stencila Hub API"),
+        ada=title("Stencila Hub API")
+    ),
+    check(
+        "/api/schema",
+        anon=200,
+        ada=200
     ),
 ]
 # fmt: on
@@ -198,35 +205,15 @@ checks = [
 # pytestmark = pytest.mark.filterwarnings("error")
 
 
-@pytest.mark.django_db
-class Fixture(TestCase):
-    """Setup the database as a test fixture."""
-
-    def setUp(self):
-        joe = User.objects.create_user(username="joe", password="joe")
-        joes_account = Account.objects.get(name="joe-personal-account")
-        Project.objects.create(
-            account=joes_account, creator=joe, public=True, name="public-project"
-        )
-        Project.objects.create(
-            account=joes_account, creator=joe, public=False, name="private-project"
-        )
-
-        User.objects.create_user(username="mary", password="mary")
-
-
-@pytest.mark.django_db
-class AnonTest(Fixture):
-    """Test URL response status codes for unauthenticated users."""
-
-    who = "anon"
+class UrlsMixin:
+    """Test URL response status codes."""
 
     def test_urls(self):
         for check in checks:
             if not isinstance(check, Check):
                 continue
 
-            expects = getattr(check, self.who)
+            expects = getattr(check, self.username)
             if expects is None:
                 continue
 
@@ -248,23 +235,13 @@ class AnonTest(Fixture):
                     )
 
 
-@pytest.mark.django_db
-class JoeTest(AnonTest):
-    """Test responses for test user Joe."""
-
-    who = "joe"
-
-    def setUp(self):
-        super().setUp()
-        self.client.login(username="joe", password="joe")
+class TestUrlsAnon(AnonTestCase, UrlsMixin):
+    username = "anon"
 
 
-@pytest.mark.django_db
-class MaryTest(AnonTest):
-    """Test responses for test user Mary."""
+class TestUrlsAda(AdaTestCase, UrlsMixin):
+    username = "ada"
 
-    who = "mary"
 
-    def setUp(self):
-        super().setUp()
-        self.client.login(username="mary", password="mary")
+class TestUrlsBob(BobTestCase, UrlsMixin):
+    username = "bob"
