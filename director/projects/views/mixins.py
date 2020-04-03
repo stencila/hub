@@ -93,7 +93,7 @@ class ProjectPermissionsMixin(object):
         *args,
         **kwargs,
     ):
-        warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
+        warnings.warn("ProjectPermissionsMixin POST", DeprecationWarning)
         self.perform_project_fetch(request.user, account_name, project_name)
         self.test_required_project_permission()
         return super(ProjectPermissionsMixin, self).post(  # type: ignore
@@ -203,6 +203,17 @@ class ProjectPermissionsMixin(object):
             self.request.user, self.kwargs["account_name"], self.kwargs["project_name"]
         )
         return self.project_fetch_result.project
+
+    def is_permitted(
+        self,
+        user: AbstractUser,
+        permission: ProjectPermissionType,
+        account_name: typing.Optional[str] = None,
+        project_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+    ) -> bool:
+        self.perform_project_fetch(user, account_name, project_name, pk)
+        return self.has_permission(permission)
 
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
