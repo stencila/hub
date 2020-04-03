@@ -1,0 +1,28 @@
+{% load static %}
+{% comment %}
+This template is only accessible to users that have permission to view the project
+the node belongs to.
+{% endcomment %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ node_type }}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+        <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+        <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css"
+            rel="stylesheet">
+        <script src="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/index.js"
+                type="text/javascript"></script>
+        <script
+                src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.esm.js"
+                type="module"></script>
+        <script
+                src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.js"
+                type="text/javascript"></script>
+    </head>
+    <body>
+        {{ html|safe }}
+    </body>
+</html>

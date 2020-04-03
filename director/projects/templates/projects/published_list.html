@@ -1,6 +1,6 @@
 {% extends 'projects/project_base.html' %}
 {% load static %}
-{% block title %}Project {{ project.pk }}: Published{% endblock %}
+{% block title %}Project {{ project.name }}: Published{% endblock %}
 {% block project_content %}
     <div id="published-items">
         <delete-confirm-modal :delete-modal-visible="deleteModalVisible"

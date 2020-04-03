@@ -1,0 +1,22 @@
+{% load static %}
+{% comment %}
+This template is accessible to anonymous users so should only expose basic information about a node.
+It should NOT include details of where and by what app the node was created,
+or any of the contents of the node itself.
+It is primarily targetted at Google's scraper that
+creates previews of pages in Google Docs (see https://github.com/stencila/gsuita/issues/16).
+However, humans could also view this content if they click on the link, so
+useful links to Stencila Hub to authenticate to view the full article etc might be useful.
+{% endcomment %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ node_type }}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    </head>
+    <body>
+    {# This may include some preview content (e.g. a thumbnail of the node type) in the future #}
+    </body>
+</html>

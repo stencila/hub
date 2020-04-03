@@ -1,5 +1,5 @@
 {% extends 'projects/project_base.html' %}
-{% block title %}Project {{ project.pk }} : Published Content{% endblock %}
+{% block title %}Project {{ project.name }} : Published Content{% endblock %}
 {% block project_content %}
     <iframe class="published-display" src="{% url 'project_published_content' project.account.name project.name path %}"></iframe>
     <div class="has-text-right">
