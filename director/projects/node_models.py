@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import reverse
+from jsonfallback.fields import FallbackJSONField
 
 from projects.models import Project
 
@@ -10,11 +11,11 @@ class Node(models.Model):
 
     Could be any type of node e.g. `CodeChunk`, `CreativeWork`, `Number`.
 
-    Each node has a unique, immutable content identifier, `cid`, that is a hash of
+    Each node has a unique, immutable content identifier, `key`, that is a hash of
     it's `json` content and other properties, generated at the time of creation.
 
     Each node is associated with a `project`. This is for authorization.
-    Although the `cid` is a secret, project based authorization adds an additional
+    Although the `key` is a secret, project based authorization adds an additional
     layer of security e.g. in case of accidental leakage of a node URL.
     This field does not use cascading delete because node URLs
     should be permananent.
@@ -22,8 +23,8 @@ class Node(models.Model):
     Each node is created by an `app`. This string is primarily used when generating
     HTML representations of the node to provide links back to that app.
 
-    A node is usually created within a `doc`. This is a URL that is primarily used
-    when generating HTML representations of the bide to provide links back to the
+    A node is usually created within a `host`. This is a URL that is primarily used
+    when generating HTML representations of the node to provide links back to the
     document.
 
     The `json` of the node is also immutable. It is returned to requests with
@@ -33,7 +34,7 @@ class Node(models.Model):
     class Meta:
         unique_together = (
             "project",
-            "cid",
+            "key",
         )
 
     project = models.ForeignKey(
@@ -51,17 +52,15 @@ class Node(models.Model):
         help_text="An identifier for the app that created the node.",
     )
 
-    doc = models.URLField(
+    host = models.URLField(
         null=True,
         blank=True,
-        help_text="URL of the document within which the node was created.",
+        help_text="URL of the host document within which the node was created.",
     )
 
-    cid = models.TextField(
-        db_index=True, help_text="The content identifier for the node."
-    )
+    key = models.TextField(db_index=True, help_text="The key to the node")
 
-    json = models.TextField(help_text="The JSON content of node.")
+    json = FallbackJSONField(help_text="The JSON content of node.")
 
     def get_absolute_url(self):
-        return reverse("api-project-nodes-detail", kwargs={"cid": self.cid})
+        return reverse("api-nodes-detail", kwargs={"key": self.key})

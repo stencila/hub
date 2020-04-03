@@ -1,6 +1,7 @@
 from django.urls import path
-
 from rest_framework import routers
+from rest_framework.urlpatterns import format_suffix_patterns
+
 from projects.api.views.sources import (
     DiskItemCreateView,
     DiskItemMoveView,
@@ -17,11 +18,9 @@ from projects.api.views.projects import (
     ProjectEventListView,
     AdminProjectEventListView,
 )
+from projects.api.views.nodes import NodesViewSet
 
-nodes_router = routers.SimpleRouter()
-nodes_router.register('nodes', NodesViewSet, 'api-project-nodes')
-
-urlpatterns = [
+projects_urls = [
     path("", ProjectListView.as_view(), name="api_project_list"),
     path("<int:pk>", ProjectDetailView.as_view(), name="api_project_detail"),
     path(
@@ -60,4 +59,8 @@ urlpatterns = [
         AdminProjectEventListView.as_view(),
         name="api_admin_project_events",
     ),
-] + nodes_router.urls
+]
+
+nodes = routers.SimpleRouter()
+nodes.register("", NodesViewSet, "api-nodes")
+nodes_urls = format_suffix_patterns(nodes.urls)
