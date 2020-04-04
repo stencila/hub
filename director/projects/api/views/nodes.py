@@ -174,9 +174,12 @@ class NodesViewSet(
                     html = ""
 
                 app_url, app_name = None, None
-                if node.app == "gsuita":
-                    app_url = "https://gsuite.google.com/marketplace/app/stencila/110435422451"
+                if node.app == "stencila:encoda":
+                    app_name = "Stencila Encoda"
+                    app_url = "https://github.com/stencila/encoda#readme"
+                elif node.app == "stencila:gsuita":
                     app_name = "Stencila for GSuite"
+                    app_url = "https://gsuite.google.com/marketplace/app/stencila/110435422451"
 
                 return Response(
                     {
