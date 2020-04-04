@@ -13,6 +13,25 @@ the node belongs to.
         <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
         <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css"
             rel="stylesheet">
+        <style>
+            body {
+                margin: auto;
+                max-width: 50em;
+                padding: 2em;
+            }
+            main {
+                margin: 3em 0;
+            }
+            footer {
+                font-family: sans;
+                font-size: 0.8em;
+                color: #777;
+            }
+            footer a {
+                color: #487adc;
+                text-decoration: none;
+            }
+        </style>
         <script src="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/index.js"
                 type="text/javascript"></script>
         <script
@@ -23,6 +42,13 @@ the node belongs to.
                 type="text/javascript"></script>
     </head>
     <body>
-        {{ html|safe }}
+        <header>
+            <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+        </header>
+        <main>{{ html|safe }}</main>
+        <footer>
+            {% if app_url %}Created using <a href="{{app_url}}">{{app_name}}</a>{% endif %}
+            {% if node.host %} within <a href="{{node.host}}">this</a> document.{% endif %}
+        </footer>
     </body>
 </html>

@@ -139,7 +139,7 @@ class NodesViewSet(
         node = get_object_or_404(Node, key=key)
         accept = request.META.get("HTTP_ACCEPT")
         if format == "json" or (accept and "application/json" in accept):
-            # Check the user is authenticated and has VIEW permissions for the project
+            # Require the user is authenticated and has VIEW permissions for the project
             if not request.user.is_authenticated:
                 raise NotAuthenticated
             if not self.is_permitted(
@@ -150,14 +150,11 @@ class NodesViewSet(
             serializer = NodeSerializer(node, context={"request": request})
             return Response(serializer.data)
         else:
-            if not request.user.is_authenticated or not self.is_permitted(
+            if self.is_permitted(
                 request.user, ProjectPermissionType.VIEW, pk=node.project.id
             ):
-                return Response(
-                    {"node_type": node_type(node.json), "node": node},
-                    template_name="projects/node_basic.html",
-                )
-            else:
+                # Return a more complete view if the user has VIEW permissions.
+                # This should include public projects.
                 try:
                     # Currently allow this to fail if the converter binary
                     # can not be found e.g. during CI testing
@@ -176,9 +173,26 @@ class NodesViewSet(
                 except FileNotFoundError:
                     html = ""
 
+                app_url, app_name = None, None
+                if node.app == "gsuita":
+                    app_url = "https://gsuite.google.com/marketplace/app/stencila/110435422451"
+                    app_name = "Stencila for GSuite"
+
                 return Response(
-                    {"node_type": node_type(node.json), "node": node, "html": html},
+                    {
+                        "node_type": node_type(node.json),
+                        "app_url": app_url,
+                        "app_name": app_name,
+                        "node": node,
+                        "html": html,
+                    },
                     template_name="projects/node_complete.html",
+                )
+            else:
+                # Return a basic view if the user does NOT have VIEW permissions.
+                return Response(
+                    {"node_type": node_type(node.json), "node": node},
+                    template_name="projects/node_basic.html",
                 )
 
 

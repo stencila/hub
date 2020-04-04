@@ -67,16 +67,25 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_retrieve_html_ok(self):
-        key = self.create_node(self.ada, self.ada_public.id, "C").data["key"]
+        key = self.create_node(self.ada, self.ada_private.id, "C").data["key"]
         response = self.retrieve_html(self.ada, key)
         assert response.status_code == status.HTTP_200_OK
-        assert response.data.get("node_type") == 'Text'
+        assert response.data.get("node_type") == "Text"
         assert response.data.get("html") is not None
 
-    def test_retrieve_html_anon_gets_basic(self):
-        key = self.create_node(self.ada, self.ada_public.id, "D").data["key"]
-        response = self.retrieve_html(None, key)
-        assert response.status_code == status.HTTP_200_OK
+    def test_retrieve_html_complete_for_public_projects(self):
+        """Test users get complete view for public projects."""
+        key = self.create_node(self.ada, self.ada_public.id, "A node").data["key"]
+        assert self.retrieve_html(self.bob, key).data.get("html") is not None
+        assert self.retrieve_html(None, key).data.get("html") is not None
+
+    def test_retrieve_html_basic_for_private_projects(self):
+        """Test users get basic view for private projects."""
+        key = self.create_node(self.ada, self.ada_private.id, "Another node").data[
+            "key"
+        ]
+        assert self.retrieve_html(self.bob, key).data.get("html") is None
+        assert self.retrieve_html(None, key).data.get("html") is None
 
 
 def test_node_type():
