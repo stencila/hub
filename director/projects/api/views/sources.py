@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import View
 from googleapiclient.errors import HttpError
+from oauth2client.client import HttpAccessTokenRefreshError
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
@@ -219,6 +220,10 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
 
         try:
             document = gdf.get_document(doc_id)
+        except HttpAccessTokenRefreshError:
+            raise LinkException(
+                "Could not refresh your Google authentication token. Please contact support for more information."
+            )
         except HttpError:
             raise LinkException(
                 "Could not retrieve the document, please check the ID/URL."
