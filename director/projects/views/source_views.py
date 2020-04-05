@@ -55,18 +55,20 @@ def project_files_redirect(
     return redirect("project_files", account_name, project_name)
 
 
-class SourceCreateView(ProjectPermissionsMixin, CreateView):
+class SourceCreateView(CreateView, ProjectPermissionsMixin):
     """A base class for view for creating new project sources."""
 
     project_permission_required = ProjectPermissionType.EDIT
 
     def get_initial(self):
+        path = self.request.GET.get("path") or "."
         return {
             "project": self.get_project(
                 self.request.user,
                 self.kwargs["account_name"],
                 self.kwargs["project_name"],
-            )
+            ),
+            "path": path,
         }
 
     def get_redirect(self, account_name: str, project_name: str) -> HttpResponse:
@@ -122,7 +124,7 @@ class GithubSourceCreateView(SourceCreateView):
                 "project_files", kwargs["account_name"], kwargs["project_name"]
             )
 
-        return super(GithubSourceCreateView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class GoogleDocsSourceCreateView(SourceCreateView):

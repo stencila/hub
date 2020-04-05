@@ -55,7 +55,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
     path = models.TextField(
         null=False,
         default=".",
-        help_text="The path that the file or directory from the source is mapped to in the project",
+        help_text="The path that the file or directory from the source is mapped to in the Project",
     )
 
     updated = models.DateTimeField(
