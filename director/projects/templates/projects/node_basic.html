@@ -15,8 +15,20 @@ useful links to Stencila Hub to authenticate to view the full article etc might 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+        <style>
+            body {
+                width: 20em;
+                margin: 2em auto;
+                font-size: 1.2em;
+                font-family: sans;
+            }
+            a {
+                text-decoration: none;
+            }
+        </style>
     </head>
     <body>
-    {# This may include some preview content (e.g. a thumbnail of the node type) in the future #}
+        {# This may include some preview content (e.g. a thumbnail of the node type) in the future #}
+        <a href="{% url 'user_signin' %}?next={{request.path}}">Sign in</a> for more details.
     </body>
 </html>
