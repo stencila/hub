@@ -2,6 +2,7 @@ from typing import Optional
 import hashlib
 import json
 
+from django.conf import settings
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, serializers, status, viewsets, renderers
@@ -158,7 +159,7 @@ class NodesViewSet(
                 try:
                     # Currently allow this to fail if the converter binary
                     # can not be found e.g. during CI testing
-                    conversion = ConverterFacade().convert(
+                    conversion = ConverterFacade(settings.STENCILA_BINARY).convert(
                         input_data=ConverterIo(
                             ConverterIoType.PIPE,
                             json.dumps(node.json).encode("utf8"),
