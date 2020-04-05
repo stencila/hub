@@ -272,7 +272,7 @@
       }
 
       function setTheme (themeName, cb) {
-        const themeUrl = `https://unpkg.com/@stencila/thema@1.16/dist/themes/${themeName}/styles.css`
+        const themeUrl = `https://unpkg.com/@stencila/thema@{{ THEMA_VERSION }}/dist/themes/${themeName}/styles.css`
 
         const loadingMask = document.getElementById('loading-mask')
 
