@@ -95,5 +95,6 @@ def test_node_type():
     assert node_type(3.14) == "Number"
     assert node_type("Hello") == "Text"
     assert node_type([]) == "Array"
+    assert node_type(tuple()) == "Array"
     assert node_type({}) == "Object"
     assert node_type({"type": "CodeChunk"}) == "CodeChunk"

@@ -169,7 +169,7 @@ class NodesViewSet(
                     {"node_type": node_type(node.json), "node": node},
                     template_name="projects/node_basic.html",
                 )
-        
+
             # Return a more complete view if the user has VIEW permissions.
             # This should include public projects.
             try:
