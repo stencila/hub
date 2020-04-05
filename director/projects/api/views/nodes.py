@@ -20,6 +20,16 @@ from lib.conversion_types import ConversionFormatId
 from projects.models import Node
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 
+# Applications known to create nodes
+# For these provide further details in HTML views of nodes
+APPS = {
+    "encoda": ("Stencila Encoda", "https://github.com/stencila/encoda#readme"),
+    "gsuita": (
+        "Stencila for GSuite",
+        "https://gsuite.google.com/marketplace/app/stencila/110435422451",
+    ),
+}
+
 
 class NodesCreateRequest(serializers.ModelSerializer):
     """The request data when creating a new node."""
@@ -174,14 +184,7 @@ class NodesViewSet(
                 except FileNotFoundError:
                     html = ""
 
-                app_url, app_name = None, None
-                if node.app == "stencila:encoda":
-                    app_name = "Stencila Encoda"
-                    app_url = "https://github.com/stencila/encoda#readme"
-                elif node.app == "stencila:gsuita":
-                    app_name = "Stencila for GSuite"
-                    app_url = "https://gsuite.google.com/marketplace/app/stencila/110435422451"
-
+                app_name, app_url = APPS.get(node.app, (node.app, None))
                 return Response(
                     {
                         "node_type": node_type(node.json),

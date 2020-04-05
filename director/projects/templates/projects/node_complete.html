@@ -47,8 +47,16 @@ the node belongs to.
         </header>
         <main>{{ html|safe }}</main>
         <footer>
-            {% if app_url %}Created using <a href="{{app_url}}">{{app_name}}</a>{% endif %}
-            {% if node.host %} within <a href="{{node.host}}">this</a> document.{% endif %}
+            {% if app_name %}Created using
+                {% if app_url %}
+                    <a href="{{ app_url }}">{{ app_name }}</a>
+                {% else %}
+                    {{ app_name }}
+                {% endif %}
+            {% endif %}
+            {% if node.host %}
+                within <a href="{{ node.host }}">this</a> document
+            {% endif %}
         </footer>
     </body>
 </html>
