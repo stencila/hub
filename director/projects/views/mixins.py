@@ -212,6 +212,7 @@ class ProjectPermissionsMixin(object):
         project_name: typing.Optional[str] = None,
         pk: typing.Optional[int] = None,
     ) -> bool:
+        """Shortcut method for checking that a user has a certain permission for a project."""
         self.perform_project_fetch(user, account_name, project_name, pk)
         return self.has_permission(permission)
 
