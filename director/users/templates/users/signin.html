@@ -11,6 +11,9 @@
         <h1 class="title">Sign in</h1>
         <form class="form" method="post" action="{% url 'user_signin' %}">
             {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
             {{ form|crispy }}
             <div class="level form-actions separation">
                 <div class="level-left">

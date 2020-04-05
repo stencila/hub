@@ -36,6 +36,7 @@ def generate_project_token(project: "Project") -> str:
 
 class Project(models.Model):
     class Meta:
+        # TODO: Not sure what I was thinking with the second constraint below, it should be removed.
         unique_together = [["name", "account"], ["id", "snapshot_in_progress"]]
 
     account = models.ForeignKey(
