@@ -24,7 +24,29 @@ class NodeViewsTest(DatabaseTestCase):
         )
 
     def test_create_ok(self):
-        response = self.create_node(self.ada, self.ada_public.id, 42)
+        node = {"type": "CodeChunk", "text": "plot(1, 1)"}
+
+        response = self.create(self.ada, "nodes", {"node": node})
+        assert response.status_code == status.HTTP_201_CREATED
+
+        response = self.create(
+            self.ada, "nodes", {"node": node, "project": self.ada_private.id}
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+        response = self.create(
+            self.ada,
+            "nodes",
+            {
+                "node": node,
+                "project": self.ada_public.id,
+                "app": "an-app",
+                "host": "http://example.org",
+            },
+        )
+        assert response.status_code == status.HTTP_201_CREATED
+
+        response = self.create_node(self.ada, self.ada_public.id, node)
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["key"] is not None
         assert response.data["url"] is not None
@@ -42,16 +64,23 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
             "message": "Invalid input.",
-            "errors": [
-                {"field": "project", "message": "This field is required."},
-                {"field": "node", "message": "This field is required."},
-            ],
+            "errors": [{"field": "node", "message": "This field is required."}],
+        }
+
+    def test_create_host_must_be_url(self):
+        response = self.create(self.ada, "nodes", {"node": 41, "host": "foo"})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data == {
+            "message": "Invalid input.",
+            "errors": [{"field": "host", "message": "Enter a valid URL."}],
         }
 
     def test_retrieve_json_ok(self):
         key = self.create_node(self.ada, self.ada_public.id, 42).data["key"]
         response = self.retrieve_json(self.ada, key)
         assert response.status_code == status.HTTP_200_OK
+        assert response.data["creator"] is self.ada.id
+        assert response.data["created"] is not None
         assert response.data["project"] == self.ada_public.id
         assert response.data["key"] == key
         assert response.data["node"] == 42

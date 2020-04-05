@@ -1,6 +1,6 @@
 from typing import Optional
-import hashlib
 import json
+import secrets
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -64,7 +64,7 @@ class NodeSerializer(NodesCreateResponse):
 
     class Meta:
         model = Node
-        fields = ["project", "app", "host", "key", "url", "node"]
+        fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
         ref_name = None
 
 
@@ -112,22 +112,22 @@ class NodesViewSet(
         host = serializer.validated_data.get("host")
         node = serializer.validated_data.get("node")
 
-        # Check that the user has EDIT permissions for the project
-        if not self.is_permitted(
+        # Check that the user has EDIT permissions for the project,
+        # if provided.
+        if project and not self.is_permitted(
             request.user, ProjectPermissionType.EDIT, pk=project.id
         ):
             raise PermissionDenied
 
-        fingerprint = "{}-{}-{}-{}".format(project, app, host, json.dumps(node))
-        key = hashlib.sha256(fingerprint.encode("utf-8")).hexdigest()
-
-        # Get (efficiently, if it exists), or create, the node
-        try:
-            node = Node.objects.get(key=key)
-        except Node.DoesNotExist:
-            node = Node.objects.create(
-                key=key, project=project, app=app, host=host, json=node
-            )
+        # Create the node with a unique key
+        node = Node.objects.create(
+            creator=request.user,
+            key=secrets.token_hex(32),
+            project=project,
+            app=app,
+            host=host,
+            json=node,
+        )
 
         serializer = NodesCreateResponse(node, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED,)
