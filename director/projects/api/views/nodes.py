@@ -161,46 +161,46 @@ class NodesViewSet(
             serializer = NodeSerializer(node, context={"request": request})
             return Response(serializer.data)
         else:
-            if self.is_permitted(
+            # Return a basic view if the user does NOT have VIEW permissions.
+            if not self.is_permitted(
                 request.user, ProjectPermissionType.VIEW, pk=node.project.id
             ):
-                # Return a more complete view if the user has VIEW permissions.
-                # This should include public projects.
-                try:
-                    # Currently allow this to fail if the converter binary
-                    # can not be found e.g. during CI testing
-                    conversion = ConverterFacade(settings.STENCILA_BINARY).convert(
-                        input_data=ConverterIo(
-                            ConverterIoType.PIPE,
-                            json.dumps(node.json).encode("utf8"),
-                            ConversionFormatId.json,
-                        ),
-                        output_data=ConverterIo(
-                            ConverterIoType.PIPE, None, ConversionFormatId.html
-                        ),
-                        context=ConverterContext(standalone=False),
-                    )
-                    html = conversion.stdout.decode("utf8")
-                except FileNotFoundError:
-                    html = ""
-
-                app_name, app_url = APPS.get(node.app, (node.app, None))
-                return Response(
-                    {
-                        "node_type": node_type(node.json),
-                        "app_url": app_url,
-                        "app_name": app_name,
-                        "node": node,
-                        "html": html,
-                    },
-                    template_name="projects/node_complete.html",
-                )
-            else:
-                # Return a basic view if the user does NOT have VIEW permissions.
                 return Response(
                     {"node_type": node_type(node.json), "node": node},
                     template_name="projects/node_basic.html",
                 )
+        
+            # Return a more complete view if the user has VIEW permissions.
+            # This should include public projects.
+            try:
+                # Currently allow this to fail if the converter binary
+                # can not be found e.g. during CI testing
+                conversion = ConverterFacade(settings.STENCILA_BINARY).convert(
+                    input_data=ConverterIo(
+                        ConverterIoType.PIPE,
+                        json.dumps(node.json).encode("utf8"),
+                        ConversionFormatId.json,
+                    ),
+                    output_data=ConverterIo(
+                        ConverterIoType.PIPE, None, ConversionFormatId.html
+                    ),
+                    context=ConverterContext(standalone=False),
+                )
+                html = conversion.stdout.decode("utf8")
+            except FileNotFoundError:
+                html = ""
+
+            app_name, app_url = APPS.get(node.app, (node.app, None))
+            return Response(
+                {
+                    "node_type": node_type(node.json),
+                    "app_url": app_url,
+                    "app_name": app_name,
+                    "node": node,
+                    "html": html,
+                },
+                template_name="projects/node_complete.html",
+            )
 
 
 def node_type(node) -> str:
