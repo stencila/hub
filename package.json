@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@stencila/style": "1.2.0",
-    "@stencila/thema": "2.2.0",
+    "@stencila/thema": "2.2.1",
     "bulma": "0.7.5",
     "hamburgers": "1.1.3"
   },

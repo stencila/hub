@@ -58,7 +58,7 @@ RUN curl -sL https://deb.nodesource.com/setup_13.x | bash - \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN npm install @stencila/encoda@0.93.4
+RUN npm install @stencila/encoda@0.93.5
 
 RUN pip3 install gunicorn
 
