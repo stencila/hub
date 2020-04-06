@@ -23,7 +23,7 @@ class SourceCreateViewTestCase(TestCase):
         )
 
     def test_default_path(self):
-        """If no path is provided in GET, it should default to '.'"""
+        """If no path is provided in GET, it should default to '.'."""
         view = SourceCreateView()
         view.kwargs = {"account_name": "account-name", "project_name": "project-name"}
 
