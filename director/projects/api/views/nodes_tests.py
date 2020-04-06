@@ -95,6 +95,17 @@ class NodeViewsTest(DatabaseTestCase):
         response = self.retrieve_json(self.bob, key)
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    def test_retrieve_json_when_no_project(self):
+        key = self.create_node(self.ada, None, "A").data["key"]
+
+        for user in (self.ada, self.bob):
+            response = self.retrieve_json(self.ada, key)
+            assert response.status_code == status.HTTP_200_OK
+
+        # Anonymous users can't get JSON
+        response = self.retrieve_json(None, key)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
     def test_retrieve_html_ok(self):
         key = self.create_node(self.ada, self.ada_private.id, "C").data["key"]
         response = self.retrieve_html(self.ada, key)
@@ -115,6 +126,13 @@ class NodeViewsTest(DatabaseTestCase):
         ]
         assert self.retrieve_html(self.bob, key).data.get("html") is None
         assert self.retrieve_html(None, key).data.get("html") is None
+
+    def test_retrieve_html_when_no_project(self):
+        """Test that everyone gets complete view for any node with no project specified."""
+        key = self.create_node(self.ada, None, "A").data["key"]
+
+        for user in (self.ada, self.bob, None):
+            assert self.retrieve_html(user, key).data.get("html") is not None
 
 
 def test_node_type():

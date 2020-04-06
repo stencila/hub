@@ -153,7 +153,7 @@ class NodesViewSet(
             # Require the user is authenticated and has VIEW permissions for the project
             if not request.user.is_authenticated:
                 raise NotAuthenticated
-            if not self.is_permitted(
+            if node.project and not self.is_permitted(
                 request.user, ProjectPermissionType.VIEW, pk=node.project.id
             ):
                 raise PermissionDenied
@@ -162,7 +162,7 @@ class NodesViewSet(
             return Response(serializer.data)
         else:
             # Return a basic view if the user does NOT have VIEW permissions.
-            if not self.is_permitted(
+            if node.project and not self.is_permitted(
                 request.user, ProjectPermissionType.VIEW, pk=node.project.id
             ):
                 return Response(
