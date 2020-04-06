@@ -21,7 +21,7 @@ class Node(models.Model):
     This field does not use cascading delete because node URLs
     should be permananent. The `project` is not required. This allows
     apps to create nodes in documents (e.g. GSuita) or to or to convert documents
-    (e.g. Encoda) without having to associate them with a project. 
+    (e.g. Encoda) without having to associate them with a project.
 
     Each node is created by an `app`. This string is primarily used when generating
     HTML representations of the node to provide links back to that app.
