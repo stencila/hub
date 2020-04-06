@@ -110,12 +110,12 @@ checks = [
     check(
         "/ada-personal-account/teams",
         anon=signin,
-        ada=title("Account 1 : Teams")
+        ada=title("Account ada-personal-account : Teams")
     ),
     check(
         "/ada-personal-account/settings",
         anon=signin,
-        ada=title("Account 1 : Settings")
+        ada=title("Account ada-personal-account : Settings")
     ),
     check(
         "/ada-personal-account/subscriptions",
@@ -137,51 +137,51 @@ checks = [
     check(
         "/ada-personal-account/ada-public-project",
         # Default view is files
-        anon=title("Project ada-public-project: Files"),
-        ada=title("Project ada-public-project: Files"),
-        bob=title("Project ada-public-project: Files")
+        anon=title("Project ada-public-project : Files"),
+        ada=title("Project ada-public-project : Files"),
+        bob=title("Project ada-public-project : Files")
     ),
     check(
         "/ada-personal-account/ada-private-project",
         anon=403,
         # Default view is files
-        ada=title("Project ada-private-project: Files"),
+        ada=title("Project ada-private-project : Files"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/files",
         anon=403,
-        ada=title("Project ada-private-project: Files"),
+        ada=title("Project ada-private-project : Files"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/snapshots",
         anon=403,
-        ada=title("Project ada-private-project: Snapshots"),
+        ada=title("Project ada-private-project : Snapshots"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/activity",
         anon=403,
-        ada=title("Project 2: Activity"),
+        ada=title("Project ada-private-project : Activity"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/sharing",
         anon=403,
-        ada=title("Project 2 : Sharing"),
+        ada=title("Project ada-private-project : Sharing"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/settings/metadata",
         anon=403,
-        ada=title("Project 2 : Settings : Metadata"),
+        ada=title("Project ada-private-project : Settings : Metadata"),
         bob=403
     ),
     check(
         "/ada-personal-account/ada-private-project/settings/access",
         anon=403,
-        ada=title("Project 2 : Settings : Access"),
+        ada=title("Project ada-private-project : Settings : Access"),
         bob=403
     ),
     # API endpoints

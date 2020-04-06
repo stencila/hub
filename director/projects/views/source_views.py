@@ -350,8 +350,9 @@ class SourceOpenView(
     def pre_post_check(
         self, request: HttpRequest, account_name: str, project_name: str
     ) -> None:
-        self.perform_project_fetch(request.user, account_name, project_name)
-        if not self.has_permission(ProjectPermissionType.EDIT):
+        if not self.is_permitted(
+            request.user, ProjectPermissionType.EDIT, account_name, project_name
+        ):
             raise PermissionDenied
 
     def perform_post(

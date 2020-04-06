@@ -1,6 +1,6 @@
 {% extends 'accounts/account_base.html' %}
 {% load account_permissions resource_allowance %}
-{% block title %}Account {{ account.pk }} : Teams{% endblock %}
+{% block title %}Account {{ account.name }} : Teams{% endblock %}
 {% block account_content %}
     {% if account|resource_limit:'max_teams' == 0 %}
         {# this section for if the account has no team quota #}

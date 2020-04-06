@@ -1,7 +1,7 @@
 {% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Project {{ project.pk }} : Settings : Access{% endblock %}
+{% block title %}Project {{ project.name }} : Settings : Access{% endblock %}
 
 {% block project_content %}
     {% crispy form %}

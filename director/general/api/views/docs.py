@@ -23,7 +23,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Stencila Hub API", default_version="v1", description=description,
     ),
-    urlconf="general.api.urls",
+    urlconf="urls_api",
     public=True,
     permission_classes=(permissions.AllowAny,),
     generator_class=CustomOpenAPISchemaGenerator,

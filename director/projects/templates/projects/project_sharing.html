@@ -1,6 +1,6 @@
 {% extends 'projects/project_base.html' %}
 {% load crispy_forms_tags static escape_extras resource_allowance %}
-{% block title %}Project {{ project.pk }} : Sharing{% endblock %}
+{% block title %}Project {{ project.name }} : Sharing{% endblock %}
 {% block project_content %}
     <div id="project-role">
         <delete-confirm-modal

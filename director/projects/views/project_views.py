@@ -427,8 +427,9 @@ class ProjectSharingView(ProjectPermissionsMixin, DetailView):
 
 class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
     def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
-        self.perform_project_fetch(request.user, account_name, project_name)
-        if not self.has_permission(ProjectPermissionType.MANAGE):
+        if not self.is_permitted(
+            request.user, ProjectPermissionType.MANAGE, account_name, project_name
+        ):
             raise PermissionDenied
 
         project_agent_role = None

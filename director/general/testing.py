@@ -144,6 +144,13 @@ class DatabaseTestCase(test.APITestCase):
         self.authenticate(user)
         return self.client.post(reverse("api-{}-list".format(type)), data)
 
+    def retrieve(self, user: Optional[User], type: str, kwargs, headers={}) -> Response:
+        """Create an object of a type for a user."""
+        self.authenticate(user)
+        return self.client.get(
+            reverse("api-{}-detail".format(type), kwargs=kwargs), **headers
+        )
+
 
 class AnonTestCase(DatabaseTestCase):
     """Tests when not authenticated."""
