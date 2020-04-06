@@ -186,7 +186,7 @@ checks = [
     ),
     # API endpoints
     check(
-        "/api/docs",
+        "/api",
         anon=title("Stencila Hub API"),
         ada=title("Stencila Hub API")
     ),
