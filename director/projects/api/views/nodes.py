@@ -23,6 +23,7 @@ from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 # Applications known to create nodes
 # For these provide further details in HTML views of nodes
 APPS = {
+    "api": ("Stencila Hub API", "https://hub.stenci.la/api"),
     "encoda": ("Stencila Encoda", "https://github.com/stencila/encoda#readme"),
     "gsuita": (
         "Stencila for GSuite",
@@ -108,7 +109,7 @@ class NodesViewSet(
         serializer.is_valid(raise_exception=True)
 
         project = serializer.validated_data.get("project")
-        app = serializer.validated_data.get("app")
+        app = serializer.validated_data.get("app", "api")
         host = serializer.validated_data.get("host")
         node = serializer.validated_data.get("node")
 
