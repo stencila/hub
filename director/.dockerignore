@@ -9,11 +9,12 @@
 
 !/accounts
 !/api
+!/assets/*.py
 !/auth
+!/general
 !/lib
 !/projects
 !/scripts
 !/stencila_open
 !/templates
 !/users
-!/general
