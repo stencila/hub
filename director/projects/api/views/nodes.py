@@ -5,7 +5,15 @@ import secrets
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, permissions, serializers, status, viewsets, renderers
+from rest_framework import (
+    mixins,
+    parsers,
+    permissions,
+    renderers,
+    serializers,
+    status,
+    viewsets,
+)
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -78,6 +86,7 @@ class NodesViewSet(
 
     lookup_url_kwarg = "key"
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
+    parser_classes = [parsers.JSONParser]
 
     def get_permissions(self):
         """

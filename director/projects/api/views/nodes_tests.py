@@ -85,6 +85,13 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.data["key"] == key
         assert response.data["node"] == 42
 
+    def test_retrieve_json_is_unmodified(self):
+        """Test that there is no modification to the node's JSON."""
+        inp = {"property_a": 1, "property2": {"camelCased": None}}
+        key = self.create_node(self.ada, None, inp).data["key"]
+        out = self.retrieve_json(self.ada, key).data["node"]
+        assert out == inp
+
     def test_retrieve_json_must_be_authenticated(self):
         key = self.create_node(self.ada, self.ada_public.id, "A").data["key"]
         response = self.retrieve_json(None, key)
