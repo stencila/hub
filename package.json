@@ -7,7 +7,7 @@
     "director/static"
   ],
   "scripts": {
-    "prepare": "prepare.js",
+    "prepare": "node prepare.js",
     "build": "gulp build",
     "start": "gulp"
   },
