@@ -16,6 +16,15 @@ class UnknownMimeTypeError(ValueError):
 
 
 class ConversionFormat(typing.NamedTuple):
+    """
+    Specification of a format.
+
+    The `format_id` should be a lowercase string and
+    map to a "codec" in Encoda.
+    In the future, these specs may be generated from Encoda
+    codec modules which also defined the equivalent of
+    `mimetypes` and `extensions`.
+    """
     format_id: str
     mimetypes: typing.Iterable[str]
     extensions: typing.List[str] = []
@@ -23,7 +32,7 @@ class ConversionFormat(typing.NamedTuple):
     @property
     def default_extension(self) -> str:
         """Get the default extension for the format."""
-        return self.extensions[0] if len(self.extensions) else self.format_id
+        return self.extensions[0] if self.extensions else self.format_id
 
     @property
     def is_binary(self) -> bool:
