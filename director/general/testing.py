@@ -139,23 +139,41 @@ class DatabaseTestCase(test.APITestCase):
                 )
             )
 
-    def list(self, user: Optional[User], type: str, kwargs={}) -> Response:
+    def list(self, user: Optional[User], viewname: str, kwargs={}) -> Response:
         """List objects of a type for a user."""
         self.authenticate(user)
-        return self.client.get(reverse("api-{}-list".format(type), kwargs=kwargs))
+        return self.client.get(
+            reverse(
+                viewname if "-" in viewname else "api-{}-list".format(viewname),
+                kwargs=kwargs,
+            )
+        )
 
-    def create(self, user: Optional[User], type: str, data={}, kwargs={}) -> Response:
+    def create(
+        self, user: Optional[User], viewname: str, data={}, kwargs={}
+    ) -> Response:
         """Create an object of a type for a user."""
         self.authenticate(user)
         return self.client.post(
-            reverse("api-{}-list".format(type), kwargs=kwargs), data
+            reverse(
+                viewname if "-" in viewname else "api-{}-list".format(viewname),
+                kwargs=kwargs,
+            ),
+            data,
         )
 
-    def retrieve(self, user: Optional[User], type: str, kwargs, headers={}) -> Response:
+    def retrieve(
+        self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
+    ) -> Response:
         """Create an object of a type for a user."""
         self.authenticate(user)
         return self.client.get(
-            reverse("api-{}-detail".format(type), kwargs=kwargs), **headers
+            reverse(
+                viewname if "-" in viewname else "api-{}-detail".format(viewname),
+                kwargs=kwargs,
+            ),
+            data,
+            **headers,
         )
 
 

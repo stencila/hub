@@ -18,7 +18,17 @@ class UnknownMimeTypeError(ValueError):
 class ConversionFormat(typing.NamedTuple):
     format_id: str
     mimetypes: typing.Iterable[str]
-    output_extension: typing.Optional[str] = None
+    extensions: typing.List[str] = []
+
+    @property
+    def default_extension(self) -> str:
+        """Get the default extension for the format."""
+        return self.extensions[0] if len(self.extensions) else self.format_id
+
+    @property
+    def is_binary(self) -> bool:
+        """Is the format be considered binary when determining the type of HTTP response."""
+        return self.format_id not in ("html", "json", "jsonld", "md", "rmd", "xml")
 
 
 class ConversionFormatId(enum.Enum):
@@ -36,12 +46,12 @@ class ConversionFormatId(enum.Enum):
     gdoc = ConversionFormat("gdoc", ["application/vnd.google-apps.document"])
     html = ConversionFormat("html", ["text/html"])
     ipynb = ConversionFormat("ipynb", ["application/x-ipynb+json"])
-    jats = ConversionFormat("jats", ["text/xml+jats"], "jats.xml")
+    jats = ConversionFormat("jats", ["text/xml+jats"], ["jats.xml"])
     json = ConversionFormat("json", ["application/json"])
     jsonld = ConversionFormat("jsonld", ["application/ld+json"])
     md = ConversionFormat("md", ["text/markdown"])
     pdf = ConversionFormat("pdf", ["application/pdf"])
-    rnb = ConversionFormat("rnb", ["text/html+rstudio"], "nb.html")
+    rnb = ConversionFormat("rnb", ["text/html+rstudio"], ["nb.html"])
     rmd = ConversionFormat("rmd", ["text/rmarkdown"])
     xml = ConversionFormat("xml", ["application/xml"])
 

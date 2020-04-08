@@ -389,21 +389,19 @@ class ConverterFacade(object):
         output_data: ConverterIo,
         context: typing.Optional[ConverterContext] = None,
     ) -> subprocess.CompletedProcess:
-        if output_data.conversion_format is None:
-            raise ValueError("The output_data conversion format must be specified.")
-
         convert_args: typing.List[str] = [
             "convert",
-            "--to",
-            output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg,
             output_data.as_path_shell_arg,
         ]
 
         if input_data.conversion_format:
-            # Only specify the input format if set, otherwise Encoda can try to figure it out
-            convert_args.insert(1, "--from")
-            convert_args.insert(2, input_data.conversion_format.value.format_id)
+            convert_args.extend(
+                ["--from", input_data.conversion_format.value.format_id]
+            )
+
+        if output_data.conversion_format:
+            convert_args.extend(["--to", output_data.conversion_format.value.format_id])
 
         if context:
             if context.output_intermediary:

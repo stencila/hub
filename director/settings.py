@@ -336,6 +336,14 @@ class Common(Configuration):
     # Rudimentary feature toggle
     FEATURES = {"PROJECT_SESSION_SETTINGS": False}
 
+    # Registered hosts for accounts.
+    # This is likely to be a temporary setting, in lieu of
+    # an `Account` model `hosts` field (or alternative).
+    ACCOUNT_HOSTS = {
+        "stencila": "https://stenci.la https://*.stenci.la",
+        "elife": "https://elifesciences.org https://*.elifesciences.org",
+    }
+
 
 class Dev(Common):
     """Configuration settings used in development."""

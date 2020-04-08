@@ -51,13 +51,6 @@ def published_item_render(
         context["content"] = f.read()
     resp = render(request, "projects/published_container.html", context)
 
-    if "elife" in request.GET:
-        resp[
-            "Content-Security-Policy"
-        ] = "frame-ancestors https://elifesciences.org https://*.elifesciences.org;"
-        resp["X-Frame-Options"] = "allow-from https://elifesciences.org"
-        resp["X-Frame-Options"] = "allow-from https://*.elifesciences.org"
-
     return resp
 
 

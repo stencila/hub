@@ -1,4 +1,7 @@
-from typing import Optional
+import os
+import shutil
+import tempfile
+from typing import Optional, List
 from unittest import mock
 
 from django.http import HttpRequest
@@ -7,9 +10,20 @@ from rest_framework import status
 
 from general.testing import DatabaseTestCase
 from projects.models import Project, Snapshot
+from lib.converter_facade import (
+    ConverterIo,
+    ConverterIoType,
+    ConverterContext,
+)
+
+TEMPORARY_SNAPSHOT_DIR = tempfile.mkdtemp()
+with open(os.path.join(TEMPORARY_SNAPSHOT_DIR, "test.txt"), "w") as file:
+    file.write("Test content")
 
 
-class MockProjectSnapshotter:
+class MockSnapshotter:
+    """Returns a new snapshot but does not create snapshot dir etc."""
+
     def __init__(self, storage_root: str) -> None:
         pass
 
@@ -20,10 +34,31 @@ class MockProjectSnapshotter:
             project=project,
             version_number=1,
             tag=tag or None,
+            path=TEMPORARY_SNAPSHOT_DIR,
             creator=request.user,
             created=timezone.now(),
             completed=timezone.now(),
         )
+
+
+class MockConverter:
+    """Just copies the input path to the output path."""
+
+    def __init__(self, converter_binary: List[str]) -> None:
+        pass
+
+    def convert(
+        self,
+        input_data: ConverterIo,
+        output_data: ConverterIo,
+        context: ConverterContext,
+    ) -> None:
+        assert input_data.io_type == ConverterIoType.PATH
+        assert output_data.io_type == ConverterIoType.PATH
+        dir = os.path.dirname(output_data.data)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        shutil.copyfile(input_data.data, output_data.data)
 
 
 class SnapshotAPIViewsTest(DatabaseTestCase):
@@ -35,15 +70,20 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
     """
 
     def setUp(self):
+
         super().setUp()
-        self.patcher = mock.patch(
-            "projects.api.views.snapshots.ProjectSnapshotter",
-            new=MockProjectSnapshotter,
+        self.patch_snapshotter = mock.patch(
+            "projects.api.views.snapshots.ProjectSnapshotter", new=MockSnapshotter,
         )
-        self.patcher.start()
+        self.patch_snapshotter.start()
+
+        self.patch_snapshotter = mock.patch(
+            "projects.api.views.snapshots.ConverterFacade", new=MockConverter,
+        )
+        self.patch_snapshotter.start()
 
     def tearDown(self):
-        self.patcher.stop()
+        self.patch_snapshotter.stop()
 
     # Type specific CRUD methods (no U & D methods though)
 
@@ -55,9 +95,17 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
             user, "snapshots", kwargs={"pk": project.pk}, data={"tag": tag}
         )
 
-    def retrieve_snap(self, user, project: Project, number=None):
+    def retrieve_snap(self, user, project: Project, number: int):
         return self.retrieve(
             user, "snapshots", kwargs={"pk": project.pk, "number": number}
+        )
+
+    def retrieve_file(self, user, project: Project, number: int, path: str, **kwargs):
+        return self.retrieve(
+            user,
+            "api-snapshots-retrieve-file",
+            kwargs={"pk": project.pk, "number": number, "path": path},
+            **kwargs,
         )
 
     # Testing methods
@@ -123,3 +171,33 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
     def test_retrieve_not_found(self):
         response = self.retrieve_snap(None, self.ada_public, 2743965137659)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_retrieve_file_raw(self):
+        number = self.create_snap(self.ada, self.ada_public).data["number"]
+
+        response = self.retrieve_file(None, self.ada_public, number, "test.txt")
+        assert response.status_code == status.HTTP_200_OK
+        assert b"".join(response.streaming_content).decode("ascii") == "Test content"
+
+    def test_retrieve_file_converted(self):
+        number = self.create_snap(self.ada, self.ada_public).data["number"]
+
+        response = self.retrieve_file(
+            None, self.ada_public, number, "test.txt", data={"format": "html"}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test.txt.html")
+        )
+
+        response = self.retrieve_file(
+            None,
+            self.ada_public,
+            number,
+            "test.txt",
+            headers={"HTTP_ACCEPT": "application/pdf"},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test.txt.pdf")
+        )

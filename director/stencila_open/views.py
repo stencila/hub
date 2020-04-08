@@ -669,9 +669,7 @@ class OpenResultRawView(View):
         output_format = ConversionFormatId.from_id(format_name)
 
         # Use specified extension (e.g. for jats.xml) or fall back to format_id)
-        extension = (
-            output_format.value.output_extension or output_format.value.format_id
-        )
+        extension = output_format.value.default_extension
 
         if conversion.original_filename:
             original_filename, _ = splitext(conversion.original_filename)

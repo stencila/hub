@@ -20,14 +20,13 @@ from projects.api.views.projects import (
 from projects.api.views.nodes import NodesViewSet
 from projects.api.views.snapshots import SnapshotsViewSet
 
-snapshots = routers.SimpleRouter()
-snapshots.register("", SnapshotsViewSet, "api-snapshots")
-snapshots_urls = format_suffix_patterns(snapshots.urls)
-
-nodes = routers.SimpleRouter()
+nodes = routers.SimpleRouter(trailing_slash=False)
 nodes.register("", NodesViewSet, "api-nodes")
 nodes_urls = format_suffix_patterns(nodes.urls)
 
+snapshots = routers.SimpleRouter(trailing_slash=False)
+snapshots.register("", SnapshotsViewSet, "api-snapshots")
+snapshots_urls = snapshots.urls
 
 projects_urls = [
     path("", ProjectListView.as_view(), name="api-projects-list"),
