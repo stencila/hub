@@ -27,6 +27,7 @@ from lib.converter_facade import (
 )
 from lib.conversion_types import ConversionFormatId
 from lib.data_cleaning import logged_in_or_none
+from lib.path_operations import utf8_path_join
 from projects.models import Snapshot
 from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.snapshots import ProjectSnapshotter, SnapshotInProgressError
@@ -55,11 +56,7 @@ class SnapshotsViewSet(
         - `list` and `retrieve`: auth not required but access denied for private projects
         - `create`: auth required
         """
-        if self.action == "create":
-            permission_classes = [permissions.IsAuthenticated]
-        else:
-            permission_classes = []
-        return [permission() for permission in permission_classes]
+        return [permissions.IsAuthenticated()] if self.action == "create" else []
 
     def get_content_negotiator(self):
         """
@@ -68,10 +65,11 @@ class SnapshotsViewSet(
         This avoids DRF raising a not NotAcceptable exception for that
         action. Instead, the action handles content negotiation itself.
         """
-        if self.name == "Retrieve file":
-            return IgnoreClientContentNegotiation()
-        else:
-            return super().get_content_negotiator()
+        return (
+            IgnoreClientContentNegotiation()
+            if self.name == "Retrieve file"
+            else super().get_content_negotiator()
+        )
 
     # Views
 
@@ -124,7 +122,7 @@ class SnapshotsViewSet(
             event.save()
 
             serializer = SnapshotSerializer(snapshot)
-            return Response(serializer.data, status=status.HTTP_201_CREATED,)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except SnapshotInProgressError:
             in_progress_message = "A snapshot is already in progress for project {}.".format(
                 pk
@@ -157,7 +155,7 @@ class SnapshotsViewSet(
             event.finished = timezone.now()
             event.save()
 
-    @swagger_auto_schema(responses={status.HTTP_200_OK: SnapshotSerializer},)
+    @swagger_auto_schema(responses={status.HTTP_200_OK: SnapshotSerializer})
     def retrieve(self, request: Request, pk: int, number: int) -> Response:
         """
         Retrieve a snapshot of the project.
@@ -215,7 +213,10 @@ class SnapshotsViewSet(
         else:
             # Generate file for the format if necessary and return it
             response_path = snapshot_path(
-                snapshot, ".cache/{}.{}".format(path, format_id.value.default_extension)
+                snapshot,
+                utf8_path_join(
+                    ".cache", "{}.{}".format(path, format_id.value.default_extension)
+                ),
             )
             if not os.path.exists(response_path):
                 ConverterFacade(settings.STENCILA_BINARY).convert(
@@ -226,6 +227,10 @@ class SnapshotsViewSet(
         file = open(response_path, "rb")
 
         # Return "binary" files as attachments
+        # Using a FileResponse means the file is streamed back
+        # and that the mimetype is determined automatically from
+        # the files extension (including types that are not a
+        # registered in ConversionFormatId)
         if format_id is None or format_id.value.is_binary:
             return FileResponse(file, as_attachment=True)
 

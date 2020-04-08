@@ -25,6 +25,7 @@ class ConversionFormat(typing.NamedTuple):
     codec modules which also defined the equivalent of
     `mimetypes` and `extensions`.
     """
+
     format_id: str
     mimetypes: typing.Iterable[str]
     extensions: typing.List[str] = []
