@@ -139,10 +139,17 @@ class DatabaseTestCase(test.APITestCase):
                 )
             )
 
-    def create(self, user: Optional[User], type: str, data={}) -> Response:
+    def list(self, user: Optional[User], type: str, kwargs={}) -> Response:
+        """List objects of a type for a user."""
+        self.authenticate(user)
+        return self.client.get(reverse("api-{}-list".format(type), kwargs=kwargs))
+
+    def create(self, user: Optional[User], type: str, data={}, kwargs={}) -> Response:
         """Create an object of a type for a user."""
         self.authenticate(user)
-        return self.client.post(reverse("api-{}-list".format(type)), data)
+        return self.client.post(
+            reverse("api-{}-list".format(type), kwargs=kwargs), data
+        )
 
     def retrieve(self, user: Optional[User], type: str, kwargs, headers={}) -> Response:
         """Create an object of a type for a user."""

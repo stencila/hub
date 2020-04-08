@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -14,14 +14,26 @@ from projects.api.views.projects import (
     ProjectDetailView,
     ManifestView,
     ProjectListView,
-    SnapshotView,
     ProjectEventListView,
     AdminProjectEventListView,
 )
 from projects.api.views.nodes import NodesViewSet
+from projects.api.views.snapshots import SnapshotsViewSet
+
+snapshots = routers.SimpleRouter()
+snapshots.register("", SnapshotsViewSet, "api-snapshots")
+snapshots_urls = format_suffix_patterns(snapshots.urls)
+
+nodes = routers.SimpleRouter()
+nodes.register("", NodesViewSet, "api-nodes")
+nodes_urls = format_suffix_patterns(nodes.urls)
+
 
 projects_urls = [
-    path("", ProjectListView.as_view(), name="api_project_list"),
+    path("", ProjectListView.as_view(), name="api-projects-list"),
+    path("<int:pk>/snapshots/", include(snapshots_urls)),
+    # The following endpoints are not documented and reviewed
+    # yet.
     path("<int:pk>", ProjectDetailView.as_view(), name="api_project_detail"),
     path(
         "<int:pk>/item-create/",
@@ -43,7 +55,6 @@ projects_urls = [
     ),
     path("<int:pk>/sources/link", SourceLinkView.as_view(), name="api_sources_link"),
     path("<int:pk>/manifest/", ManifestView.as_view(), name="api_project_manifest"),
-    path("<int:pk>/snapshot/", SnapshotView.as_view(), name="api_project_snapshot"),
     path(
         "<int:project_pk>/events/",
         ProjectEventListView.as_view(),
@@ -60,7 +71,3 @@ projects_urls = [
         name="api_admin_project_events",
     ),
 ]
-
-nodes = routers.SimpleRouter()
-nodes.register("", NodesViewSet, "api-nodes")
-nodes_urls = format_suffix_patterns(nodes.urls)

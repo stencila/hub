@@ -4,9 +4,9 @@
 <table class="table is-fullwidth">
     <thead>
         <tr>
-            <th>Version</th>
-            <th>Snapshot Date</th>
+            <th>Number</th>
             <th>Tag</th>
+            <th>Date / time</th>
             <th></th>
         </tr>
     </thead>
@@ -14,8 +14,8 @@
         {% for snapshot in snapshots %}
             <tr>
                 <td>{{ snapshot.version_number }}</td>
-                <td>{{ snapshot.snapshot_time }}</td>
                 <td>{{ snapshot.tag|default:'–' }}</td>
+                <td>{{ snapshot.completed }}</td>
                 <td class="has-text-centered">
                     <a class="button" href="{% url 'snapshot_files' project.account.name  project.name snapshot.version_number %}">Browse Files</a>
                     <a class="button" href="{% url 'snapshot_archive' project.account.name  project.name snapshot.version_number %}">Download as Zip</a>

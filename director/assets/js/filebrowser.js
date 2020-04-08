@@ -1176,12 +1176,10 @@ Vue.component('snapshot-modal', {
         response => {
           this.snapshotInProgress = false
           response.json().then(data => {
-            if (data.success === false)
-              this.snapshotError = data.error
-            else {
+            if (response.status >= 400)
+              this.snapshotError = data.message
+            else
               this.snapshotComplete = true
-              this.snapshotUrl = data.url
-            }
           })
         },
         failureResponse => {
@@ -1221,8 +1219,8 @@ Vue.component('snapshot-modal', {
     '      </p>' +
     '    </section>' +
     '    <section class="modal-card-body" v-if="snapshotComplete">' +
-    '     <div class="notification is-success">' +
-    '       The snapshot was created successfully. You can view it <a :href="snapshotUrl">here</a>.' +
+    '     <div class="notification">' +
+    '       The snapshot was created successfully.' +
   '       </div>' +
     '    </section>' +
     '    <footer class="modal-card-foot" style="justify-content: space-between">' +

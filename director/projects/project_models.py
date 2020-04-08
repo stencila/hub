@@ -361,28 +361,40 @@ class Snapshot(models.Model):
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-        help_text="Project this snapshot belongs to.",
+        help_text="The project the snapshot belongs to.",
         related_name="snapshots",
     )
+
     path = models.TextField(help_text="The path to the snapshot directory on disk.")
-    created = models.DateTimeField(
-        auto_now_add=True, help_text="The date/time the Snapshot instance was created."
+
+    creator = models.ForeignKey(
+        "auth.User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="snapshots_created",
+        help_text="The user who created the snapshot.",
     )
-    snapshot_time = models.DateTimeField(
+
+    created = models.DateTimeField(
+        auto_now_add=True, help_text="The date/time the snapshot was created."
+    )
+
+    completed = models.DateTimeField(
         null=True,
         blank=True,
-        help_text="The time that Snapshot operation happened, "
-        "null if the snapshot has not yet been "
-        "performed.",
+        help_text="The date/time the snapshot was completed; "
+        "null if the snapshot has not yet started.",
     )
+
     version_number = models.PositiveIntegerField(
-        verbose_name="Each snapshot should have an incremental version."
+        help_text="The sequential number of the snapshot within the project."
     )
+
     tag = models.SlugField(
         null=True,
         blank=True,
-        help_text="A tag to identify the snapshot easily. Must be unique for "
-        "the project.",
+        help_text="A tag to identify the snapshot easily."
+        "Must be unique for the project.",
     )
 
     def __str__(self):

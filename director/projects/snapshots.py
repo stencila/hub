@@ -53,16 +53,20 @@ class ProjectSnapshotter:
             else:
                 new_version = 1
 
+            # Create and save the snapshot (to have a `created` timestamp)
             snapshot = Snapshot.objects.create(
                 project=project,
                 version_number=new_version,
                 tag=tag or None,  # default to None instead of empty string
+                creator=request.user,
             )
+            snapshot.save()
 
+            # Pull the project and and copy it to the snapshot's directory
             project_puller.pull()
             snapshot.path = generate_snapshot_directory(self.storage_root, snapshot)
             copytree(project_puller.project_directory, snapshot.path)
-            snapshot.snapshot_time = timezone.now()
+            snapshot.completed = timezone.now()
             snapshot.save()
         finally:
             project.snapshot_in_progress = False

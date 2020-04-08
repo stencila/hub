@@ -131,7 +131,7 @@
                 upload-url="{% url 'filesource_upload' project.account.name project.name %}?directory={{ current_directory }}"></upload-progress-modal>
         <unsupported-social-provider-modal
                 account-connections-url="{% url 'socialaccount_connections' %}"></unsupported-social-provider-modal>
-        <snapshot-modal snapshot-create-url="{% url 'api_project_snapshot' project.pk %}"></snapshot-modal>
+        <snapshot-modal snapshot-create-url="{% url 'api-snapshots-list' project.pk %}"></snapshot-modal>
         <googledocs-link-modal directory="{{ current_directory }}"
                                source-link-url="{% url 'api_sources_link' project.pk %}"></googledocs-link-modal>
         <url-link-modal directory="{{ current_directory }}"
