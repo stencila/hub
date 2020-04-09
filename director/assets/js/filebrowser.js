@@ -1138,18 +1138,23 @@ Vue.component('snapshot-modal', {
       tag: '',
       snapshotInProgress: false,
       snapshotComplete: false,
-      snapshotError: ''
+      snapshotError: '',
+      snapshotProject: 0,
+      snapshotNumber: 0
     }
   },
   computed: {
     actionButtonText () {
       if (this.snapshotInProgress) {
-        return 'Snapshot In Progress'
+        return 'Snapshot in progress'
       }
       if (this.snapshotComplete) {
-        return 'Snapshot Complete'
+        return 'Snapshot complete'
       }
       return 'Snapshot'
+    },
+    snapshotUrl () {
+      return `/projects/${this.snapshotProject}/snapshots/${this.snapshotNumber}/browse/`
     }
   },
   methods: {
@@ -1176,10 +1181,13 @@ Vue.component('snapshot-modal', {
         response => {
           this.snapshotInProgress = false
           response.json().then(data => {
-            if (response.status >= 400)
+            if (response.status >= 400) {
               this.snapshotError = data.message
-            else
+            } else {
               this.snapshotComplete = true
+              this.snapshotProject = data.project
+              this.snapshotNumber = data.number
+            }
           })
         },
         failureResponse => {
@@ -1201,12 +1209,12 @@ Vue.component('snapshot-modal', {
     '  <div class="modal-background"></div>' +
     '  <div class="modal-card">' +
     '    <header class="modal-card-head">' +
-    '      <p class="modal-card-title">Snapshot Project</p>' +
+    '      <p class="modal-card-title"><span class="icon is-small"><i class="fas fa-camera"></i></span>&nbsp;Snapshot project</p>' +
     '      <button class="delete" aria-label="close" @click="hide()"></button>' +
     '    </header>' +
     '    <section class="modal-card-body" v-if="!snapshotComplete">' +
-    '      <p>A snapshot is an immutable copy of all this Project\'s files and sources at the current time.</p>' +
-    '      <p>All content in linked sources will be downloaded to disk and saved as regular files.</p>' +
+    '      <p>A snapshot is a copy of all the project\'s files and sources at the current time.' +
+    '         All content in linked sources will be downloaded to disk and saved as regular files.</p>' +
     '      <div class="field">' +
     '        <label class="label" for="id_snapshot_tag">Tag</label>' +
     '        <div class="control">' +
@@ -1219,9 +1227,9 @@ Vue.component('snapshot-modal', {
     '      </p>' +
     '    </section>' +
     '    <section class="modal-card-body" v-if="snapshotComplete">' +
-    '     <div class="notification">' +
-    '       The snapshot was created successfully.' +
-  '       </div>' +
+    '       <span class="icon is-success"><i class="fas fa-check" aria-hidden="true"></span> Snapshot ' + 
+            '<a :href=snapshotUrl>#{{ snapshotNumber }}</a> ' +
+            'complete.' +
     '    </section>' +
     '    <footer class="modal-card-foot" style="justify-content: space-between">' +
     '      <button class="button is-primary" @click.prevent="snapshot()" :disabled="snapshotInProgress || snapshotComplete">{{ actionButtonText }}</button>' +
