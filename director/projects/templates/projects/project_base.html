@@ -30,19 +30,11 @@
                        class="panel-block{% if project_tab == 'sharing' %} is-active{% endif %}">
                         Sharing
                     </a>
-                    <a href="{% url 'project_settings_metadata' project.account.name project.name %}"
+                    <a href="{% url 'project_settings' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'settings' %} is-active{% endif %}">
                         Settings
                     </a>
                     <div class="panel-block-secondary{% if project_tab == 'settings' %} is-active{% endif %}">
-                        <a href="{% url 'project_settings_metadata' project.account.name project.name %}"
-                           class="panel-block{% if project_subtab == 'metadata' %} is-active{% endif %}">
-                            Meta-data
-                        </a>
-                        <a href="{% url 'project_settings_access' project.account.name project.name %}"
-                           class="panel-block{% if project_subtab == 'access' %} is-active{% endif %}">
-                            Access
-                        </a>
                         {% if FEATURE_PROJECT_SESSION_SETTINGS %}
                             <a href="{% url 'project_settings_sessions' project.account.name project.name %}"
                                class="panel-block{% if project_subtab == 'sessions' %} is-active{% endif %}">

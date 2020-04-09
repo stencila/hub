@@ -22,7 +22,7 @@ from lib.conversion_types import (
     ConversionFormatId,
     conversion_format_from_mimetype,
     conversion_format_from_path,
-    ConversionFormatError,
+    UnknownFormatError,
 )
 from lib.google_docs_facade import extract_google_document_id_from_url, GoogleDocsFacade
 
@@ -287,14 +287,14 @@ def download_from_response(
         if mimetype:
             try:
                 source_format = conversion_format_from_mimetype(mimetype)
-            except ConversionFormatError:
+            except UnknownFormatError:
                 pass  # Fall back to extension, in cases where HTTP server send back 'text/plain' for MD, for example
 
         if not source_format:
             try:
                 source_format = conversion_format_from_path(file_name)
             except ValueError:
-                raise ConversionFormatError(
+                raise UnknownFormatError(
                     'Unable to determine conversion format from mimetype "{}" or file name "{}".'.format(
                         mimetype, file_name
                     )
@@ -375,6 +375,7 @@ class ConverterContext(typing.NamedTuple):
     output_intermediary: bool = False
     maybe_zip: bool = False
     standalone: bool = True
+    theme: typing.Optional[str] = None
 
 
 class ConverterFacade(object):
@@ -389,21 +390,19 @@ class ConverterFacade(object):
         output_data: ConverterIo,
         context: typing.Optional[ConverterContext] = None,
     ) -> subprocess.CompletedProcess:
-        if output_data.conversion_format is None:
-            raise ValueError("The output_data conversion format must be specified.")
-
         convert_args: typing.List[str] = [
             "convert",
-            "--to",
-            output_data.conversion_format.value.format_id,
             input_data.as_path_shell_arg,
             output_data.as_path_shell_arg,
         ]
 
         if input_data.conversion_format:
-            # Only specify the input format if set, otherwise Encoda can try to figure it out
-            convert_args.insert(1, "--from")
-            convert_args.insert(2, input_data.conversion_format.value.format_id)
+            convert_args.extend(
+                ["--from", input_data.conversion_format.value.format_id]
+            )
+
+        if output_data.conversion_format:
+            convert_args.extend(["--to", output_data.conversion_format.value.format_id])
 
         if context:
             if context.output_intermediary:
@@ -420,6 +419,9 @@ class ConverterFacade(object):
 
             if context.standalone is False:
                 convert_args.append("--standalone=false")
+
+            if context.theme:
+                convert_args.extend(["--theme", context.theme])
 
         input_pipe_data = (
             input_data.data if input_data.io_type == ConverterIoType.PIPE else None

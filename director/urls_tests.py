@@ -173,15 +173,9 @@ checks = [
         bob=403
     ),
     check(
-        "/ada-personal-account/ada-private-project/settings/metadata",
+        "/ada-personal-account/ada-private-project/settings",
         anon=403,
-        ada=title("Project ada-private-project : Settings : Metadata"),
-        bob=403
-    ),
-    check(
-        "/ada-personal-account/ada-private-project/settings/access",
-        anon=403,
-        ada=title("Project ada-private-project : Settings : Access"),
+        ada=title("Project ada-private-project : Settings"),
         bob=403
     ),
     # API endpoints

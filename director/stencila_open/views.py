@@ -23,7 +23,7 @@ from requests import HTTPError
 from lib.conversion_types import (
     ConversionFormatId,
     conversion_format_from_path,
-    ConversionFormatError,
+    UnknownFormatError,
 )
 from lib.converter_facade import (
     fetch_url,
@@ -291,7 +291,7 @@ class OpenView(View):
 
             try:
                 input_format = conversion_format_from_path(cr.original_filename)
-            except ConversionFormatError:
+            except UnknownFormatError:
                 cr.invalid_source_format = True
             else:
                 with tempfile.NamedTemporaryFile(delete=False) as source_file:
@@ -321,7 +321,7 @@ class OpenView(View):
                     )
                     cr.source_io = source_io
                     cr.original_filename = file_name
-                except ConversionFormatError:
+                except UnknownFormatError:
                     cr.invalid_source_format = True
         return cr
 
@@ -669,9 +669,7 @@ class OpenResultRawView(View):
         output_format = ConversionFormatId.from_id(format_name)
 
         # Use specified extension (e.g. for jats.xml) or fall back to format_id)
-        extension = (
-            output_format.value.output_extension or output_format.value.format_id
-        )
+        extension = output_format.value.default_extension
 
         if conversion.original_filename:
             original_filename, _ = splitext(conversion.original_filename)

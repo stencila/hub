@@ -1,6 +1,6 @@
 # flake8: noqa F401
 
-from .project_models import Project
+from .project_models import Project, Snapshot
 from .session_models import Session, SessionParameters
 from .source_models import (
     Source,

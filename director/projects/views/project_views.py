@@ -39,8 +39,7 @@ from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
 from projects.project_forms import (
     ProjectCreateForm,
     ProjectSharingForm,
-    ProjectSettingsMetadataForm,
-    ProjectSettingsAccessForm,
+    ProjectSettingsForm,
     ProjectSettingsSessionsForm,
 )
 from projects.project_models import ProjectEventType, PROJECT_EVENT_LONG_TYPE_LOOKUP
@@ -69,8 +68,6 @@ class ProjectTab(Enum):
     ACTIVITY = "activity"
     SHARING = "sharing"
     SETTINGS = "settings"
-    SETTINGS_METADATA = "metadata"
-    SETTINGS_ACCESS = "access"
     SETTINGS_SESSIONS = "sessions"
 
 
@@ -553,24 +550,20 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         return redirect("project_sharing", account_name, project_name)
 
 
-class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
+class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
     model = Project
-    form_class = ProjectSettingsMetadataForm
-    template_name = "projects/project_settings_metadata.html"
+    form_class = ProjectSettingsForm
+    template_name = "projects/project_settings.html"
     project_permission_required = ProjectPermissionType.MANAGE
 
     def get_success_url(self) -> str:
         return reverse(
-            "project_settings_metadata",
-            args=(self.object.account.name, self.object.name),
+            "project_settings", args=(self.object.account.name, self.object.name),
         )
 
     def get_context_data(self, **kwargs):
-        context_data = super(ProjectSettingsMetadataView, self).get_context_data(
-            **kwargs
-        )
+        context_data = super(ProjectSettingsView, self).get_context_data(**kwargs)
         context_data["project_tab"] = ProjectTab.SETTINGS.value
-        context_data["project_subtab"] = ProjectTab.SETTINGS_METADATA.value
         return context_data
 
     def form_valid(self, form: ModelForm):
@@ -578,24 +571,6 @@ class ProjectSettingsMetadataView(ProjectPermissionsMixin, UpdateView):
         if project_save(form, form):
             return super().form_valid(form)
         return super().form_invalid(form)
-
-
-class ProjectSettingsAccessView(ProjectPermissionsMixin, UpdateView):
-    model = Project
-    form_class = ProjectSettingsAccessForm
-    template_name = "projects/project_settings_access.html"
-    project_permission_required = ProjectPermissionType.MANAGE
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "project_settings_access", args=(self.object.account.name, self.object.name)
-        )
-
-    def get_context_data(self, **kwargs):
-        context_data = super(ProjectSettingsAccessView, self).get_context_data(**kwargs)
-        context_data["project_tab"] = ProjectTab.SETTINGS.value
-        context_data["project_subtab"] = ProjectTab.SETTINGS_ACCESS.value
-        return context_data
 
 
 class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):

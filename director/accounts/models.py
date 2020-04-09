@@ -57,7 +57,22 @@ class Account(models.Model):
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text="Logo for the account. Please use an image that is 100 x 100 px or smaller. ",
+        help_text="Logo for the account. Please use an image that is 100 x 100 px or smaller.",
+    )
+
+    theme = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The name of the theme to use as the default when generating content for this account."
+        # In the future this may be a path to a Thema compatible theme hosted on the Hub or elsewhere.
+        # Because of that, it is not a ChoiceField based on the list of names in `assets.thema.themes`.
+    )
+
+    hosts = models.TextField(
+        null=True,
+        blank=True,
+        help_text="A space separated list of valid hosts for the account."
+        "Used for setting Content Security Policy headers when serving content for this account.",
     )
 
     def save(self, *args, **kwargs) -> None:

@@ -11,6 +11,7 @@ from accounts.models import Account
 from lib.forms import ModelFormWithSubmit, FormWithSubmit
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
+from assets.thema import themes
 
 
 class ProjectCreateForm(ModelFormWithSubmit):
@@ -77,34 +78,39 @@ class ProjectSharingForm(forms.ModelForm):
         )
 
 
-class ProjectSettingsMetadataForm(ModelFormWithSubmit):
-    class Meta:
-        model = Project
-        fields = ["name", "description"]
+class ProjectSettingsForm(forms.ModelForm):
 
-
-class ProjectSettingsAccessForm(forms.ModelForm):
-    class Meta:
-        model = Project
-        fields = ["token", "key"]
-        widgets = {"token": forms.TextInput(), "key": forms.TextInput()}
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                HTML(
-                    '<p class="title is-6 is-uppercase-heading">API access</p>'
-                    '<p class="subtitle is-6">Set tokens and keys for API access to this project</p>'
-                ),
-                "token",
-                "key",
-                HTML("<br>"),
+    helper = FormHelper()
+    helper.layout = Layout(
+        Div(
+            HTML(
+                '<p class="title is-4">Identity</p>'
+                '<p class="subtitle is-5">Settings for your project\'s profile.</p>'
             ),
-            Submit("submit", "Update", css_class="button is-primary"),
-        )
+            "name",
+            "description",
+            css_class="section",
+        ),
+        Div(
+            HTML(
+                '<p class="title is-4">Content</p>'
+                '<p class="subtitle is-5">Settings affecting how content is served for your project.</p>'
+            ),
+            "theme",
+            css_class="section",
+        ),
+        Submit("submit", "Update", css_class="button is-primary"),
+    )
+
+    class Meta:
+        model = Project
+        fields = ["name", "description", "theme"]
+        widgets = {
+            "theme": forms.Select(
+                choices=[(None, "")] + [(theme, theme) for theme in themes]
+            ),
+            "hosts": forms.TextInput(),
+        }
 
 
 class ProjectSettingsSessionsForm(forms.ModelForm):

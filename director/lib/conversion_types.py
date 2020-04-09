@@ -11,14 +11,30 @@ DOCX_MIMETYPES = (
 )
 
 
-class UnknownMimeTypeError(ValueError):
-    pass
-
-
 class ConversionFormat(typing.NamedTuple):
+    """
+    Specification of a format.
+
+    The `format_id` should be a lowercase string and
+    map to a "codec" in Encoda.
+    In the future, these specs may be generated from Encoda
+    codec modules which also defined the equivalent of
+    `mimetypes` and `extensions`.
+    """
+
     format_id: str
     mimetypes: typing.Iterable[str]
-    output_extension: typing.Optional[str] = None
+    extensions: typing.List[str] = []
+
+    @property
+    def default_extension(self) -> str:
+        """Get the default extension for the format."""
+        return self.extensions[0] if self.extensions else self.format_id
+
+    @property
+    def is_binary(self) -> bool:
+        """Is the format be considered binary when determining the type of HTTP response."""
+        return self.format_id not in ("html", "json", "jsonld", "md", "rmd", "xml")
 
 
 class ConversionFormatId(enum.Enum):
@@ -36,12 +52,12 @@ class ConversionFormatId(enum.Enum):
     gdoc = ConversionFormat("gdoc", ["application/vnd.google-apps.document"])
     html = ConversionFormat("html", ["text/html"])
     ipynb = ConversionFormat("ipynb", ["application/x-ipynb+json"])
-    jats = ConversionFormat("jats", ["text/xml+jats"], "jats.xml")
+    jats = ConversionFormat("jats", ["text/xml+jats"], ["jats.xml"])
     json = ConversionFormat("json", ["application/json"])
     jsonld = ConversionFormat("jsonld", ["application/ld+json"])
     md = ConversionFormat("md", ["text/markdown"])
     pdf = ConversionFormat("pdf", ["application/pdf"])
-    rnb = ConversionFormat("rnb", ["text/html+rstudio"], "nb.html")
+    rnb = ConversionFormat("rnb", ["text/html+rstudio"], ["nb.html"])
     rmd = ConversionFormat("rmd", ["text/rmarkdown"])
     xml = ConversionFormat("xml", ["application/xml"])
 
@@ -95,12 +111,29 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
     return mimetype
 
 
+class UnknownMimeTypeError(ValueError):
+    pass
+
+
+class UnknownFormatError(ValueError):
+    pass
+
+
+def conversion_format_from_id(format_id: str) -> ConversionFormatId:
+    try:
+        return ConversionFormatId.from_id(format_id)
+    except ValueError:
+        raise UnknownFormatError(
+            "Unable to resolve format from id {}".format(format_id)
+        )
+
+
 def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
     try:
         return ConversionFormatId.from_mimetype(mimetype)
-    except (UnknownMimeTypeError, ValueError):
-        raise ConversionFormatError(
-            "Unable to create ConversionFormatId from mimetype {}".format(mimetype)
+    except ValueError:
+        raise UnknownFormatError(
+            "Unable to resolve format from MIME type {}".format(mimetype)
         )
 
 
@@ -112,7 +145,3 @@ def conversion_format_from_path(path: str) -> ConversionFormatId:
             "MIME type could not be determined for path: {}".format(path)
         )
     return conversion_format_from_mimetype(mimetype)
-
-
-class ConversionFormatError(Exception):
-    pass
