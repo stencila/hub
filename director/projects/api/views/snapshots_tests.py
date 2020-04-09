@@ -179,25 +179,79 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert b"".join(response.streaming_content).decode("ascii") == "Test content"
 
+    def test_retrieve_file_errors(self):
+        number = self.create_snap(self.ada, self.ada_private).data["number"]
+
+        response = self.retrieve_file(self.bob, self.ada_private, number, "test.txt")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        response = self.retrieve_file(self.ada, self.ada_private, number, "foo.txt")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+        response = self.retrieve_file(
+            self.ada, self.ada_private, number, "test.txt", data={"format": "foo"}
+        )
+        assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
+        assert (
+            response.data["message"]
+            == "Could not satisfy the request format parameter or Accept header"
+        )
+
     def test_retrieve_file_converted(self):
         number = self.create_snap(self.ada, self.ada_public).data["number"]
 
-        response = self.retrieve_file(
-            None, self.ada_public, number, "test.txt", data={"format": "html"}
-        )
-        assert response.status_code == status.HTTP_200_OK
+        def get(**kwargs):
+            response = self.retrieve_file(
+                None, self.ada_public, number, "test.txt", **kwargs
+            )
+            assert response.status_code == status.HTTP_200_OK
+
+        # Using the format query parameter
+        get(data={"format": "html"})
         assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test.txt.html")
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt.html")
         )
 
-        response = self.retrieve_file(
-            None,
-            self.ada_public,
-            number,
-            "test.txt",
-            headers={"HTTP_ACCEPT": "application/pdf"},
-        )
-        assert response.status_code == status.HTTP_200_OK
+        # Using the accept header
+        get(headers={"HTTP_ACCEPT": "application/pdf"})
         assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test.txt.pdf")
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt.pdf")
         )
+
+        # With the account theme set
+        self.ada_account.theme = "org-theme"
+        self.ada_account.save()
+        get(data={"format": "html"})
+        assert os.path.exists(
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-org-theme.html")
+        )
+
+        # The project theme overrides the account theme
+        self.ada_public.theme = "a/local/project/theme"
+        self.ada_public.save()
+        get(data={"format": "html"})
+        assert os.path.exists(
+            os.path.join(
+                TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-alocalprojecttheme.html"
+            )
+        )
+
+        # And the theme query parameter trumps them all
+        get(data={"format": "html", "theme": "wilmore"})
+        assert os.path.exists(
+            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-wilmore.html")
+        )
+
+    def test_retrieve_file_csp(self):
+        """Test that headers are set if the account has hosts set."""
+        self.bob_account.hosts = "https://*.example.com http://example.com"
+        self.bob_account.save()
+
+        number = self.create_snap(self.bob, self.bob_public).data["number"]
+
+        response = self.retrieve_file(None, self.bob_public, number, "test.txt")
+        assert (
+            response["Content-Security-Policy"]
+            == "frame-ancestors https://*.example.com http://example.com;"
+        )
+        assert response["X-Frame-Options"] == "allow-from https://*.example.com"

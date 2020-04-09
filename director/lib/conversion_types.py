@@ -11,10 +11,6 @@ DOCX_MIMETYPES = (
 )
 
 
-class UnknownMimeTypeError(ValueError):
-    pass
-
-
 class ConversionFormat(typing.NamedTuple):
     """
     Specification of a format.
@@ -115,12 +111,29 @@ def mimetype_from_path(path: str) -> typing.Optional[str]:
     return mimetype
 
 
+class UnknownMimeTypeError(ValueError):
+    pass
+
+
+class UnknownFormatError(ValueError):
+    pass
+
+
+def conversion_format_from_id(format_id: str) -> ConversionFormatId:
+    try:
+        return ConversionFormatId.from_id(format_id)
+    except ValueError:
+        raise UnknownFormatError(
+            "Unable to resolve format from id {}".format(format_id)
+        )
+
+
 def conversion_format_from_mimetype(mimetype: str) -> ConversionFormatId:
     try:
         return ConversionFormatId.from_mimetype(mimetype)
-    except (UnknownMimeTypeError, ValueError):
-        raise ConversionFormatError(
-            "Unable to create ConversionFormatId from mimetype {}".format(mimetype)
+    except ValueError:
+        raise UnknownFormatError(
+            "Unable to resolve format from MIME type {}".format(mimetype)
         )
 
 
@@ -132,7 +145,3 @@ def conversion_format_from_path(path: str) -> ConversionFormatId:
             "MIME type could not be determined for path: {}".format(path)
         )
     return conversion_format_from_mimetype(mimetype)
-
-
-class ConversionFormatError(Exception):
-    pass

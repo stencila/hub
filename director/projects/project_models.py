@@ -134,6 +134,13 @@ class Project(models.Model):
         help_text="Should be set true when a Snapshot begins for a project.",
     )
 
+    theme = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The name of the theme to use as the default when generating content for this project."
+        # See note for the `Account.theme` field for why this is a TextField.
+    )
+
     def __str__(self):
         return self.name
 
