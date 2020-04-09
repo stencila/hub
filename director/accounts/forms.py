@@ -50,7 +50,9 @@ class AccountSettingsForm(CleanNameMixin, forms.ModelForm):
         model = Account
         fields = ("name", "logo", "theme", "hosts")
         widgets = {
-            "theme": forms.Select(choices=[(theme, theme) for theme in themes]),
+            "theme": forms.Select(
+                choices=[(None, "")] + [(theme, theme) for theme in themes]
+            ),
             "hosts": forms.TextInput(),
         }
 

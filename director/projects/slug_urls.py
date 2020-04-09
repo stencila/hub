@@ -99,14 +99,9 @@ urlpatterns = [
         name="project_sharing_roles",
     ),
     path(
-        ProjectUrlRoot.settings.value + "/metadata/",
-        project_views.ProjectSettingsMetadataView.as_view(),
-        name="project_settings_metadata",
-    ),
-    path(
-        ProjectUrlRoot.settings.value + "/access/",
-        project_views.ProjectSettingsAccessView.as_view(),
-        name="project_settings_access",
+        ProjectUrlRoot.settings.value,
+        project_views.ProjectSettingsView.as_view(),
+        name="project_settings",
     ),
     path(
         ProjectUrlRoot.snapshots.value + "/",
