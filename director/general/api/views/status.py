@@ -32,6 +32,7 @@ class StatusView(generics.GenericAPIView):
     """
 
     permission_classes = (permissions.AllowAny,)
+    pagination_class = None
 
     @swagger_auto_schema(responses={200: StatusResponse})
     def get(self, request: Request) -> Response:
