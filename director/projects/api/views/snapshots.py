@@ -257,11 +257,12 @@ class SnapshotsViewSet(
         self, request: Request, pk: int, number: int, path: str
     ) -> Response:
         """
-        Retrieve a file within the snapshot of the project.
+        Retrieve a file within a snapshot of the project.
 
-        Returns the content of the file, either as is, or converted
-        to the desired format as specified in the `format` query parameter
-        or the `Accept` header.
+        Returns the content of the file, either as is (if the `raw` parameter
+        is supplied), or converted to the desired format as specified in the `format`
+        query parameter or the `Accept` header. Use the `download` parameter to
+        force `Content-Disposition: attachment`.
         """
         # Check that the user has VIEW permissions for the project
         project = self.get_project(request.user, pk=pk)
@@ -297,7 +298,7 @@ class SnapshotsViewSet(
             request.query_params.get("theme") or project.theme or project.account.theme
         )
 
-        raw = request.query_params.get("raw")
+        raw = "raw" in request.query_params
         if raw or format_id is None:
             # Respond with the file
             response_path = file_path
@@ -321,11 +322,12 @@ class SnapshotsViewSet(
 
         # Return "binary" files as attachments with mimetype is determined automatically from
         # the files extension.
+        download = "download" in request.query_params
         if format_id is None or format_id.value.is_binary:
             as_attachment = True
             content_type = None
         else:
-            as_attachment = False
+            as_attachment = download
             content_type = format_id.value.mimetypes[0]
 
         response = FileResponse(

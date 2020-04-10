@@ -123,11 +123,6 @@ urlpatterns = [
                     name="snapshot_files_path",
                 ),
                 path(
-                    "<int:version>/download/<path:path>",
-                    snapshot_views.DownloadView.as_view(),
-                    name="snapshot_files_download",
-                ),
-                path(
                     "<int:version>/view/<path:path>",
                     snapshot_views.ContentView.as_view(),
                     name="snapshot_files_view",

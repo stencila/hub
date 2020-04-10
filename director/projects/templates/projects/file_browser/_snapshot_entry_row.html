@@ -6,7 +6,7 @@
     <td class="has-text-centered">
         {% if not directory_entry.is_directory %}
             <snapshot-item-action-menu
-                    download-url="{% url 'snapshot_files_download' project.account.name project.name snapshot.version_number directory_entry.path %}"
+                    download-url="{% url 'api-snapshots-retrieve-file' project.id snapshot.number directory_entry.path %}?raw&download"
                     {% if directory_entry|is_text_editable %}
                     view-url="{% url 'snapshot_files_view' project.account.name project.name snapshot.version_number directory_entry.path  %}"
                     {% endif %}

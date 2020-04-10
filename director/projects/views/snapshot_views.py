@@ -90,29 +90,6 @@ class FileBrowserView(SnapshotView):
         )
 
 
-class DownloadView(SnapshotView):
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def get(  # type: ignore
-        self,
-        request: HttpRequest,
-        account_name: str,
-        project_name: str,
-        version: int,
-        path: str,
-    ) -> FileResponse:
-        snapshot, file_path = self.get_snapshot_and_path(
-            request, account_name, project_name, version, path
-        )
-
-        if file_path is None:
-            raise TypeError(
-                "Can't open a None path. But this won't happen unless path being passed is None."
-            )
-
-        return FileResponse(open(file_path, "rb"), as_attachment=True)
-
-
 class ContentView(SnapshotView):
     project_permission_required = ProjectPermissionType.VIEW
 
@@ -228,13 +205,8 @@ class PreviewView(ConverterMixin, SnapshotView):
             request,
             pi,
             reverse(
-                "snapshot_files_download",
-                args=(
-                    project.account.name,
-                    project.name,
-                    snapshot.version_number,
-                    pi.source_path,
-                ),
+                "api-snapshots-retrieve-file",
+                args=(project.id, snapshot.number, pi.source_path,),
             ),
             "HTML Preview of {}".format(pi.source_path),
         )

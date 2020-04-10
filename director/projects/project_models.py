@@ -383,7 +383,7 @@ class Snapshot(models.Model):
     @property
     def number(self):
         """
-        The number of the snapshot.
+        Get the number of the snapshot.
 
         An alias for `version_number` to allow for "renaming" the field
         without doing a migration (that involves a unique_together field).
