@@ -1,9 +1,8 @@
 from avatar.utils import get_primary_avatar
+from knox.models import AuthToken
 from rest_framework import serializers
 
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,3 +18,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("id", "username", "first_name", "last_name", "avatar")
+
+
+class TokenSerializer(serializers.ModelSerializer):
+
+    id = serializers.CharField(
+        source="token_key", help_text="First eight characters of the token."
+    )
+
+    class Meta:
+        model = AuthToken
+        fields = ["user", "id", "created", "expiry"]

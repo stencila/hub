@@ -1,5 +1,10 @@
-from django.urls import re_path
+from rest_framework import routers
 
-from users.api.views import UserSearch
+from users.api.views.tokens import TokensViewSet
+from users.api.views.users import UsersViewSet
 
-urlpatterns = [re_path(r"search/?", UserSearch.as_view())]
+tokens = routers.SimpleRouter()
+tokens.register("", TokensViewSet, "api-tokens")
+
+users = routers.SimpleRouter()
+users.register("", UsersViewSet, "api-users")

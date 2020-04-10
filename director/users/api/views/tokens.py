@@ -31,7 +31,7 @@ import knox.views
 import knox.crypto
 from knox.settings import CONSTANTS as KNOX_CONSTANTS, knox_settings
 
-from general.api.serializers import TokenSerializer
+from users.api.serializers import TokenSerializer
 
 
 # Claims verified for OpenID JWTs issued by Google
@@ -103,6 +103,8 @@ class TokensViewSet(
     viewsets.GenericViewSet,
 ):
 
+    # Configuration
+
     serializer_class = TokenSerializer
     lookup_url_kwarg = "token"
 
@@ -159,6 +161,8 @@ class TokensViewSet(
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
+
+    # Views
 
     def list(self, request):
         """

@@ -52,7 +52,7 @@ Vue.component('user-autocomplete', {
     },
     methods: {
         performSearch(query) {
-            fetch(`/api/users/search?q=${query}`).then(response => {
+            fetch(`/api/users?q=${query}`).then(response => {
                 return response.json()
             }, (response) => {
                 console.error(response)

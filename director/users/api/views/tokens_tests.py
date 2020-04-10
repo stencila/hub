@@ -9,8 +9,8 @@ from rest_framework import status
 from rest_framework_jwt.serializers import jwt_encode_handler
 import jwt
 
-from general.api.views.tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
 from general.testing import DatabaseTestCase
+from users.api.views.tokens import generate_username, GOOGLE_ISS, GOOGLE_AUDS
 
 
 def parse_date(date_string):
