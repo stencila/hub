@@ -1,10 +1,12 @@
 from datetime import datetime
-import time
 from unittest import mock
+import base64
+import time
 
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.urls import reverse
+from knox.settings import knox_settings
 from rest_framework import status
 from rest_framework_jwt.serializers import jwt_encode_handler
 import jwt
@@ -17,9 +19,20 @@ def parse_date(date_string):
     return datetime.fromisoformat(date_string.replace("Z", "+00:00"))
 
 
-class TestCase(DatabaseTestCase):
-    def list(self):
-        return self.client.get(reverse("api-tokens-list"))
+class TokenTestCase(DatabaseTestCase):
+    """Base test case for testing token CRUD and authentication."""
+
+    def authenticate(self, token, prefix=knox_settings.AUTH_HEADER_PREFIX):
+        self.client.credentials(HTTP_AUTHORIZATION="{} {}".format(prefix, token))
+
+    def unauthenticate(self):
+        self.client.credentials()
+
+    def list(self, token):
+        self.authenticate(token)
+        response = self.client.get(reverse("api-tokens-list"))
+        self.unauthenticate()
+        return response
 
     def create(self, data={}):
         return self.client.post(reverse("api-tokens-list"), data)
@@ -31,8 +44,8 @@ class TestCase(DatabaseTestCase):
         return self.client.delete(reverse("api-tokens-detail", kwargs={"token": token}))
 
 
-class TokenFlowTests(TestCase):
-    """Test granting, verifying, refreshing, and revoking tokens."""
+class TokenFlowTests(TokenTestCase):
+    """Test granting, listing, refreshing, and revoking tokens."""
 
     def test_success(self):
         sam = User.objects.create_user("sam", password="sam")
@@ -52,6 +65,11 @@ class TokenFlowTests(TestCase):
         assert created <= timezone.now()
         assert expiry > timezone.now()
 
+        # List
+        response = self.list(token)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["results"]
+
         # Retrieve (also refreshes)
         response = self.retrieve(token)
         assert response.status_code == status.HTTP_200_OK
@@ -60,6 +78,7 @@ class TokenFlowTests(TestCase):
         assert parse_date(response.data["created"]) == created
         assert parse_date(response.data["expiry"]) > expiry
 
+        # Destroy
         response = self.destroy(token)
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -96,7 +115,7 @@ class TokenFlowTests(TestCase):
         assert response.data["message"] == "Not found."
 
 
-class TokenCreateOpenIdTests(TestCase):
+class TokenCreateOpenIdTests(TokenTestCase):
     """Test creating an authentication token using an OpenId token."""
 
     def create(self, claims):
@@ -207,3 +226,58 @@ class TokenCreateOpenIdTests(TestCase):
         User.objects.create_user("joseph-james")
 
         assert generate_username("joe@example.us", "Joseph", "James") == "joeexampleus"
+
+
+class TokenAuthenticationTests(TokenTestCase):
+    """Test authenticating with a token."""
+
+    def me(self):
+        return self.client.get(reverse("api-users-retrieve-me"))
+
+    def test_success(self):
+        self.authenticate(self.ada_token)
+        response = self.me()
+        assert response.data["username"] == "ada"
+
+        self.authenticate(self.bob_token)
+        response = self.me()
+        assert response.data["username"] == "bob"
+
+        self.authenticate(base64.b64encode((self.cam_token).encode()).decode(), "Basic")
+        response = self.me()
+        assert response.data["username"] == "cam"
+
+    def test_failure(self):
+        self.authenticate("fake-token", "Token")
+        response = self.me()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.data["message"] == "Invalid token."
+
+        self.authenticate("", "Basic")
+        response = self.me()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert (
+            response.data["message"]
+            == "Invalid Basic authorization header. No credentials provided."
+        )
+
+        self.authenticate("too many parts", "Basic")
+        response = self.me()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert (
+            response.data["message"]
+            == "Invalid Basic authorization header. Credentials string should not contain spaces."
+        )
+
+        self.authenticate("//////", "Basic")
+        response = self.me()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert (
+            response.data["message"]
+            == "Invalid Basic authorization header. Credentials not correctly base64 encoded."
+        )
+
+        self.authenticate(base64.b64encode("fake-token".encode()).decode(), "Basic")
+        response = self.me()
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.data["message"] == "Invalid token."

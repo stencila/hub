@@ -281,7 +281,7 @@ class Common(Configuration):
         ),
         "DEFAULT_AUTHENTICATION_CLASSES": (
             # Default is for token and Django session authentication
-            "general.api.auth.BasicAuthentication",
+            "general.api.authentication.BasicAuthentication",
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ),
