@@ -16,7 +16,8 @@ from lib.converter_facade import (
     ConverterContext,
 )
 
-# Set up
+
+# Set up temporary folders to run tests on
 snapshots_dir = tempfile.mkdtemp()
 snapshot_1_dir = os.path.join(snapshots_dir, "1")
 os.mkdir(snapshot_1_dir)
@@ -64,13 +65,8 @@ class MockConverter:
         shutil.copyfile(input_data.data, output_data.data)
 
 
-class SnapshotAPIViewsTest(DatabaseTestCase):
-    """
-    Test API views for snapshots.
-
-    Tests for the `ProjectSnapshotter` should be done elsewhere.
-    It is mocked in these tests.
-    """
+class SnapshotsAPIViewsTest(DatabaseTestCase):
+    """Test API views for snapshots."""
 
     def setUp(self):
         super().setUp()
@@ -79,13 +75,14 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
         )
         self.patch_snapshotter.start()
 
-        self.patch_snapshotter = mock.patch(
+        self.patch_converter = mock.patch(
             "projects.api.views.snapshots.ConverterFacade", new=MockConverter,
         )
-        self.patch_snapshotter.start()
+        self.patch_converter.start()
 
     def tearDown(self):
         self.patch_snapshotter.stop()
+        self.patch_converter.stop()
 
     # Type specific CRUD methods (no U & D methods though)
 
