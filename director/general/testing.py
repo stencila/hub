@@ -139,14 +139,15 @@ class DatabaseTestCase(test.APITestCase):
                 )
             )
 
-    def list(self, user: Optional[User], viewname: str, kwargs={}) -> Response:
+    def list(self, user: Optional[User], viewname: str, data={}, kwargs={}) -> Response:
         """List objects of a type for a user."""
         self.authenticate(user)
         return self.client.get(
             reverse(
                 viewname if "-" in viewname else "api-{}-list".format(viewname),
                 kwargs=kwargs,
-            )
+            ),
+            data,
         )
 
     def create(

@@ -13,7 +13,7 @@ class StatusAPIViewTests(APITestCase):
     """Test that unauthenticated user can get status."""
 
     url = reverse("api-status")
-    
+
     def test_ok(self):
         response = self.client.get(self.url)
         assert response.status_code == status.HTTP_200_OK
@@ -29,17 +29,19 @@ class StatusAPIViewTests(APITestCase):
 
     def test_db_error(self):
         with mock.patch(
-            "general.api.views.status.migrations_pending", new=migrations_pending_operational_error,
+            "general.api.views.status.migrations_pending",
+            new=migrations_pending_operational_error,
         ):
             response = self.client.get(self.url)
             assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
     def test_other_error(self):
         with mock.patch(
-            "general.api.views.status.migrations_pending", new=migrations_pending_other_error,
+            "general.api.views.status.migrations_pending",
+            new=migrations_pending_other_error,
         ):
-            with pytest.raises(RuntimeError, match='beep boop'):
-                response = self.client.get(self.url)
+            with pytest.raises(RuntimeError, match="beep boop"):
+                self.client.get(self.url)
 
 
 def migrations_pending_true():
