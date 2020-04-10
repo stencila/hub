@@ -7,10 +7,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import (
     negotiation,
     mixins,
     permissions,
+    serializers,
     status,
     viewsets,
 )
@@ -18,6 +20,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, NotAcceptable, NotFound
 from rest_framework.request import Request
 from rest_framework.response import Response
+import mimetypes
+import shutil
 
 from general.api.exceptions import ConflictError
 from lib.converter_facade import (
@@ -38,8 +42,53 @@ from projects.models import Snapshot
 from projects.project_models import ProjectEvent, ProjectEventType, ProjectEventLevel
 from projects.snapshots import ProjectSnapshotter, SnapshotInProgressError
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
-from projects.api.serializers import SnapshotSerializer, SnapshotCreateRequestSerializer
+from projects.api.serializers import SnapshotSerializer
 from projects.source_operations import snapshot_path
+
+# Create a dictionary of extension names (without dot) to archive formats
+# Use `get_unpack_formats` instead of `get_archive_formats` because it
+# provides file extension names
+archive_formats = dict(
+    [(format[1][0][1:], format[0]) for format in shutil.get_unpack_formats()]
+)
+retreive_formats = ["json"] + list(archive_formats.keys())
+
+
+class SnapshotCreateRequestSerializer(serializers.ModelSerializer):
+    """The request data when creating a snapshot."""
+
+    class Meta:
+        model = Snapshot
+        fields = ["tag"]
+        ref_name = None
+
+
+class SnapshotContentNegotiation(negotiation.DefaultContentNegotiation):
+    """
+    Custom content negotiator for snapshots.
+
+    Ignores the client requested format and
+    returns the first default renderer (usually JSON).
+    The `retrieve` and `retreive_file` actions handle
+    content negotiation and rendering themselves.
+    But this class will be used for other actions and for
+    any errors.
+    """
+
+    def select_renderer(self, request, renderers, format_suffix):
+        return (renderers[0], renderers[0].media_type)
+
+
+class SnapshotRetrieveSchema(SwaggerAutoSchema):
+    """Custom schema inspector for the retreive action."""
+
+    def get_produces(self):
+        produces = []
+        for ext in retreive_formats:
+            type, encoding = mimetypes.guess_type("file." + ext)
+            value = "{}+{}".format(type, encoding) if encoding is not None else type
+            produces.append(value)
+        return produces
 
 
 class SnapshotsViewSet(
@@ -50,8 +99,10 @@ class SnapshotsViewSet(
     ProjectPermissionsMixin,
 ):
 
-    # Settings
+    # Configuration
 
+    queryset = Snapshot.objects.all()
+    content_negotiation_class = SnapshotContentNegotiation
     serializer_class = SnapshotSerializer
     lookup_field = "number"
 
@@ -63,19 +114,6 @@ class SnapshotsViewSet(
         - `create`: auth required
         """
         return [permissions.IsAuthenticated()] if self.action == "create" else []
-
-    def get_content_negotiator(self):
-        """
-        Customise the content negotiator for the `retrieve_file` action.
-
-        This avoids DRF raising a not NotAcceptable exception for that
-        action. Instead, the action handles content negotiation itself.
-        """
-        return (
-            IgnoreClientContentNegotiation()
-            if self.name == "Retrieve file"
-            else super().get_content_negotiator()
-        )
 
     # Views
 
@@ -90,7 +128,7 @@ class SnapshotsViewSet(
             raise PermissionDenied
 
         queryset = project.snapshots.all()
-        serializer = SnapshotSerializer(queryset, many=True)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(
@@ -161,7 +199,7 @@ class SnapshotsViewSet(
             event.finished = timezone.now()
             event.save()
 
-    @swagger_auto_schema(responses={status.HTTP_200_OK: SnapshotSerializer})
+    @swagger_auto_schema(auto_schema=SnapshotRetrieveSchema)
     def retrieve(self, request: Request, pk: int, number: int) -> Response:
         """
         Retrieve a snapshot of the project.
@@ -174,9 +212,45 @@ class SnapshotsViewSet(
         if not self.has_permission(ProjectPermissionType.VIEW):
             raise PermissionDenied
 
+        # Get the request format
+        format = request.query_params.get("format")
+        if format is None:
+            accept = request.META.get("HTTP_ACCEPT")
+            if accept:
+                ext = mimetypes.guess_extension(accept)
+                if ext:
+                    format = ext[1:]
+                else:
+                    format = {
+                        "application/x-tar+bzip2": "tar.bz2",
+                        "application/x-tar+gzip": "tar.gz",
+                        "application/x-tar+xz": "tar.xz",
+                    }.get(accept)
+
+        if format is None:
+            format = "json"
+
+        if format not in retreive_formats:
+            raise NotAcceptable(
+                "Could not satisfy the requested format '{}', must be one of {}".format(
+                    format, retreive_formats
+                )
+            )
+
         snapshot = get_object_or_404(Snapshot, project=pk, version_number=number)
-        serializer = SnapshotSerializer(snapshot)
-        return Response(serializer.data)
+        if format == "json":
+            # Just return the snapshot details
+            serializer = self.get_serializer(snapshot)
+            return Response(serializer.data)
+        else:
+            # Return an archive of the snapshot using the cache if available
+            archive_path = snapshot.path + "." + format
+            if not os.path.exists(archive_path):
+                filename = shutil.make_archive(
+                    snapshot.path, archive_formats[format], snapshot.path
+                )
+                assert filename == archive_path
+            return FileResponse(open(archive_path, "rb"), as_attachment=True)
 
     @action(detail=True, methods=["get"], url_path="(?P<path>.+)")
     def retrieve_file(
@@ -229,15 +303,12 @@ class SnapshotsViewSet(
             response_path = file_path
         else:
             # Generate file for the format if necessary and return it
-            response_path = snapshot_path(
-                snapshot,
-                utf8_path_join(
-                    ".cache",
-                    "{}{}.{}".format(
-                        slugify(path.replace(".", "-")),
-                        "-" + slugify(theme) if theme else "",
-                        format_id.value.default_extension,
-                    ),
+            response_path = utf8_path_join(
+                snapshot.path + ".cache",
+                "{}{}.{}".format(
+                    slugify(path.replace(".", "-")),
+                    "-" + slugify(theme) if theme else "",
+                    format_id.value.default_extension,
                 ),
             )
             if not os.path.exists(response_path):
@@ -271,15 +342,3 @@ class SnapshotsViewSet(
             response["X-Frame-Options"] = "allow-from {}".format(host)
 
         return response
-
-
-class IgnoreClientContentNegotiation(negotiation.BaseContentNegotiation):
-    def select_renderer(self, request, renderers, format_suffix):
-        """
-        Select a renderer for the `retrieve_file` action.
-
-        This returns the first default renderer (usually JSON),
-        to be for any exceptions. The action itself handles normal
-        content negotiation and rendering.
-        """
-        return (renderers[0], renderers[0].media_type)

@@ -40,12 +40,3 @@ class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snapshot
         fields = ["project", "number", "tag", "creator", "created", "completed"]
-
-
-class SnapshotCreateRequestSerializer(serializers.ModelSerializer):
-    """The request data when creating a snapshot."""
-
-    class Meta:
-        model = Snapshot
-        fields = ["tag"]
-        ref_name = None

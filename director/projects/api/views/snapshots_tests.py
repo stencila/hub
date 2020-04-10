@@ -16,8 +16,11 @@ from lib.converter_facade import (
     ConverterContext,
 )
 
-TEMPORARY_SNAPSHOT_DIR = tempfile.mkdtemp()
-with open(os.path.join(TEMPORARY_SNAPSHOT_DIR, "test.txt"), "w") as file:
+# Set up
+snapshots_dir = tempfile.mkdtemp()
+snapshot_1_dir = os.path.join(snapshots_dir, "1")
+os.mkdir(snapshot_1_dir)
+with open(os.path.join(snapshot_1_dir, "test.txt"), "w") as file:
     file.write("Test content")
 
 
@@ -34,7 +37,7 @@ class MockSnapshotter:
             project=project,
             version_number=1,
             tag=tag or None,
-            path=TEMPORARY_SNAPSHOT_DIR,
+            path=snapshot_1_dir,
             creator=request.user,
             created=timezone.now(),
             completed=timezone.now(),
@@ -70,7 +73,6 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
     """
 
     def setUp(self):
-
         super().setUp()
         self.patch_snapshotter = mock.patch(
             "projects.api.views.snapshots.ProjectSnapshotter", new=MockSnapshotter,
@@ -95,9 +97,9 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
             user, "snapshots", kwargs={"pk": project.pk}, data={"tag": tag}
         )
 
-    def retrieve_snap(self, user, project: Project, number: int):
+    def retrieve_snap(self, user, project: Project, number: int, **kwargs):
         return self.retrieve(
-            user, "snapshots", kwargs={"pk": project.pk, "number": number}
+            user, "snapshots", kwargs={"pk": project.pk, "number": number}, **kwargs
         )
 
     def retrieve_file(self, user, project: Project, number: int, path: str, **kwargs):
@@ -172,6 +174,51 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
         response = self.retrieve_snap(None, self.ada_public, 2743965137659)
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
+    def test_retrieve_archive(self):
+        number = self.create_snap(self.ada, self.ada_public).data["number"]
+
+        response = self.retrieve_snap(
+            self.ada, self.ada_public, number, data={"format": "zip"}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(os.path.join(snapshots_dir, "{}.zip".format(number)))
+
+        response = self.retrieve_snap(
+            self.ada, self.ada_public, number, data={"format": "tar.xz"}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(os.path.join(snapshots_dir, "{}.tar.xz".format(number)))
+
+        response = self.retrieve_snap(
+            self.ada,
+            self.ada_public,
+            number,
+            headers={"HTTP_ACCEPT": "application/x-tar"},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(os.path.join(snapshots_dir, "{}.tar".format(number)))
+
+        response = self.retrieve_snap(
+            self.ada,
+            self.ada_public,
+            number,
+            headers={"HTTP_ACCEPT": "application/x-tar+bzip2"},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert os.path.exists(os.path.join(snapshots_dir, "{}.tar.bz2".format(number)))
+
+    def test_retrieve_errors(self):
+        number = self.create_snap(self.bob, self.bob_private).data["number"]
+
+        response = self.retrieve_snap(
+            self.bob, self.bob_private, number, data={"format": "foo"}
+        )
+        assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
+        assert (
+            response.data["message"]
+            == "Could not satisfy the requested format 'foo', must be one of ['json', 'tar.bz2', 'tar.gz', 'tar', 'tar.xz', 'zip']"
+        )
+
     def test_retrieve_file_raw(self):
         number = self.create_snap(self.ada, self.ada_public).data["number"]
 
@@ -199,6 +246,7 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
 
     def test_retrieve_file_converted(self):
         number = self.create_snap(self.ada, self.ada_public).data["number"]
+        snapshot_cache = os.path.join(snapshots_dir, "{}.cache".format(number))
 
         def get(**kwargs):
             response = self.retrieve_file(
@@ -208,39 +256,29 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
 
         # Using the format query parameter
         get(data={"format": "html"})
-        assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt.html")
-        )
+        assert os.path.exists(os.path.join(snapshot_cache, "test-txt.html"))
 
         # Using the accept header
         get(headers={"HTTP_ACCEPT": "application/pdf"})
-        assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt.pdf")
-        )
+        assert os.path.exists(os.path.join(snapshot_cache, "test-txt.pdf"))
 
         # With the account theme set
         self.ada_account.theme = "org-theme"
         self.ada_account.save()
         get(data={"format": "html"})
-        assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-org-theme.html")
-        )
+        assert os.path.exists(os.path.join(snapshot_cache, "test-txt-org-theme.html"))
 
         # The project theme overrides the account theme
         self.ada_public.theme = "a/local/project/theme"
         self.ada_public.save()
         get(data={"format": "html"})
         assert os.path.exists(
-            os.path.join(
-                TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-alocalprojecttheme.html"
-            )
+            os.path.join(snapshot_cache, "test-txt-alocalprojecttheme.html")
         )
 
         # And the theme query parameter trumps them all
         get(data={"format": "html", "theme": "wilmore"})
-        assert os.path.exists(
-            os.path.join(TEMPORARY_SNAPSHOT_DIR, ".cache", "test-txt-wilmore.html")
-        )
+        assert os.path.exists(os.path.join(snapshot_cache, "test-txt-wilmore.html"))
 
     def test_retrieve_file_csp(self):
         """Test that headers are set if the account has hosts set."""
