@@ -216,7 +216,8 @@ class SnapshotAPIViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
         assert (
             response.data["message"]
-            == "Could not satisfy the requested format 'foo', must be one of ['json', 'tar.bz2', 'tar.gz', 'tar', 'tar.xz', 'zip']"
+            == "Could not satisfy the requested format 'foo', must be one of "
+            "['json', 'tar.bz2', 'tar.gz', 'tar', 'tar.xz', 'zip']"
         )
 
     def test_retrieve_file_raw(self):
