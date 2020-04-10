@@ -18,7 +18,7 @@
                 <td>{{ snapshot.completed }}</td>
                 <td class="has-text-centered">
                     <a class="button" href="{% url 'snapshot_files' project.account.name  project.name snapshot.version_number %}">Browse Files</a>
-                    <a class="button" href="{% url 'snapshot_archive' project.account.name  project.name snapshot.version_number %}">Download as Zip</a>
+                    <a class="button" href="{% url 'api-snapshots-detail' project.id snapshot.number %}?format=zip">Download as Zip</a>
                 </td>
             </tr>
         {% empty %}

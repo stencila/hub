@@ -4,7 +4,6 @@ import secrets
 import typing
 from io import BytesIO
 
-from django.conf import settings
 from django.db import models
 from django_extensions.db.fields.json import JSONField
 
@@ -225,36 +224,6 @@ class Project(models.Model):
             self.token[-TRUNCATED_TOKEN_SHOW_CHARACTERS:],
         )
 
-    # TODO: the `_pull` and `_push` methods below are just saved from a previous
-    # iteration of FilesSource, not sure we'll want to keep them.
-
-    def _pull(self) -> BytesIO:
-        """Pull files from the Django storage into an archive."""
-        from zipfile import ZipFile
-
-        # Write all the files into a zip archive
-        archive = BytesIO()
-        with ZipFile(archive, "w") as zipfile:
-            for file in self.files.all():
-                # For remote storages (e.g. Google Cloud Storage buckets)
-                # `file.file.path` is not available, so use `file.file.read()`
-                zipfile.writestr(file.name, file.file.read())
-        return archive
-
-    def _push(self, archive: typing.Union[str, typing.IO]) -> None:
-        """Push files in the archive to the Django storage."""
-        from .disk_file_facade import (
-            DiskFileFacade,
-        )  # late import to break dependency loop
-        from zipfile import ZipFile
-
-        # Unzip all the files and add to this project
-        zipfile = ZipFile(archive, "r")
-        for name in zipfile.namelist():
-            # Replace existing file or create a new one
-            dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self)
-            dff.write_file_content(name, zipfile.read(name))
-
     @property
     def has_url_published_items(self) -> bool:
         return (
@@ -267,14 +236,12 @@ class Project(models.Model):
 
 class ProjectEventType(EnumChoice):
     SOURCE_PULL = "SOURCE_PULL"
-    ARCHIVE = "ARCHIVE"
     SNAPSHOT = "SNAPSHOT"
     CONVERT = "CONVERT"
 
 
 PROJECT_EVENT_LONG_TYPE_LOOKUP = {
     ProjectEventType.SOURCE_PULL.name: "Source Pull to Disk",  # type: ignore # mypy does not understand enums
-    ProjectEventType.ARCHIVE.name: "Archive",  # type: ignore # mypy does not understand enums
     ProjectEventType.SNAPSHOT.name: "Snapshot",  # type: ignore # mypy does not understand enums
     ProjectEventType.CONVERT.name: "Encoda Convert",  # type: ignore # mypy does not understand enums
 }
@@ -404,14 +371,24 @@ class Snapshot(models.Model):
         "Must be unique for the project.",
     )
 
+    class Meta:
+        unique_together = (("project", "version_number"), ("project", "tag"))
+
     def __str__(self):
         if self.tag:
             return 'Snapshot "{}" (v{})'.format(self.tag, self.version_number)
 
         return "Snapshot v{}".format(self.version_number)
 
-    class Meta:
-        unique_together = (("project", "version_number"), ("project", "tag"))
+    @property
+    def number(self):
+        """
+        The number of the snapshot.
+
+        An alias for `version_number` to allow for "renaming" the field
+        without doing a migration (that involves a unique_together field).
+        """
+        return self.version_number
 
 
 class PublishedItem(models.Model):

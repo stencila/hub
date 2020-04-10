@@ -41,12 +41,6 @@ def generate_project_storage_directory(
     return utf8_path_join(project_storage_root, "projects", "{}".format(project.id))
 
 
-def generate_project_archive_directory(
-    project_storage_root: str, project: Project
-) -> str:
-    return utf8_path_join(project_storage_root, "archives", "{}".format(project.id))
-
-
 def generate_project_publish_directory(
     project_storage_root: str, project: Project
 ) -> str:

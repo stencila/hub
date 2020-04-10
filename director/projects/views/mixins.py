@@ -30,7 +30,6 @@ from lib.data_cleaning import logged_in_or_none
 from lib.path_operations import (
     utf8_path_join,
     utf8_dirname,
-    utf8_realpath,
     utf8_basename,
 )
 from lib.resource_allowance import account_resource_limit, QuotaName
@@ -58,7 +57,6 @@ from projects.source_models import (
     DiskSource,
     Source,
 )
-from projects.source_operations import generate_project_archive_directory
 from projects.views.shared import (
     DEFAULT_ENVIRON,
     get_project_publish_directory,
@@ -245,18 +243,6 @@ class ProjectPermissionsMixin(object):
             request,
             storage_limit,
         )
-
-
-class ArchivesDirMixin(object):
-    @staticmethod
-    def get_archives_directory(project: Project) -> str:
-        return generate_project_archive_directory(
-            settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project
-        )
-
-    @staticmethod
-    def get_archive_path(archives_directory, name) -> str:
-        return utf8_realpath(utf8_path_join(archives_directory, name))
 
 
 class ContentFacadeMixin(object):

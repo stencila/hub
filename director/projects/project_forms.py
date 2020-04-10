@@ -1,14 +1,12 @@
-import re
 import typing
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 
 from accounts.models import Account
-from lib.forms import ModelFormWithSubmit, FormWithSubmit
+from lib.forms import ModelFormWithSubmit
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
 from assets.thema import themes
@@ -264,23 +262,6 @@ class ProjectSettingsSessionsForm(forms.ModelForm):
             project.save()
 
         return project
-
-
-class ProjectArchiveForm(FormWithSubmit):
-    submit_button_label = "Create Archive"
-
-    tag = forms.CharField(
-        required=False,
-        max_length=32,
-        widget=forms.TextInput(attrs={"placeholder": "Tag (optional)"}),
-        help_text="Will be prepended to the name of the archive.",
-    )
-
-    def clean_tag(self):
-        if re.match(r"(\.\.|/|:|\\)", self.cleaned_data["tag"]):
-            raise ValidationError('Tag may not contain "..", "/", ":" or "\\".')
-
-        return self.cleaned_data["tag"]
 
 
 class PublishedItemForm(forms.ModelForm):

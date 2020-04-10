@@ -47,7 +47,6 @@ class ProjectUrlRoot(enum.Enum):
     """
 
     activity = "activity"
-    archive = "archive"  # archive and archives are both used
     delete = "delete"
     executa = "executa"
     files = "files"

@@ -113,11 +113,6 @@ urlpatterns = [
                     name="project_snapshots",
                 ),
                 path(
-                    "<int:version>/archive/",
-                    snapshot_views.ArchiveView.as_view(),
-                    name="snapshot_archive",
-                ),
-                path(
                     "<int:version>/browse/",
                     snapshot_views.FileBrowserView.as_view(),
                     name="snapshot_files",
