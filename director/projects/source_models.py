@@ -31,12 +31,6 @@ class MimeTypeDetectMixin(object):
         return mimetype_from_path(self.path) or "Unknown"
 
 
-class DiskSource(object):
-    """Not a Source that is stored in the database but used in directory listing for files that are already on disk."""
-
-    type = "disk"
-
-
 class Source(PolymorphicModel, MimeTypeDetectMixin):
     provider_name = ""
 
@@ -127,6 +121,12 @@ class DatSource(Source):
         abstract = True
 
 
+class DiskSource(object):
+    """Not a Source that is stored in the database but used in directory listing for files that are already on disk."""
+
+    type = "disk"
+
+
 class DropboxSource(Source):
     """A project hosted on Dropbox."""
 
@@ -185,44 +185,6 @@ class FileSource(Source):
         self.size = self.file.size
 
 
-class UrlSource(Source):
-    """A source that is downloaded from a URL on demand."""
-
-    provider_name = "URL"
-
-    url = models.URLField(help_text="The URL of the remote file.")
-
-    _url_obj: typing.Optional[ParseResult] = None
-
-    def __str__(self) -> str:
-        return self.url
-
-    def _parse_url(self) -> ParseResult:
-        if self._url_obj is None:
-            self._url_obj = urlparse(self.url)
-        return self._url_obj
-
-    @property
-    def hostname_lower(self) -> typing.Optional[str]:
-        hostname = self._parse_url().hostname
-        return hostname.lower() if hostname else None
-
-    @property
-    def is_elife_url(self) -> bool:
-        return self.hostname_lower == "elifesciences.org"
-
-    @property
-    def is_plos_url(self) -> bool:
-        return self.hostname_lower == "journals.plos.org"
-
-    @property
-    def mimetype(self) -> str:
-        if self.is_elife_url or self.is_plos_url:
-            return "text/html"
-
-        return super(UrlSource, self).mimetype
-
-
 class GithubSource(Source):
     """A project hosted on Github."""
 
@@ -278,6 +240,44 @@ class OSFSource(Source):
 
     class Meta:
         abstract = True
+
+
+class UrlSource(Source):
+    """A source that is downloaded from a URL on demand."""
+
+    provider_name = "URL"
+
+    url = models.URLField(help_text="The URL of the remote file.")
+
+    _url_obj: typing.Optional[ParseResult] = None
+
+    def __str__(self) -> str:
+        return self.url
+
+    def _parse_url(self) -> ParseResult:
+        if self._url_obj is None:
+            self._url_obj = urlparse(self.url)
+        return self._url_obj
+
+    @property
+    def hostname_lower(self) -> typing.Optional[str]:
+        hostname = self._parse_url().hostname
+        return hostname.lower() if hostname else None
+
+    @property
+    def is_elife_url(self) -> bool:
+        return self.hostname_lower == "elifesciences.org"
+
+    @property
+    def is_plos_url(self) -> bool:
+        return self.hostname_lower == "journals.plos.org"
+
+    @property
+    def mimetype(self) -> str:
+        if self.is_elife_url or self.is_plos_url:
+            return "text/html"
+
+        return super(UrlSource, self).mimetype
 
 
 class LinkedSourceAuthentication(object):
