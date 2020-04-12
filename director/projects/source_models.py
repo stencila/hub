@@ -40,10 +40,6 @@ class DiskSource(object):
 class Source(PolymorphicModel, MimeTypeDetectMixin):
     provider_name = ""
 
-    # Some sources have "sub" files, e.g a GitHub source isn't content, its sub-files are. cf. google docs, URL, where
-    # the source itself IS the content
-    has_sub_files: bool = False
-
     project = models.ForeignKey(
         "Project",
         null=True,
@@ -76,11 +72,14 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
 
     @property
     def type_name(self) -> str:
-        return AvailableSourceType.get_project_type_name(type(self))
+        """
+        The name of this type of source.
 
-    @property
-    def type_id(self) -> str:
-        return AvailableSourceType.get_project_type_id(type(self))
+        This implementation simply drops `Source` from the end
+        of the name. Can be overridden in derived classes if
+        necessary.
+        """
+        return self.__class__.__name__[:-6]
 
     def pull(self) -> BytesIO:
         raise NotImplementedError(
@@ -229,8 +228,6 @@ class GithubSource(Source):
 
     provider_name = "GitHub"
 
-    has_sub_files = True
-
     repo = models.TextField(
         null=False,
         blank=False,
@@ -281,48 +278,6 @@ class OSFSource(Source):
 
     class Meta:
         abstract = True
-
-
-class SourceType(typing.NamedTuple):
-    """
-    Identifying information for a Source Type.
-
-    id: short unique identifier
-    name: display name
-    model: the Source subclass
-    """
-
-    id: str
-    name: str
-    model: typing.Type
-
-
-class AvailableSourceType(enum.Enum):
-    """Enum for each available ConversionFormatId. For two-way lookup name to values etc."""
-
-    FILE = SourceType("file", "File", FileSource)
-    GITHUB = SourceType("github", "Github", GithubSource)
-    GOOGLE_DOCS = SourceType("googledocs", "GoogleDocs", GoogleDocsSource)
-
-    # _type_lookup type checking is ignored throughout because it must be added at runtime to the class but then mypy
-    # doesn't understand this
-
-    @classmethod
-    def setup_type_lookup(cls) -> None:
-        if not hasattr(cls, "_type_lookup"):
-            cls._type_lookup = {  # type: ignore
-                source_type.value.model: source_type.value for source_type in cls
-            }
-
-    @classmethod
-    def get_project_type_name(cls, model: typing.Type[Source]) -> str:
-        cls.setup_type_lookup()
-        return cls._type_lookup[model].name  # type: ignore
-
-    @classmethod
-    def get_project_type_id(cls, model: typing.Type[Source]) -> str:
-        cls.setup_type_lookup()
-        return cls._type_lookup[model].id  # type: ignore
 
 
 class LinkedSourceAuthentication(object):
