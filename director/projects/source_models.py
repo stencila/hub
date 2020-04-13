@@ -53,23 +53,32 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
     )
 
     def __str__(self) -> str:
-        return "Source {}".format(self.path)
+        """
+        Get a human readable string representation of the source instance.
 
-    @property
-    def description(self) -> str:
-        """Not very useful, subclasses should override this to provide something more meaningful."""
-        return str(self)
+        These are intended to be URL-like human-readable and -writable
+        representations of sources(e.g. `github:org/repo/sub/path`; `gdoc:378yfh2yg362...`).
+        They are used in admin lists and API endpoints to allowing quick
+        specification of a source (e.g. for filtering).
+        """
+        raise NotImplementedError(
+            "Method `__str__` should be implemented for class {}".format(
+                self.__class__.__name__
+            )
+        )
 
     @property
     def type(self) -> typing.Type["Source"]:
+        """Get the type of a source instance e.g. `GoogleDocsSource`."""
         return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
 
     @property
     def type_name(self) -> str:
         """
-        The name of this type of source.
+        Get the name of the type of a source instance.
 
-        This implementation simply drops `Source` from the end
+        The `type_name` is intended for use in user interfaces.
+        This base implementation simply drops `Source` from the end
         of the name. Can be overridden in derived classes if
         necessary.
         """
@@ -223,10 +232,6 @@ class GoogleDocsSource(Source):
     @property
     def mimetype(self) -> str:
         return "application/vnd.google-apps.document"
-
-    @property
-    def description(self) -> str:
-        return self.path.split("/")[-1]
 
 
 class OSFSource(Source):

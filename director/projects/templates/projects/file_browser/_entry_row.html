@@ -43,7 +43,7 @@
                 download-url="{% download_url project directory_entry %}"
                 source-type="{{ directory_entry.source.type }}"
                 source-identifier="{{ directory_entry.source.pk }}"
-                source-description="{{ directory_entry.source.description }}"
+                source-path="{{ directory_entry.source.path }}"
                 file-type="{% if directory_entry.is_directory %}directory{% else %}{{ directory_entry.mimetype }}{% endif %}"
                 absolute-path="{{ directory_entry.path|escape }}"
                 index="{{ forloop.counter0 }}"

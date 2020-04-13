@@ -127,7 +127,7 @@ Vue.component('item-action-menu', {
       required: false,
       default: ''
     },
-    sourceDescription: {
+    sourcePath: {
       type: String,
       required: false,
       default: ''
@@ -176,7 +176,7 @@ Vue.component('item-action-menu', {
       this.$root.$emit('remove-modal-show', this.fileName)
     },
     showUnlinkModal () {
-      this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourceDescription)
+      this.$root.$emit('unlink-modal-show', this.sourceType, this.sourceIdentifier, this.sourcePath)
     },
     startConvert (targetType) {
       this.$root.$emit('convert-modal-show', targetType, this.convertTargets, this.sourceIdentifier, this.fileName, this.absolutePath)
@@ -1250,7 +1250,7 @@ var fileBrowser = new Vue({
     fileList: g_fileList,
     unlinkSourceId: null,
     unlinkModalVisible: false,
-    unlinkSourceDescription: '',
+    unlinkSourcePath: '',
     unlinkSourceType: '',
     isUnlinkMulti: false,
     SOURCE_TYPE_NAME_LOOKUP: SOURCE_TYPE_NAME_LOOKUP
@@ -1281,11 +1281,11 @@ var fileBrowser = new Vue({
       jsonFetch(this.itemRemoveUrl, {path}, callback)
     })
 
-    this.$root.$on('unlink-modal-show', (sourceType, sourceIdentifier, sourceDescription) => {
+    this.$root.$on('unlink-modal-show', (sourceType, sourceIdentifier, sourcePath) => {
       this.isUnlinkMulti = sourceType === 'githubsource'
       this.unlinkSourceType = sourceType
       this.unlinkSourceId = sourceIdentifier
-      this.unlinkSourceDescription = sourceDescription
+      this.unlinkSourcePath = sourcePath
       this.unlinkModalVisible = true
     })
 
@@ -1323,7 +1323,7 @@ const g_actionBar = new Vue({
     pullInProgress: false,
     deleteModalVisible: false,
     unlinkSourceId: null,
-    unlinkSourceDescription: ''
+    unlinkSourcePath: ''
   },
   methods: {
     showFileUploadSelect () {
@@ -1391,8 +1391,8 @@ const g_actionBar = new Vue({
 
       return false
     },
-    showUnlinkModal (sourceDescription, sourceId) {
-      this.unlinkSourceDescription = sourceDescription
+    showUnlinkModal (sourcePath, sourceId) {
+      this.unlinkSourcePath = sourcePath
       this.unlinkSourceId = sourceId
       fileBrowser.deleteModalVisible = true
     },

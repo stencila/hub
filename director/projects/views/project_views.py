@@ -296,13 +296,13 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             if isinstance(source, (FileSource, DiskSource)):
                 raise TypeError("Can't unlink a File source")
 
-            source_description = source.description
+            source_path = source.path
 
             source.delete()
 
             messages.success(
                 request,
-                "<em>{}</em> was unlinked.".format(escape(source_description)),
+                "<em>{}</em> was unlinked.".format(escape(source_path)),
                 extra_tags="safe",
             )
 
