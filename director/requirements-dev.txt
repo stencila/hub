@@ -4,8 +4,6 @@ django-debug-toolbar==2.2
 flake8==3.7.9
 mypy==0.770
 pydocstyle==5.0.2
-pydot==1.4.1
-pyparsing==2.4.7
 pytest==5.4.1
 pytest-cov==2.8.1
 pytest-django==3.9.0
