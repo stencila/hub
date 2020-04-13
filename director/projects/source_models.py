@@ -32,7 +32,6 @@ class MimeTypeDetectMixin(object):
 
 
 class Source(PolymorphicModel, MimeTypeDetectMixin):
-    provider_name = ""
 
     project = models.ForeignKey(
         "Project",
@@ -84,6 +83,18 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         """
         return self.__class__.__name__[:-6]
 
+    @property
+    def provider_name(self) -> str:
+        """
+        Get the name of the provider of a source instance.
+        
+        Intended mainly for user interfaces (e.g. to send a message to a client
+        that they need to authenticate with a provider in order to 
+        use a particular source type). Will usually be the same as the `type_name`,
+        but derived classes can override if not.
+        """
+        return self.type_name
+
     def pull(self) -> BytesIO:
         raise NotImplementedError(
             "Pull is not implemented for class {}".format(self.__class__.__name__)
@@ -115,16 +126,12 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
 class BitbucketSource(Source):
     """A project hosted on Bitbucket."""
 
-    provider_name = "BitBucket"
-
     class Meta:
         abstract = True
 
 
 class DatSource(Source):
     """A project hosted on Dat."""
-
-    provider_name = "Dat"
 
     class Meta:
         abstract = True
@@ -139,8 +146,6 @@ class DiskSource(object):
 class DropboxSource(Source):
     """A project hosted on Dropbox."""
 
-    provider_name = "Drop Box"
-
     class Meta:
         abstract = True
 
@@ -152,8 +157,6 @@ def files_source_file_path(instance: "FileSource", filename: str):
 
 class FileSource(Source):
     """A file uploaded to the Hub."""
-
-    provider_name = "File"
 
     size = models.IntegerField(
         null=True, blank=True, help_text="Size of the file in bytes"
@@ -197,8 +200,6 @@ class FileSource(Source):
 class GithubSource(Source):
     """A project hosted on Github."""
 
-    provider_name = "GitHub"
-
     repo = models.TextField(
         null=False,
         blank=False,
@@ -216,8 +217,6 @@ class GithubSource(Source):
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
 
-    provider_name = "GitLab"
-
     class Meta:
         abstract = True
 
@@ -225,9 +224,11 @@ class GitlabSource(Source):
 class GoogleDocsSource(Source):
     """A reference to a Google Docs document."""
 
-    provider_name = "GoogleDocs"
-
     doc_id = models.TextField(null=False, help_text="Google's ID of the document.")
+
+    @property
+    def provider_name(self) -> str:
+        return "Google"
 
     @property
     def mimetype(self) -> str:
@@ -241,16 +242,12 @@ class OSFSource(Source):
     See https://developer.osf.io/ for API documentation.
     """
 
-    provider_name = "OSF"
-
     class Meta:
         abstract = True
 
 
 class UrlSource(Source):
     """A source that is downloaded from a URL on demand."""
-
-    provider_name = "URL"
 
     url = models.URLField(help_text="The URL of the remote file.")
 
