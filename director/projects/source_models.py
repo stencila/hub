@@ -9,28 +9,11 @@ from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db import models
+from django.core.validators import URLValidator
 from polymorphic.models import PolymorphicModel
 
 from lib.conversion_types import mimetype_from_path
 from users.models import User
-
-
-class MimeTypeDetectMixin(object):
-    path: str
-    source: typing.Any
-
-    @property
-    def mimetype(self) -> str:
-        if (
-            hasattr(self, "source")
-            and self.source is not None
-            and hasattr(self.source, "mimetype")
-        ):
-            mimetype = self.source.mimetype
-            if mimetype and mimetype != "Unknown":
-                return mimetype
-
-        return mimetype_from_path(self.path) or "Unknown"
 
 
 class SourceAddress(dict):
@@ -53,7 +36,7 @@ class SourceAddress(dict):
         return self[attr]
 
 
-class Source(PolymorphicModel, MimeTypeDetectMixin):
+class Source(PolymorphicModel):
 
     project = models.ForeignKey(
         "Project",
@@ -198,7 +181,9 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         """
         address = Source.coerce_address(address_or_string)
 
-        front = ("{}__".format(prefix) if prefix else "") + address.type.__name__.lower()
+        front = (
+            "{}__".format(prefix) if prefix else ""
+        ) + address.type.__name__.lower()
         kwargs = dict(
             [("{}__{}".format(front, key), value) for key, value in address.items()]
         )
@@ -336,13 +321,17 @@ class GithubSource(Source):
     )
 
     def __str__(self) -> str:
-        return "github://{}/{}".format(self.repo, self.subpath or "")
+        return (
+            "github://"
+            + self.repo
+            + ("/{}".format(self.subpath) if self.subpath else "")
+        )
 
     @property
     def url(self):
-        url = "https://github.com/{}/".format(self.repo)
+        url = "https://github.com/{}".format(self.repo)
         if self.subpath:
-            url += "blob/master/{}".format(self.subpath)
+            url += "/blob/master/{}".format(self.subpath)
         return url
 
     @classmethod
@@ -479,15 +468,20 @@ class UrlSource(Source):
         if self.is_elife_url or self.is_plos_url:
             return "text/html"
 
-        return super(UrlSource, self).mimetype
+        return mimetype_from_path(self.url) or "application/octet-stream"
 
     @classmethod
     def parse_address(
         cls, address: str, naked: bool = False, strict: bool = False
     ) -> typing.Optional[SourceAddress]:
-        match = re.search(r"^https?://", address, re.I)
-        if match:
-            return SourceAddress("Url", url=address)
+        url: typing.Optional[str] = address
+        try:
+            URLValidator()(url)
+        except ValidationError:
+            url = None
+
+        if url:
+            return SourceAddress("Url", url=url)
 
         if strict:
             raise ValidationError("Invalid URL source: {}".format(address))

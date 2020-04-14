@@ -37,12 +37,19 @@ def test_coerce_address():
         sa = Source.coerce_address("foo")
 
 
+def test_default_str():
+    assert str(DatSource(id=42)) == "dat://42"
+
+
 def test_default_parse_address():
+    sa = DatSource.parse_address("dat://")
+    assert sa.type == DatSource
+
     sa = DatSource.parse_address("foo")
     assert sa is None
 
-    sa = DatSource.parse_address("dat://")
-    assert sa.type == DatSource
+    with pytest.raises(ValidationError):
+        DatSource.parse_address("foo", strict=True)
 
 
 def test_query_from_address():
@@ -88,7 +95,27 @@ def test_create_from_address():
     assert s.subpath is None
 
 
-def test_github_parse_address():
+def test_githubsource_provider_name():
+    assert GithubSource().provider_name == "Github"
+
+
+def test_githubsource_str():
+    assert str(GithubSource(repo="user/repo")) == "github://user/repo"
+    assert (
+        str(GithubSource(repo="user/repo", subpath="a/file.txt"))
+        == "github://user/repo/a/file.txt"
+    )
+
+
+def test_githubsource_url():
+    assert GithubSource(repo="user/repo").url == "https://github.com/user/repo"
+    assert (
+        GithubSource(repo="user/repo", subpath="a/file.txt").url
+        == "https://github.com/user/repo/blob/master/a/file.txt"
+    )
+
+
+def test_githubsource_parse_address():
     for url in [
         "github://django/django",
         "http://github.com/django/django",
@@ -119,7 +146,26 @@ def test_github_parse_address():
         assert sa["subpath"] == "django/db/models/query_utils.py"
 
 
-def test_googledocs_parse_address():
+def test_googledocssource_provider_name():
+    assert GoogleDocsSource().provider_name == "Google"
+
+
+def test_googledocssource_mimetype():
+    assert GoogleDocsSource().mimetype == "application/vnd.google-apps.document"
+
+
+def test_googledocssource_str():
+    assert str(GoogleDocsSource(doc_id="an-id")) == "gdoc://an-id"
+
+
+def test_googledocssource_url():
+    assert (
+        GoogleDocsSource(doc_id="an-id").url
+        == "https://docs.google.com/document/d/an-id/edit"
+    )
+
+
+def test_googledocssource_parse_address():
     for url in [
         "gdoc://1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
         "docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
@@ -146,3 +192,36 @@ def test_googledocs_parse_address():
     assert GoogleDocsSource.parse_address("foo") is None
     with pytest.raises(ValidationError, match="Invalid Google Doc identifier"):
         GoogleDocsSource.parse_address("foo", strict=True)
+
+
+def test_urlsource_provider_name():
+    assert UrlSource().provider_name == "Url"
+
+
+def test_urlsource_mimetype():
+    assert UrlSource(url="http://example.com/a.csv").mimetype == "text/csv"
+    assert UrlSource(url="http://example.com/").mimetype == "application/octet-stream"
+
+
+def test_urlsource_str():
+    assert str(UrlSource(url="http://example.com")) == "http://example.com"
+
+
+def test_urlsource_url():
+    assert UrlSource(url="http://example.com").url == "http://example.com"
+
+
+def test_urlsource_parse_address():
+    assert UrlSource.parse_address("https://example.org") == SourceAddress(
+        "Url", url="https://example.org"
+    )
+
+    assert UrlSource.parse_address("http://example.org/a-file.md") == SourceAddress(
+        "Url", url="http://example.org/a-file.md"
+    )
+
+    assert UrlSource.parse_address("foo") is None
+    assert UrlSource.parse_address("http://not-a-hostname") is None
+
+    with pytest.raises(ValidationError, match="Invalid URL source"):
+        UrlSource.parse_address("foo", strict=True)

@@ -3,7 +3,26 @@ import functools
 import typing
 from datetime import datetime
 
-from projects.source_models import MimeTypeDetectMixin, Source, DiskSource
+from projects.source_models import Source, DiskSource
+from lib.conversion_types import mimetype_from_path
+
+
+class MimeTypeDetectMixin(object):
+    path: str
+    source: typing.Any
+
+    @property
+    def mimetype(self) -> str:
+        if (
+            hasattr(self, "source")
+            and self.source is not None
+            and hasattr(self.source, "mimetype")
+        ):
+            mimetype = self.source.mimetype
+            if mimetype and mimetype != "Unknown":
+                return mimetype
+
+        return mimetype_from_path(self.path) or "Unknown"
 
 
 class DirectoryEntryType(enum.Enum):
