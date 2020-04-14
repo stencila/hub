@@ -91,6 +91,10 @@ lint-docs: venv
 test: venv
 	$(VE)/pytest
 
+# Rerun tests when files change
+test-watch: venv
+	$(VE)/ptw
+
 # Run tests with coverage and migrations
 cover: venv
 	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
