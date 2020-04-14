@@ -1,6 +1,7 @@
 import enum
 import typing
 from io import BytesIO
+import re
 from urllib.parse import urlparse, ParseResult
 
 from allauth.socialaccount.models import SocialToken
@@ -30,6 +31,22 @@ class MimeTypeDetectMixin(object):
                 return mimetype
 
         return mimetype_from_path(self.path) or "Unknown"
+
+
+class SourceAddress(dict):
+    """
+    A specification of the location of a source.
+
+    Used to store the result of parsing a source address string
+    (e.g. a URL) and use it to create source instances, filter for
+    existing source instances etc.
+    """
+    def __init__(self, type, **kwargs):
+        super().__init__(**kwargs)
+        try:
+            self.type = globals()["{}Source".format(type)]
+        except KeyError:
+            raise KeyError('Unknown source type "{}"'.format(type))
 
 
 class Source(PolymorphicModel, MimeTypeDetectMixin):
@@ -73,6 +90,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         representations of sources(e.g. `github:org/repo/sub/path`; `gdoc:378yfh2yg362...`).
         They are used in admin lists and API endpoints to allowing quick
         specification of a source (e.g. for filtering).
+        Should be parsable by the `parse_address` method of each subclass.
         """
         return "{}://{}".format(self.type_name.lower(), self.id)
 
@@ -104,6 +122,73 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         but derived classes can override if not.
         """
         return self.type_name
+
+    @classmethod
+    def parse_address(cls, address: typing.Union[SourceAddress, str]) -> SourceAddress:
+        """
+        Parse a string to a `SourceAddress`.
+
+        If the `address` is already an instance of `SourceAddress` it
+        will be returned unchanged. Otherwise, the `parse_address`
+        method of each source type (ie. subclass of `Source`) will
+        be called. The first class that returns a `SourceAddress` wins.
+        """
+        if isinstance(address, SourceAddress):
+            return address
+        
+        # If the subclass does not override this method, then just return
+        if cls != Source:
+            return None
+
+        for cls in Source.__subclasses__():
+            result = cls.parse_address(address)
+            if result is not None:
+                return result
+
+        raise ValueError('Unable to parse source address "{}"'.format(address))
+
+    @staticmethod
+    def query_from_address(
+        address: typing.Union[SourceAddress, str], prefix: typing.Optional[str] = None
+    ) -> models.Q:
+        """
+        Create a query object for a source address.
+        
+        Given a source address, constructs a Django `Q` object which 
+        can be used in ORM queries. Use the `prefix` argument
+        when you want to use this function for a related field. For example,
+
+            Source.query_from_address({
+                "type": "Github",
+                "repo": "org/repo",
+                "subpath": "folder"
+            }, prefix="sources")
+
+        is equivalent to :
+
+            Q(
+                sources__githubsource__repo="org/repo",
+                sources__githubsource__subpath="folder"
+            )
+        """
+        address = Source.parse_address(address)
+
+        front = ("{}__".format(prefix) if prefix else "") + address.type.__name__
+        kwargs = dict(
+            [("{}__{}".format(front, key), value) for key, value in address.items()]
+        )
+        return models.Q(**kwargs)
+
+    @staticmethod
+    def create_from_address(address: typing.Union[SourceAddress, str]) -> "Source":
+        """
+        Create a source instance from a source address.
+        
+        Given a source address, creates a new source instance of the
+        specified `type` with fields set from the address.
+        """
+        address = Source.parse_address(address)
+        return address.type.objects.create(**address)
 
     def pull(self) -> BytesIO:
         raise NotImplementedError(
@@ -226,6 +311,22 @@ class GithubSource(Source):
     def __str__(self) -> str:
         return "github://{}/{}".format(self.repo, self.subpath or "")
 
+    @classmethod
+    def parse_address(cls, address: str) -> SourceAddress:
+        match = re.search(
+            r"^github://((?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+))/?(.+)?$", address, re.I
+        )
+        if match:
+            return SourceAddress("Github", repo=match.group(1), subpath=match.group(2))
+
+        match = re.search(
+            r"^https?://github\.com/((?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+))/?(?:(?:tree|blob)/(?:[^/]+)/(.+))?$",
+            address,
+            re.I,
+        )
+        if match:
+            return SourceAddress("Github", repo=match.group(1), subpath=match.group(2))
+
 
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
@@ -296,6 +397,12 @@ class UrlSource(Source):
             return "text/html"
 
         return super(UrlSource, self).mimetype
+
+    @classmethod
+    def parse_address(cls, address: str) -> SourceAddress:
+        match = re.search(r"^https?://", address, re.I)
+        if match:
+            return SourceAddress("Url", url=address)
 
 
 class LinkedSourceAuthentication(object):
