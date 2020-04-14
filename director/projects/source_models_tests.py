@@ -48,28 +48,28 @@ def test_default_parse_address():
 def test_query_from_address():
     q = Source.query_from_address(SourceAddress("Github", repo="org/repo"))
     assert isinstance(q, Q)
-    assert q.children == [("GithubSource__repo", "org/repo")]
+    assert q.children == [("githubsource__repo", "org/repo")]
 
     q = Source.query_from_address(
         SourceAddress("Github", repo="org/repo", subpath="a/sub/folder")
     )
     assert q.children == [
-        ("GithubSource__repo", "org/repo"),
-        ("GithubSource__subpath", "a/sub/folder"),
+        ("githubsource__repo", "org/repo"),
+        ("githubsource__subpath", "a/sub/folder"),
     ]
 
     q = Source.query_from_address(
         SourceAddress("Github", repo="org/repo"), prefix="sources"
     )
-    assert q.children == [("sources__GithubSource__repo", "org/repo")]
+    assert q.children == [("sources__githubsource__repo", "org/repo")]
 
     q = Source.query_from_address(
         SourceAddress("Github", repo="org/repo", subpath="a/sub/folder"),
         prefix="sources",
     )
     assert q.children == [
-        ("sources__GithubSource__repo", "org/repo"),
-        ("sources__GithubSource__subpath", "a/sub/folder"),
+        ("sources__githubsource__repo", "org/repo"),
+        ("sources__githubsource__subpath", "a/sub/folder"),
     ]
 
 

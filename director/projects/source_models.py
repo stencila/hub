@@ -198,7 +198,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         """
         address = Source.coerce_address(address_or_string)
 
-        front = ("{}__".format(prefix) if prefix else "") + address.type.__name__
+        front = ("{}__".format(prefix) if prefix else "") + address.type.__name__.lower()
         kwargs = dict(
             [("{}__{}".format(front, key), value) for key, value in address.items()]
         )
