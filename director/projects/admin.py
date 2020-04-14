@@ -1,3 +1,5 @@
+# flake8: noqa F401
+
 from django.contrib import admin
 from polymorphic.admin import (
     PolymorphicParentModelAdmin,

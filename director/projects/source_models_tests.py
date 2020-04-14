@@ -1,7 +1,13 @@
 from django.db.models import Q
 import pytest
 
-from projects.source_models import Source, SourceAddress, GithubSource, UrlSource
+from projects.source_models import (
+    Source,
+    SourceAddress,
+    DatSource,
+    GithubSource,
+    UrlSource,
+)
 
 
 def test_source_address():
@@ -9,27 +15,35 @@ def test_source_address():
         SourceAddress("foo")
 
 
-def test_parse_address():
+def test_coerce_address():
     # A specific address (ie. starting with type://)
-    sa = Source.parse_address("github://org/repo/a/file.md")
+    sa = Source.coerce_address("github://org/repo/a/file.md")
     assert sa.type == GithubSource
     assert sa["repo"] == "org/repo"
     assert sa["subpath"] == "a/file.md"
 
     # A HTTP URL that is matched by a specific source
-    sa = Source.parse_address("https://github.com/org/repo")
+    sa = Source.coerce_address("https://github.com/org/repo")
     assert sa.type == GithubSource
 
     # A generic URL that caught as a URL source
-    sa = Source.parse_address("https://example.org/file.R")
+    sa = Source.coerce_address("https://example.org/file.R")
     assert sa.type == UrlSource
 
     # An address that is not matched by any source type
     with pytest.raises(ValueError, match='Unable to parse source address "foo"'):
-        sa = Source.parse_address("foo")
+        sa = Source.coerce_address("foo")
 
 
-def test_github_parse():
+def test_parse_address():
+    sa = DatSource.parse_address("foo")
+    assert sa is None
+
+    sa = DatSource.parse_address("dat://")
+    assert sa.type == DatSource
+
+
+def test_github_parse_address():
     for url in [
         "github://django/django",
         "http://github.com/django/django",
@@ -38,7 +52,7 @@ def test_github_parse():
         sa = GithubSource.parse_address(url)
         assert sa.type == GithubSource
         assert sa["repo"] == "django/django"
-        assert sa["subpath"] == None
+        assert sa["subpath"] is None
 
     for url in [
         "github://django/django/django/db/models",
@@ -100,4 +114,4 @@ def test_create_from_address():
     s = Source.create_from_address("github://org/repo")
     assert isinstance(s, GithubSource)
     assert s.repo == "org/repo"
-    assert s.subpath == None
+    assert s.subpath is None
