@@ -5,6 +5,7 @@ from urllib.parse import urlparse, ParseResult
 
 from allauth.socialaccount.models import SocialToken
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db import models
@@ -48,6 +49,9 @@ class SourceAddress(dict):
         except KeyError:
             raise KeyError('Unknown source type "{}"'.format(type))
 
+    def __getattr__(self, attr):
+        return self[attr]
+
 
 class Source(PolymorphicModel, MimeTypeDetectMixin):
 
@@ -82,18 +86,6 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         auto_now=True, help_text="The time the source was last changed"
     )
 
-    def __str__(self) -> str:
-        """
-        Get a human readable string representation of the source instance.
-
-        These are intended to be URL-like human-readable and -writable
-        representations of sources(e.g. `github:org/repo/sub/path`; `gdoc:378yfh2yg362...`).
-        They are used in admin lists and API endpoints to allowing quick
-        specification of a source (e.g. for filtering).
-        Should be parsable by the `parse_address` method of each subclass.
-        """
-        return "{}://{}".format(self.type_name.lower(), self.id)
-
     @property
     def type(self) -> typing.Type["Source"]:
         """Get the type of a source instance e.g. `GoogleDocsSource`."""
@@ -110,6 +102,21 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         necessary.
         """
         return self.__class__.__name__[:-6]
+
+    def __str__(self) -> str:
+        """
+        Get a human readable string representation of the source instance.
+
+        These are intended to be URL-like human-readable and -writable shorthand
+        representations of sources (e.g. `github://org/repo/sub/path`; `gdoc://378yfh2yg362...`).
+        They are used in admin lists and in API endpoints to allowing quick
+        specification of a source (e.g. for filtering).
+        Should be parsable by the `parse_address` method of each subclass.
+
+        In addition, subclasses should implement a `url` property
+        that returns a valid URL that is a "backlink" to the source.
+        """
+        return "{}://{}".format(self.type_name.lower(), self.id)
 
     @property
     def provider_name(self) -> str:
@@ -144,7 +151,9 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         raise ValueError('Unable to parse source address "{}"'.format(address))
 
     @classmethod
-    def parse_address(cls, address: str) -> typing.Optional[SourceAddress]:
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> typing.Optional[SourceAddress]:
         """
         Parse a string into a `SourceAddress`.
 
@@ -156,6 +165,10 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         type_name = cls.__name__[:-6]
         if address.startswith(type_name.lower() + "://"):
             return SourceAddress(type_name)
+
+        if strict:
+            raise ValidationError("Invalid source identifier: {}".format(address))
+
         return None
 
     @staticmethod
@@ -325,8 +338,17 @@ class GithubSource(Source):
     def __str__(self) -> str:
         return "github://{}/{}".format(self.repo, self.subpath or "")
 
+    @property
+    def url(self):
+        url = "https://github.com/{}/".format(self.repo)
+        if self.subpath:
+            url += "blob/master/{}".format(self.subpath)
+        return url
+
     @classmethod
-    def parse_address(cls, address: str) -> typing.Optional[SourceAddress]:
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> typing.Optional[SourceAddress]:
         match = re.search(
             r"^github://((?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+))/?(.+)?$", address, re.I
         )
@@ -334,12 +356,17 @@ class GithubSource(Source):
             return SourceAddress("Github", repo=match.group(1), subpath=match.group(2))
 
         match = re.search(
-            r"^https?://github\.com/((?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+))/?(?:(?:tree|blob)/(?:[^/]+)/(.+))?$",
+            r"^(?:https?://)?github\.com/((?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+))/?(?:(?:tree|blob)/(?:[^/]+)/(.+))?$",
             address,
             re.I,
         )
         if match:
             return SourceAddress("Github", repo=match.group(1), subpath=match.group(2))
+
+        if strict:
+            raise ValidationError(
+                "Invalid Github source identifier: {}".format(address)
+            )
 
         return None
 
@@ -366,6 +393,46 @@ class GoogleDocsSource(Source):
 
     def __str__(self) -> str:
         return "gdoc://{}".format(self.doc_id)
+
+    @property
+    def url(self) -> str:
+        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
+
+    @classmethod
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> typing.Optional[SourceAddress]:
+        doc_id = None
+
+        match = re.search(r"^gdoc://(.+)$", address, re.I)
+        if match:
+            doc_id = match.group(1)
+
+        match = re.search(
+            r"^(?:https://)?docs.google.com/document/d/([^/]+)/?.*", address, re.I
+        )
+        if match:
+            doc_id = match.group(1)
+
+        # No match so far, maybe a naked doc id was supplied
+        if naked and not doc_id:
+            doc_id = address
+
+        # Check it's a valid id
+        if doc_id:
+            doc_id = (
+                doc_id
+                if re.search(r"^([a-z\d])([a-z\d_\-]+)$", doc_id, re.I)
+                else doc_id
+            )
+
+        if doc_id:
+            return SourceAddress("GoogleDocs", doc_id=doc_id)
+
+        if strict:
+            raise ValidationError("Invalid Google Doc identifier: {}".format(address))
+
+        return None
 
 
 class OSFSource(Source):
@@ -415,10 +482,15 @@ class UrlSource(Source):
         return super(UrlSource, self).mimetype
 
     @classmethod
-    def parse_address(cls, address: str) -> typing.Optional[SourceAddress]:
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> typing.Optional[SourceAddress]:
         match = re.search(r"^https?://", address, re.I)
         if match:
             return SourceAddress("Url", url=address)
+
+        if strict:
+            raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
 

@@ -1,6 +1,5 @@
 import logging
 import logging.handlers
-import re
 import typing
 
 import httplib2
@@ -15,10 +14,6 @@ from projects.project_models import Project
 from projects.source_models import GoogleDocsSource
 from lib.path_operations import utf8_path_join
 
-GOOGLE_DOCUMENT_URL_FORMAT = "https://docs.google.com/document/d/{}/edit"
-GOOGLE_DOCUMENT_URL_RE = r"^(https://)?docs.google.com/document/d/([^/]+)/.*"
-GOOGLE_DOCUMENT_ID_FORMAT_RE = r"^([a-z\d])([a-z\d_\-]+)$"
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
@@ -28,21 +23,6 @@ syslog_handler = logging.handlers.SysLogHandler()
 syslog_handler.setLevel(logging.ERROR)
 syslog_handler.setFormatter(formatter)
 logger.addHandler(syslog_handler)
-
-
-def build_google_document_url(document_id: str) -> str:
-    return GOOGLE_DOCUMENT_URL_FORMAT.format(document_id)
-
-
-def extract_google_document_id_from_url(url: str) -> str:
-    url_match = re.match(GOOGLE_DOCUMENT_URL_RE, url)
-    if url_match is None:
-        raise ValueError("{} is not a Google Docs URL".format(url))
-    return url_match.group(2)
-
-
-def google_document_id_is_valid(document_id: str) -> bool:
-    return re.match(GOOGLE_DOCUMENT_ID_FORMAT_RE, document_id, re.I) is not None
 
 
 class GoogleAuthHelper(object):

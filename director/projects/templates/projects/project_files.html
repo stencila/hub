@@ -148,12 +148,12 @@
                                   :delete-id-value="unlinkSourceId"
                                   delete-button-label="Unlink"
                                   @modal-hide="hideUnlinkModal()">
-                <template slot="title"><i class="fa fa-unlink"></i> Unlink&nbsp;<em>[[ unlinkSourceDescription ]]</em>?
+                <template slot="title"><i class="fa fa-unlink"></i> Unlink&nbsp;<em>[[ unlinkSourcePath ]]</em>?
                 </template>
                 <template slot="csrf_token">{% csrf_token %}</template>
                 <template slot="body">
                     <p>Are you sure you want to unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] <em>[[
-                        unlinkSourceDescription ]]</em> from this project?</p>
+                        unlinkSourcePath ]]</em> from this project?</p>
                     <p v-if="isUnlinkMulti" class="has-top-margin">
                         All files from this source will be removed from this project, but will still be available in
                         the [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>
