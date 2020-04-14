@@ -10,30 +10,27 @@ from projects.api.views.sources import (
     ItemPublishView,
     PublishedItemDeleteView,
 )
-from projects.api.views.projects import (
-    ProjectDetailView,
-    ManifestView,
-    ProjectListView,
-    ProjectEventListView,
-    AdminProjectEventListView,
-)
+from projects.api.views.events import EventListView
 from projects.api.views.nodes import NodesViewSet
+from projects.api.views.projects import ProjectsViewSet
 from projects.api.views.snapshots import SnapshotsViewSet
 
 nodes = routers.SimpleRouter(trailing_slash=False)
 nodes.register("", NodesViewSet, "api-nodes")
 nodes_urls = format_suffix_patterns(nodes.urls)
 
+projects = routers.SimpleRouter(trailing_slash=False)
+projects.register("", ProjectsViewSet, "api-projects")
+
 snapshots = routers.SimpleRouter(trailing_slash=False)
 snapshots.register("", SnapshotsViewSet, "api-snapshots")
-snapshots_urls = snapshots.urls
 
 projects_urls = [
-    path("", ProjectListView.as_view(), name="api-projects-list"),
-    path("<int:pk>/snapshots/", include(snapshots_urls)),
+    path("", include(projects.urls)),
+    path("<int:pk>/events/", EventListView.as_view(), name="api-events-list"),
+    path("<int:pk>/snapshots/", include(snapshots.urls)),
     # The following endpoints are not documented and reviewed
     # yet.
-    path("<int:pk>", ProjectDetailView.as_view(), name="api_project_detail"),
     path(
         "<int:pk>/item-create/",
         DiskItemCreateView.as_view(),
@@ -53,20 +50,9 @@ projects_urls = [
         name="api_project_item_publish",
     ),
     path("<int:pk>/sources/link", SourceLinkView.as_view(), name="api_sources_link"),
-    path("<int:pk>/manifest/", ManifestView.as_view(), name="api_project_manifest"),
-    path(
-        "<int:project_pk>/events/",
-        ProjectEventListView.as_view(),
-        name="api_project_event_list",
-    ),
     path(
         "published-items/<int:pk>/delete/",
         PublishedItemDeleteView.as_view(),
         name="api_published_item_delete",
-    ),
-    path(
-        "project-events/",
-        AdminProjectEventListView.as_view(),
-        name="api_admin_project_events",
     ),
 ]
