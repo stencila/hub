@@ -28,7 +28,15 @@ class SourceParentAdmin(PolymorphicParentModelAdmin):
     base_model = Source
     child_models = (FileSource, GithubSource, GoogleDocsSource, UrlSource)
 
-    list_display = ["id", "project_id", "path", "updated", "polymorphic_ctype"]
+    list_display = [
+        "id",
+        "project_id",
+        "path",
+        "creator_id",
+        "created",
+        "updated",
+        "polymorphic_ctype",
+    ]
     list_select_related = ["polymorphic_ctype"]
     list_filter = [PolymorphicChildModelFilter]
     show_full_result_count = False

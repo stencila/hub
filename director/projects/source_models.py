@@ -11,6 +11,7 @@ from django.db import models
 from polymorphic.models import PolymorphicModel
 
 from lib.conversion_types import mimetype_from_path
+from users.models import User
 
 
 class MimeTypeDetectMixin(object):
@@ -47,8 +48,21 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         help_text="The path that the file or directory from the source is mapped to in the Project",
     )
 
+    creator = models.ForeignKey(
+        User,
+        null=True,  # Should only be null if the creator is deleted
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="sources_created",
+        help_text="The user who created the source.",
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True, help_text="The time the source was created."
+    )
+
     updated = models.DateTimeField(
-        auto_now=True, help_text="Time this model instance was last updated"
+        auto_now=True, help_text="The time the source was last changed"
     )
 
     def __str__(self) -> str:
@@ -60,11 +74,7 @@ class Source(PolymorphicModel, MimeTypeDetectMixin):
         They are used in admin lists and API endpoints to allowing quick
         specification of a source (e.g. for filtering).
         """
-        raise NotImplementedError(
-            "Method `__str__` should be implemented for class {}".format(
-                self.__class__.__name__
-            )
-        )
+        return "{}://{}".format(self.type_name.lower(), self.id)
 
     @property
     def type(self) -> typing.Type["Source"]:
@@ -196,6 +206,9 @@ class FileSource(Source):
         self.file.save(self.path, f)
         self.size = self.file.size
 
+    def __str__(self) -> str:
+        return "file://{}".format(self.file.name or "")
+
 
 class GithubSource(Source):
     """A project hosted on Github."""
@@ -211,7 +224,7 @@ class GithubSource(Source):
     )
 
     def __str__(self) -> str:
-        return "{}/{}".format(self.repo, self.subpath or "")
+        return "github://{}/{}".format(self.repo, self.subpath or "")
 
 
 class GitlabSource(Source):
@@ -233,6 +246,9 @@ class GoogleDocsSource(Source):
     @property
     def mimetype(self) -> str:
         return "application/vnd.google-apps.document"
+
+    def __str__(self) -> str:
+        return "gdoc://{}".format(self.doc_id)
 
 
 class OSFSource(Source):
