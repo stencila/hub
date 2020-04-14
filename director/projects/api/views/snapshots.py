@@ -9,7 +9,6 @@ from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import (
-    negotiation,
     mixins,
     permissions,
     serializers,
@@ -24,6 +23,7 @@ import mimetypes
 import shutil
 
 from general.api.exceptions import ConflictError
+from general.api.negotiation import IgnoreClientContentNegotiation
 from lib.converter_facade import (
     ConverterFacade,
     ConverterIo,
@@ -63,22 +63,6 @@ class SnapshotCreateRequestSerializer(serializers.ModelSerializer):
         ref_name = None
 
 
-class SnapshotContentNegotiation(negotiation.DefaultContentNegotiation):
-    """
-    Custom content negotiator for snapshots.
-
-    Ignores the client requested format and
-    returns the first default renderer (usually JSON).
-    The `retrieve` and `retreive_file` actions handle
-    content negotiation and rendering themselves.
-    But this class will be used for other actions and for
-    any errors.
-    """
-
-    def select_renderer(self, request, renderers, format_suffix):
-        return (renderers[0], renderers[0].media_type)
-
-
 class SnapshotRetrieveSchema(SwaggerAutoSchema):
     """Custom schema inspector for the retreive action."""
 
@@ -102,7 +86,7 @@ class SnapshotsViewSet(
     # Configuration
 
     queryset = Snapshot.objects.all()
-    content_negotiation_class = SnapshotContentNegotiation
+    content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = SnapshotSerializer
     lookup_field = "number"
 
