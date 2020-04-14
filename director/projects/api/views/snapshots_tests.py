@@ -16,7 +16,6 @@ from lib.converter_facade import (
     ConverterContext,
 )
 
-
 # Set up temporary folders to run tests on
 snapshots_dir = tempfile.mkdtemp()
 snapshot_1_dir = os.path.join(snapshots_dir, "1")
