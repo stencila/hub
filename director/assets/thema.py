@@ -2,7 +2,7 @@
 
 # fmt: off
 
-version = "2.2.1"
+version = "2.2.6"
 themes = [
     "bootstrap",
     "elife",
