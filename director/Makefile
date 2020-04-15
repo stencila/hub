@@ -43,6 +43,7 @@ create-devdb: venv
 	$(DJ) runscript create_dev_projects
 	$(DJ) runscript create_dev_project_roles
 	$(DJ) runscript create_dev_project_nodes
+	$(DJ) runscript create_dev_project_sources
 
 # Migrate the development database
 migrate-devdb: venv
@@ -89,6 +90,10 @@ lint-docs: venv
 # Run tests
 test: venv
 	$(VE)/pytest
+
+# Rerun tests when files change
+test-watch: venv
+	$(VE)/ptw
 
 # Run tests with coverage and migrations
 cover: venv

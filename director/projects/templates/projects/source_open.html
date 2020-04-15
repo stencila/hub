@@ -14,7 +14,7 @@
                 {% if snapshot %}
                     This file is not editable as it is part of a snapshot.
                 {% else %}
-                    {% if source.provider_name == 'URL' %}
+                    {% if source.type_name == 'Url' %}
                         This file is not editable as saving changes back to URLs is not supported.
                     {% else %}
                      This file is not editable because you do not have a {{ source.provider_name }} account connected. Add

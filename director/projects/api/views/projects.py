@@ -1,139 +1,172 @@
-import json
-import typing
+# flake8: noqa F401
 
-import django_filters
-from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.views import View
-from rest_framework import generics
-from rest_framework.permissions import IsAdminUser
-from rest_framework.views import APIView
+from django.db.models import QuerySet, Q
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
+from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.inspectors import SwaggerAutoSchema
+from rest_framework import (
+    mixins,
+    permissions,
+    serializers,
+    status,
+    viewsets,
+)
+from rest_framework.decorators import action
+from rest_framework.exceptions import (
+    PermissionDenied,
+    NotAcceptable,
+    NotFound,
+    ValidationError,
+)
+from rest_framework.request import Request
+from rest_framework.response import Response
+import mimetypes
+import shutil
 
-from lib.sparkla import generate_manifest
-from projects.permission_models import ProjectPermissionType
+from general.api.exceptions import ConflictError
+from general.api.negotiation import IgnoreClientContentNegotiation
+from lib.converter_facade import (
+    ConverterFacade,
+    ConverterIo,
+    ConverterIoType,
+    ConverterContext,
+)
+from lib.conversion_types import (
+    conversion_format_from_id,
+    conversion_format_from_mimetype,
+    UnknownFormatError,
+    UnknownMimeTypeError,
+)
+from lib.data_cleaning import logged_in_or_none
+from lib.path_operations import utf8_path_join
 from projects.project_data import get_projects
-from projects.project_models import ProjectEvent
-from projects.views.mixins import ProjectPermissionsMixin
+from projects.models import Project, Source
+from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
+from projects.api.serializers import ProjectSerializer
+from projects.source_operations import snapshot_path
 
-from projects.api.serializers import ProjectSerializer, ProjectEventSerializer
+
+class ProjectCreateRequestSerializer(serializers.ModelSerializer):
+    """The request data when creating a project."""
+
+    class Meta:
+        model = Project
+        fields = ["account", "name", "description", "public"]
+        ref_name = None
 
 
-class ProjectListView(generics.ListAPIView):
-    """
-    Get a list of projects.
+class ProjectsViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+    ProjectPermissionsMixin,
+):
 
-    Returns a list of project that the authenticated user has access to.
-    """
+    # Configuration
 
+    content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = ProjectSerializer
 
-    def get_queryset(self):
-        fetch_result = get_projects(self.request.user, None)
-        return fetch_result.projects
+    def get_permissions(self):
+        """
+        Get the list of permissions that the current action requires.
 
+        - `list` and `retrieve`: auth not required but access denied for private projects
+        - `create`: auth required
+        """
+        return [permissions.IsAuthenticated()] if self.action == "create" else []
 
-class ProjectEventListViewBase(generics.ListAPIView):
-    swagger_schema = None
-    serializer_class = ProjectEventSerializer
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ["event_type"]
+    def get_queryset(self) -> QuerySet:
+        """Get the projects that the current user has access to."""
+        user = self.request.user
+        return Project.objects.filter(
+            # Project is public, or
+            Q(public=True)
+            # TODO: Add Qs for other access
+        )
 
-    def get_base_queryset(self):
-        raise NotImplementedError("Subclasses must implement get_base_queryset")
+    # Views
 
-    def get_queryset(self):
-        filtered = self.get_base_queryset()
-        if "success" in self.request.query_params:
-            success = self.request.query_params["success"]
+    def list(self, request: Request) -> Response:
+        """
+        List projects.
 
-            if success == "true":
-                filtered = filtered.filter(success=True)
-            elif success == "false":
-                filtered = filtered.filter(success=False)
-            elif success == "null":
-                filtered = filtered.filter(success__isnull=True)
+        The optional `q` parameter is a string to search for in project
+        `name` and `description`.
+        The optional `source` parameter is an address of a
+        source within the project.
+        Returns a list of projects that the user has access to and which
+        matches the supplied filters.
+        """
+        queryset = self.get_queryset()
 
-        return filtered
+        query = self.request.query_params.get("q")
+        if query is not None:
+            queryset = queryset.filter(
+                Q(name__icontains=query) | Q(description__icontains=query)
+            )
 
+        source = self.request.query_params.get("source")
+        if source is not None:
+            try:
+                query = Source.query_from_address(source, prefix="sources")
+            except ValueError as exc:
+                raise ValidationError({"source": str(exc)})
+            queryset = queryset.filter(query)
 
-class ProjectEventListView(ProjectEventListViewBase, ProjectPermissionsMixin):  # type: ignore # get_object override
-    swagger_schema = None
-    project_permission_required = ProjectPermissionType.MANAGE
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
-    def get_base_queryset(self):
-        project = self.get_project(self.request.user, pk=self.kwargs["project_pk"])
-        return ProjectEvent.objects.filter(project=project)
+    @swagger_auto_schema(
+        request_body=ProjectCreateRequestSerializer,
+        responses={status.HTTP_201_CREATED: ProjectSerializer},
+    )
+    def create(self, request: Request) -> Response:
+        """
+        Create a project.
 
+        Receives details for the new project such as `name` and `description`.
+        Returns the details of the created project.
+        """
+        serializer = ProjectCreateRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-class AdminProjectEventListView(ProjectEventListViewBase):
-    swagger_schema = None
-    permission_classes = [IsAdminUser]
+        account = serializer.validated_data.get("account")
+        name = serializer.validated_data.get("name")
+        description = serializer.validated_data.get("description")
+        public = serializer.validated_data.get("public")
 
-    def get_base_queryset(self):
-        return ProjectEvent.objects.all()
+        # TODO: check permissions
+        # Check that the user has permissions for the account
+        # if not account.permits(request.user, AccountPermissionType.):
+        #    raise PermissionDenied
 
+        project = Project.objects.create(
+            account=account,
+            name=name,
+            description=description,
+            creator=request.user,
+            public=public,
+        )
 
-class ManifestView(ProjectPermissionsMixin, APIView):
-    swagger_schema = None
+        serializer = self.get_serializer(project)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def get(self, request: HttpResponse, pk: int) -> HttpResponse:  # type: ignore
-        return self.dispatch_response(request, pk)
+    def retrieve(self, request: Request, pk: int) -> Response:
+        """
+        Retrieve a project.
 
-    def post(self, request: HttpResponse, pk: int) -> HttpResponse:  # type: ignore
-        return self.dispatch_response(request, pk)
-
-    def dispatch_response(self, request: HttpRequest, pk: int):
-        # DRF overrides `dispatch()` already so we have to use the method named methods above and call this manually
-        if request.user.is_anonymous or not request.user.is_staff:
+        Returns details of project, including `name` and `description`.
+        """
+        # Check that the user has VIEW permissions for the project
+        self.get_project(request.user, pk=pk)
+        if not self.has_permission(ProjectPermissionType.VIEW):
             raise PermissionDenied
 
-        project = self.get_project(request.user, pk=pk)
-
-        json_rpc_response = False
-
-        if request.method == "POST":
-            json_rpc_response = True
-
-            json_rpc = json.loads(request.body)
-
-            if json_rpc.get("method") != "manifest":
-                raise ValueError("Request is not for manifest")
-
-        manifest = generate_manifest("{}".format(request.user.id), project=project)
-
-        response: typing.Any = None
-
-        if json_rpc_response:
-            response = {"jsonrpc": "2.0", "result": manifest, "id": json_rpc["id"]}
-        else:
-            response = manifest
-
-        return JsonResponse(response, safe=False)
-
-
-# These are not DRF Views but they probably should be
-class ProjectDetailView(ProjectPermissionsMixin, View):
-    swagger_schema = None
-    project_permission_required = ProjectPermissionType.VIEW
-
-    def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
-        project = self.get_project(request.user, pk=pk)
-
-        if not self.has_permission(ProjectPermissionType.MANAGE):
-            raise PermissionDenied("You do not have permission to edit this Project.")
-
-        update_data = json.loads(request.body)
-
-        project_updated = False
-
-        for key, value in update_data.items():
-            if not hasattr(project, key):
-                raise ValueError('Invalid update data key: "{}".'.format(key))
-
-            setattr(project, key, value)
-            project_updated = True
-
-        if project_updated:
-            project.save()
-
-        return JsonResponse({"success": True})
+        project = get_object_or_404(Project, pk=pk)
+        serializer = self.get_serializer(project)
+        return Response(serializer.data)

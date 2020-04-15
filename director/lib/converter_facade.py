@@ -24,7 +24,8 @@ from lib.conversion_types import (
     conversion_format_from_path,
     UnknownFormatError,
 )
-from lib.google_docs_facade import extract_google_document_id_from_url, GoogleDocsFacade
+from lib.google_docs_facade import GoogleDocsFacade
+from projects.source_models import GoogleDocsSource, SourceAddress
 
 MAX_REMOTE_CONVERT_SIZE = 5 * 1024 * 1024
 STREAM_CHUNK_SIZE = 1024 * 1024
@@ -155,7 +156,9 @@ def fetch_service_item(service_item: ServiceItem) -> typing.Tuple[str, Converter
 
 def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
     try:
-        google_docs_id = extract_google_document_id_from_url(url)
+        google_docs_id = typing.cast(
+            SourceAddress, GoogleDocsSource.parse_address(url, strict=True)
+        ).docs_id
         return ServiceItem(ServiceId.google_docs, google_docs_id)
     except ValueError:
         pass

@@ -21,11 +21,7 @@ from rest_framework.views import APIView
 
 from lib.conversion_types import UnknownMimeTypeError
 from lib.converter_facade import fetch_url
-from lib.google_docs_facade import (
-    extract_google_document_id_from_url,
-    google_document_id_is_valid,
-    GoogleDocsFacade,
-)
+from lib.google_docs_facade import GoogleDocsFacade
 from lib.social_auth_token import user_social_token
 from projects.disk_file_facade import DiskFileFacade, ItemType
 from projects.permission_facade import fetch_project_for_user
@@ -204,15 +200,7 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
         if not doc_id:
             raise LinkException("A document ID or URL was not provided.")
 
-        try:
-            doc_id = extract_google_document_id_from_url(doc_id)
-        except ValueError:
-            pass  # not a URL, could just a be the ID
-
-        if not google_document_id_is_valid(doc_id):
-            raise LinkException(
-                '"{}" is not a valid Google Document ID.'.format(doc_id)
-            )
+        doc_id = GoogleDocsSource.parse_address(doc_id, naked=True, strict=True).doc_id
 
         google_app = SocialApp.objects.filter(provider="google").first()
 

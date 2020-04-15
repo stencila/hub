@@ -4,7 +4,6 @@ from os.path import splitext
 from django import template
 from django.urls import reverse
 
-from lib.google_docs_facade import build_google_document_url
 from projects.project_models import Project
 from projects.source_item_models import DirectoryListEntry, DirectoryEntryType
 from projects.source_models import GoogleDocsSource
@@ -16,7 +15,7 @@ register = template.Library()
 def source_path(project: Project, directory_entry: DirectoryListEntry) -> str:
     if isinstance(directory_entry.source, GoogleDocsSource):
         source = typing.cast(GoogleDocsSource, directory_entry.source)
-        return build_google_document_url(source.doc_id)
+        return source.url
 
     args = [project.account.name, project.name, directory_entry.path]
 

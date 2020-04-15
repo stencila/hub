@@ -108,7 +108,6 @@
       const g_filePullUrl = "{% url 'project_pull' project.account.name project.name %}"
       const g_fileList = JSON.parse('{{ item_names|escapejs }}')
       const g_supportedSocialProviders = JSON.parse('{{ social_providers_supported|escapejs }}')
-      const g_projectUpdateUrl = "{% url 'api_project_detail' project.pk %}"
     </script>
     <div id="file-browser" ref="file-browser-root"
          data-item-create-url="{% url 'api_project_item_create' project.id %}"
@@ -148,12 +147,12 @@
                                   :delete-id-value="unlinkSourceId"
                                   delete-button-label="Unlink"
                                   @modal-hide="hideUnlinkModal()">
-                <template slot="title"><i class="fa fa-unlink"></i> Unlink&nbsp;<em>[[ unlinkSourceDescription ]]</em>?
+                <template slot="title"><i class="fa fa-unlink"></i> Unlink&nbsp;<em>[[ unlinkSourcePath ]]</em>?
                 </template>
                 <template slot="csrf_token">{% csrf_token %}</template>
                 <template slot="body">
                     <p>Are you sure you want to unlink [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] <em>[[
-                        unlinkSourceDescription ]]</em> from this project?</p>
+                        unlinkSourcePath ]]</em> from this project?</p>
                     <p v-if="isUnlinkMulti" class="has-top-margin">
                         All files from this source will be removed from this project, but will still be available in
                         the [[ SOURCE_TYPE_NAME_LOOKUP[unlinkSourceType] ]] repository.</p>

@@ -296,13 +296,13 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             if isinstance(source, (FileSource, DiskSource)):
                 raise TypeError("Can't unlink a File source")
 
-            source_description = source.description
+            source_path = source.path
 
             source.delete()
 
             messages.success(
                 request,
-                "<em>{}</em> was unlinked.".format(escape(source_description)),
+                "<em>{}</em> was unlinked.".format(escape(source_path)),
                 extra_tags="safe",
             )
 
@@ -345,9 +345,7 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
     def get_context_data(self, **kwargs) -> dict:
         context_data = super().get_context_data(**kwargs)
         context_data["project_tab"] = ProjectTab.ACTIVITY.value
-        context_data["api_url"] = reverse(
-            "api_project_event_list", args=(self.project.pk,)
-        )
+        context_data["api_url"] = reverse("api-events-list", args=(self.project.pk,))
         context_data["project_event_types"] = json.dumps(
             list(
                 map(
@@ -357,29 +355,6 @@ class ProjectActivityView(ProjectPermissionsMixin, UpdateView):
             )
         )
         return context_data
-
-
-class AdminProjectEventView(View):
-    def get(self, request: HttpRequest) -> HttpResponse:
-        if request.user.is_anonymous or not request.user.is_staff:
-            raise PermissionDenied
-
-        return render(
-            request,
-            "projects/admin_project_activity.html",
-            {
-                "display_project_column": True,
-                "api_url": reverse("api_admin_project_events"),
-                "project_event_types": json.dumps(
-                    list(
-                        map(
-                            lambda t: [t.name, PROJECT_EVENT_LONG_TYPE_LOOKUP[t.name]],
-                            ProjectEventType,
-                        )
-                    )
-                ),
-            },
-        )
 
 
 class ProjectSharingView(ProjectPermissionsMixin, DetailView):

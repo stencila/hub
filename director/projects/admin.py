@@ -1,5 +1,11 @@
 # flake8: noqa F401
+
 from django.contrib import admin
+from polymorphic.admin import (
+    PolymorphicParentModelAdmin,
+    PolymorphicChildModelAdmin,
+    PolymorphicChildModelFilter,
+)
 
 from .project_admin import (
     ProjectAdmin,
@@ -8,9 +14,62 @@ from .project_admin import (
     ProjectAgentRoleAdmin,
 )
 from .session_admin import SessionAdmin, SessionParametersAdmin, SessionRequestAdmin
-from .source_admin import SourceAdmin
 
-from .models import Node, Snapshot
+from projects.models import Node, Snapshot
+from projects.source_models import (
+    Source,
+    FileSource,
+    GithubSource,
+    GoogleDocsSource,
+    UrlSource,
+)
+
+
+@admin.register(Source)
+class SourceParentAdmin(PolymorphicParentModelAdmin):
+    base_model = Source
+    child_models = (FileSource, GithubSource, GoogleDocsSource, UrlSource)
+
+    list_display = [
+        "id",
+        "project_id",
+        "path",
+        "creator_id",
+        "created",
+        "updated",
+        "polymorphic_ctype",
+    ]
+    list_select_related = ["polymorphic_ctype"]
+    list_filter = [PolymorphicChildModelFilter]
+    show_full_result_count = False
+
+
+class SourceChildAdmin(PolymorphicChildModelAdmin):
+    """Base admin class for all child models of Source."""
+
+
+@admin.register(FileSource)
+class FileSourceAdmin(SourceChildAdmin):
+    base_model = FileSource
+    show_in_index = True
+
+
+@admin.register(GithubSource)
+class GithubSourceAdmin(SourceChildAdmin):
+    base_model = GithubSource
+    show_in_index = True
+
+
+@admin.register(GoogleDocsSource)
+class GoogleDocsSourceAdmin(SourceChildAdmin):
+    base_model = GoogleDocsSource
+    show_in_index = True
+
+
+@admin.register(UrlSource)
+class UrlSourceAdmin(SourceChildAdmin):
+    base_model = UrlSource
+    show_in_index = True
 
 
 @admin.register(Node)

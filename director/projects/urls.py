@@ -12,7 +12,6 @@ from projects.views.project_views import (
     ProjectCreateView,
     ProjectSettingsSessionsView,
     ProjectNamedRedirect,
-    AdminProjectEventView,
 )
 
 urlpatterns = [
@@ -25,7 +24,6 @@ urlpatterns = [
         ProjectNamedRedirect.as_view(),
         name="project_named_redirect_path",
     ),
-    path("events/", AdminProjectEventView.as_view(), name="admin_project_events"),
     # Per project Host API
     # TODO: These are probably redundant – replace with slug?
     path(

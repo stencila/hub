@@ -7,3 +7,4 @@ pydocstyle==5.0.2
 pytest==5.4.1
 pytest-cov==2.8.1
 pytest-django==3.9.0
+pytest-watch==4.2.0
