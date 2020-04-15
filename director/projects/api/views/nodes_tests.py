@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import renderers, status
 
 from general.testing import DatabaseTestCase
 from projects.api.views.nodes import node_type
@@ -7,8 +7,15 @@ from projects.api.views.nodes import node_type
 class NodeViewsTest(DatabaseTestCase):
     """Test creating and retrieving nodes."""
 
+    # Type specific CRUD methods for Nodes
+
     def create_node(self, user=None, project=None, node=None):
-        return self.create(user, "nodes", {"project": project, "node": node})
+        return self.create(
+            user,
+            "nodes",
+            {"project": project, "node": node},
+            headers={"HTTP_ACCEPT": "application/json"},
+        )
 
     def retrieve_json(self, user, key):
         return self.retrieve(
@@ -22,6 +29,8 @@ class NodeViewsTest(DatabaseTestCase):
         return self.retrieve(
             user, "nodes", kwargs={"key": key}, headers={"HTTP_ACCEPT": "text/html"},
         )
+
+    # Testing methods
 
     def test_create_ok(self):
         node = {"type": "CodeChunk", "text": "plot(1, 1)"}
@@ -60,7 +69,9 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_create_must_have_required_fields(self):
-        response = self.create(self.ada, "nodes")
+        response = self.create(
+            self.ada, "nodes", headers={"HTTP_ACCEPT": "application/json"}
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
             "message": "Invalid input.",
@@ -68,7 +79,12 @@ class NodeViewsTest(DatabaseTestCase):
         }
 
     def test_create_host_must_be_url(self):
-        response = self.create(self.ada, "nodes", {"node": 41, "host": "foo"})
+        response = self.create(
+            self.ada,
+            "nodes",
+            data={"node": 41, "host": "foo"},
+            headers={"HTTP_ACCEPT": "application/json"},
+        )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data == {
             "message": "Invalid input.",
@@ -117,29 +133,54 @@ class NodeViewsTest(DatabaseTestCase):
         key = self.create_node(self.ada, self.ada_private.id, "C").data["key"]
         response = self.retrieve_html(self.ada, key)
         assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
+        assert response.template_name == "projects/node_complete.html"
         assert response.data.get("node_type") == "Text"
         assert response.data.get("html") is not None
+
+    def test_retrieve_anything(self):
+        """Test that if Accept:*/* or no Accept header that get HTML."""
+        key = self.create_node(self.ada, self.ada_private.id, "A node").data["key"]
+
+        response = self.retrieve(self.ada, "nodes", kwargs={"key": key})
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
+
+        response = self.retrieve(
+            self.ada, "nodes", kwargs={"key": key}, headers={"HTTP_ACCEPT": "*/*"}
+        )
+        assert response.status_code == status.HTTP_200_OK
+        assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
 
     def test_retrieve_html_complete_for_public_projects(self):
         """Test users get complete view for public projects."""
         key = self.create_node(self.ada, self.ada_public.id, "A node").data["key"]
-        assert self.retrieve_html(self.bob, key).data.get("html") is not None
-        assert self.retrieve_html(None, key).data.get("html") is not None
+
+        response = self.retrieve_html(self.bob, key)
+        assert response.template_name == "projects/node_complete.html"
+
+        response = self.retrieve_html(None, key)
+        assert response.template_name == "projects/node_complete.html"
 
     def test_retrieve_html_basic_for_private_projects(self):
         """Test users get basic view for private projects."""
         key = self.create_node(self.ada, self.ada_private.id, "Another node").data[
             "key"
         ]
-        assert self.retrieve_html(self.bob, key).data.get("html") is None
-        assert self.retrieve_html(None, key).data.get("html") is None
+
+        response = self.retrieve_html(self.bob, key)
+        assert response.template_name == "projects/node_basic.html"
+
+        response = self.retrieve_html(None, key)
+        assert response.template_name == "projects/node_basic.html"
 
     def test_retrieve_html_when_no_project(self):
         """Test that everyone gets complete view for any node with no project specified."""
         key = self.create_node(self.ada, None, "A").data["key"]
 
         for user in (self.ada, self.bob, None):
-            assert self.retrieve_html(user, key).data.get("html") is not None
+            response = self.retrieve_html(user, key)
+            assert response.template_name == "projects/node_complete.html"
 
 
 def test_node_type():

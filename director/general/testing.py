@@ -151,7 +151,7 @@ class DatabaseTestCase(test.APITestCase):
         )
 
     def create(
-        self, user: Optional[User], viewname: str, data={}, kwargs={}
+        self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
     ) -> Response:
         """Create an object of a type for a user."""
         self.authenticate(user)
@@ -161,6 +161,7 @@ class DatabaseTestCase(test.APITestCase):
                 kwargs=kwargs,
             ),
             data,
+            **headers,
         )
 
     def retrieve(

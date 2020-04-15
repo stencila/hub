@@ -84,9 +84,20 @@ class NodesViewSet(
     ProjectPermissionsMixin,
 ):
 
+    # Configuration
+
     lookup_url_kwarg = "key"
-    renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
+
+    # Use the plain `JSONParser`, rather than the default
+    # `CamelCaseJSONParser` so that camelCased properties within
+    # a node are not transformed to snake case.
     parser_classes = [parsers.JSONParser]
+
+    # Use `TemplateHTMLRenderer` as the default renderer so that
+    # bots that `Accept` anything get HTML that rather than JSON.
+    # For why this ordering is important see
+    # https://www.django-rest-framework.org/api-guide/renderers/#ordering-of-renderer-classes
+    renderer_classes = [renderers.TemplateHTMLRenderer, renderers.JSONRenderer]
 
     def get_permissions(self):
         """
@@ -102,6 +113,8 @@ class NodesViewSet(
         else:
             permission_classes = []
         return [permission() for permission in permission_classes]
+
+    # Views
 
     @swagger_auto_schema(
         request_body=NodesCreateRequest,
@@ -140,7 +153,13 @@ class NodesViewSet(
         )
 
         serializer = NodesCreateResponse(node, context={"request": request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED,)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            # Most of the time this action will requested with `Accept: application/json`.
+            # However, in case it is not, `template_name` is required.
+            template_name="projects/node_complete.html",
+        )
 
     @swagger_auto_schema(responses={status.HTTP_200_OK: NodeSerializer},)
     def retrieve(
@@ -158,8 +177,7 @@ class NodesViewSet(
         Otherwise, should return a full HTML rendering of the node using Encoda.
         """
         node = get_object_or_404(Node, key=key)
-        accept = request.META.get("HTTP_ACCEPT")
-        if format == "json" or (accept and "application/json" in accept):
+        if format == "json" or request.accepted_renderer.format == "json":
             # Require the user is authenticated and has VIEW permissions for the project
             if not request.user.is_authenticated:
                 raise NotAuthenticated
