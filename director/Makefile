@@ -96,17 +96,25 @@ cover: venv
 
 # Build Docker image
 build: Dockerfile
+	cp ../package*.json .
 	docker build --tag stencila/hub-director .
 
 # Run the Docker image
 # Necessary environment variables required for `Prod` settings need to
-# be set in `env.sh`
-# Uses development database
+# be set in `env.sh` and passed using the `--env` option.
 # Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
+# Uses development database.
+# Uses `DJANGO_SECURE_SSL_REDIRECT=false` to avoid being redirected
+# to HTTPS (which is the default for prod)
 run-docker: build
 	$(EV) \
 	docker run \
+		--env DJANGO_JWT_SECRET \
+		--env DJANGO_SECRET_KEY \
+		--env DJANGO_SENDGRID_API_KEY \
+		--env DJANGO_SECURE_SSL_REDIRECT=false \
 		-v $$PWD/db.sqlite3:/home/director/db.sqlite3:rw \
+		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
 		-p 8000:8000 -it --rm stencila/hub-director

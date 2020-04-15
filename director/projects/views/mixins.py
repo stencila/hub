@@ -261,7 +261,7 @@ class ConverterMixin:
     @property
     def converter(self) -> ConverterFacade:
         if self._converter is None:
-            self._converter = ConverterFacade(settings.STENCILA_BINARY)
+            self._converter = ConverterFacade(settings.STENCILA_ENCODA_PATH)
 
         return self._converter
 

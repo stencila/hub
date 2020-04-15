@@ -203,7 +203,7 @@ class NodesViewSet(
             try:
                 # Currently allow this to fail if the converter binary
                 # can not be found e.g. during CI testing
-                conversion = ConverterFacade(settings.STENCILA_BINARY).convert(
+                conversion = ConverterFacade(settings.STENCILA_ENCODA_PATH).convert(
                     input_data=ConverterIo(
                         ConverterIoType.PIPE,
                         json.dumps(node.json).encode("utf8"),

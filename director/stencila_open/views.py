@@ -195,7 +195,7 @@ class OpenView(View):
                         target_io = ConverterIo(
                             ConverterIoType.PATH, target_file.name, OUTPUT_FORMAT
                         )
-                        converter = ConverterFacade(settings.STENCILA_BINARY)
+                        converter = ConverterFacade(settings.STENCILA_ENCODA_PATH)
 
                         conversion_result = converter.convert(
                             cr.source_io, target_io, ConverterContext(True, False)
@@ -681,7 +681,7 @@ class OpenResultRawView(View):
 
         target_io = ConverterIo(ConverterIoType.PATH, output_path, output_format)
 
-        converter = ConverterFacade(settings.STENCILA_BINARY)
+        converter = ConverterFacade(settings.STENCILA_ENCODA_PATH)
         conversion_result = converter.convert(
             source_io, target_io, ConverterContext(False, True)
         )

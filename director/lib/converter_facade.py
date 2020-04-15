@@ -379,9 +379,9 @@ class ConverterContext(typing.NamedTuple):
 
 
 class ConverterFacade(object):
-    converter_binary: typing.List[str]
+    converter_binary: str
 
-    def __init__(self, converter_binary: typing.List[str]) -> None:
+    def __init__(self, converter_binary: str) -> None:
         self.converter_binary = converter_binary
 
     def convert(
@@ -428,7 +428,7 @@ class ConverterFacade(object):
         )
 
         return subprocess.run(
-            self.converter_binary + convert_args,
+            [self.converter_binary] + convert_args,
             input=input_pipe_data,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

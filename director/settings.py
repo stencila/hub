@@ -241,6 +241,14 @@ class Common(Configuration):
         STENCILA_PROJECT_STORAGE_DIRECTORY
     )
 
+    # Path to Encoda executable
+    # This default path points to the install in the parent directory
+    STENCILA_ENCODA_PATH = values.Value(
+        os.path.join(
+            BASE_DIR, "..", "node_modules", "@stencila", "encoda", "dist", "cli.js"
+        )
+    )
+
     # This can be any format, it's not used in code, only humans will be looking at this
     STENCILA_HUB_VERSION = values.Value("")
 
@@ -260,7 +268,6 @@ class Common(Configuration):
         }
     }
 
-    STENCILA_BINARY = values.ListValue(["/usr/local/bin/stencila"])
     STENCILA_CLIENT_USER_AGENT = values.Value("Stencila Hub HTTP Client")
     INTERCOM_ACCESS_TOKEN = values.Value("")
 

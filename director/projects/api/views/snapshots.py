@@ -297,7 +297,7 @@ class SnapshotsViewSet(
                 ),
             )
             if not os.path.exists(response_path):
-                ConverterFacade(settings.STENCILA_BINARY).convert(
+                ConverterFacade(settings.STENCILA_ENCODA_PATH).convert(
                     input_data=ConverterIo(ConverterIoType.PATH, file_path),
                     output_data=ConverterIo(ConverterIoType.PATH, response_path),
                     context=ConverterContext(standalone=True, theme=theme),
