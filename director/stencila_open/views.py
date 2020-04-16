@@ -377,7 +377,6 @@ class OpenView(View):
 
             # Also copy the media for the JSON file created
             media_path_json = target_file.name + ".json.media"
-            print(media_path, media_path_json)
             if os.path.exists(media_path_json):
                 cfs.copy_file_to_public_id(
                     media_path_json, public_id, basename(media_path_json)

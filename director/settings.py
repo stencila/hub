@@ -441,7 +441,6 @@ class Prod(Common):
 
     @classmethod
     def post_setup(cls):
-        print(cls.SECURE_SSL_REDIRECT)
         import sentry_sdk
         from sentry_sdk.integrations.django import DjangoIntegration
 
