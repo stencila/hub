@@ -1,10 +1,9 @@
-from rest_framework import routers
-
+from general.api.routers import OptionalSlashRouter
 from users.api.views.tokens import TokensViewSet
 from users.api.views.users import UsersViewSet
 
-tokens = routers.SimpleRouter()
-tokens.register("", TokensViewSet, "api-tokens")
+tokens = OptionalSlashRouter()
+tokens.register("tokens", TokensViewSet, "api-tokens")
 
-users = routers.SimpleRouter()
-users.register("", UsersViewSet, "api-users")
+users = OptionalSlashRouter()
+users.register("users", UsersViewSet, "api-users")
