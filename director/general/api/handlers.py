@@ -1,4 +1,10 @@
+import traceback
+
+from django.conf import settings
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.views import exception_handler
+from sentry_sdk import capture_exception
 
 
 def custom_exception_handler(exc, context):
@@ -22,12 +28,13 @@ def custom_exception_handler(exc, context):
     Inspired by, but simpler than, https://github.com/FutureMind/drf-friendly-errors
     which is currently unmaintained and not compatible with latest DRF.
     """
-    # Call REST framework's default exception handler first,
+    # Call rest_framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
 
-    # Restructure the structure of the response data.
     if response is not None:
+        # Restructure the standard error response
+        # so it has a consistent shape
         data = {}
 
         message = getattr(exc, "default_detail", None)
@@ -50,4 +57,14 @@ def custom_exception_handler(exc, context):
 
         response.data = data
 
-    return response
+        return response
+
+    # rest_framework did not handle this exception so
+    # generate a API response to prevent it from getting handled by the
+    # default Django HTML-generating 500 handler
+    data = {"message": str(exc)}
+    if settings.DEBUG:
+        data["traceback"] = traceback.format_exc()
+    if hasattr(settings, "SENTRY_DSN") and settings.SENTRY_DSN:
+        capture_exception(exc)
+    return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

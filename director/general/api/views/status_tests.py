@@ -4,7 +4,6 @@ from django.db import OperationalError
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-import pytest
 
 from version import __version__
 
@@ -40,8 +39,9 @@ class StatusAPIViewTests(APITestCase):
             "general.api.views.status.migrations_pending",
             new=migrations_pending_other_error,
         ):
-            with pytest.raises(RuntimeError, match="beep boop"):
-                self.client.get(self.url)
+            response = self.client.get(self.url)
+            assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
+            assert response.data["message"] == "beep boop"
 
 
 def migrations_pending_true():
