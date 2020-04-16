@@ -61,8 +61,12 @@ run: venv
 
 # Run development server with production settings
 # Required secrets will need to be set in `env.sh`
+# Some env vars set to avoid polluting logs etc
 run-prod: venv
-	export DJANGO_CONFIGURATION="Prod"; $(DJ) runserver
+	export DJANGO_SENTRY_DSN=""; \
+	export DJANGO_POSTHOG_KEY=""; \
+	export DJANGO_CONFIGURATION="Prod"; \
+	$(DJ) runserver
 
 # Format code
 format: venv
