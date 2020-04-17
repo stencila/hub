@@ -1,0 +1,53 @@
+version: "3.6"
+
+x-environment:
+  - &broker-url BROKER_URL=redis://broker:6379/0
+  - &database-url DATABASE_URL=sqlite:///test.sqlite3
+
+services:
+
+  router:
+    build: ./router
+    image: stencila/hub-router
+
+  director:
+    build: ./director
+    image: stencila/hub-director
+    ports:
+      - 8000:8000
+    volumes:
+      - ${PWD}/database/test.sqlite3:/home/director/test.sqlite3
+    environment:
+      - *broker-url
+      - *database-url
+      # These env vars are necessary to run Django
+      # without HTTPS in a non-production environment
+      - DJANGO_SECURE_SSL_REDIRECT=false
+      - DJANGO_SECRET_KEY=not-a-secret
+      # These env vars are likely to be removed soon
+      # but are necessary at present
+      - DJANGO_SENTRY_DSN
+      - DJANGO_POSTHOG_KEY
+      - DJANGO_JWT_SECRET=not-a-secret
+      - DJANGO_SENDGRID_API_KEY=not-a-secret
+
+  broker:
+    build: ./broker
+    image: stencila/hub-broker
+    ports:
+      - 6379:6379
+
+  scheduler:
+    build: ./scheduler
+    image: stencila/hub-scheduler
+    volumes:
+      - ${PWD}/database/test.sqlite3:/home/scheduler/test.sqlite3
+    environment:
+      - *broker-url
+      - *database-url
+
+  worker:
+    build: ./worker
+    image: stencila/hub-worker
+    environment:
+      - *broker-url
