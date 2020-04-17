@@ -130,3 +130,4 @@ run-docker: build
 
 clean:
 	rm -rf venv coverage static
+	find . | grep -E "(__pycache__|\.pyc$$)" | xargs rm -rf
