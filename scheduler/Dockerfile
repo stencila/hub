@@ -1,7 +1,20 @@
 FROM python:3.7
 
-COPY requirements.txt .  
+# Create `scheduler` user and use it's home dir
+RUN useradd -m scheduler
+WORKDIR /home/scheduler
+
+# Install Python requirements
+COPY requirements.txt ./  
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY scheduler.py .
+# Copy Python app files
+COPY *.py ./
+
+# Ensure Celery startup banner is printed
+# See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
+ENV PYTHONUNBUFFERED=1
+
+# Run Celery as the user `scheduler`
+USER scheduler
 CMD celery beat --app scheduler
