@@ -17,3 +17,8 @@ run: venv
 # Build Docker image
 build:
 	docker build --tag stencila/hub-scheduler .
+
+# Clean up venv and cached files
+clean:
+	rm -rf venv
+	find . | grep -E "(__pycache__|\.pyc$$)" | xargs rm -rf
