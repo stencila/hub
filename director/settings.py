@@ -73,6 +73,7 @@ class Common(Configuration):
         "accounts.apps.AccountsConfig",
         "projects.apps.ProjectsConfig",
         "stencila_open.apps.StencilaOpenConfig",
+        "jobs.apps.JobsConfig",
     ]
 
     MIDDLEWARE = [
@@ -121,9 +122,7 @@ class Common(Configuration):
     # Defaults to `dev.sqlite3` but can be set using `DATABASE_URL` env var
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
-    DATABASES = values.DatabaseURLValue(
-        "sqlite:///{}/dev.sqlite3".format(BASE_DIR)
-    )
+    DATABASES = values.DatabaseURLValue("sqlite:///{}/dev.sqlite3".format(BASE_DIR))
 
     DEFAULT_FROM_EMAIL = values.Value("")
 

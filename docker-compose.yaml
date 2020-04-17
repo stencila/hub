@@ -13,6 +13,7 @@ services:
     ports:
       - "9000:80"
     environment:
+      - *broker-url
       - *director-url
 
   director:

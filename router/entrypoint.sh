@@ -7,6 +7,8 @@
 set -eu
 
 : "${DIRECTOR_URL:?Env var DIRECTOR_URL must be set and non-empty}"
-envsubst '${DIRECTOR_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+: "${BROKER_URL:?Env var BROKER_URL must be set and non-empty}"
+
+envsubst '${DIRECTOR_URL} ${BROKER_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 exec "$@"
