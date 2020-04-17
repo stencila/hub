@@ -18,6 +18,5 @@ django.setup()
 from celery import Celery
 from django_celery_beat.schedulers import DatabaseScheduler
 
-app = Celery(
-    broker=os.environ.get("BROKER_URL"), scheduler=DatabaseScheduler, loglevel="INFO"
-)
+app = Celery("scheduler", broker=os.environ.get("BROKER_URL"))
+app.conf.update(beat_scheduler=DatabaseScheduler)

@@ -8,11 +8,10 @@ venv: requirements.txt
 	touch venv
 
 # Run `celery beat` during development to check configuration.
-# Necessary environment variable are added but are not used.
 run: venv
 	BROKER_URL=redis://localhost:6379/0 \
-	DATABASE_URL=sqlite://dev.sqlite3 \
-	$(VE)/celery beat --app scheduler
+	DATABASE_URL=sqlite:///../database/test.sqlite3 \
+	$(VE)/celery beat --app scheduler --loglevel debug
 
 # Build Docker image
 build:
