@@ -35,7 +35,7 @@ migrations: venv
 
 # Build a development database
 create-devdb: venv
-	rm -f db.sqlite3
+	rm -f dev.sqlite3
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
 	$(DJ) runscript create_dev_accounts
@@ -122,7 +122,7 @@ run-docker: build
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		-v $$PWD/db.sqlite3:/home/director/db.sqlite3:rw \
+		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \

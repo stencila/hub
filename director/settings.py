@@ -118,12 +118,11 @@ class Common(Configuration):
     # Database
     # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
     #
-    # Defaults to `db.sqlite3` but can be set using `DJANGO_DATABASE_URL` env var
+    # Defaults to `dev.sqlite3` but can be set using `DATABASE_URL` env var
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
     DATABASES = values.DatabaseURLValue(
-        "sqlite:///%s/db.sqlite3" % BASE_DIR,
-        environ_prefix="DJANGO",  # For consistent naming with other env vars
+        "sqlite:///{}/dev.sqlite3".format(BASE_DIR)
     )
 
     DEFAULT_FROM_EMAIL = values.Value("")
@@ -377,7 +376,7 @@ class Dev(Common):
     JWT_SECRET = values.Value("not-a-secret")
 
     # Default to running celery tasks locally and synchronously
-    # https://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_always_eager 
+    # https://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_always_eager
     CELERY_TASK_ALWAYS_EAGER = True
 
     STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
