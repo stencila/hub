@@ -62,6 +62,7 @@ class Common(Configuration):
         "rest_framework",
         "drf_yasg",
         "knox",
+        "django_celery_beat",
         "django_filters",
         "django_intercom",
         "djstripe",
@@ -374,6 +375,10 @@ class Dev(Common):
 
     # JWT secret (must be overriden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
+
+    # Default to running celery tasks locally and synchronously
+    # https://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_always_eager 
+    CELERY_TASK_ALWAYS_EAGER = True
 
     STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
     STENCILA_GITHUB_APPLICATION_URL = (
