@@ -21,7 +21,6 @@ coverage.xml
 node_modules
 
 # Ignore director virtualenvs, collected static files etc
-/director/dev.sqlite3
 /director/env.sh
 /director/secrets
 /director/static

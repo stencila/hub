@@ -3,7 +3,7 @@ version: "3.6"
 x-environment:
   - &director-url DIRECTOR_URL=http://director:8000
   - &broker-url BROKER_URL=redis://broker:6379/0
-  - &database-url DATABASE_URL=sqlite:///test.sqlite3
+  - &database-url DATABASE_URL=sqlite:///dev.sqlite3
 
 services:
 
@@ -20,7 +20,7 @@ services:
     build: ./director
     image: stencila/hub-director
     volumes:
-      - ${PWD}/database/test.sqlite3:/home/director/test.sqlite3
+      - ${PWD}/database/dev.sqlite3:/home/director/dev.sqlite3
     environment:
       - *broker-url
       - *database-url
@@ -43,7 +43,7 @@ services:
     build: ./scheduler
     image: stencila/hub-scheduler
     volumes:
-      - ${PWD}/database/test.sqlite3:/home/scheduler/test.sqlite3
+      - ${PWD}/database/dev.sqlite3:/home/scheduler/dev.sqlite3
     environment:
       - *broker-url
       - *database-url
@@ -53,3 +53,4 @@ services:
     image: stencila/hub-worker
     environment:
       - *broker-url
+      - *database-url

@@ -35,7 +35,7 @@ migrations: venv
 
 # Build a development database
 create-devdb: venv
-	rm -f dev.sqlite3
+	rm -f ../database/dev.sqlite3
 	$(DJ) migrate
 	$(DJ) runscript create_dev_users
 	$(DJ) runscript create_dev_accounts
@@ -44,6 +44,7 @@ create-devdb: venv
 	$(DJ) runscript create_dev_project_roles
 	$(DJ) runscript create_dev_project_nodes
 	$(DJ) runscript create_dev_project_sources
+	$(DJ) runscript create_dev_periodic_jobs
 
 # Migrate the development database
 migrate-devdb: venv
@@ -54,6 +55,10 @@ migrate-devdb: venv
 # to avoid attempting to import apps that are not available in prod e.g. debug toolbar
 migrate-proddb:
     DJANGO_CONFIGURATION="Prod" python3 manage.py migrate
+
+# Show model serializers
+show-serializers:
+	$(DJ) runscript show_serializers
 
 # Run development server
 run: venv
@@ -122,7 +127,7 @@ run-docker: build
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
+		-v $$PWD/../database/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \

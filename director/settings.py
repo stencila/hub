@@ -122,7 +122,9 @@ class Common(Configuration):
     # Defaults to `dev.sqlite3` but can be set using `DATABASE_URL` env var
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
-    DATABASES = values.DatabaseURLValue("sqlite:///{}/dev.sqlite3".format(BASE_DIR))
+    DATABASES = values.DatabaseURLValue(
+        "sqlite:///{}".format(os.path.join(BASE_DIR, "..", "database", "dev.sqlite3"))
+    )
 
     DEFAULT_FROM_EMAIL = values.Value("")
 
