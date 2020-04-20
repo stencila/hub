@@ -12,7 +12,7 @@ venv: requirements.txt
 run: venv
 	BROKER_URL=redis://localhost:6379/0 \
 	DIRECTOR_URL=http://localhost:8000 \
-	DIRECTOR_TOKEN=joe-not-a-secret-token \
+	DIRECTOR_AUTH="user:user" \
 	$(VE)/celery worker --app worker  --queues stencila --hostname worker@stencila
 
 # Build Docker image

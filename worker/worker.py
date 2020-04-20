@@ -38,7 +38,7 @@ celery.conf.update(
 api = httpx.Client(
     base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/jobs/"),
     headers={"content-type": "application/json", "accept": "application/json",},
-    auth=(os.environ["DIRECTOR_TOKEN"], ""),
+    auth=tuple(os.environ["DIRECTOR_AUTH"].split(":")),
 )
 
 

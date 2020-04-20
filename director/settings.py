@@ -287,12 +287,12 @@ class Common(Configuration):
             # Default is for API endpoints to require the user to be authenticated
             "rest_framework.permissions.IsAuthenticated",
         ),
-        "DEFAULT_AUTHENTICATION_CLASSES": (
+        "DEFAULT_AUTHENTICATION_CLASSES": [
             # Default is for token and Django session authentication
             "general.api.authentication.BasicAuthentication",
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
-        ),
+        ],
         "EXCEPTION_HANDLER": "general.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
         "PAGE_SIZE": 50,
@@ -375,12 +375,16 @@ class Dev(Common):
     # During development just print emails to console
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-    # JWT secret (must be overriden in Prod settings, see below)
+    # JWT secret (must be overridden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
 
-    # Default to running celery tasks locally and synchronously
-    # https://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_always_eager
-    CELERY_TASK_ALWAYS_EAGER = True
+    # Allow for username / password API authentication during development
+    # only. This is usually disallowed in production (in favour of tokens)
+    # but is permitted during development development for convenience.
+    REST_FRAMEWORK = Common.REST_FRAMEWORK
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(
+        0, "rest_framework.authentication.BasicAuthentication",
+    )
 
     STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
     STENCILA_GITHUB_APPLICATION_URL = (
