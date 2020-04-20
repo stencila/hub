@@ -1,7 +1,7 @@
 """
 Module for defining all API URLs.
 
-This needs to be a module sparate from `urls.py` so that it can be referrred to
+This needs to be a module separate from `urls.py` so that it can be referred to
 in `general/api/views/docs.py` as the module from which the API schema is
 generated.
 """
