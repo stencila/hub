@@ -292,7 +292,6 @@ class Common(Configuration):
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ),
-        "EXCEPTION_HANDLER": "general.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
         "PAGE_SIZE": 50,
         # Use JSON by default when using the test client
@@ -441,7 +440,11 @@ class Prod(Common):
 
     @classmethod
     def post_setup(cls):
-        print(cls.SECURE_SSL_REDIRECT)
+        # Use custom error page only in production
+        cls.REST_FRAMEWORK[
+            "EXCEPTION_HANDLER"
+        ] = "general.api.handlers.custom_exception_handler"
+
         import sentry_sdk
         from sentry_sdk.integrations.django import DjangoIntegration
 
