@@ -1,11 +1,12 @@
 from django.urls import path, include
 
 from general.api.routers import OptionalSlashRouter
-from jobs.api.views import AccountJobsViewSet
+from jobs.api.views import JobsViewSet, AccountsJobsViewSet
 
-account_jobs = OptionalSlashRouter()
-account_jobs.register("jobs", AccountJobsViewSet, "api-jobs")
+jobs = OptionalSlashRouter()
+jobs.register("jobs", JobsViewSet, "api-jobs")
 
-urlpatterns = [
-    path("accounts/<int:pk>/", include(account_jobs.urls))
-]
+accounts_jobs = OptionalSlashRouter()
+accounts_jobs.register("jobs", AccountsJobsViewSet, "api-accounts-jobs")
+
+urlpatterns = jobs.urls + [path("accounts/<int:pk>/", include(accounts_jobs.urls))]

@@ -344,6 +344,8 @@ class Common(Configuration):
     # Rudimentary feature toggle
     FEATURES = {"PROJECT_SESSION_SETTINGS": False}
 
+    BROKER_URL = values.Value("", environ_name="BROKER_URL")
+
 
 class Dev(Common):
     """Configuration settings used in development."""
