@@ -11,7 +11,8 @@ venv: requirements.txt
 # Change env vars as needed for your dev env.
 run: venv
 	BROKER_URL=redis://localhost:6379/0 \
-	DATABASE_URL=sqlite:///../database/dev.sqlite3 \
+	DIRECTOR_URL=http://localhost:8000 \
+	DIRECTOR_TOKEN=joe-not-a-secret-token \
 	$(VE)/celery worker --app worker  --queues stencila --hostname worker@stencila
 
 # Build Docker image

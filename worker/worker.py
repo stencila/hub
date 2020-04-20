@@ -5,6 +5,7 @@ A Celery app for running jobs.
 See https://docs.celeryproject.org/en/latest/userguide/tasks.html.
 """
 
+import asyncio
 from contextlib import contextmanager, redirect_stdout, redirect_stderr
 from datetime import datetime
 import io
@@ -15,14 +16,12 @@ import time
 
 from celery import Celery, states
 from celery.signals import task_prerun, task_postrun, task_retry
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import httpx
 
 
 # Setup the Celery app
-app = Celery("worker", broker=os.environ["BROKER_URL"])
-app.conf.update(
+celery = Celery("worker", broker=os.environ["BROKER_URL"])
+celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
     # subsequent try (with a maximum of 3 seconds).
@@ -35,50 +34,30 @@ app.conf.update(
     }
 )
 
-# Database persistence
-#
-# Setup the SQLAlchemy database session that is
-# used to persist job state to the database.
-
-Model = declarative_base()
-engine = create_engine(os.environ["DATABASE_URL"])
-Session = sessionmaker(bind=engine, autoflush=False)
-session = Session()
+# Setup API client
+api = httpx.Client(
+    base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/jobs/"),
+    headers={"content-type": "application/json", "accept": "application/json",},
+    auth=(os.environ["DIRECTOR_TOKEN"], ""),
+)
 
 
-class Job(Model):
+def update_job(id, data):
     """
-    SQLAlchemy model for a job.
+    Update the job.
 
-    This autoloads the schema from the database table
-    that is defined by the correspoding Django model.
+    Sends a PATCH request to the director that updates the
+    state of the job.
     """
-
-    __tablename__ = "jobs_job"
-    __table_args__ = {"autoload": True, "autoload_with": engine}
-
-
-def db_save(func):
-    """Decorator to commit or rollback the database session within a function."""
-
-    def db_save(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
-
-    return db_save
-
-
-# Celery task signal handlers
-#
-# These get run for each task handled by a worker
+    # TODO: Make client an AsyncClient and run this in background
+    # asyncio.run(api.patch(...)) doesn't work
+    response = api.patch(id, json=data)
+    if response.status_code != 200:
+        # Generate a warning if not successful
+        print(response.json())
 
 
 @task_prerun.connect
-@db_save
 def task_prerun_handler(signal, sender, task_id, task, args, kwargs, **more):
     """
     Dispatched before a task is executed.
@@ -87,21 +66,19 @@ def task_prerun_handler(signal, sender, task_id, task, args, kwargs, **more):
     For a list of available request properties see 
     https://docs.celeryproject.org/en/latest/userguide/tasks.html#task-request.
     """
-    request = task.request
-    session.merge(
-        Job(
-            id=task_id,
-            status=states.STARTED,
-            began=datetime.utcnow(),
-            queue=request.delivery_info["routing_key"],
-            worker=request.hostname,
-            retries=request.retries,
-        )
+    update_job(
+        task_id,
+        {
+            "status": states.STARTED,
+            "began": datetime.utcnow().isoformat(),
+            "queue": task.request.delivery_info["routing_key"],
+            "worker": task.request.hostname,
+            "retries": task.request.retries,
+        },
     )
 
 
 @task_postrun.connect
-@db_save
 def task_postrun_handler(
     signal, sender, task_id, task, args, kwargs, retval, state, **more
 ):
@@ -110,7 +87,6 @@ def task_postrun_handler(
 
     Sender is the task object being executed.
     """
-
     log = []
 
     output = task.output if hasattr(task, "output") else ""
@@ -135,14 +111,14 @@ def task_postrun_handler(
         except:
             result = json.dumps(str(retval))
 
-    session.merge(
-        Job(
-            id=task_id,
-            result=result,
-            log=json.dumps(log) if log else None,
-            status=state,
-            ended=datetime.utcnow(),
-        )
+    update_job(
+        task_id,
+        {
+            "result": result,
+            "log": json.dumps(log) if log else None,
+            "status": state,
+            "ended": datetime.utcnow().isoformat(),
+        },
     )
 
 
@@ -162,7 +138,7 @@ def task_retry_handler(**kwargs):
 @contextmanager
 def capture_output(task):
     """
-    A context manager to capture output of a task.
+    Capture the output of a task.
 
     Captures both stdout and stderr, concatenates then, and
     sets the `output` property.
@@ -174,7 +150,7 @@ def capture_output(task):
     task.output = stdout.getvalue() + "\n" + stderr.getvalue()
 
 
-@app.task(name="execute", bind=True)
+@celery.task(name="execute", bind=True)
 def execute(self):
     with capture_output(self):
         print("Hello, I have executed")
