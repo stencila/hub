@@ -10,8 +10,8 @@ from users.models import User
 
 # Setup the Celery app
 # This is used to send and cancel jobs
-app = Celery("director", broker=settings.BROKER_URL)
-app.conf.update(
+celery = Celery("director", broker=settings.BROKER_URL)
+celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
     # subsequent try (with a maximum of 3 seconds).
@@ -33,7 +33,7 @@ def send_job(queue: str, id: int, method: JobMethod, params: dict):
     """
     if not JobMethod.is_member(method):
         raise ValueError("Unknown job method '{}'".format(method))
-    task = signature(method, kwargs=params, app=app, queue=queue)
+    task = signature(method, kwargs=params, app=celery, queue=queue)
     task.apply_async(kwargs={}, task_id=str(id))
 
 
@@ -85,9 +85,16 @@ def execute(user: User, project: Project, params: dict = {}):
 
 
 def cancel(job: Job):
-    """Cancel a job."""
+    """
+    Cancel a job.
+    
+    Currently, this does not use the `terminate` option but that
+    may be appropriate depending upon the model used for process
+    management there. 
+    See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
+    """
     if not JobStatus.is_ready(job.status):
-        app.control.revoke(str(job.id))
+        celery.control.revoke(str(job.id))
         job.status = JobStatus.REVOKED.value
         job.ended = timezone.now()
         job.save()
