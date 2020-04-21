@@ -53,4 +53,5 @@ services:
     image: stencila/hub-worker
     environment:
       - *broker-url
-      - *database-url
+      - *director-url
+      - DIRECTOR_AUTH=user:user
