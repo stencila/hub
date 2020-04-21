@@ -1,6 +1,6 @@
 {
   "name": "@stencila/hub",
-  "version": "2.17.0",
+  "version": "2.18.0",
   "author": "Stencila Hub Contributors (https://github.com/stencila/hub/graphs/contributors)",
   "license": "Apache-2.0",
   "files": [
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "1.4.23",
+    "@stencila/dev-config": "1.4.26",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
     "gulp-sass": "4.0.2",
