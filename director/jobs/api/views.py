@@ -107,13 +107,22 @@ class JobsViewSet(
 
         if not job.url:
             return Response(
-                {"message": "Not ready"}, status.HTTP_503_SERVICE_UNAVAILABLE
+                {"message": "Job is not ready"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
+
+        if job.ended:
+            return Response(
+                {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+
+        # Nginx does not accept the ws:// prefix, so in those
+        # cases replace with http://
+        url = job.url.replace('ws://', 'http://')
 
         return Response(
             headers={
                 "X-Accel-Redirect": "@job-connect",
-                "X-Accel-Redirect-URL": os.path.join(job.url, path or ""),
+                "X-Accel-Redirect-URL": os.path.join(url, path or ""),
             }
         )
 
