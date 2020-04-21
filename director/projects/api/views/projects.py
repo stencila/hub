@@ -46,6 +46,8 @@ class ProjectsViewSet(
     content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = ProjectSerializer
 
+    project_permission_required = ProjectPermissionType.VIEW
+
     def get_permissions(self):
         """
         Get the list of permissions that the current action requires.
@@ -148,10 +150,6 @@ class ProjectsViewSet(
         Returns details of project, including `name` and `description`.
         """
         # Check that the user has VIEW permissions for the project
-        self.get_project(request.user, pk=pk)
-        if not self.has_permission(ProjectPermissionType.VIEW):
-            raise PermissionDenied
-
-        project = get_object_or_404(Project, pk=pk)
+        project = self.get_project(request.user, pk=pk)
         serializer = self.get_serializer(project)
         return Response(serializer.data)
