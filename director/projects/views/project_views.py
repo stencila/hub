@@ -214,10 +214,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         project_name: str,
         path: typing.Optional[str] = None,
     ) -> HttpResponse:
-        self.perform_project_fetch(request.user, account_name, project_name)
-
-        self.test_required_project_permission()
-        # TODO: Combine the above two lines into self.get_project?
+        self.get_project(request.user, account_name, project_name)
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
@@ -281,7 +278,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
         project_name: str,
         path: typing.Optional[str] = None,
     ) -> HttpResponse:
-        project = self.get_project(request.user, account_name, project_name)
+        self.perform_project_fetch(request.user, account_name, project_name)
         if not self.has_permission(ProjectPermissionType.EDIT):
             raise PermissionDenied
 
@@ -289,7 +286,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
             source_id = request.POST.get("source_id")
 
             if source_id:
-                source = get_object_or_404(Source, project=project, pk=source_id)
+                source = get_object_or_404(Source, project=self.project, pk=source_id)
             else:
                 source = DiskSource()
 
@@ -398,11 +395,10 @@ class ProjectSharingView(ProjectPermissionsMixin, DetailView):
 
 
 class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
+    project_permission_required = ProjectPermissionType.MANAGE
+
     def post(self, request: HttpRequest, account_name: str, project_name: str) -> HttpResponse:  # type: ignore
-        if not self.is_permitted(
-            request.user, ProjectPermissionType.MANAGE, account_name, project_name
-        ):
-            raise PermissionDenied
+        self.get_project(request.user, account_name, project_name)
 
         project_agent_role = None
 

@@ -68,52 +68,6 @@ class ProjectPermissionsMixin(object):
     project_fetch_result: typing.Optional[ProjectFetchResult] = None
     project_permission_required: typing.Optional[ProjectPermissionType] = None
 
-    def get(
-        self,
-        request: HttpRequest,
-        account_name: str,
-        project_name: str,
-        *args,
-        **kwargs,
-    ) -> HttpResponse:
-        warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).get(  # type: ignore
-            request, account_name, project_name, *args, **kwargs
-        )
-
-    def post(
-        self,
-        request: HttpRequest,
-        account_name: str,
-        project_name: str,
-        *args,
-        **kwargs,
-    ):
-        warnings.warn("ProjectPermissionsMixin POST", DeprecationWarning)
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-        return super(ProjectPermissionsMixin, self).post(  # type: ignore
-            request, account_name, project_name, *args, **kwargs
-        )
-
-    def delete(
-        self,
-        request: HttpRequest,
-        account_name: str,
-        project_name: str,
-        *args,
-        **kwargs,
-    ):
-        warnings.warn("ProjectPermissionsMixin DELETE", DeprecationWarning)
-        self.perform_project_fetch(request.user, account_name, project_name)
-        self.test_required_project_permission()
-
-        return super(ProjectPermissionsMixin, self).delete(  # type: ignore
-            request, account_name, project_name, *args, **kwargs,
-        )
-
     def perform_project_fetch(
         self,
         user: AbstractUser,
@@ -197,10 +151,9 @@ class ProjectPermissionsMixin(object):
         return self.project
 
     def get_object(self, *args, **kwargs):
-        self.perform_project_fetch(
+        return self.get_project(
             self.request.user, self.kwargs["account_name"], self.kwargs["project_name"]
         )
-        return self.project_fetch_result.project
 
     def is_permitted(
         self,
@@ -221,9 +174,7 @@ class ProjectPermissionsMixin(object):
     def get_project_puller(
         self, request: HttpRequest, account_name: str, project_name: str
     ) -> ProjectSourcePuller:
-        self.perform_project_fetch(request.user, account_name, project_name)
-
-        self.test_required_project_permission()
+        self.get_project(request.user, account_name, project_name)
 
         if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
             raise RuntimeError(

@@ -1,12 +1,8 @@
 # flake8: noqa F401
 
 from django.db.models import QuerySet, Q
-from django.http import FileResponse
 from django.shortcuts import get_object_or_404
-from django.utils.text import slugify
-from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg.inspectors import SwaggerAutoSchema
 from rest_framework import (
     mixins,
     permissions,
@@ -14,39 +10,18 @@ from rest_framework import (
     status,
     viewsets,
 )
-from rest_framework.decorators import action
 from rest_framework.exceptions import (
     PermissionDenied,
-    NotAcceptable,
-    NotFound,
     ValidationError,
 )
 from rest_framework.request import Request
 from rest_framework.response import Response
-import mimetypes
-import shutil
 
-from general.api.exceptions import ConflictError
+from accounts.models import AccountUserRole
 from general.api.negotiation import IgnoreClientContentNegotiation
-from lib.converter_facade import (
-    ConverterFacade,
-    ConverterIo,
-    ConverterIoType,
-    ConverterContext,
-)
-from lib.conversion_types import (
-    conversion_format_from_id,
-    conversion_format_from_mimetype,
-    UnknownFormatError,
-    UnknownMimeTypeError,
-)
-from lib.data_cleaning import logged_in_or_none
-from lib.path_operations import utf8_path_join
-from projects.project_data import get_projects
+from projects.api.serializers import ProjectSerializer
 from projects.models import Project, Source
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
-from projects.api.serializers import ProjectSerializer
-from projects.source_operations import snapshot_path
 
 
 class ProjectCreateRequestSerializer(serializers.ModelSerializer):
@@ -70,6 +45,8 @@ class ProjectsViewSet(
 
     content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = ProjectSerializer
+
+    project_permission_required = ProjectPermissionType.VIEW
 
     def get_permissions(self):
         """
@@ -145,6 +122,16 @@ class ProjectsViewSet(
         # if not account.permits(request.user, AccountPermissionType.):
         #    raise PermissionDenied
 
+        # for now allow them to create Projects under any account they belong to
+        account_roles = AccountUserRole.objects.filter(
+            user=self.request.user
+        ).select_related("account")
+
+        accounts = [account_role.account for account_role in account_roles]
+
+        if account not in accounts:
+            raise PermissionDenied
+
         project = Project.objects.create(
             account=account,
             name=name,
@@ -163,10 +150,6 @@ class ProjectsViewSet(
         Returns details of project, including `name` and `description`.
         """
         # Check that the user has VIEW permissions for the project
-        self.get_project(request.user, pk=pk)
-        if not self.has_permission(ProjectPermissionType.VIEW):
-            raise PermissionDenied
-
-        project = get_object_or_404(Project, pk=pk)
+        project = self.get_project(request.user, pk=pk)
         serializer = self.get_serializer(project)
         return Response(serializer.data)
