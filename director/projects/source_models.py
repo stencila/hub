@@ -489,11 +489,12 @@ class UrlSource(Source):
         return None
 
 
+# TODO: this could be a typing.NamedTuple
 class LinkedSourceAuthentication(object):
     """Container for token(s) a user has for authenticating to remote sources."""
 
     github_token: typing.Optional[str]
-    google_token: SocialToken
+    google_token: SocialToken  # TODO: Should be optional
 
     def __init__(
         self,

@@ -14,6 +14,7 @@ from urllib.parse import urlparse, urljoin, unquote
 
 import requests
 from allauth.socialaccount.models import SocialApp
+from django.core.exceptions import ValidationError
 from django.http.multipartparser import parse_header
 from googleapiclient.errors import HttpError
 from requests import Response
@@ -160,7 +161,7 @@ def parse_service_url(url: str) -> typing.Optional[ServiceItem]:
             SourceAddress, GoogleDocsSource.parse_address(url, strict=True)
         ).docs_id
         return ServiceItem(ServiceId.google_docs, google_docs_id)
-    except ValueError:
+    except ValidationError:
         pass
 
     return None
