@@ -1,3 +1,4 @@
+import sys
 import traceback
 
 from django.conf import settings
@@ -63,8 +64,10 @@ def custom_exception_handler(exc, context):
     # generate a API response to prevent it from getting handled by the
     # default Django HTML-generating 500 handler
     data = {"message": str(exc)}
+    stack = traceback.format_exc()
+    sys.stderr.write(stack)
     if settings.DEBUG:
-        data["traceback"] = traceback.format_exc()
+        data["traceback"] = stack
     if hasattr(settings, "SENTRY_DSN") and settings.SENTRY_DSN:
         capture_exception(exc)
     return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
