@@ -1,6 +1,6 @@
-from typing import Optional
 import json
 import secrets
+from typing import Optional
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -18,13 +18,13 @@ from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from lib.conversion_types import ConversionFormatId
 from lib.converter_facade import (
     ConverterFacade,
     ConverterIo,
     ConverterIoType,
     ConverterContext,
 )
-from lib.conversion_types import ConversionFormatId
 from projects.models import Node
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 
@@ -241,14 +241,14 @@ def node_type(node) -> str:
         return "Null"
     if isinstance(node, bool):
         return "Boolean"
-    if isinstance(node, int) or isinstance(node, float):
+    if isinstance(node, (int, float)):
         return "Number"
     if isinstance(node, str):
         return "Text"
-    if isinstance(node, list) or isinstance(node, tuple):
+    if isinstance(node, (list, tuple)):
         return "Array"
     if isinstance(node, dict):
-        node_type = node.get("type")
-        if node_type is not None:
-            return node_type
+        type_name = node.get("type")
+        if type_name is not None:
+            return type_name
     return "Object"
