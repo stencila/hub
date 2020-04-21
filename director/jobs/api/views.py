@@ -6,7 +6,12 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from jobs.models import Job
-from jobs.api.serializers import JobListSerializer, JobDetailSerializer
+from jobs.api.serializers import (
+    JobListSerializer,
+    JobCreateSerializer,
+    JobRetrieveSerializer,
+    JobUpdateSerializer,
+)
 from jobs.jobs import cancel
 
 
@@ -14,6 +19,7 @@ class JobsViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
 
@@ -45,7 +51,14 @@ class JobsViewSet(
 
         Returns different serializers for different views.
         """
-        return JobListSerializer if self.action == "list" else JobDetailSerializer
+        return {
+            "list": JobListSerializer,
+            "create": JobCreateSerializer,
+            "retrieve": JobRetrieveSerializer,
+            "update": JobUpdateSerializer,
+            "partial_update": JobUpdateSerializer,
+            "cancel": JobRetrieveSerializer,
+        }.get(self.action, JobRetrieveSerializer)
 
     def perform_create(self, serializer: JobListSerializer):
         """
@@ -63,7 +76,7 @@ class JobsViewSet(
     @swagger_auto_schema(request_body=None)
     @action(detail=False, pagination_class=None, methods=["POST"])
     def execute(self, request) -> Response:
-        serializer = JobDetailSerializer(
+        serializer = JobCreateSerializer(
             data={"method": "execute", "params": request.query_params}
         )
         serializer.is_valid(raise_exception=True)
@@ -78,7 +91,7 @@ class JobsViewSet(
         """
         Cancel a job.
 
-        If the job is cancelleable, it's status will be cancelled
+        If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
         job = cancel(self.get_object())

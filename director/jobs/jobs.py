@@ -46,8 +46,14 @@ def dispatch_job(job: Job):
     account that the project is linked to, or the default account of the job
     creator).
     """
-    # TODO: Implement as above
-    send_job("stencila", job.id, job.method, job.params)
+    # TODO: Implement as in docstring
+    queue = "stencila"
+    send_job(queue, job.id, job.method, job.params)
+
+    # Update the job
+    job.queue = queue
+    job.status = JobStatus.DISPATCHED.value
+    job.save()
 
 
 @receiver(post_save, sender=Job)
@@ -87,10 +93,10 @@ def execute(user: User, project: Project, params: dict = {}):
 def cancel(job: Job):
     """
     Cancel a job.
-    
+
     Currently, this does not use the `terminate` option but that
     may be appropriate depending upon the model used for process
-    management there. 
+    management there.
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
     if not JobStatus.is_ready(job.status):

@@ -32,25 +32,27 @@ class JobStatus(EnumChoice):
     """
     An enumeration of possible job status.
 
-    These match Celery's "states". See
+    These match Celery's "states" with some additions. See
     https://docs.celeryproject.org/en/stable/reference/celery.states.html
     """
 
-    # Task state is unknown.
+    # Job was sent to a queue
+    DISPATCHED = "DISPATCHED"
+    # Job state is unknown.
     PENDING = "PENDING"
-    # Task was received by a worker.
+    # Job was received by a worker.
     RECEIVED = "RECEIVED"
-    # Task was started by a worker.
+    # Job was started by a worker.
     STARTED = "STARTED"
-    # Task succeeded
+    # Job succeeded
     SUCCESS = "SUCCESS"
-    # Task failed
+    # Job failed
     FAILURE = "FAILURE"
-    # Task was revoked.
+    # Job was revoked.
     REVOKED = "REVOKED"
-    # Task was rejected.
+    # Job was rejected.
     REJECTED = "REJECTED"
-    # Task is waiting for retry.
+    # Job is waiting for retry.
     RETRY = "RETRY"
 
     @classmethod
@@ -113,7 +115,7 @@ class Job(models.Model):
         choices=JobStatus.as_choices(),
         blank=True,
         null=True,
-        help_text="The current status of tje job.",
+        help_text="The current status of the job.",
     )
 
     method = models.CharField(
@@ -129,6 +131,14 @@ class Job(models.Model):
         blank=True,
         null=True,
         help_text="The job log; a JSON array of log objects, including any errors.",
+    )
+
+    # Not a URLField because potential for non-standard schemes e.g. ws://
+    url = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text="The URL of the job on the local network; can be used to interact with it.",
     )
 
     queue = models.CharField(

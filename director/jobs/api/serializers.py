@@ -1,36 +1,25 @@
 from rest_framework import serializers
 
-from jobs.models import Job
+from jobs.models import Job, JobMethod
 
 
 class JobListSerializer(serializers.ModelSerializer):
     """
-    A job serializer for the `list` view.
+    A job serializer for the `list` action.
 
-    This serializer includes all model fields with
-    some made read only (i.e. can not be set in `create` or `update` views).
+    This serializer includes all model fields.
+    Some are made read only in derived serializers
+    (e.g. can not be set in `create` or `update` views).
     """
-
-    began = serializers.DateTimeField(read_only=True)
-    ended = serializers.DateTimeField(read_only=True)
-    status = serializers.CharField(read_only=True)
-    result = serializers.JSONField(read_only=True)
-    error = serializers.CharField(read_only=True)
-    log = serializers.JSONField(read_only=True)
-    queue = serializers.CharField(read_only=True)
-    worker = serializers.CharField(read_only=True)
-    retries = serializers.IntegerField(read_only=True)
-    creator = serializers.PrimaryKeyRelatedField(read_only=True)
-    project = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Job
         fields = "__all__"
 
 
-class JobDetailSerializer(JobListSerializer):
+class JobRetrieveSerializer(JobListSerializer):
     """
-    A job serializer for detail views e.g. `create`, `retrieve`.
+    A job serializer for the `retrieve` action.
 
     Adds the `position` of the job in the queue.
     This involves another database query for each job
@@ -38,3 +27,42 @@ class JobDetailSerializer(JobListSerializer):
     """
 
     position = serializers.IntegerField(read_only=True)
+
+
+class JobCreateSerializer(JobRetrieveSerializer):
+    """
+    A job serializer for the `create` action.
+
+    Makes most fields readonly (ie. can not be set),
+    makes some fields required.
+    """
+
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)
+    created = serializers.DateTimeField(read_only=True)
+    method = serializers.ChoiceField(choices=JobMethod.as_choices(), required=True)
+    params = serializers.JSONField(required=False)
+
+    status = serializers.CharField(read_only=True)
+    began = serializers.DateTimeField(read_only=True)
+    ended = serializers.DateTimeField(read_only=True)
+    result = serializers.JSONField(read_only=True)
+    log = serializers.JSONField(read_only=True)
+    url = serializers.CharField(read_only=True)
+    queue = serializers.CharField(read_only=True)
+    worker = serializers.CharField(read_only=True)
+    retries = serializers.IntegerField(read_only=True)
+
+
+class JobUpdateSerializer(JobRetrieveSerializer):
+    """
+    A job serializer for the `update` and `partial_update` actions.
+
+    Makes some fields read only (should not be
+    changed after creation) but allows workers to update
+    values of rest.
+    """
+
+    creator = serializers.PrimaryKeyRelatedField(read_only=True)
+    created = serializers.DateTimeField(read_only=True)
+    method = serializers.CharField(read_only=True)
+    params = serializers.DateTimeField(read_only=True)

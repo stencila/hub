@@ -29,12 +29,20 @@ This script prints representations for several model
 serializers. Feel free to add them as needed.
 """
 
-from jobs.api.serializers import JobSerializer
+from jobs.api.serializers import (
+    JobListSerializer,
+    JobCreateSerializer,
+    JobRetrieveSerializer,
+    JobUpdateSerializer,
+)
 from projects.api.serializers import ProjectSerializer, SnapshotSerializer
 from users.api.serializers import TokenSerializer, UserSerializer
 
 serializers = [
-    JobSerializer,
+    JobListSerializer,
+    JobCreateSerializer,
+    JobRetrieveSerializer,
+    JobUpdateSerializer,
     ProjectSerializer,
     SnapshotSerializer,
     TokenSerializer,
