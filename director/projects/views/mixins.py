@@ -3,14 +3,13 @@ import os
 import shutil
 import tempfile
 import typing
-import warnings
 from os import unlink
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import AbstractUser, User
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, Http404
+from django.http import HttpRequest, Http404
 from django.utils import timezone
 
 from accounts.models import Account
