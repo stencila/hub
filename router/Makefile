@@ -4,7 +4,7 @@ build:
 
 # Run Docker image with necessary environment variables
 run: build
-	docker run -it --rm -p 9000:80 \
+	docker run -it --rm --net host \
 	  -e DIRECTOR_URL=http://127.0.0.1:8000 \
 	  -e BROKER_URL=not-a-url-see-note-in-nginx.conf \
 	  stencila/hub-router
