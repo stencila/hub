@@ -94,13 +94,14 @@ def cancel(job: Job):
     """
     Cancel a job.
 
-    Currently, this does not use the `terminate` option but that
-    may be appropriate depending upon the model used for process
-    management there.
+    This uses Celery's terminate options which will kill the worker child process.
+    This is not normally recommended but in this case is OK because there is only
+    one task per process.
+    See `worker/worker.py` for the reasoning for using `SIGUSR1`.
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
     if not JobStatus.is_ready(job.status):
-        celery.control.revoke(str(job.id))
+        celery.control.revoke(str(job.id), terminate=True, signal='SIGUSR1')
         job.status = JobStatus.REVOKED.value
         job.ended = timezone.now()
         job.save()

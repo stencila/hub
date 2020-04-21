@@ -54,6 +54,8 @@ class JobStatus(EnumChoice):
     REJECTED = "REJECTED"
     # Job is waiting for retry.
     RETRY = "RETRY"
+    # Job was terminated
+    TERMINATED = "TERMINATED"
 
     @classmethod
     def is_ready(cls, status: str) -> bool:

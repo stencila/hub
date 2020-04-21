@@ -15,8 +15,11 @@ import sys
 import time
 
 from celery import Celery, states
+from celery.exceptions import SoftTimeLimitExceeded
 from celery.signals import task_prerun, task_postrun, task_retry
 import httpx
+
+from execute.process import ProcessSession
 
 
 # Setup the Celery app
@@ -86,6 +89,12 @@ def task_postrun_handler(
     Dispatched after a task is executed.
 
     Sender is the task object being executed.
+
+    When cancelling a job the `director` sends the `SIGUSR1`
+    signal which causes a `SoftTimeLimitExceeded` to be thrown.
+    See https://github.com/celery/celery/issues/2727 for why
+    this is preferable to the `Terminate` signal (which can not
+    be caught in the same way and seems to kill the parent worker).
     """
     log = []
 
@@ -100,22 +109,28 @@ def task_postrun_handler(
             entry = {"message": line}
         log.append(entry)
 
-    if isinstance(retval, Exception):
+    if isinstance(retval, SoftTimeLimitExceeded):
+        result = None
+        state = "TERMINATED"
+    elif isinstance(retval, Exception):
         result = None
         log.append(
             {"time": datetime.utcnow().isoformat(), "level": 0, "message": str(retval)}
         )
     else:
+        # If the return value can not be JSON stringified then
+        # just return it's string representation.
         try:
-            result = json.dumps(retval)
+            json.dumps(retval)
+            result = retval
         except:
-            result = json.dumps(str(retval))
+            result = str(retval)
 
     update_job(
         task_id,
         {
             "result": result,
-            "log": json.dumps(log) if log else None,
+            "log": log or None,
             "status": state,
             "ended": datetime.utcnow().isoformat(),
         },
@@ -150,7 +165,12 @@ def capture_output(task):
     task.output = stdout.getvalue() + "\n" + stderr.getvalue()
 
 
-@celery.task(name="execute", bind=True)
+@celery.task(name="execute", bind=True, throws=SoftTimeLimitExceeded)
 def execute(self):
-    with capture_output(self):
-        print("Hello, I have executed")
+    try:
+        session = ProcessSession()
+        update_job(self.request.id, {"url": session.url})
+        with capture_output(self):
+            session.start()
+    except SoftTimeLimitExceeded:
+        session.stop()
