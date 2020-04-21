@@ -132,7 +132,7 @@ def task_postrun_handler(
             "result": result,
             "log": log or None,
             "status": state,
-            "ended": datetime.utcnow().isoformat(),
+            "ended": datetime.utcnow().isoformat()
         },
     )
 

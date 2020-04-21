@@ -9,7 +9,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy Python app files
-COPY *.py ./
+COPY . ./
 
 # Ensure Celery startup banner is printed
 # See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
