@@ -6,19 +6,19 @@ severe regressions. Although they serve this purpose quite well, prefer
 writing unit tests over relying on these tests, particularly
 for test driven development.
 """
-
-from collections import namedtuple
+import typing
 import re
 from django.urls import reverse
 
 from general.testing import AnonTestCase, AdaTestCase, BobTestCase
 
+
 # Shorthand functions for creating regexes to match response HTML against
 
 
-def title(title):
+def title(t):
     """Create a regex for the <title> tag."""
-    return "<title>{} : Stencila</title>".format(title)
+    return "<title>{} : Stencila</title>".format(t)
 
 
 def link(href):
@@ -30,16 +30,20 @@ def link(href):
 
 signin = [200, title("Sign in")]
 
+CheckType = typing.Union[int, str]
+CheckTypeList = typing.List[CheckType]
+
+
 # Define a check
 # Each check is for a path and defines the expected
 # response for each user
 # Expectations can be an integer response code, a
 # a string regex pattern, or a list of either of those
-Check = namedtuple("Check", "path anon ada bob")
-
-
-def check(path, anon=None, ada=None, bob=None):
-    return Check(path, anon, ada, bob)
+class Check(typing.NamedTuple):
+    path: str
+    anon: typing.Optional[typing.Union[CheckTypeList, CheckType]] = None
+    ada: typing.Optional[typing.Union[CheckTypeList, CheckType]] = None
+    bob: typing.Optional[typing.Union[CheckTypeList, CheckType]] = None
 
 
 # Skip a check
@@ -52,144 +56,144 @@ def skip(path, *args, **kwargs):
 
 # fmt: off
 checks = [
-    check(
+    Check(
         "/",
         anon=title("Open"),
         ada=title("Dashboard")
     ),
-    check(
+    Check(
         "/me",
         anon=signin,
         ada=title("User settings")
     ),
-    check(
+    Check(
         "/me/dashboard",
         anon=signin,
         ada=title("Dashboard")
     ),
-    check(
+    Check(
         "/me/password/change/",
         anon=signin,
         ada=title("Password Change")
     ),
-    check(
+    Check(
         "/me/email/",
         anon=signin,
         ada=title("Manage e-mail addresses")
     ),
-    check(
+    Check(
         "/me/social/connections/",
         anon=signin,
         ada=title("")
     ),
-    check(
+    Check(
         "/me/avatar/change/",
         anon=signin,
         ada=title("")
     ),
-    check(
+    Check(
         "/me/username/",
         anon=signin,
         ada=title("Change Username : Stencila")
     ),
-    check(
+    Check(
         "/accounts",
         anon=signin,
         ada=[title("Account  : Teams"), link(reverse("account_create"))],
     ),
-    check(
+    Check(
         "/ada-personal-account",
         anon=signin,
         ada=title("Account ada-personal-account")
     ),
-    check(
+    Check(
         "/ada-personal-account/members",
         anon=signin,
         ada=title("Account ada-personal-account : Members"),
     ),
-    check(
+    Check(
         "/ada-personal-account/teams",
         anon=signin,
         ada=title("Account ada-personal-account : Teams")
     ),
-    check(
+    Check(
         "/ada-personal-account/settings",
         anon=signin,
         ada=title("Account ada-personal-account : Settings")
     ),
-    check(
+    Check(
         "/ada-personal-account/subscriptions",
         anon=signin,
         ada=title("Account ada-personal-account : Subscriptions"),
     ),
-    check(
+    Check(
         "/ada-personal-account/subscriptions/add",
         anon=signin,
         ada="plan"
     ),
-    check(
+    Check(
         "/projects",
         anon=title("Projects"),
         ada=[title("Projects"), link(reverse("project_create"))],
     ),
-    # Most (all?) of the following tests generate the warning for all(?) users:
-    #  warnings.warn("ProjectPermissionsMixin GET", DeprecationWarning)
-    check(
+    Check(
         "/ada-personal-account/ada-public-project",
         # Default view is files
         anon=title("Project ada-public-project : Files"),
         ada=title("Project ada-public-project : Files"),
         bob=title("Project ada-public-project : Files")
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project",
         anon=403,
         # Default view is files
         ada=title("Project ada-private-project : Files"),
         bob=403
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project/files",
         anon=403,
         ada=title("Project ada-private-project : Files"),
         bob=403
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project/snapshots",
         anon=403,
         ada=title("Project ada-private-project : Snapshots"),
         bob=403
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project/activity",
         anon=403,
         ada=title("Project ada-private-project : Activity"),
         bob=403
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project/sharing",
         anon=403,
         ada=title("Project ada-private-project : Sharing"),
         bob=403
     ),
-    check(
+    Check(
         "/ada-personal-account/ada-private-project/settings",
         anon=403,
         ada=title("Project ada-private-project : Settings"),
         bob=403
     ),
     # API endpoints
-    check(
+    Check(
         "/api",
         anon=title("Stencila Hub API"),
         ada=title("Stencila Hub API")
     ),
-    check(
+    Check(
         "/api/schema",
         anon=200,
         ada=200
     ),
 ]
+
+
 # fmt: on
 
 
@@ -215,7 +219,7 @@ class UrlsMixin:
             content = response.content.decode("utf-8")
             for expect in expects if isinstance(expects, list) else [expects]:
                 if isinstance(expect, int):
-                    assert response.status_code == expect
+                    assert response.status_code == expect, check.path
                 elif isinstance(expect, str):
                     self.assertIsNotNone(
                         re.search(expect, content),

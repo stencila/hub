@@ -257,6 +257,7 @@ class SourceDownloadView(ProjectPermissionsMixin, ContentFacadeMixin, View):
         return response
 
 
+# TODO: I don't think think this needs to inherit from DetailView
 class SourceOpenView(
     LoginRequiredMixin, ProjectPermissionsMixin, ContentFacadeMixin, DetailView
 ):
