@@ -143,6 +143,11 @@ class Job(models.Model):
         help_text="The URL of the job on the local network; can be used to interact with it.",
     )
 
+    users = models.ManyToManyField(
+        User,
+        help_text="The users who have connected to the job; not necessarily currently connected.",
+    )
+
     queue = models.CharField(
         max_length=64,
         blank=True,

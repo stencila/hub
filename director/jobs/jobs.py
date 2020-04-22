@@ -101,7 +101,7 @@ def cancel(job: Job):
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
     if not JobStatus.is_ready(job.status):
-        celery.control.revoke(str(job.id), terminate=True, signal='SIGUSR1')
+        celery.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
         job.status = JobStatus.REVOKED.value
         job.ended = timezone.now()
         job.save()

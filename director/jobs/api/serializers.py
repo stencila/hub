@@ -2,6 +2,7 @@ from django.shortcuts import reverse
 from rest_framework import serializers
 
 from jobs.models import Job, JobMethod
+from users.models import User
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -65,6 +66,7 @@ class JobCreateSerializer(JobRetrieveSerializer):
     result = serializers.JSONField(read_only=True)
     url = serializers.CharField(read_only=True)
     log = serializers.JSONField(read_only=True)
+    users = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
     queue = serializers.CharField(read_only=True)
     worker = serializers.CharField(read_only=True)
     retries = serializers.IntegerField(read_only=True)
@@ -74,9 +76,9 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     """
     A job serializer for the `update` and `partial_update` actions.
 
-    Intended for `worker``. Makes some fields read only (should not be
-    changed after creation) but allows workers to update
-    values of rest.
+    Intended for internal services to update job status. 
+    Makes some fields read only (should not be
+    changed after creation) but allows updating of the rest.
     """
 
     creator = serializers.PrimaryKeyRelatedField(read_only=True)

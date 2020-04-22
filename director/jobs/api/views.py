@@ -1,4 +1,5 @@
 import os
+import logging
 
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets, permissions
@@ -15,6 +16,8 @@ from jobs.api.serializers import (
     JobUpdateSerializer,
 )
 from jobs.jobs import cancel
+
+logger = logging.getLogger(__name__)
 
 
 class JobsViewSet(
@@ -53,14 +56,19 @@ class JobsViewSet(
 
         Returns different serializers for different views.
         """
-        return {
-            "list": JobListSerializer,
-            "create": JobCreateSerializer,
-            "retrieve": JobRetrieveSerializer,
-            "update": JobUpdateSerializer,
-            "partial_update": JobUpdateSerializer,
-            "cancel": JobRetrieveSerializer,
-        }.get(self.action, JobRetrieveSerializer)
+        try:
+            return {
+                "list": JobListSerializer,
+                "create": JobCreateSerializer,
+                "execute": JobCreateSerializer,
+                "retrieve": JobRetrieveSerializer,
+                "update": JobUpdateSerializer,
+                "partial_update": JobUpdateSerializer,
+                "cancel": JobRetrieveSerializer,
+            }[self.action]
+        except KeyError:
+            logger.error("No serializer defined for action {}".format(self.action))
+            return JobRetrieveSerializer
 
     def perform_create(self, serializer: JobListSerializer):
         """
@@ -87,6 +95,8 @@ class JobsViewSet(
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # Other views for connecting to and cancelling jobs
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, url_path="connect(/(?P<path>.+))?", methods=["GET", "POST"])
@@ -115,9 +125,11 @@ class JobsViewSet(
                 {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
+        job.users.add(request.user)
+
         # Nginx does not accept the ws:// prefix, so in those
         # cases replace with http://
-        url = job.url.replace('ws://', 'http://')
+        url = job.url.replace("ws://", "http://")
 
         return Response(
             headers={
