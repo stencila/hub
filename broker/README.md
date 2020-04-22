@@ -2,7 +2,7 @@
 
 ### Role
 
-The `broker` is the mediator between clients, such as the `director` and `scheduler`, and `worker`s. To initiate a task, a client adds a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
+The `broker` is the mediator between clients, such as the `director` and `scheduler`, and `worker`s. To initiate a task, a client sends a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
 
 ### Solution
 
@@ -13,3 +13,5 @@ Instead of self hosting `stencila/hub-broker` you could use one of the several R
 ### Alternatives
 
 Celery [supports several brokers](https://docs.celeryproject.org/en/latest/getting-started/brokers/index.html). It should be fairly straightforward to swap out Redis for RabbitMQ if that's what you prefer.
+
+We may use RabbitMQ in the future because it allows for [multi-tenancy via virtual hosts](https://www.rabbitmq.com/vhosts.html). This could be used to allow accounts to provide their own workers by connecting to their own broker `vhost`.
