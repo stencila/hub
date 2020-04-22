@@ -378,14 +378,6 @@ class Dev(Common):
     # JWT secret (must be overridden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
 
-    # Allow for username / password API authentication during development
-    # only. This is usually disallowed in production (in favour of tokens)
-    # but is permitted during development development for convenience.
-    REST_FRAMEWORK = Common.REST_FRAMEWORK
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
-        0, "rest_framework.authentication.BasicAuthentication",
-    )
-
     STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
     STENCILA_GITHUB_APPLICATION_URL = (
         "https://github.com/organizations/stencila/settings/apps/"
@@ -394,6 +386,32 @@ class Dev(Common):
     INTERCOM_DISABLED = True
 
     BROKER_URL = values.Value("memory://", environ_prefix=None)
+
+    @classmethod
+    def post_setup(cls):
+        # Allow for username / password API authentication during development
+        # only. This is usually disallowed in production (in favour of tokens)
+        # but is permitted during development development for convenience.
+        cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
+            0, "rest_framework.authentication.BasicAuthentication",
+        )
+
+
+class Test(Common):
+    """
+    Configuration settings used during tests.
+
+    These should be as close as possible to production settings.
+    So only override settings that are necessary and generally
+    only to avoid having to use mock settings in scattered places
+    throughout tests.
+
+    Note that these shouldn't need to be read from env vars.
+    """
+
+    SECRET_KEY = "not-a-secret-key"
+
+    BROKER_URL = "memory://"
 
 
 class Prod(Common):
