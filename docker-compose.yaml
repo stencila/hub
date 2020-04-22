@@ -11,7 +11,8 @@ services:
     build: ./router
     image: stencila/hub-router
     ports:
-      - "9000:80"
+      # Necessary to expose to host
+      - "9000:9000"
     environment:
       - *broker-url
       - *director-url
