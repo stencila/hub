@@ -344,7 +344,7 @@ class Common(Configuration):
     # Rudimentary feature toggle
     FEATURES = {"PROJECT_SESSION_SETTINGS": False}
 
-    BROKER_URL = values.Value(environ_prefix=None)
+    BROKER_URL = values.SecretValue(environ_prefix=None)
 
 
 class Dev(Common):
@@ -392,6 +392,8 @@ class Dev(Common):
         "stencila-hub-integration-test/installations"
     )
     INTERCOM_DISABLED = True
+
+    BROKER_URL = values.Value("memory://", environ_prefix=None)
 
 
 class Prod(Common):
@@ -452,7 +454,6 @@ class Prod(Common):
 
     @classmethod
     def post_setup(cls):
-        print(cls.SECURE_SSL_REDIRECT)
         import sentry_sdk
         from sentry_sdk.integrations.django import DjangoIntegration
 
