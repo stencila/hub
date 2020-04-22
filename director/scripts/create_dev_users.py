@@ -32,13 +32,10 @@ def run(*args):
     # Normal users
 
     user = User.objects.create_user(
-        username="user",
-        password="user",
-        first_name="User",
-        email="user@example.com",
+        username="user", password="user", first_name="User", email="user@example.com",
     )
     user.save()
-    
+
     for user in [
         ("joe", "Joe", "Blogs"),
         ("jane", "Jane", "Doe"),
