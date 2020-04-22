@@ -382,7 +382,7 @@ class Dev(Common):
     # only. This is usually disallowed in production (in favour of tokens)
     # but is permitted during development development for convenience.
     REST_FRAMEWORK = Common.REST_FRAMEWORK
-    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(
+    REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
         0, "rest_framework.authentication.BasicAuthentication",
     )
 

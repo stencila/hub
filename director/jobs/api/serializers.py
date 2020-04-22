@@ -2,7 +2,6 @@ from django.shortcuts import reverse
 from rest_framework import serializers
 
 from jobs.models import Job, JobMethod
-from users.models import User
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -22,8 +21,7 @@ class JobListSerializer(serializers.ModelSerializer):
 
     def get_url_global(self, job: Job):
         """
-        Get the URL that a user can connect to the job
-        from outside the local network.
+        Get the URL to connect to the job from outside the local network.
 
         Will be `None` if the job does not have an
         internal URL or has ended.
@@ -76,7 +74,7 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     """
     A job serializer for the `update` and `partial_update` actions.
 
-    Intended for internal services to update job status. 
+    Intended for internal services to update job status.
     Makes some fields read only (should not be
     changed after creation) but allows updating of the rest.
     """
