@@ -16,6 +16,7 @@ class JobListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = "__all__"
+        ref_name = None
 
     url_global = serializers.SerializerMethodField()
 
@@ -44,6 +45,11 @@ class JobRetrieveSerializer(JobListSerializer):
 
     position = serializers.IntegerField(read_only=True)
 
+    class Meta:
+        model = Job
+        fields = "__all__"
+        ref_name = 'Job'
+
 
 class JobCreateSerializer(JobRetrieveSerializer):
     """
@@ -52,6 +58,11 @@ class JobCreateSerializer(JobRetrieveSerializer):
     Makes most fields readonly (ie. can not be set),
     makes some fields required.
     """
+
+    class Meta:
+        model = Job
+        fields = "__all__"
+        ref_name = None
 
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
@@ -78,6 +89,11 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     Makes some fields read only (should not be
     changed after creation) but allows updating of the rest.
     """
+
+    class Meta:
+        model = Job
+        fields = "__all__"
+        ref_name = None
 
     creator = serializers.PrimaryKeyRelatedField(read_only=True)
     created = serializers.DateTimeField(read_only=True)
