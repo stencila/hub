@@ -44,7 +44,6 @@ create-devdb: venv
 	$(DJ) runscript create_dev_project_roles
 	$(DJ) runscript create_dev_project_nodes
 	$(DJ) runscript create_dev_project_sources
-	$(DJ) runscript create_dev_periodic_jobs
 
 # Migrate the development database
 migrate-devdb: venv

@@ -1,30 +1,26 @@
 version: "3.6"
 
-x-environment:
-  - &director-url DIRECTOR_URL=http://director:8000
-  - &broker-url BROKER_URL=redis://broker:6379/0
-  - &database-url DATABASE_URL=sqlite:///dev.sqlite3
-
 services:
 
   router:
     build: ./router
     image: stencila/hub-router
     ports:
-      # Necessary to expose to host
       - "9000:9000"
     environment:
-      - *broker-url
-      - *director-url
+      - BROKER_URL=${BROKER_URL}
+      - DIRECTOR_URL=${DIRECTOR_URL}
 
   director:
     build: ./director
     image: stencila/hub-director
+    ports:
+      - "8000:8000"
     volumes:
       - ${PWD}/database/dev.sqlite3:/home/director/dev.sqlite3
     environment:
-      - *broker-url
-      - *database-url
+      - BROKER_URL=${BROKER_URL}
+      - DATABASE_URL=${DATABASE_URL}
       # These env vars are necessary to run Django
       # without HTTPS in a non-production environment
       - DJANGO_SECURE_SSL_REDIRECT=false
@@ -39,6 +35,8 @@ services:
   broker:
     build: ./broker
     image: stencila/hub-broker
+    ports:
+      - "6379:6379"
 
   scheduler:
     build: ./scheduler
@@ -46,13 +44,13 @@ services:
     volumes:
       - ${PWD}/database/dev.sqlite3:/home/scheduler/dev.sqlite3
     environment:
-      - *broker-url
-      - *database-url
+      - BROKER_URL=${BROKER_URL}
+      - DATABASE_URL=${DATABASE_URL}
 
   worker:
     build: ./worker
     image: stencila/hub-worker
     environment:
-      - *broker-url
-      - *director-url
+      - BROKER_URL=${BROKER_URL}
+      - DIRECTOR_URL=${DIRECTOR_URL}
       - DIRECTOR_AUTH=user:user

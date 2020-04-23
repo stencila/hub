@@ -2,9 +2,6 @@
 build:
 	docker build --tag stencila/hub-router .
 
-# Run Docker image with necessary environment variables
+# Run Docker image
 run: build
-	docker run -it --rm --net host \
-	  -e DIRECTOR_URL=http://127.0.0.1:8000 \
-	  -e BROKER_URL=not-a-url-see-note-in-nginx.conf \
-	  stencila/hub-router
+	cd .. && docker-compose run -e DIRECTOR_URL=http://127.0.0.1:8000 --rm router

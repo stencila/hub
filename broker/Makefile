@@ -4,4 +4,4 @@ build:
 
 # Run Docker image
 run: build
-	docker run -it --rm -p 6379:6379 stencila/hub-broker
+	cd .. && docker-compose run --rm broker
