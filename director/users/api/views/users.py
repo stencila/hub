@@ -65,11 +65,10 @@ class UsersViewSet(
     @swagger_auto_schema(responses={200: UserSerializer})
     @action(
         detail=False,
-        url_path="me",
         permission_classes=[permissions.IsAuthenticated],
         pagination_class=None,
     )
-    def retrieve_me(self, request, *args, **kwargs):
+    def me(self, request, *args, **kwargs):
         """
         Retrieve the current user.
 
