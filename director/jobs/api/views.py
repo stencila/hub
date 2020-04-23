@@ -8,12 +8,15 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from jobs.models import Job
+from accounts.views import Account, AccountPermissionsMixin, AccountPermissionType
+from jobs.models import Job, Zone
 from jobs.api.serializers import (
     JobListSerializer,
     JobCreateSerializer,
     JobRetrieveSerializer,
     JobUpdateSerializer,
+    ZoneSerializer,
+    ZoneCreateSerializer,
 )
 from jobs.jobs import cancel
 
@@ -69,15 +72,6 @@ class JobsViewSet(
         except KeyError:
             logger.error("No serializer defined for action {}".format(self.action))
             return JobRetrieveSerializer
-
-    def perform_create(self, serializer: JobListSerializer):
-        """
-        Override of `CreateModelMixin.perform_create`.
-
-        Adds the user as the `creator`.
-        """
-        serializer.validated_data["creator"] = self.request.user
-        serializer.save()
 
     # Standard views (mostly here for custom documentation)
 
@@ -201,3 +195,90 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
         # TODO: Check that the account has self-hosted workers enabled
         # TODO: Authenticate with the RabbitMQ broker and use account's virtual host
         return Response(headers={"X-Accel-Redirect": "/internal/jobs/broker"})
+
+
+class AccountsZonesViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+    AccountPermissionsMixin,
+):
+    """
+    A view set for zones.
+
+    Zones are always linked to an account. Therefore, this viewset
+    should be available at `/accounts/{id}/zones`.
+    It provides basic CRUD for zones.
+    """
+
+    # Configuration
+
+    lookup_field = "name"
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of zones linked to the account.
+        """
+        return Zone.objects.filter(account=self.kwargs["pk"])
+
+    def get_serializer_class(self):
+        """
+        Override of `GenericAPIView.get_serializer_class`.
+
+        Returns different serializers for different views.
+        """
+        return ZoneCreateSerializer if self.action == "create" else ZoneSerializer
+
+    # Views
+
+    def list(self, request: Request, pk: int):
+        """
+        List the zones linked to the account.
+
+        Returns details for all zones linked to the account.
+        """
+        # TODO: Check that user is an account member
+
+        return super().list(request, pk)
+
+    def create(self, request: Request, pk: int):
+        """
+        Create a zone linked to the account.
+
+        Returns details for the new zone.
+        """
+        # TODO: Replace with shortcut `is_permitted` method
+        self.perform_account_fetch(self.request.user, Account.objects.get(id=pk).name)
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
+
+        return super().create(request, pk)
+
+    def retrieve(self, request: Request, pk: int, name: str):
+        """
+        Retrieve details of a zone linked to the account.
+
+        Returns details for the zone.
+        """
+        # TODO: Check that user is an account member
+
+        return super().retrieve(request, pk, name)
+
+    def destroy(self, request: Request, pk: int, name: str):
+        """
+        Destroy a zone linked to the account.
+
+        Don't worry, no zones will be harmed by this action :)
+        It just removes them from the list of available zones
+        for the account.
+        """
+        # TODO: Replace with shortcut `is_permitted` method
+        self.perform_account_fetch(self.request.user, Account.objects.get(id=pk).name)
+        if not self.has_permission(AccountPermissionType.ADMINISTER):
+            raise PermissionDenied
+
+        return super().destroy(request, pk, name)

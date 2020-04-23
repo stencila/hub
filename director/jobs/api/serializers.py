@@ -1,7 +1,9 @@
 from django.shortcuts import reverse
 from rest_framework import serializers
 
-from jobs.models import Job, JobMethod
+from accounts.models import Account
+from general.api.validators import FromContextDefault
+from jobs.models import Job, JobMethod, Zone
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -48,7 +50,7 @@ class JobRetrieveSerializer(JobListSerializer):
     class Meta:
         model = Job
         fields = "__all__"
-        ref_name = 'Job'
+        ref_name = "Job"
 
 
 class JobCreateSerializer(JobRetrieveSerializer):
@@ -62,23 +64,29 @@ class JobCreateSerializer(JobRetrieveSerializer):
     class Meta:
         model = Job
         fields = "__all__"
+        read_only_fields = [
+            "creator",
+            "created",
+            "project",
+            "zone",
+            "status",
+            "began",
+            "ended",
+            "result",
+            "url",
+            "log",
+            "users",
+            "queue",
+            "retries",
+            "worker",
+        ]
         ref_name = None
 
-    creator = serializers.PrimaryKeyRelatedField(read_only=True)
-    created = serializers.DateTimeField(read_only=True)
+    creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
     method = serializers.ChoiceField(choices=JobMethod.as_choices(), required=True)
     params = serializers.JSONField(required=False)
 
-    status = serializers.CharField(read_only=True)
-    began = serializers.DateTimeField(read_only=True)
-    ended = serializers.DateTimeField(read_only=True)
-    result = serializers.JSONField(read_only=True)
-    url = serializers.CharField(read_only=True)
-    log = serializers.JSONField(read_only=True)
-    users = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
-    queue = serializers.CharField(read_only=True)
-    worker = serializers.CharField(read_only=True)
-    retries = serializers.IntegerField(read_only=True)
+    # TODO: allow for project and zone to be specified; validate each against user / account
 
 
 class JobUpdateSerializer(JobRetrieveSerializer):
@@ -93,9 +101,49 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     class Meta:
         model = Job
         fields = "__all__"
+        read_only_fields = JobCreateSerializer.Meta.read_only_fields + [
+            "creator",
+            "created",
+            "method",
+            "params",
+            "zone",
+        ]
         ref_name = None
 
-    creator = serializers.PrimaryKeyRelatedField(read_only=True)
-    created = serializers.DateTimeField(read_only=True)
-    method = serializers.CharField(read_only=True)
-    params = serializers.DateTimeField(read_only=True)
+
+class ZoneSerializer(serializers.ModelSerializer):
+    """
+    A zone serializer.
+
+    Includes all model fields.
+    """
+
+    class Meta:
+        model = Zone
+        fields = "__all__"
+
+
+class ZoneCreateSerializer(ZoneSerializer):
+    """
+    A zone serializer for the `create` action.
+
+    Makes `account` readonly, and based on the `pk` URL parameter
+    so that it is not possible to create a zone for a different account.
+    Also validates `name` is unique within an account.
+    """
+
+    class Meta:
+        model = Zone
+        fields = "__all__"
+
+    account = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: Account.objects.get(id=context["view"].kwargs["pk"])
+        )
+    )
+
+    def validate_name(self, name: str) -> str:
+        pk = self.context["view"].kwargs["pk"]
+        if Zone.objects.filter(account=pk, name=name).count() != 0:
+            raise serializers.ValidationError("Zone name must be unique for account.")
+        return name

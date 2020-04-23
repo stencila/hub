@@ -46,7 +46,7 @@ def dispatch_job(job: Job):
     account that the project is linked to, or the default account of the job
     creator).
     """
-    # TODO: Implement as in docstring
+    # TODO: Implement as in docstring but using zones (and a default queue per zone)
     queue = "stencila"
     send_job(queue, job.id, job.method, job.params)
 

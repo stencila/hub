@@ -1,10 +1,50 @@
 from enum import unique
+from django.core import validators
 from django.db import models
 from jsonfallback.fields import FallbackJSONField
 
 from lib.enum_choice import EnumChoice
+from accounts.models import Account
 from projects.models import Project
 from users.models import User
+
+
+class Zone(models.Model):
+    """
+    A zone within which jobs are run.
+
+    Zones are similar to, and may correspond with, "availability zones" as
+    provided by public providers such as AWS and Google Cloud. Workers
+    and the data they operate on are usually colated within zones to
+    reduce latency.
+
+    Stencila provides several zones, and users can decide which zone their
+    project will run in. Accounts can define their own zones and select those
+    for specific projects.
+    """
+
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        related_name="zones",
+        help_text="The account that this zone is linked to.",
+    )
+
+    name = models.CharField(
+        max_length=256,
+        validators=[
+            validators.RegexValidator(
+                r"^[a-z][a-z0-9\-]*$",
+                "Name should start with a lowercase letter and only contain lowercase letters, digits and hyphens",
+            )
+        ],
+        help_text="The identifier of the queue the job was posted to.",
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["account", "name"], name="unique_name")
+        ]
 
 
 @unique
@@ -110,6 +150,22 @@ class Job(models.Model):
         null=True, auto_now_add=True, help_text="The time the job was created."
     )
 
+    zone = models.ForeignKey(
+        Zone,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="jobs",
+        help_text="The project this job is associated with.",
+    )
+
+    queue = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text="The identifier of the queue the job was posted to.",
+    )
+
     began = models.DateTimeField(null=True, help_text="The time the job began.")
     ended = models.DateTimeField(null=True, help_text="The time the job ended.")
     status = models.CharField(
@@ -148,12 +204,6 @@ class Job(models.Model):
         help_text="The users who have connected to the job; not necessarily currently connected.",
     )
 
-    queue = models.CharField(
-        max_length=64,
-        blank=True,
-        null=True,
-        help_text="The identifier of the queue the job was posted to.",
-    )
     worker = models.CharField(
         max_length=64,
         blank=True,
