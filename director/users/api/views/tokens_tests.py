@@ -232,7 +232,7 @@ class TokenAuthenticationTests(TokenTestCase):
     """Test authenticating with a token."""
 
     def me(self):
-        return self.client.get(reverse("api-users-retrieve-me"))
+        return self.client.get(reverse("api-users-me"))
 
     def test_success(self):
         self.authenticate(self.ada_token)

@@ -15,7 +15,7 @@ class UserAPIViewsTests(DatabaseTestCase):
         return self.retrieve(user, "users", kwargs={"pk": pk})
 
     def retrieve_me(self, user):
-        return self.retrieve(user, "api-users-retrieve-me")
+        return self.retrieve(user, "api-users-me")
 
     # Testing methods
 
