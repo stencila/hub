@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Account
 from general.api.validators import FromContextDefault
-from jobs.models import Job, JobMethod, Zone
+from jobs.models import Job, JobMethod, JobStatus, Zone
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -29,7 +29,7 @@ class JobListSerializer(serializers.ModelSerializer):
         Will be `None` if the job does not have an
         internal URL or has ended.
         """
-        if job.url and not job.ended:
+        if job.url and not job.ended and not JobStatus.has_ended(job.status):
             request = self.context.get("request")
             return request.build_absolute_uri(
                 reverse("api-jobs-connect", kwargs={"pk": job.id})
@@ -76,6 +76,7 @@ class JobCreateSerializer(JobRetrieveSerializer):
             "result",
             "url",
             "log",
+            "runtime",
             "users",
             "retries",
             "worker",
@@ -101,14 +102,7 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     class Meta:
         model = Job
         fields = "__all__"
-        read_only_fields = [
-            "creator",
-            "created",
-            "method",
-            "params",
-            "zone",
-            "queue"
-        ]
+        read_only_fields = ["creator", "created", "method", "params", "zone", "queue"]
         ref_name = None
 
 

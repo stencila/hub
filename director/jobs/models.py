@@ -1,4 +1,7 @@
 from enum import unique
+import json
+
+from django_celery_beat.models import PeriodicTask
 from django.core import validators
 from django.db import models
 from jsonfallback.fields import FallbackJSONField
@@ -47,6 +50,8 @@ class Zone(models.Model):
         ]
 
 
+
+
 @unique
 class JobMethod(EnumChoice):
     """
@@ -82,25 +87,39 @@ class JobStatus(EnumChoice):
     PENDING = "PENDING"
     # Job was received by a worker.
     RECEIVED = "RECEIVED"
+
     # Job was started by a worker.
     STARTED = "STARTED"
+    # Job has reported progress since starting.
+    PROGRESS = "PROGRESS"
     # Job succeeded
     SUCCESS = "SUCCESS"
     # Job failed
     FAILURE = "FAILURE"
+
+    # Job cancellation message sent.
+    CANCELLED = "CANCELLED"
     # Job was revoked.
     REVOKED = "REVOKED"
+    # Job was terminated
+    TERMINATED = "TERMINATED"
+
     # Job was rejected.
     REJECTED = "REJECTED"
     # Job is waiting for retry.
     RETRY = "RETRY"
-    # Job was terminated
-    TERMINATED = "TERMINATED"
 
     @classmethod
-    def is_ready(cls, status: str) -> bool:
+    def has_ended(cls, status: str) -> bool:
         return status in [
-            member.value for member in (cls.SUCCESS, cls.FAILURE, cls.REVOKED)
+            member.value
+            for member in (
+                cls.SUCCESS,
+                cls.FAILURE,
+                cls.CANCELLED,
+                cls.REVOKED,
+                cls.TERMINATED,
+            )
         ]
 
 
@@ -132,7 +151,7 @@ class Job(models.Model):
         Project,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="jobs",
         help_text="The project this job is associated with.",
     )
@@ -190,6 +209,9 @@ class Job(models.Model):
         null=True,
         help_text="The job log; a JSON array of log objects, including any errors.",
     )
+    runtime = models.FloatField(
+        blank=True, null=True, help_text="The running time of the job."
+    )
 
     # Not a URLField because potential for non-standard schemes e.g. ws://
     url = models.CharField(
@@ -246,37 +268,55 @@ class Pipeline(models.Model):
 
     A pipeline's definition is stored as JSON but can be authored
     by users using YAML or a GUI.
-
-    WIP
     """
-
-    class Meta:
-        abstract = True
 
     project = models.ForeignKey(
         Project,
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
         related_name="pipelines",
-        help_text="The project this pipeline is associated with.",
+        help_text="The project this pipeline is linked to.",
+    )
+
+    name = models.SlugField(
+        max_length=256,
+        help_text="A name for this pipeline. Must be unique to the project.",
     )
 
     definition = FallbackJSONField(help_text="The JSON definition of the pipeline.")
 
-    schedule = models.ForeignKey(
-        "Schedule",
+    schedule = models.OneToOneField(
+        "PipelineSchedule",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        help_text="The schedule on which the pipeline will be executed.",
+        on_delete=models.CASCADE,
+        related_name="pipeline",
+        help_text="The schedule for this pipeline.",
     )
 
+    def save(self, *args, **kwargs):
+        """
+        Override save to set necessary fields for the schedule.
+        
+        The `pipeline` task must be defined in workers and take
+        a `definition` argument that will be transformed into a
+        jobs and run on the worker.
+        """
 
-class Schedule(models.Model):
+        if self.schedule:
+            self.schedule.name = "Pipeline {} schedule".format(self.name)
+            self.schedule.task = "pipeline"
+            self.schedule.kwargs = json.dumps(dict(definition=self.definition))
+            # TODO Choose a queue based on the project
+            self.schedule.queue = "stencila"
+            self.schedule.save()
+        return super().save(*args, **kwargs)
+
+
+class PipelineSchedule(PeriodicTask):
     """
-    A schedule defines when a pipeline should be executed.
-
-    WIP
+    A schedule that defines when a pipeline should be run.
     """
 
-    class Meta:
-        abstract = True
+    pass

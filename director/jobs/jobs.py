@@ -1,4 +1,5 @@
 from celery import Celery, signature
+from celery.result import AsyncResult
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -10,7 +11,7 @@ from users.models import User
 
 # Setup the Celery app
 # This is used to send and cancel jobs
-celery = Celery("director", broker=settings.BROKER_URL)
+celery = Celery("director", broker=settings.BROKER_URL, backend=settings.BROKER_URL)
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
@@ -21,7 +22,9 @@ celery.conf.update(
         "interval_start": 0,
         "interval_step": 0.5,
         "interval_max": 3,
-    }
+    },
+    # Need to ensure STARTED state is emitted
+    task_track_started=True,
 )
 
 
@@ -34,7 +37,7 @@ def send_job(queue: str, id: int, method: JobMethod, params: dict):
     if not JobMethod.is_member(method):
         raise ValueError("Unknown job method '{}'".format(method))
     task = signature(method, kwargs=params, app=celery, queue=queue)
-    task.apply_async(kwargs={}, task_id=str(id))
+    task.apply_async(task_id=str(id))
 
 
 def dispatch_job(job: Job):
@@ -90,6 +93,27 @@ def execute(user: User, project: Project, params: dict = {}):
 # moving a job to another queue (revoke and then re-dispatch).
 
 
+def update(job: Job):
+    """
+    Update a job
+
+    See https://stackoverflow.com/a/38267978 for important considerations
+    in using AsyncResult.
+    """
+
+    # Get an async result from the backend if the job
+    # is not recorded as ready.
+    if not JobStatus.has_ended(job.status):
+        result = AsyncResult(str(job.id), app=celery)
+        job.status = result.status
+        # `info` is the `meta` kwarg passed to `task.self_update` in the
+        # worker process
+        if isinstance(result.info, dict):
+            job.url = result.info.get("url")
+        job.save()
+    return job
+
+
 def cancel(job: Job):
     """
     Cancel a job.
@@ -100,9 +124,8 @@ def cancel(job: Job):
     See `worker/worker.py` for the reasoning for using `SIGUSR1`.
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
-    if not JobStatus.is_ready(job.status):
+    if not JobStatus.has_ended(job.status):
         celery.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
-        job.status = JobStatus.REVOKED.value
-        job.ended = timezone.now()
+        job.status = JobStatus.CANCELLED.value
         job.save()
     return job
