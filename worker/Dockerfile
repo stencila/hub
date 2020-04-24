@@ -32,4 +32,4 @@ RUN node /usr/lib/node_modules/@stencila/encoda/dist/encoda.js register
 RUN python3 -m stencila.pyla register
 RUN R -e 'rasta::register()'
 
-CMD celery worker --app worker --queues stencila --hostname worker@stencila
+CMD celery worker --app worker --events --queues stencila --hostname worker@stencila

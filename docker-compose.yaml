@@ -47,6 +47,13 @@ services:
       - BROKER_URL=${BROKER_URL}
       - DATABASE_URL=${DATABASE_URL}
 
+  monitor:
+    build: ./monitor
+    image: stencila/hub-monitor
+    environment:
+      - BROKER_URL=${BROKER_URL}
+      - DIRECTOR_URL=${DIRECTOR_URL}
+
   worker:
     build: ./worker
     image: stencila/hub-worker

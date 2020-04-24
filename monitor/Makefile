@@ -2,22 +2,26 @@
 VE := venv/bin
 
 # Build virtual environment
-venv: requirements.txt
+venv: requirements.txt requirements-dev.txt
 	python3 -m venv venv
 	$(VE)/pip3 install -r requirements.txt
+	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
 
-# Run `celery worker` during development to check configuration.
-# Change env vars as needed for your dev env.
+# Run `monitor.py` during development to check configuration.
 run: venv
 	BROKER_URL=redis://localhost:6379/0 \
 	DIRECTOR_URL=http://localhost:8000 \
 	DIRECTOR_AUTH="user:user" \
-	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@stencila
+	$(VE)/python3 monitor.py
+
+# Run `celery flower` during development.
+run-flower: venv
+	$(VE)/celery flower --broker=redis://localhost:6379/0
 
 # Build Docker image
 build:
-	docker build --tag stencila/hub-worker .
+	docker build --tag stencila/hub-monitor .
 
 # Clean up venv and cached files
 clean:
