@@ -69,6 +69,7 @@ class JobCreateSerializer(JobRetrieveSerializer):
             "created",
             "project",
             "zone",
+            "queue",
             "status",
             "began",
             "ended",
@@ -76,7 +77,6 @@ class JobCreateSerializer(JobRetrieveSerializer):
             "url",
             "log",
             "users",
-            "queue",
             "retries",
             "worker",
         ]
@@ -101,12 +101,13 @@ class JobUpdateSerializer(JobRetrieveSerializer):
     class Meta:
         model = Job
         fields = "__all__"
-        read_only_fields = JobCreateSerializer.Meta.read_only_fields + [
+        read_only_fields = [
             "creator",
             "created",
             "method",
             "params",
             "zone",
+            "queue"
         ]
         ref_name = None
 
