@@ -23,14 +23,16 @@ def create_roles():
     roles are created in
       - `accounts/migrations/0001_initial.py`
       - `projects/migrations/0005_auto_20180830_2324.py`
+      - `accounts/migrations/0018_auto_20200426_1815.py`
 
     During testing on CI, `--no--migrations` is not used. Nonetheless,
     for the sake of test correctness, care should still be taken that these
     role definitions do not diverge from those used in prod databases.
     """
     account_roles = (
-        ("Account member", ("modify",)),
-        ("Account admin", ("modify", "administer")),
+        ("Account member", ("modify", "view")),
+        ("Account admin", ("modify", "administer", "view")),
+        ("Account viewer", ("view",)),
     )
     for role_name, role_permissions in account_roles:
         role, created = AccountRole.objects.get_or_create(name=role_name)

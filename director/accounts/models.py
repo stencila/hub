@@ -33,6 +33,7 @@ class AccountPermissionType(EnumChoice):
 
     MODIFY = "modify"
     ADMINISTER = "administer"
+    VIEW = "view"
 
 
 class Account(models.Model):
@@ -153,7 +154,7 @@ class AccountPermission(models.Model):
         blank=False,
         choices=AccountPermissionType.as_choices(),
         unique=True,
-        help_text="Permissions to the Account: Administer or Modify (required).",
+        help_text="Permissions to the Account: Administer, Member or View (required).",
     )
 
     def __str__(self) -> str:
@@ -166,7 +167,7 @@ class AccountRole(models.Model):
     name = models.TextField(
         null=False,
         blank=False,
-        help_text="Roles which users can have assigned to the Account: Admin and Member (required).",
+        help_text="Roles which users can have assigned to the Account: Admin, Member, View (required).",
     )
 
     permissions = models.ManyToManyField(
