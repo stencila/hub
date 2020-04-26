@@ -1,3 +1,10 @@
+# This docker-compose file is intended for development and testing.
+# However, it is also used as a basis for Kubernetes deployments.
+# Some properties have been added to improve conversion to Kubernetes configs
+# using Kompose:
+# - labels starting with `kompose`
+# - `env_file` to services to generate and bind a config map
+
 version: "3.6"
 
 services:
@@ -5,8 +12,13 @@ services:
   router:
     build: ./router
     image: stencila/hub-router
+    labels:
+      kompose.service.type: loadbalancer
+      kompose.service.expose: "true"
     ports:
       - "9000:9000"
+    env_file:
+      - .env
     environment:
       - BROKER_URL=${BROKER_URL}
       - DIRECTOR_URL=${DIRECTOR_URL}
@@ -18,6 +30,8 @@ services:
       - "8000:8000"
     volumes:
       - ${PWD}/database/dev.sqlite3:/home/director/dev.sqlite3
+    env_file:
+      - .env
     environment:
       - BROKER_URL=${BROKER_URL}
       - DATABASE_URL=${DATABASE_URL}
@@ -43,6 +57,8 @@ services:
     image: stencila/hub-scheduler
     volumes:
       - ${PWD}/database/dev.sqlite3:/home/scheduler/dev.sqlite3
+    env_file:
+      - .env
     environment:
       - BROKER_URL=${BROKER_URL}
       - DATABASE_URL=${DATABASE_URL}
@@ -50,6 +66,8 @@ services:
   monitor:
     build: ./monitor
     image: stencila/hub-monitor
+    env_file:
+      - .env
     environment:
       - BROKER_URL=${BROKER_URL}
       - DIRECTOR_URL=${DIRECTOR_URL}
@@ -57,6 +75,8 @@ services:
   worker:
     build: ./worker
     image: stencila/hub-worker
+    env_file:
+      - .env
     environment:
       - BROKER_URL=${BROKER_URL}
       - DIRECTOR_URL=${DIRECTOR_URL}
