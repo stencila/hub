@@ -123,7 +123,7 @@ class Common(Configuration):
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
     DATABASES = values.DatabaseURLValue(
-        "sqlite:///{}".format(os.path.join(BASE_DIR, "..", "database", "dev.sqlite3"))
+        "sqlite:///{}".format(os.path.join(BASE_DIR, "dev.sqlite3"))
     )
 
     DEFAULT_FROM_EMAIL = values.Value("")

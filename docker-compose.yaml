@@ -3,7 +3,7 @@
 # Some properties have been added to improve conversion to Kubernetes configs
 # using Kompose:
 # - labels starting with `kompose`
-# - `env_file` to services to generate and bind a config map
+# - `.env` file in `env_file` so that services are linked to the `env-configmap.yaml`
 
 version: "3.6"
 
@@ -28,13 +28,12 @@ services:
     image: stencila/hub-director
     ports:
       - "8000:8000"
-    volumes:
-      - ${PWD}/database/dev.sqlite3:/home/director/dev.sqlite3
     env_file:
       - .env
+      - .secrets
     environment:
-      - BROKER_URL=${BROKER_URL}
-      - DATABASE_URL=${DATABASE_URL}
+      #- BROKER_URL=${BROKER_URL}
+      #- DATABASE_URL=${DATABASE_URL}
       # These env vars are necessary to run Django
       # without HTTPS in a non-production environment
       - DJANGO_SECURE_SSL_REDIRECT=false
@@ -46,6 +45,14 @@ services:
       - DJANGO_JWT_SECRET=not-a-secret
       - DJANGO_SENDGRID_API_KEY=not-a-secret
 
+  database:
+    build: ./database
+    image: stencila/hub-database
+    ports:
+      - "5432:5432"
+    env_file:
+      - .secrets
+
   broker:
     build: ./broker
     image: stencila/hub-broker
@@ -55,13 +62,9 @@ services:
   scheduler:
     build: ./scheduler
     image: stencila/hub-scheduler
-    volumes:
-      - ${PWD}/database/dev.sqlite3:/home/scheduler/dev.sqlite3
     env_file:
       - .env
-    environment:
-      - BROKER_URL=${BROKER_URL}
-      - DATABASE_URL=${DATABASE_URL}
+      - .secrets
 
   monitor:
     build: ./monitor
@@ -71,6 +74,7 @@ services:
     environment:
       - BROKER_URL=${BROKER_URL}
       - DIRECTOR_URL=${DIRECTOR_URL}
+      - DIRECTOR_AUTH=user:user
 
   worker:
     build: ./worker
@@ -80,4 +84,3 @@ services:
     environment:
       - BROKER_URL=${BROKER_URL}
       - DIRECTOR_URL=${DIRECTOR_URL}
-      - DIRECTOR_AUTH=user:user

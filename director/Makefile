@@ -33,17 +33,19 @@ static: venv
 migrations: venv
 	$(DJ) makemigrations
 
-# Build a development database
-create-devdb: venv
-	rm -f ../database/dev.sqlite3
-	$(DJ) migrate
-	$(DJ) runscript create_dev_users
-	$(DJ) runscript create_dev_accounts
-	$(DJ) runscript create_dev_account_roles
-	$(DJ) runscript create_dev_projects
-	$(DJ) runscript create_dev_project_roles
-	$(DJ) runscript create_dev_project_nodes
-	$(DJ) runscript create_dev_project_sources
+# Create a development SQLite database
+create-devdb-sqlite: venv
+	export DATABASE_URL="sqlite:///dev.sqlite3"; \
+	$(DJ) reset_db; \
+	$(DJ) migrate; \
+	$(DJ) runscript create_devdb
+
+# Create a development PostgeSQL database on localhost
+create-devdb-pg: venv
+	export DATABASE_URL="postgres://stencila:password@localhost:5432/hub"; \
+	$(DJ) reset_db; \
+	$(DJ) migrate; \
+	$(DJ) runscript create_devdb
 
 # Migrate the development database
 migrate-devdb: venv
@@ -126,7 +128,7 @@ run-docker: build
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		-v $$PWD/../database/dev.sqlite3:/home/director/dev.sqlite3:rw \
+		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
