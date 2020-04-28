@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/stencila/hub/compare/v2.18.2...v2.19.0) (2020-04-28)
+
+
+### Features
+
+* Permissions improvements for AccountPermissionsMixin. Close [#391](https://github.com/stencila/hub/issues/391) ([a621c2c](https://github.com/stencila/hub/commit/a621c2c20a6c54e06c02800bd77200cde68cdbd1))
+
 ## [2.18.2](https://github.com/stencila/hub/compare/v2.18.1...v2.18.2) (2020-04-28)
 
 
