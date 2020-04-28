@@ -29,4 +29,4 @@ requests==2.23.0
 sentry-sdk==0.14.3
 sh==1.12.14
 shortuuid==1.0.1
-stencila-schema==0.42.1
+stencila-schema==0.43.0
