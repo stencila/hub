@@ -10,9 +10,8 @@ venv: requirements.txt requirements-dev.txt
 
 # Run `monitor.py` during development to check configuration.
 run: venv
-	BROKER_URL=redis://localhost:6379/0 \
-	DIRECTOR_URL=http://localhost:8000 \
-	DIRECTOR_AUTH="user:user" \
+	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
+	DIRECTOR_URL=http://stencila:password@localhost:8000 \
 	$(VE)/python3 monitor.py
 
 # Run `celery flower` during development.

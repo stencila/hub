@@ -17,7 +17,6 @@ celery = Celery("monitor", broker=os.environ["BROKER_URL"])
 api = httpx.Client(
     base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/jobs/"),
     headers={"content-type": "application/json", "accept": "application/json",},
-    auth=tuple(os.environ["DIRECTOR_AUTH"].split(":")),
 )
 
 

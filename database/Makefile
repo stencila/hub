@@ -4,4 +4,6 @@ build:
 
 # Run Docker image
 run: build
-	cd .. && docker-compose run --rm database
+	docker run --rm --network=host \
+		-e POSTGRES_PASSWORD=password \
+		stencila/hub-database

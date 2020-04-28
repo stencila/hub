@@ -4,4 +4,6 @@ build:
 
 # Run Docker image
 run: build
-	cd .. && docker-compose run -e DIRECTOR_URL=http://127.0.0.1:8000 --rm router
+	docker run --rm --network=host \
+		-e DIRECTOR_HOST=localhost:8000 \
+		stencila/hub-router

@@ -10,7 +10,7 @@ venv: requirements.txt
 # Run `celery worker` during development to check configuration.
 # Change env vars as needed for your dev env.
 run: venv
-	BROKER_URL=redis://localhost:6379/0 \
+	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@stencila
 
 # Build Docker image

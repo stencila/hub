@@ -28,7 +28,6 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env
       - .secrets
     environment:
       # These env vars are necessary to run Django
@@ -65,7 +64,6 @@ services:
     build: ./scheduler
     image: stencila/hub-scheduler
     env_file:
-      - .env
       - .secrets
     depends_on:
       - database
@@ -75,7 +73,6 @@ services:
     build: ./monitor
     image: stencila/hub-monitor
     env_file:
-      - .env
       - .secrets
     depends_on:
       - director
@@ -85,7 +82,6 @@ services:
     build: ./worker
     image: stencila/hub-worker
     env_file:
-      - .env
       - .secrets
     depends_on:
       - broker
