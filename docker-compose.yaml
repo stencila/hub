@@ -1,7 +1,7 @@
 # This docker-compose file is intended for development and testing.
 # However, it is also used as a basis for Kubernetes deployments.
-# Some properties have been added to improve conversion to Kubernetes configs
-# using Kompose:
+# Consequently, some properties have been added to improve conversion to 
+# Kubernetes configs when using Kompose:
 # - labels starting with `kompose`
 # - `.env` file in `env_file` so that services are linked to the `env-configmap.yaml`
 
@@ -19,9 +19,8 @@ services:
       - "9000:9000"
     env_file:
       - .env
-    environment:
-      - BROKER_URL=${BROKER_URL}
-      - DIRECTOR_URL=${DIRECTOR_URL}
+    depends_on:
+      - director
 
   director:
     build: ./director
@@ -32,8 +31,6 @@ services:
       - .env
       - .secrets
     environment:
-      #- BROKER_URL=${BROKER_URL}
-      #- DATABASE_URL=${DATABASE_URL}
       # These env vars are necessary to run Django
       # without HTTPS in a non-production environment
       - DJANGO_SECURE_SSL_REDIRECT=false
@@ -44,6 +41,9 @@ services:
       - DJANGO_POSTHOG_KEY
       - DJANGO_JWT_SECRET=not-a-secret
       - DJANGO_SENDGRID_API_KEY=not-a-secret
+    depends_on:
+      - database
+      - broker
 
   database:
     build: ./database
@@ -57,7 +57,9 @@ services:
     build: ./broker
     image: stencila/hub-broker
     ports:
-      - "6379:6379"
+      - "5672:5672"
+    env_file:
+      - .secrets
 
   scheduler:
     build: ./scheduler
@@ -65,22 +67,25 @@ services:
     env_file:
       - .env
       - .secrets
+    depends_on:
+      - database
+      - broker
 
   monitor:
     build: ./monitor
     image: stencila/hub-monitor
     env_file:
       - .env
-    environment:
-      - BROKER_URL=${BROKER_URL}
-      - DIRECTOR_URL=${DIRECTOR_URL}
-      - DIRECTOR_AUTH=user:user
+      - .secrets
+    depends_on:
+      - director
+      - broker
 
   worker:
     build: ./worker
     image: stencila/hub-worker
     env_file:
       - .env
-    environment:
-      - BROKER_URL=${BROKER_URL}
-      - DIRECTOR_URL=${DIRECTOR_URL}
+      - .secrets
+    depends_on:
+      - broker

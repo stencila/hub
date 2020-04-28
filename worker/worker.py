@@ -20,7 +20,7 @@ from execute.process import ProcessSession
 
 
 # Setup the Celery app
-celery = Celery("worker", broker=os.environ["BROKER_URL"], backend=os.environ["BROKER_URL"])
+celery = Celery("worker", broker=os.environ["BROKER_URL"], backend='rpc://')
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
@@ -104,7 +104,7 @@ def capture_output(task):
 def execute(self):
     """
     Execute a node.
-    
+
     When cancelling a job the `director` sends the `SIGUSR1`
     signal which causes a `SoftTimeLimitExceeded` to be thrown.
     See https://github.com/celery/celery/issues/2727 for why

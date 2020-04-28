@@ -1,1 +1,2 @@
-celery[redis]==4.4.2
+amqp==2.5.2
+celery==4.4.2

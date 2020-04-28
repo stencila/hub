@@ -1,17 +1,17 @@
 # Stencila Hub Broker
 
-### Role
+### Putpose
 
-The `broker` is the mediator between clients, such as the `director` and `scheduler`, and `worker`s. To initiate a task, a client sends a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
+The `broker` is the mediator between task producers, such as the `director` and the `scheduler` services, and `worker`s, the task consumers. To initiate a task, a producer sends a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
 
 ### Solution
 
-We use [Redis](https://redis.io/), a fast, open-source, in-memory key-value data store. The `stencila/hub-broker` Docker image is currently just a simple `FROM redis` image.
+We use RabbitMQ because it allows for [multi-tenancy via virtual hosts](https://www.rabbitmq.com/vhosts.html). This allows accounts to provide their own    workers by connecting to their own `vhost` on the broker.
 
-Instead of self hosting `stencila/hub-broker` you could use one of the several Redis-as-a-service services, including https://redislabs.com/ from the creators of Redis.
+The `stencila/hub-broker` Docker image is currently just a simple `FROM rabbitmq:3.8-management` image. We use the management image, so that we can access the [Management HTTP API](https://www.rabbitmq.com/management.html#http-api) to add new users and vhosts for accounts.
+
+Instead of self hosting `stencila/hub-broker` a RabbitMQ-as-a-service service, such as https://www.cloudamqp.com/ could be used.
 
 ### Alternatives
 
-Celery [supports several brokers](https://docs.celeryproject.org/en/latest/getting-started/brokers/index.html). It should be fairly straightforward to swap out Redis for RabbitMQ if that's what you prefer.
-
-We may use RabbitMQ in the future because it allows for [multi-tenancy via virtual hosts](https://www.rabbitmq.com/vhosts.html). This could be used to allow accounts to provide their own workers by connecting to their own broker `vhost`.
+Celery [supports several brokers](https://docs.celeryproject.org/en/latest/getting-started/brokers/index.html). Initially we used [Redis](https://redis.io/) because of it's ease of setup.

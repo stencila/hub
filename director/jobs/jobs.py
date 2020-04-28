@@ -11,7 +11,7 @@ from users.models import User
 
 # Setup the Celery app
 # This is used to send and cancel jobs
-celery = Celery("director", broker=settings.BROKER_URL, backend=settings.BROKER_URL)
+celery = Celery("director", broker=settings.BROKER_URL, backend='rpc://')
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
@@ -23,7 +23,7 @@ celery.conf.update(
         "interval_step": 0.5,
         "interval_max": 3,
     },
-    # Need to ensure STARTED state is emitted
+    # Needed to ensure STARTED state is emitted
     task_track_started=True,
 )
 
