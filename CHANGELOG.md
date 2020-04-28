@@ -1,3 +1,14 @@
+## [2.18.2](https://github.com/stencila/hub/compare/v2.18.1...v2.18.2) (2020-04-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.3.0 ([2c0dc4d](https://github.com/stencila/hub/commit/2c0dc4dcd8c3411d6d446bef2ad453b3650a181e))
+* **deps:** update dependency dj-stripe to v2.3.0 ([7a8d527](https://github.com/stencila/hub/commit/7a8d527791ce59bf569437f31ef2bc3b97695676))
+* **deps:** update dependency google-api-python-client to v1.8.2 ([ce92687](https://github.com/stencila/hub/commit/ce92687864d0ca4bbc222dab0acd322b6e7eb7b6))
+* **deps:** update dependency stencila-schema to v0.43.0 ([d036243](https://github.com/stencila/hub/commit/d036243cb3377785af973a5aa717280e37520a7a))
+* **Deps:** Update Thema version ([b915bef](https://github.com/stencila/hub/commit/b915befb2497c5f8f078eee961b341857cddf1ae))
+
 ## [2.18.1](https://github.com/stencila/hub/compare/v2.18.0...v2.18.1) (2020-04-21)
 
 
