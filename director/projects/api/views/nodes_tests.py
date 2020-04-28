@@ -1,7 +1,6 @@
 from rest_framework import renderers, status
 
 from general.testing import DatabaseTestCase
-from projects.api.views.nodes import node_type
 
 
 class NodeViewsTest(DatabaseTestCase):
@@ -181,15 +180,3 @@ class NodeViewsTest(DatabaseTestCase):
         for user in (self.ada, self.bob, None):
             response = self.retrieve_html(user, key)
             assert response.template_name == "projects/node_complete.html"
-
-
-def test_node_type():
-    assert node_type(None) == "Null"
-    assert node_type(True) == "Boolean"
-    assert node_type(42) == "Number"
-    assert node_type(3.14) == "Number"
-    assert node_type("Hello") == "Text"
-    assert node_type([]) == "Array"
-    assert node_type(tuple()) == "Array"
-    assert node_type({}) == "Object"
-    assert node_type({"type": "CodeChunk"}) == "CodeChunk"

@@ -17,6 +17,7 @@ from rest_framework import (
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
+from stencila.schema.util import node_type
 
 from lib.conversion_types import ConversionFormatId
 from lib.converter_facade import (
@@ -229,26 +230,3 @@ class NodesViewSet(
                 },
                 template_name="projects/node_complete.html",
             )
-
-
-def node_type(node) -> str:
-    """
-    Get the type of the node.
-
-    This is a port of https://github.com/stencila/schema/blob/master/ts/util/nodeType.ts
-    """
-    if node is None:
-        return "Null"
-    if isinstance(node, bool):
-        return "Boolean"
-    if isinstance(node, (int, float)):
-        return "Number"
-    if isinstance(node, str):
-        return "Text"
-    if isinstance(node, (list, tuple)):
-        return "Array"
-    if isinstance(node, dict):
-        type_name = node.get("type")
-        if type_name is not None:
-            return type_name
-    return "Object"
