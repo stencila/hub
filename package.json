@@ -20,11 +20,11 @@
   },
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "1.4.26",
+    "@stencila/dev-config": "1.4.30",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
-    "gulp-sass": "4.0.2",
-    "node-sass": "4.13.1",
+    "gulp-sass": "4.1.0",
+    "node-sass": "4.14.0",
     "sass-module-importer": "1.4.0"
   },
   "renovate": {
