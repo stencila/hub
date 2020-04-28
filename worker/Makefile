@@ -11,8 +11,6 @@ venv: requirements.txt
 # Change env vars as needed for your dev env.
 run: venv
 	BROKER_URL=redis://localhost:6379/0 \
-	DIRECTOR_URL=http://localhost:8000 \
-	DIRECTOR_AUTH="user:user" \
 	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@stencila
 
 # Build Docker image

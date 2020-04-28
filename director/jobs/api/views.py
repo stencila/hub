@@ -151,7 +151,7 @@ class JobsViewSet(
 
         return Response(
             headers={
-                "X-Accel-Redirect": "@job-connect",
+                "X-Accel-Redirect": "@jobs-connect",
                 "X-Accel-Redirect-URL": os.path.join(url, path or ""),
             }
         )
@@ -188,7 +188,7 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
     @swagger_auto_schema()
     @action(
         detail=False,
-        permission_classes=[permissions.IsAdminUser],
+        #permission_classes=[permissions.IsAdminUser],
         pagination_class=None,
     )
     def broker(self, request, pk: int) -> Response:
@@ -218,7 +218,13 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
         # TODO: Check that the user has sufficient account permissions
         # TODO: Check that the account has self-hosted workers enabled
         # TODO: Authenticate with the RabbitMQ broker and use account's virtual host
-        return Response(headers={"X-Accel-Redirect": "/internal/jobs/broker"})
+        url = "http://account-user:account-password@broker:0000/account-vhost"
+        return Response(
+            headers={
+                "X-Accel-Redirect": "@jobs-broker",
+                "X-Accel-Redirect-URL": url,
+            }
+        )
 
 
 class AccountsZonesViewSet(
