@@ -2,7 +2,7 @@ import os
 import logging
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, status, viewsets, permissions
+from rest_framework import mixins, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -188,7 +188,7 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
     @swagger_auto_schema()
     @action(
         detail=False,
-        #permission_classes=[permissions.IsAdminUser],
+        # permission_classes=[permissions.IsAdminUser],
         pagination_class=None,
     )
     def broker(self, request, pk: int) -> Response:
@@ -220,10 +220,7 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
         # TODO: Authenticate with the RabbitMQ broker and use account's virtual host
         url = "http://account-user:account-password@broker:0000/account-vhost"
         return Response(
-            headers={
-                "X-Accel-Redirect": "@jobs-broker",
-                "X-Accel-Redirect-URL": url,
-            }
+            headers={"X-Accel-Redirect": "@jobs-broker", "X-Accel-Redirect-URL": url}
         )
 
 

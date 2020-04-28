@@ -50,8 +50,6 @@ class Zone(models.Model):
         ]
 
 
-
-
 @unique
 class JobMethod(EnumChoice):
     """
@@ -298,12 +296,11 @@ class Pipeline(models.Model):
     def save(self, *args, **kwargs):
         """
         Override save to set necessary fields for the schedule.
-        
+
         The `pipeline` task must be defined in workers and take
         a `definition` argument that will be transformed into a
         jobs and run on the worker.
         """
-
         if self.schedule:
             self.schedule.name = "Pipeline {} schedule".format(self.name)
             self.schedule.task = "pipeline"
@@ -317,6 +314,10 @@ class Pipeline(models.Model):
 class PipelineSchedule(PeriodicTask):
     """
     A schedule that defines when a pipeline should be run.
+
+    This model currently does not extend django_celery_beat's
+    `PeriodicTask` with any new fields, but is a sublass in
+    case we want to do that in the future.
     """
 
     pass

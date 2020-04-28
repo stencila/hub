@@ -3,7 +3,6 @@ from celery.result import AsyncResult
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils import timezone
 
 from jobs.models import Job, JobMethod, JobStatus
 from projects.models import Project
@@ -11,7 +10,7 @@ from users.models import User
 
 # Setup the Celery app
 # This is used to send and cancel jobs
-celery = Celery("director", broker=settings.BROKER_URL, backend='rpc://')
+celery = Celery("director", broker=settings.BROKER_URL, backend="rpc://")
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
@@ -95,12 +94,11 @@ def execute(user: User, project: Project, params: dict = {}):
 
 def update(job: Job):
     """
-    Update a job
+    Update a job.
 
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.
     """
-
     # Get an async result from the backend if the job
     # is not recorded as ready.
     if not JobStatus.has_ended(job.status):

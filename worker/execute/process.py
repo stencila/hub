@@ -17,7 +17,8 @@ class ProcessSession(Session):
     def start(self):
         self.process = subprocess.Popen(
             [
-                "executa",
+                "node",
+                "/usr/lib/node_modules/@stencila/executa/dist/cli/cli/index.js"
                 "serve",
                 "--debug",
                 "--{}".format(self.protocol),
@@ -28,7 +29,7 @@ class ProcessSession(Session):
         )
         # TODO: use a variable, higher timeout
         try:
-            self.process.wait(timeout=30)
+            self.process.wait(timeout=60*60)
         except subprocess.TimeoutExpired:
             self.stop()
 
