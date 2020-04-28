@@ -32,8 +32,8 @@ class AccountFetchResult(typing.NamedTuple):
 
 def fetch_account(
     user: AbstractUser,
-    account_pk: typing.Optional[int] = None,
-    name: typing.Optional[str] = None,
+    account_name: typing.Optional[str] = None,
+    pk: typing.Optional[int] = None,
 ) -> AccountFetchResult:
     """
     Fetch an `Account`, raising a 404 if the `Account` with `account_pk` or `name` does not exist.
@@ -41,13 +41,13 @@ def fetch_account(
     Returns an `AccountFetchResult`. If the `user` does not have access to the `Account` then
     `AccountFetchResult.user_roles` and `AccountFetchResult.user_permissions` will be empty sets.
     """
-    if (account_pk is None) == (name is None):
+    if (pk is None) == (account_name is None):
         raise ValueError("Only provide one of account_pk or name.")
 
-    if account_pk is not None:
-        account = get_object_or_404(Account, pk=account_pk)
+    if pk is not None:
+        account = get_object_or_404(Account, pk=pk)
     else:
-        account = get_object_or_404(Account, name=name)
+        account = get_object_or_404(Account, name=account_name)
     account_user_roles = AccountUserRole.objects.filter(account=account, user=user)
 
     user_roles: typing.Set[AccountUserRole] = set()
@@ -64,14 +64,14 @@ def fetch_account(
     return AccountFetchResult(account, user_roles, user_permissions)
 
 
-def fetch_admin_account(user: AbstractUser, account_pk: int) -> Account:
+def fetch_admin_account(user: AbstractUser, pk: int) -> Account:
     """
     Fetch an account, raising Exceptions on errors.
 
     Raises 404 if account does not exist, or PermissionDenied if user does not have administrative permissions for the
     Account.
     """
-    account = get_object_or_404(Account, pk=account_pk)
+    account = get_object_or_404(Account, pk=pk)
 
     if not user_is_account_admin(user, account):
         raise PermissionDenied

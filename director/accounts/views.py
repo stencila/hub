@@ -26,9 +26,12 @@ class AccountPermissionsMixin(LoginRequiredMixin):
     required_account_permission: AccountPermissionType
 
     def perform_account_fetch(
-        self, user: AbstractUser, name: typing.Optional[str] = None
+        self,
+        user: AbstractUser,
+        account_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
     ) -> None:
-        self.account_fetch_result = fetch_account(user, name=name)
+        self.account_fetch_result = fetch_account(user, account_name, pk)
 
     def get_render_context(self, context: dict) -> dict:
         context["account_permissions"] = self.account_permissions
@@ -73,16 +76,34 @@ class AccountPermissionsMixin(LoginRequiredMixin):
 
         return False
 
+    def is_permitted(
+        self,
+        user: AbstractUser,
+        permission: AccountPermissionType,
+        account_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+    ) -> bool:
+        """Fetch an `Account` using its `pk` or `name`, then determine if `user` has `permission` for the `Account`."""
+        self.perform_account_fetch(user, account_name, pk)
+        return self.has_permission(permission)
+
     def request_permissions_guard(
-        self, request: HttpRequest, account_name: str
+        self,
+        request: HttpRequest,
+        account_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+        permission: typing.Optional[AccountPermissionType] = None,
     ) -> None:
-        """Test that the current user has `required_account_permission`, raising `PermissionDenied` if not."""
-        self.perform_account_fetch(request.user, account_name)
-        if not self.has_permission(self.required_account_permission):
+        """
+        Test that the current user has permissions, raising `PermissionDenied` if not.
+
+        Will validate on the passed in `permission` or if this is not set then use `self.required_account_permission`.
+        """
+        permission = permission or self.required_account_permission
+
+        if not self.is_permitted(request.user, permission, account_name, pk):
             raise PermissionDenied(
-                "User must have {} permission to do this.".format(
-                    self.required_account_permission
-                )
+                "User must have {} permission to do this.".format(permission)
             )
 
 
@@ -112,7 +133,11 @@ class AccountProfileView(AccountPermissionsMixin, View):
 
         teams = self.account.teams.all()
         if self.has_any_permissions(
-            (AccountPermissionType.ADMINISTER, AccountPermissionType.MODIFY)
+            (
+                AccountPermissionType.ADMINISTER,
+                AccountPermissionType.MODIFY,
+                AccountPermissionType.VIEW,
+            )
         ):
             # Members get to see who is on account
             users = [user_role.user for user_role in self.account.user_roles.all()]

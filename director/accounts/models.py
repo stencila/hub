@@ -21,30 +21,48 @@ class AccountPermissionType(EnumChoice):
     """
     Types of account permissions.
 
-    There are two types of `Permissions` to the `Account`:
+    - `VIEW`:       allows read-only access to the account
 
-    1) Modification allows to link a new Project to the Account.
+    - `MODIFY`:     allows write access to some of aspects of the
+                    account e.g. creating a new project linked to the account
 
-    2) Administration is a higher level of permission type. It allows to
-    manage teams (create and alter membership), delete Accounts; update
-    the billing details for the Account and give other Account Members
-    administrative permission.
+    - `ADMINISTER`: allows management of teams (create and alter membership),
+                    delete account; update billing details, give other members
+                    admin role etc.
     """
 
+    VIEW = "view"
     MODIFY = "modify"
     ADMINISTER = "administer"
+
+
+class AccountPermission(models.Model):
+    """
+    Model implementing `AccountPermissionType`s.
+
+    It is necessary to have this as a database model because an
+    `AccountRole` can have multiple permissions.
+    """
+
+    type = models.TextField(
+        null=False,
+        blank=False,
+        choices=AccountPermissionType.as_choices(),
+        unique=True,
+        help_text="An account permission type.",
+    )
+
+    def __str__(self) -> str:
+        return self.type
 
 
 class Account(models.Model):
     """
     Account model.
 
-    `Accounts` are the entity against which resource usage is metered.
-    And can be billed if it exceeds the free allocation.
-
-    Every user has their own `Personal Account` - created by `create_personal_account_for_user`.
-
-    Users can create additional Accounts linking them to multiple Projects and Teams.
+    Accounts are the entity against which resource usage is metered.
+    Every user has their own personal account.
+    Users can create additional accounts.
     """
 
     name = models.SlugField(
@@ -145,34 +163,19 @@ class Team(models.Model):
         return self.name
 
 
-class AccountPermission(models.Model):
-    """Model implementing types of the permissions to the `Account`."""
-
-    type = models.TextField(
-        null=False,
-        blank=False,
-        choices=AccountPermissionType.as_choices(),
-        unique=True,
-        help_text="Permissions to the Account: Administer or Modify (required).",
-    )
-
-    def __str__(self) -> str:
-        return self.type
-
-
 class AccountRole(models.Model):
     """Roles linked to the Account, depending on their `AccountPermissionType`."""
 
     name = models.TextField(
         null=False,
         blank=False,
-        help_text="Roles which users can have assigned to the Account: Admin and Member (required).",
+        help_text="The name of the account role e.g 'Account admin'",
     )
 
     permissions = models.ManyToManyField(
         AccountPermission,
         related_name="roles",
-        help_text="User Permissions to the Account: Administrator or Account Member.",
+        help_text="One or more account permissions that the role has e.g `ADMINISTER`.",
     )
 
     def permissions_text(self) -> typing.Set[str]:

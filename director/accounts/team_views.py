@@ -5,7 +5,6 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.html import escape
@@ -88,10 +87,9 @@ class TeamDetailView(AccountPermissionsMixin, View):
         account_name: str,
         team_pk: typing.Optional[int] = None,
     ) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
-
-        if not self.has_permission(AccountPermissionType.ADMINISTER):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, account_name, permission=AccountPermissionType.ADMINISTER
+        )
 
         team = fetch_team_for_account(self.account, team_pk)
 
@@ -141,11 +139,10 @@ class TeamDetailView(AccountPermissionsMixin, View):
 
 
 class TeamListView(AccountPermissionsMixin, View):
-    def get(self, request: HttpRequest, account_name: str) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
+    required_account_permission = AccountPermissionType.VIEW
 
-        if not self.account_permissions:
-            raise PermissionDenied
+    def get(self, request: HttpRequest, account_name: str) -> HttpResponse:
+        self.request_permissions_guard(request, account_name)
         # Assume if they have any Roles for the Account they have access to this page
 
         return render(
@@ -162,10 +159,13 @@ class TeamListView(AccountPermissionsMixin, View):
 
 
 class TeamMembersView(AccountPermissionsMixin, View):
+    required_account_permission = AccountPermissionType.VIEW
+
     def get(
         self, request: HttpRequest, account_name: str, team_pk: int
     ) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
+        self.request_permissions_guard(request, account_name)
+
         team = fetch_team_for_account(self.account, team_pk)
 
         current_members = list(map(lambda u: u.username, team.members.all()))
@@ -177,7 +177,6 @@ class TeamMembersView(AccountPermissionsMixin, View):
                 {
                     "tab": "teams",
                     "team_tab": "members",
-                    "tab": "teams",
                     "account": self.account,
                     "team": team,
                     "current_members": json.dumps(current_members),
@@ -188,10 +187,9 @@ class TeamMembersView(AccountPermissionsMixin, View):
     def post(
         self, request: HttpRequest, account_name: str, team_pk: int
     ) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
-
-        if not self.has_permission(AccountPermissionType.ADMINISTER):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, account_name, permission=AccountPermissionType.ADMINISTER
+        )
 
         team = fetch_team_for_account(self.account, team_pk)
 
@@ -229,10 +227,13 @@ class TeamMembersView(AccountPermissionsMixin, View):
 
 
 class TeamProjectsView(AccountPermissionsMixin, View):
+    required_account_permission = AccountPermissionType.VIEW
+
     def get(
         self, request: HttpRequest, account_name: str, team_pk: int
     ) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
+        self.request_permissions_guard(request, account_name)
+
         team = fetch_team_for_account(self.account, team_pk)
         project_roles = ProjectRole.objects.all()
         all_projects = self.account.projects.all()
@@ -274,10 +275,9 @@ class TeamProjectsView(AccountPermissionsMixin, View):
     def post(
         self, request: HttpRequest, account_name: str, team_pk: int
     ) -> HttpResponse:
-        self.perform_account_fetch(request.user, account_name)
-
-        if not self.has_permission(AccountPermissionType.ADMINISTER):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, account_name, permission=AccountPermissionType.ADMINISTER
+        )
 
         team = fetch_team_for_account(self.account, team_pk)
 
