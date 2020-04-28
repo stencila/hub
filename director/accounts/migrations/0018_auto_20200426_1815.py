@@ -58,11 +58,11 @@ class Migration(migrations.Migration):
             name="type",
             field=models.TextField(
                 choices=[
+                    ("VIEW", "view"),
                     ("MODIFY", "modify"),
                     ("ADMINISTER", "administer"),
-                    ("VIEW", "view"),
                 ],
-                help_text="Permissions to the Account: Administer, Member or View (required).",
+                help_text="An account permission type.",
                 unique=True,
             ),
         ),
@@ -70,8 +70,13 @@ class Migration(migrations.Migration):
             model_name="accountrole",
             name="name",
             field=models.TextField(
-                help_text="Roles which users can have assigned to the Account: Admin, Member, View (required)."
+                help_text="The name of the account role e.g 'Account admin'"
             ),
+        ),
+        migrations.AlterField(
+            model_name='accountrole',
+            name='permissions',
+            field=models.ManyToManyField(help_text='One or more account permissions that the role has e.g `ADMINISTER`.', related_name='roles', to='accounts.AccountPermission'),
         ),
         migrations.RunPython(create_view_role),
     ]
