@@ -218,14 +218,6 @@ class Common(Configuration):
     GS_PUBLIC_READABLE_PATHS = ["avatars/*"]
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
-    STENCILA_GITHUB_APPLICATION_NAME = values.Value(
-        "INSERT A REAL APP NAME HERE Stencila Github Integration"
-    )
-    STENCILA_GITHUB_APPLICATION_URL = values.Value(
-        "INSERT A REAL URL HERE "
-        "https://github.com/settings/apps/stencila/installations"
-    )
-
     # Path to store project pulls for the hub
     STENCILA_PROJECT_STORAGE_DIRECTORY = values.Value("")
 
@@ -367,11 +359,6 @@ class Dev(Common):
     # JWT secret (must be overridden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
 
-    STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
-    STENCILA_GITHUB_APPLICATION_URL = (
-        "https://github.com/organizations/stencila/settings/apps/"
-        "stencila-hub-integration-test/installations"
-    )
     INTERCOM_DISABLED = True
 
     BROKER_URL = values.Value("memory://", environ_prefix=None)

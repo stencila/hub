@@ -270,11 +270,8 @@ class SourceContentFacade(object):
             if e.status == 403:
                 self.add_message(
                     message_constants.ERROR,
-                    "Unable to save file. Please make sure you have installed the {} application for your "
-                    "Github repositories. Please visit {} for more information.".format(
-                        settings.STENCILA_GITHUB_APPLICATION_NAME,
-                        settings.STENCILA_GITHUB_APPLICATION_URL,
-                    ),
+                    "Unable to save file. Please make sure you have installed the Stencila application for your "
+                    "Github repositories. Please visit https://github.com/organizations/stencila/settings/apps/stencila for more information."
                 )
             elif e.status == 404:
                 # this error usually will occur if the application is not set up with the correct rights on the
