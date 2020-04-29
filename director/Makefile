@@ -69,8 +69,6 @@ run: venv
 # Required secrets will need to be set in `env.sh`
 # Some env vars set to avoid polluting logs etc
 run-prod: venv
-	export DJANGO_SENTRY_DSN=""; \
-	export DJANGO_POSTHOG_KEY=""; \
 	export DJANGO_CONFIGURATION="Prod"; \
 	$(DJ) runserver
 
@@ -126,7 +124,6 @@ run-docker: build
 	docker run \
 		--env DJANGO_JWT_SECRET \
 		--env DJANGO_SECRET_KEY \
-		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
 		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \

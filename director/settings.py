@@ -215,13 +215,6 @@ class Common(Configuration):
     EXECUTION_SERVER_PROXY_PATH = values.Value()
     EXECUTION_CLIENT = values.Value("NIXSTER")
 
-    # URL of this application. This is used by editors and other
-    # external applications to callback to the director.
-    # It needs to be the URL that the user is logged in to
-    # the hub so that credentils are sent.
-    # This default value is the usual value in development
-    CALLBACK_URL = values.Value("http://localhost:3000")
-
     GS_PUBLIC_READABLE_PATHS = ["avatars/*"]
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
@@ -250,9 +243,6 @@ class Common(Configuration):
         )
     )
 
-    # This can be any format, it's not used in code, only humans will be looking at this
-    STENCILA_HUB_VERSION = values.Value("")
-
     # some XML files are quite large (3MB+), this basically sets the size of the POST allowed
     DATA_UPLOAD_MAX_MEMORY_SIZE = values.IntegerValue(5 * 1024 * 1024)
 
@@ -270,7 +260,6 @@ class Common(Configuration):
     }
 
     STENCILA_CLIENT_USER_AGENT = values.Value("Stencila Hub HTTP Client")
-    INTERCOM_ACCESS_TOKEN = values.Value("")
 
     EXECUTA_HOSTS = values.SingleNestedTupleValue("")
     SPARKLA_PROJECT_ROOT = values.Value("")
@@ -446,8 +435,6 @@ class Prod(Common):
         "https://unpkg.com/@stencila/hub@{}/director/static/".format(__version__)
     )
 
-    INTERCOM_APPID = values.Value("")
-
     # JWT secret must be set as environment
     # variable when in production
     JWT_SECRET = values.SecretValue()
@@ -459,16 +446,17 @@ class Prod(Common):
 
     # Use SendGrid for emails
     EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-    SENDGRID_API_KEY = values.SecretValue()
+    SENDGRID_API_KEY = values.Value()
+
+    # Use Intercom for in app messages
+    INTERCOM_APPID = values.Value()
+    INTERCOM_ACCESS_TOKEN = values.Value()
 
     # Use Sentry for error reporting
-    # Note: The DSN is not a secret https://forum.sentry.io/t/dsn-private-public/6297/2
-    SENTRY_DSN = values.Value(
-        "https://6329017160394100b21be92165555d72@sentry.io/37250"
-    )
+    SENTRY_DSN = values.Value()
 
     # Use PostHog for product analytics
-    POSTHOG_KEY = values.Value("LeXA_J7NbIow0-mEejPwazN7WvZCj-mFKSvLL5oM4w0")
+    POSTHOG_KEY = values.Value()
 
     @classmethod
     def post_setup(cls):

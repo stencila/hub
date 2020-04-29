@@ -1,9 +1,7 @@
 # This docker-compose file is intended for development and testing.
 # However, it is also used as a basis for Kubernetes deployments.
 # Consequently, some properties have been added to improve conversion to 
-# Kubernetes configs when using Kompose:
-# - labels starting with `kompose`
-# - `.env` file in `env_file` so that services are linked to the `env-configmap.yaml`
+# Kubernetes configs when using Kompose.
 
 version: "3.6"
 
@@ -18,7 +16,7 @@ services:
     ports:
       - "9000:9000"
     env_file:
-      - .env
+      - .config
     depends_on:
       - director
 
@@ -28,18 +26,8 @@ services:
     ports:
       - "8000:8000"
     env_file:
+      - .config
       - .secrets
-    environment:
-      # These env vars are necessary to run Django
-      # without HTTPS in a non-production environment
-      - DJANGO_SECURE_SSL_REDIRECT=false
-      - DJANGO_SECRET_KEY=not-a-secret
-      # These env vars are likely to be removed soon
-      # but are necessary at present
-      - DJANGO_SENTRY_DSN
-      - DJANGO_POSTHOG_KEY
-      - DJANGO_JWT_SECRET=not-a-secret
-      - DJANGO_SENDGRID_API_KEY=not-a-secret
     depends_on:
       - database
       - broker
