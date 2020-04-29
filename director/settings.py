@@ -343,7 +343,8 @@ class Dev(Common):
     # Only allow localhost if in development mode
     ALLOWED_HOSTS = ["*"]
 
-    INTERNAL_IPS = "127.0.0.1"  # For debug_toolbar
+    # For debug_toolbar set internal ips
+    INTERNAL_IPS = "127.0.0.1"
 
     # Additional apps only used in development
     INSTALLED_APPS = Common.INSTALLED_APPS + ["debug_toolbar", "django_extensions"]
@@ -358,8 +359,6 @@ class Dev(Common):
 
     # JWT secret (must be overridden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
-
-    INTERCOM_DISABLED = True
 
     BROKER_URL = values.Value("memory://", environ_prefix=None)
 
@@ -436,8 +435,9 @@ class Prod(Common):
     SENDGRID_API_KEY = values.Value()
 
     # Use Intercom for in app messages
+    # For other potential settings see
+    # https://django-intercom.readthedocs.io/en/latest/settings.html
     INTERCOM_APPID = values.Value()
-    INTERCOM_ACCESS_TOKEN = values.Value()
 
     # Use Sentry for error reporting
     SENTRY_DSN = values.Value()
