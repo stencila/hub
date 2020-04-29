@@ -188,7 +188,7 @@ class AccountsJobsViewSet(viewsets.GenericViewSet):
     @swagger_auto_schema()
     @action(
         detail=False,
-        # permission_classes=[permissions.IsAdminUser],
+        permission_classes=[permissions.IsAdminUser],
         pagination_class=None,
     )
     def broker(self, request, pk: int) -> Response:
