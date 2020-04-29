@@ -2,7 +2,7 @@ import os
 import logging
 
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.request import Request
