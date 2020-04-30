@@ -225,7 +225,7 @@ class ProjectFilesView(ProjectPermissionsMixin, View):
                 self.project, path, authentication
             )
             on_disk_items = list_project_filesystem_directory(
-                settings.STENCILA_PROJECT_STORAGE_DIRECTORY, self.project, path
+                settings.STORAGE_DIR, self.project, path
             )
 
             directory_items = combine_virtual_and_real_entries(

@@ -125,8 +125,8 @@ run-docker: build
 		--env DJANGO_JWT_SECRET \
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
+		--env DJANGO_STORAGE_DIR=/home/director/storage \
 		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
-		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
 		-v $$PWD/storage:/home/director/storage:rw \
 		-v $$PWD/secrets:/home/director/secrets:ro \
 		-p 8000:8000 -it --rm stencila/hub-director

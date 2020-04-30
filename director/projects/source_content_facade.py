@@ -432,7 +432,7 @@ def make_source_content_facade(
     source: typing.Union[Source, DiskSource],
     project: Project,
 ) -> SourceContentFacade:
-    disk_facade = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+    disk_facade = DiskFileFacade(settings.STORAGE_DIR, project)
 
     gh_token = user_github_token(user)
 

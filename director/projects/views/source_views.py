@@ -167,7 +167,7 @@ class FileSourceUploadView(ProjectPermissionsMixin, View):
         directory = request.GET.get("directory", "")
         files = request.FILES.getlist("file")
 
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        dff = DiskFileFacade(settings.STORAGE_DIR, project)
 
         storage_limit = typing.cast(
             int, account_resource_limit(project.account, QuotaName.STORAGE_LIMIT)

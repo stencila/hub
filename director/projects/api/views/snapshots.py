@@ -137,7 +137,7 @@ class SnapshotsViewSet(
             raise PermissionDenied
 
         # Create the snapshotter and event for the snapshot
-        snapshotter = ProjectSnapshotter(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
+        snapshotter = ProjectSnapshotter(settings.STORAGE_DIR)
         event = ProjectEvent.objects.create(
             event_type=ProjectEventType.SNAPSHOT.name,
             project=project,

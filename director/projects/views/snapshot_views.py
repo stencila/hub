@@ -145,7 +145,7 @@ class PreviewView(ConverterMixin, SnapshotView):
 
         published_path = utf8_path_join(
             generate_snapshot_publish_directory(
-                settings.STENCILA_PROJECT_STORAGE_DIRECTORY, snapshot
+                settings.STORAGE_DIR, snapshot
             ),
             "{}.html".format(pi.pk),
         )

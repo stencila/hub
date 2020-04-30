@@ -218,15 +218,6 @@ class Common(Configuration):
     GS_PUBLIC_READABLE_PATHS = ["avatars/*"]
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
-    # Path to store project pulls for the hub
-    STENCILA_PROJECT_STORAGE_DIRECTORY = values.Value("")
-
-    # Path where the remote executor can find the above Project pulls.
-    # By default this is the same as the path in the hub
-    STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(
-        STENCILA_PROJECT_STORAGE_DIRECTORY
-    )
-
     # Path to Encoda executable
     # This default path points to the install in the parent directory
     STENCILA_ENCODA_PATH = values.Value(
@@ -325,7 +316,19 @@ class Common(Configuration):
     # Rudimentary feature toggle
     FEATURES = {"PROJECT_SESSION_SETTINGS": False}
 
+    ###########################################################################
+    # Settings for internal Hub services i.e. `broker`, `storage` etc
+    #
+    # These are either `SecretValue`s so that that they must be
+    # set (or overridden), or have default values set.
+
+    # URL to the `broker` service
     BROKER_URL = values.SecretValue(environ_prefix=None)
+
+    # Path to the `storage` service mounted as a
+    # local directory. Defaults to the `data` sub-directory
+    # of the `storage` service in this repo
+    STORAGE_DIR = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
 
 
 class Dev(Common):
@@ -360,7 +363,12 @@ class Dev(Common):
     # JWT secret (must be overridden in Prod settings, see below)
     JWT_SECRET = values.Value("not-a-secret")
 
+    # In standalone development, default to using a pseudo, in-memory broker
     BROKER_URL = values.Value("memory://", environ_prefix=None)
+
+    # Disable intercom. Even though we don't define am `INTERCOM_APPID`
+    # during development, without this setting a warning gets emitted
+    INTERCOM_DISABLED = True
 
     @classmethod
     def post_setup(cls):

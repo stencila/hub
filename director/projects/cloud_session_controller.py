@@ -257,7 +257,7 @@ class CloudSessionFacade(object):
 
         Don't call this method unless the check_* methods have already been called.
         """
-        session_parameters["mounts"] = [self.generate_project_volume_mount()]
+        session_parameters["mounts"] = []
         attach_context = self.client.start_session(environ, session_parameters)
 
         # TODO should we record some of the request
@@ -337,12 +337,3 @@ class CloudSessionFacade(object):
         authorization_extra_parameters: typing.Optional[dict] = None,
     ) -> SessionLocation:
         return self.client.generate_location(session, authorization_extra_parameters)
-
-    def generate_project_volume_mount(self) -> dict:
-        return {
-            "destination": "/work",
-            "source": generate_project_storage_directory(
-                settings.STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY, self.project
-            ),
-            "options": ["rw"],
-        }
