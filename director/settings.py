@@ -351,6 +351,10 @@ class Prod(Configuration):
     # Settings for integration with other Hub services i.e. `broker`, `storage` etc
     ###########################################################################
 
+    # An environment name e.g. prod, staging, test used for
+    # exception reporting / filtering
+    DEPLOYMENT_ENVIRONMENT = values.Value(environ_prefix=None)
+
     # URL to the `broker` service
     BROKER_URL = values.SecretValue(environ_prefix=None)
 
@@ -393,15 +397,22 @@ class Prod(Configuration):
 
     @classmethod
     def post_setup(cls):
-        import sentry_sdk
-        from sentry_sdk.integrations.django import DjangoIntegration
+        # Default for environment name is the name of the seetings class
+        if not cls.DEPLOYMENT_ENVIRONMENT:
+            cls.DEPLOYMENT_ENVIRONMENT = cls.__name__.lower()
 
-        sentry_sdk.init(
-            dsn=cls.SENTRY_DSN,
-            release="hub@{}".format(__version__),
-            integrations=[DjangoIntegration()],
-            send_default_pii=True,
-        )
+        #  Setup sentry if a DSN is provided
+        if cls.SENTRY_DSN:
+            import sentry_sdk
+            from sentry_sdk.integrations.django import DjangoIntegration
+
+            sentry_sdk.init(
+                dsn=cls.SENTRY_DSN,
+                release="hub@{}".format(__version__),
+                integrations=[DjangoIntegration()],
+                send_default_pii=True,
+                environment=cls.DEPLOYMENT_ENVIRONMENT,
+            )
 
 
 class Dev(Prod):
