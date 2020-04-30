@@ -12,9 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not settings.STORAGE_DIR:
-            raise RuntimeError(
-                "STORAGE_DIR setting must be set to pull Project files."
-            )
+            raise RuntimeError("STORAGE_DIR setting must be set to pull Project files.")
 
         request = HttpRequest()
         # django messages need a request to work with, although they are only used if there is an error with a
@@ -25,8 +23,6 @@ class Command(BaseCommand):
 
         for project in Project.objects.all():
             print("Pulling Project {}".format(project.id))
-            puller = ProjectSourcePuller(
-                project, settings.STORAGE_DIR, lsa, request
-            )
+            puller = ProjectSourcePuller(project, settings.STORAGE_DIR, lsa, request)
             puller.pull(True)
             print("Finished pulling Project {}".format(project.id))

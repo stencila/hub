@@ -176,9 +176,7 @@ class ProjectPermissionsMixin(object):
         self.get_project(request.user, account_name, project_name)
 
         if not settings.STORAGE_DIR:
-            raise RuntimeError(
-                "STORAGE_DIR setting must be set to pull Project files."
-            )
+            raise RuntimeError("STORAGE_DIR setting must be set to pull Project files.")
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
@@ -187,11 +185,7 @@ class ProjectPermissionsMixin(object):
         )
 
         return ProjectSourcePuller(
-            self.project,
-            settings.STORAGE_DIR,
-            authentication,
-            request,
-            storage_limit,
+            self.project, settings.STORAGE_DIR, authentication, request, storage_limit,
         )
 
 

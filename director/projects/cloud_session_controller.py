@@ -4,7 +4,6 @@ from datetime import timedelta
 from urllib.parse import urlparse
 
 import requests
-from django.conf import settings
 from django.utils import timezone
 
 from projects.client_base import (
@@ -21,7 +20,6 @@ from projects.session_models import (
     SESSION_QUEUE_CHECK_TIMEOUT,
     SESSION_QUEUE_CREATION_TIMEOUT,
 )
-from projects.source_operations import generate_project_storage_directory
 
 SESSION_CREATE_PATH_FORMAT = "execute?waitForReady=false"
 SESSION_STATUS_PATH_FORMAT = "status"
