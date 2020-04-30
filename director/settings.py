@@ -126,7 +126,7 @@ class Common(Configuration):
         "sqlite:///{}".format(os.path.join(BASE_DIR, "dev.sqlite3"))
     )
 
-    DEFAULT_FROM_EMAIL = values.Value("")
+    DEFAULT_FROM_EMAIL = values.Value("hello@stenci.la")
 
     # Authentication
 
