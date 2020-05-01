@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Account
 from general.api.validators import FromContextDefault
-from jobs.models import Job, JobMethod, JobStatus, Worker, Zone
+from jobs.models import Job, JobMethod, JobStatus, Worker, WorkerStatus, Zone
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -130,6 +130,7 @@ class ZoneCreateSerializer(ZoneSerializer):
     class Meta:
         model = Zone
         fields = "__all__"
+        ref_name = None
 
     account = serializers.HiddenField(
         default=FromContextDefault(
@@ -148,9 +149,24 @@ class WorkerSerializer(serializers.ModelSerializer):
     """
     A worker serializer.
 
-    Includes all model fields.
+    Given this is only used read-only, includes all model fields.
     """
+
+    active = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Worker
         fields = "__all__"
+
+
+class WorkerStatusSerializer(serializers.ModelSerializer):
+    """
+    A worker status serializer.
+
+    Given this is only used for a given worder, excludes the
+    status' and worker's id fields.
+    """
+
+    class Meta:
+        model = WorkerStatus
+        exclude = ["id", "worker"]

@@ -6,6 +6,7 @@ from jobs.api.views import (
     AccountsJobsViewSet,
     AccountsZonesViewSet,
     WorkersViewSet,
+    WorkersStatusesViewSet
 )
 
 jobs = OptionalSlashRouter()
@@ -20,6 +21,9 @@ accounts_zones.register("zones", AccountsZonesViewSet, "api-accounts-zones")
 workers = OptionalSlashRouter()
 workers.register("workers", WorkersViewSet, "api-workers")
 
+workers_statuses = OptionalSlashRouter()
+workers_statuses.register("statuses", WorkersStatusesViewSet, "api-workers-statuses")
+
 urlpatterns = (
     jobs.urls
     + [
@@ -27,4 +31,7 @@ urlpatterns = (
         path("accounts/<int:pk>/", include(accounts_zones.urls)),
     ]
     + workers.urls
+    + [
+        path("workers/<int:pk>/", include(workers_statuses.urls)),
+    ]
 )

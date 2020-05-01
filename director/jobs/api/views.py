@@ -17,6 +17,7 @@ from jobs.api.serializers import (
     JobRetrieveSerializer,
     JobUpdateSerializer,
     WorkerSerializer,
+    WorkerStatusSerializer,
     ZoneSerializer,
     ZoneCreateSerializer,
 )
@@ -34,6 +35,19 @@ class JobsViewSet(
 ):
 
     # Configuration
+
+    def get_permissions(self):
+        """
+        Get the list of permissions that the current action requires.
+
+        The `partial_update` action requires a staff user (an internal bot),
+        others just require authentication.
+        """
+        return (
+            [permissions.IsAdminUser()]
+            if self.action == "partial_update"
+            else [permissions.IsAuthenticated()]
+        )
 
     def get_queryset(self):
         """
@@ -70,6 +84,7 @@ class JobsViewSet(
                 "update": JobUpdateSerializer,
                 "partial_update": JobUpdateSerializer,
                 "cancel": JobRetrieveSerializer,
+                "connect": JobRetrieveSerializer,
             }[self.action]
         except KeyError:
             logger.error("No serializer defined for action {}".format(self.action))
@@ -93,6 +108,18 @@ class JobsViewSet(
         """
         return super().create(request)
 
+    def partial_update(self, request: Request, pk: int):
+        """
+        Update a job.
+
+        This action is only available to the `overseer` service
+        for it to update the details of a job based on events
+        from the job queue. 
+        """
+        job = jobs.update(self.get_object())
+        serializer = self.get_serializer(job)
+        return Response(status=status.HTTP_200_OK)
+
     def retrieve(self, request: Request, pk: int):
         """
         Retrieve a job.
@@ -106,11 +133,16 @@ class JobsViewSet(
     # Shortcut `create` views
     # These allow for the method and parameters to be in the URL
 
-    @swagger_auto_schema(request_body=None)
     @action(detail=False, pagination_class=None, methods=["POST"])
     def execute(self, request) -> Response:
+        """
+        Create an execute job.
+
+        Receives the `node` to execute as the request body.
+        Returns the executed `node`.
+        """
         serializer = self.get_serializer(
-            data={"method": "execute", "params": request.query_params}
+            data={"method": "execute", "params": request.data}
         )
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -119,7 +151,7 @@ class JobsViewSet(
     # Other views for connecting to and cancelling jobs
 
     @swagger_auto_schema(request_body=None)
-    @action(detail=True, url_path="connect(/(?P<path>.+))?", methods=["GET", "POST"])
+    @action(detail=True, url_path="connect/?(?P<path>.+)?", methods=["GET", "POST"])
     def connect(self, request, pk: int, path: str) -> Response:
         """
         Connect to a job.
@@ -334,7 +366,7 @@ class WorkersViewSet(
         """
         Get the list of permissions that the current action requires.
 
-        The `events` action requires a admin user (an internal bot),
+        The `events` action requires a staff user (an internal bot),
         others just require authentication.
         """
         return (
@@ -423,3 +455,31 @@ class WorkersViewSet(
 
         serializer = self.get_serializer(worker)
         return Response(serializer.data)
+
+
+class WorkersStatusesViewSet(
+    mixins.ListModelMixin, viewsets.GenericViewSet,
+):
+
+    # Configuration
+
+    serializer_class = WorkerStatusSerializer
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of statuses linked to the worker.
+        """
+        return WorkerStatus.objects.filter(worker=self.kwargs["pk"]).order_by("-time")
+
+    # Views
+
+    def list(self, request: Request, pk: int):
+        """
+        List the status reports for a worker.
+
+        Returns details for all status report for the worker
+        in reverse chronological order (i.e. most recent first)
+        """
+        return super().list(request, pk)
