@@ -92,9 +92,7 @@ If you need to run a couple of the services together you can `make run` them in 
 To test the integration between services use the `docker-compose.yaml` file. To bring up the whole stack,
 
 ```sh
-make run
-# or
-docker-compose up
+docker-compose up --build
 ```
 
 Or, to just bring up one or two of the services _and_ their dependents,
@@ -102,6 +100,15 @@ Or, to just bring up one or two of the services _and_ their dependents,
 ```sh
 docker-compose up director worker
 ```
+
+To create a development database for integration testing, stand up the `database` service and then use the `director`'s `create-devdb-pg` recipe to populate it:
+
+```sh
+docker-compose start database
+make -C director create-devdb-pg
+```
+
+> The [pgAdmin](https://www.pgadmin.org/) tool is useful for inspecting the development PostgreSQL database
 
 ### Integration testing with `minikube` and `kompose`
 

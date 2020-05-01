@@ -45,9 +45,9 @@ create-devdb-sqlite: venv
 # Create a development PostgeSQL database on localhost
 create-devdb-pg: venv
 	export DATABASE_URL="postgres://stencila:password@localhost:5432/hub"; \
-	$(DJ) reset_db; \
-	$(DJ) migrate; \
-	$(DJ) runscript create_devdb
+	$(VE)/python3 manage.py reset_db; \
+	$(VE)/python3 manage.py migrate; \
+	$(VE)/python3 manage.py runscript create_devdb
 
 # Migrate the development database
 migrate-devdb: venv
