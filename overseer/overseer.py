@@ -1,7 +1,7 @@
 """
-Stencila Hub Monitor.
+Stencila Hub Overseer.
 
-A Celery app for monitoring worker events.
+A Celery app for monitoring job and worker events.
 A worker must be run with the `--events` to emit events.
 See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 """
@@ -12,7 +12,7 @@ import warnings
 from celery import Celery
 import httpx
 
-celery = Celery("monitor", broker=os.environ["BROKER_URL"])
+celery = Celery("overseer", broker=os.environ["BROKER_URL"])
 
 # Setup API client
 api = httpx.Client(

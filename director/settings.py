@@ -369,6 +369,11 @@ class Prod(Configuration):
     # Some of these may be renamed / removed in the future
     ###########################################################################
 
+    # Allow for username / password API authentication
+    # This is usually disallowed in production (in favour of tokens)
+    # but is permitted during development development for convenience.
+    API_BASIC_AUTH = values.BooleanValue(False)
+
     EXECUTION_SERVER_HOST = values.Value()
     EXECUTION_SERVER_PROXY_PATH = values.Value()
     EXECUTION_CLIENT = values.Value("NIXSTER")
@@ -397,9 +402,15 @@ class Prod(Configuration):
 
     @classmethod
     def post_setup(cls):
-        # Default for environment name is the name of the seetings class
+        # Default for environment name is the name of the settings class
         if not cls.DEPLOYMENT_ENVIRONMENT:
             cls.DEPLOYMENT_ENVIRONMENT = cls.__name__.lower()
+
+        # Add Basic auth if allowed
+        if cls.API_BASIC_AUTH:
+            cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
+                0, "rest_framework.authentication.BasicAuthentication",
+            )
 
         #  Setup sentry if a DSN is provided
         if cls.SENTRY_DSN:
@@ -462,15 +473,6 @@ class Dev(Prod):
 
     # JWT secret must always be set, even in development.
     JWT_SECRET = "not-a-secret"
-
-    @classmethod
-    def post_setup(cls):
-        # Allow for username / password API authentication during development
-        # only. This is usually disallowed in production (in favour of tokens)
-        # but is permitted during development development for convenience.
-        cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
-            0, "rest_framework.authentication.BasicAuthentication",
-        )
 
 
 class Test(Prod):
