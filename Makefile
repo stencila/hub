@@ -1,23 +1,12 @@
-all: setup run
-
-setup:
-	make -C director setup
-
-run:
-	make -C director run
-
-format:
-	make -C director format
-
-lint:
-	make -C director lint
-
-test:
-	make -C director test
-
-cover:
-	make -C director cover
-
+# Build all images for all services
 build:
-	make -C director build
-	make -C router build
+	docker-compose build
+
+# Run all services on localhost
+run:
+	docker-compose up
+
+# Run in a Minikube cluster
+run-in-minikube:
+	eval $$(minikube docker-env) && docker-compose build
+	kompose up

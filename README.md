@@ -70,7 +70,7 @@ Stencila Hub consists of several services each with it's own sub-folder. The REA
 * [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker.
 * [`worker`](worker): Celery `worker` processes that run jobs from the `broker`'s queue.
 * [`scheduler`](scheduler): A [Celery](https://docs.celeryproject.org) `beat` process that schedules jobs to the `broker`'s queue.
-* [`monitor`](monitor): A Celery process which monitors events associated with the job queue in real time.
+* [`overseer`](overseer): A Celery process which monitors events associated with workers and job queues.
 * [`cache`](cache): 🦄 A [Redis](https://redis.io) instance that acts as a cache for Django.
 * [`storage`](storage): 🦄 A S3-compatible [Minio](https://min.io) object store used by several other services.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the `director`.
@@ -83,25 +83,38 @@ The folder for each service contains a `Makefile` which has a `run` recipe for r
 make -C director run
 ```
 
-These `run` recipes are useful for quickly iterating during development and, in the case of the `director`, will hot-reload when source files are edited. There possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
+These `run` recipes are useful for quickly iterating during development and, in the case of the `director`, will hot-reload when source files are edited. Where possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
 
 If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking the correct way with one or more of the other services.
 
 ### Integration testing with `docker-compose`
 
-To test the integration between services use the `docker-compose.yaml` file.
+To test the integration between services use the `docker-compose.yaml` file. To bring up the whole stack,
 
-To bring up the whole stack,
-
-```
+```sh
+make run
+# or
 docker-compose up
 ```
 
 Or, to just bring up one or two of the services _and_ their dependents,
 
+```sh
+docker-compose up director worker
 ```
-docker up director worker
+
+### Integration testing with `minikube` and `kompose`
+
+To test deployment within a Kubernetes cluster upu can use [Minikube](https://minikube.sigs.k8s.io/docs/) and [Kompose](http://kompose.io/),
+
+```sh
+minikube start
+make run-in-minikube
 ```
+
+> The `run-in-minikube` recipe sets up Minikube to be able to do local builds of images, rather than pulling them down from Docker Hub, build the images, and then runs `kompose up`.
+
+The `minikube dashboard` is really useful for debugging. And don't forget to `minikube stop` when you're done!
 
 ---
 
