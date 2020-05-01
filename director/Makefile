@@ -2,8 +2,11 @@
 VE := venv/bin
 
 # Shortcut to set required environment variables during development
-# Uses a custom `env.sh` or falls back to `env-example.sh`
-EV := test -f ./env.sh && . ./env.sh || . ./env-example.sh ;
+# Exports the default values in ../.config && ../.secrets but
+# with overrides for local development
+EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
+      export $$(egrep -v '^\#' ../.secrets | xargs); \
+	  export DEPLOYMENT_ENVIRONMENT=dev export DATABASE_URL="sqlite:///dev.sqlite3";
 
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py
@@ -35,7 +38,6 @@ migrations: venv
 
 # Create a development SQLite database
 create-devdb-sqlite: venv
-	export DATABASE_URL="sqlite:///dev.sqlite3"; \
 	$(DJ) reset_db; \
 	$(DJ) migrate; \
 	$(DJ) runscript create_devdb
@@ -125,10 +127,7 @@ run-docker: build
 		--env DJANGO_JWT_SECRET \
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		--env DJANGO_STORAGE_DIR=/home/director/storage \
 		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
-		-v $$PWD/storage:/home/director/storage:rw \
-		-v $$PWD/secrets:/home/director/secrets:ro \
 		-p 8000:8000 -it --rm stencila/hub-director
 
 clean:
