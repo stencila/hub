@@ -1,6 +1,7 @@
 import os
 import logging
 
+from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -9,12 +10,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.views import Account, AccountPermissionsMixin, AccountPermissionType
-from jobs.models import Job, Zone
+from jobs.models import Job, Worker, WorkerStatus, Zone
 from jobs.api.serializers import (
     JobListSerializer,
     JobCreateSerializer,
     JobRetrieveSerializer,
     JobUpdateSerializer,
+    WorkerSerializer,
     ZoneSerializer,
     ZoneCreateSerializer,
 )
@@ -309,3 +311,115 @@ class AccountsZonesViewSet(
             raise PermissionDenied
 
         return super().destroy(request, pk, name)
+
+
+class WorkersViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
+):
+
+    # Configuration
+
+    serializer_class = WorkerSerializer
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of workers that the user has view access to.
+        """
+        # TODO: Should only list workers in zones the user has access to
+        return Worker.objects.all()
+
+    def get_permissions(self):
+        """
+        Get the list of permissions that the current action requires.
+
+        The `events` action requires a admin user (an internal bot),
+        others just require authentication.
+        """
+        return (
+            [permissions.IsAdminUser()]
+            if self.action == "events"
+            else [permissions.IsAuthenticated()]
+        )
+
+    # Views
+
+    def list(self, request: Request):
+        """
+        List workers.
+
+        Returns details for all workers the user has access to.
+        """
+        return super().list(request)
+
+    def retrieve(self, request: Request, pk: int):
+        """
+        Retrieve a worker.
+
+        Returns details for the worker.
+        """
+        return super().retrieve(request, pk)
+
+    @action(detail=False, methods=["POST"])
+    def events(self, request) -> Response:
+        """
+        Submit a worker event.
+
+        Depending upon the `type` of the event, this will:
+
+        - worker-online: create a new worker
+        - worker-heartbeat: update the status of an existing worker
+        - worker-offline: mark a worker as inactive
+        """
+        event = request.data
+
+        event_type = event.get("type")
+        hostname = event.get("hostname")
+        utcoffset = event.get("utcoffset")
+        pid = event.get("pid")
+        freq = event.get("freq")
+        software = "{}-{}".format(event.get("sw_ident"), event.get("sw_ver"))
+        os = event.get("sw_sys")
+
+        # Generate signature and check for an active worker with that signature
+        signature = "{hostname}|{utcoffset}|{pid}|{freq}|{software}|{os}".format(
+            hostname=hostname,
+            utcoffset=utcoffset,
+            pid=pid,
+            freq=freq,
+            software=software,
+            os=os,
+        )
+        try:
+            worker = Worker.objects.get(signature=signature, finished__isnull=True)
+        except Worker.DoesNotExist:
+            worker = Worker.objects.create(
+                hostname=hostname,
+                utcoffset=utcoffset,
+                pid=pid,
+                freq=freq,
+                software=software,
+                os=os,
+                signature=signature,
+            )
+
+        if event_type == "worker-online":
+            worker.started = timezone.now()
+        elif event_type == "worker-heartbeat":
+            worker.updated = timezone.now()
+        elif event_type == "worker-offline":
+            worker.finished = timezone.now()
+        worker.save()
+
+        WorkerStatus.objects.create(
+            worker=worker,
+            time=timezone.now(),
+            clock=event.get("clock", 0),
+            active=event.get("active", 0),
+            processed=event.get("processed", 0),
+            load=event.get("loadavg", []),
+        )
+
+        serializer = self.get_serializer(worker)
+        return Response(serializer.data)

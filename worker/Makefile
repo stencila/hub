@@ -11,7 +11,7 @@ venv: requirements.txt
 # Change env vars as needed for your dev env.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
-	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@stencila
+	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@zone --heartbeat-interval 30
 
 # Build Docker image
 build:

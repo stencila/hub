@@ -11,7 +11,7 @@ venv: requirements.txt requirements-dev.txt
 # Run `overseer.py` during development to check configuration.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
-	DIRECTOR_URL=http://stencila:password@localhost:8000 \
+	DIRECTOR_URL=http://admin:admin@localhost:8000 \
 	$(VE)/python3 overseer.py
 
 # Run `celery flower` during development.

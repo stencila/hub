@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Account
 from general.api.validators import FromContextDefault
-from jobs.models import Job, JobMethod, JobStatus, Zone
+from jobs.models import Job, JobMethod, JobStatus, Worker, Zone
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -142,3 +142,15 @@ class ZoneCreateSerializer(ZoneSerializer):
         if Zone.objects.filter(account=pk, name=name).count() != 0:
             raise serializers.ValidationError("Zone name must be unique for account.")
         return name
+
+
+class WorkerSerializer(serializers.ModelSerializer):
+    """
+    A worker serializer.
+
+    Includes all model fields.
+    """
+
+    class Meta:
+        model = Worker
+        fields = "__all__"

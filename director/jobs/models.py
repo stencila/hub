@@ -4,6 +4,7 @@ import json
 from django_celery_beat.models import PeriodicTask
 from django.core import validators
 from django.db import models
+from django.utils import timezone
 from jsonfallback.fields import FallbackJSONField
 
 from lib.enum_choice import EnumChoice
@@ -50,6 +51,115 @@ class Zone(models.Model):
         ]
 
 
+class Worker(models.Model):
+    """
+    A worker that runs jobs within a zone.
+
+    This model stores information on a worker as captured by the `overseer` service
+    from Celery's worker monitoring events.
+    """
+
+    zone = models.ForeignKey(
+        Zone,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="workers",
+        help_text="The zone that this worker is in.",
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True,
+        help_text="The time that the worker started (time of the first event for the worker).",
+    )
+
+    started = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The time that the worker started (only recorded on a 'worker-online' event).",
+    )
+
+    updated = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The time that the last heatbeat was received for the worker.",
+    )
+
+    finished = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="The time that the worker finished (only recorded on a 'worker-offline' event)",
+    )
+
+    hostname = models.CharField(
+        max_length=512, help_text="The `hostname` of the worker.",
+    )
+
+    utcoffset = models.IntegerField(help_text="The `utcoffset` of the worker.",)
+
+    pid = models.IntegerField(help_text="The `pid` of the worker.",)
+
+    freq = models.FloatField(help_text="The worker's heatbeat frequency (in seconds)",)
+
+    software = models.CharField(
+        max_length=256, help_text="The name and version of the worker's software.",
+    )
+
+    os = models.CharField(
+        max_length=64, help_text="Operating system that the worker is running on.",
+    )
+
+    signature = models.CharField(
+        max_length=512,
+        help_text="The signature of the worker used to identify it. "
+        "It is possible, but unlikely, that two or more active workers have the same signature.",
+    )
+
+    # The number of missing heartbeats before a worker is considered
+    # as being inactive
+    FLATLINE_HEARTBEATS = 5
+
+    @property
+    def active(self):
+        return (
+            not self.finished
+            and (timezone.now() - self.updated).minutes
+            < self.freq * Worker.FLATLINE_HEARTBEATS
+        )
+
+
+class WorkerStatus(models.Model):
+    """
+    The status of a worker at a particular time.
+
+    Stores time varying properties of the worker as available from
+    Celery worker monitoring events: `worker_online`, `worker_heartbeat` and `worker_offline`.
+    """
+
+    worker = models.ForeignKey(
+        Worker,
+        on_delete=models.CASCADE,
+        related_name="statuses",
+        help_text="The worker that this status relates to.",
+    )
+
+    time = models.DateTimeField(help_text="The time that this status related to.")
+
+    clock = models.IntegerField(
+        help_text="The tick number of the worker's monotonic clock",
+    )
+
+    active = models.IntegerField(help_text="The number of active jobs on the worker.",)
+
+    processed = models.IntegerField(
+        help_text="The number of jobs that have been processed by the worker.",
+    )
+
+    load = FallbackJSONField(
+        help_text="An array of the system load over the last 1, 5 and 15 minutes. From os.getloadavg().",
+    )
+
+
 @unique
 class JobMethod(EnumChoice):
     """
@@ -75,11 +185,11 @@ class JobStatus(EnumChoice):
     """
     An enumeration of possible job status.
 
-    These match Celery's "states" with some additions. See
-    https://docs.celeryproject.org/en/stable/reference/celery.states.html
+    These match Celery's "states" with some additions (marked as "custom").
+    See https://docs.celeryproject.org/en/stable/reference/celery.states.html
     """
 
-    # Job was sent to a queue
+    # Job was sent to a queue (custom).
     DISPATCHED = "DISPATCHED"
     # Job state is unknown.
     PENDING = "PENDING"
@@ -88,18 +198,18 @@ class JobStatus(EnumChoice):
 
     # Job was started by a worker.
     STARTED = "STARTED"
-    # Job has reported progress since starting.
+    # Job has reported progress since starting (custom).
     PROGRESS = "PROGRESS"
     # Job succeeded
     SUCCESS = "SUCCESS"
     # Job failed
     FAILURE = "FAILURE"
 
-    # Job cancellation message sent.
+    # Job cancellation message sent (custom).
     CANCELLED = "CANCELLED"
     # Job was revoked.
     REVOKED = "REVOKED"
-    # Job was terminated
+    # Job was terminated (custom).
     TERMINATED = "TERMINATED"
 
     # Job was rejected.

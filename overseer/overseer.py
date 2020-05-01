@@ -7,6 +7,7 @@ See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 """
 from datetime import datetime
 import os
+import warnings
 
 from celery import Celery
 import httpx
@@ -15,25 +16,39 @@ celery = Celery("monitor", broker=os.environ["BROKER_URL"])
 
 # Setup API client
 api = httpx.Client(
-    base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/jobs/"),
+    base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/"),
     headers={"content-type": "application/json", "accept": "application/json",},
+    timeout=30,
 )
 
 
 def update_job(id, data):
     """
-    Update the job.
+    Update a job.
 
-    Sends a PATCH request to the director to update the
+    Sends a PATCH request to the `director` to update the
     state of the job.
     """
-    response = api.patch(id, json=data)
+    response = api.patch("jobs/{}".format(id), json=data)
     if response.status_code != 200:
-        # Generate a warning if not successful
-        print(response.json())
+        warnings.warn(response.text)
 
 
-# The following are all the available task events
+def worker_event(data):
+    """
+    Create a worker event.
+
+    Sends a POST request to the `director` with a new
+    worker event. Because of the intricacies of uniquely
+    identifying workers, we send events, rather trying to
+    resolve ids here.
+    """
+    response = api.post("workers/events", json=data)
+    if response.status_code != 200:
+        warnings.warn(response.text)
+
+
+# Handlers for task events
 
 
 def task_sent(event):
@@ -81,11 +96,13 @@ def task_failed(event):
         {
             "status": event.get("state", "FAILED"),
             "ended": datetime.fromtimestamp(event.get("timestamp")).isoformat(),
-            "log": [{
-                "level": 0,
-                "message": event.get("exception"),
-                "stack": event.get("traceback")
-            }],
+            "log": [
+                {
+                    "level": 0,
+                    "message": event.get("exception"),
+                    "stack": event.get("traceback"),
+                }
+            ],
             "worker": event.get("hostname"),
         },
     )
@@ -110,17 +127,21 @@ def task_retried(event):
     print("task_retried", event)
 
 
-def worker_online(event):
-    print("worker_online", event)
+# Handlers for worker events
 
 
-def worker_heartbeat(event):
-    pass #print("worker_heartbeat", event)
+def worker_handler(event):
+    """
+    Handler for all three worker events: online, offline, heartbeat.
+
+    Contrary to the Celery docs, at the time of writing, these three
+    event types have the same fields so we have a single handler and
+    do most of the logic handling in Django.
+    """
+    worker_event(event)
 
 
-def worker_offline(event):
-    print("worker_offline", event)
-
+# Connect handler to events
 
 with celery.connection() as connection:
     receiver = celery.events.Receiver(
@@ -134,9 +155,9 @@ with celery.connection() as connection:
             "task-rejected": task_rejected,
             "task-revoked": task_revoked,
             "task-retried": task_retried,
-            "worker-online": worker_online,
-            "worker-heartbeat": worker_heartbeat,
-            "worker-offline": worker_offline,
+            "worker-online": worker_handler,
+            "worker-heartbeat": worker_handler,
+            "worker-offline": worker_handler,
         },
     )
     receiver.capture(limit=None, timeout=None, wakeup=True)
