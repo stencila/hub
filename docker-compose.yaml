@@ -57,9 +57,9 @@ services:
       - database
       - broker
 
-  monitor:
-    build: ./monitor
-    image: stencila/hub-monitor
+  overseer:
+    build: ./overseer
+    image: stencila/hub-overseer
     env_file:
       - .secrets
     depends_on:

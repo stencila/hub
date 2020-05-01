@@ -8,11 +8,11 @@ venv: requirements.txt requirements-dev.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
 
-# Run `monitor.py` during development to check configuration.
+# Run `overseer.py` during development to check configuration.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	DIRECTOR_URL=http://stencila:password@localhost:8000 \
-	$(VE)/python3 monitor.py
+	$(VE)/python3 overseer.py
 
 # Run `celery flower` during development.
 run-flower: venv
@@ -20,7 +20,7 @@ run-flower: venv
 
 # Build Docker image
 build:
-	docker build --tag stencila/hub-monitor .
+	docker build --tag stencila/hub-overseer .
 
 # Clean up venv and cached files
 clean:
