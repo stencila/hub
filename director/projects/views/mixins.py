@@ -175,10 +175,8 @@ class ProjectPermissionsMixin(object):
     ) -> ProjectSourcePuller:
         self.get_project(request.user, account_name, project_name)
 
-        if not settings.STENCILA_PROJECT_STORAGE_DIRECTORY:
-            raise RuntimeError(
-                "STENCILA_PROJECT_STORAGE_DIRECTORY setting must be set to pull Project files."
-            )
+        if not settings.STORAGE_DIR:
+            raise RuntimeError("STORAGE_DIR setting must be set to pull Project files.")
 
         authentication = LinkedSourceAuthentication(user_github_token(request.user))
 
@@ -187,11 +185,7 @@ class ProjectPermissionsMixin(object):
         )
 
         return ProjectSourcePuller(
-            self.project,
-            settings.STENCILA_PROJECT_STORAGE_DIRECTORY,
-            authentication,
-            request,
-            storage_limit,
+            self.project, settings.STORAGE_DIR, authentication, request, storage_limit,
         )
 
 

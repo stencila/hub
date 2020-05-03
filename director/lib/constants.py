@@ -18,7 +18,6 @@ class UrlRoot(enum.Enum):
     me = "me"
     open = "open"
     projects = "projects"
-    system_status = "system-status"
     test = "test"
 
 
@@ -57,6 +56,15 @@ class ProjectUrlRoot(enum.Enum):
 
 
 # A set of slugs that are not allowed to be used as they conflict with our URLs
-DISALLOWED_ACCOUNT_SLUGS = {u.value for u in UrlRoot}.union({"static", "media"})
+DISALLOWED_ACCOUNT_SLUGS = {u.value for u in UrlRoot}.union(
+    {
+        # Standard Django paths
+        "static",
+        "media",
+        # Reserved for internal paths used with
+        # the Nginx `X-Accel-Redirect` header.
+        "internal",
+    }
+)
 DISALLOWED_PROJECT_SLUGS = {u.value for u in AccountUrlRoot}
 DISALLOWED_PUBLISHED_ROOTS = {u.value for u in ProjectUrlRoot}

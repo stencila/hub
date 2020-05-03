@@ -11,9 +11,9 @@ def run(*args):
     # Admin (super user)
     admin = User.objects.create_user(
         username="admin",
+        password="admin",
         first_name="Admin",
         email="admin@example.com",
-        password="admin",
     )
     admin.is_staff = True
     admin.is_superuser = True
@@ -22,14 +22,20 @@ def run(*args):
     # Staff member (not super user)
     staff = User.objects.create_user(
         username="staff",
+        password="staff",
         first_name="Staff",
         email="staff@example.com",
-        password="staff",
     )
     staff.is_staff = True
     staff.save()
 
     # Normal users
+
+    user = User.objects.create_user(
+        username="user", password="user", first_name="User", email="user@example.com",
+    )
+    user.save()
+
     for user in [
         ("joe", "Joe", "Blogs"),
         ("jane", "Jane", "Doe"),

@@ -1,0 +1,75 @@
+# This docker-compose file is intended for development and testing.
+# However, it is also used as a basis for Kubernetes deployments.
+# Consequently, some properties have been added to improve conversion to 
+# Kubernetes configs when using Kompose.
+
+version: "3.6"
+
+services:
+
+  router:
+    build: ./router
+    image: stencila/hub-router
+    labels:
+      kompose.service.type: loadbalancer
+      kompose.service.expose: "true"
+    ports:
+      - "9000:9000"
+    env_file:
+      - .config
+    depends_on:
+      - director
+
+  director:
+    build: ./director
+    image: stencila/hub-director
+    ports:
+      - "8000:8000"
+    env_file:
+      - .config
+      - .secrets
+    depends_on:
+      - database
+      - broker
+
+  database:
+    build: ./database
+    image: stencila/hub-database
+    ports:
+      - "5432:5432"
+    env_file:
+      - .secrets
+
+  broker:
+    build: ./broker
+    image: stencila/hub-broker
+    ports:
+      - "5672:5672"
+    env_file:
+      - .secrets
+
+  scheduler:
+    build: ./scheduler
+    image: stencila/hub-scheduler
+    env_file:
+      - .secrets
+    depends_on:
+      - database
+      - broker
+
+  overseer:
+    build: ./overseer
+    image: stencila/hub-overseer
+    env_file:
+      - .secrets
+    depends_on:
+      - director
+      - broker
+
+  worker:
+    build: ./worker
+    image: stencila/hub-worker
+    env_file:
+      - .secrets
+    depends_on:
+      - broker

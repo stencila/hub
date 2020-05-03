@@ -273,7 +273,7 @@ class DiskItemCreateView(ProjectPermissionsMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk=pk)
 
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        dff = DiskFileFacade(settings.STORAGE_DIR, project)
 
         body = json.loads(request.body)
 
@@ -301,7 +301,7 @@ class DiskItemMoveView(ProjectPermissionsMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk=pk)
 
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        dff = DiskFileFacade(settings.STORAGE_DIR, project)
 
         body = json.loads(request.body)
 
@@ -327,7 +327,7 @@ class DiskItemRemoveView(ProjectPermissionsMixin, View):
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:  # type: ignore
         project = self.get_project(request.user, pk=pk)
 
-        dff = DiskFileFacade(settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project)
+        dff = DiskFileFacade(settings.STORAGE_DIR, project)
 
         body = json.loads(request.body)
 

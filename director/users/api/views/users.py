@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from users.models import User
-from users.api.serializers import UserSerializer
+from users.api.serializers import UserSerializer, MeSerializer
 
 
 class UsersViewSet(
@@ -17,7 +17,6 @@ class UsersViewSet(
 
     model = User
     permission_classes = ()
-    serializer_class = UserSerializer
 
     def get_queryset(self) -> QuerySet:
         """Get all Users, or only those matching the query (if provided)."""
@@ -31,6 +30,14 @@ class UsersViewSet(
             | Q(last_name__icontains=query)
             | Q(email__icontains=query)
         )
+
+    def get_serializer_class(self):
+        """
+        Override of `GenericAPIView.get_serializer_class`.
+
+        Returns different serializers for different views.
+        """
+        return MeSerializer if self.action == "me" else UserSerializer
 
     # Views
 
@@ -62,14 +69,13 @@ class UsersViewSet(
         """
         return super().retrieve(*args, **kwargs)
 
-    @swagger_auto_schema(responses={200: UserSerializer})
+    @swagger_auto_schema(responses={200: MeSerializer})
     @action(
         detail=False,
-        url_path="me",
         permission_classes=[permissions.IsAuthenticated],
         pagination_class=None,
     )
-    def retrieve_me(self, request, *args, **kwargs):
+    def me(self, request, *args, **kwargs):
         """
         Retrieve the current user.
 

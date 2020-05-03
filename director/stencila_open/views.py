@@ -364,7 +364,7 @@ class OpenView(View):
         conversion.has_warnings = (
             conversion.stderr is not None and len(conversion.stderr) != 0
         )
-        cfs = ConversionFileStorage(settings.STENCILA_PROJECT_STORAGE_DIRECTORY)
+        cfs = ConversionFileStorage(settings.STORAGE_DIR)
         if conversion_result.returncode == 0 and target_file is not None:
             conversion.output_file = cfs.copy_file_to_public_id(
                 target_file.name, public_id, OUTPUT_FILENAME

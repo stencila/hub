@@ -7,11 +7,13 @@ generated.
 """
 
 import general.api.urls
+import jobs.api.urls
 import projects.api.urls
 import users.api.urls
 
 urlpatterns = (
     general.api.urls.urlpatterns
+    + jobs.api.urls.urlpatterns
     + projects.api.urls.projects_urls
     + projects.api.urls.nodes.urls
     + users.api.urls.tokens.urls

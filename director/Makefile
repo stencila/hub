@@ -2,8 +2,11 @@
 VE := venv/bin
 
 # Shortcut to set required environment variables during development
-# Uses a custom `env.sh` or falls back to `env-example.sh`
-EV := test -f ./env.sh && . ./env.sh || . ./env-example.sh ;
+# Exports the default values in ../.config && ../.secrets but
+# with overrides for local development
+EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
+      export $$(egrep -v '^\#' ../.secrets | xargs); \
+	  export DEPLOYMENT_ENVIRONMENT=dev export DATABASE_URL="sqlite:///dev.sqlite3";
 
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py
@@ -33,17 +36,18 @@ static: venv
 migrations: venv
 	$(DJ) makemigrations
 
-# Build a development database
-create-devdb: venv
-	rm -f db.sqlite3
-	$(DJ) migrate
-	$(DJ) runscript create_dev_users
-	$(DJ) runscript create_dev_accounts
-	$(DJ) runscript create_dev_account_roles
-	$(DJ) runscript create_dev_projects
-	$(DJ) runscript create_dev_project_roles
-	$(DJ) runscript create_dev_project_nodes
-	$(DJ) runscript create_dev_project_sources
+# Create a development SQLite database
+create-devdb-sqlite: venv
+	$(DJ) reset_db; \
+	$(DJ) migrate; \
+	$(DJ) runscript create_devdb
+
+# Create a development PostgeSQL database on localhost
+create-devdb-pg: venv
+	export DATABASE_URL="postgres://stencila:password@localhost:5432/hub"; \
+	$(VE)/python3 manage.py reset_db; \
+	$(VE)/python3 manage.py migrate; \
+	$(VE)/python3 manage.py runscript create_devdb
 
 # Migrate the development database
 migrate-devdb: venv
@@ -55,6 +59,10 @@ migrate-devdb: venv
 migrate-proddb:
     DJANGO_CONFIGURATION="Prod" python3 manage.py migrate
 
+# Show model serializers
+show-serializers:
+	$(DJ) runscript show_serializers
+
 # Run development server
 run: venv
 	$(DJ) runserver
@@ -63,8 +71,6 @@ run: venv
 # Required secrets will need to be set in `env.sh`
 # Some env vars set to avoid polluting logs etc
 run-prod: venv
-	export DJANGO_SENTRY_DSN=""; \
-	export DJANGO_POSTHOG_KEY=""; \
 	export DJANGO_CONFIGURATION="Prod"; \
 	$(DJ) runserver
 
@@ -120,13 +126,10 @@ run-docker: build
 	docker run \
 		--env DJANGO_JWT_SECRET \
 		--env DJANGO_SECRET_KEY \
-		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		-v $$PWD/db.sqlite3:/home/director/db.sqlite3:rw \
-		--env DJANGO_STENCILA_PROJECT_STORAGE_DIRECTORY=/home/director/storage \
-		-v $$PWD/storage:/home/director/storage:rw \
-		-v $$PWD/secrets:/home/director/secrets:ro \
+		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		-p 8000:8000 -it --rm stencila/hub-director
 
 clean:
 	rm -rf venv coverage static
+	find . | grep -E "(__pycache__|\.pyc$$)" | xargs rm -rf

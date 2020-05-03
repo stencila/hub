@@ -2,8 +2,8 @@
 build:
 	docker build --tag stencila/hub-router .
 
-# Run Docker image during development with
-# config file mounted
+# Run Docker image
 run: build
-	docker run -it --rm --net=host \
-	           -v $$PWD/nginx.conf:/etc/nginx/conf.d/default.conf:ro stencila/hub-router
+	docker run --rm --network=host \
+		-e DIRECTOR_HOST=localhost:8000 \
+		stencila/hub-router

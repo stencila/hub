@@ -5,30 +5,60 @@ Uses ``django-configurations``. For more on this package, see
 https://github.com/jazzband/django-configurations
 
 For more information on this file, see
-https://docs.djangoproject.com/en/2.0/topics/settings/
+https://docs.djangoproject.com/en/2.2/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/2.0/ref/settings/
+https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import datetime
 import os
-import warnings
 
 from configurations import Configuration, values
 
 from version import __version__
 
-# TODO: the UserWarning might start to not be raised as of psycopg2 v2.8+ but until then suppress it
-warnings.filterwarnings("ignore", category=UserWarning, module="psycopg2")
 
+class Prod(Configuration):
+    """
+    Configuration settings used in production.
 
-class Common(Configuration):
-    """Configuration settings common to both development and production."""
+    This should include all the settings needed in production.
+    To keep `Dev` and `Test` settings as close as possible to those
+    in production we use `Prod` as a base and only override as needed.
+    """
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    # Application definition
+    ###########################################################################
+    # Core Django settings
+    #
+    # For a complete list see https://docs.djangoproject.com/en/2.2/ref/settings/
+    ###########################################################################
+
+    # Ensure debug is always false in production (overridden in development)
+    DEBUG = False
+
+    # Require that a `DJANGO_SECRET_KEY` environment
+    # variable is set during production
+    SECRET_KEY = values.SecretValue()
+
+    # In production, use wildcard because load balancers
+    # perform health checks without host specific Host header value
+    ALLOWED_HOSTS = ["*"]
+
+    # It is being run behind Google Cloud Load Balancer, so look for this header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    # Enforce HTTPS
+    # Allow override to be able to test other prod settings during development
+    # in a Docker container (ie. locally not behind a HTTPS load balancer)
+    # See `make run-prod`
+    SECURE_SSL_REDIRECT = values.BooleanValue(True)
+
+    # Do not redirect the status check to HTTPS so that
+    # HTTP health checks will still work.
+    SECURE_REDIRECT_EXEMPT = [r"^api/status/?$", r"^/?$"]
 
     INSTALLED_APPS = [
         # Django contrib apps
@@ -62,6 +92,7 @@ class Common(Configuration):
         "rest_framework",
         "drf_yasg",
         "knox",
+        "django_celery_beat",
         "django_filters",
         "django_intercom",
         "djstripe",
@@ -72,6 +103,7 @@ class Common(Configuration):
         "accounts.apps.AccountsConfig",
         "projects.apps.ProjectsConfig",
         "stencila_open.apps.StencilaOpenConfig",
+        "jobs.apps.JobsConfig",
     ]
 
     MIDDLEWARE = [
@@ -114,18 +146,14 @@ class Common(Configuration):
 
     SITE_ID = 1  # Required by allauth
 
-    # Database
-    # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-    #
-    # Defaults to `db.sqlite3` but can be set using `DJANGO_DATABASE_URL` env var
+    # Database defaults to `dev.sqlite3` but can be set using `DATABASE_URL` env var
     # Note that the three leading slashes are *intentional*
     # See https://github.com/kennethreitz/dj-database-url#url-schema
     DATABASES = values.DatabaseURLValue(
-        "sqlite:///%s/db.sqlite3" % BASE_DIR,
-        environ_prefix="DJANGO",  # For consistent naming with other env vars
+        "sqlite:///{}".format(os.path.join(BASE_DIR, "dev.sqlite3"))
     )
 
-    DEFAULT_FROM_EMAIL = values.Value("")
+    DEFAULT_FROM_EMAIL = values.Value("hello@stenci.la")
 
     # Authentication
 
@@ -168,18 +196,24 @@ class Common(Configuration):
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
-    STATIC_URL = values.Value("/static/")
+    # Use unpkg.com CDN to serve static assets (overridden in development)
 
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+    STATIC_URL = values.Value(
+        "https://unpkg.com/@stencila/hub@{}/director/static/".format(__version__)
+    )
+
     STATICFILES_DIRS = [os.path.join(BASE_DIR, "assets")]
 
-    # 'Media' files (uploaded by users)
+    # Media files (uploaded by users)
     # https://docs.djangoproject.com/en/2.0/topics/files/
 
     MEDIA_ROOT = os.path.join(BASE_DIR, "storage")
+
     MEDIA_URL = "/media/"
+
+    DATA_UPLOAD_MAX_MEMORY_SIZE = values.IntegerValue(5 * 1024 * 1024)
 
     # Logging
     LOGGING = {
@@ -197,7 +231,9 @@ class Common(Configuration):
         "loggers": {"": {"level": "WARNING", "handlers": ["console"]}},
     }
 
-    # Third-party application settings
+    ###########################################################################
+    # Settings for third-party application in INSTALLED_APPS
+    ###########################################################################
 
     CRISPY_ALLOWED_TEMPLATE_PACKS = ["bulma"]
     CRISPY_TEMPLATE_PACK = "bulma"
@@ -207,53 +243,6 @@ class Common(Configuration):
     }
 
     AVATAR_GRAVATAR_DEFAULT = "identicon"
-
-    # Stencila settings
-
-    EXECUTION_SERVER_HOST = values.Value()
-    EXECUTION_SERVER_PROXY_PATH = values.Value()
-    EXECUTION_CLIENT = values.Value("NIXSTER")
-
-    # URL of this application. This is used by editors and other
-    # external applications to callback to the director.
-    # It needs to be the URL that the user is logged in to
-    # the hub so that credentils are sent.
-    # This default value is the usual value in development
-    CALLBACK_URL = values.Value("http://localhost:3000")
-
-    GS_PUBLIC_READABLE_PATHS = ["avatars/*"]
-    # these paths will be made publicly readable in the Google Storage bucket after being written to
-
-    STENCILA_GITHUB_APPLICATION_NAME = values.Value(
-        "INSERT A REAL APP NAME HERE Stencila Github Integration"
-    )
-    STENCILA_GITHUB_APPLICATION_URL = values.Value(
-        "INSERT A REAL URL HERE "
-        "https://github.com/settings/apps/stencila/installations"
-    )
-
-    # Path to store project pulls for the hub
-    STENCILA_PROJECT_STORAGE_DIRECTORY = values.Value("")
-
-    # Path where the remote executor can find the above Project pulls.
-    # By default this is the same as the path in the hub
-    STENCILA_REMOTE_PROJECT_STORAGE_DIRECTORY = values.Value(
-        STENCILA_PROJECT_STORAGE_DIRECTORY
-    )
-
-    # Path to Encoda executable
-    # This default path points to the install in the parent directory
-    STENCILA_ENCODA_PATH = values.Value(
-        os.path.join(
-            BASE_DIR, "..", "node_modules", "@stencila", "encoda", "dist", "cli.js"
-        )
-    )
-
-    # This can be any format, it's not used in code, only humans will be looking at this
-    STENCILA_HUB_VERSION = values.Value("")
-
-    # some XML files are quite large (3MB+), this basically sets the size of the POST allowed
-    DATA_UPLOAD_MAX_MEMORY_SIZE = values.IntegerValue(5 * 1024 * 1024)
 
     SOCIALACCOUNT_PROVIDERS = {
         "google": {
@@ -268,12 +257,6 @@ class Common(Configuration):
         }
     }
 
-    STENCILA_CLIENT_USER_AGENT = values.Value("Stencila Hub HTTP Client")
-    INTERCOM_ACCESS_TOKEN = values.Value("")
-
-    EXECUTA_HOSTS = values.SingleNestedTupleValue("")
-    SPARKLA_PROJECT_ROOT = values.Value("")
-
     REST_FRAMEWORK = {
         # Use camel casing for everything (inputs and outputs)
         "DEFAULT_RENDERER_CLASSES": (
@@ -286,12 +269,12 @@ class Common(Configuration):
             # Default is for API endpoints to require the user to be authenticated
             "rest_framework.permissions.IsAuthenticated",
         ),
-        "DEFAULT_AUTHENTICATION_CLASSES": (
+        "DEFAULT_AUTHENTICATION_CLASSES": [
             # Default is for token and Django session authentication
             "general.api.authentication.BasicAuthentication",
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
-        ),
+        ],
         "EXCEPTION_HANDLER": "general.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
         "PAGE_SIZE": 50,
@@ -329,97 +312,13 @@ class Common(Configuration):
         "JWT_REFRESH_EXPIRATION_DELTA": datetime.timedelta(days=1),
     }
 
-    STRIPE_LIVE_PUBLIC_KEY = values.Value("")
-    STRIPE_LIVE_SECRET_KEY = values.Value(
-        "sk_live_test"
-    )  # Leaving this blank causes issues running Django
-    STRIPE_TEST_PUBLIC_KEY = values.Value("")
-    STRIPE_TEST_SECRET_KEY = values.Value(
-        "sk_test_test"
-    )  # Leaving this blank causes issues running Django
-    STRIPE_LIVE_MODE = values.BooleanValue(False)
-    DJSTRIPE_WEBHOOK_VALIDATION = None
-
-    # Rudimentary feature toggle
-    FEATURES = {"PROJECT_SESSION_SETTINGS": False}
-
-
-class Dev(Common):
-    """Configuration settings used in development."""
-
-    # Ensure debug is always true in development
-    DEBUG = True
-
-    # Crispy forms should fail loudly during development
-    CRISPY_FAIL_SILENTLY = not DEBUG
-
-    # This variable must always be set, even in development.
-    SECRET_KEY = "not-a-secret-key"
-
-    # Only allow localhost if in development mode
-    ALLOWED_HOSTS = ["*"]
-
-    INTERNAL_IPS = "127.0.0.1"  # For debug_toolbar
-
-    # Additional apps only used in development
-    INSTALLED_APPS = Common.INSTALLED_APPS + ["debug_toolbar", "django_extensions"]
-
-    # Additional middleware only used in development
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ] + Common.MIDDLEWARE
-
-    # During development just print emails to console
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-    # JWT secret (must be overriden in Prod settings, see below)
-    JWT_SECRET = values.Value("not-a-secret")
-
-    STENCILA_GITHUB_APPLICATION_NAME = "Stencila Hub Integration (Test)"
-    STENCILA_GITHUB_APPLICATION_URL = (
-        "https://github.com/organizations/stencila/settings/apps/"
-        "stencila-hub-integration-test/installations"
-    )
-    INTERCOM_DISABLED = True
-
-
-class Prod(Common):
-    """Configuration settings used in production at https://hub.stenci.la."""
-
-    # Ensure debug is always false in production
-    DEBUG = False
-
-    # Require that a `DJANGO_SECRET_KEY` environment
-    # variable is set during production
-    SECRET_KEY = values.SecretValue()
-
-    # In production, use wildcard because load balancers
-    # perform health checks without host specific Host header value
-    ALLOWED_HOSTS = ["*"]
-
-    # It is being run behind Google Cloud Load Balancer, so look for this header
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-    # Enforce HTTPS
-    # Allow override to be able to test other prod settings during development
-    # in a Docker container (ie. locally not behind a HTTPS load balancer)
-    # See `make run-prod`
-    SECURE_SSL_REDIRECT = values.BooleanValue(True)
-
-    # Do not redirect the status check to HTTPS so that
-    # HTTP health checks will still work.
-    SECURE_REDIRECT_EXEMPT = [r"^api/status/?$", r"^/?$"]
-
-    # Use unpkg.com CDN to serve static assets
-    STATIC_URL = values.Value(
-        "https://unpkg.com/@stencila/hub@{}/director/static/".format(__version__)
-    )
-
-    INTERCOM_APPID = values.Value("")
-
-    # JWT secret must be set as environment
-    # variable when in production
-    JWT_SECRET = values.SecretValue()
+    ###########################################################################
+    # Settings for integration with external third-party services
+    # i.e. Stripe, Sentry etc
+    #
+    # Many of these are empty, intentionally, and may cause an error, if you
+    # go to a particular page that requires them.
+    ###########################################################################
 
     # Use GoogleCloudStorage for uploads
     DEFAULT_FILE_STORAGE = "lib.storage.CustomPublicGoogleCloudStorage"
@@ -428,26 +327,170 @@ class Prod(Common):
 
     # Use SendGrid for emails
     EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-    SENDGRID_API_KEY = values.SecretValue()
+    SENDGRID_API_KEY = values.Value()
 
-    # Use Sentry for error reporting
-    # Note: The DSN is not a secret https://forum.sentry.io/t/dsn-private-public/6297/2
-    SENTRY_DSN = values.Value(
-        "https://6329017160394100b21be92165555d72@sentry.io/37250"
-    )
+    # Use Intercom for in app messages
+    # For other potential settings see
+    # https://django-intercom.readthedocs.io/en/latest/settings.html
+    INTERCOM_APPID = values.Value()
 
     # Use PostHog for product analytics
-    POSTHOG_KEY = values.Value("LeXA_J7NbIow0-mEejPwazN7WvZCj-mFKSvLL5oM4w0")
+    POSTHOG_KEY = values.Value()
+
+    # Use Sentry for error reporting
+    SENTRY_DSN = values.Value()
+
+    # Use Strip for payments
+    # In production, use live mode (overridden in development to use test keys)
+    STRIPE_LIVE_MODE = True
+    STRIPE_LIVE_PUBLIC_KEY = values.Value("")
+    STRIPE_LIVE_SECRET_KEY = values.Value("sk_live_test")
+    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+
+    ###########################################################################
+    # Settings for integration with other Hub services i.e. `broker`, `storage` etc
+    ###########################################################################
+
+    # An environment name e.g. prod, staging, test used for
+    # exception reporting / filtering
+    DEPLOYMENT_ENVIRONMENT = values.Value(environ_prefix=None)
+
+    # URL to the `broker` service
+    BROKER_URL = values.SecretValue(environ_prefix=None)
+
+    # Path to the `storage` service mounted as a
+    # local directory. Defaults to the `data` sub-directory
+    # of the `storage` service in this repo
+    STORAGE_DIR = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
+
+    ###########################################################################
+    # Settings used internally in the `director`'s own code
+    #
+    # Some of these may be renamed / removed in the future
+    ###########################################################################
+
+    # Allow for username / password API authentication
+    # This is usually disallowed in production (in favour of tokens)
+    # but is permitted during development development for convenience.
+    API_BASIC_AUTH = values.BooleanValue(False)
+
+    EXECUTION_SERVER_HOST = values.Value()
+    EXECUTION_SERVER_PROXY_PATH = values.Value()
+    EXECUTION_CLIENT = values.Value("NIXSTER")
+
+    GS_PUBLIC_READABLE_PATHS = ["avatars/*"]
+    # these paths will be made publicly readable in the Google Storage bucket after being written to
+
+    # Path to Encoda executable
+    # This default path points to the install in the parent directory
+    STENCILA_ENCODA_PATH = values.Value(
+        os.path.join(
+            BASE_DIR, "..", "node_modules", "@stencila", "encoda", "dist", "cli.js"
+        )
+    )
+
+    STENCILA_CLIENT_USER_AGENT = values.Value("Stencila Hub HTTP Client")
+
+    EXECUTA_HOSTS = values.SingleNestedTupleValue("")
+    SPARKLA_PROJECT_ROOT = values.Value("")
+
+    # Rudimentary feature toggle
+    FEATURES = {"PROJECT_SESSION_SETTINGS": False}
+
+    # Ensure JWT secret is set
+    JWT_SECRET = values.SecretValue()
 
     @classmethod
     def post_setup(cls):
-        print(cls.SECURE_SSL_REDIRECT)
-        import sentry_sdk
-        from sentry_sdk.integrations.django import DjangoIntegration
+        # Default for environment name is the name of the settings class
+        if not cls.DEPLOYMENT_ENVIRONMENT:
+            cls.DEPLOYMENT_ENVIRONMENT = cls.__name__.lower()
 
-        sentry_sdk.init(
-            dsn=cls.SENTRY_DSN,
-            release="hub@{}".format(__version__),
-            integrations=[DjangoIntegration()],
-            send_default_pii=True,
-        )
+        # Add Basic auth if allowed
+        if cls.API_BASIC_AUTH:
+            cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
+                0, "rest_framework.authentication.BasicAuthentication",
+            )
+
+        #  Setup sentry if a DSN is provided
+        if cls.SENTRY_DSN:
+            import sentry_sdk
+            from sentry_sdk.integrations.django import DjangoIntegration
+
+            sentry_sdk.init(
+                dsn=cls.SENTRY_DSN,
+                release="hub@{}".format(__version__),
+                integrations=[DjangoIntegration()],
+                send_default_pii=True,
+                environment=cls.DEPLOYMENT_ENVIRONMENT,
+            )
+
+
+class Dev(Prod):
+    """
+    Configuration settings used during development.
+
+    Only override settings that make development easier
+    e.g. defaults for secrets that you don't want to
+    have to supply in env vars, extra debugging info etc.
+    """
+
+    # Ensure debug is always true in development
+    DEBUG = True
+
+    # This variable must always be set, even in development.
+    SECRET_KEY = "not-a-secret-key"
+
+    # Additional apps only used in development
+    INSTALLED_APPS = Prod.INSTALLED_APPS + ["debug_toolbar", "django_extensions"]
+
+    # Required for debug_toolbar
+    INTERNAL_IPS = "127.0.0.1"
+
+    # Additional middleware only used in development
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + Prod.MIDDLEWARE
+
+    # Serve from /static, not http://unpkg.com, during development
+    STATIC_URL = values.Value("/static/")
+
+    # During development just print emails to console
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+    # Crispy forms should fail loudly during development
+    CRISPY_FAIL_SILENTLY = False
+
+    # Disable intercom. Even though we don't define am `INTERCOM_APPID`
+    # during development, without this setting a warning gets emitted
+    INTERCOM_DISABLED = True
+
+    # Use Stripe test mode and provide keys for it
+    STRIPE_LIVE_MODE = False
+    STRIPE_TEST_PUBLIC_KEY = values.Value("")
+    STRIPE_TEST_SECRET_KEY = values.Value("sk_test_test")
+
+    # In standalone development, default to using a pseudo, in-memory broker
+    BROKER_URL = values.Value("memory://", environ_prefix=None)
+
+    # JWT secret must always be set, even in development.
+    JWT_SECRET = "not-a-secret"
+
+
+class Test(Prod):
+    """
+    Configuration settings used during tests.
+
+    These should be as close as possible to production settings.
+    So only override settings that are necessary and generally
+    only to avoid having to use mock settings in scattered places
+    throughout tests.
+
+    Note: for reproducibility these shouldn't be read from env vars; just use strings.
+    """
+
+    SECRET_KEY = "not-a-secret-key"
+
+    SECURE_SSL_REDIRECT = False
+
+    BROKER_URL = "memory://"
+
+    JWT_SECRET = "not-a-secret"

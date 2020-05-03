@@ -18,9 +18,7 @@ DEFAULT_ENVIRON = "stencila/core"
 
 
 def get_project_publish_directory(project: Project) -> str:
-    return generate_project_publish_directory(
-        settings.STENCILA_PROJECT_STORAGE_DIRECTORY, project
-    )
+    return generate_project_publish_directory(settings.STORAGE_DIR, project)
 
 
 def setup_publish_directory(project: Project) -> None:

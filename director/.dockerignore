@@ -13,6 +13,7 @@
 !/assets/*.py
 !/auth
 !/general
+!/jobs
 !/lib
 !/projects
 !/scripts
