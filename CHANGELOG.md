@@ -1,3 +1,51 @@
+# [2.20.0](https://github.com/stencila/hub/compare/v2.19.0...v2.20.0) (2020-05-03)
+
+
+### Bug Fixes
+
+* **AccountsJobsViewSet:** Turn on permisson class ([4cf74e7](https://github.com/stencila/hub/commit/4cf74e72a0dbde6ff75ac5df5b22f7fff9ca0fa9))
+* **API exception handler:** Output traceback ([90e1d4e](https://github.com/stencila/hub/commit/90e1d4ee526ab2fd09c5be736439165eac797d23))
+* **API URLs:** Prefix with carat to avoid clash ([ac4b8df](https://github.com/stencila/hub/commit/ac4b8df6293402562e6b82695116909d934a9038))
+* **Director Job API:** Allow for setting of fields during update ([4dd0e9f](https://github.com/stencila/hub/commit/4dd0e9fc713a67a6aca0aeaa6cc5019e6bb10f35))
+* **Director settings:** No prefix on env var ([d4e1538](https://github.com/stencila/hub/commit/d4e1538e4daa6364e17c740692cc4ba0d0e5dd8b))
+* **Docker compose:** Make router accessible on host ([112d139](https://github.com/stencila/hub/commit/112d139ed45c33270d5553b97066bd05242f963a))
+* **Jobs:** Call save on job serializer ([83d04be](https://github.com/stencila/hub/commit/83d04bec78e935fa151e80c2e08cc019fa0bf828))
+* **Jobs connect:** Allow for Websockets ([35f33fb](https://github.com/stencila/hub/commit/35f33fb9ae3b0f62c73c36de86254609e117bc25))
+* **Overseer:** Allow overseer to use basic auth to connect ([33835cf](https://github.com/stencila/hub/commit/33835cf2bf3f3aa6142ac88b5deab6b803fcb791))
+* **Router:** Clear authorization header ([4795620](https://github.com/stencila/hub/commit/47956208e071d1302444578be23a7ed775593d4a))
+* **Router:** Disable internal route to broker ([1c88a3f](https://github.com/stencila/hub/commit/1c88a3f9edb6f5784c231aa46da5d18cb60c005f))
+* **Schedular Dockerfile:** Run as non-root user ([302bb56](https://github.com/stencila/hub/commit/302bb5626bafd4a5a6734315a1d56fe4846651b7))
+* **Scheduler:** Add dockerignore to avoid pid files etc polluting container during development ([fc21b5f](https://github.com/stencila/hub/commit/fc21b5f04d9f0d94dbcbf89d9437c8da63ff945e))
+* **Scheduler:** Configure beat_scheduler properly; add time zone awareness setting ([3ab621b](https://github.com/stencila/hub/commit/3ab621b83628b28ed608b3083dcd0718aa1e6938))
+* **Scheduler:** Point to dev db ([ddd0abd](https://github.com/stencila/hub/commit/ddd0abd6a35bdc9a550c2bd168a9a743627d52e9))
+* **Scheduler:** Specify log level INFO ([959d01d](https://github.com/stencila/hub/commit/959d01d2ce0dd635850e3b0820cf359cfcfae428))
+* **Users API:** Differentiate between public and private user fields ([424f401](https://github.com/stencila/hub/commit/424f401fcd9d8337d0ae0ebf1329fce3a3a06f47))
+* **Worker:** Ensure all modules are copied to Docker ([9eb568f](https://github.com/stencila/hub/commit/9eb568f9d369a444fe60a9784329a06af5a91857))
+* **Worker:** Use Director API instead of Database connection ([67721e8](https://github.com/stencila/hub/commit/67721e83e4068959ce346a20eaeae278219f7100))
+
+
+### Features
+
+* **Broker:** Move from Redis to RabbitMQ for broker ([8d455bd](https://github.com/stencila/hub/commit/8d455bdec1e8512f4b1deed83e59cfa885c6802c))
+* **Broker role:** Add broker role ([768f2e6](https://github.com/stencila/hub/commit/768f2e69fff96c4799228fd9e16e87cc4593b01e))
+* **Database role:** Add a (currently) pseudo database role ([21a88d9](https://github.com/stencila/hub/commit/21a88d9d54fb49b309b8c213f6d8d85083b1c00d))
+* **Deps:** Add django-celery-beat for periodic jobs ([e2880ca](https://github.com/stencila/hub/commit/e2880ca201ed9a9cd0a818135207aef999c56a71))
+* **Job sessions:** Allow for connection to a job session ([fa1e9f1](https://github.com/stencila/hub/commit/fa1e9f1969d428675ff64564c06b7c19d9eece93))
+* **Job sessions:** Allow for connection to a job session ([fb7a177](https://github.com/stencila/hub/commit/fb7a177a232d276fe2651b713d1d918f52bd004a))
+* **Job zones:** Add zones for jobs to be run in ([fa6b1ff](https://github.com/stencila/hub/commit/fa6b1ff1685219a40d12110e603d79c56b2ac44f))
+* **Jobs:** Add models and API endpoints for jobs ([74b516d](https://github.com/stencila/hub/commit/74b516d584f9427870b0c5adf67ca5ac8a523af3))
+* **Jobs:** Allow for cancellation of jobs ([383f2f5](https://github.com/stencila/hub/commit/383f2f53a788b69927f1e8f768d4c7142327936b))
+* **Jobs:** Record users who have connected to each job ([b6c151e](https://github.com/stencila/hub/commit/b6c151ec5628fddd32441d665e56eabc8d15cab4))
+* **Jobs API:** Add endpoint to access per-account job broker ([233d879](https://github.com/stencila/hub/commit/233d879e27750bc130d93132dca9b7122671979e))
+* **Monitor:** Add a monitor service ([584c1c8](https://github.com/stencila/hub/commit/584c1c8a4e37a6e919940bbc339829de898f5146))
+* **Router:** Allow passing of DIRECTOR_URL as env var ([70999db](https://github.com/stencila/hub/commit/70999db373986cf9dcf7f3d3108323d310973fb4))
+* **Scheduler:** Add role for scheduling periodic jobs ([4916405](https://github.com/stencila/hub/commit/491640558136d9193d3adf8ee6994c2713ff3074))
+* **Users API:** Return the accounts for a user ([2e69a30](https://github.com/stencila/hub/commit/2e69a306fc7ccc5ec038533b94ae165e5e36eeec))
+* **Worker:** Add Worker role for running jobs ([5eba8bd](https://github.com/stencila/hub/commit/5eba8bdd9c853d225e91fcb73ba4e7352c5999cf))
+* **Worker:** Use executa base image ([974b734](https://github.com/stencila/hub/commit/974b734bf21b003c6a0818c3918f133586cb4094))
+* **Workers:** Add initial API for recording workers and their status ([1074991](https://github.com/stencila/hub/commit/1074991bdf3a5fbe366e810660565f1b58cf053d))
+* **Workers API:** Add endpoint to get worker status time series ([05e699b](https://github.com/stencila/hub/commit/05e699b8531f65a0fc833d98d07c95abc0e0a8fb))
+
 # [2.19.0](https://github.com/stencila/hub/compare/v2.18.2...v2.19.0) (2020-04-28)
 
 
