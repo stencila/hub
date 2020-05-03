@@ -6,7 +6,7 @@ from jobs.api.views import (
     AccountsJobsViewSet,
     AccountsZonesViewSet,
     WorkersViewSet,
-    WorkersStatusesViewSet
+    WorkersStatusesViewSet,
 )
 
 jobs = OptionalSlashRouter()
@@ -31,7 +31,5 @@ urlpatterns = (
         path("accounts/<int:pk>/", include(accounts_zones.urls)),
     ]
     + workers.urls
-    + [
-        path("workers/<int:pk>/", include(workers_statuses.urls)),
-    ]
+    + [path("workers/<int:pk>/", include(workers_statuses.urls))]
 )

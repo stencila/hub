@@ -96,6 +96,9 @@ def update(job: Job):
     """
     Update a job.
 
+    This method is used to update the status of the job by getting it's
+    `AsyncResult`. It is called when the job is retrived (ie. GET) and
+    updated with other information (ie PATCH).
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.
     """

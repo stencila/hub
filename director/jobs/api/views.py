@@ -114,10 +114,12 @@ class JobsViewSet(
 
         This action is only available to the `overseer` service
         for it to update the details of a job based on events
-        from the job queue. 
+        from the job queue.
         """
         job = jobs.update(self.get_object())
-        serializer = self.get_serializer(job)
+        serializer = self.get_serializer(job, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(status=status.HTTP_200_OK)
 
     def retrieve(self, request: Request, pk: int):
