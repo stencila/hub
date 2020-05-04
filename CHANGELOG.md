@@ -1,3 +1,10 @@
+## [2.20.2](https://github.com/stencila/hub/compare/v2.20.1...v2.20.2) (2020-05-04)
+
+
+### Bug Fixes
+
+* **Router:** Make entrypoint.sh executable ([7029ec2](https://github.com/stencila/hub/commit/7029ec22ede787449f2c84af1e408114b72a4051))
+
 ## [2.20.1](https://github.com/stencila/hub/compare/v2.20.0...v2.20.1) (2020-05-04)
 
 
