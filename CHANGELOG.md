@@ -1,3 +1,10 @@
+## [2.20.1](https://github.com/stencila/hub/compare/v2.20.0...v2.20.1) (2020-05-04)
+
+
+### Bug Fixes
+
+* **Director:** Add INTERCOM_ACCESS_TOKEN setting ([1c53363](https://github.com/stencila/hub/commit/1c533631f09d9dbee5829f1f8f887d112865c9e8))
+
 # [2.20.0](https://github.com/stencila/hub/compare/v2.19.0...v2.20.0) (2020-05-03)
 
 
