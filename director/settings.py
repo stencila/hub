@@ -333,7 +333,7 @@ class Prod(Configuration):
     # For other potential settings see
     # https://django-intercom.readthedocs.io/en/latest/settings.html
     INTERCOM_APPID = values.Value()
-    # Token to use the Intercom API. See 
+    # Token to use the Intercom API. See
     # https://developers.intercom.com/building-apps/docs/authentication-types#section-access-tokens
     INTERCOM_ACCESS_TOKEN = values.Value()
 
