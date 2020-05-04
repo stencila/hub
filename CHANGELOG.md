@@ -1,3 +1,10 @@
+## [2.20.3](https://github.com/stencila/hub/compare/v2.20.2...v2.20.3) (2020-05-04)
+
+
+### Bug Fixes
+
+* **Director config:** Add config vars for Google Storage ([14af313](https://github.com/stencila/hub/commit/14af313a796deb98f9fba3d98bafcf323a51d6b7))
+
 ## [2.20.2](https://github.com/stencila/hub/compare/v2.20.1...v2.20.2) (2020-05-04)
 
 
