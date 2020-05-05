@@ -1,3 +1,18 @@
+# [2.21.0](https://github.com/stencila/hub/compare/v2.20.7...v2.21.0) (2020-05-05)
+
+
+### Bug Fixes
+
+* **Monitor:** Specify the retention time and size ([e6dced0](https://github.com/stencila/hub/commit/e6dced0ed7d1236a4b3be142c9f08bafe6231a00)), closes [/github.com/helm/charts/blob/5597f269685b8e3220e2a181fbf002b1b1b819e0/stable/prometheus/values.yaml#L763-L765](https://github.com//github.com/helm/charts/blob/5597f269685b8e3220e2a181fbf002b1b1b819e0/stable/prometheus/values.yaml/issues/L763-L765)
+* **Monitor:** Use metric_path so that monitoring self works ([3859a99](https://github.com/stencila/hub/commit/3859a997084c142c362484323f5a1562e453f9f7))
+
+
+### Features
+
+* **Director:** Enable Prometheus metrics ([1074428](https://github.com/stencila/hub/commit/1074428375c152f3972874b7099ac77bad86d821))
+* **Monitor:** Add monitor service ([e8481f7](https://github.com/stencila/hub/commit/e8481f72fae624163f1ad7674f4ca591f85b32a6))
+* **Router:** Add route to monitor ([f8dc056](https://github.com/stencila/hub/commit/f8dc0561b510309713395f6c1fd84fd79533eed4))
+
 ## [2.20.7](https://github.com/stencila/hub/compare/v2.20.6...v2.20.7) (2020-05-05)
 
 
