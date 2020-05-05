@@ -74,8 +74,6 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: VERSION_TAG=`git describe --tags --abbrev=0 | cut -c2-` && echo "##vso[task.setvariable variable=VERSION_TAG]$VERSION_TAG"
-        displayName: Set the Git tag as a build variable
 
       - script: |
           cp package*.json director/
