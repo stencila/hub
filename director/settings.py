@@ -95,6 +95,7 @@ class Prod(Configuration):
         "django_celery_beat",
         "django_filters",
         "django_intercom",
+        "django_prometheus",
         "djstripe",
         # Our apps
         # Uses dotted paths to AppConfig subclasses as
@@ -107,6 +108,7 @@ class Prod(Configuration):
     ]
 
     MIDDLEWARE = [
+        "django_prometheus.middleware.PrometheusBeforeMiddleware",
         "lib.middleware.ie_detect_middleware",
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
@@ -115,6 +117,7 @@ class Prod(Configuration):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "django_prometheus.middleware.PrometheusAfterMiddleware",
     ]
 
     ROOT_URLCONF = "urls"

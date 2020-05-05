@@ -19,10 +19,11 @@ about_urls = [
     path("help/", views.HelpView.as_view(), name="help"),
 ]
 
-test_urls = [
-    path("403/", views.Test403View.as_view()),
-    path("404/", views.Test404View.as_view()),
-    path("500/", views.Test500View.as_view()),
+internal_urls = [
+    path("", include("django_prometheus.urls")),
+    path("test/403/", views.Test403View.as_view()),
+    path("test/404/", views.Test404View.as_view()),
+    path("test/500/", views.Test500View.as_view()),
 ]
 
 urlpatterns = [
@@ -52,8 +53,8 @@ urlpatterns = [
     path(UrlRoot.open.value + "/", include("stencila_open.urls")),
     # Projects App
     path(UrlRoot.projects.value + "/", include("projects.urls")),
-    # Testing errors
-    path(UrlRoot.test.value + "/", include(test_urls)),
+    # Internal URLs
+    path(UrlRoot.internal.value + "/", include(internal_urls)),
     # Custom Roots (they start with a slug)
     path("<slug:account_name>/", include("accounts.slug_urls")),
 ]
