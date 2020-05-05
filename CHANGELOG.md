@@ -1,3 +1,13 @@
+## [2.20.4](https://github.com/stencila/hub/compare/v2.20.3...v2.20.4) (2020-05-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.7.0 ([88648c6](https://github.com/stencila/hub/commit/88648c66e8657e3ca59b63f635ca811d27e60e6d))
+* **deps:** update dependency pillow to v7.1.2 ([793a667](https://github.com/stencila/hub/commit/793a66735596dcf0b42b275249e1189ddd2ed57c))
+* **Deps:** Upgrade Theme version ([3e63780](https://github.com/stencila/hub/commit/3e63780139fca8620acafb9324e36b0753b5b19c))
+* **Router:** Custom error page and reporting for 502 and 504 erors ([20985e6](https://github.com/stencila/hub/commit/20985e649cdcef00e88156826fb0c2aac0ee5ff2))
+
 ## [2.20.3](https://github.com/stencila/hub/compare/v2.20.2...v2.20.3) (2020-05-04)
 
 
