@@ -116,7 +116,7 @@ build: Dockerfile
 
 # Run the Docker image
 # Necessary environment variables required for `Prod` settings need to
-# be set in `env.sh` and passed using the `--env` option.
+# be passed using the `--env` option.
 # Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
 # Uses development database.
 # Uses `DJANGO_SECURE_SSL_REDIRECT=false` to avoid being redirected
@@ -127,6 +127,7 @@ run-docker: build
 		--env DJANGO_JWT_SECRET \
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
+		--env BROKER_URL \
 		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		-p 8000:8000 -it --rm stencila/hub-director
 
