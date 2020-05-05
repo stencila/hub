@@ -1,3 +1,10 @@
+## [2.20.7](https://github.com/stencila/hub/compare/v2.20.6...v2.20.7) (2020-05-05)
+
+
+### Bug Fixes
+
+* **Director:** Update Encoda version ([2b1e38d](https://github.com/stencila/hub/commit/2b1e38d3036e90a091d8176da84a977975546d7c))
+
 ## [2.20.5](https://github.com/stencila/hub/compare/v2.20.4...v2.20.5) (2020-05-05)
 
 
