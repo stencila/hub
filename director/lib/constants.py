@@ -15,10 +15,10 @@ class UrlRoot(enum.Enum):
     debug = "debug"
     favicon = "favicon.ico"
     ie_unsupported = "ie-unsupported"
+    internal = "internal"
     me = "me"
     open = "open"
     projects = "projects"
-    test = "test"
 
 
 class AccountUrlRoot(enum.Enum):
