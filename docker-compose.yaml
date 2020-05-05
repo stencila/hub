@@ -19,6 +19,7 @@ services:
       - .config
     depends_on:
       - director
+      - monitor
 
   director:
     build: ./director
@@ -45,6 +46,7 @@ services:
     image: stencila/hub-broker
     ports:
       - "5672:5672"
+      - "15692:15692"
     env_file:
       - .secrets
 
@@ -73,3 +75,15 @@ services:
       - .secrets
     depends_on:
       - broker
+
+  monitor:
+    build: ./monitor
+    image: stencila/hub-monitor
+    ports:
+      - "9090:9090"
+    volumes:
+      - monitor:/prometheus
+
+volumes:
+  monitor:
+    

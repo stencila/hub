@@ -1,0 +1,20 @@
+
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  - job_name: monitor
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: director
+    metrics_path: /internal/metrics
+    static_configs:
+      - targets: ['director:8000']
+
+  - job_name: broker
+    static_configs:
+      - targets: ['broker:15692']
+
