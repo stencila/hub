@@ -1,3 +1,10 @@
+## [2.20.5](https://github.com/stencila/hub/compare/v2.20.4...v2.20.5) (2020-05-05)
+
+
+### Bug Fixes
+
+* **CI:** Specify docker-compose file ([269575b](https://github.com/stencila/hub/commit/269575befbe8c9479a0f5e8f210c282eaf1fd204))
+
 ## [2.20.4](https://github.com/stencila/hub/compare/v2.20.3...v2.20.4) (2020-05-05)
 
 
