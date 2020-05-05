@@ -80,26 +80,12 @@ jobs:
       - script: |
           cp package*.json director/
         displayName: Copy required files
-      
-      - task: Docker@2
-        displayName: Build director image
-        inputs:
-          command: buildAndPush
-          dockerfile: director/Dockerfile
-          containerRegistry: DockerHub
-          repository: stencila/hub-director
-          tags: |
-            $(VERSION_TAG)
-            latest
-      
-      - task: Docker@2
-        displayName: Build router image
-        inputs:
-          command: buildAndPush
-          dockerfile: router/Dockerfile
-          containerRegistry: DockerHub
-          repository: stencila/hub-router
-          tags: |
-            $(VERSION_TAG)
-            latest
     
+      - task: DockerCompose@0
+        displayName: Build and push images
+        inputs:
+          action: Push services
+          containerregistrytype: Container Registry
+          dockerRegistryEndpoint: DockerHub
+          includeLatestTag: true
+          includeSourceTags: true
