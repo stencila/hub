@@ -87,5 +87,6 @@ jobs:
           action: Push services
           containerregistrytype: Container Registry
           dockerRegistryEndpoint: DockerHub
+          dockerComposeFile: docker-compose.yaml
           includeLatestTag: true
           includeSourceTags: true
