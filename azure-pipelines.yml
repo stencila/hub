@@ -82,7 +82,15 @@ jobs:
         displayName: Copy required files
     
       - task: DockerCompose@0
-        displayName: Build and push images
+        displayName: Build images
+        inputs:
+          action: Build services
+          dockerComposeFile: docker-compose.yaml
+          includeLatestTag: true
+          includeSourceTags: true
+
+      - task: DockerCompose@0
+        displayName: Push images
         inputs:
           action: Push services
           containerregistrytype: Container Registry
