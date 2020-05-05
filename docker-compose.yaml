@@ -1,7 +1,9 @@
 # This docker-compose file is intended for development and testing.
-# However, it is also used as a basis for Kubernetes deployments.
-# Consequently, some properties have been added to improve conversion to 
-# Kubernetes configs when using Kompose.
+# 
+# It is, however, also used as a basis for Kubernetes deployments.
+# Consequently, some naming conventions and additional properties 
+# are used to improve conversion when using Kompose.
+# See https://github.com/kubernetes/kompose/blob/master/docs/user-guide.md#labels
 
 version: "3.6"
 
@@ -79,6 +81,8 @@ services:
   monitor:
     build: ./monitor
     image: stencila/hub-monitor
+    labels:
+      kompose.volume.size: 10Gi
     ports:
       - "9090:9090"
     volumes:
