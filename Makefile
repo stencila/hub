@@ -1,3 +1,21 @@
+all: format lint test build run
+
+# Format code for each service
+format:
+	make -C director format
+
+# Lint code for each service
+lint:
+	make -C director lint
+
+# Run unit tests for each service
+test:
+	make -C director test
+
+# Run unit tests with coverage for each service
+cover:
+	make -C director cover
+
 # Build all images for all services
 build:
 	docker-compose build
