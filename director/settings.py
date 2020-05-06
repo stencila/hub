@@ -56,9 +56,9 @@ class Prod(Configuration):
     # See `make run-prod`
     SECURE_SSL_REDIRECT = values.BooleanValue(True)
 
-    # Do not redirect the status check to HTTPS so that
-    # HTTP health checks will still work.
-    SECURE_REDIRECT_EXEMPT = [r"^api/status/?$", r"^/?$"]
+    # Do not redirect the status check and other internal URLs
+    # to HTTPS so that HTTP health checks and metric scraping work.
+    SECURE_REDIRECT_EXEMPT = [r"^api/status/?$", r"^internal/", r"^/?$"]
 
     INSTALLED_APPS = [
         # Django contrib apps
