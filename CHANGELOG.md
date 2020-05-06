@@ -1,3 +1,10 @@
+## [2.21.1](https://github.com/stencila/hub/compare/v2.21.0...v2.21.1) (2020-05-06)
+
+
+### Bug Fixes
+
+* **Director:** Do not redirect internal URLs to HTTPS ([0bef198](https://github.com/stencila/hub/commit/0bef198cd68716d2e6f07878aab627446c36a478))
+
 # [2.21.0](https://github.com/stencila/hub/compare/v2.20.7...v2.21.0) (2020-05-05)
 
 
