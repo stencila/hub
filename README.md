@@ -55,6 +55,7 @@ Stencila Hub consists of several services each with it's own sub-folder. The `RE
 * [`scheduler`](scheduler): A Celery process that places periodic, scheduled jobs on the broker's queue.
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the director.
+* [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
 
 ## 🛠️ Develop
 
