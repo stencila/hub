@@ -64,6 +64,8 @@ services:
   overseer:
     build: ./overseer
     image: stencila/hub-overseer
+    ports:
+      - "4040:4040"
     env_file:
       - .secrets
     depends_on:
