@@ -3,10 +3,12 @@ all: format lint test build run
 # Format code for each service
 format:
 	make -C director format
+	make -C overseer format
 
 # Lint code for each service
 lint:
 	make -C director lint
+	make -C overseer lint
 
 # Run unit tests for each service
 test:

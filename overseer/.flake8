@@ -1,0 +1,7 @@
+[flake8]
+exclude = venv
+# Although Black uses max line length of 88
+# it does not deal with strings and comments
+# So permit long lines for those.
+max-line-length = 120
+

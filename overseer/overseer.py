@@ -4,6 +4,7 @@ Stencila Hub Overseer.
 A Celery app for monitoring job and worker events.
 A worker must be run with the `--events` to emit events.
 See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
+(Much of the following docstring are from there.)
 """
 from datetime import datetime
 import os
@@ -17,7 +18,7 @@ celery = Celery("overseer", broker=os.environ["BROKER_URL"])
 # Setup API client
 api = httpx.Client(
     base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/"),
-    headers={"content-type": "application/json", "accept": "application/json",},
+    headers={"content-type": "application/json", "accept": "application/json"},
     timeout=30,
 )
 
@@ -52,10 +53,12 @@ def worker_event(data):
 
 
 def task_sent(event):
+    """Sent when a task message is published and the task_send_sent_event setting is enabled."""
     print("task_sent", event)
 
 
 def task_received(event):
+    """Sent when the worker receives a task."""
     update_job(
         event["uuid"],
         {
@@ -67,6 +70,7 @@ def task_received(event):
 
 
 def task_started(event):
+    """Sent just before the worker executes the task."""
     update_job(
         event["uuid"],
         {
@@ -78,6 +82,13 @@ def task_started(event):
 
 
 def task_succeeded(event):
+    """
+    Sent if the task executed successfully.
+
+    Run-time is the time it took to execute the task using the pool.
+    (Starting from the task is sent to the worker pool, and ending when the pool
+    result handler callback is called).
+    """
     update_job(
         event["uuid"],
         {
@@ -91,6 +102,7 @@ def task_succeeded(event):
 
 
 def task_failed(event):
+    """Sent if the execution of the task failed."""
     update_job(
         event["uuid"],
         {
@@ -109,10 +121,18 @@ def task_failed(event):
 
 
 def task_rejected(event):
+    """Sent if the task was rejected by the worker, possibly to be re-queued or moved to a dead letter queue."""
     print("task_rejected", event)
 
 
 def task_revoked(event):
+    """
+    Sent if the task has been revoked (Note that this is likely to be sent by more than one worker).
+
+    terminated is set to true if the task process was terminated,
+    and the signum field set to the signal used.
+    expired is set to true if the task expired.
+    """
     update_job(
         event["uuid"],
         {
@@ -124,6 +144,7 @@ def task_revoked(event):
 
 
 def task_retried(event):
+    """Sent if the task failed, but will be retried in the future."""
     print("task_retried", event)
 
 
@@ -132,7 +153,11 @@ def task_retried(event):
 
 def worker_handler(event):
     """
-    Handler for all three worker events: online, offline, heartbeat.
+    Handle one of the three worker events.
+
+    - online: A worker has connected to the broker and is online.
+    - heartbeat: Sent by a worker every `event.freq` seconds.
+    - offline: A worker has disconnected from the broker.
 
     Contrary to the Celery docs, at the time of writing, these three
     event types have the same fields so we have a single handler and
@@ -141,7 +166,7 @@ def worker_handler(event):
     worker_event(event)
 
 
-# Connect handler to events
+# Connect handlers to events
 
 with celery.connection() as connection:
     receiver = celery.events.Receiver(

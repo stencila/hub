@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 88
+target-version = ['py37']
+exclude = 'venv'
+
+[mypy]
+python_version = 3.7
+
+[mypy-celery]
+ignore_missing_imports = true

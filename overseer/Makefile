@@ -8,6 +8,17 @@ venv: requirements.txt requirements-dev.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
 
+# Format code
+format: venv
+	$(VE)/black .
+
+# Lint code
+lint: venv
+	$(VE)/black --check .
+	$(VE)/flake8
+	$(VE)/mypy --config-file pyproject.toml .
+	$(VE)/pydocstyle --match-dir='^(?!venv)'
+
 # Run `overseer.py` during development to check configuration.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
@@ -15,8 +26,8 @@ run: venv
 	$(VE)/python3 overseer.py
 
 # Run `celery flower` during development.
-run-flower: venv
-	$(VE)/celery flower --broker=redis://localhost:6379/0
+flower: venv
+	$(VE)/celery flower --broker=amqp://stencila:password@localhost:5672/stencila
 
 # Build Docker image
 build:
