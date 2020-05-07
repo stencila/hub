@@ -19,3 +19,6 @@ scrape_configs:
     static_configs:
       - targets: ['broker:15692']
 
+  - job_name: overseer
+    static_configs:
+      - targets: ['overseer:4040']

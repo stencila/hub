@@ -10,10 +10,12 @@ from datetime import datetime
 import os
 import warnings
 
+from prometheus_client import start_http_server, Summary
 from celery import Celery
+from celery.events.receiver import EventReceiver
 import httpx
 
-celery = Celery("overseer", broker=os.environ["BROKER_URL"])
+app = Celery("overseer", broker=os.environ["BROKER_URL"])
 
 # Setup API client
 api = httpx.Client(
@@ -166,23 +168,45 @@ def worker_handler(event):
     worker_event(event)
 
 
-# Connect handlers to events
+# Monitoring metrics
 
-with celery.connection() as connection:
-    receiver = celery.events.Receiver(
-        connection,
-        handlers={
-            "task-sent": task_sent,
-            "task-received": task_received,
-            "task-started": task_started,
-            "task-succeeded": task_succeeded,
-            "task-failed": task_failed,
-            "task-rejected": task_rejected,
-            "task-revoked": task_revoked,
-            "task-retried": task_retried,
-            "worker-online": worker_handler,
-            "worker-heartbeat": worker_handler,
-            "worker-offline": worker_handler,
-        },
-    )
+event_processing = Summary(
+    "event_processing_seconds", "Summary of event processing duration"
+)
+
+
+class Receiver(EventReceiver):
+    """Extends Celery's `EventReceiver` class to implement monitoring intrumentation."""
+
+    def __init__(self, connection):
+        """Override that connects above handlers to event types."""
+        super().__init__(
+            connection,
+            handlers={
+                "task-sent": task_sent,
+                "task-received": task_received,
+                "task-started": task_started,
+                "task-succeeded": task_succeeded,
+                "task-failed": task_failed,
+                "task-rejected": task_rejected,
+                "task-revoked": task_revoked,
+                "task-retried": task_retried,
+                "worker-online": worker_handler,
+                "worker-heartbeat": worker_handler,
+                "worker-offline": worker_handler,
+            },
+        )
+
+    def process(self, type: str, event):
+        """Override that increments the event counter."""
+        with event_processing.time():
+            return super().process(self, type, event)
+
+
+# Start the HTTP server to expose metrics
+start_http_server(4040)
+
+# Connect handlers to events
+with app.connection() as connection:
+    receiver = Receiver(connection)
     receiver.capture(limit=None, timeout=None, wakeup=True)
