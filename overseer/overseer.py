@@ -30,7 +30,7 @@ api = httpx.Client(
 )
 
 
-def update_job(id: str, data: dict):
+def update_job(id, data: dict):
     """
     Update a job.
 
@@ -184,7 +184,7 @@ def worker_handler(event: Event):
 # Monitoring metrics
 
 event_processing = Summary(
-    "event_processing_seconds", "Summary of event processing duration"
+    "overseer_event_processing", "Summary of event processing duration"
 )
 
 
@@ -210,10 +210,10 @@ class Receiver(EventReceiver):
             },
         )
 
-    def process(self, type: str, event):
+    def process(self, type: str, event: Event):
         """Override that increments the event counter."""
         with event_processing.time():
-            return super().process(self, type, event)
+            return super().process(type, event)
 
 
 # Start the HTTP server to expose metrics
