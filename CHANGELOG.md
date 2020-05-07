@@ -1,3 +1,11 @@
+## [2.21.2](https://github.com/stencila/hub/compare/v2.21.1...v2.21.2) (2020-05-07)
+
+
+### Bug Fixes
+
+* **Overseer:** Add monitoring metrics ([42bf0b2](https://github.com/stencila/hub/commit/42bf0b268562846a4b06be2c190418c720686ce9))
+* **Overseer:** File super() call; rename metric ([765362b](https://github.com/stencila/hub/commit/765362bc801e7169ac7c0b3c253cccf829619ea1))
+
 ## [2.21.1](https://github.com/stencila/hub/compare/v2.21.0...v2.21.1) (2020-05-06)
 
 
