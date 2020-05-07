@@ -2,11 +2,16 @@
 Stencila Hub Overseer.
 
 A Celery app for monitoring job and worker events.
-A worker must be run with the `--events` to emit events.
+A worker must be run with the `--events` option to emit events.
+
+For the most part, this service simply translates events into data
+that is posted to the `director`'s API for handling there.
+
 See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 (Much of the following docstring are from there.)
 """
 from datetime import datetime
+from typing import Dict, Union
 import os
 import warnings
 
@@ -25,7 +30,7 @@ api = httpx.Client(
 )
 
 
-def update_job(id, data):
+def update_job(id: str, data: dict):
     """
     Update a job.
 
@@ -37,7 +42,7 @@ def update_job(id, data):
         warnings.warn(response.text)
 
 
-def worker_event(data):
+def worker_event(data: dict):
     """
     Create a worker event.
 
@@ -51,15 +56,23 @@ def worker_event(data):
         warnings.warn(response.text)
 
 
+Event = Dict[str, Union[str, int, float]]
+
+
+def get_event_time(event: Event):
+    """Get the event timestamp and convert it into ISO format as expected by the Hub."""
+    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat()
+
+
 # Handlers for task events
 
 
-def task_sent(event):
+def task_sent(event: Event):
     """Sent when a task message is published and the task_send_sent_event setting is enabled."""
     print("task_sent", event)
 
 
-def task_received(event):
+def task_received(event: Event):
     """Sent when the worker receives a task."""
     update_job(
         event["uuid"],
@@ -71,19 +84,19 @@ def task_received(event):
     )
 
 
-def task_started(event):
+def task_started(event: Event):
     """Sent just before the worker executes the task."""
     update_job(
         event["uuid"],
         {
             "status": event.get("state", "STARTED"),
-            "began": datetime.fromtimestamp(event.get("timestamp")).isoformat(),
+            "began": get_event_time(event),
             "worker": event.get("hostname"),
         },
     )
 
 
-def task_succeeded(event):
+def task_succeeded(event: Event):
     """
     Sent if the task executed successfully.
 
@@ -95,7 +108,7 @@ def task_succeeded(event):
         event["uuid"],
         {
             "status": event.get("state", "SUCCESS"),
-            "ended": datetime.fromtimestamp(event.get("timestamp")).isoformat(),
+            "ended": get_event_time(event),
             "result": event.get("result"),
             "runtime": event.get("runtime"),
             "worker": event.get("hostname"),
@@ -103,13 +116,13 @@ def task_succeeded(event):
     )
 
 
-def task_failed(event):
+def task_failed(event: Event):
     """Sent if the execution of the task failed."""
     update_job(
         event["uuid"],
         {
             "status": event.get("state", "FAILED"),
-            "ended": datetime.fromtimestamp(event.get("timestamp")).isoformat(),
+            "ended": get_event_time(event),
             "log": [
                 {
                     "level": 0,
@@ -122,12 +135,12 @@ def task_failed(event):
     )
 
 
-def task_rejected(event):
+def task_rejected(event: Event):
     """Sent if the task was rejected by the worker, possibly to be re-queued or moved to a dead letter queue."""
     print("task_rejected", event)
 
 
-def task_revoked(event):
+def task_revoked(event: Event):
     """
     Sent if the task has been revoked (Note that this is likely to be sent by more than one worker).
 
@@ -139,13 +152,13 @@ def task_revoked(event):
         event["uuid"],
         {
             "status": "TERMINATED" if event.get("terminated") else "REVOKED",
-            "ended": datetime.fromtimestamp(event.get("timestamp")).isoformat(),
+            "ended": get_event_time(event),
             "worker": event.get("hostname"),
         },
     )
 
 
-def task_retried(event):
+def task_retried(event: Event):
     """Sent if the task failed, but will be retried in the future."""
     print("task_retried", event)
 
@@ -153,7 +166,7 @@ def task_retried(event):
 # Handlers for worker events
 
 
-def worker_handler(event):
+def worker_handler(event: Event):
     """
     Handle one of the three worker events.
 
