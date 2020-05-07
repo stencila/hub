@@ -78,12 +78,12 @@ run-prod: venv
 format: venv
 	$(VE)/black .
 
-# Check formatting of code (for CI)
-format-check: venv
-	$(VE)/black --check .	
-
 # Lint everything
-lint: lint-code lint-types lint-docs
+lint: lint-format lint-code lint-types lint-docs
+
+# Lint code formatting
+lint-format: venv
+	$(VE)/black --check .	
 	
 # Lint code
 lint-code: venv

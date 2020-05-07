@@ -21,17 +21,11 @@ jobs:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.7'
-
-      - script: make -C director venv
-        displayName: Setup virtual environment
-
-      - script: make -C director format-check
-        displayName: Check formatting
   
-      - script: make -C director lint
+      - script: make lint
         displayName: Lint
 
-      - script: make -C director cover
+      - script: make cover
         displayName: Test
 
       - script: bash <(curl -s https://codecov.io/bash)
