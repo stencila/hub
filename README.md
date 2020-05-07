@@ -46,12 +46,12 @@ We also welcome your suggestions or code contributions for feature you'd like to
 
 ## ⚙️ Services
 
-Stencila Hub consists of several services each with it's own sub-folder. The `README.md` file (🦄 not all of these are written yet) for each service provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development:
+Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service (🦄 not all of these are written yet) provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development:
 
 * [`router`](router): A [Nginx](https://nginx.org/) server that routes requests to other services.
 * [`director`](director): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
 * [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker.
-* [`worker`](worker): A [Celery](https://docs.celeryproject.org) process that run jobs that on the broker's queue.
+* [`worker`](worker): A [Celery](https://docs.celeryproject.org) process that runs jobs from the broker's queue.
 * [`scheduler`](scheduler): A Celery process that places periodic, scheduled jobs on the broker's queue.
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the director.
@@ -74,7 +74,7 @@ To run the service integration tests described below you will need:
 and/or,
 
 - [Minikube](https://minikube.sigs.k8s.io/docs/)
-- [Kompose](http://kompose.io/)
+- [Kompose](https://kompose.io/)
 
 ### Getting started
 
@@ -84,7 +84,7 @@ The top level `Makefile` contains recipes for common development tasks e.g `make
 make
 ```
 
-The top level `make` recipes mostly just invoke the corresponding recipe in the `Makefile` for each service. You can run them individually by either `cd`ing into the service's folder or using the `make -C` option e.g.
+The top level `make` recipes mostly just invoke the corresponding recipe in the `Makefile` for each service. You can run them individually by either `cd`ing into the service's folder or using the `make -C` option e.g. to just run the `director` service,
 
 ```sh
 make -C director run
@@ -92,13 +92,13 @@ make -C director run
 
 > 💁 Tip: The individual `run` recipes are useful for quickly iterating during development and, in the case of the `director`, will hot-reload when source files are edited. Where possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
 
-> 💁 Tip: If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking the correct way with one or more of the other services.
+> 💁 Tip: If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking correctly to one or more of the other services.
 
-> 🛈 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. But they are mostly there to guide and document the development workflow. Many developers will probably only want to refer to the `Makefiles` and bypass `make` in favour of using their favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
+> 🛈 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. However, they are mostly there to guide and document the development workflow. You may prefer to bypass `make` in favour of using your favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
 
 ### Linting and formatting
 
-Some of services define code linting and formatting recipes. Often you might run those together e.g.
+Some of services define code linting and formatting recipes. Often they get run together e.g.
 
 ```sh
 make format lint
@@ -155,13 +155,13 @@ minikube start
 make run-in-minikube
 ```
 
-> 🛈 Info: the `run-in-minikube` recipe sets up Minikube to be able to do local builds of images, rather than pulling them down from Docker Hub, build the images, and then runs `kompose up`.
+> 🛈 Info: the `run-in-minikube` recipe sets up Minikube to be able to do local builds of images (rather than pulling them down from Docker Hub), then builds the images in Minikube and runs `kompose up`.
 
 > 💁 Tip: The `minikube dashboard` is really useful for debugging. And don't forget to `minikube stop` when you're done!
 
 ### Committing
 
-Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is important (but not required) because commit messages are used to determine the semantic version of releases (and thus deployments), and to generate the project's [CHANGELOG.md](CHANGELOG.md). If appropriate, use the sentence case service name as the scope (to help make both `git log` and the CHANGELOG more readable). Some examples,
+Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is important (but not required) because commit messages are used to determine the semantic version of releases (and thus deployments) and to generate the project's [CHANGELOG.md](CHANGELOG.md). If appropriate, use the sentence case service name as the scope (to help make both `git log` and the change log more readable). Some examples,
 
 - `fix(Monitor): Fix endpoint for scraping metrics`
 - `feat(Director): Add pulling from Google Drive`
