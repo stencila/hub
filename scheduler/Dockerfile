@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 
 # Create `scheduler` user and use it's home dir
 RUN useradd -m scheduler
