@@ -1,3 +1,10 @@
+# [2.22.0](https://github.com/stencila/hub/compare/v2.21.2...v2.22.0) (2020-05-09)
+
+
+### Features
+
+* **Director:** Add queue model and associated API views ([39440c3](https://github.com/stencila/hub/commit/39440c3039cd8e88b1573cc75928fa602e59317e))
+
 ## [2.21.2](https://github.com/stencila/hub/compare/v2.21.1...v2.21.2) (2020-05-07)
 
 
