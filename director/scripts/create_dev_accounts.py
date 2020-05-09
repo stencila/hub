@@ -11,5 +11,5 @@ def run(*args):
     # Ensure that this is only used in development
     assert settings.DEBUG
 
-    for account in ["hapuku-university", "craigiburn-college", "acme-ltd"]:
+    for account in ["stencila", "hapuku-university", "craigiburn-college", "acme-ltd"]:
         Account.objects.create(name=account,)

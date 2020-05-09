@@ -1,5 +1,6 @@
 from enum import unique
 import json
+import re
 
 from django_celery_beat.models import PeriodicTask
 from django.core import validators
@@ -15,16 +16,18 @@ from users.models import User
 
 class Zone(models.Model):
     """
-    A zone within which jobs are run.
+    A zone within which jobs are run and data is stored.
 
-    Zones are similar to, and may correspond with, "availability zones" as
-    provided by public providers such as AWS and Google Cloud. Workers
-    and the data they operate on are usually colated within zones to
-    reduce latency.
+    A zone is really just a label for where to put data and
+    run jobs so that they can be colated to reduce latency.
+    They are similar to, and may correspond with, "availability zones" as
+    provided by public cloud providers such as AWS and Google Cloud.
+    A zone could also simply be a laptop in someone's bedroom.
 
-    Stencila provides several zones, and users can decide which zone their
-    project will run in. Accounts can define their own zones and select those
-    for specific projects.
+    Zones are linked to accounts. The Stencila account provides several zones,
+    and users can decide which zone their project will run in.
+    Other zccounts can define their own zones and select those for specific
+    projects.
     """
 
     account = models.ForeignKey(
@@ -51,21 +54,110 @@ class Zone(models.Model):
         ]
 
 
-class Worker(models.Model):
+class Queue(models.Model):
     """
-    A worker that runs jobs within a zone.
+    A queue upon which jobs are placed.
 
-    This model stores information on a worker as captured by the `overseer` service
-    from Celery's worker monitoring events.
+    Queues are always associated with a zone. They have several attributes
+    that determine which jobs are placed on them:
+
+    - priority: the relative priority of jobs on the queue
+    - untrusted: whether or not jobs on the queue can execute untrusted code
+    - interrupt: whether or not jobs on the queue can be interrupted
+
+    Queues are implicitly created when a worker comes online
+    and declares which queues it is listening to. The attributes
+    of a queue are defined by it's name, using the format:
+
+        <zone>[:priority][:untrusted][:interrupt]
+
+    For example, a Celery worker might be started like this:
+
+        celery -A proj worker -Q north-1:untrusted --concurrency 100
+
+    meaning that it will run up to 100 concurrent, untrusted, uninterruptible
+    (the default) jobs of priority 1.
+
+    That is, queues are created by workers (rather than having to be predefined and
+    workers subscribing to them). This "inversion of control" is counter to
+    how one might first think of the relationship between workers and queues.
     """
+
+    NAME_REGEX = r"^([a-z][a-z0-9\-]*)(:[0-9])?(:untrusted)?(:interrupt)?$"
+
+    name = models.CharField(max_length=512, help_text="The name of the queue.")
 
     zone = models.ForeignKey(
         Zone,
         null=True,
         blank=True,
         on_delete=models.CASCADE,
+        related_name="jobs",
+        help_text="The zone this job is associated with.",
+    )
+
+    priority = models.IntegerField(
+        default=0, help_text="The relative priority of jobs placed on the queue."
+    )
+
+    untrusted = models.BooleanField(
+        default=False,
+        help_text="Whether or not the queue should be sent jobs which run untrusted code.",
+    )
+
+    interrupt = models.BooleanField(
+        default=False,
+        help_text="Whether or not the queue should be sent jobs which can not be interupted."
+        "False (default): jobs should not be interrupted",
+    )
+
+    @classmethod
+    def get_or_create(cls, account_name, queue_name):
+        """
+        Get or create a queue from a name and account name.
+
+        This method extracts the fields of a queue model from two strings
+        obtained from Celery when a worker comes online:
+
+        - name = the name of the queue
+        - account_name = the broker vhost that the worker if listening to
+
+        If there is already a queue with the name (for the account) then
+        it will be returned. Otherwise, a new queue wll be created.
+        """
+        match = re.search(cls.NAME_REGEX, queue_name)
+        assert match is not None
+
+        account = Account.objects.get(name=account_name)
+        zone, created = Zone.objects.get_or_create(account=account, name=match.group(1))
+
+        priority = match.group(2)
+        priority = int(priority[1:]) if priority else 0
+
+        untrusted = match.group(3) is not None
+        interrupt = match.group(4) is not None
+
+        return cls.objects.get_or_create(
+            name=queue_name,
+            zone=zone,
+            priority=priority,
+            untrusted=untrusted,
+            interrupt=interrupt,
+        )
+
+
+class Worker(models.Model):
+    """
+    A worker that runs jobs placed on one or more queues.
+
+    This model stores information on a worker as captured by the `overseer` service
+    from Celery's worker monitoring events.
+    """
+
+    queues = models.ManyToManyField(
+        Queue,
         related_name="workers",
-        help_text="The zone that this worker is in.",
+        help_text="The queues that this worker is listening to.",
     )
 
     created = models.DateTimeField(
@@ -109,6 +201,13 @@ class Worker(models.Model):
         max_length=64, help_text="Operating system that the worker is running on.",
     )
 
+    details = FallbackJSONField(
+        null=True,
+        blank=True,
+        help_text="Details about the worker including queues and stats"
+        "See https://docs.celeryproject.org/en/stable/userguide/workers.html#statistics",
+    )
+
     signature = models.CharField(
         max_length=512,
         help_text="The signature of the worker used to identify it. "
@@ -119,31 +218,83 @@ class Worker(models.Model):
     # as being inactive
     FLATLINE_HEARTBEATS = 5
 
-    @property
-    def active(self):
-        return (
-            not self.finished
-            and (timezone.now() - self.updated).minutes
-            < self.freq * Worker.FLATLINE_HEARTBEATS
+    @classmethod
+    def get_or_create(cls, event: dict, create=False):
+        """
+        Get or create a worker from a Celery worker event.
+
+        This method extracts the fields of a worker from a
+        Celery worker event and constructs a signature from them.
+        If there is an active worker with the same signature then
+        it is returned.
+
+        The signature is the only way to uniquely identify
+        a worker.
+        """
+        hostname = event.get("hostname")
+        utcoffset = event.get("utcoffset")
+        pid = event.get("pid")
+        freq = event.get("freq")
+        software = "{}-{}".format(event.get("sw_ident"), event.get("sw_ver"))
+        os = event.get("sw_sys")
+        details = event.get("details", {})
+
+        signature = "{hostname}|{utcoffset}|{pid}|{freq}|{software}|{os}".format(
+            hostname=hostname,
+            utcoffset=utcoffset,
+            pid=pid,
+            freq=freq,
+            software=software,
+            os=os,
         )
 
+        if not create:
+            try:
+                return Worker.objects.get(signature=signature, finished__isnull=True)
+            except Worker.DoesNotExist:
+                pass
 
-class WorkerStatus(models.Model):
+        return Worker.objects.create(
+            hostname=hostname,
+            utcoffset=utcoffset,
+            pid=pid,
+            freq=freq,
+            software=software,
+            os=os,
+            details=details,
+            signature=signature,
+        )
+
+    @property
+    def active(self):
+        """Is the worker still active."""
+        if self.finished:
+            return False
+        if self.updated:
+            return (
+                timezone.now() - self.updated
+            ).minutes < self.freq * Worker.FLATLINE_HEARTBEATS
+        return True
+
+
+class WorkerHeartbeat(models.Model):
     """
-    The status of a worker at a particular time.
+    A worker heartbeat event.
 
     Stores time varying properties of the worker as available from
-    Celery worker monitoring events: `worker_online`, `worker_heartbeat` and `worker_offline`.
+    Celery worker monitoring events. The names of the fields of this model
+    are intended to be consistent with those.
+    See https://docs.celeryproject.org/en/stable/userguide/monitoring.html#worker-events
     """
 
     worker = models.ForeignKey(
         Worker,
         on_delete=models.CASCADE,
-        related_name="statuses",
-        help_text="The worker that this status relates to.",
+        related_name="heartbeats",
+        help_text="The worker that the heartbeat is for.",
     )
 
-    time = models.DateTimeField(help_text="The time that this status related to.")
+    time = models.DateTimeField(help_text="The time of the heartbeat.")
 
     clock = models.IntegerField(
         help_text="The tick number of the worker's monotonic clock",
@@ -235,10 +386,6 @@ class Job(models.Model):
     """
     A job, usually, but not necessarily associated with a project.
 
-    Because some jobs may not be associated with a project, the
-    `key` field is a token that provides access to the job outside
-    of the usual project permissions.
-
     If a job is created here in Django, the `creator` field should be
     populated with the current user. Jobs created as part of a pipline
     may not have a creator.
@@ -277,20 +424,12 @@ class Job(models.Model):
         null=True, auto_now_add=True, help_text="The time the job was created."
     )
 
-    zone = models.ForeignKey(
-        Zone,
+    queue = models.ForeignKey(
+        Queue,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="jobs",
-        help_text="The project this job is associated with.",
-    )
-
-    queue = models.CharField(
-        max_length=64,
-        blank=True,
-        null=True,
-        help_text="The identifier of the queue the job was posted to.",
+        help_text="The queue that this job was routed to",
     )
 
     began = models.DateTimeField(null=True, help_text="The time the job began.")
