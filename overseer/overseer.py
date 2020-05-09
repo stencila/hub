@@ -13,7 +13,8 @@ See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 from datetime import datetime
 from typing import Dict, Union
 import os
-import warnings
+import time
+import logging
 
 from prometheus_client import start_http_server, Summary
 from celery import Celery
@@ -29,33 +30,6 @@ api = httpx.Client(
     timeout=30,
 )
 
-
-def update_job(id, data: dict):
-    """
-    Update a job.
-
-    Sends a PATCH request to the `director` to update the
-    state of the job.
-    """
-    response = api.patch("jobs/{}".format(id), json=data)
-    if response.status_code != 200:
-        warnings.warn(response.text)
-
-
-def worker_event(data: dict):
-    """
-    Create a worker event.
-
-    Sends a POST request to the `director` with a new
-    worker event. Because of the intricacies of uniquely
-    identifying workers, we send events, rather trying to
-    resolve ids here.
-    """
-    response = api.post("workers/events", json=data)
-    if response.status_code != 200:
-        warnings.warn(response.text)
-
-
 Event = Dict[str, Union[str, int, float]]
 
 
@@ -65,6 +39,18 @@ def get_event_time(event: Event):
 
 
 # Handlers for task events
+
+
+def update_job(id, data: dict):
+    """
+    Update a job.
+
+    Sends a PATCH request to the `director` to update the
+    state of the job. Reused below for individual task event handlers.
+    """
+    response = api.patch("jobs/{}".format(id), json=data)
+    if response.status_code != 200:
+        logging.error(response.text)
 
 
 def task_sent(event: Event):
@@ -166,19 +152,64 @@ def task_retried(event: Event):
 # Handlers for worker events
 
 
-def worker_handler(event: Event):
+def worker_online(event: Event):
     """
-    Handle one of the three worker events.
+    Sent when a worker has connected to the broker.
 
-    - online: A worker has connected to the broker and is online.
-    - heartbeat: Sent by a worker every `event.freq` seconds.
-    - offline: A worker has disconnected from the broker.
-
-    Contrary to the Celery docs, at the time of writing, these three
-    event types have the same fields so we have a single handler and
-    do most of the logic handling in Django.
+    Fetches more information on the worker and creates a new worker
+    object on the `director`.
     """
-    worker_event(event)
+    hostname = event.get("hostname")
+
+    # Get additional stats and the queues for the worker.
+    # Needed to know which broker and vhost it is listenting to
+    # The list of queues may initially be empty so keep trying
+    inspect = app.control.inspect([hostname])
+    queues = None
+    stats = None
+    trials = 0
+    while queues is None and stats is None and trials < 1000:
+        queues = inspect.active_queues()
+        queues = queues.get(hostname) if queues else None
+        stats = inspect.stats()
+        stats = stats.get(hostname) if stats else None
+        trials += 1
+        time.sleep(0.1)
+
+    if queues is None or stats is None:
+        logging.error("Unable to fetch queues and/or stats")
+
+    response = api.post(
+        "workers/online", json=dict(details=dict(queues=queues, stats=stats), **event)
+    )
+    if response.status_code != 200:
+        logging.error(response.text)
+
+
+def worker_heartbeat(event: Event):
+    """
+    Sent by a worker every `event.freq` seconds.
+
+    Sends a POST request to the `director` to create a heartbeat.
+    Because of the intricacies of uniquely identifying workers,
+    rather trying to resolve which worker this heartbeat is for here,
+    we sent the entire event to the `director` and do it over there.
+    """
+    response = api.post("workers/heartbeat", json=event)
+    if response.status_code != 200:
+        logging.error(response.text)
+
+
+def worker_offline(event: Event):
+    """
+    Sent when a worker has disconnected from the broker.
+
+    Sends a POST request to the `director` to mark the
+    worker as finished.
+    """
+    response = api.post("workers/offline", json=event)
+    if response.status_code != 200:
+        logging.error(response.text)
 
 
 # Monitoring metrics
@@ -204,9 +235,9 @@ class Receiver(EventReceiver):
                 "task-rejected": task_rejected,
                 "task-revoked": task_revoked,
                 "task-retried": task_retried,
-                "worker-online": worker_handler,
-                "worker-heartbeat": worker_handler,
-                "worker-offline": worker_handler,
+                "worker-online": worker_online,
+                "worker-heartbeat": worker_heartbeat,
+                "worker-offline": worker_offline,
             },
         )
 
