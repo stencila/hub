@@ -31,8 +31,7 @@ class AccountsBrokerView(
     views.APIView, AccountPermissionsMixin,
 ):
     """
-    A view that provides access to an account's own vhost
-    on the broker.
+    A view that provides access to an account's own vhost on the broker.
 
     This is a POC and is not currently used.
     """
@@ -85,7 +84,7 @@ class AccountsZonesViewSet(
 
     Zones are always linked to an account. Therefore, this viewset
     should be nested at `/accounts/{id}/zones`.
-    
+
     Provides basic CRUD for zones. Zones will usually be implicitly
     created from queue names but can also be created / deleted etc here.
     """
@@ -250,13 +249,13 @@ class AccountsWorkersViewSet(
         queryset = Worker.objects.filter(
             queues__zone__account=self.kwargs["account"]
         ).distinct()
-        
-        active = self.request.query_params.get('active', None)
-        if active == 'true':
+
+        active = self.request.query_params.get("active", None)
+        if active == "true":
             queryset = queryset.filter(finished__isnull=True)
-        elif active == 'false':
+        elif active == "false":
             queryset = queryset.filter(finished__isnull=False)
-        
+
         return queryset
 
     # Views
@@ -408,7 +407,6 @@ class WorkersViewSet(viewsets.GenericViewSet):
         worker.save()
 
         return Response()
-
 
 
 class JobsViewSet(
@@ -589,4 +587,3 @@ class JobsViewSet(
         job = jobs.cancel(self.get_object())
         serializer = self.get_serializer(job)
         return Response(serializer.data)
-
