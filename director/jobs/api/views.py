@@ -3,27 +3,412 @@ import logging
 
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, permissions, status, viewsets
+from rest_framework import mixins, permissions, status, views, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from accounts.views import Account, AccountPermissionsMixin, AccountPermissionType
-from jobs.models import Job, Worker, WorkerStatus, Zone
+from accounts.views import AccountPermissionsMixin, AccountPermissionType
+from jobs.models import Job, Queue, Worker, WorkerHeartbeat, Zone
 from jobs.api.serializers import (
     JobListSerializer,
     JobCreateSerializer,
     JobRetrieveSerializer,
     JobUpdateSerializer,
+    QueueSerializer,
     WorkerSerializer,
-    WorkerStatusSerializer,
+    WorkerHeartbeatSerializer,
     ZoneSerializer,
     ZoneCreateSerializer,
 )
 from jobs import jobs
 
 logger = logging.getLogger(__name__)
+
+
+class AccountsBrokerView(
+    views.APIView, AccountPermissionsMixin,
+):
+    """
+    A view that provides access to an account's own vhost
+    on the broker.
+
+    This is a POC and is not currently used.
+    """
+
+    # Configuration
+
+    required_account_permission = AccountPermissionType.MODIFY
+
+    # Views
+
+    def get(self, request: Request, account: int) -> Response:
+        """
+        Connect to the job broker for the account.
+
+        This endpoint is for self-hosted workers. These need to be
+        enabled for the account.
+
+        You may need to include your authentication token in the URL.
+        For example, when using [Celery](https://www.celeryproject.org/) in Python:
+
+        ```python
+        account = os.environ.get("STENCILA_ACCOUNT")
+        token = os.environ.get("STENCILA_TOKEN")
+        app = Celery(
+            broker="https://{}@hub.stenci.la/api/accounts/{}/jobs/broker".format(
+                token, account
+            )
+        )
+        ```
+        """
+        self.request_permissions_guard(request, pk=account)
+        # TODO: Check that the account has self-hosted workers enabled
+        # TODO: Authenticate with the RabbitMQ broker and use account's virtual host
+        url = "http://account-user:account-password@broker:0000/account-vhost"
+        return Response(
+            headers={"X-Accel-Redirect": "@jobs-broker", "X-Accel-Redirect-URL": url}
+        )
+
+
+class AccountsZonesViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+    AccountPermissionsMixin,
+):
+    """
+    A view set for zones.
+
+    Zones are always linked to an account. Therefore, this viewset
+    should be nested at `/accounts/{id}/zones`.
+    
+    Provides basic CRUD for zones. Zones will usually be implicitly
+    created from queue names but can also be created / deleted etc here.
+    """
+
+    # Configuration
+
+    lookup_field = "name"
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of zones linked to the account.
+        """
+        return Zone.objects.filter(account=self.kwargs["account"])
+
+    def get_serializer_class(self):
+        """
+        Override of `GenericAPIView.get_serializer_class`.
+
+        Returns different serializers for different views.
+        """
+        return ZoneCreateSerializer if self.action == "create" else ZoneSerializer
+
+    # Views
+
+    def list(self, request: Request, account: int) -> Response:
+        """
+        List the zones linked to the account.
+
+        Returns details for all zones linked to the account.
+        """
+        self.request_permissions_guard(
+            request, pk=account, permission=AccountPermissionType.VIEW
+        )
+
+        return super().list(request, account)
+
+    def create(self, request: Request, account: int) -> Response:
+        """
+        Create a zone linked to the account.
+
+        Returns details for the new zone.
+        """
+        self.request_permissions_guard(
+            request, pk=account, permission=AccountPermissionType.ADMINISTER
+        )
+
+        return super().create(request, account)
+
+    def retrieve(self, request: Request, account: int, name: str) -> Response:
+        """
+        Retrieve details of a zone linked to the account.
+
+        Returns details for the zone.
+        """
+        self.request_permissions_guard(
+            request, pk=account, permission=AccountPermissionType.VIEW
+        )
+
+        return super().retrieve(request, account, name)
+
+    def destroy(self, request: Request, account: int, name: str) -> Response:
+        """
+        Destroy a zone linked to the account.
+
+        Don't worry, no zones will be harmed by this action :)
+        It just removes them from the list of available zones
+        for the account.
+        """
+        self.request_permissions_guard(
+            request, pk=account, permission=AccountPermissionType.ADMINISTER
+        )
+
+        return super().destroy(request, account, name)
+
+
+class AccountsQueuesViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+    AccountPermissionsMixin,
+):
+    """
+    A view set for queues.
+
+    Queues are always linked to zones which are in turn
+    linked to an account. This viewset is nested
+    under accounts i.e. `/accounts/{id}/queues` because
+    access should be restricted to users with
+    permissions to the account. To avoid too deep
+    nesting, it is not nested under zones.
+
+    It currently only provides `list` and `retrieve`
+    actions (creation is done implicitly).
+    """
+
+    # Configuration
+
+    lookup_url_kwarg = "queue"
+    serializer_class = QueueSerializer
+    required_account_permission = AccountPermissionType.VIEW
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of queues linked to the account.
+        """
+        return Queue.objects.filter(zone__account=self.kwargs["account"])
+
+    # Views
+
+    def list(self, request: Request, account: int) -> Response:
+        """
+        List the queues linked to the account.
+
+        Returns details for each queue.
+        """
+        self.request_permissions_guard(request, pk=account)
+
+        return super().list(request, account)
+
+    def retrieve(self, request: Request, account: int, queue: int) -> Response:
+        """
+        Retrieve details of a queue linked to the account.
+
+        Returns details for the queue.
+        """
+        self.request_permissions_guard(request, pk=account)
+
+        return super().retrieve(request, account, queue)
+
+
+class AccountsWorkersViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+    AccountPermissionsMixin,
+):
+    """
+    A view set for workers.
+
+    It currently only provides `list` and `retrieve`
+    actions (creation is done implicitly when a worker
+    comes online; there is no deletion).
+    """
+
+    # Configuration
+
+    lookup_url_kwarg = "worker"
+    serializer_class = WorkerSerializer
+    required_account_permission = AccountPermissionType.VIEW
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of workers linked to the account
+        (via queues and zones).
+        """
+        queryset = Worker.objects.filter(
+            queues__zone__account=self.kwargs["account"]
+        ).distinct()
+        
+        active = self.request.query_params.get('active', None)
+        if active == 'true':
+            queryset = queryset.filter(finished__isnull=True)
+        elif active == 'false':
+            queryset = queryset.filter(finished__isnull=False)
+        
+        return queryset
+
+    # Views
+
+    def list(self, request: Request, account: int) -> Response:
+        """
+        List the workers linked to the account.
+
+        Returns details for each worker.
+        """
+        self.request_permissions_guard(request, pk=account)
+
+        return super().list(request, account)
+
+    def retrieve(self, request: Request, account: int, worker: int) -> Response:
+        """
+        Retrieve details of a worker linked to the account.
+
+        Returns details for the worker.
+        """
+        self.request_permissions_guard(request, pk=account)
+
+        return super().retrieve(request, account, worker)
+
+
+class AccountsWorkersHeartbeatsViewSet(
+    mixins.ListModelMixin, viewsets.GenericViewSet, AccountPermissionsMixin
+):
+
+    # Configuration
+
+    serializer_class = WorkerHeartbeatSerializer
+    required_account_permission = AccountPermissionType.VIEW
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of heartbeats for the worker.
+        """
+        return WorkerHeartbeat.objects.filter(worker=self.kwargs["worker"]).order_by(
+            "-time"
+        )
+
+    # Views
+
+    def list(self, request: Request, account: int, worker: int):
+        """
+        List the heartbeats for a worker.
+
+        Returns details for all heartbeats recorded for the worker
+        in reverse chronological order (i.e. most recent first)
+        """
+        self.request_permissions_guard(request, pk=account)
+        return super().list(request, account=account, worker=worker)
+
+
+class WorkersViewSet(viewsets.GenericViewSet):
+    """
+    It is intended for the `overseer` service.
+
+    Currently this requires that the user is a Stencila
+    staff member.
+    """
+
+    # Configuration
+
+    permission_classes = [permissions.IsAdminUser]
+
+    # Views
+
+    @action(detail=False, methods=["POST"])
+    def online(self, request: Request) -> Response:
+        """
+        Create a worker instance when a worker comes online.
+
+        Receives event data.
+        Returns an empty response.
+        """
+        event = request.data
+
+        worker = Worker.get_or_create(event, create=True)
+        worker.started = timezone.now()
+
+        # Parse the additional details that are collected
+        # when a worker comes online
+        details = event.get("details", {})
+
+        # The broker virtual_host that the worker is connected
+        # to is equal to the account name
+        stats = details.get("stats", {})
+        account_name = stats["broker"]["virtual_host"]
+
+        queues = details.get("queues", [])
+        if queues:
+            for queue in queues:
+                queue_instance, created = Queue.get_or_create(
+                    account_name=account_name, queue_name=queue.get("name"),
+                )
+                worker.queues.add(queue_instance)
+        else:
+            logger.warn(
+                "Worker appear to not be listening to any queues: {}".format(
+                    worker.signature
+                )
+            )
+
+        worker.save()
+
+        return Response()
+
+    @action(detail=False, methods=["POST"])
+    def heartbeat(self, request: Request) -> Response:
+        """
+        Create a worker heartbeat.
+
+        Receives event data.
+        Returns an empty response.
+        """
+        event = request.data
+
+        worker = Worker.get_or_create(event)
+        worker.updated = timezone.now()
+        worker.save()
+
+        WorkerHeartbeat.objects.create(
+            worker=worker,
+            time=timezone.now(),
+            clock=event.get("clock", 0),
+            active=event.get("active", 0),
+            processed=event.get("processed", 0),
+            load=event.get("loadavg", []),
+        )
+
+        return Response()
+
+    @action(detail=False, methods=["POST"])
+    def offline(self, request: Request) -> Response:
+        """
+        Record that a worker has gone offline.
+
+        Receives event data.
+        Returns an empty response.
+        """
+        event = request.data
+
+        worker = Worker.get_or_create(event)
+        worker.finished = timezone.now()
+        worker.save()
+
+        return Response()
+
 
 
 class JobsViewSet(
@@ -205,283 +590,3 @@ class JobsViewSet(
         serializer = self.get_serializer(job)
         return Response(serializer.data)
 
-
-class AccountsJobsViewSet(viewsets.GenericViewSet):
-    """
-    A view set for jobs linked to an account.
-
-    Currently, this view set just provides access to the job broker
-    for an account. In the future it may allow for listing of jobs
-    by account ie. `GET /accounts/{id}/jobs`.
-    """
-
-    # Configuration
-
-    serializer_class = None
-
-    # Views
-
-    @swagger_auto_schema()
-    @action(
-        detail=False,
-        permission_classes=[permissions.IsAdminUser],
-        pagination_class=None,
-    )
-    def broker(self, request, pk: int) -> Response:
-        """
-        Connect to the job broker for the account.
-
-        This endpoint is for self-hosted workers. These need to be
-        enabled for the account.
-
-        You may need to include your authentication token in the URL.
-        For example, when using [Celery](https://www.celeryproject.org/) in Python:
-
-        ```python
-        account = os.environ.get("STENCILA_ACCOUNT")
-        token = os.environ.get("STENCILA_TOKEN")
-        app = Celery(
-            broker="https://{}@hub.stenci.la/api/accounts/{}/jobs/broker".format(
-                token, account
-            )
-        )
-        ```
-
-        Currently, this endpoint is restricted to Stencila staff pending
-        implementation of multi-tenancy in the broker.
-        """
-        # TODO: Get or 404 the account
-        # TODO: Check that the user has sufficient account permissions
-        # TODO: Check that the account has self-hosted workers enabled
-        # TODO: Authenticate with the RabbitMQ broker and use account's virtual host
-        url = "http://account-user:account-password@broker:0000/account-vhost"
-        return Response(
-            headers={"X-Accel-Redirect": "@jobs-broker", "X-Accel-Redirect-URL": url}
-        )
-
-
-class AccountsZonesViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-    AccountPermissionsMixin,
-):
-    """
-    A view set for zones.
-
-    Zones are always linked to an account. Therefore, this viewset
-    should be available at `/accounts/{id}/zones`.
-    It provides basic CRUD for zones.
-    """
-
-    # Configuration
-
-    lookup_field = "name"
-
-    def get_queryset(self):
-        """
-        Override of `GenericAPIView.get_queryset`.
-
-        Returns the list of zones linked to the account.
-        """
-        return Zone.objects.filter(account=self.kwargs["pk"])
-
-    def get_serializer_class(self):
-        """
-        Override of `GenericAPIView.get_serializer_class`.
-
-        Returns different serializers for different views.
-        """
-        return ZoneCreateSerializer if self.action == "create" else ZoneSerializer
-
-    # Views
-
-    def list(self, request: Request, pk: int):
-        """
-        List the zones linked to the account.
-
-        Returns details for all zones linked to the account.
-        """
-        # TODO: Check that user is an account member
-
-        return super().list(request, pk)
-
-    def create(self, request: Request, pk: int):
-        """
-        Create a zone linked to the account.
-
-        Returns details for the new zone.
-        """
-        # TODO: Replace with shortcut `is_permitted` method
-        self.perform_account_fetch(self.request.user, Account.objects.get(id=pk).name)
-        if not self.has_permission(AccountPermissionType.ADMINISTER):
-            raise PermissionDenied
-
-        return super().create(request, pk)
-
-    def retrieve(self, request: Request, pk: int, name: str):
-        """
-        Retrieve details of a zone linked to the account.
-
-        Returns details for the zone.
-        """
-        # TODO: Check that user is an account member
-
-        return super().retrieve(request, pk, name)
-
-    def destroy(self, request: Request, pk: int, name: str):
-        """
-        Destroy a zone linked to the account.
-
-        Don't worry, no zones will be harmed by this action :)
-        It just removes them from the list of available zones
-        for the account.
-        """
-        # TODO: Replace with shortcut `is_permitted` method
-        self.perform_account_fetch(self.request.user, Account.objects.get(id=pk).name)
-        if not self.has_permission(AccountPermissionType.ADMINISTER):
-            raise PermissionDenied
-
-        return super().destroy(request, pk, name)
-
-
-class WorkersViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
-):
-
-    # Configuration
-
-    serializer_class = WorkerSerializer
-
-    def get_queryset(self):
-        """
-        Override of `GenericAPIView.get_queryset`.
-
-        Returns the list of workers that the user has view access to.
-        """
-        # TODO: Should only list workers in zones the user has access to
-        return Worker.objects.all()
-
-    def get_permissions(self):
-        """
-        Get the list of permissions that the current action requires.
-
-        The `events` action requires a staff user (an internal bot),
-        others just require authentication.
-        """
-        return (
-            [permissions.IsAdminUser()]
-            if self.action == "events"
-            else [permissions.IsAuthenticated()]
-        )
-
-    # Views
-
-    def list(self, request: Request):
-        """
-        List workers.
-
-        Returns details for all workers the user has access to.
-        """
-        return super().list(request)
-
-    def retrieve(self, request: Request, pk: int):
-        """
-        Retrieve a worker.
-
-        Returns details for the worker.
-        """
-        return super().retrieve(request, pk)
-
-    @action(detail=False, methods=["POST"])
-    def events(self, request) -> Response:
-        """
-        Submit a worker event.
-
-        Depending upon the `type` of the event, this will:
-
-        - worker-online: create a new worker
-        - worker-heartbeat: update the status of an existing worker
-        - worker-offline: mark a worker as inactive
-        """
-        event = request.data
-
-        event_type = event.get("type")
-        hostname = event.get("hostname")
-        utcoffset = event.get("utcoffset")
-        pid = event.get("pid")
-        freq = event.get("freq")
-        software = "{}-{}".format(event.get("sw_ident"), event.get("sw_ver"))
-        os = event.get("sw_sys")
-
-        # Generate signature and check for an active worker with that signature
-        signature = "{hostname}|{utcoffset}|{pid}|{freq}|{software}|{os}".format(
-            hostname=hostname,
-            utcoffset=utcoffset,
-            pid=pid,
-            freq=freq,
-            software=software,
-            os=os,
-        )
-        try:
-            worker = Worker.objects.get(signature=signature, finished__isnull=True)
-        except Worker.DoesNotExist:
-            worker = Worker.objects.create(
-                hostname=hostname,
-                utcoffset=utcoffset,
-                pid=pid,
-                freq=freq,
-                software=software,
-                os=os,
-                signature=signature,
-            )
-
-        if event_type == "worker-online":
-            worker.started = timezone.now()
-        elif event_type == "worker-heartbeat":
-            worker.updated = timezone.now()
-        elif event_type == "worker-offline":
-            worker.finished = timezone.now()
-        worker.save()
-
-        WorkerStatus.objects.create(
-            worker=worker,
-            time=timezone.now(),
-            clock=event.get("clock", 0),
-            active=event.get("active", 0),
-            processed=event.get("processed", 0),
-            load=event.get("loadavg", []),
-        )
-
-        serializer = self.get_serializer(worker)
-        return Response(serializer.data)
-
-
-class WorkersStatusesViewSet(
-    mixins.ListModelMixin, viewsets.GenericViewSet,
-):
-
-    # Configuration
-
-    serializer_class = WorkerStatusSerializer
-
-    def get_queryset(self):
-        """
-        Override of `GenericAPIView.get_queryset`.
-
-        Returns the list of statuses linked to the worker.
-        """
-        return WorkerStatus.objects.filter(worker=self.kwargs["pk"]).order_by("-time")
-
-    # Views
-
-    def list(self, request: Request, pk: int):
-        """
-        List the status reports for a worker.
-
-        Returns details for all status report for the worker
-        in reverse chronological order (i.e. most recent first)
-        """
-        return super().list(request, pk)

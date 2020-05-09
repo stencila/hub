@@ -39,9 +39,9 @@ def send_job(queue: str, id: int, method: JobMethod, params: dict):
     task.apply_async(task_id=str(id))
 
 
-def dispatch_job(job: Job):
+def route_job(job: Job):
     """
-    Dispatch a job.
+    Route a job to a queue.
 
     Decides which queue a job should be sent to and sends it there.
     The queue can depend upon both the project and the account (either the
@@ -68,7 +68,7 @@ def save_job(sender, instance: Job, created: bool, **kwargs):
     In all cases, the job should actually be sent to the queue.
     """
     if created:
-        dispatch_job(instance)
+        route_job(instance)
 
 
 # Job creation functions

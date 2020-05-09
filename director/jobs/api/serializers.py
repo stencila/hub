@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Account
 from general.api.validators import FromContextDefault
-from jobs.models import Job, JobMethod, JobStatus, Worker, WorkerStatus, Zone
+from jobs.models import Job, JobMethod, JobStatus, Queue, Worker, WorkerHeartbeat, Zone
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -145,11 +145,23 @@ class ZoneCreateSerializer(ZoneSerializer):
         return name
 
 
+class QueueSerializer(serializers.ModelSerializer):
+    """
+    A queue serializer.
+
+    Given this is only ever used read-only, it includes all model fields.
+    """
+
+    class Meta:
+        model = Queue
+        fields = "__all__"
+
+
 class WorkerSerializer(serializers.ModelSerializer):
     """
     A worker serializer.
 
-    Given this is only used read-only, includes all model fields.
+    Given this is only ever used read-only, it includes all model fields.
     """
 
     active = serializers.BooleanField(read_only=True)
@@ -159,14 +171,14 @@ class WorkerSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class WorkerStatusSerializer(serializers.ModelSerializer):
+class WorkerHeartbeatSerializer(serializers.ModelSerializer):
     """
-    A worker status serializer.
+    A worker heartbeat serializer.
 
-    Given this is only used for a given worder, excludes the
-    status' and worker's id fields.
+    Given this is only used for a particular worker, it excludes the
+    both the heartbeat's and the worker's id fields.
     """
 
     class Meta:
-        model = WorkerStatus
+        model = WorkerHeartbeat
         exclude = ["id", "worker"]
