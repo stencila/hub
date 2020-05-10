@@ -5,7 +5,23 @@ VE := venv/bin
 venv: requirements.txt
 	python3 -m venv venv
 	$(VE)/pip3 install -r requirements.txt
+	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
+
+# Format code
+format: venv
+	$(VE)/black .
+
+# Lint code
+lint: venv
+	$(VE)/black --check .
+	$(VE)/flake8
+	$(VE)/mypy --config-file pyproject.toml .
+	$(VE)/pydocstyle --match-dir='^(?!venv)'
+
+# Run tests
+test: venv
+	$(VE)/pytest
 
 # Run `celery worker` during development to check configuration.
 # Change env vars as needed for your dev env.
