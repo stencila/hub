@@ -1,5 +1,3 @@
-from util.network import get_local_ip, get_random_port
-
 
 class Session:
     """
@@ -7,13 +5,17 @@ class Session:
     """
 
     protocol: str
-    ip: str = get_local_ip()
+    ip: str
     port: int
 
     def __init__(self, protocol: str = "ws"):
         self.protocol = protocol
-        self.ip = Session.ip
-        self.port = get_random_port()
+        self.ip = None
+        self.port = None
+
+    def stop(self):
+        self.ip = None
+        self.port = None
 
     @property
     def url(self):

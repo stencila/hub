@@ -6,21 +6,17 @@ See https://docs.celeryproject.org/en/latest/userguide/tasks.html.
 """
 
 from contextlib import contextmanager, redirect_stdout, redirect_stderr
-from datetime import datetime
 import io
-import json
 import os
-import sys
-import time
 
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
 
-from execute.process import ProcessSession
+import session
 
 
 # Setup the Celery app
-celery = Celery("worker", broker=os.environ["BROKER_URL"], backend='rpc://')
+celery = Celery("worker", broker=os.environ["BROKER_URL"], backend="rpc://")
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
@@ -34,56 +30,6 @@ celery.conf.update(
     }
 )
 
-#@task_postrun.connect
-def task_postrun_handler(
-    signal, sender, task_id, task, args, kwargs, retval, state, **more
-):
-    """
-    Dispatched after a task is executed.
-
-    Sender is the task object being executed.
-    """
-    log = []
-
-    output = task.output if hasattr(task, "output") else ""
-    for line in output.split("\n"):
-        line = line.strip()
-        if len(line) == 0:
-            continue
-        try:
-            entry = json.loads(line)
-        except:
-            entry = {"message": line}
-        log.append(entry)
-
-    if isinstance(retval, SoftTimeLimitExceeded):
-        result = None
-        state = "TERMINATED"
-    elif isinstance(retval, Exception):
-        result = None
-        log.append(
-            {"time": datetime.utcnow().isoformat(), "level": 0, "message": str(retval)}
-        )
-    else:
-        # If the return value can not be JSON stringified then
-        # just return it's string representation.
-        try:
-            json.dumps(retval)
-            result = retval
-        except:
-            result = str(retval)
-
-    update_job(
-        task_id,
-        {
-            "result": result,
-            "log": log or None,
-            "status": state,
-            "ended": datetime.utcnow().isoformat()
-        },
-    )
-
-# Celery tasks for each job method
 
 @contextmanager
 def capture_output(task):
@@ -100,6 +46,9 @@ def capture_output(task):
     task.output = stdout.getvalue() + "\n" + stderr.getvalue()
 
 
+# Celery tasks for each job method
+
+
 @celery.task(name="execute", bind=True, throws=SoftTimeLimitExceeded)
 def execute(self):
     """
@@ -112,11 +61,9 @@ def execute(self):
     be caught in the same way and seems to kill the parent worker).
     """
     try:
-        session = ProcessSession()
-        self.update_state(state='PROGRESS', meta={'url': session.url})
-        import time
-        time.sleep(30)
+        sesh = session.create()
+        self.update_state(state="PROGRESS", meta={"url": sesh.url})
         with capture_output(self):
-            session.start()
+            sesh.start()
     except SoftTimeLimitExceeded:
-        session.stop()
+        sesh.stop()

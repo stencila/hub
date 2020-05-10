@@ -15,7 +15,7 @@ def get_local_ip():
     try:
         s.connect(("8.8.8.8", 80))
         ip = s.getsockname()[0]
-    except:
+    except Exception:
         ip = "127.0.0.1"
     finally:
         s.close()
@@ -26,7 +26,7 @@ def get_random_port():
     """
     Get a random port from the local port range.
 
-    Get OS to pick a port, and if that fails for some reason, fallback to 
+    Get OS to pick a port, and if that fails for some reason, fallback to
     random choice.
     Thanks to https://unix.stackexchange.com/questions/55913/whats-the-easiest-way-to-find-an-unused-local-port
     """
@@ -34,8 +34,8 @@ def get_random_port():
     try:
         s.bind(("", 0))
         port = s.getsockname()[1]
-    except:
-        port = ransom.randint(1024, 65535)
+    except Exception:
+        port = random.randint(1024, 65535)
     finally:
         s.close()
     return port
