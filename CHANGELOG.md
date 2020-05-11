@@ -1,3 +1,15 @@
+# [2.23.0](https://github.com/stencila/hub/compare/v2.22.0...v2.23.0) (2020-05-11)
+
+
+### Bug Fixes
+
+* **Overseer:** Do not handles results (incl exceptions) ([f26f464](https://github.com/stencila/hub/commit/f26f464fcfd07d1628f0c633364d0babf5c63d64))
+
+
+### Features
+
+* **Worker:** Add KubernetesSession ([60b6f2a](https://github.com/stencila/hub/commit/60b6f2a15a0fb9244a09a07b87f23695cf45042b))
+
 # [2.22.0](https://github.com/stencila/hub/compare/v2.21.2...v2.22.0) (2020-05-09)
 
 
