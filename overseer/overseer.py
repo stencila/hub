@@ -7,6 +7,13 @@ A worker must be run with the `--events` option to emit events.
 For the most part, this service simply translates events into data
 that is posted to the `director`'s API for handling there.
 
+This ignores the `result` of `task_succeeded` events and
+the `exception` and `traceback` of `task_failed` events.
+This is partly to avoid duplicating logic for handling those (see `update_job`
+function in `director`) and because the events are not intended
+for this purpose (the results should be used for that, which is what
+`update_job` does; see https://github.com/celery/celery/issues/2190#issuecomment-51609500).
+
 See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 (Much of the following docstring are from there.)
 """
@@ -95,7 +102,6 @@ def task_succeeded(event: Event):
         {
             "status": event.get("state", "SUCCESS"),
             "ended": get_event_time(event),
-            "result": event.get("result"),
             "runtime": event.get("runtime"),
             "worker": event.get("hostname"),
         },
@@ -107,15 +113,8 @@ def task_failed(event: Event):
     update_job(
         event["uuid"],
         {
-            "status": event.get("state", "FAILED"),
+            "status": event.get("state", "FAILURE"),
             "ended": get_event_time(event),
-            "log": [
-                {
-                    "level": 0,
-                    "message": event.get("exception"),
-                    "stack": event.get("traceback"),
-                }
-            ],
             "worker": event.get("hostname"),
         },
     )
