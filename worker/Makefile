@@ -1,9 +1,12 @@
 # Shortcut to refer to programs in the virtual environment during development
 VE := venv/bin
 
+# Python command to use for venv setup
+PYTHON ?= python3
+
 # Build virtual environment
 venv: requirements.txt requirements-dev.txt
-	python3 -m venv venv
+	$(PYTHON) -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
