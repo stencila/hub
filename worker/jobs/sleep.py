@@ -11,7 +11,7 @@ class Sleep(Job):
 
     name = "sleep"
 
-    def do(self, seconds: int = 1, repeat: int = 10, fail: int = 0):
+    def do(self, seconds: int = 1, repeat: int = 10, fail: int = 0):  # type: ignore
         for rep in range(1, repeat + 1):
             if rep == fail:
                 raise RuntimeError("Failing at repetition {}".format(rep))

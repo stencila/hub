@@ -18,7 +18,7 @@ class Pull(Job):
 
     name = "pull"
 
-    def do(self, source: dict, sink: str):
+    def do(self, source: dict, sink: str):  # type: ignore
         """
         Do the pull of `source` to `sink`.
 

@@ -105,7 +105,7 @@ class Job(celery.Task):
     def run(self, *args, **kwargs):
         """
         Run the job.
-        
+
         This is an override of `Task.run` which is the method
         that actually gets called by Celery each time a task
         in processed. It is wraps `self.do()` to handle
