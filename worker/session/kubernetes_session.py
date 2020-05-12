@@ -32,11 +32,6 @@ else:
     except kubernetes.config.config_exception.ConfigException as exc:
         logger.warning(exc)
 
-if api_client:
-    api_instance = kubernetes.client.CoreV1Api(api_client)
-
-namespace = "default"
-
 
 class KubernetesSession(Session):
     """
@@ -48,13 +43,16 @@ class KubernetesSession(Session):
     this process is in.
     """
 
+    api_instance = kubernetes.client.CoreV1Api(api_client) if api_client else None
+    namespace = "default"
+
     def __init__(self):
         """Create a session."""
         super().__init__()
         self.name = "session-" + secrets.token_hex(16)
         self.port = random.randint(1024, 65535)
 
-        api_instance.create_namespaced_pod(
+        self.api_instance.create_namespaced_pod(
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
@@ -75,11 +73,13 @@ class KubernetesSession(Session):
                     "restartPolicy": "Never",
                 },
             },
-            namespace=namespace,
+            namespace=self.namespace,
         )
 
         while True:
-            pod = api_instance.read_namespaced_pod(name=self.name, namespace=namespace)
+            pod = self.api_instance.read_namespaced_pod(
+                name=self.name, namespace=self.namespace
+            )
             if pod.status.phase != "Pending":
                 break
             time.sleep(0.1)
@@ -91,9 +91,9 @@ class KubernetesSession(Session):
         return
 
         response = kubernetes.stream.stream(
-            api_instance.connect_get_namespaced_pod_attach,
+            self.api_instance.connect_get_namespaced_pod_attach,
             name=self.name,
-            namespace=namespace,
+            namespace=self.namespace,
             container="executa",
             stderr=True,
             stdout=True,
@@ -109,5 +109,7 @@ class KubernetesSession(Session):
         """Stop the session."""
         super().stop()
         if self.name:
-            api_instance.delete_namespaced_pod(name=self.name, namespace=namespace)
+            self.api_instance.delete_namespaced_pod(
+                name=self.name, namespace=self.namespace
+            )
             self.name = None

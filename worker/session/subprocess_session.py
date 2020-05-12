@@ -7,6 +7,7 @@ import subprocess
 from .network import get_local_ip, get_random_port
 from .session import Session
 
+
 class SubprocessSession(Session):
     """
     Runs a session in a local subprocess.
@@ -24,7 +25,7 @@ class SubprocessSession(Session):
                 "/usr/lib/node_modules/@stencila/executa/dist/cli/cli/index.js",
                 "serve",
                 "--debug",
-                "--{}=0.0.0.0:{}".format(self.protocol, self.port)
+                "--{}=0.0.0.0:{}".format(self.protocol, self.port),
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

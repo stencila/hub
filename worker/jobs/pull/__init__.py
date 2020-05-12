@@ -20,7 +20,7 @@ class Pull(Job):
         source: a dictionary with `provider`, and other data required to
                 pull the source e.g. authentication tokens depending
                 on the provider.
-        sink: the file path to pull the source to; could be the path of 
+        sink: the file path to pull the source to; could be the path of
               a directory or file; may not yet exist.
         """
         assert "provider" in source, "Source must have a provider"

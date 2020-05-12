@@ -2,7 +2,7 @@
 VE := venv/bin
 
 # Build virtual environment
-venv: requirements.txt
+venv: requirements.txt requirements-dev.txt
 	python3 -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
@@ -22,6 +22,10 @@ lint: venv
 # Run tests
 test: venv
 	$(VE)/pytest
+
+# Run tests with coverage
+cover: venv
+	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Run `celery worker` during development to check configuration.
 # Change env vars as needed for your dev env.

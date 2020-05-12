@@ -1,6 +1,11 @@
+import pytest
+
 from session.kubernetes_session import KubernetesSession
 
 
+@pytest.mark.skipif(
+    KubernetesSession.api_instance is None, reason="can only run if K8s is available"
+)
 def test_k8s_session():
     session = KubernetesSession()
     assert session.name is not None

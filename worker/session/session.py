@@ -1,3 +1,5 @@
+from typing import Optional
+
 
 class Session:
     """
@@ -5,8 +7,8 @@ class Session:
     """
 
     protocol: str
-    ip: str
-    port: int
+    ip: Optional[str]
+    port: Optional[int]
 
     def __init__(self, protocol: str = "ws"):
         self.protocol = protocol

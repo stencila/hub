@@ -1,0 +1,11 @@
+[run]
+omit = 
+    */*_tests.py
+    conftest.py
+    venv/*
+
+[html]
+directory = coverage
+
+[xml]
+output = coverage.xml
