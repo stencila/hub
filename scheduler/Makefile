@@ -12,7 +12,7 @@ venv: requirements.txt
 
 # Run `celery beat` during development to check configuration.
 run: venv
-	BROKER_URL=redis://localhost:6379/0 \
+	BROKER_URL="amqp://stencila:password@localhost:5672/stencila" \
 	DATABASE_URL=postgres://stencila:password@localhost:5432/hub \
 	$(VE)/celery beat --app scheduler --loglevel debug
 
