@@ -1,6 +1,6 @@
 import pytest
 
-from session.kubernetes_session import KubernetesSession
+from .kubernetes_session import KubernetesSession
 
 
 @pytest.mark.skipif(
