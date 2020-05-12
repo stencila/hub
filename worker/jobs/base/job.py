@@ -103,7 +103,14 @@ class Job(celery.Task):
         raise exc
 
     def run(self, *args, **kwargs):
-        """Override of `Task.run`."""
+        """
+        Run the job.
+
+        This is an override of `Task.run` which is the method
+        that actually gets called by Celery each time a task
+        in processed. It is wraps `self.do()` to handle
+        logging, exceptions, termination etc.
+        """
         self.begin()
         try:
             result = self.do(*args, **kwargs)
@@ -112,3 +119,11 @@ class Job(celery.Task):
             return self.terminated()
         except Exception as exc:
             raise self.failure(exc)
+
+    def do(self, *args, **kwargs):
+        """
+        Do the job!
+
+        Derived job classes should implement this method
+        """
+        raise NotImplementedError("Method do() is not implemented")

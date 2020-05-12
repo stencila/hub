@@ -1,9 +1,14 @@
+from typing import Callable, Dict
+
 from jobs.base.job import Job
 
 from .elife import pull_elife
 from .http import pull_http
 
-PROVIDERS = {"elife": pull_elife, "http": pull_http}
+PROVIDERS: Dict[str, Callable[[dict, str], str]] = {
+    "elife": pull_elife,
+    "http": pull_http,
+}
 
 
 class Pull(Job):
@@ -13,7 +18,7 @@ class Pull(Job):
 
     name = "pull"
 
-    def do(self, source: dict, sink: str):
+    def do(self, source: dict, sink: str):  # type: ignore
         """
         Do the pull of `source` to `sink`.
 
@@ -28,6 +33,6 @@ class Pull(Job):
         provider = source["provider"]
 
         if provider not in PROVIDERS:
-            raise Exception("Unhandled source provider: {}".format(provider))
+            raise ValueError("Unknown source provider: {}".format(provider))
 
         return PROVIDERS[provider](source, sink)

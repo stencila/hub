@@ -1,6 +1,6 @@
 [run]
 omit = 
-    */*_tests.py
+    */*_test.py
     conftest.py
     venv/*
 
