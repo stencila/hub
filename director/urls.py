@@ -55,6 +55,8 @@ urlpatterns = [
     path(UrlRoot.projects.value + "/", include("projects.urls")),
     # Internal URLs
     path(UrlRoot.internal.value + "/", include(internal_urls)),
+    # Jobs URLs
+    path(UrlRoot.jobs.value + "/", include("jobs.ui.urls")),
     # Custom Roots (they start with a slug)
     path("<slug:account_name>/", include("accounts.slug_urls")),
 ]

@@ -19,6 +19,7 @@ class UrlRoot(enum.Enum):
     me = "me"
     open = "open"
     projects = "projects"
+    jobs = "jobs"
 
 
 class AccountUrlRoot(enum.Enum):
