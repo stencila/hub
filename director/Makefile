@@ -83,8 +83,8 @@ lint: lint-format lint-code lint-types lint-docs
 
 # Lint code formatting
 lint-format: venv
-	$(VE)/black --check .	
-	
+	$(VE)/black --check .
+
 # Lint code
 lint-code: venv
 	$(VE)/flake8

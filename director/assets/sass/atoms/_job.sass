@@ -1,0 +1,52 @@
+////
+/// Job: atoms for job panel.
+////
+.job
+  padding: rem(24) rem(16)
+  margin: 0
+
+  &-id
+    font-size: rem(13)
+    margin-bottom: rem(8)
+    font-variant: small-caps
+    font-feature-settings: 'tnum' on, 'lnum' on
+
+  &-tag,
+  &-tag:not(body)
+    // Requires :not(body) selector to override bulma's tag
+    line-height: 1
+    margin-bottom: rem(8)
+
+  &-column
+    margin-right: rem(24)
+    padding-right: rem(24)
+
+    &:first-child,
+    &:last-child
+      width: rem(140)
+
+    &:last-child
+      margin-right: 0
+      padding-right: 0
+
+  &-user
+    align-items: center
+    &-image
+      margin-bottom: auto
+      margin-right: rem(8)
+    &-name
+      font-size: rem(13)
+      line-height: 1
+      font-variant: small-caps
+
+  &-actions
+    .button
+      &:first-child
+        margin-bottom: rem(8)
+
+  &-details
+    &-header
+      margin-top: rem(-4)
+
+      > *
+        margin-right: rem(20)

@@ -44,9 +44,10 @@
                     })
                 </script>
             {% endif %}
-            
+
             <script type="text/javascript" src="{% static 'js/base.js' %}"></script>
             <script type="text/javascript" src="https://unpkg.com/vue@2.6.11/dist/vue.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
             <script type="text/javascript" src="https://unpkg.com/vue-resource@1.5.1/dist/vue-resource.min.js"></script>
             <script type="text/javascript" src="https://unpkg.com/buefy@0.7.10/dist/buefy.min.js"></script>
             <script>
@@ -73,6 +74,9 @@
         {% block footer %}{% include "_footer.html" %}{% endblock %}
         </div>
         <script type="text/javascript" src="{% static 'js/hamburger.js' %}" defer></script>
+        <script defer>
+          feather.replace()
+        </script>
         {% block end_scripts %}{% endblock %}
         {% if user.is_authenticated and not user.details.auto %}
             {% intercom_tag %}

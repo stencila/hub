@@ -1,0 +1,48 @@
+////
+/// Modifiers - additional to Bulma provided modifiers
+////
+
+/// Additional flex modifiers
+.flex
+  &-grow
+    flex-grow: 1
+  &-shrink
+    flex-shrink: 1
+    &-0
+      flex-shrink: 0
+
+////
+/// Colour modifiers
+////
+@each $name, $pair in $shades
+    $color: nth($pair, 1)
+    .border-top-#{$name}
+        border-top: 1px solid $color
+    .border-right-#{$name}
+        border-right: 1px solid $color
+    .border-bottom-#{$name}
+        border-bottom: 1px solid $color
+    .border-left-#{$name}
+        border-left: 1px solid $color
+
+////
+/// Typographic modifiers
+////
+
+/// Truncate text & show ellipsis.
+.truncate
+  text-overflow: ellipsis
+
+  white-space: nowrap
+  overflow: hidden
+
+.leading
+  &-1
+    line-height: 1
+
+////
+/// Effects modifiers
+////
+.circle
+  border-radius: 50%
+  overflow: hidden

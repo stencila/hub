@@ -10,7 +10,7 @@ RUN apt-get update \
       python3-pip \
       wget
 
-# Install Node.js and npm. 
+# Install Node.js and npm.
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
  && apt-get update \
  && apt-get install -y \
@@ -34,6 +34,7 @@ RUN pip3 install gunicorn
 # Copy package.json and package-lock.json and install Node.js deps.
 # The install is done in /home as that is the parent dir
 COPY package*.json /home/
+COPY prepare.js /home/
 RUN cd /home && npm ci
 
 # Create non-root user and home directory, because it is generally good practice,
