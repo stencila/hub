@@ -3,7 +3,10 @@ import pytest
 from .elife import pull_elife
 
 
+@pytest.mark.vcr
 def test_ok(tempdir):
+    pull_elife({"article": 45187}, tempdir.getpath("45187.jats.xml"))
+
     figures = [
         "fig1.jpg",
         "fig1-figsupp1.jpg",
@@ -35,8 +38,6 @@ def test_ok(tempdir):
         "resp-fig8.jpg",
         "resp-fig9.jpg",
     ]
-
-    pull_elife({"article": 45187}, tempdir.getpath("45187.jats.xml"))
     tempdir.compare(
         ["45187.jats.xml", "45187.jats.xml.media/"]
         + ["45187.jats.xml.media/" + fig for fig in figures]
