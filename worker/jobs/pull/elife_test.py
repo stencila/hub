@@ -2,10 +2,11 @@ import pytest
 
 from .elife import pull_elife
 
+
 @pytest.mark.vcr
 def test_ok(tempdir):
     pull_elife({"article": 45187}, tempdir.getpath("45187.jats.xml"))
-    
+
     figures = [
         "fig1.jpg",
         "fig1-figsupp1.jpg",
