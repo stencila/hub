@@ -1,3 +1,12 @@
+## [2.23.1](https://github.com/stencila/hub/compare/v2.23.0...v2.23.1) (2020-05-13)
+
+
+### Bug Fixes
+
+* **Scheduler:** Update broker url ([454db11](https://github.com/stencila/hub/commit/454db11280d6ed830d824ca07faf3853aeb09960))
+* **Worker:** Fetch figures in elife pull job ([a1331c4](https://github.com/stencila/hub/commit/a1331c4c8deb975d3ca2ed6ab1bff8bb3c11cca6))
+* **Worker:** Ignore W503 linting rule ([d402977](https://github.com/stencila/hub/commit/d40297734988c74860d1fd2eb6b7d71a63ba7082))
+
 # [2.23.0](https://github.com/stencila/hub/compare/v2.22.0...v2.23.0) (2020-05-11)
 
 
