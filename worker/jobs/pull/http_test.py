@@ -1,6 +1,7 @@
 import pytest
 
-from .http import pull_http, RemoteFileException
+from .http import pull_http
+from .base import RemoteFileException
 
 
 def test_malicious_host():
