@@ -7,7 +7,7 @@ def test_bad_args():
     job = Convert()
 
     for args, message in [
-        [["", None], "input must be a non-empty string"],
+        [["", None], "input must be a non-empty string or bytes"],
         [["input", {}], "output must be a string or list of strings"],
         [["input", "output", ""], "options must be a dictionary"],
     ]:

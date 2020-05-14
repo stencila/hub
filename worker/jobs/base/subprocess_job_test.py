@@ -18,7 +18,7 @@ def test_success():
 def test_input():
     """The input arg is sent to stdin."""
     job = SubprocessJob()
-    result = job.run(["sed", "-e", ""], input="Yo!")
+    result = job.run(["sed", "-e", ""], input=b"Yo!")
     assert result["result"] == "Yo!"
     assert result["log"] == []
 

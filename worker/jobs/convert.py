@@ -13,7 +13,12 @@ class Convert(SubprocessJob):
 
     name = "convert"
 
-    def do(self, input: str, output: Union[str, List[str]], options: Dict[str, Union[str, bool]] = {}):  # type: ignore
+    def do(  # type: ignore
+        self,
+        input: Union[str, bytes],
+        output: Union[str, List[str]],
+        options: Dict[str, Union[str, bool]] = {},
+    ):
         """
         Do the conversion.
 
@@ -21,22 +26,22 @@ class Convert(SubprocessJob):
         `convert` function but with a flatter structure for the options
         aligned to the Encoda CLI.
 
-        input: The path to the input file
+        input: The path to the input file, or bytes to be sent to stdin.
         output: The path to the output file, or a list of outputs files
         options:
             from: The format to convert from (defaults to ext name of input)
             to: The format to convert to (defaults to ext name of output)
             theme: Name of the theme to use for outputs
         """
-        assert (
-            isinstance(input, str) and len(input) > 0
-        ), "input must be a non-empty string"
+        assert (isinstance(input, str) or isinstance(input, bytes)) and len(
+            input
+        ) > 0, "input must be a non-empty string or bytes"
         assert isinstance(output, str) or isinstance(
             output, list
         ), "output must be a string or list of strings"
         assert isinstance(options, dict), "options must be a dictionary"
 
-        args = ["npx", "encoda", "convert", input]
+        args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input]
         args += output if isinstance(output, list) else [output]
         for name, value in options.items():
             if value is False:
@@ -45,4 +50,4 @@ class Convert(SubprocessJob):
                 value = "true"
             args.append("--{}={}".format(name, value))
 
-        return super().do(args)
+        return super().do(args, input=input if isinstance(input, bytes) else None)

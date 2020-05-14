@@ -36,7 +36,7 @@ class SubprocessJob(Job):
         self.process = None
         self.thread = None
 
-    def do(self, args: List[str], input: Optional[str] = None):  # type: ignore
+    def do(self, args: List[str], input: Optional[bytes] = None):  # type: ignore
         """
         Do the job.
 
@@ -67,9 +67,7 @@ class SubprocessJob(Job):
                     self.info(line)
 
         if input:
-            stdout_data, stderr_data = self.process.communicate(
-                input=input.encode() if input else None
-            )
+            stdout_data, stderr_data = self.process.communicate(input=input)
             if stderr_data:
                 handle_stderr(stderr_data.decode().split("\n"))
         else:
