@@ -6,7 +6,9 @@ from jobs.base.job import Job
 
 class Sleep(Job):
     """
-    A sleep job mainly for testing
+    A sleep job mainly for testing.
+
+    Provides a means of testing job logging, termination and failure.
     """
 
     name = "sleep"
