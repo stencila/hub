@@ -35,8 +35,6 @@ def test_failure():
     with pytest.raises(RuntimeError) as excinfo:
         job.run(["sleep", "foo"])
     assert "Subprocess exited with non-zero code" in str(excinfo.value)
-    assert job.log_entries[0]["level"] == ERROR
-    assert job.log_entries[0]["message"] == "sleep: invalid time interval ‘foo’\n"
 
 
 def test_logging_json():
