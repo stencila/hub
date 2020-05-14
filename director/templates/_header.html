@@ -45,6 +45,7 @@
                                             </header>
                                             <div class="dropdown-items">
                                                 <a class="dropdown-item" href="{% url 'project_list' %}">Projects</a>
+                                                <a class="dropdown-item" href="{% url 'jobs_list' %}">Jobs</a>
                                                 <a class="dropdown-item" href="{% url 'account_list' %}">Accounts</a>
                                                 {% if user.is_staff %}
                                                     <a class="dropdown-item" href="{% url 'admin:index' %}"
