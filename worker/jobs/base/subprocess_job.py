@@ -2,6 +2,7 @@ import io
 import json
 import subprocess
 import threading
+from typing import List, Optional, Union
 
 from .job import Job, DEBUG, INFO, WARN, ERROR
 
@@ -30,14 +31,12 @@ class SubprocessJob(Job):
     differently in your `do()` method.
     """
 
-    args = ["sleep", 60]
-
     def __init__(self):
         super().__init__()
         self.process = None
         self.thread = None
 
-    def do(self, args):
+    def do(self, args: List[str], input: Optional[str] = None):  # type: ignore
         """
         Do the job.
 
@@ -51,11 +50,11 @@ class SubprocessJob(Job):
           an ERROR if the exit code is non-zero
         """
         self.process = subprocess.Popen(
-            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         )
 
-        def handle_stderr(stderr):
-            for line in io.TextIOWrapper(stderr, encoding="utf-8"):
+        def handle_stderr(stderr: Union[List[str], io.TextIOWrapper]):
+            for line in stderr:
                 try:
                     entry = json.loads(line)
                     if isinstance(entry, dict) and "message" in entry:
@@ -67,12 +66,20 @@ class SubprocessJob(Job):
                 except json.decoder.JSONDecodeError:
                     self.info(line)
 
-        self.thread = threading.Thread(
-            target=handle_stderr, args=(self.process.stderr,)
-        )
-        self.thread.start()
-
-        self.process.wait()
+        if input:
+            stdout_data, stderr_data = self.process.communicate(
+                input=input.encode() if input else None
+            )
+            if stderr_data:
+                handle_stderr(stderr_data.decode().split("\n"))
+        else:
+            self.thread = threading.Thread(
+                target=handle_stderr,
+                args=(io.TextIOWrapper(self.process.stderr, encoding="utf-8"),),  # type: ignore
+            )
+            self.thread.start()
+            self.process.wait()
+            stdout_data = self.process.stdout.read()  # type: ignore
 
         if self.process.returncode != 0:
             for log in self.log_entries:
@@ -83,8 +90,7 @@ class SubprocessJob(Job):
                 )
             )
 
-        result = self.process.stdout.read().decode()
-        return result if result else None
+        return stdout_data.decode() if stdout_data else None
 
     def terminated(self):
         """

@@ -15,6 +15,14 @@ def test_success():
     assert result["log"] == []
 
 
+def test_input():
+    """The input arg is sent to stdin."""
+    job = SubprocessJob()
+    result = job.run(["sed", "-e", ""], input="Yo!")
+    assert result["result"] == "Yo!"
+    assert result["log"] == []
+
+
 def test_failure():
     """If the subprocess returns a non zero exit code then the job fails."""
     job = SubprocessJob()
