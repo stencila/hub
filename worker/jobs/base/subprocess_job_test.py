@@ -11,7 +11,7 @@ def test_success():
     """The stdout from the subprocess is the job result."""
     job = SubprocessJob()
     result = job.run(["echo", "Beep, boop"])
-    assert result["result"] == b"Beep, boop\n"
+    assert result["result"] == "Beep, boop\n"
     assert result["log"] == []
 
 

@@ -83,7 +83,7 @@ class SubprocessJob(Job):
                 )
             )
 
-        result = self.process.stdout.read()
+        result = self.process.stdout.read().decode()
         return result if result else None
 
     def terminated(self):
