@@ -9,6 +9,8 @@ import os
 from celery import Celery
 
 from jobs.convert import Convert
+from jobs.decode import Decode
+from jobs.encode import Encode
 from jobs.pull import Pull
 from jobs.sleep import Sleep
 
@@ -30,5 +32,7 @@ app.conf.update(
 
 # Register the jobs
 app.register_task(Convert())
+app.register_task(Decode())
+app.register_task(Encode())
 app.register_task(Pull())
 app.register_task(Sleep())
