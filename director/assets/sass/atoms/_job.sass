@@ -2,51 +2,143 @@
 /// Job: atoms for job panel.
 ////
 .job
+  @extend .is-flex
+  @extend .border-bottom-grey-lighter
+
+  flex-direction: row
   padding: rem(24) rem(16)
   margin: 0
 
+  +until($desktop)
+    flex-direction: column
+
+  &.is-active
+    @extend .has-background-white-ter
+
+
+  /// Filter heading element
+  &-filter
+    max-width: 80%
+    +until($desktop)
+     max-width: 100%
+
+  /// Job ID label
   &-id
     font-size: rem(13)
-    margin-bottom: rem(8)
     font-variant: small-caps
     font-feature-settings: 'tnum' on, 'lnum' on
+    margin-bottom: 0.5rem
 
+    +desktop
+      margin-bottom: 1rem
+
+  /// Job icons - used in various places, allows for simply dumping an icon
+  /// without having to supply separate classes.
+  &-icon
+    @extend .mt-1
+    align-items: center
+
+    .icon
+      @extend .mr-2
+
+      width: rem(16)
+      height: rem(16)
+
+  /// Coloured status label
   &-tag,
   &-tag:not(body)
-    // Requires :not(body) selector to override bulma's tag
-    line-height: 1
-    margin-bottom: rem(8)
+    /// Requires :not(body) selector to override bulma's tag
+    @extend .leading-1\/16
+    @extend .is-size-7
+    width: rem(80)
+    font-weight: $weight-bold
+    font-size: rem(16)
 
+  /// The main jobs container columns
   &-column
     margin-right: rem(24)
     padding-right: rem(24)
 
-    &:first-child,
-    &:last-child
+  &-summary
+    @extend .is-flex
+    @extend .mb-4
+    flex-direction: column
+    width: 100%
+    border: none
+
+    +desktop
+      // flex-direction: column
+      align-items: flex-start
       width: rem(140)
 
-    &:last-child
-      margin-right: 0
-      padding-right: 0
 
-  &-user
-    align-items: center
-    &-image
-      margin-bottom: auto
+  /// A small piece of job information inside the details header
+  /// (user, date, time etc.)
+  &-info
+    &::after
+      content: '·'
+      height: 100%
+      font-size: rem(13)
+      line-height: 1
+      display: flex
+      align-items: center
+      margin-left: rem(8)
       margin-right: rem(8)
+
+    &:last-child
+      &::after
+        display: none
+
+  /// User avatar & name
+  &-user
+    // &-image
+    //   margin-bottom: auto
     &-name
       font-size: rem(13)
       line-height: 1
       font-variant: small-caps
 
+  /// Actions columns - contains buttons
   &-actions
-    .button
-      &:first-child
-        margin-bottom: rem(8)
+    @extend .is-flex
+    flex-direction: row
+    margin-top: rem(8)
 
+    width: 100%
+    margin-right: 0
+    padding-right: 0
+
+    .button
+        &:first-child
+          margin-right: rem(8)
+
+    +desktop
+      width: rem(120)
+      margin-top: 0
+      flex-direction: column
+
+      .button
+        width: 100%
+
+        &:first-child
+          margin-bottom: rem(8)
+          margin-right: 0
+
+
+  /// Details header - displayed in center column
   &-details
     &-header
-      margin-top: rem(-4)
+      /// Accounts for the difference between this column and the job-summary
+      /// column
+      margin-top: rem(-3)
 
-      > *
-        margin-right: rem(20)
+  /// Footer - displays pagination etc.
+  &-footer
+    margin-top: rem(48)
+    @extend .mb-6
+
+    .level-left + .level-right
+      @extend .mt-0
+
+    +desktop
+      margin-top: rem(96)

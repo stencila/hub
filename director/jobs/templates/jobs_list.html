@@ -27,85 +27,69 @@
         </div>
 
         <div class="column">
-            <header class="level">
-                <div class="level-left is-full-width">
-                    <div class="level-item">
-                        <div class="field">
-                            <label class="label is-size-7" for="status">Status</label>
-                            <div class="control">
-                                <div class="select is-info">
-                                    <select id="status">
-                                        <option>All jobs</option>
-                                        <option>Dispatched</option>
-                                        <option value="pending">Pending</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="level-item">
-                        <div class="field">
-                            <label class="label is-size-7" for="trigger">Trigger</label>
-                            <div class="control">
-                                <div class="select is-info" id="trigger">
-                                    <select>
-                                        <option>All</option>
-                                        <option>...</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="level-item">
-                        <div class="field">
-                            <label class="label is-size-7" for="user">By</label>
-                            <div class="control">
-                                <div class="select is-info" id="user">
-                                    <select>
-                                        <option>Everyone</option>
-                                        <option>...</option>
-                                    </select>
-                                </div>
+            <header class="job-header level">
+              <div class="job-filter level-left is-full-width">
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="status">Status</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="status">
+                                    <option>All jobs</option>
+                                    <option>Dispatched</option>
+                                    <option value="pending">Pending</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="trigger">Trigger</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="trigger">
+                                    <option>All</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="user">By</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="user">
+                                    <option>Everyone</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
             </header>
-            <div class="job-container is-flex flex-direction-column border-top-grey-lighter">
-                <div class="job has-text-black is-flex border-bottom-grey-lighter">
-                    <div class="job-column border-right-grey-lighter">
-                      <span class="job-id is-block leading-1">JOB 50513586</span>
-                      <span class="tag is-info is-uppercase job-tag">Session</span>
-                      <div class="status is-flex">
-                        <i data-feather="loader" class="status-icon flex-shrink-0"></i>
-                        <span class="truncate">In queue</span>
-                      </div>
-                    </div>
-                    <div class="job-column job-details flex-grow">
-                      <header class="job-details-header is-flex">
-                        <span class="job-user is-flex">
-                            <img src="https://via.placeholder.com/16" width="16" height="16" alt="" class="user-avatar job-user-image">
-                            <span class="job-user-name is-uppercase">crazyfish228</span>
-                        </span>
-                        <span class="calendar is-flex">
-                            <i data-feather="calendar" class="calendar-icon flex-shrink-0"></i>
-                            <span class="job-user-name is-uppercase">May 1, 2019 2:30 AM</span>
-                        </span>
 
-                        <span class="calendar is-flex">
-                            <i data-feather="clock" class="calendar-icon flex-shrink-0"></i>
-                            <span class="job-user-name is-uppercase">08:17</span>
-                        </span>
-                      </header>
-                    </div>
-                    <div class="job-column job-actions">
-                      <a href="#" class="button is-small is-fullwidth">Details</a>
-                      <a href="#" class="button is-small is-fullwidth">Cancel job</a>
-                    </div>
-                </div>
+            <div class="job-container is-flex flex-direction-column border-top-grey-lighter">
+              {% include "jobs_list_job.html" with statusLabel="In queue" icon="loader" jobId="50513586" username="crazyfish228" date="May 1, 2019 2:30 AM" time="08:17" log="<b>17th</b> in <b>priority</b> queue<br/><b>28 seconds</b> estimated wait time" jobTag="Session" %}
+
+              {% include "jobs_list_job.html" with statusLabel="Active" isActive=True icon="activity" jobId="18505619" username="beautifulmouse112" date="May 28, 2019 8:20 PM" time="14:55" log="320 messages in log" jobTag="Session" %}
+
+              {% include "jobs_list_job.html" with statusLabel="Success" isComplete=True icon="check-circle" jobId="22514016" username="whiterabbit554" date="October 12, 2017 6:22 PM" time="11:51" log="30274-eLife.rmd to Replication-Study.html" jobTag="Convert" jobHighlight="is-success" %}
             </div>
+
+            <footer class="job-footer level is-flex">
+              <div class="level-left">
+                <button class="button" disabled>Previous</button>
+              </div>
+              <div class="level-right">
+                <button class="button" disabled>Next</button>
+              </div>
+            </footer>
         </div>
     </div>
 {% endblock %}

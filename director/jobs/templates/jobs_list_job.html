@@ -1,0 +1,38 @@
+<div class="job has-text-black{% if isActive %} is-active{% endif %}">
+  <div class="job-column job-summary">
+    <span class="job-id is-block leading-1">{% if jobId %}JOB {{jobId}}{% endif %}</span>
+    <span class="tag {{jobHighlight|default:"is-info"}} is-uppercase job-tag">{{jobTag}}</span>
+    <div class="job-icon status is-flex">
+      <i data-feather="{{icon}}" class="icon flex-shrink-0"></i>
+      <span class="truncate">{{statusLabel}}</span>
+    </div>
+  </div>
+
+  <div class="job-column job-details flex-grow is-flex flex-col">
+    <header class="job-details-header flex-wrap is-flex mb-2">
+
+      <span class="job-info job-icon job-user is-flex">
+          <img src="https://via.placeholder.com/16" width="16" height="16" alt="" class="user-avatar job-user-image icon">
+          <span class="job-user-name is-uppercase">{{username}}</span>
+      </span>
+
+      <span class="job-info job-icon is-flex">
+          <i data-feather="calendar" class="icon flex-shrink-0"></i>
+          <span class="job-user-name is-uppercase">{{date}}</span>
+      </span>
+
+      <span class="job-info job-icon is-flex">
+          <i data-feather="clock" class="icon flex-shrink-0"></i>
+          <span class="job-user-name is-uppercase">{{time}}</span>
+      </span>
+    </header>
+
+    <p class="job-details-content is-size-6 content">{{log}}</p>
+  </div>
+  <div class="job-column job-actions">
+    <a href="#" class="button is-small is-outlined has-text-weight-semibold">Details</a>
+    {% if not isComplete %}
+      <a href="#" class="button is-small is-outlined has-text-weight-semibold">Cancel job</a>
+    {% endif %}
+  </div>
+</div>
