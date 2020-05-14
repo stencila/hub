@@ -5,7 +5,7 @@ import requests
 
 from lxml import etree
 
-from .http import pull_http
+from .base import PullSession
 
 
 def pull_elife(source: dict, sink: str) -> str:
@@ -23,7 +23,8 @@ def pull_elife(source: dict, sink: str) -> str:
 
     assert "{article}.jats.xml".format(**source) == article
 
-    response = requests.get(url)
+    session = PullSession()
+    response = session.fetch_url(url)
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
@@ -47,7 +48,7 @@ def pull_elife(source: dict, sink: str) -> str:
         new_href = "{}.media/{}".format(article, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "jpeg"
-        pull_http(dict(url=url), "{}/{}".format(folder, new_href))
+        session.pull(url, "{}/{}".format(folder, new_href))
 
     tree.write(open(sink, "wb"))
 
