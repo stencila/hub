@@ -1,3 +1,10 @@
+## [2.24.1](https://github.com/stencila/hub/compare/v2.24.0...v2.24.1) (2020-05-14)
+
+
+### Bug Fixes
+
+* **Worker:** plos pull job ([75e682e](https://github.com/stencila/hub/commit/75e682e4d2dbc374ee3d3d0a6179593b4264c617))
+
 # [2.24.0](https://github.com/stencila/hub/compare/v2.23.1...v2.24.0) (2020-05-14)
 
 
