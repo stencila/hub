@@ -11,6 +11,9 @@ EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py
 
+# Python command to use for venv setup
+PYTHON ?= python3
+
 all: setup run
 
 # Setup
@@ -20,7 +23,7 @@ setup: venv
 
 # Setup virtual environment
 venv: requirements.txt  requirements-dev.txt
-	python3 -m venv venv
+	$(PYTHON) -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
