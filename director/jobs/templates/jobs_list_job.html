@@ -29,10 +29,12 @@
 
     <p class="job-details-content is-size-6 content">{{log}}</p>
   </div>
+  {% if not hideActions %}
   <div class="job-column job-actions">
-    <a href="#" class="button is-small is-outlined has-text-weight-semibold">Details</a>
+    <a href="{% url 'jobs_details' jobId %}" class="button is-small is-outlined has-text-weight-semibold">Details</a>
     {% if not isComplete %}
       <a href="#" class="button is-small is-outlined has-text-weight-semibold">Cancel job</a>
     {% endif %}
   </div>
+  {% endif %}
 </div>

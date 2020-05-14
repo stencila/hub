@@ -61,15 +61,17 @@
 
   &-summary
     @extend .is-flex
-    @extend .mb-4
     flex-direction: column
     width: 100%
     border: none
+    margin-bottom: 1rem
 
     +desktop
       // flex-direction: column
       align-items: flex-start
       width: rem(140)
+      border-right: 1px solid $grey-lighter
+      margin-bottom: 0
 
 
   /// A small piece of job information inside the details header
@@ -142,3 +144,11 @@
 
     +desktop
       margin-top: rem(96)
+
+  /// Job details - as seen on the details page
+  &-details
+    &-container
+      margin: rem(24) 0
+    &-messages
+      .header
+        margin-bottom: rem(24)

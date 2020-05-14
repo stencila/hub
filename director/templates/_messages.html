@@ -1,6 +1,6 @@
 {% if messages %}
     {% for message in messages %}
-        <article class="message {% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}">
+        <article class="message message-header-body {% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}">
             <div class="message-header">
                 <p>{{ message.level_tag|capfirst }}</p>
                 <button class="delete" aria-label="delete" onclick="(function(){event.target.parentNode.parentNode.parentNode.removeChild(event.target.parentNode.parentNode)})();"></button>
