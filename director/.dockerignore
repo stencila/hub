@@ -7,7 +7,6 @@
 !/conversion-cleanup.sh
 !/requirements.txt
 !/package*.json
-!/prepare.js
 
 !/accounts
 !/api

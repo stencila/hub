@@ -34,7 +34,6 @@ RUN pip3 install gunicorn
 # Copy package.json and package-lock.json and install Node.js deps.
 # The install is done in /home as that is the parent dir
 COPY package*.json /home/
-COPY prepare.js /home/
 RUN cd /home && npm ci
 
 # Create non-root user and home directory, because it is generally good practice,
