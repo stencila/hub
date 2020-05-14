@@ -10,7 +10,7 @@ venv: requirements.txt requirements-dev.txt package.json
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
-	node install
+	npm install
 
 # Format code
 format: venv
