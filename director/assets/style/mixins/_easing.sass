@@ -1,0 +1,13 @@
+////
+/// Transition speeds & easing functions used throughout the css
+////
+
+$normal-speed: 0.25s !default
+$fast-speed: 0.1s !default
+$slow-speed: 0.5s !default
+
+=transition($attr: all, $speed: $normal-speed, $delay: 0s, $easing: ease)
+    transition: $attr $speed $delay $easing
+
+$ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1)
+$ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1)

@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@stencila/encoda": "0.93.8",
-    "@stencila/style": "1.2.0",
     "@stencila/thema": "2.7.0",
     "bulma": "0.7.5",
     "hamburgers": "1.1.3"
@@ -24,7 +23,7 @@
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
     "gulp-sass": "4.1.0",
-    "node-sass": "4.14.0",
+    "node-sass": "^4.14.1",
     "sass-module-importer": "1.4.0"
   },
   "renovate": {

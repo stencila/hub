@@ -1,0 +1,16 @@
+// tool bar button styles.
+
+.button
+    flex-shrink: 0
+    flex-grow: 0
+    margin-bottom: rem(12)
+
+    &:first-child
+        margin-left: rem(10)
+    &:last-child
+        margin-right: rem(10)
+
+    &:hover,
+    &.is-active
+        color: $primary
+        border-color: $primary

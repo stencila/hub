@@ -38,18 +38,21 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 12.x
+        displayName: Install Node.js
+        
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '3.7'
         displayName: Install Python
 
+      - script: npm run build
+        displayName: Build CSS and JS
+
       - script: make -C director static
         displayName: Collect static files
-  
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 12.x
-        displayName: Install Node.js
 
       - script: |
           npm ci
@@ -62,7 +65,7 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           NPM_TOKEN: $(NPM_TOKEN)
         displayName: Tag and release
-  
+
   - job: deploy
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     pool:
