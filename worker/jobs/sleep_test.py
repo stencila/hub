@@ -19,7 +19,9 @@ def test_sleep():
         assert state == "RUNNING"
         index = current["index"]
         assert meta["log"][index]["level"] == INFO
-        assert meta["log"][index]["message"].startswith("This is repetition {}".format(index + 1))
+        assert meta["log"][index]["message"].startswith(
+            "This is repetition {}".format(index + 1)
+        )
         current["index"] += 1
 
     job.update_state = update_state
