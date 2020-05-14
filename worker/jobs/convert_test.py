@@ -1,6 +1,6 @@
 import pytest
 
-from . import Convert
+from .convert import Convert
 
 
 def test_bad_args():
