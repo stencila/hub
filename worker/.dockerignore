@@ -1,0 +1,10 @@
+# Tell Docker to ignore all files apart from those absolutely neeeded in the image
+# For why this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
+
+*
+
+!/requirements.txt
+!/package*.json
+
+!/*.py
+!/jobs
