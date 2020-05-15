@@ -1,10 +1,10 @@
-<div class="job has-text-black{% if isActive %} is-active{% endif %}">
+<div class="job has-text-black">
   <div class="job-column job-summary">
-    <span class="job-id is-block leading-1">{% if jobId %}JOB {{jobId}}{% endif %}</span>
-    <span class="tag {{jobHighlight|default:"is-info"}} is-uppercase job-tag">{{jobTag}}</span>
+    <span class="job-id is-block leading-1">{% if job.id %}JOB {{job.id}}{% endif %}</span>
+    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status}}</span>
     <div class="job-icon status is-flex">
-      <i data-feather="{{icon}}" class="icon flex-shrink-0"></i>
-      <span class="truncate">{{statusLabel}}</span>
+      <i data-feather="{{job.icon}}" class="icon flex-shrink-0"></i>
+      <span class="text truncate has-text-weight-bold">{{job.method_label}}</span>
     </div>
   </div>
 
@@ -13,28 +13,36 @@
 
       <span class="job-info job-icon job-user is-flex">
           <img src="https://via.placeholder.com/16" width="16" height="16" alt="" class="user-avatar job-user-image icon">
-          <span class="job-user-name is-uppercase">{{username}}</span>
+          <span class="job-user-name is-uppercase">{{job.creator.username}}</span>
       </span>
 
       <span class="job-info job-icon is-flex">
           <i data-feather="calendar" class="icon flex-shrink-0"></i>
-          <span class="job-user-name is-uppercase">{{date}}</span>
+          <span class="job-user-name is-uppercase">{{job.created|date:"F n, Y g:i A"}}</span>
       </span>
 
       <span class="job-info job-icon is-flex">
           <i data-feather="clock" class="icon flex-shrink-0"></i>
-          <span class="job-user-name is-uppercase">{{time}}</span>
+          <span class="job-user-name is-uppercase">{{job.get_runtime}}</span>
       </span>
     </header>
 
-    <p class="job-details-content is-size-6 content">{{log}}</p>
+    <p class="job-details-content is-size-6 content">
+    {% if job.log|length > 3 %}
+      {{job.log|length}} messages in log
+    {% else %}
+      {% for log in job.log %}
+        {{log.message}}<br>
+      {% endfor %}
+    {% endif %}</p>
   </div>
-  {% if not hideActions %}
+
   <div class="job-column job-actions">
-    <a href="{% url 'jobs_details' jobId %}" class="button is-small is-outlined has-text-weight-semibold">Details</a>
-    {% if not isComplete %}
-      <a href="#" class="button is-small is-outlined has-text-weight-semibold">Cancel job</a>
+    {% if not hideActions %}
+      <a href="{% url 'jobs_details' job.id %}" class="button is-small is-outlined has-text-weight-semibold">Details</a>
+      {% if not isComplete %}
+        <a href="#" class="button is-small is-outlined has-text-weight-semibold">Cancel job</a>
+      {% endif %}
     {% endif %}
   </div>
-  {% endif %}
 </div>

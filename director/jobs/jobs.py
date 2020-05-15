@@ -67,8 +67,8 @@ def save_job(sender, instance: Job, created: bool, **kwargs):
     in the functions below, or in the API, or in the admin interface even.
     In all cases, the job should actually be sent to the queue.
     """
-    if created:
-        route_job(instance)
+    # if created:
+    #     route_job(instance)
 
 
 # Job creation functions

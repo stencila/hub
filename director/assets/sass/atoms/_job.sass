@@ -12,7 +12,8 @@
   +until($desktop)
     flex-direction: column
 
-  &.is-active
+  &.is-active,
+  &:hover
     @extend .has-background-white-ter
 
 
@@ -27,10 +28,8 @@
     font-size: rem(13)
     font-variant: small-caps
     font-feature-settings: 'tnum' on, 'lnum' on
+    margin-top: rem(3)
     margin-bottom: 0.5rem
-
-    +desktop
-      margin-bottom: 1rem
 
   /// Job icons - used in various places, allows for simply dumping an icon
   /// without having to supply separate classes.
@@ -43,6 +42,9 @@
 
       width: rem(16)
       height: rem(16)
+
+    .text
+      width: rem(80)
 
   /// Coloured status label
   &-tag,
@@ -68,6 +70,7 @@
 
     +desktop
       // flex-direction: column
+      flex-shrink: 0
       align-items: flex-start
       width: rem(140)
       border-right: 1px solid $grey-lighter
@@ -118,6 +121,7 @@
       width: rem(120)
       margin-top: 0
       flex-direction: column
+      flex-shrink: 0
 
       .button
         width: 100%

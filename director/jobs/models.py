@@ -330,6 +330,19 @@ class JobMethod(EnumChoice):
     build = "build"
     execute = "execute"
 
+    @classmethod
+    def printable(cls, method: str) -> str:
+        """Convert the moethod into a printable string for the template."""
+        label = "Pulling"
+        label = "Pushing" if method == cls.pull.value else label
+        label = "Decoding" if method == cls.decode.value else label
+        label = "Converting" if method == cls.convert.value else label
+        label = "Compiling" if method == cls.compile.value else label
+        label = "Building" if method == cls.build.value else label
+        label = "Executing" if method == cls.execute.value else label
+
+        return label
+
 
 @unique
 class JobStatus(EnumChoice):
@@ -380,6 +393,47 @@ class JobStatus(EnumChoice):
                 cls.TERMINATED,
             )
         ]
+
+    @classmethod
+    def icon(cls, status: str) -> str:
+        """Assign the correct icon to use based on the status."""
+        icon = "loader"
+        icon = "play-circle" if status == cls.STARTED.value else icon
+        icon = "check-circle" if status == cls.SUCCESS.value else icon
+        icon = (
+            "x-octagon"
+            if status
+            in [member.value for member in (cls.FAILURE, cls.REJECTED, cls.REVOKED,)]
+            else icon
+        )
+        icon = (
+            "slash"
+            if status in [member.value for member in (cls.CANCELLED, cls.TERMINATED,)]
+            else icon
+        )
+        icon = "rotate-cw" if status == cls.RETRY.value else icon
+
+        return icon
+
+    @classmethod
+    def colour(cls, status: str) -> str:
+        """Assign the correct colour to use based on the status."""
+        icon = "info"
+        icon = "success" if status == cls.SUCCESS.value else icon
+        icon = (
+            "danger"
+            if status
+            in [member.value for member in (cls.FAILURE, cls.REJECTED, cls.REVOKED,)]
+            else icon
+        )
+        icon = (
+            "grey-light"
+            if status in [member.value for member in (cls.CANCELLED, cls.TERMINATED,)]
+            else icon
+        )
+        icon = "warning" if status == cls.RETRY.value else icon
+
+        return icon
 
 
 class Job(models.Model):
@@ -494,6 +548,39 @@ class Job(models.Model):
         return (
             Job.objects.filter(created__lt=self.created, ended__isnull=True).count() + 1
         )
+
+    @property
+    def get_runtime(self):
+        """
+        Format the runtime into a format that can be printed to the screen.
+
+        i.e. convert from float into hours:mins format.
+        """
+        if self.began is not None and self.ended is not None:
+            difference = self.ended - self.began
+            seconds = difference.total_seconds()
+
+            h = seconds // 3600
+            m = (seconds % 3600) // 60
+
+            return "%d:%d" % (h, m)
+
+        return None
+
+    @property
+    def icon(self):
+        """Get the icon from the status - used in the template."""
+        return JobStatus.icon(self.status)
+
+    @property
+    def colour(self):
+        """Get the colour from the status - used in the template."""
+        return "is-{}".format(JobStatus.colour(self.status))
+
+    @property
+    def method_label(self):
+        """Get a printable version of the mothod - used in the template."""
+        return JobMethod.printable(self.method)
 
 
 class Pipeline(models.Model):
