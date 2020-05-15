@@ -114,7 +114,6 @@ cover: venv
 
 # Build Docker image
 build: Dockerfile
-	cp ../package*.json .
 	docker build --tag stencila/hub-director .
 
 # Run the Docker image

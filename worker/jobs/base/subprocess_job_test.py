@@ -1,3 +1,4 @@
+import sys
 from unittest import mock
 
 import pytest
@@ -15,6 +16,7 @@ def test_success():
     assert result["log"] == []
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="flakey on other platforms")
 def test_input():
     """The input arg is sent to stdin."""
     job = SubprocessJob()
@@ -23,6 +25,7 @@ def test_input():
     assert result["log"] == []
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="flakey on other platforms")
 def test_failure():
     """If the subprocess returns a non zero exit code then the job fails."""
     job = SubprocessJob()

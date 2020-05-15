@@ -48,6 +48,9 @@ jobs:
           versionSpec: '3.7'
         displayName: Install Python
 
+      - script: npm ci
+        displayName: Install Node.js dependencies for build
+
       - script: npm run build
         displayName: Build CSS and JS
 

@@ -1,3 +1,22 @@
+# [2.25.0](https://github.com/stencila/hub/compare/v2.24.1...v2.25.0) (2020-05-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.7.3 ([2d98e00](https://github.com/stencila/hub/commit/2d98e00ccd42f3634ea5340a3965684b55d65fcb))
+
+
+### Features
+
+* **CSS:** Colocate Styles package inside Hub ([2f03bb7](https://github.com/stencila/hub/commit/2f03bb7b8822cc2e18e8ae5bc128c0c8578148ec))
+
+## [2.24.1](https://github.com/stencila/hub/compare/v2.24.0...v2.24.1) (2020-05-14)
+
+
+### Bug Fixes
+
+* **Worker:** plos pull job ([75e682e](https://github.com/stencila/hub/commit/75e682e4d2dbc374ee3d3d0a6179593b4264c617))
+
 # [2.24.0](https://github.com/stencila/hub/compare/v2.23.1...v2.24.0) (2020-05-14)
 
 
