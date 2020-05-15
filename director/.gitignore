@@ -1,1 +1,4 @@
-dev.sqlite3
+/assets/css
+/dev.sqlite3
+/storage
+/venv

@@ -28,7 +28,7 @@ class Job(celery.Task):
 
     def begin(self):
         """
-        Begin a job.
+        Begin the job.
 
         Because the `run()` method is executed several times
         for each task instance, this method performs any

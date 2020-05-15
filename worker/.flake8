@@ -5,4 +5,4 @@ exclude = venv
 # So permit long lines for those.
 max-line-length = 120
 
-ignore=F401
+ignore=F401,W503

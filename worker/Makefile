@@ -1,12 +1,16 @@
 # Shortcut to refer to programs in the virtual environment during development
 VE := venv/bin
 
-# Build virtual environment
-venv: requirements.txt requirements-dev.txt
-	python3 -m venv venv
+# Python command to use for venv setup
+PYTHON ?= python3
+
+# Build virtual environment (Python and Node packages)
+venv: requirements.txt requirements-dev.txt package.json
+	$(PYTHON) -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
+	npm install
 
 # Format code
 format: venv
@@ -31,11 +35,23 @@ cover: venv
 # Change env vars as needed for your dev env.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
-	$(VE)/celery worker --app worker --events --queues stencila --hostname worker@zone --heartbeat-interval 30
+	$(VE)/celery worker \
+		--app worker \
+		--hostname worker@zone \
+		--queues default \
+		--events \
+		--heartbeat-interval 30 \
+		--loglevel DEBUG
 
 # Build Docker image
 build:
 	docker build --tag stencila/hub-worker .
+
+# Run Docker image
+run-docker: build
+	docker run --rm --network=host \
+		--env BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
+		stencila/hub-worker
 
 # Clean up venv and cached files
 clean:

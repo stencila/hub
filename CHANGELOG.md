@@ -1,3 +1,49 @@
+# [2.25.0](https://github.com/stencila/hub/compare/v2.24.1...v2.25.0) (2020-05-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.7.3 ([2d98e00](https://github.com/stencila/hub/commit/2d98e00ccd42f3634ea5340a3965684b55d65fcb))
+
+
+### Features
+
+* **CSS:** Colocate Styles package inside Hub ([2f03bb7](https://github.com/stencila/hub/commit/2f03bb7b8822cc2e18e8ae5bc128c0c8578148ec))
+
+## [2.24.1](https://github.com/stencila/hub/compare/v2.24.0...v2.24.1) (2020-05-14)
+
+
+### Bug Fixes
+
+* **Worker:** plos pull job ([75e682e](https://github.com/stencila/hub/commit/75e682e4d2dbc374ee3d3d0a6179593b4264c617))
+
+# [2.24.0](https://github.com/stencila/hub/compare/v2.23.1...v2.24.0) (2020-05-14)
+
+
+### Bug Fixes
+
+* **Worker:** Add malicious host test from director ([6a0cd66](https://github.com/stencila/hub/commit/6a0cd669ccc3f6e107fd743d06adc60b7fd1f5e9))
+* **Worker:** Decode returned bytes from subprocess ([7be8161](https://github.com/stencila/hub/commit/7be8161160ca8fb7a540c9d4c94b339b4409e793))
+* **Worker:** Fix handling on bytes input ([8fa59db](https://github.com/stencila/hub/commit/8fa59dbb283f0f4ba434574fd535c8fbf6edc334))
+* **Worker:** Use requests.session for elife pull ([075f7a3](https://github.com/stencila/hub/commit/075f7a3c82ec6d20c4840aa41e2f443c1638867c))
+
+
+### Features
+
+* **Worker:** Add a Convert job ([7fbb23e](https://github.com/stencila/hub/commit/7fbb23e0f1a30558603c87a849cc7b660d748170))
+* **Worker:** Add Decode and Encode jobs ([87dba8c](https://github.com/stencila/hub/commit/87dba8c76870644d9b7603f050ad29f1f97286d0))
+* **Worker:** Add SubprocessJob ([10f5536](https://github.com/stencila/hub/commit/10f553666c16be08a91043b61238789bd1bdc306))
+* **Worker:** SubprocessJob can accept stdin ([88b3b80](https://github.com/stencila/hub/commit/88b3b805c662ff5ec9c9657292a2a7f4a04de339))
+
+## [2.23.1](https://github.com/stencila/hub/compare/v2.23.0...v2.23.1) (2020-05-13)
+
+
+### Bug Fixes
+
+* **Scheduler:** Update broker url ([454db11](https://github.com/stencila/hub/commit/454db11280d6ed830d824ca07faf3853aeb09960))
+* **Worker:** Fetch figures in elife pull job ([a1331c4](https://github.com/stencila/hub/commit/a1331c4c8deb975d3ca2ed6ab1bff8bb3c11cca6))
+* **Worker:** Ignore W503 linting rule ([d402977](https://github.com/stencila/hub/commit/d40297734988c74860d1fd2eb6b7d71a63ba7082))
+
 # [2.23.0](https://github.com/stencila/hub/compare/v2.22.0...v2.23.0) (2020-05-11)
 
 
