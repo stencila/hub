@@ -5,11 +5,7 @@ from socket import gethostbyname
 from urllib.parse import urlparse
 
 
-class RemoteFileException(Exception):
-    pass
-
-
-class PullSession(requests.sessions.Session):
+class HttpSession(requests.sessions.Session):
     def __init__(self):
         super().__init__()
         self.max_redirects = 5
@@ -29,12 +25,10 @@ class PullSession(requests.sessions.Session):
         url_obj = urlparse(url)
 
         if url_obj.hostname is None:
-            raise TypeError('Url "{}" appears to have no hostname.'.format(url))
+            raise ValueError('Url "{}" appears to have no hostname.'.format(url))
 
         if self.is_malicious_host(url_obj.hostname):
-            raise RemoteFileException(
-                "{} is not a valid hostname.".format(url_obj.hostname)
-            )
+            raise ValueError("{} is not a valid hostname.".format(url_obj.hostname))
 
     def fetch_url(self, url, stream=False):
         self.check_host(url)
