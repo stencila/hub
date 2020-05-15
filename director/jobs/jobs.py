@@ -1,12 +1,23 @@
+"""
+This module defines the interface between the `director` (i.e Django)
+and the `broker` (i.e. RabbitMQ). It defines three functions involved in
+a job's lifecycle:
+
+- `dispatch_job` - send a job to a queue
+- `update_job` - update the status of a job by checking it's (intermediate) result
+- `check_job` - for a parent job, trigger any child jobs, and / or update it's status
+- `cancel_job` - remove job from the queue, or terminate it if already started
+
+"""
+import logging
+
 from celery import Celery, signature
 from celery.result import AsyncResult
 from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-from jobs.models import Job, JobMethod, JobStatus
-from projects.models import Project
-from users.models import User
+from jobs.models import Job, JobMethod, JobStatus, Queue
+
+logger = logging.getLogger(__name__)
 
 # Setup the Celery app
 # This is used to send and cancel jobs
@@ -27,95 +38,104 @@ celery.conf.update(
 )
 
 
-def send_job(queue: str, id: int, method: JobMethod, params: dict):
+def dispatch_job(job: Job) -> Job:
     """
     Send a job to a queue.
 
-    Constructs a Celery task "signature" and sends it the queue.
-    """
-    if not JobMethod.is_member(method):
-        raise ValueError("Unknown job method '{}'".format(method))
-    task = signature(method, kwargs=params, app=celery, queue=queue)
-    task.apply_async(task_id=str(id))
-
-
-def route_job(job: Job):
-    """
-    Route a job to a queue.
-
-    Decides which queue a job should be sent to and sends it there.
+    Decides which queue a job should be sent to and sends it.
     The queue can depend upon both the project and the account (either the
     account that the project is linked to, or the default account of the job
     creator).
     """
-    # TODO: Implement as in docstring but using zones (and a default queue per zone)
-    queue = "stencila"
-    send_job(queue, job.id, job.method, job.params)
+    if not JobMethod.is_member(job.method):
+        raise ValueError("Unknown job method '{}'".format(job.method))
 
-    # Update the job
-    job.queue = queue
-    job.status = JobStatus.DISPATCHED.value
+    if job.method in [JobMethod.series.value, JobMethod.chain.value]:
+        # Dispatch the first child; subsequent children
+        # will get dispatched via the when the parent is checked
+        if job.children:
+            dispatch_job(job.children.first())
+    elif job.method == JobMethod.parallel.value:
+        # Dispatch all child jobs simultaneously
+        for child in job.children.all():
+            dispatch_job(child)
+    else:
+        # TODO: Implement as in docstring but using zones (and a default queue per zone)
+        queue, _ = Queue.get_or_create(account_name="stencila", queue_name="default")
+        job.queue = queue
+
+        # TODO: Send the task to the account's vhost on the broker
+        # currently, this just sends to the stencila vhost
+        task = signature(
+            job.method,
+            kwargs=job.params,
+            queue=job.queue.name,
+            task_id=str(job.id),
+            app=celery,
+        )
+        task.apply_async()
+
+        job.status = JobStatus.DISPATCHED.value
+
     job.save()
+    return job
 
 
-@receiver(post_save, sender=Job)
-def save_job(sender, instance: Job, created: bool, **kwargs):
+def update_job(job: Job) -> Job:
     """
-    Send a job to the queue when it is created.
-
-    We use the `post_save` signal, because a job may be created
-    in the functions below, or in the API, or in the admin interface even.
-    In all cases, the job should actually be sent to the queue.
-    """
-    if created:
-        route_job(instance)
-
-
-# Job creation functions
-#
-# Not clear if these functions are necessary given the
-# API views.
-# Currently just define an `execute` job but plan to
-# add pull, push, decode, encode, convert, compile, build etc
-
-
-def execute(user: User, project: Project, params: dict = {}):
-    return Job.objects.create(
-        creator=user, project=project, method="execute", params=params,
-    )
-
-
-# Job update functions
-#
-# Update the state of a job
-# Currently just `cancel`, but could also involve
-# moving a job to another queue (revoke and then re-dispatch).
-
-
-def update(job: Job):
-    """
-    Update a job.
+    Update a job based on it's result.
 
     This method is used to update the status of the job by getting it's
-    `AsyncResult`. It is called when the job is retrived (ie. GET) and
-    updated with other information (ie PATCH).
+    `AsyncResult`. It is called when (1) the job is retrived (ie. GET) and
+    (2) when it is updated with other information (ie PATCH).
+
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.
     """
     # Get an async result from the backend if the job
     # is not recorded as ready.
-    if not JobStatus.has_ended(job.status):
-        result = AsyncResult(str(job.id), app=celery)
-        job.status = result.status
-        # `info` is the `meta` kwarg passed to `task.self_update` in the
-        # worker process
-        if isinstance(result.info, dict):
-            job.url = result.info.get("url")
+    if not JobStatus.has_ended(job.status) or job.result is None or job.error is None:
+        async_result = AsyncResult(str(job.id), app=celery)
+        status = async_result.status
+        info = async_result.info
+
+        job.status = status
+
+        if status in [JobStatus.RUNNING.value, JobStatus.SUCCESS.value] and isinstance(
+            async_result.info, dict
+        ):
+            # For RUNNING, `info` is the `meta` kwarg passed to
+            # `Job.update_state()` call in the worker process.
+            # For SUCCESS, `info` is the value returned
+            # by the `Job.success()` method in the worker process.
+            for field in ["result", "log", "url"]:
+                if field in info:
+                    setattr(job, field, info[field])
+
+        if status == JobStatus.FAILURE.value:
+            # For FAILURE, `info` is the raised Exception
+            job.error = dict(type=type(info).__name__, message=str(info))
+
+        if job.parent is not None:
+            check_job(job.parent)
+
         job.save()
     return job
 
 
-def cancel(job: Job):
+def check_job(job: Job) -> Job:
+    """
+    Check a parent job to see if it is finished or if children jobs need to be dispatched.
+
+    TODO: Update the status of the job based on children e.g. if one or more child has failed
+    then mark it as failed.
+    TODO: if a `series` or `chain` job, then update the next child when the previous
+    child has succeeded.
+    """
+    return job
+
+
+def cancel_job(job: Job) -> Job:
     """
     Cancel a job.
 
