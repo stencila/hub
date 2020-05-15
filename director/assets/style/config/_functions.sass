@@ -1,0 +1,8 @@
+@function rem($size: $body-size)
+  @return (strip-units($size)/strip-units($body-size))+rem
+
+@function em($size: $body-size, $target: $body-size)
+  @return (strip-units($size)/strip-units($target))+em
+
+@function strip-units($value)
+    @return $value / ($value * 0 + 1)

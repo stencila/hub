@@ -1,0 +1,37 @@
+////
+/// Overrides for Bulma card component
+////
+
+.card
+    /// When using a card on a grid, you can hide the border, shadows etc.
+    &--grid
+        box-shadow: none
+        margin-bottom: rem(20)
+        background-color: transparent
+
+        +touch
+            hr
+                margin-left: auto
+                margin-right: auto
+
+        .card-image
+            +touch
+                .image
+                    img
+                        margin-left: auto
+                        margin-right: auto
+
+            + .card-content
+                margin-top: rem(60)
+
+        .card-content
+            padding-left: 0
+            padding-right: 0
+            font-size: rem(16)
+            line-height: em(24, 16)
+
+            +touch
+                text-align: center
+
+    &-grid-container
+        margin-top: rem(140)
