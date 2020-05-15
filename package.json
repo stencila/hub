@@ -12,7 +12,6 @@
     "start": "gulp"
   },
   "dependencies": {
-    "@stencila/encoda": "0.93.8",
     "@stencila/thema": "2.7.3",
     "bulma": "0.7.5",
     "hamburgers": "1.1.3"

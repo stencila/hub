@@ -1,7 +1,3 @@
-# Warning: a `.gitignore` in the `director` subdirectory will override
-# the `files` setting in `package.json` when packaging. So keep this
-# as the only `.gitigore` file.
-
 # Ignore Pycharm/IntelliJ Project Dir
 .idea
 
@@ -18,15 +14,11 @@ __pycache__
 coverage
 coverage.xml
 
+# Ignore node modules
 node_modules
 
-# Ignore director virtualenvs, collected static files etc
-/director/assets/css
-/director/env.sh
-/director/secrets
+# Ignore director collected static files etc
+# Warning: putting this in the `director/.gitignore` file will override
+# the `files` setting in `package.json` when packaging. So keep this
+# in this file!
 /director/static
-/director/storage
-/director/venv
-
-# Ignore files copied into director for Docker build
-/director/package*.json
