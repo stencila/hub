@@ -2,13 +2,14 @@ import io
 import os
 import re
 import requests
+from typing import List
 
 from lxml import etree
 
-from .base import PullSession
+from .base import HttpSession
 
 
-def pull_elife(source: dict, sink: str) -> str:
+def pull_elife(source: dict, project: str, path: str) -> List[str]:
     """
     Pull an eLife article.
 
@@ -19,16 +20,16 @@ def pull_elife(source: dict, sink: str) -> str:
     assert "article" in source, "eLife source must have an article number"
 
     url = "https://elifesciences.org/articles/{article}.xml".format(**source)
-    folder, article = os.path.split(sink)
 
-    assert "{article}.jats.xml".format(**source) == article
+    folder, xml = os.path.split(path)
+    folder = os.path.join(project, folder)
 
-    session = PullSession()
+    session = HttpSession()
     response = session.fetch_url(url)
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
-    os.makedirs("{}.media".format(sink), exist_ok=True)
+    os.makedirs(os.path.join(project, "{}.media".format(path)), exist_ok=True)
 
     # Get the figures and rewrite hrefs
     for graphic in root.iterdescendants(tag="graphic"):
@@ -45,11 +46,11 @@ def pull_elife(source: dict, sink: str) -> str:
         filename = href.replace("elife-{}-".format(source["article"]), "")
         filename = re.sub(r"-v\d+\.tif$", ".jpg", filename)
 
-        new_href = "{}.media/{}".format(article, filename)
+        new_href = "{}.media/{}".format(xml, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "jpeg"
-        session.pull(url, "{}/{}".format(folder, new_href))
+        session.pull(url, os.path.join(folder, new_href))
 
-    tree.write(open(sink, "wb"))
+    tree.write(open(os.path.join(folder, xml), "wb"))
 
-    return sink
+    return [path]
