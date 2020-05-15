@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from .convert import Convert
@@ -16,6 +18,7 @@ def test_bad_args():
         assert message in str(excinfo.value)
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="flakey on other platforms")
 def test_simple(tempdir):
     """A simple Markdown to HTML conversion."""
     job = Convert()
