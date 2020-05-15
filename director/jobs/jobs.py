@@ -1,7 +1,7 @@
 """
-This module defines the interface between the `director` (i.e Django)
-and the `broker` (i.e. RabbitMQ). It defines three functions involved in
-a job's lifecycle:
+Module that defines the interface between the `director` (i.e Django) and the `broker` (i.e. RabbitMQ).
+
+Defines three functions involved in a job's lifecycle:
 
 - `dispatch_job` - send a job to a queue
 - `update_job` - update the status of a job by checking it's (intermediate) result

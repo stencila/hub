@@ -10,7 +10,6 @@ from jsonfallback.fields import FallbackJSONField
 
 from lib.enum_choice import EnumChoice
 from accounts.models import Account
-from projects.models import Project
 from users.models import User
 
 
@@ -319,6 +318,10 @@ class JobMethod(EnumChoice):
     Each job must have one of these methods.
     """
 
+    parallel = "parallel"
+    series = "series"
+    chain = "chain"
+
     pull = "pull"
     push = "push"
 
@@ -329,6 +332,10 @@ class JobMethod(EnumChoice):
     compile = "compile"
     build = "build"
     execute = "execute"
+
+    session = "session"
+
+    sleep = "sleep"
 
 
 @unique
@@ -349,8 +356,8 @@ class JobStatus(EnumChoice):
 
     # Job was started by a worker.
     STARTED = "STARTED"
-    # Job has reported progress since starting (custom).
-    PROGRESS = "PROGRESS"
+    # Job is running (custom).
+    RUNNING = "RUNNING"
     # Job succeeded
     SUCCESS = "SUCCESS"
     # Job failed
@@ -403,7 +410,7 @@ class Job(models.Model):
     """
 
     project = models.ForeignKey(
-        Project,
+        "projects.Project",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
@@ -429,7 +436,17 @@ class Job(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="jobs",
         help_text="The queue that this job was routed to",
+    )
+
+    parent = models.ForeignKey(
+        "Job",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+        help_text="The parent job",
     )
 
     began = models.DateTimeField(null=True, help_text="The time the job began.")
@@ -451,6 +468,12 @@ class Job(models.Model):
     result = FallbackJSONField(
         blank=True, null=True, help_text="The result of the job; a JSON value."
     )
+    error = FallbackJSONField(
+        blank=True,
+        null=True,
+        help_text="Any error associated with the job; a JSON object with type, message etc.",
+    )
+
     log = FallbackJSONField(
         blank=True,
         null=True,
@@ -495,6 +518,24 @@ class Job(models.Model):
             Job.objects.filter(created__lt=self.created, ended__isnull=True).count() + 1
         )
 
+    # Shortcuts to the functions for controlling
+    # and updating jobs.
+
+    def dispatch(self) -> "Job":
+        from jobs.jobs import dispatch_job
+
+        return dispatch_job(self)
+
+    def update(self) -> "Job":
+        from jobs.jobs import update_job
+
+        return update_job(self)
+
+    def cancel(self) -> "Job":
+        from jobs.jobs import catch_job
+
+        return catch_job(self)
+
 
 class Pipeline(models.Model):
     """
@@ -518,7 +559,7 @@ class Pipeline(models.Model):
     """
 
     project = models.ForeignKey(
-        Project,
+        "projects.Project",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
