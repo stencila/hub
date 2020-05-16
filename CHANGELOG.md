@@ -1,3 +1,10 @@
+## [2.25.1](https://github.com/stencila/hub/compare/v2.25.0...v2.25.1) (2020-05-16)
+
+
+### Bug Fixes
+
+* **Director:** Change location of Encoda install ([a9277ae](https://github.com/stencila/hub/commit/a9277aed134de12e7a33fcdeffa957d0ceb760d6))
+
 # [2.25.0](https://github.com/stencila/hub/compare/v2.24.1...v2.25.0) (2020-05-15)
 
 
