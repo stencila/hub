@@ -388,10 +388,9 @@ class Prod(Configuration):
     # these paths will be made publicly readable in the Google Storage bucket after being written to
 
     # Path to Encoda executable
-    # This default path points to the install in the parent directory
     STENCILA_ENCODA_PATH = values.Value(
         os.path.join(
-            BASE_DIR, "..", "node_modules", "@stencila", "encoda", "dist", "cli.js"
+            BASE_DIR, "node_modules", "@stencila", "encoda", "dist", "cli.js"
         )
     )
 

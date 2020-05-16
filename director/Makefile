@@ -22,11 +22,12 @@ all: setup run
 setup: venv
 
 # Setup virtual environment
-venv: requirements.txt  requirements-dev.txt
+venv: requirements.txt  requirements-dev.txt package.json
 	$(PYTHON) -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
+	npm install
 
 # Build any static files
 # Needs `venv` to setup virtualenv for Django collectstatic
