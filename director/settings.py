@@ -389,9 +389,7 @@ class Prod(Configuration):
 
     # Path to Encoda executable
     STENCILA_ENCODA_PATH = values.Value(
-        os.path.join(
-            BASE_DIR, "node_modules", "@stencila", "encoda", "dist", "cli.js"
-        )
+        os.path.join(BASE_DIR, "node_modules", "@stencila", "encoda", "dist", "cli.js")
     )
 
     STENCILA_CLIENT_USER_AGENT = values.Value("Stencila Hub HTTP Client")
