@@ -1,3 +1,10 @@
+## [2.25.2](https://github.com/stencila/hub/compare/v2.25.1...v2.25.2) (2020-05-16)
+
+
+### Bug Fixes
+
+* **CI:** Remove copy of top package.json ([62d2c32](https://github.com/stencila/hub/commit/62d2c325738bfbceeda242d36b481a505a581126))
+
 ## [2.25.1](https://github.com/stencila/hub/compare/v2.25.0...v2.25.1) (2020-05-16)
 
 
