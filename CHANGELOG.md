@@ -1,3 +1,16 @@
+# [2.26.0](https://github.com/stencila/hub/compare/v2.25.2...v2.26.0) (2020-05-17)
+
+
+### Bug Fixes
+
+* **Director:** Add request_permissions_guard ([e93b417](https://github.com/stencila/hub/commit/e93b417e8eb84d4d656ece7ba5baaa32a7bccec3)), closes [#398](https://github.com/stencila/hub/issues/398)
+
+
+### Features
+
+* **Director:** Create pull job for sources ([44533ef](https://github.com/stencila/hub/commit/44533efa7f2151b00f4af632933a289e4f90d9a5))
+* **Director:** Update job model and API views ([9ba9ac3](https://github.com/stencila/hub/commit/9ba9ac350e5211d5d9005b59268af0698dc82ed9))
+
 ## [2.25.2](https://github.com/stencila/hub/compare/v2.25.1...v2.25.2) (2020-05-16)
 
 
