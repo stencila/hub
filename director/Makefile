@@ -6,7 +6,9 @@ VE := venv/bin
 # with overrides for local development
 EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
       export $$(egrep -v '^\#' ../.secrets | xargs); \
-	  export DEPLOYMENT_ENVIRONMENT=dev export DATABASE_URL="sqlite:///dev.sqlite3";
+	  export DEPLOYMENT_ENVIRONMENT=dev \
+	         DATABASE_URL="sqlite:///dev.sqlite3" \
+	         BROKER_URL="amqp://stencila:password@localhost:5672/stencila";
 
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py

@@ -15,6 +15,7 @@ django-jsonfallback==2.1.2
 django-polymorphic==2.1.2
 django-prometheus==2.0.0
 django-rest-knox==4.1.0
+django-rest-polymorphic==0.1.9
 django-sendgrid-v5==0.8.1
 django-storages==1.7.2
 Django==2.2.12

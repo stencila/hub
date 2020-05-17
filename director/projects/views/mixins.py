@@ -166,6 +166,31 @@ class ProjectPermissionsMixin(object):
         self.perform_project_fetch(user, account_name, project_name, pk)
         return self.has_permission(permission)
 
+    def request_permissions_guard(
+        self,
+        request: HttpRequest,
+        account_name: typing.Optional[str] = None,
+        project_name: typing.Optional[str] = None,
+        pk: typing.Optional[int] = None,
+        permission: typing.Optional[ProjectPermissionType] = None,
+    ) -> None:
+        """
+        Test that the current user has a permission, raising `PermissionDenied` if not.
+
+        Will validate on the passed in `permission`,  defaulting to
+        `self.required_account_permission` or `OWN`.
+        """
+        permission = (
+            permission or self.project_permission_required or ProjectPermissionType.OWN
+        )
+
+        if not self.is_permitted(
+            request.user, permission, account_name, project_name, pk
+        ):
+            raise PermissionDenied(
+                "User must have {} permission to do this.".format(permission)
+            )
+
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:
         return get_highest_permission(self.project_permissions)

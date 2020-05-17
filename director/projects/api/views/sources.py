@@ -10,14 +10,18 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import escape
 from django.views.generic.base import View
 from googleapiclient.errors import HttpError
 from oauth2client.client import HttpAccessTokenRefreshError
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import mixins, viewsets
 
 from lib.conversion_types import UnknownMimeTypeError
 from lib.converter_facade import fetch_url
@@ -31,6 +35,105 @@ from projects.project_models import PublishedItem
 from projects.source_models import GoogleDocsSource, UrlSource, Source, DiskSource
 from lib.path_operations import utf8_path_join
 from projects.views.mixins import ConverterMixin, ProjectPermissionsMixin
+from projects.api.serializers import SourcePolymorphicSerializer
+
+
+class ProjectsSourcesViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+    ProjectPermissionsMixin,
+):
+    """
+    A view set for project sources.
+
+    Provides basic CRUD for sources.
+    Sources are nested under projects for permissions control.
+    """
+
+    # Configuration
+
+    serializer_class = SourcePolymorphicSerializer
+
+    lookup_url_kwarg = "source"
+
+    def get_queryset(self):
+        """
+        Override of `GenericAPIView.get_queryset`.
+
+        Returns the list of sources linked to the account.
+        """
+        return Source.objects.filter(project=self.kwargs["project"])
+
+    # Views
+
+    def list(self, request: Request, project: int) -> Response:
+        """
+        List the sources linked to the project.
+
+        Returns details for all sources linked to the project.
+        """
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.VIEW
+        )
+
+        return super().list(request, project)
+
+    def create(self, request: Request, project: int) -> Response:
+        """
+        Create a source linked to the project.
+
+        Returns details for the new source.
+        """
+        project = self.get_project(request.user, pk=project)
+        if not self.has_permission(ProjectPermissionType.EDIT):
+            raise PermissionDenied
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(project=project, creator=request.user)
+
+        return Response(serializer.data)
+
+    def retrieve(self, request: Request, project: int, source: int) -> Response:
+        """
+        Retrieve details of a source linked to the project.
+
+        Returns details for the source.
+        """
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.VIEW
+        )
+
+        return super().retrieve(request, project, source)
+
+    def destroy(self, request: Request, project: int, source: int) -> Response:
+        """
+        Destroy a source linked to the project.
+
+        Don't worry, no sources will be harmed by this action :)
+        It just removes them from the list of available sources
+        for the project.
+        """
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.EDIT
+        )
+
+        return super().destroy(request, project, source)
+
+    @action(detail=True, methods=["POST"])
+    def pull(self, request: Request, project: int, source: int) -> Response:
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.EDIT
+        )
+
+        source = self.get_object()
+        job = source.pull(request.user)
+        job.dispatch()
+
+        return redirect("api-jobs-detail", job.id)
 
 
 class LinkException(Exception):
