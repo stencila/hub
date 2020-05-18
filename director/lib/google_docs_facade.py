@@ -27,15 +27,12 @@ class GoogleDocsFacade(object):
     _drive_service = None
     _auth_helper: GoogleAuthHelper
 
-    def __init__(
-        self,
-        client_id: str,
-        client_secret: str,
-        social_auth_token: typing.Optional[SocialToken] = None,
-    ) -> None:
-        self._auth_helper = GoogleAuthHelper(
-            client_id, client_secret, social_auth_token
-        )
+    def __init__(self, social_auth_token: typing.Optional[SocialToken] = None,) -> None:
+        self._auth_helper = GoogleAuthHelper(social_auth_token)
+
+    @property
+    def google_app(self):
+        return self._auth_helper.google_app
 
     @property
     def credentials(self) -> typing.Optional[GoogleCredentials]:

@@ -3,7 +3,6 @@ import os
 import typing
 
 import oauth2client.client
-from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -135,13 +134,7 @@ class GoogleDocsSourceCreateView(SourceCreateView):
     template_name = "projects/googledocssource_create.html"
 
     def form_valid(self, form: GoogleDocsSourceForm) -> HttpResponse:
-        google_app = SocialApp.objects.filter(provider="google").first()
-
-        gdf = GoogleDocsFacade(
-            google_app.client_id,
-            google_app.secret,
-            user_social_token(self.request.user, "google"),
-        )
+        gdf = GoogleDocsFacade(user_social_token(self.request.user, "google"))
 
         directory = self.request.GET.get("directory", "")
         document = gdf.get_document(form.cleaned_data["doc_id"])
