@@ -4,7 +4,13 @@ from rest_polymorphic.serializers import PolymorphicSerializer
 
 
 from projects.project_models import Project, ProjectEvent, Snapshot
-from projects.source_models import Source, ElifeSource, PlosSource, UrlSource
+from projects.source_models import (
+    Source,
+    ElifeSource,
+    PlosSource,
+    UrlSource,
+    GoogleDocsSource,
+)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -65,6 +71,13 @@ class UrlSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class GoogleDocsSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GoogleDocsSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class SourcePolymorphicSerializer(PolymorphicSerializer):
     """Serializer which dispatches to the appropriate serializer depending uponsource type."""
 
@@ -75,6 +88,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
         ElifeSource: ElifeSourceSerializer,
         PlosSource: PlosSourceSerializer,
         UrlSource: UrlSourceSerializer,
+        GoogleDocsSource: GoogleDocsSourceSerializer,
     }
 
 
