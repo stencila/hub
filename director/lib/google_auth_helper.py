@@ -1,26 +1,22 @@
 import typing
 import httplib2
 
-from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.models import SocialApp, SocialToken
 from django.utils import timezone
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import GoogleCredentials
 
 class GoogleAuthHelper(object):
-    client_id: str
-    client_secret: str
+    google_app: typing.Optional[SocialApp] = None
     social_auth_token: typing.Optional[SocialToken]
     _credentials: typing.Optional[GoogleCredentials] = None
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
         social_auth_token: typing.Optional[SocialToken] = None,
     ) -> None:
-        self.client_id = client_id
-        self.client_secret = client_secret
         self.social_auth_token = social_auth_token
+        self.google_app = SocialApp.objects.filter(provider="google").first()
 
     @property
     def auth_token_expired(self) -> bool:
@@ -36,10 +32,13 @@ class GoogleAuthHelper(object):
         if self.social_auth_token is None:
             return None
 
+        if self.google_app is None:
+            return None
+
         return GoogleCredentials(
             self.social_auth_token.token,
-            self.client_id,
-            self.client_secret,
+            self.google_app.client_id,
+            self.google_app.secret,
             self.social_auth_token.token_secret,
             self.social_auth_token.expires_at,
             GOOGLE_TOKEN_URI,

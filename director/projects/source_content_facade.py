@@ -4,7 +4,6 @@ import typing
 from datetime import datetime
 from os.path import splitext, getmtime
 
-from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -443,16 +442,9 @@ def make_source_content_facade(
 
         gh_facade = GitHubFacade(source.repo, gh_token)
 
-    google_app = SocialApp.objects.filter(provider="google").first()
+    gd_facade = GoogleDocsFacade(user_social_token(user, "google"))
 
-    if google_app is None:
-        if isinstance(source, GoogleDocsSource):
-            # it's only a problem if we're working with a Google Docs source
-            raise RuntimeError("No Google Docs app set up.")
-        gd_facade = None
-    else:
-        gd_facade = GoogleDocsFacade(
-            google_app.client_id, google_app.secret, user_social_token(user, "google")
-        )
+    if isinstance(source, GoogleDocsSource) and not gd_facade.google_app:
+        raise RuntimeError("No Google Docs app set up.")
 
     return SourceContentFacade(file_path, source, disk_facade, gh_facade, gd_facade)
