@@ -111,5 +111,5 @@ class ProjectFileRefresher(object):
     @staticmethod
     def update_source_from_disk(existing_source: FileSource, full_disk_file_path: str):
         with open(to_utf8(full_disk_file_path), "rb") as disk_file:
-            existing_source.push(disk_file)
+            existing_source.push_from_disk(disk_file)
             existing_source.save()

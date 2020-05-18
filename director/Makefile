@@ -6,7 +6,9 @@ VE := venv/bin
 # with overrides for local development
 EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
       export $$(egrep -v '^\#' ../.secrets | xargs); \
-	  export DEPLOYMENT_ENVIRONMENT=dev export DATABASE_URL="sqlite:///dev.sqlite3";
+	  export DEPLOYMENT_ENVIRONMENT=dev \
+	         DATABASE_URL="sqlite:///dev.sqlite3" \
+	         BROKER_URL="amqp://stencila:password@localhost:5672/stencila";
 
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py
@@ -21,12 +23,17 @@ all: setup run
 # aliases to setting up the dev environment.
 setup: venv
 
+# Run npm build script to ensure we have up to date css
+npm-build:
+	(cd $$(pwd)/../ && npm i && npm run build)
+
 # Setup virtual environment
-venv: requirements.txt  requirements-dev.txt
+venv: requirements.txt  requirements-dev.txt package.json
 	$(PYTHON) -m venv venv
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
+	npm install
 
 # Build any static files
 # Needs `venv` to setup virtualenv for Django collectstatic

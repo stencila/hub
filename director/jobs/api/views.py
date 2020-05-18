@@ -4,7 +4,6 @@ import logging
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, status, views, viewsets
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -22,7 +21,6 @@ from jobs.api.serializers import (
     ZoneSerializer,
     ZoneCreateSerializer,
 )
-from jobs import jobs
 
 logger = logging.getLogger(__name__)
 
@@ -441,17 +439,6 @@ class JobsViewSet(
         # TODO: Also include projects where the user has view access
         return Job.objects.filter(creator=self.request.user)
 
-    def check_object_permissions(self, request: Request, job: Job):
-        """
-        Override of `APIView.check_object_permissions`.
-
-        Checks that the user is either the creator of the job,
-        or has view access to the project.
-        """
-        # TODO: Also permit users with view access to the project
-        if request.user != job.creator:
-            raise PermissionDenied
-
     def get_serializer_class(self):
         """
         Override of `GenericAPIView.get_serializer_class`.
@@ -487,22 +474,32 @@ class JobsViewSet(
         """
         Create a job.
 
+        Dispatches the job to a queue.
         Returns details for the new job.
         """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        serializer.instance.dispatch()
+
         return super().create(request)
 
     def partial_update(self, request: Request, pk: int):
         """
         Update a job.
 
-        This action is only available to the `overseer` service
+        This action is intended only to be used by the `overseer` service
         for it to update the details of a job based on events
         from the job queue.
         """
-        job = jobs.update(self.get_object())
+        job = self.get_object()
+        job.update()
+
         serializer = self.get_serializer(job, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         return Response(status=status.HTTP_200_OK)
 
     def retrieve(self, request: Request, pk: int):
@@ -511,7 +508,9 @@ class JobsViewSet(
 
         Returns details for the job.
         """
-        job = jobs.update(self.get_object())
+        job = self.get_object()
+        job.update()
+
         serializer = self.get_serializer(job)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -584,6 +583,8 @@ class JobsViewSet(
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        job = jobs.cancel(self.get_object())
+        job = self.get_object()
+        job.cancel()
+
         serializer = self.get_serializer(job)
         return Response(serializer.data)

@@ -46,6 +46,7 @@ class JobRetrieveSerializer(JobListSerializer):
     """
 
     position = serializers.IntegerField(read_only=True)
+    children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Job

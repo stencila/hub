@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from rest_framework.fields import JSONField
+from rest_polymorphic.serializers import PolymorphicSerializer
+
 
 from projects.project_models import Project, ProjectEvent, Snapshot
+from projects.source_models import Source, ElifeSource, UrlSource
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -25,6 +28,46 @@ class ProjectEventSerializer(serializers.ModelSerializer):
             "event_type",
             "log",
         ]
+
+
+class SourceSerializer(serializers.ModelSerializer):
+    """
+    Base serializer for source instances.
+
+    Project is read only to prevent a change to another
+    project for which the user does not have permissions.
+    """
+
+    class Meta:
+        model = Source
+        exclude = ["polymorphic_ctype"]
+        read_only_fields = ["creator", "created", "updated", "project"]
+
+
+class ElifeSourceSerializer(SourceSerializer):
+    class Meta:
+        model = ElifeSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class UrlSourceSerializer(SourceSerializer):
+    class Meta:
+        model = UrlSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class SourcePolymorphicSerializer(PolymorphicSerializer):
+    """Serializer which dispatches to the appropriate serializer depending uponsource type."""
+
+    resource_type_field_name = "type"
+
+    model_serializer_mapping = {
+        Source: SourceSerializer,
+        ElifeSource: ElifeSourceSerializer,
+        UrlSource: UrlSourceSerializer,
+    }
 
 
 class SnapshotSerializer(serializers.ModelSerializer):

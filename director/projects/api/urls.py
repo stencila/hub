@@ -2,6 +2,7 @@ from django.urls import path, include
 
 from general.api.routers import OptionalSlashRouter
 from projects.api.views.sources import (
+    ProjectsSourcesViewSet,
     DiskItemCreateView,
     DiskItemMoveView,
     DiskItemRemoveView,
@@ -20,21 +21,24 @@ nodes.register("nodes", NodesViewSet, "api-nodes")
 projects = OptionalSlashRouter()
 projects.register("projects", ProjectsViewSet, "api-projects")
 
-snapshots = OptionalSlashRouter()
-snapshots.register("snapshots", SnapshotsViewSet, "api-snapshots")
+projects_sources = OptionalSlashRouter()
+projects_sources.register("sources", ProjectsSourcesViewSet, "api-files")
 
-projects_urls = projects.urls + [
+projects_snapshots = OptionalSlashRouter()
+projects_snapshots.register("snapshots", SnapshotsViewSet, "api-snapshots")
+
+urlpatterns = projects.urls + [
+    # Nested routers
+    path("projects/<int:project>/", include(projects_sources.urls)),
+    path("projects/<int:pk>/", include(projects_snapshots.urls)),
+    # Internal API endpoints; not documented and reviewed yet.
     path(
         "projects/",
         include(
             [
-                # Nested routers
-                path("<int:pk>/", include(snapshots.urls)),
-                # Nested single views
                 path(
                     "<int:pk>/events/", EventListView.as_view(), name="api-events-list"
                 ),
-                # The following endpoints are not documented and reviewed yet.
                 path(
                     "<int:pk>/item-create/",
                     DiskItemCreateView.as_view(),
@@ -67,5 +71,5 @@ projects_urls = projects.urls + [
                 ),
             ]
         ),
-    )
+    ),
 ]

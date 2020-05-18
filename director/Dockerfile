@@ -31,17 +31,17 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 # Install Gunicorn as production WSGI server
 RUN pip3 install gunicorn
 
-# Copy package.json and package-lock.json and install Node.js deps.
-# The install is done in /home as that is the parent dir
-COPY package*.json /home/
-RUN cd /home && npm install
-
 # Create non-root user and home directory, because it is generally good practice,
 # and in this case necessary for Encoda to be able to run Chromium without the
 # unsafe `--no-sandbox` option.
 RUN useradd -ms /bin/bash director
 WORKDIR /home/director
 USER director
+
+# Copy package.json and package-lock.json and install Node.js deps.
+# for Encoda
+COPY package*.json ./
+RUN npm install
 
 # Copy requirements.txt and install Python deps.
 COPY requirements.txt ./

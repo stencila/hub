@@ -1,5 +1,4 @@
 import typing
-from io import BytesIO
 import re
 from urllib.parse import urlparse, ParseResult
 
@@ -13,6 +12,7 @@ from django.core.validators import URLValidator
 from polymorphic.models import PolymorphicModel
 
 from lib.conversion_types import mimetype_from_path
+from jobs.models import Job
 from users.models import User
 
 
@@ -21,16 +21,17 @@ class SourceAddress(dict):
     A specification of the location of a source.
 
     Used to store the result of parsing a source address string
-    (e.g. a URL) and use it to create source instances, filter for
-    existing source instances etc.
+    (e.g. a URL), create source instances, specify job parameters,
+    filter for existing source instances etc.
     """
 
-    def __init__(self, type, **kwargs):
+    def __init__(self, type_name: str, **kwargs):
         super().__init__(**kwargs)
+        self.type_name = type_name
         try:
-            self.type = globals()["{}Source".format(type)]
+            self.type = globals()["{}Source".format(type_name)]
         except KeyError:
-            raise KeyError('Unknown source type "{}"'.format(type))
+            raise KeyError('Unknown source type "{}"'.format(type_name))
 
     def __getattr__(self, attr):
         return self[attr]
@@ -190,9 +191,7 @@ class Source(PolymorphicModel):
         return models.Q(**kwargs)
 
     @staticmethod
-    def create_from_address(
-        address_or_string: typing.Union[SourceAddress, str]
-    ) -> "Source":
+    def from_address(address_or_string: typing.Union[SourceAddress, str]) -> "Source":
         """
         Create a source instance from a source address.
 
@@ -202,12 +201,51 @@ class Source(PolymorphicModel):
         address = Source.coerce_address(address_or_string)
         return address.type.objects.create(**address)
 
-    def pull(self) -> BytesIO:
-        raise NotImplementedError(
-            "Pull is not implemented for class {}".format(self.__class__.__name__)
+    def to_address(self) -> SourceAddress:
+        """
+        Create a source address from a source instance.
+
+        The inverse of `Source.from_address`. Used primarily
+        to create a pull job for a source.
+        """
+        all_fields = [field.name for field in self._meta.fields]
+        class_fields = [
+            name for name in self.__class__.__dict__.keys() if name in all_fields
+        ]
+        return SourceAddress(
+            self.type_name,
+            **dict(
+                [
+                    (name, value)
+                    for name, value in self.__dict__.items()
+                    if name in class_fields
+                ],
+                type=self.type_name,
+            ),
         )
 
-    def push(self, archive: typing.Union[str, typing.IO]) -> None:
+    def pull(self, user: User) -> Job:
+        """
+        Pull the source to the filesystem.
+
+        Creates a `Job` having the `pull` method and a dictionary of `source`
+        attributes sufficient to pull it. This may include authentication tokens.
+        """
+        return Job.objects.create(
+            creator=user,
+            method="pull",
+            params=dict(
+                source=self.to_address(), project=self.project.id, path=self.path
+            ),
+        )
+
+    def push(self) -> Job:
+        """
+        Push from the filesystem to the source.
+
+        Creates a `Job` having the `push` method and a dictionary of `source`
+        attributes sufficient to push it. This may include authentication tokens.
+        """
         raise NotImplementedError(
             "Push is not implemented for class {}".format(self.__class__.__name__)
         )
@@ -257,6 +295,18 @@ class DropboxSource(Source):
         abstract = True
 
 
+class ElifeSource(Source):
+    """An article from https://elifesciences.org."""
+
+    article = models.IntegerField(help_text="The article number.")
+
+    version = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="The article version. If blank, defaults to the latest.",
+    )
+
+
 def files_source_file_path(instance: "FileSource", filename: str):
     # File will be uploaded to MEDIA_ROOT/files_projects/<id>/<filename>
     return "projects/{0}/{1}".format(instance.id, filename)
@@ -282,24 +332,11 @@ class FileSource(Source):
             self.size = self.file.size
         super().save(*args, **kwargs)
 
-    def pull(self):
-        """Pull the file content."""
-        if self.file:
-            with self.file.open() as file:
-                return file.read().decode()
+    def push_from_disk(self, content: typing.Union[str, typing.IO]):
+        if isinstance(content, str):
+            f = ContentFile(content.encode("utf-8"))
         else:
-            return ""
-
-    def pull_binary(self) -> typing.Optional[bytearray]:
-        if self.file:
-            return self.file.open("rb").read()
-        return None
-
-    def push(self, archive: typing.Union[str, typing.IO]):
-        if isinstance(archive, str):
-            f = ContentFile(archive.encode("utf-8"))
-        else:
-            f = File(archive)
+            f = File(content)
         self.file.save(self.path, f)
         self.size = self.file.size
 

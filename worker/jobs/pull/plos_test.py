@@ -7,7 +7,8 @@ from .plos import pull_plos
 def test_ok(tempdir):
     pull_plos(
         {"article": "10.1371/journal.pcbi.1007273"},
-        tempdir.getpath("pcbi.1007273.jats.xml"),
+        tempdir.path,
+        "pcbi.1007273.jats.xml",
     )
 
     expected = ["pcbi.1007273.jats.xml", "pcbi.1007273.jats.xml.media/"] + [
