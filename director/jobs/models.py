@@ -337,21 +337,6 @@ class JobMethod(EnumChoice):
 
     sleep = "sleep"
 
-    @classmethod
-    def printable(cls, method: str) -> str:
-        """Convert the moethod into a printable string for the template."""
-        label = "Pulling"
-        label = "Pushing" if method == cls.pull.value else label
-        label = "Decoding" if method == cls.decode.value else label
-        label = "Converting" if method == cls.convert.value else label
-        label = "Compiling" if method == cls.compile.value else label
-        label = "Building" if method == cls.build.value else label
-        label = "Executing" if method == cls.execute.value else label
-        label = "Session" if method == cls.session.value else label
-        label = "Sleep" if method == cls.sleep.value else label
-
-        return label
-
 
 @unique
 class JobStatus(EnumChoice):
@@ -603,9 +588,26 @@ class Job(models.Model):
         return "is-{}".format(JobStatus.colour(self.status))
 
     @property
-    def method_label(self):
-        """Get a printable version of the mothod - used in the template."""
-        return JobMethod.printable(self.method)
+    def status_label(self):
+        """Get a printable version of the status - used in the template."""
+        inQueue = self.queue is None
+        status = JobStatus[self.status]
+        label = status.value
+        label = (
+            "Pending"
+            if status.value == JobStatus.PENDING.value and not inQueue
+            else label
+        )
+        label = (
+            "In Queue" if status.value == JobStatus.PENDING.value and inQueue else label
+        )
+
+        return label
+
+    @property
+    def has_ended(self):
+        """Check if the status is one of the defined ended statuses."""
+        return JobStatus.has_ended(self.status)
 
     # Shortcuts to the functions for controlling
     # and updating jobs.

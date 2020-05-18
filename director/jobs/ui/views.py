@@ -8,7 +8,7 @@ from projects.views.project_views import ProjectTab, ProjectPermissionsMixin
 class JobViewMixin(ProjectPermissionsMixin):
     """
     Mixin for the following view classes.
-    
+
     Extends `ProjectPermissionsMixin` for authorization
     on a per project level.
     """
