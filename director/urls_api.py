@@ -14,7 +14,7 @@ import users.api.urls
 urlpatterns = (
     general.api.urls.urlpatterns
     + jobs.api.urls.urlpatterns
-    + projects.api.urls.projects_urls
+    + projects.api.urls.urlpatterns
     + projects.api.urls.nodes.urls
     + users.api.urls.tokens.urls
     + users.api.urls.users.urls

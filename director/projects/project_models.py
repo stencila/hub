@@ -1,8 +1,6 @@
 import datetime
 import hashlib
 import secrets
-import typing
-from io import BytesIO
 
 from django.db import models
 from django_extensions.db.fields.json import JSONField
@@ -185,23 +183,6 @@ class Project(models.Model):
     def get_name(self):
         """Temporary implementation of a name property which is likely to be replaced by a db field in future."""
         return self.name or "Unnamed"
-
-    def get_first_source(self) -> Source:
-        source = (
-            self.sources.first()
-        )  # TODO: Update this when UI supports multiple sources
-        if not source:
-            raise ValueError("This project has no sources")
-
-        return source
-
-    def pull(self) -> BytesIO:
-        """Pull files from the project source."""
-        return self.get_first_source().pull()
-
-    def push(self, archive: typing.IO) -> None:
-        """Push files to the project source."""
-        self.get_first_source().push(archive)
 
     def save(self, *args, **kwargs) -> None:
         self.name = clean_slug(self.name, SlugType.PROJECT)

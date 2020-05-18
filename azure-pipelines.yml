@@ -74,10 +74,6 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-
-      - script: |
-          cp package*.json director/
-        displayName: Copy required files
     
       - task: DockerCompose@0
         displayName: Build images

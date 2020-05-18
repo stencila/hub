@@ -81,18 +81,27 @@ def test_query_from_address():
 
 
 @pytest.mark.django_db
-def test_create_from_address():
-    s = Source.create_from_address(
+def test_from_address():
+    s = Source.from_address(
         SourceAddress("Github", repo="org/repo", subpath="a/folder")
     )
     assert isinstance(s, GithubSource)
     assert s.repo == "org/repo"
     assert s.subpath == "a/folder"
 
-    s = Source.create_from_address("github://org/repo")
+    s = Source.from_address("github://org/repo")
     assert isinstance(s, GithubSource)
     assert s.repo == "org/repo"
     assert s.subpath is None
+
+
+def test_to_address():
+    s = GithubSource(repo="org/repo", subpath="a/folder")
+    a = s.to_address()
+    assert a.type_name == "Github"
+    assert list(a.keys()) == ["repo", "subpath", "type"]
+    assert a.repo == "org/repo"
+    assert a.subpath == "a/folder"
 
 
 def test_githubsource_provider_name():
