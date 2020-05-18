@@ -29,7 +29,7 @@
 
         <div class="column">
           <div class="job-container job-details-container is-flex flex-direction-column border-top-grey-lighter">
-              {% include "jobs_list_job.html" with hideActions=True %}
+              {% include "jobs_list_job.html" with hideDetails=True isComplete=job.has_ended %}
           </div>
 
           {% if job.log %}
