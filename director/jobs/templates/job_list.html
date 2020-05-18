@@ -1,31 +1,8 @@
-{% extends 'base.html' %}
-{% block title %}Jobs{% endblock %}
+{% extends 'projects/project_base.html' %}
+{% block title %}Project {{ project.name }} : Jobs{% endblock %}
 
-{% block content %}
-    <nav class="level">
-        <div class="level-left">
-            <nav class="breadcrumb" aria-label="breadcrumbs">
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="{% url 'jobs_list' %}">Jobs</a></li>
-                </ul>
-            </nav>
-        </div>
-    </nav>
-
-    <hr>
-
+{% block project_content %}
     <div class="columns is-centered">
-        <div class="column" style="flex: none; width: 228px">
-            <nav class="panel">
-                <a href="#" class="panel-block">Files</a>
-                <a href="#" class="panel-block">Snapshots</a>
-                <a href="{% url 'jobs_list' %}" class="panel-block is-active">Jobs</a>
-                <a href="#" class="panel-block">Sharing</a>
-                <a href="#" class="panel-block">Settings</a>
-            </nav>
-        </div>
-
         <div class="column">
             <header class="job-header level">
               <div class="job-filter level-left is-full-width">
@@ -76,7 +53,7 @@
 
             <div class="job-container is-flex flex-direction-column border-top-grey-lighter">
               {% for job in object_list %}
-                {% include "jobs_list_job.html" %}
+                {% include "job_list_job.html" %}
               {% endfor %}
             </div>
 

@@ -21,11 +21,11 @@
                    class="panel-block{% if project_tab == 'snapshots' %} is-active{% endif %}">
                     Snapshots
                 </a>
+                <a href="{% url 'project_job_list' project.account.name project.name %}"
+                    class="panel-block{% if project_tab == 'jobs' %} is-active{% endif %}">
+                    Jobs
+                </a>
                 {% if project_permissions|project_permissions_contain:'manage' %}
-                    <a href="{% url 'project_activity' project.account.name project.name %}"
-                       class="panel-block{% if project_tab == 'activity' %} is-active{% endif %}">
-                        Activity
-                    </a>
                     <a href="{% url 'project_sharing' project.account.name project.name %}"
                        class="panel-block{% if project_tab == 'sharing' %} is-active{% endif %}">
                         Sharing

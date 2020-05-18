@@ -4,6 +4,7 @@ from django.views.generic import RedirectView
 import projects.views.publication_views
 from lib.constants import ProjectUrlRoot
 from projects.views import project_views, snapshot_views, source_views
+from jobs.ui.views import JobListView, JobDetailView
 
 urlpatterns = [
     # These patterns are listed in the same order they appear in the sidebar menu (more or less)
@@ -84,9 +85,12 @@ urlpatterns = [
         ),
     ),
     path(
-        ProjectUrlRoot.activity.value + "/",
-        project_views.ProjectActivityView.as_view(),
-        name="project_activity",
+        ProjectUrlRoot.jobs.value + "/", JobListView.as_view(), name="project_job_list",
+    ),
+    path(
+        ProjectUrlRoot.jobs.value + "/<int:job>/",
+        JobDetailView.as_view(),
+        name="project_job_detail",
     ),
     path(
         ProjectUrlRoot.sharing.value + "/",

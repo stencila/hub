@@ -50,6 +50,7 @@ class ProjectUrlRoot(enum.Enum):
     delete = "delete"
     executa = "executa"
     files = "files"
+    jobs = "jobs"
     published = "published"
     settings = "settings"
     sharing = "sharing"
