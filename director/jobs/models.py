@@ -599,9 +599,7 @@ class Job(models.Model):
             else label
         )
         label = (
-            "In Queue"
-            if status.value == JobStatus.PENDING.value and inQueue
-            else label
+            "In Queue" if status.value == JobStatus.PENDING.value and inQueue else label
         )
 
         return label
