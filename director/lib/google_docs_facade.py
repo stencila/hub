@@ -9,7 +9,7 @@ from oauth2client.client import GoogleCredentials
 
 from projects.project_models import Project
 from projects.source_models import GoogleDocsSource
-from lib.google_auth_helper import GoogleAuthHelper
+from lib.google_auth import GoogleAuth
 from lib.path_operations import utf8_path_join
 
 logger = logging.getLogger(__name__)
@@ -25,18 +25,18 @@ logger.addHandler(syslog_handler)
 
 class GoogleDocsFacade(object):
     _drive_service = None
-    _auth_helper: GoogleAuthHelper
+    _auth: GoogleAuth
 
     def __init__(self, social_auth_token: typing.Optional[SocialToken] = None,) -> None:
-        self._auth_helper = GoogleAuthHelper(social_auth_token)
+        self._auth = GoogleAuth(social_auth_token)
 
     @property
     def google_app(self):
-        return self._auth_helper.google_app
+        return self._auth.google_app
 
     @property
     def credentials(self) -> typing.Optional[GoogleCredentials]:
-        return self._auth_helper.credentials
+        return self._auth.credentials
 
     @property
     def drive_service(self):
