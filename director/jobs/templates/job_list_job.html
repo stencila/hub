@@ -38,8 +38,8 @@
   </div>
 
   <div class="job-column job-actions">
-    {% if not hideDetails %}
-      <a href="{% url 'jobs_details' job.id %}" class="button is-small is-outlined has-text-weight-semibold">Details</a>
+    {% if not hideActions %}
+      <a href="{% url 'project_job_detail' project.account.name project.name job.id %}" class="button is-small is-outlined has-text-weight-semibold">Details</a>
     {% endif %}
     {% if not isComplete %}
       <a href="#" class="button is-small is-outlined has-text-weight-semibold">Cancel</a>

@@ -5,6 +5,7 @@ from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, status, views, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -21,6 +22,8 @@ from jobs.api.serializers import (
     ZoneSerializer,
     ZoneCreateSerializer,
 )
+from projects.models import ProjectPermissionType
+from projects.views.mixins import ProjectPermissionsMixin
 
 logger = logging.getLogger(__name__)
 
@@ -311,12 +314,48 @@ class AccountsWorkersHeartbeatsViewSet(
         return super().list(request, account=account, worker=worker)
 
 
+class JobsViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    """
+    A view set intended for the `overseer` service to update the status of workers.
+
+    Requires that the user is a Stencila staff member.
+    Does not require the `overseer` to know which project a job is associated
+    with, or have project permission.
+    """
+
+    # Configuration
+
+    queryset = Job.objects.all()
+    serializer_class = JobUpdateSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    # Views
+
+    def partial_update(self, request: Request, pk: int):
+        """
+        Update a job.
+
+        This action is intended only to be used by the `overseer` service
+        for it to update the details of a job based on events
+        from the job queue.
+        """
+        job = self.get_object()
+        job.update()
+
+        serializer = self.get_serializer(job, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class WorkersViewSet(viewsets.GenericViewSet):
     """
-    It is intended for the `overseer` service.
+    A view set intended for the `overseer` service to update the status of workers.
 
-    Currently this requires that the user is a Stencila
-    staff member.
+    Requires that the user is a Stencila staff member.
+    Does not require the `overseer` to know which account a worker is associated
+    with, or have account permission.
     """
 
     # Configuration
@@ -407,7 +446,8 @@ class WorkersViewSet(viewsets.GenericViewSet):
         return Response()
 
 
-class JobsViewSet(
+class ProjectsJobsViewSet(
+    ProjectPermissionsMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
@@ -434,10 +474,9 @@ class JobsViewSet(
         """
         Override of `GenericAPIView.get_queryset`.
 
-        Returns the list of jobs that the user has view access to.
+        Returns the list of jobs for the project.
         """
-        # TODO: Also include projects where the user has view access
-        return Job.objects.filter(creator=self.request.user)
+        return Job.objects.filter(project=self.kwargs["project"])
 
     def get_serializer_class(self):
         """
@@ -451,8 +490,6 @@ class JobsViewSet(
                 "create": JobCreateSerializer,
                 "execute": JobCreateSerializer,
                 "retrieve": JobRetrieveSerializer,
-                "update": JobUpdateSerializer,
-                "partial_update": JobUpdateSerializer,
                 "cancel": JobRetrieveSerializer,
                 "connect": JobRetrieveSerializer,
             }[self.action]
@@ -462,45 +499,36 @@ class JobsViewSet(
 
     # Standard views
 
-    def list(self, request: Request):
+    def list(self, request: Request, project: int):
         """
         List jobs.
 
         Returns details for all jobs the user has access to.
         """
-        return super().list(request)
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.VIEW
+        )
 
-    def create(self, request: Request):
+        return super().list(request, project)
+
+    def create(self, request: Request, project: int):
         """
         Create a job.
 
         Dispatches the job to a queue.
         Returns details for the new job.
         """
+        project_instance = self.get_project(request.user, pk=project)
+        if not self.has_permission(ProjectPermissionType.EDIT):
+            raise PermissionDenied
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(project=project_instance, creator=request.user)
 
         serializer.instance.dispatch()
 
-        return super().create(request)
-
-    def partial_update(self, request: Request, pk: int):
-        """
-        Update a job.
-
-        This action is intended only to be used by the `overseer` service
-        for it to update the details of a job based on events
-        from the job queue.
-        """
-        job = self.get_object()
-        job.update()
-
-        serializer = self.get_serializer(job, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
     def retrieve(self, request: Request, pk: int):
         """
