@@ -4,7 +4,7 @@ from rest_polymorphic.serializers import PolymorphicSerializer
 
 
 from projects.project_models import Project, ProjectEvent, Snapshot
-from projects.source_models import Source, ElifeSource, UrlSource
+from projects.source_models import Source, ElifeSource, PlosSource, UrlSource
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -51,6 +51,13 @@ class ElifeSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class PlosSourceSerializer(SourceSerializer):
+    class Meta:
+        model = PlosSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class UrlSourceSerializer(SourceSerializer):
     class Meta:
         model = UrlSource
@@ -66,6 +73,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
     model_serializer_mapping = {
         Source: SourceSerializer,
         ElifeSource: ElifeSourceSerializer,
+        PlosSource: PlosSourceSerializer,
         UrlSource: UrlSourceSerializer,
     }
 

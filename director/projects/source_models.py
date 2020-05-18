@@ -307,6 +307,12 @@ class ElifeSource(Source):
     )
 
 
+class PlosSource(Source):
+    """An article from https://journals.plos.org."""
+
+    article = models.TextField(help_text="The article doi.")
+
+
 def files_source_file_path(instance: "FileSource", filename: str):
     # File will be uploaded to MEDIA_ROOT/files_projects/<id>/<filename>
     return "projects/{0}/{1}".format(instance.id, filename)
