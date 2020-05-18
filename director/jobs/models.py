@@ -339,7 +339,7 @@ class JobMethod(EnumChoice):
 
     @classmethod
     def printable(cls, method: str) -> str:
-        """Convert the moethod into a printable string for the template."""
+        """Convert the method into a printable string for use in templates."""
         label = "Pulling"
         label = "Pushing" if method == cls.pull.value else label
         label = "Decoding" if method == cls.decode.value else label
