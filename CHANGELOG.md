@@ -1,3 +1,26 @@
+# [2.27.0](https://github.com/stencila/hub/compare/v2.26.0...v2.27.0) (2020-05-19)
+
+
+### Bug Fixes
+
+* **Director:** merge conflict errors ([decad48](https://github.com/stencila/hub/commit/decad482f2b3ed292ac5e9b84eddd2b873476fea))
+* **jobs:** lint error ([adcc625](https://github.com/stencila/hub/commit/adcc6251dafaf1b17536913fbb5d5f286c51da82))
+* **jobs:** Updates to PR [#448](https://github.com/stencila/hub/issues/448) ([ded1cdf](https://github.com/stencila/hub/commit/ded1cdf858e229c2439a0d2c3f9fcc962cf9904c))
+
+
+### Features
+
+* **Director:** added jobs details template/view ([1f39400](https://github.com/stencila/hub/commit/1f394009646f4db9c4778e25a43f848f6c656a27))
+* **Director:** added jobs to main dropdown nav ([1e73ec1](https://github.com/stencila/hub/commit/1e73ec192634e39e143df884fa7f475f3666bec9))
+* **Director:** adding jobs view ([52c4abf](https://github.com/stencila/hub/commit/52c4abf8cbd0f3ff12bd2324fa4283f2f433cab6))
+* **Director:** completion of jobs list template ([43e3ad7](https://github.com/stencila/hub/commit/43e3ad749b12b8302ee4fe74baa06f0c6bb34765))
+* **Director:** removing jobs script for now ([b54164c](https://github.com/stencila/hub/commit/b54164cb3856a58565af6eaf7138c15a0eb15033))
+* **Director:** removing jobs script for now ([e583825](https://github.com/stencila/hub/commit/e583825f1cd0cb657ba12d69a40c70cd55301ac5))
+* **Director:** rollback of unecessary Docker/npm changes ([4880a61](https://github.com/stencila/hub/commit/4880a6127fc2953b1bc6a4da2f03dc00484706d6))
+* **Director:** Setting up jobs urls and views ([e3f90b5](https://github.com/stencila/hub/commit/e3f90b58807e65afcb2ca38a32adda936f38949f))
+* **Director:** wip - adding job creation script ([6888b11](https://github.com/stencila/hub/commit/6888b11bfcf1ed58d562d4d5e69e7253d83e58d3))
+* **jobs:** wiring up templates to test data ([87c5bdf](https://github.com/stencila/hub/commit/87c5bdf1617bf0ee3a19132e90756ff8aae82b83))
+
 # [2.26.0](https://github.com/stencila/hub/compare/v2.25.2...v2.26.0) (2020-05-17)
 
 
