@@ -457,6 +457,8 @@ class ProjectsJobsViewSet(
 
     # Configuration
 
+    lookup_url_kwarg = "job"
+
     def get_permissions(self):
         """
         Get the list of permissions that the current action requires.
@@ -530,17 +532,21 @@ class ProjectsJobsViewSet(
 
         return Response(serializer.data)
 
-    def retrieve(self, request: Request, pk: int):
+    def retrieve(self, request: Request, project: int, job: int):
         """
         Retrieve a job.
 
         Returns details for the job.
         """
-        job = self.get_object()
+        project_instance = self.get_project(request.user, pk=project)
+        if not self.has_permission(ProjectPermissionType.VIEW):
+            raise PermissionDenied
+
+        job = project_instance.jobs.get(pk=job)
         job.update()
 
         serializer = self.get_serializer(job)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
     # Shortcut `create` views
     # These allow for the method and parameters to be in the URL
