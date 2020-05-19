@@ -48,3 +48,13 @@
     width: 100%
     height: 100%
     overflow: scroll
+
+////
+/// Overflow
+////
+.overflow
+  $overflowparams: hidden visible
+
+  @each $p in $overflowparams
+    &-#{$p}
+      overflow: $p

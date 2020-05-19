@@ -1,0 +1,81 @@
+{% extends 'projects/project_base.html' %}
+{% block title %}Project {{ project.name }} : Jobs{% endblock %}
+
+{% block project_content %}
+    <div class="columns is-centered">
+        <div class="column">
+            <header class="job-header level">
+              <div class="job-filter level-left is-full-width">
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="status">Status</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="status">
+                                    <option>All jobs</option>
+                                    <option>Dispatched</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="trigger">Trigger</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="trigger">
+                                    <option>All</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="level-item flex-grow flex-start">
+                    <div class="field is-full-width">
+                        <label class="label is-size-7" for="user">By</label>
+                        <div class="control">
+                            <div class="select select-full-width is-info">
+                                <select id="user">
+                                    <option>Everyone</option>
+                                    <option>...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </header>
+
+            <div class="job-container is-flex flex-direction-column border-top-grey-lighter">
+              {% for job in object_list %}
+                {% include "job_list_job.html" with isComplete=job.has_ended %}
+              {% endfor %}
+            </div>
+
+            <footer class="job-footer level is-flex">
+
+                <div class="level-left">
+                  {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="button">Previous</a>
+                  {% else %}
+                    <button class="button" disabled>Previous</button>
+                  {% endif %}
+                </div>
+
+
+              <div class="level-right">
+                {% if page_obj.has_next %}
+                  <a href="?page={{ page_obj.next_page_number }}" class="button">Next</a>
+                {% else %}
+                  <button class="button" disabled>Next</button>
+                {% endif %}
+              </div>
+            </footer>
+        </div>
+    </div>
+{% endblock %}

@@ -163,9 +163,9 @@ checks = [
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/activity",
+        "/ada-personal-account/ada-private-project/jobs",
         anon=403,
-        ada=title("Project ada-private-project : Activity"),
+        ada=title("Project ada-private-project : Jobs"),
         bob=403
     ),
     Check(

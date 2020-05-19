@@ -10,7 +10,7 @@ RUN apt-get update \
       python3-pip \
       wget
 
-# Install Node.js and npm. 
+# Install Node.js and npm.
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
  && apt-get update \
  && apt-get install -y \

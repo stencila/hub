@@ -7,6 +7,7 @@ import scripts.create_dev_projects
 import scripts.create_dev_project_roles
 import scripts.create_dev_project_nodes
 import scripts.create_dev_project_sources
+import scripts.create_dev_jobs
 
 
 def run(*args):
@@ -17,3 +18,4 @@ def run(*args):
     scripts.create_dev_project_roles.run()
     scripts.create_dev_project_nodes.run()
     scripts.create_dev_project_sources.run()
+    scripts.create_dev_jobs.run()

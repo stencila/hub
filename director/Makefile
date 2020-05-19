@@ -23,6 +23,10 @@ all: setup run
 # aliases to setting up the dev environment.
 setup: venv
 
+# Run npm build script to ensure we have up to date css
+npm-build:
+	(cd $$(pwd)/../ && npm i && npm run build)
+
 # Setup virtual environment
 venv: requirements.txt  requirements-dev.txt package.json
 	$(PYTHON) -m venv venv
@@ -89,8 +93,8 @@ lint: lint-format lint-code lint-types lint-docs
 
 # Lint code formatting
 lint-format: venv
-	$(VE)/black --check .	
-	
+	$(VE)/black --check .
+
 # Lint code
 lint-code: venv
 	$(VE)/flake8

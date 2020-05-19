@@ -388,6 +388,47 @@ class JobStatus(EnumChoice):
             )
         ]
 
+    @classmethod
+    def icon(cls, status: str) -> str:
+        """Assign the correct icon to use based on the status."""
+        icon = "loader"
+        icon = "play-circle" if status == cls.STARTED.value else icon
+        icon = "check-circle" if status == cls.SUCCESS.value else icon
+        icon = (
+            "x-octagon"
+            if status
+            in [member.value for member in (cls.FAILURE, cls.REJECTED, cls.REVOKED,)]
+            else icon
+        )
+        icon = (
+            "slash"
+            if status in [member.value for member in (cls.CANCELLED, cls.TERMINATED,)]
+            else icon
+        )
+        icon = "rotate-cw" if status == cls.RETRY.value else icon
+
+        return icon
+
+    @classmethod
+    def colour(cls, status: str) -> str:
+        """Assign the correct colour to use based on the status."""
+        icon = "info"
+        icon = "success" if status == cls.SUCCESS.value else icon
+        icon = (
+            "danger"
+            if status
+            in [member.value for member in (cls.FAILURE, cls.REJECTED, cls.REVOKED,)]
+            else icon
+        )
+        icon = (
+            "grey-light"
+            if status in [member.value for member in (cls.CANCELLED, cls.TERMINATED,)]
+            else icon
+        )
+        icon = "warning" if status == cls.RETRY.value else icon
+
+        return icon
+
 
 class Job(models.Model):
     """
@@ -518,9 +559,58 @@ class Job(models.Model):
             Job.objects.filter(created__lt=self.created, ended__isnull=True).count() + 1
         )
 
+    @property
+    def get_runtime(self):
+        """
+        Format the runtime into a format that can be printed to the screen.
+
+        i.e. convert from float into hours:mins format.
+        """
+        if self.began is not None and self.ended is not None:
+            difference = self.ended - self.began
+            seconds = difference.total_seconds()
+
+            h = seconds // 3600
+            m = (seconds % 3600) // 60
+
+            return "%d:%d" % (h, m)
+
+        return None
+
+    @property
+    def icon(self):
+        """Get the icon from the status - used in the template."""
+        return JobStatus.icon(self.status)
+
+    @property
+    def colour(self):
+        """Get the colour from the status - used in the template."""
+        return "is-{}".format(JobStatus.colour(self.status))
+
+    @property
+    def status_label(self):
+        """Get a printable version of the status - used in the template."""
+        inQueue = self.queue is None
+        status = JobStatus[self.status]
+        label = status.value
+        label = (
+            "Pending"
+            if status.value == JobStatus.PENDING.value and not inQueue
+            else label
+        )
+        label = (
+            "In Queue" if status.value == JobStatus.PENDING.value and inQueue else label
+        )
+
+        return label
+
+    @property
+    def has_ended(self):
+        """Check if the status is one of the defined ended statuses."""
+        return JobStatus.has_ended(self.status)
+
     # Shortcuts to the functions for controlling
     # and updating jobs.
-
     def dispatch(self) -> "Job":
         from jobs.jobs import dispatch_job
 
