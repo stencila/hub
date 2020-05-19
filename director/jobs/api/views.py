@@ -542,7 +542,7 @@ class ProjectsJobsViewSet(
         if not self.has_permission(ProjectPermissionType.VIEW):
             raise PermissionDenied
 
-        job = project_instance.jobs.get(pk=job)
+        job = Job.objects.get(pk=job)
         job.update()
 
         serializer = self.get_serializer(job)
@@ -610,14 +610,18 @@ class ProjectsJobsViewSet(
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, methods=["PATCH"])
-    def cancel(self, request, pk: int) -> Response:
+    def cancel(self, request: Request, project: int, job: int) -> Response:
         """
         Cancel a job.
 
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        job = self.get_object()
+        project_instance = self.get_project(request.user, pk=project)
+        if not self.has_permission(ProjectPermissionType.EDIT):
+            raise PermissionDenied
+
+        job = Job.objects.get(pk=job)
         job.cancel()
 
         serializer = self.get_serializer(job)
