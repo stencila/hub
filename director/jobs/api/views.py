@@ -544,9 +544,9 @@ class ProjectsJobsViewSet(
 
         Returns details for the job.
         """
-        project_instance = self.get_project(request.user, pk=project)
-        if not self.has_permission(ProjectPermissionType.VIEW):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.VIEW
+        )
 
         job = Job.objects.get(pk=job)
         job.update()
@@ -623,9 +623,9 @@ class ProjectsJobsViewSet(
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        project_instance = self.get_project(request.user, pk=project)
-        if not self.has_permission(ProjectPermissionType.EDIT):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.EDIT
+        )
 
         job = Job.objects.get(pk=job)
         job.cancel()
