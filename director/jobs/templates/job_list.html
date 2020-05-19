@@ -5,50 +5,56 @@
     <div class="columns is-centered">
         <div class="column">
             <header class="job-header level">
-              <div class="job-filter level-left is-full-width">
-                <div class="level-item flex-grow flex-start">
+              <form action="" class="job-filter level-left is-full-width">
+                {% include '_job_filter.html' with label="Status" options=status_options element="status" default_option="All jobs" selected=status %}
+                {% include '_job_filter.html' with label="Trigger" options=method_options element="trigger" default_option="All" selected=method %}
+                {% include '_job_filter.html' with label="By" options=by_options element="by" default_option="Everyone" selected=by %}
+                {% comment %} <div class="level-item flex-grow flex-start">
                     <div class="field is-full-width">
                         <label class="label is-size-7" for="status">Status</label>
                         <div class="control">
                             <div class="select select-full-width is-info">
-                                <select id="status">
-                                    <option>All jobs</option>
-                                    <option>Dispatched</option>
-                                    <option value="pending">Pending</option>
+                                <select name="status" id="status">
+                                  <option>All jobs</option>
+                                  {% for name, value in status_options %}
+                                    <option value="{{value|lower}}"{% if status == name %} selected{% endif %}>{{name}}</option>
+                                  {% endfor %}
                                 </select>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> {% endcomment %}
 
-                <div class="level-item flex-grow flex-start">
+                {% comment %} <div class="level-item flex-grow flex-start">
                     <div class="field is-full-width">
                         <label class="label is-size-7" for="trigger">Trigger</label>
                         <div class="control">
                             <div class="select select-full-width is-info">
-                                <select id="trigger">
+                                <select name="trigger" id="trigger">
                                     <option>All</option>
                                     <option>...</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> {% endcomment %}
 
-                <div class="level-item flex-grow flex-start">
+                {% comment %} <div class="level-item flex-grow flex-start">
                     <div class="field is-full-width">
                         <label class="label is-size-7" for="user">By</label>
                         <div class="control">
                             <div class="select select-full-width is-info">
-                                <select id="user">
-                                    <option>Everyone</option>
-                                    <option>...</option>
+                                <select name="user" id="user">
+                                    <option value="everyone">Everyone</option>
+                                    <option value="project-members">Project members</option>
+                                    <option value="others">Others (Anonymous users)</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                </div>
-              </div>
+                </div> {% endcomment %}
+                <input type="submit" value="filter jobs" class="button is-select is-normal mt-auto">
+              </form>
             </header>
 
             <div class="job-container is-flex flex-direction-column border-top-grey-lighter">

@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView
 
-from jobs.models import Job
+from jobs.models import Job, JobStatus, JobMethod
 from projects.models import ProjectPermissionType
 from projects.views.project_views import ProjectTab, ProjectPermissionsMixin
 
@@ -37,6 +37,40 @@ class JobListView(JobViewMixin, ListView):
         """
         project = ProjectPermissionsMixin.get_object(self)
         return project.jobs.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = ProjectPermissionsMixin.get_object(self)
+        object_list = project.jobs.all()
+
+        status = self.request.GET.get("status")
+        status_options = list(map(lambda s: (s.name, s.value), JobStatus))
+
+        method = self.request.GET.get("trigger")
+        method_options = list(map(lambda s: (s.name, s.value), JobMethod))
+
+        if status and JobStatus.is_member(status.upper()):
+            status = status.upper()
+            object_list = object_list.filter(status=status)
+
+        if method and JobMethod.is_member(method.lower()):
+            method = method.lower()
+            object_list = object_list.filter(method=method)
+
+        context["object_list"] = object_list
+        context["status_options"] = sorted(status_options, key=lambda x: x[0])
+        context["status"] = status
+
+        context["method_options"] = sorted(method_options, key=lambda x: x[0])
+        context["method"] = method
+
+        context["by"] = self.request.GET.get("by")
+        context["by_options"] = [
+            ("Project members", "members"),
+            ("Others (Anonymous users)", "anonymous"),
+        ]
+
+        return context
 
 
 class JobDetailView(JobViewMixin, DetailView):

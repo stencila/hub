@@ -570,7 +570,7 @@ class Job(models.Model):
         It follows the following rules:
         - If the job has not started, return empty string
         - If job has started & not ended calculate time relative to now.
-        - If job has ended, calculate difference or get the total runtime.
+        - If job has ended, calculate difference.
         """
         if self.began is not None:
             now = datetime.now(timezone.utc)
@@ -608,21 +608,12 @@ class Job(models.Model):
         """Get a printable version of the status - used in the template."""
         if self.status is None:
             # TODO: If there is no status, assume it's dispatched?
-            self.status = JobStatus.DISPATCHED.name
+            # self.status = JobStatus.DISPATCHED.name
+            return None
 
-        inQueue = self.queue is None
         status = JobStatus[self.status]
-        label = status.value
-        label = (
-            "Pending"
-            if status.value == JobStatus.PENDING.value and not inQueue
-            else label
-        )
-        label = (
-            "In Queue" if status.value == JobStatus.PENDING.value and inQueue else label
-        )
 
-        return label
+        return status.value
 
     @property
     def has_ended(self):

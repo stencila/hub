@@ -1,35 +1,44 @@
 {% load tz %}
+{% load avatar_tags %}
+
 <div class="job has-text-black">
   <div class="job-column job-summary">
-    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status_label|lower|capfirst}}</span>
+    {% if job.status_label %}
+    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status_label|upper}}</span>
+    {% endif %}
     <div class="job-icon status is-flex">
       <i data-feather="{{job.icon}}" class="icon flex-shrink-0"></i>
       <span class="text truncate has-text-weight-bold">{{job.method}}</span>
     </div>
+
   </div>
 
   <div class="job-column job-details flex-grow is-flex flex-col">
     <header class="job-details-header flex-wrap is-flex mb-2">
 
-      <span class="job-info job-icon is-flex" title="Date/time when this job was created">
+      <span class="job-info job-icon is-flex" title="ID of this job">
           <span class="job-detail">{% if job.id %}#{{job.id}}{% endif %}</span>
       </span>
 
       <span class="job-info job-icon job-user is-flex" title="User who created this job">
-          <img src="https://via.placeholder.com/16" width="16" height="16" alt="" class="user-avatar job-user-image icon">
+          <figure class="user-avatar job-user-image icon overflow-hidden">
+            {% avatar user 16 %}
+          </figure>
           <span class="job-detail is-uppercase">{{job.creator.username}}</span>
       </span>
 
+      {% if job.began %}
       <span class="job-info job-icon is-flex" title="Date/time when this job was created">
           <i data-feather="calendar" class="icon flex-shrink-0"></i>
           {% localtime on %}
-          <span class="job-detail is-uppercase">{{job.created|localtime|date:"F n, Y g:i A"}}</span>
+          <span class="job-detail is-uppercase">{{job.began|localtime|date:"F n, Y g:i A"}}</span>
           {% endlocaltime %}
       </span>
+      {% endif %}
 
       {% if job.get_runtime %}
       <span class="job-info job-icon is-flex" title="Time taken for this job to run">
-          <i class="far fa-hourglass icon flex-shrink-0"></i>
+          <i data-feather="clock" class="icon flex-shrink-0"></i>
           <span class="job-detail is-lowercase">{{job.get_runtime}}</span>
       </span>
       {% endif %}

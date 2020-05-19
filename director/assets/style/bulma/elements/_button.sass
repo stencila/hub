@@ -27,6 +27,10 @@ $button-square-icon-size: 12 !default
         font-size: $button-mini-font-size
         padding: $button-mini-padding
 
+    /// Same size as a select (not nuliple) item.
+    &.is-select
+      &.is-normal
+        height: rem(36)
 
     /// Square version of a button
     /// - should be used with an icon inside the button
@@ -48,3 +52,4 @@ $button-square-icon-size: 12 !default
             line-height: 1em
             width: 1em
             height: 1em
+

@@ -1,13 +1,13 @@
 """
 Assign jobs to the test users (if any exist in the db).
 """
-from datetime import datetime, timezone
+from datetime import datetime
 from random import randint
 
 from django.contrib.auth.models import User
 from django.conf import settings
 
-# from django.utils import timezone
+from django.utils import timezone
 
 from jobs.models import Job, JobMethod, JobStatus
 from projects.models import Project
