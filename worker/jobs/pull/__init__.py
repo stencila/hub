@@ -4,16 +4,18 @@ import config
 from jobs.base.job import Job
 
 from .elife import pull_elife
+from .gdoc import pull_gdoc
+from .github import pull_github
 from .http import pull_http
 from .plos import pull_plos
-from .gdoc import pull_gdoc
 
 # Functions for pulling individual source types
 PULL_FUNCS: Dict[str, Callable[[dict, str, str], List[str]]] = {
     "elife": pull_elife,
+    "github": pull_github,
+    "googledocs": pull_gdoc,
     "http": pull_http,
     "plos": pull_plos,
-    "googledocs": pull_gdoc,
 }
 
 
