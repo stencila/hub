@@ -8,6 +8,7 @@
 __pycache__
 *.pyc
 .mypy_cache
+venv
 
 # Ignore coverage reports
 .coverage

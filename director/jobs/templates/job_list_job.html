@@ -1,31 +1,38 @@
+{% load tz %}
 <div class="job has-text-black">
   <div class="job-column job-summary">
-    <span class="job-id is-block leading-1">{% if job.id %}JOB {{job.id}}{% endif %}</span>
-    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.method}}</span>
+    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status_label|lower|capfirst}}</span>
     <div class="job-icon status is-flex">
       <i data-feather="{{job.icon}}" class="icon flex-shrink-0"></i>
-      <span class="text truncate has-text-weight-bold">{{job.status_label|lower|capfirst}}</span>
+      <span class="text truncate has-text-weight-bold">{{job.method}}</span>
     </div>
   </div>
 
   <div class="job-column job-details flex-grow is-flex flex-col">
     <header class="job-details-header flex-wrap is-flex mb-2">
 
+      <span class="job-info job-icon is-flex" title="Date/time when this job was created">
+          <span class="job-detail">{% if job.id %}#{{job.id}}{% endif %}</span>
+      </span>
+
       <span class="job-info job-icon job-user is-flex" title="User who created this job">
           <img src="https://via.placeholder.com/16" width="16" height="16" alt="" class="user-avatar job-user-image icon">
-          <span class="job-user-name is-uppercase">{{job.creator.username}}</span>
+          <span class="job-detail is-uppercase">{{job.creator.username}}</span>
       </span>
 
       <span class="job-info job-icon is-flex" title="Date/time when this job was created">
           <i data-feather="calendar" class="icon flex-shrink-0"></i>
-          <span class="job-user-name is-uppercase">{{job.created|date:"F n, Y g:i A"}}</span>
+          {% localtime on %}
+          <span class="job-detail is-uppercase">{{job.created|localtime|date:"F n, Y g:i A"}}</span>
+          {% endlocaltime %}
       </span>
 
+      {% if job.get_runtime %}
       <span class="job-info job-icon is-flex" title="Time taken for this job to run">
           <i class="far fa-hourglass icon flex-shrink-0"></i>
-          {% comment %} <i data-feather="clock" class="icon flex-shrink-0"></i> {% endcomment %}
-          <span class="job-user-name is-uppercase">{{job.get_runtime}}</span>
+          <span class="job-detail is-lowercase">{{job.get_runtime}}</span>
       </span>
+      {% endif %}
     </header>
 
     <p class="job-details-content is-size-6 content">

@@ -1,12 +1,13 @@
 """
 Assign jobs to the test users (if any exist in the db).
 """
-from datetime import timedelta
+from datetime import datetime, timezone
 from random import randint
 
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.utils import timezone
+
+# from django.utils import timezone
 
 from jobs.models import Job, JobMethod, JobStatus
 from projects.models import Project
@@ -19,15 +20,14 @@ def run(*args):
     # Assumes that there are at least 3 projects
     projects = Project.objects.all()
     user = User.objects.all()
-    now = timezone.now()
+    now = datetime.now(timezone.utc)
 
-    minutes = randint(0, 59)
-    seconds = randint(0, 59)
+    minutes = randint(0, 59) * 60 * 1000
+    seconds = randint(0, 59) * 1000
 
     job1 = Job.objects.create(
         project=projects[randint(0, 2)],
         began=now,
-        ended=now + timedelta(minutes=minutes, seconds=seconds),
         status=JobStatus.STARTED.value,
         creator=user[randint(0, len(user) - 1)],
         method=JobMethod.encode.value,
@@ -51,16 +51,15 @@ def run(*args):
                 """.strip(),
             },
         ],
-        runtime=(minutes * 60) + seconds,
+        runtime=minutes + seconds,
     )
 
-    minutes = randint(0, 37)
-    seconds = randint(0, 59)
+    minutes = randint(0, 37) * 60 * 1000
+    seconds = randint(0, 59) * 1000
 
     job2 = Job.objects.create(
         project=projects[randint(0, 2)],
         began=now,
-        ended=now + timedelta(minutes=minutes, seconds=seconds),
         status=JobStatus.FAILURE.value,
         creator=user[randint(0, len(user) - 1)],
         method=JobMethod.encode.value,
@@ -75,7 +74,7 @@ def run(*args):
                 """.strip(),
             }
         ],
-        runtime=(minutes * 60) + seconds,
+        runtime=minutes + seconds,
     )
 
     for user in User.objects.all():
