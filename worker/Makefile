@@ -25,11 +25,11 @@ lint: venv
 
 # Run tests
 test: venv
-	$(VE)/pytest --ignore=node_modules --ignore venv
+	$(VE)/pytest --ignore=node_modules --ignore venv --ignore projects
 
 # Run tests with coverage
 cover: venv
-	$(VE)/pytest --ignore=node_modules  --ignore venv \
+	$(VE)/pytest --ignore=node_modules  --ignore venv --ignore projects \
 	             --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Run `celery worker` during development to check configuration.
