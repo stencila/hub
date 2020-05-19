@@ -7,6 +7,7 @@ from projects.project_models import Project, ProjectEvent, Snapshot
 from projects.source_models import (
     Source,
     ElifeSource,
+    GithubSource,
     GoogleDocsSource,
     PlosSource,
     UrlSource,
@@ -57,6 +58,13 @@ class ElifeSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class GithubSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GithubSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class GoogleDocsSourceSerializer(SourceSerializer):
     class Meta:
         model = GoogleDocsSource
@@ -86,6 +94,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
     model_serializer_mapping = {
         Source: SourceSerializer,
         ElifeSource: ElifeSourceSerializer,
+        GithubSource: GithubSourceSerializer,
         GoogleDocsSource: GoogleDocsSourceSerializer,
         PlosSource: PlosSourceSerializer,
         UrlSource: UrlSourceSerializer,
