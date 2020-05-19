@@ -364,11 +364,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
     # Views
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def online(self, request: Request) -> Response:
         """
-        Create a worker instance when a worker comes online.
+        Record that a worker has come online.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
@@ -404,11 +406,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         return Response()
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def heartbeat(self, request: Request) -> Response:
         """
         Create a worker heartbeat.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
@@ -429,11 +433,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         return Response()
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def offline(self, request: Request) -> Response:
         """
         Record that a worker has gone offline.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
