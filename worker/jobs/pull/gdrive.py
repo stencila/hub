@@ -32,12 +32,10 @@ def pull_gdrive(source: dict, project: str, path: str) -> List[str]:
     )
     drive_service = build("drive", "v3", credentials=credentials, cache_discovery=False)
     files_resource = drive_service.files()
+    local_path = utf8_normpath(utf8_path_join(project, path))
+    utf8_makedirs(local_path, exist_ok=True)
 
-    return pull_directory(
-        files_resource,
-        source["folder_id"],
-        utf8_normpath(utf8_path_join(project, path)),
-    )
+    return pull_directory(files_resource, source["folder_id"], local_path,)
 
 
 def pull_directory(files_resource, drive_parent: str, local_parent: str) -> List[str]:
@@ -48,7 +46,7 @@ def pull_directory(files_resource, drive_parent: str, local_parent: str) -> List
         if f["mimeType"] == "application/vnd.google-apps.folder":
             if utf8_path_exists(local_path) and not utf8_isdir(local_path):
                 utf8_unlink(local_path)
-            utf8_makedirs(local_path)
+            utf8_makedirs(local_path, exist_ok=True)
             pulled += pull_directory(files_resource, f["id"], local_path)
         else:
             if f["mimeType"].startswith("application/vnd.google-apps."):

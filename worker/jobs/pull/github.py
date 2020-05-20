@@ -29,7 +29,9 @@ def pull_github(source: dict, project: str, path: str) -> List[str]:
         subpath = subpath[:-1]
 
     gh = Github(source["token"]).get_repo(source["repo"])
-    pulled = pull_directory(gh, subpath, utf8_normpath(utf8_path_join(project, path)))
+    local_path = utf8_normpath(utf8_path_join(project, path))
+    utf8_makedirs(local_path, exist_ok=True)
+    pulled = pull_directory(gh, subpath, local_path)
     return pulled
 
 
@@ -41,7 +43,7 @@ def pull_directory(gh, repo_parent: str, local_parent: str) -> List[str]:
         if content.type == "dir":
             if utf8_path_exists(local_path) and not utf8_isdir(local_path):
                 utf8_unlink(local_path)
-            utf8_makedirs(local_path)
+            utf8_makedirs(local_path, exist_ok=True)
             pulled += pull_directory(gh, repo_path, local_path)
         else:
             if utf8_path_exists(local_path) and utf8_isdir(local_path):

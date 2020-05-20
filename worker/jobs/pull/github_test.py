@@ -15,3 +15,17 @@ def test_public_repo(tempdir):
     source = dict(repo="stencila/test", subpath="sub", token=None)
     pull_github(source, tempdir.path, "")
     assert os.path.exists(os.path.join(tempdir.path, "README.md"))
+
+
+@pytest.mark.vcr
+def test_subdirectory(tempdir):
+    source = dict(repo="stencila/test", subpath="", token=None)
+    subdir = "a/very/very/deep/sub/directory"
+    pull_github(source, os.path.join(tempdir.path, subdir), "")
+    for expected in (
+        ".travis.yml",
+        "README.md",
+        "document.md",
+        "sub/README.md",
+    ):
+        assert os.path.exists(os.path.join(tempdir.path, subdir, expected))
