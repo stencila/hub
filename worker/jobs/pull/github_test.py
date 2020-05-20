@@ -29,3 +29,12 @@ def test_subdirectory(tempdir):
         "sub/README.md",
     ):
         assert os.path.exists(os.path.join(tempdir.path, subdir, expected))
+
+
+@pytest.mark.vcr
+def test_single_file(tempdir):
+    source = dict(repo="stencila/test", subpath="sub/README.md", token=None)
+    pull_github(source, tempdir.path, "sub_README.md")
+    assert not os.path.exists(os.path.join(tempdir.path, "README.md"))
+    assert not os.path.exists(os.path.join(tempdir.path, "sub/README.md"))
+    assert os.path.exists(os.path.join(tempdir.path, "sub_README.md"))

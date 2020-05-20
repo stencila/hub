@@ -3,6 +3,7 @@ import os
 import shutil
 
 from github import Github
+from github.ContentFile import ContentFile
 from io import BytesIO
 from typing import List
 
@@ -35,21 +36,25 @@ def pull_github(source: dict, project: str, path: str) -> List[str]:
     return pulled
 
 
-def pull_directory(gh, repo_parent: str, local_parent: str) -> List[str]:
+def pull_directory(gh, remote_parent: str, local_parent: str) -> List[str]:
     pulled = []
-    for content in gh.get_contents(repo_parent):
-        repo_path = utf8_path_join(repo_parent, content.name)
+    contents = gh.get_contents(remote_parent)
+
+    if isinstance(contents, ContentFile):
+        contents = [contents]
+
+    for content in contents:
         local_path = utf8_path_join(local_parent, content.name)
         if content.type == "dir":
             if utf8_path_exists(local_path) and not utf8_isdir(local_path):
                 utf8_unlink(local_path)
             utf8_makedirs(local_path, exist_ok=True)
-            pulled += pull_directory(gh, repo_path, local_path)
+            pulled += pull_directory(gh, content.path, local_path)
         else:
             if utf8_path_exists(local_path) and utf8_isdir(local_path):
                 shutil.rmtree(local_path)
             with open(local_path, "wb") as fh:
-                file_content = gh.get_contents(repo_path).decoded_content
+                file_content = gh.get_contents(content.path).decoded_content
                 shutil.copyfileobj(BytesIO(file_content), fh)
         pulled.append(local_path)
     return pulled
