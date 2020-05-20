@@ -5,6 +5,7 @@ from jobs.base.job import Job
 
 from .elife import pull_elife
 from .gdoc import pull_gdoc
+from .gdrive import pull_gdrive
 from .github import pull_github
 from .http import pull_http
 from .plos import pull_plos
@@ -14,6 +15,7 @@ PULL_FUNCS: Dict[str, Callable[[dict, str, str], List[str]]] = {
     "elife": pull_elife,
     "github": pull_github,
     "googledocs": pull_gdoc,
+    "googledrive": pull_gdrive,
     "http": pull_http,
     "plos": pull_plos,
 }
