@@ -485,6 +485,24 @@ class GoogleDocsSource(Source):
         )
 
 
+class GoogleDriveSource(Source):
+    """A reference to a Google Drive folder."""
+
+    folder_id = models.TextField(null=False, help_text="Google's ID of the folder.")
+
+    def pull(self, user: User) -> Job:
+        source_address = self.to_address()
+
+        gauth = GoogleAuth(user_social_token(user, "google"))
+        source_address["token"] = gauth.check_and_refresh_token()
+
+        return Job.objects.create(
+            creator=user,
+            method="pull",
+            params=dict(source=source_address, project=self.project.id, path=self.path),
+        )
+
+
 class OSFSource(Source):
     """
     A project hosted on the Open Science Framework.

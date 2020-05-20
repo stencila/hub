@@ -60,7 +60,7 @@ class GoogleAuth(object):
         self.init_credentials()
 
         if not self.auth_token_expired():
-            return
+            return self.social_auth_token.token
 
         http = self._credentials.authorize(httplib2.Http())
         self._credentials.refresh(http)

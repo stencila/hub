@@ -9,6 +9,7 @@ from projects.source_models import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    GoogleDriveSource,
     PlosSource,
     UrlSource,
 )
@@ -72,6 +73,13 @@ class GoogleDocsSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class GoogleDriveSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GoogleDriveSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class PlosSourceSerializer(SourceSerializer):
     class Meta:
         model = PlosSource
@@ -96,6 +104,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
         ElifeSource: ElifeSourceSerializer,
         GithubSource: GithubSourceSerializer,
         GoogleDocsSource: GoogleDocsSourceSerializer,
+        GoogleDriveSource: GoogleDriveSourceSerializer,
         PlosSource: PlosSourceSerializer,
         UrlSource: UrlSourceSerializer,
     }
