@@ -1,3 +1,12 @@
+## [2.27.1](https://github.com/stencila/hub/compare/v2.27.0...v2.27.1) (2020-05-19)
+
+
+### Bug Fixes
+
+* **Director:** Fix API for cancelling a job [skip ci] ([43a6920](https://github.com/stencila/hub/commit/43a69204819c442d87d7b4666d42a2a6f5c17d4e))
+* **Director:** Fix API job retrieve view [skip ci] ([393310c](https://github.com/stencila/hub/commit/393310c38313934d5c143df4254eb6e437687645))
+* **Director:** Jobs API: use permissions guard ([a6034dd](https://github.com/stencila/hub/commit/a6034ddae84204ede43d62c50a173b889b3ee1c4))
+
 # [2.27.0](https://github.com/stencila/hub/compare/v2.26.0...v2.27.0) (2020-05-19)
 
 

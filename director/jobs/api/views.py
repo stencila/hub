@@ -364,11 +364,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
     # Views
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def online(self, request: Request) -> Response:
         """
-        Create a worker instance when a worker comes online.
+        Record that a worker has come online.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
@@ -404,11 +406,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         return Response()
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def heartbeat(self, request: Request) -> Response:
         """
         Create a worker heartbeat.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
@@ -429,11 +433,13 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         return Response()
 
+    @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
     def offline(self, request: Request) -> Response:
         """
         Record that a worker has gone offline.
 
+        An internal route, intended primarily for the `overseer` service.
         Receives event data.
         Returns an empty response.
         """
@@ -538,11 +544,11 @@ class ProjectsJobsViewSet(
 
         Returns details for the job.
         """
-        project_instance = self.get_project(request.user, pk=project)
-        if not self.has_permission(ProjectPermissionType.VIEW):
-            raise PermissionDenied
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.VIEW
+        )
 
-        job = project_instance.jobs.get(pk=job)
+        job = Job.objects.get(pk=job)
         job.update()
 
         serializer = self.get_serializer(job)
@@ -610,14 +616,18 @@ class ProjectsJobsViewSet(
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, methods=["PATCH"])
-    def cancel(self, request, pk: int) -> Response:
+    def cancel(self, request: Request, project: int, job: int) -> Response:
         """
         Cancel a job.
 
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        job = self.get_object()
+        self.request_permissions_guard(
+            request, pk=project, permission=ProjectPermissionType.EDIT
+        )
+
+        job = Job.objects.get(pk=job)
         job.cancel()
 
         serializer = self.get_serializer(job)

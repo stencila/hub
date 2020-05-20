@@ -633,9 +633,9 @@ class Job(models.Model):
         return update_job(self)
 
     def cancel(self) -> "Job":
-        from jobs.jobs import catch_job
+        from jobs.jobs import cancel_job
 
-        return catch_job(self)
+        return cancel_job(self)
 
 
 class Pipeline(models.Model):
