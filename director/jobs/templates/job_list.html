@@ -58,7 +58,7 @@
             </header>
 
             <div class="job-container is-flex flex-direction-column border-top-grey-lighter">
-              {% for job in object_list reversed %}
+              {% for job in object_list %}
                 {% include "job_list_job.html" with isComplete=job.has_ended %}
               {% endfor %}
             </div>

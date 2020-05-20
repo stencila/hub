@@ -36,41 +36,105 @@ class JobListView(JobViewMixin, ListView):
         will raise `PermissionDenied` if not.
         """
         project = ProjectPermissionsMixin.get_object(self)
-        return project.jobs.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = ProjectPermissionsMixin.get_object(self)
         object_list = project.jobs.all()
 
-        status = self.request.GET.get("status")
-        status_options = list(map(lambda s: (s.name, s.value), JobStatus))
+        object_list = self._get_status({}, object_list)
+        object_list = self._get_method({}, object_list)
+        object_list = self._get_users({}, project, object_list)
 
-        method = self.request.GET.get("trigger")
-        method_options = list(map(lambda s: (s.name, s.value), JobMethod))
+        return object_list.order_by("-id")
 
-        if status and JobStatus.is_member(status.upper()):
-            status = status.upper()
-            object_list = object_list.filter(status=status)
+    def get_context_data(self, **kwargs):
+        """Update context to supply filter variables for the template."""
+        context = super().get_context_data(**kwargs)
+        project = ProjectPermissionsMixin.get_object(self)
 
-        if method and JobMethod.is_member(method.lower()):
-            method = method.lower()
-            object_list = object_list.filter(method=method)
+        context = self._get_status(context)
+        context = self._get_method(context)
+        context = self._get_users(context, project)
 
-        context["object_list"] = object_list
-        context["status_options"] = sorted(status_options, key=lambda x: x[0])
-        context["status"] = status
+        return context
 
-        context["method_options"] = sorted(method_options, key=lambda x: x[0])
-        context["method"] = method
+    def _get_status(self, context, object_list=None):
+        """
+        Extract the status from the request.
 
-        context["by"] = self.request.GET.get("by")
-        context["by_options"] = [
+        If a valid context is passed, then we also return the list of all
+        available options. If an object_list is provided, filter the results
+        if the request variable is valid.
+        """
+        status = self.request.GET.get("status", "").upper()
+
+        if object_list is not None:
+            return (
+                object_list.filter(status=status)
+                if not status != "" and JobStatus.is_member(status)
+                else object_list
+            )
+
+        options = list(map(lambda s: (s.name, s.value), JobStatus))
+
+        return {
+            **context,
+            "status_options": sorted(options, key=lambda x: x[0]),
+            "status": status,
+        }
+
+    def _get_method(self, context, object_list=None):
+        """
+        Extract the method from the request.
+
+        If a valid context is passed, then we also return the list of all
+        available options. If an object_list is provided, filter the results
+        if the request variable is valid.
+        """
+        method = self.request.GET.get("trigger", "").lower()
+
+        if object_list is not None:
+            return (
+                object_list.filter(method=method)
+                if method != "" and JobMethod.is_member(method)
+                else object_list
+            )
+
+        options = list(map(lambda s: (s.name, s.value), JobMethod))
+
+        return {
+            **context,
+            "method_options": sorted(options, key=lambda x: x[0]),
+            "method": method,
+        }
+
+    def _get_users(self, context, project, object_list=None):
+        """
+        Extract the user from the request.
+
+        If a valid context is passed, then we also return the list of all
+        available options. If an object_list is provided, filter the results
+        if the request variable is valid.
+        """
+        by = self.request.GET.get("by", "").lower()
+        options = [
             ("Project members", "members"),
             ("Others (Anonymous users)", "anonymous"),
         ]
+        exists = [i for i in options if i[1] == by]
+        matches = exists[0][1] if len(exists) == 1 else ""
 
-        return context
+        if object_list is not None:
+            return (
+                object_list
+                if matches == ""
+                else object_list.filter(
+                    creator__isnull=True if matches == "anonymous" else False
+                )
+            )
+
+        return {
+            **context,
+            "by": by,
+            "by_options": options,
+        }
 
 
 class JobDetailView(JobViewMixin, DetailView):

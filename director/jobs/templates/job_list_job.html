@@ -24,7 +24,7 @@
           <figure class="user-avatar job-user-image icon overflow-hidden">
             {% avatar user 16 %}
           </figure>
-          <span class="job-detail is-uppercase">{{job.creator.username}}</span>
+          <span class="job-detail is-uppercase">{% if job.creator %}{{job.creator.username}}{% else %}Anonymous{% endif %}</span>
       </span>
 
       {% if job.began %}

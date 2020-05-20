@@ -472,10 +472,12 @@ class ProjectsJobsViewSet(
         The `partial_update` action requires a staff user (an internal bot),
         others just require authentication.
         """
+        # TODO: this needs to be re-thought for anon users - how to handle anon
+        # TODO: access.
         return (
             [permissions.IsAdminUser()]
             if self.action == "partial_update"
-            else [permissions.IsAuthenticated()]
+            else [permissions.AllowAny()]
         )
 
     def get_queryset(self):
@@ -527,12 +529,21 @@ class ProjectsJobsViewSet(
         Returns details for the new job.
         """
         project_instance = self.get_project(request.user, pk=project)
-        if not self.has_permission(ProjectPermissionType.EDIT):
+
+        # TODO: this in combination with get_permissions needs to be re-thought
+        # TODO: for anon users
+        if (
+            not self.has_permission(ProjectPermissionType.EDIT)
+            and request.user.is_authenticated
+        ):
             raise PermissionDenied
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(project=project_instance, creator=request.user)
+        serializer.save(
+            project=project_instance,
+            creator=request.user if request.user.is_authenticated else None,
+        )
 
         serializer.instance.dispatch()
 
