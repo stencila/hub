@@ -87,7 +87,7 @@ class ProjectSettingsForm(forms.ModelForm):
             ),
             "name",
             "description",
-            css_class="section",
+            css_class="mt-0 mb-8",
         ),
         Div(
             HTML(
@@ -95,7 +95,7 @@ class ProjectSettingsForm(forms.ModelForm):
                 '<p class="subtitle is-5">Settings affecting how content is served for your project.</p>'
             ),
             "theme",
-            css_class="section",
+            css_class="mt-0 mb-8",
         ),
         Submit("submit", "Update", css_class="button is-primary"),
     )
