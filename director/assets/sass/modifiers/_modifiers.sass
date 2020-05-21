@@ -83,31 +83,34 @@ $margins: join($margins, (("13", 52), ("14", 56), ("15", 60), ("16", 64)))
 $margins: join($margins, (("17", 68), ("18", 72), ("19", 76), ("20", 80)))
 $margins: join($margins, (("21", 84), ("22", 88), ("23", 92), ("24", 96)))
 
+$containerunits: (("m", "margin"), ("p", "padding"))
+
 @function autoSize($size: "auto")
   @if $size == "auto"
     @return $size
   @return rem($size)
 
 @each $name, $size in $margins
-  .m
-    margin: autoSize($size)
+  @each $class, $unit in $containerunits
+    .#{$class}
+      #{$unit}: autoSize($size)
 
-    &-x
-      margin-left: autoSize($size)
-      margin-right: autoSize($size)
+      &-x
+        #{$unit}-left: autoSize($size)
+        #{$unit}-right: autoSize($size)
 
-    &-y
-      margin-top: autoSize($size)
-      margin-bottom: autoSize($size)
+      &-y
+        #{$unit}-top: autoSize($size)
+        #{$unit}-bottom: autoSize($size)
 
-    &t-#{$name}
-      margin-top: autoSize($size)
-    &r-#{$name}
-      margin-right: autoSize($size)
-    &b-#{$name}
-      margin-bottom: autoSize($size)
-    &l-#{$name}
-      margin-left: autoSize($size)
+      &t-#{$name}
+        #{$unit}-top: autoSize($size)
+      &r-#{$name}
+        #{$unit}-right: autoSize($size)
+      &b-#{$name}
+        #{$unit}-bottom: autoSize($size)
+      &l-#{$name}
+        #{$unit}-left: autoSize($size)
 
 /// Pointer events
 .pointer-events

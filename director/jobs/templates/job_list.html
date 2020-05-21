@@ -18,10 +18,15 @@
             {% for job in object_list %}
               {% include "job_list_job.html" with isComplete=job.has_ended %}
             {% empty %}
-              <div class="job-details-container">
-                <h2 class="title">No matching jobs found</h2>
-                <p>We couldn't find any jobs that matched the supplied filters</p><br/>
-                <p><a href="{% url 'project_job_list' account.name project.name %}" class="button is-primary">All {{project.name}} jobs</a></p>
+              <div class="job-details-container mt-8">
+                {% if status or method or by %}
+                  <h2 class="title">No matching jobs found</h2>
+                  <p>We couldn't find any jobs that matched the supplied filters</p><br/>
+                  <p><a href="{% url 'project_job_list' account.name project.name %}" class="button is-primary">All {{project.name}} jobs</a></p>
+                {% else %}
+                  <h2 class="title">No jobs found</h2>
+                  <p>There are no jobs for this project</p>
+                {% endif %}
               </div>
             {% endfor %}
           </div>
