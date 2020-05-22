@@ -1,4 +1,4 @@
 amqp==2.5.2
 celery==4.4.2
 kubernetes==11.0.0
-lxml==4.5.0
+lxml==4.5.1
