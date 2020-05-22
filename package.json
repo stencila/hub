@@ -12,7 +12,7 @@
     "start": "gulp"
   },
   "dependencies": {
-    "@stencila/thema": "2.7.3",
+    "@stencila/thema": "2.10.1",
     "bulma": "0.7.5",
     "hamburgers": "1.1.3"
   },
