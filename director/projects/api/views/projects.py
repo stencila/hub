@@ -19,7 +19,7 @@ from rest_framework.response import Response
 
 from accounts.models import AccountUserRole
 from general.api.negotiation import IgnoreClientContentNegotiation
-from projects.api.serializers import ProjectSerializer
+from projects.api.serializers import ProjectSerializer, ProjectDestroySerializer
 from projects.models import Project, Source
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 
@@ -45,7 +45,6 @@ class ProjectsViewSet(
 
     content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = ProjectSerializer
-
     project_permission_required = ProjectPermissionType.VIEW
 
     def get_permissions(self):
@@ -153,3 +152,24 @@ class ProjectsViewSet(
         project = self.get_project(request.user, pk=pk)
         serializer = self.get_serializer(project)
         return Response(serializer.data)
+
+    def destroy(self, request: Request, pk: int) -> Response:
+        """
+        Destroy a project.
+
+        Requires the user to be an owner of the project.
+        Uses the `ProjectDestroySerializer` to require confirmation
+        that the project is to be destroyed.
+        """
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.OWN
+        )
+
+        serializer = ProjectDestroySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data["name"] != project.name:
+            raise ValidationError("Provided name is not the same as the project name.")
+
+        project.delete()
+
+        return Response()

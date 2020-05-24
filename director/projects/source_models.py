@@ -37,13 +37,24 @@ class SourceAddress(dict):
         return self[attr]
 
 
+def NON_POLYMORPHIC_CASCADE(collector, field, sub_objs, using):
+    """
+    Cascade delete polymorphic models.
+
+    Without this, a `django.db.utils.IntegrityError: FOREIGN KEY constraint failed` error
+    occurs when deleting a project with more than one type of source.
+    See https://github.com/django-polymorphic/django-polymorphic/issues/229#issuecomment-398434412
+    """
+    return models.CASCADE(collector, field, sub_objs.non_polymorphic(), using)
+
+
 class Source(PolymorphicModel):
 
     project = models.ForeignKey(
         "Project",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=NON_POLYMORPHIC_CASCADE,
         related_name="sources",
     )
 

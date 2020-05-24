@@ -13,6 +13,19 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ["id", "account", "name", "description", "public", "theme"]
 
 
+class ProjectDestroySerializer(serializers.Serializer):
+    """
+    Serializer used when destroying a project.
+
+    Requires the `name` of the project as confirmation that the user
+    really wants to destroy it.
+    """
+
+    name = serializers.CharField(
+        help_text="Confirm by providing the name of the project to be destroyed."
+    )
+
+
 class ProjectEventSerializer(serializers.ModelSerializer):
     log = JSONField()
 
