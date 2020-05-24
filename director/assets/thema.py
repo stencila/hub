@@ -2,15 +2,17 @@
 
 # fmt: off
 
-version = "2.7.3"
+version = "2.10.1"
 themes = [
     "bootstrap",
     "elife",
     "galleria",
+    "latex",
     "nature",
     "plos",
     "rpng",
     "skeleton",
     "stencila",
+    "tufte",
     "wilmore"
 ]

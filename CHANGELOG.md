@@ -1,3 +1,14 @@
+## [2.27.2](https://github.com/stencila/hub/compare/v2.27.1...v2.27.2) (2020-05-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.93.11 ([79b650e](https://github.com/stencila/hub/commit/79b650ed049644ed6d57d2f025c33b9087362798))
+* **deps:** update dependency @stencila/thema to v2.10.1 ([5ccce01](https://github.com/stencila/hub/commit/5ccce0121db93ded7bd8be463d454cebda72e566))
+* **deps:** update dependency httpx to v0.13.1 ([ec63eca](https://github.com/stencila/hub/commit/ec63eca5a109c72334feb13f8efb07f1005af72a))
+* **deps:** update dependency lxml to v4.5.1 ([28eeefa](https://github.com/stencila/hub/commit/28eeefa8d423354c188632ad930c86864b54cc67))
+* **deps:** update dependency stencila-schema to v0.43.1 ([0fe218f](https://github.com/stencila/hub/commit/0fe218ff6648dee1e79ca0c152734226c278497c))
+
 ## [2.27.1](https://github.com/stencila/hub/compare/v2.27.0...v2.27.1) (2020-05-19)
 
 
