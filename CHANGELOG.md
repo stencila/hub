@@ -1,3 +1,19 @@
+# [2.28.0](https://github.com/stencila/hub/compare/v2.27.2...v2.28.0) (2020-05-24)
+
+
+### Bug Fixes
+
+* **jobs:** update to css modifiers ([3da5682](https://github.com/stencila/hub/commit/3da56828aba366bdcc0c5ded2247d4fd614b2a4a))
+* **projects:** adjusted padding on form as per [#434](https://github.com/stencila/hub/issues/434) ([741e47e](https://github.com/stencila/hub/commit/741e47e4888f09493414812a143d590fe9a5fe17))
+
+
+### Features
+
+* **Director:** UI updates to jobs listing ([6742d85](https://github.com/stencila/hub/commit/6742d8584d64cc12ccff68cc395e32ff603b07b9))
+* **Director:** updating job filters ([b879d92](https://github.com/stencila/hub/commit/b879d928084bb799ab636d29415461aab9fb3b83))
+* **job:** updates to job filtering [#453](https://github.com/stencila/hub/issues/453) ([fb0728d](https://github.com/stencila/hub/commit/fb0728d8df83afdfdbe34746be38e98e1561a841))
+* **jobs:** job cancel action added. ([be50f4c](https://github.com/stencila/hub/commit/be50f4cf4f1f27710a3609f7f63ff56fc733f433))
+
 ## [2.27.2](https://github.com/stencila/hub/compare/v2.27.1...v2.27.2) (2020-05-24)
 
 
