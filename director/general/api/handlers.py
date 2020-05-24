@@ -45,7 +45,12 @@ def custom_exception_handler(exc, context):
         data["message"] = message
 
         errors = []
-        for key, value in response.data.items():
+        items = (
+            response.data.items()
+            if isinstance(response.data, dict)
+            else [(None, message) for message in response.data]
+        )
+        for key, value in items:
             message = (
                 ". ".join([str(item) for item in value])
                 if isinstance(value, list)
@@ -53,6 +58,7 @@ def custom_exception_handler(exc, context):
             )
             error = {"field": key, "message": message}
             errors.append(error)
+
         if len(errors):
             data["errors"] = errors
 
