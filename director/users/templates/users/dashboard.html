@@ -4,137 +4,89 @@
     <h3 class="title is-3">Hi! 👋 Welcome to Stencila Hub</h3>
     <div class="card has-large-margin-bottom">
         <div class="card-content">
-            <div class="media">
-                <div class="media-left">
-                    <figure class="image is-48x48">
-            <span class="icon">
-                <i class="fas fa-project-diagram fa-3x"></i>
-            </span>
-                    </figure>
-                </div>
-                <div class="media-content">
-                    <div class="level">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <p class="title is-4">Projects</p>
-                            </div>
-                        </div>
-                        <div class="level-right">
-                            <div class="level-item">
-                                <a class="button is-primary" href="{% url 'project_create' %}">
-                                    <span class="icon"><i class="fas fa-plus"></i></span>
-                                    <span>New Project</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="content">
-                {% if project_fetch_result.projects %}
-                    <div class="tabs">
-                        <ul class="is-marginless">
-                            {% for filter_option in filter_options %}
-                                <li class="{% if filter_option == project_fetch_result.filter %}is-active{% endif %}">
-                                    <a href="{{ request.path }}?filter={{ filter_option.key }}"
-                                       title="{{ filter_option.description }}">
-                                        {{ filter_option.label }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <small>{{ project_fetch_result.filter.description }}</small>
-                    <table class="table is-fullwidth">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th class="has-text-right">Account</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for project in project_fetch_result.projects %}
-                            <tr>
-                                <td>
-                                    <a href="{% url 'project_overview' project.account.name project.name %}">{{ project.name }}</a>
-                                </td>
-                                <td class="has-text-right">
-                                    {{ project.account.name }}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        {% if project_fetch_result.remaining_results %}
-                            <tr>
-                                <td colspan="3">
-                                    <a href="{% url 'project_list' %}?filter={{ project_fetch_result.filter.key }}">
-                                        And {{ project_fetch_result.remaining_results }} more&hellip;
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endif %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>
-                        You have no Projects in your accounts set up yet.
-                    </p>
-                    <p>A Project is a collection of files that can be published as executable Reproducible Documents.
-                        Once a Project is created you can assign users and teams to collaborate on it.
-                    </p>
-                {% endif %}
-            </div>
-        </div>
+          {% url 'project_create' as project_url %}
+          {% include 'users/_dashboard-header.html' with icon="fa-project-diagram" name="Projects" url=project_url buttonName="New Project" %}
+          <div class="content">
+              {% if project_fetch_result.projects %}
+                  <div class="tabs">
+                      <ul class="is-marginless">
+                          {% for filter_option in filter_options %}
+                              <li class="{% if filter_option == project_fetch_result.filter %}is-active{% endif %}">
+                                  <a href="{{ request.path }}?filter={{ filter_option.key }}"
+                                      title="{{ filter_option.description }}">
+                                      {{ filter_option.label }}
+                                  </a>
+                              </li>
+                          {% endfor %}
+                      </ul>
+                  </div>
+                  <small>{{ project_fetch_result.filter.description }}</small>
+                  <table class="table is-fullwidth">
+                      <thead>
+                      <tr>
+                          <th>Name</th>
+                          <th class="has-text-right">Account</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {% for project in project_fetch_result.projects %}
+                          <tr>
+                              <td>
+                                  <a href="{% url 'project_overview' project.account.name project.name %}">{{ project.name }}</a>
+                              </td>
+                              <td class="has-text-right">
+                                  {{ project.account.name }}
+                              </td>
+                          </tr>
+                      {% endfor %}
+                      {% if project_fetch_result.remaining_results %}
+                          <tr>
+                              <td colspan="3">
+                                  <a href="{% url 'project_list' %}?filter={{ project_fetch_result.filter.key }}">
+                                      And {{ project_fetch_result.remaining_results }} more&hellip;
+                                  </a>
+                              </td>
+                          </tr>
+                      {% endif %}
+                      </tbody>
+                  </table>
+              {% else %}
+                  <p>
+                      You have no Projects in your accounts set up yet.
+                  </p>
+                  <p>A Project is a collection of files that can be published as executable Reproducible Documents.
+                      Once a Project is created you can assign users and teams to collaborate on it.
+                  </p>
+              {% endif %}
+          </div>
+      </div>
     </div>
-    <div class="card">
+    {% comment %} <div class="card">
         <div class="card-content">
-            <div class="media">
-                <div class="media-left">
-                    <figure class="image is-48x48">
-            <span class="icon">
-                <i class="fas fa-people-carry fa-3x"></i>
-            </span>
-                    </figure>
-                </div>
-                <div class="media-content">
-                    <div class="level">
-                        <div class="level-left">
-                            <div class="level-item">
-                                <p class="title is-4">Accounts</p>
-                            </div>
-                        </div>
-                        <div class="level-right">
-                            <div class="level-item">
-                                <a class="button is-primary" href="{% url 'account_create' %}">
-                                    <span class="icon"><i class="fas fa-plus"></i></span>
-                                    <span>New Account</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="content">
-                <div class="level">
-                    <div class="level-left">
-                        Account Name
-                    </div>
-                    <div class="level-right">
-                        Your Role
-                    </div>
-                </div>
-                {% for account_role in account_roles %}
-                    <div class="level">
-                        <div class="level-left">
-                            <a href="{% url 'account_profile' account_role.account.name %}">
-                                {{ account_role.account.name }}
-                            </a>
-                        </div>
-                        <div class="level-right">
-                            {{ account_role.role }}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+          {% url 'account_create' as account_url %}
+          {% include 'users/_dashboard-header.html' with icon="fa-people-carry" name="Accounts" url=account_url buttonName="New Account" %}
+          <div class="content">
+              <div class="level">
+                  <div class="level-left">
+                      Account Name
+                  </div>
+                  <div class="level-right">
+                      Your Role
+                  </div>
+              </div>
+              {% for account_role in account_roles %}
+                  <div class="level">
+                      <div class="level-left">
+                          <a href="{% url 'account_profile' account_role.account.name %}">
+                              {{ account_role.account.name }}
+                          </a>
+                      </div>
+                      <div class="level-right">
+                          {{ account_role.role }}
+                      </div>
+                  </div>
+              {% endfor %}
+          </div>
         </div>
-    </div>
+    </div> {% endcomment %}
 {% endblock %}

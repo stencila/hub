@@ -1,4 +1,6 @@
+from datetime import datetime
 from enum import unique
+import inflect
 import json
 import re
 
@@ -565,17 +567,31 @@ class Job(models.Model):
         Format the runtime into a format that can be printed to the screen.
 
         i.e. convert from float into hours:mins format.
+        It follows the following rules:
+        - If the job has not started, return empty string
+        - If job has started & not ended calculate time relative to now.
+        - If job has ended, calculate difference.
         """
-        if self.began is not None and self.ended is not None:
-            difference = self.ended - self.began
-            seconds = difference.total_seconds()
+        if self.began is not None:
+            now = datetime.now(timezone.utc)
+            difference = now - self.began
+            p = inflect.engine()
 
-            h = seconds // 3600
-            m = (seconds % 3600) // 60
+            if self.ended is not None:
+                difference = self.ended - self.began
 
-            return "%d:%d" % (h, m)
+            h, rem = divmod(difference.seconds, 3600)
+            m, s = divmod(rem, 60)
 
-        return None
+            output = [
+                "%d %s" % (h, p.plural("hour", h)) if h != 0 else "",
+                "%d %s" % (m, p.plural("min", m)) if m != 0 else "",
+                "%d %s" % (s, p.plural("sec", s)) if s != 0 else "",
+            ]
+
+            return " ".join(x for x in output)
+
+        return ""
 
     @property
     def icon(self):
@@ -590,19 +606,14 @@ class Job(models.Model):
     @property
     def status_label(self):
         """Get a printable version of the status - used in the template."""
-        inQueue = self.queue is None
-        status = JobStatus[self.status]
-        label = status.value
-        label = (
-            "Pending"
-            if status.value == JobStatus.PENDING.value and not inQueue
-            else label
-        )
-        label = (
-            "In Queue" if status.value == JobStatus.PENDING.value and inQueue else label
-        )
+        if self.status is None:
+            # TODO: If there is no status, assume it's dispatched?
+            # self.status = JobStatus.DISPATCHED.name
+            return None
 
-        return label
+        status = JobStatus[self.status]
+
+        return status.value
 
     @property
     def has_ended(self):

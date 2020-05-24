@@ -5,6 +5,7 @@
   @extend .is-flex
   @extend .border-bottom-grey-lighter
 
+  cursor: pointer
   flex-direction: row
   padding: rem(24) rem(16)
   margin: 0
@@ -22,14 +23,6 @@
     max-width: 80%
     +until($desktop)
      max-width: 100%
-
-  /// Job ID label
-  &-id
-    font-size: rem(13)
-    font-variant: small-caps
-    font-feature-settings: 'tnum' on, 'lnum' on
-    margin-top: rem(3)
-    margin-bottom: 0.5rem
 
   /// Job icons - used in various places, allows for simply dumping an icon
   /// without having to supply separate classes.
@@ -52,7 +45,7 @@
     /// Requires :not(body) selector to override bulma's tag
     @extend .leading-1\/16
     @extend .is-size-7
-    width: rem(80)
+    width: rem(100)
     font-weight: $weight-bold
     font-size: rem(16)
 
@@ -72,6 +65,7 @@
       // flex-direction: column
       flex-shrink: 0
       align-items: flex-start
+      justify-content: center
       width: rem(140)
       border-right: 1px solid $grey-lighter
       margin-bottom: 0
@@ -94,14 +88,15 @@
       &::after
         display: none
 
-  /// User avatar & name
-  &-user
-    // &-image
-    //   margin-bottom: auto
-    &-name
-      font-size: rem(13)
-      line-height: 1
-      font-variant: small-caps
+  /// job info detail - atom containing a sinble info value
+  &-detail
+    font-size: rem(13)
+    line-height: 1
+    font-variant: small-caps
+    font-feature-settings: 'tnum' on, 'lnum' on
+
+    &.is-lowercase
+      font-variant: unset
 
   /// Actions columns - contains buttons
   &-actions
@@ -152,7 +147,7 @@
   /// Job details - as seen on the details page
   &-details
     &-container
-      margin: rem(24) 0
+      margin: 0 0 rem(24) 0
     &-messages
       .header
         margin-bottom: rem(24)
