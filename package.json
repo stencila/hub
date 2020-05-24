@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "1.4.36",
+    "@stencila/dev-config": "1.4.39",
     "gulp": "4.0.2",
     "gulp-autoprefixer": "7.0.1",
     "gulp-sass": "4.1.0",
