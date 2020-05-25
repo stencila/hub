@@ -3,6 +3,11 @@ import pytest
 
 from .gdoc import pull_gdoc
 
+# The following access token is expired, but was valid when this test
+# was recorded. To re-record this test, get a new google token, and
+# ensure that the google account has access to any docs and drive
+# folders required.
+
 GOOGLE_TOKEN = (
     "ya29.a0AfH6SMDJdyz151yBr4hQa8xNwCkUW5SNjK_LVQ6B21Rpius4sQOK6oDNEm7yYXG3_tf"
     "fXM8dq1Z2k65zfZQ37FzYeVygEp93LB4_8gHEr1BDb9rZarmqjCoVUBoSOzyns1bHGYH_T15ka"
