@@ -22,7 +22,7 @@ function formToJSON(form) {
          * is one of those fields and, if so, store the values as an array.
          */
         if (element.type === "checkbox") {
-          data[element.name] = (data[element.name] || []).concat(element.value);
+          data[element.name] = JSON.parse(element.value);
         } else if (element.options && element.multiple) {
           data[element.name] = element.options.reduce(
             (values, option) =>
@@ -41,24 +41,62 @@ function formToJSON(form) {
 }
 
 /**
- * Display form errors in the form.
- * 
- * @param {*} form The form
+ * Redirect to another URL.
+ *
+ * @param {*} form     The form that was submitted
  * @param {*} response The response from the API
  */
-function onFormErrors(form, response) {
-  // TODO: add <span class="help"> to the fields
+function onFormSuccess(form, response, successUrl) {
+  if (successUrl === "self") {
+    window.location.reload();
+  } else if (successUrl !== null) {
+    response
+      .json()
+      .then(json => {
+        window.location = successUrl.replace(/\$\{(\w+)\}/g, (match, name) => {
+          return json[name];
+        });
+      })
+      .catch(() => {
+        window.location = successUrl;
+      });
+  }
+}
+
+/**
+ * Display form errors in the form.
+ *
+ * @param {*} form     The form that was submitted
+ * @param {*} response The response from the API
+ */
+function onFormError(form, response) {
   response.json().then(json => {
-    const p = document.createElement("p");
-    p.classList = "message is-danger";
-    p.innerHTML = JSON.stringify(json, null, "  ");
-    form.appendChild(p);
+    const messages = [json.message || ""];
+    if (json.errors) {
+      for (const { field, message } of json.errors) {
+        const input = form.querySelector(`[name=${field}]`);
+        if (input !== null) {
+          const help = document.createElement("span");
+          help.classList = "help is-danger is-error";
+          help.innerText = message;
+          input.parentNode.insertBefore(help, input.nextSibling);
+        } else {
+          messages.push(message);
+        }
+      }
+    }
+    if (messages.length) {
+      const help = document.createElement("span");
+      help.classList = "help is-danger is-error";
+      help.innerText = messages.join(" ");
+      form.appendChild(help);
+    }
   });
 }
 
 /**
  * Handle the submission and updating of a form via the API
- * 
+ *
  * @param {*} isUpdate The form action updates the object
  * @param {*} successUrl The URL to redirect to if successful
  */
@@ -85,6 +123,8 @@ function handleForm(isUpdate = false, successUrl = null) {
   form.addEventListener("submit", function(event) {
     event.preventDefault();
 
+    form.querySelectorAll(".is-error").forEach(elem => elem.remove());
+
     if (button !== null) button.classList.add("is-loading");
 
     fetch(form.getAttribute("action"), {
@@ -102,14 +142,8 @@ function handleForm(isUpdate = false, successUrl = null) {
           button.classList.add("is-disabled");
         }
       }
-      if (!response.ok) onFormErrors(form, response);
-      else {
-        if (successUrl === "self") {
-          window.location.reload();
-        } else if (successUrl !== null) {
-          window.location = successUrl;
-        }
-      }
+      if (response.ok) onFormSuccess(form, response, successUrl);
+      else onFormError(form, response);
     });
 
     return false;
