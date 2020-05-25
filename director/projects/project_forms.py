@@ -9,7 +9,6 @@ from accounts.models import Account
 from lib.forms import ModelFormWithSubmit
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
-from assets.thema import themes
 
 
 class ProjectCreateForm(ModelFormWithSubmit):
@@ -74,41 +73,6 @@ class ProjectSharingForm(forms.ModelForm):
             ),
             Submit("submit", "Update", css_class="button is-primary"),
         )
-
-
-class ProjectSettingsForm(forms.ModelForm):
-
-    helper = FormHelper()
-    helper.layout = Layout(
-        Div(
-            HTML(
-                '<p class="title is-4">Identity</p>'
-                '<p class="subtitle is-5">Settings for your project\'s profile.</p>'
-            ),
-            "name",
-            "description",
-            css_class="mt-0 mb-8",
-        ),
-        Div(
-            HTML(
-                '<p class="title is-4">Content</p>'
-                '<p class="subtitle is-5">Settings affecting how content is served for your project.</p>'
-            ),
-            "theme",
-            css_class="mt-0 mb-8",
-        ),
-        Submit("submit", "Update", css_class="button is-primary"),
-    )
-
-    class Meta:
-        model = Project
-        fields = ["name", "description", "theme"]
-        widgets = {
-            "theme": forms.Select(
-                choices=[(None, "")] + [(theme, theme) for theme in themes]
-            ),
-            "hosts": forms.TextInput(),
-        }
 
 
 class ProjectSettingsSessionsForm(forms.ModelForm):

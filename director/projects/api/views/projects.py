@@ -24,15 +24,6 @@ from projects.models import Project, Source
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 
 
-class ProjectCreateRequestSerializer(serializers.ModelSerializer):
-    """The request data when creating a project."""
-
-    class Meta:
-        model = Project
-        fields = ["account", "name", "description", "public"]
-        ref_name = None
-
-
 class ProjectsViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -43,18 +34,20 @@ class ProjectsViewSet(
 
     # Configuration
 
-    content_negotiation_class = IgnoreClientContentNegotiation
     serializer_class = ProjectSerializer
-    project_permission_required = ProjectPermissionType.VIEW
 
     def get_permissions(self):
         """
         Get the list of permissions that the current action requires.
 
         - `list` and `retrieve`: auth not required but access denied for private projects
-        - `create`: auth required
+        - `create` and `update`: auth required
         """
-        return [permissions.IsAuthenticated()] if self.action == "create" else []
+        return (
+            [permissions.IsAuthenticated()]
+            if self.action in ["create", "update"]
+            else []
+        )
 
     def get_queryset(self) -> QuerySet:
         """Get the projects that the current user has access to."""
@@ -97,10 +90,6 @@ class ProjectsViewSet(
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @swagger_auto_schema(
-        request_body=ProjectCreateRequestSerializer,
-        responses={status.HTTP_201_CREATED: ProjectSerializer},
-    )
     def create(self, request: Request) -> Response:
         """
         Create a project.
@@ -108,7 +97,7 @@ class ProjectsViewSet(
         Receives details for the new project such as `name` and `description`.
         Returns the details of the created project.
         """
-        serializer = ProjectCreateRequestSerializer(data=request.data)
+        serializer = ProjectSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         account = serializer.validated_data.get("account")
@@ -148,9 +137,28 @@ class ProjectsViewSet(
 
         Returns details of project, including `name` and `description`.
         """
-        # Check that the user has VIEW permissions for the project
-        project = self.get_project(request.user, pk=pk)
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.VIEW
+        )
+
         serializer = self.get_serializer(project)
+        return Response(serializer.data)
+
+    def partial_update(self, request: Request, pk: int) -> Response:
+        """
+        Update a project.
+
+        Receives details of the project.
+        Returns updated details of project.
+        """
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.EDIT
+        )
+
+        serializer = self.get_serializer(project, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
         return Response(serializer.data)
 
     def destroy(self, request: Request, pk: int) -> Response:

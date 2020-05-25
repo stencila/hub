@@ -27,6 +27,7 @@ from lib.resource_allowance import (
 )
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
+from projects.api.serializers import ProjectSerializer, ProjectDestroySerializer
 from projects.models import Project
 from projects.permission_models import (
     ProjectPermissionType,
@@ -39,7 +40,6 @@ from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
 from projects.project_forms import (
     ProjectCreateForm,
     ProjectSharingForm,
-    ProjectSettingsForm,
     ProjectSettingsSessionsForm,
 )
 from projects.source_models import (
@@ -499,27 +499,17 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         return redirect("project_sharing", account_name, project_name)
 
 
-class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
+class ProjectSettingsView(ProjectPermissionsMixin, DetailView):
     model = Project
-    form_class = ProjectSettingsForm
     template_name = "projects/project_settings.html"
     project_permission_required = ProjectPermissionType.MANAGE
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "project_settings", args=(self.object.account.name, self.object.name),
-        )
 
     def get_context_data(self, **kwargs):
         context_data = super(ProjectSettingsView, self).get_context_data(**kwargs)
         context_data["project_tab"] = ProjectTab.SETTINGS.value
+        context_data["project_serializer"] = ProjectSerializer(self.object)
+        context_data["project_destroy_serializer"] = ProjectDestroySerializer()
         return context_data
-
-    def form_valid(self, form: ModelForm):
-        """If the form is valid, save the associated model."""
-        if project_save(form, form):
-            return super().form_valid(form)
-        return super().form_invalid(form)
 
 
 class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
@@ -547,13 +537,6 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
             "project_settings_sessions",
             args=(self.object.account.name, self.object.name),
         )
-
-
-class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
-    model = Project
-    template_name = "projects/project_delete.html"
-    success_url = reverse_lazy("project_list")
-    project_permission_required = ProjectPermissionType.MANAGE
 
 
 class ProjectExecutaView(ProjectPermissionsMixin, View):

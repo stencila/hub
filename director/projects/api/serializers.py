@@ -3,11 +3,15 @@ from rest_framework.fields import JSONField
 from rest_polymorphic.serializers import PolymorphicSerializer
 
 
+from assets.thema import themes
 from projects.project_models import Project, ProjectEvent, Snapshot
 from projects.source_models import Source, ElifeSource, UrlSource
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+
+    theme = serializers.ChoiceField(choices=themes, allow_blank=True)
+
     class Meta:
         model = Project
         fields = ["id", "account", "name", "description", "public", "theme"]
