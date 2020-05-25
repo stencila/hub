@@ -19,7 +19,11 @@ from rest_framework.response import Response
 
 from accounts.models import AccountUserRole
 from general.api.negotiation import IgnoreClientContentNegotiation
-from projects.api.serializers import ProjectSerializer, ProjectDestroySerializer
+from projects.api.serializers import (
+    ProjectSerializer,
+    ProjectCreateSerializer,
+    ProjectDestroySerializer,
+)
 from projects.models import Project, Source
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
 
@@ -33,8 +37,6 @@ class ProjectsViewSet(
 ):
 
     # Configuration
-
-    serializer_class = ProjectSerializer
 
     def get_permissions(self):
         """
@@ -57,6 +59,14 @@ class ProjectsViewSet(
             Q(public=True)
             # TODO: Add Qs for other access
         )
+
+    def get_serializer_class(self):
+        """
+        Override of `GenericAPIView.get_serializer_class`.
+
+        Returns different serializers for different views.
+        """
+        return ProjectCreateSerializer if self.action == "create" else ProjectSerializer
 
     # Views
 
@@ -97,7 +107,7 @@ class ProjectsViewSet(
         Receives details for the new project such as `name` and `description`.
         Returns the details of the created project.
         """
-        serializer = ProjectSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         account = serializer.validated_data.get("account")
@@ -129,7 +139,7 @@ class ProjectsViewSet(
         )
 
         serializer = self.get_serializer(project)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
 
     def retrieve(self, request: Request, pk: int) -> Response:
         """
@@ -152,7 +162,7 @@ class ProjectsViewSet(
         Returns updated details of project.
         """
         project = self.request_permissions_guard(
-            request, pk=pk, permission=ProjectPermissionType.EDIT
+            request, pk=pk, permission=ProjectPermissionType.MANAGE
         )
 
         serializer = self.get_serializer(project, data=request.data, partial=True)

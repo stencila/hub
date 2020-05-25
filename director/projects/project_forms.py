@@ -3,54 +3,9 @@ import typing
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
-from django.utils.text import slugify
 
-from accounts.models import Account
-from lib.forms import ModelFormWithSubmit
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
-
-
-class ProjectCreateForm(ModelFormWithSubmit):
-    class Meta:
-        model = Project
-        fields = ["account", "name", "description", "public"]
-
-    def __init__(self, *args, **kwargs):
-        request = kwargs.pop("request")
-        accounts = Account.objects.filter(user_roles__user=request.user).distinct()
-
-        initial = kwargs.get("initial", {})
-
-        if "account" not in initial:
-            # set the user's personal account as the default in the form for the new Project
-
-            if accounts.count() == 1:
-                initial["account"] = accounts[0].pk
-            elif accounts.count() > 1:
-                personal_account_prefix = "{}-personal-account".format(
-                    slugify(request.user.username)
-                )
-
-                for account in accounts:
-                    if account.name.startswith(personal_account_prefix):
-                        initial["account"] = account.pk
-                        break
-
-            kwargs["initial"] = initial
-
-        super().__init__(*args, **kwargs)
-
-        self.fields["account"].queryset = accounts
-        self.fields[
-            "account"
-        ].empty_label = None  # remove the blank/"-----" option from select
-
-
-class ProjectGeneralForm(ModelFormWithSubmit):
-    class Meta:
-        model = Project
-        fields = ["name", "description", "public"]
 
 
 class ProjectSharingForm(forms.ModelForm):
