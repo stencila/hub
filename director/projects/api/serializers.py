@@ -54,17 +54,27 @@ class ProjectSerializer(serializers.ModelSerializer):
         Validate the project fields.
 
         Checks that the account has sufficient quotas to
-        create the project.
+        create the project. This function is written to be able to used
+        when either creating (self.instance is None) or updating
+        (self.instance is not None) a project.
         """
-        if resource_limit_met(data["account"], QuotaName.MAX_PROJECTS):
+        account = data.get("account")
+        if account is None:
+            account = self.instance.account
+        assert account is not None
+
+        public = data.get("public")
+        if public is None:
+            public = self.instance.public
+        assert public is not None
+
+        if resource_limit_met(account, QuotaName.MAX_PROJECTS):
             raise serializers.ValidationError(
                 "The maximum number of projects for the account has been reached. "
                 "Please upgrade the account subscription, or use a different account."
             )
 
-        if not data["public"] and resource_limit_met(
-            data["account"], QuotaName.MAX_PRIVATE_PROJECTS
-        ):
+        if not public and resource_limit_met(account, QuotaName.MAX_PRIVATE_PROJECTS):
             raise serializers.ValidationError(
                 dict(
                     public="The maximum number of private projects for the account has been reached. "
