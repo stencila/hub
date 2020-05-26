@@ -265,6 +265,41 @@ class ProductExtension(models.Model):
     )
 
 
+def create_name_token(create, instance):
+    name = ""
+    suffix_number = 2
+    suffix = ""
+    account = None
+
+    while True:
+        if suffix_number == 100:
+            raise RuntimeError("Suffix number hit 100.")
+
+        name = "{}".format(slugify(instance.username))[:50]
+
+        if suffix != "":
+            name += "{}".format(suffix)[:50]
+
+        name = "admin-user" if name == "admin" or name == "admin-user" else name
+
+        if create:
+            try:
+                account = Account.objects.create(name=name)
+                break
+            except IntegrityError:
+                suffix = "-{}".format(suffix_number)
+                suffix_number += 1
+        else:
+            name = (
+                "admin-user"
+                if name == "admin" or name == "admin-user"
+                else instance.username
+            )
+            break
+
+    return (name, account)
+
+
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
     """
     Create a personal account for a user.
@@ -273,31 +308,26 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
     Makes sure each user has a Personal `Account` that they are an `admin` on so that their `Projects` can be
     linked to an `Account`.
     """
-    if sender is User and created:
-        suffix_number = 2
-        suffix = ""
-        while True:
-            if suffix_number == 100:
-                raise RuntimeError("Suffix number hit 100.")
-
-            account_name = "{}".format(slugify(instance.username))[:50]
-
-            if suffix:
-                account_name = "{}".format(suffix)[:50]
-
-            account_name = "admin-user" if account_name == "admin" else account_name
-
+    if sender is User:
+        account = None
+        if not created:
             try:
-                account = Account.objects.create(name=account_name)
-                break
-            except IntegrityError:
-                suffix = "-{}".format(suffix_number)
-                suffix_number += 1
+                account = Account.objects.get(user__id=instance.id)
+                account.name = create_name_token(False, instance)[0]
+            except Account.DoesNotExist:
+                account = None
+        else:
+            account = create_name_token(True, instance)[1]
+            if account is not None:
+                account.user = instance
 
-        account.user = instance
-        account.save()
-        admin_role = AccountRole.objects.get(name="admin")
-        AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
+        if account is not None:
+            account.save()
+            if created:
+                admin_role = AccountRole.objects.get(name="admin")
+                AccountUserRole.objects.create(
+                    role=admin_role, account=account, user=instance
+                )
 
 
 post_save.connect(create_personal_account_for_user, sender=User)
