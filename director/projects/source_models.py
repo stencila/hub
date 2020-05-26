@@ -12,6 +12,8 @@ from django.core.validators import URLValidator
 from polymorphic.models import PolymorphicModel
 
 from lib.conversion_types import mimetype_from_path
+from lib.google_auth import GoogleAuth
+from lib.social_auth_token import user_social_token, user_github_token
 from jobs.models import Job
 from users.models import User
 
@@ -407,6 +409,16 @@ class GithubSource(Source):
 
         return None
 
+    def pull(self, user: User) -> Job:
+        source_address = self.to_address()
+        source_address["token"] = user_github_token(user)
+
+        return Job.objects.create(
+            creator=user,
+            method="pull",
+            params=dict(source=source_address, project=self.project.id, path=self.path),
+        )
+
 
 class GitlabSource(Source):
     """A project hosted on Gitlab."""
@@ -471,6 +483,36 @@ class GoogleDocsSource(Source):
 
         return None
 
+    def pull(self, user: User) -> Job:
+        source_address = self.to_address()
+
+        gauth = GoogleAuth(user_social_token(user, "google"))
+        source_address["token"] = gauth.check_and_refresh_token()
+
+        return Job.objects.create(
+            creator=user,
+            method="pull",
+            params=dict(source=source_address, project=self.project.id, path=self.path),
+        )
+
+
+class GoogleDriveSource(Source):
+    """A reference to a Google Drive folder."""
+
+    folder_id = models.TextField(null=False, help_text="Google's ID of the folder.")
+
+    def pull(self, user: User) -> Job:
+        source_address = self.to_address()
+
+        gauth = GoogleAuth(user_social_token(user, "google"))
+        source_address["token"] = gauth.check_and_refresh_token()
+
+        return Job.objects.create(
+            creator=user,
+            method="pull",
+            params=dict(source=source_address, project=self.project.id, path=self.path),
+        )
+
 
 class OSFSource(Source):
     """
@@ -481,6 +523,12 @@ class OSFSource(Source):
 
     class Meta:
         abstract = True
+
+
+class PlosSource(Source):
+    """An article from https://journals.plos.org."""
+
+    article = models.TextField(help_text="The article doi.")
 
 
 class UrlSource(Source):

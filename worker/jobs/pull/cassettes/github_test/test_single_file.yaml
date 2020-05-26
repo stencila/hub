@@ -1,0 +1,246 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - PyGithub/Python
+    method: GET
+    uri: https://api.github.com/repos/stencila/test
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA+1YXW/iOBT9KyivS2vKlI5AqmZX2p1KI1XVrOZhZl6Qk5jExYkj24GFqP99j+1A
+        AmJK8bz2pYB7z/H19f10E/E0mo2ndzcfbu+mw6iUKZvbpejx73/WT+KLSB6mW/r931VSLjdP3378
+        97j9On76en8fQZgWDJKGaYNfi1qIebukDSsTLihp/1cpvqIGwgsqNBtGcl0yFc2aSMiMl+DYAcBj
+        d//4YXw3HR+ps3laTjc/x59r+r3K0wexip+T7ePzj8lj5tSh2IKqea0ECHNjKj0jxC/q0XXGTV7H
+        tWYqkSXUM9eJLEhN/FafVve3oMhUS+JMgIUjsoq3PB4MMk16quemEEf7+22deE9wIYWQa6CPtX1t
+        A7JHWWs7Bl5mAQxANUSanMFYOMKLPTjX5jJlHKIh9gMOYzk0rK9YepFCLQbqWI94aYhilXRkdawT
+        xSvDZXmZYgdIMEmV0ZJv6eVMQGoQWJUuU8EhgGQr+NllUA9piIuYZGNNoVjC+AqGDaA7woLNbCob
+        tE89q1hzc8PmNC1sMLoYfRkihN7izbsQT9n+vkD/10AXVIiBtcRgIdXAJgL43UDWavDAzYCWqf1E
+        SA44whGB5+4HqkB6uU8Ur8afM/M+rHaKWPwZm58AIrgAw/ZLtglAW1RD8LeNhQThSWOJU8lzQX5K
+        mQN4Q/o/rUcYRosAJR0M8FzKEAs5GOBc65q9yRlPHc2hNdn5eVkXsU9Bb/HuU4QeB72o1jwrGQuw
+        zB7akF1GjBUtkzyEbIdsiP/mboxmAWpZFMCxkHEAGqWHOGhDdE59ljfzME0sl0UeUCm2CFTLIvdU
+        RgXdmVPJQvdEKCYG1xeg0w5JmtZSgpZZTbMQrj0UN2fLW0a3Zwv9Kb/usCCyPYvicR2aTjq01crX
+        VsRdiKk6cEflyvTrhf/kEXtF3h2yKPi5enmKpwUeOGcwmfWrY0L7+3wp/5VqFtmQLtP5BNpyXm61
+        NoPudOozt61twLXukKT5o6Imt9kCG1RUscsVbIGkiSkaievr6yZn1LWIBVNBMeVxIKAqydELXa5T
+        s0OizhfUuE5zYVVK0XkKSdMAm+2hoPGXcrleHte/wwpzVIAyDtbnKbhAzyXLkBzWYfuMpTR8wZO3
+        dNKnQuEA3nzSvEzYEE3iEF5meMLhd+gQ7Z2gdWIhNvA4qIzB1HfOgsEFA6ypmEc2xM82KauE3ATm
+        gB7YhpViGIXTOTXok8ejm8nV6OZqfPNtPJpN7maT6U/I1FXalxmPrkaTq/HIyXycje6sTFXrvKM5
+        Frm1IkhlrUfiG4Zh/EXDfTCMuq7ZDrUQ1zrvxP/shGcH43wrnAi41pG/n+NfHdeIXwGgTC4LVqEC
+        +zlc8y2+TQ4qaiLrEjYcDaM1NWjVUM26pV0VjmYlAgN0VM99rEUzo2q8QdiVSslnlhjdX+uiuie4
+        5kt+ALS9wX5K8SNHt3nBlZLtS4Tfvs0+eFVoX0BSrmksWLcgK1a2GvaPwRNWahzd0/ghxR65J35g
+        AvcjZQtaCzP3/ScsWFBcoYJVDSuqub86I5cM054n7g/J7+8y5/oiOyP0Bs/3d5n2re3V16v3d5me
+        y/zOu0zJzBqPFb0s0W/o2yx08/I/8WTXXtsVAAA=
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '1226'
+      X-GitHub-Request-Id:
+      - ED94:15D0:60300C:D81CDB:5EC5BB67
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '59'
+      X-Ratelimit-Reset:
+      - '1590020471'
+      access-control-allow-origin:
+      - '*'
+      access-control-expose-headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
+        X-GitHub-Media-Type, Deprecation, Sunset
+      cache-control:
+      - public, max-age=60, s-maxage=60
+      content-encoding:
+      - gzip
+      content-security-policy:
+      - default-src 'none'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 20 May 2020 23:21:11 GMT
+      etag:
+      - W/"b6c386d0602431584e36b1706128051a"
+      last-modified:
+      - Wed, 20 May 2020 20:57:06 GMT
+      referrer-policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      server:
+      - GitHub.com
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=31536000; includeSubdomains; preload
+      vary:
+      - Accept, Accept-Encoding, Accept, X-Requested-With
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - deny
+      x-github-media-type:
+      - github.v3; format=json
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - PyGithub/Python
+    method: GET
+    uri: https://api.github.com/repos/stencila/test/contents/sub/README.md
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA62SX2vCMBTFv0uexXS2WhVkTCZFYYNNplAGkn9tw9KkNOlExe++260PrTCYspdA
+        Djm/3HvuPSFNcoGm6HXx8Pi06Occ9VBBXAaSrShuyzYjoPreiIUiDIXnDfwEjjsyCcgknAgWjEI+
+        5j5LvAEXwLHyCGh/2ENVqcCaOVfYKcakkP1UuqyifWZyXIrCWGyd0Ewqgp2wDjOj4e5AbhdxX4pk
+        lhN4WgI+c7nadcktapdHlaH4x9lFAgdMF5g/FAgmXEMtviIQbvZaGcIvvivJvsmjsqJsWv+OptvE
+        L/W7Q1FPMJGqDr2xg7CONpZG4zTWq0+6nnskekuZv5FxpA7x9tmj/mq4jOZHvl2lyxcze9dghyEY
+        LnUKfkqsGAWg7ZTUHxZNT8gKlfz/ICHL66A3hV+vS+ubG1blfP4CRNeazC8DAAA=
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '332'
+      X-GitHub-Request-Id:
+      - ED94:15D0:60302B:D81D13:5EC5BB67
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '58'
+      X-Ratelimit-Reset:
+      - '1590020471'
+      access-control-allow-origin:
+      - '*'
+      access-control-expose-headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
+        X-GitHub-Media-Type, Deprecation, Sunset
+      cache-control:
+      - public, max-age=60, s-maxage=60
+      content-encoding:
+      - gzip
+      content-security-policy:
+      - default-src 'none'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 20 May 2020 23:21:12 GMT
+      etag:
+      - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
+      last-modified:
+      - Wed, 20 May 2020 20:57:03 GMT
+      referrer-policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      server:
+      - GitHub.com
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=31536000; includeSubdomains; preload
+      vary:
+      - Accept, Accept-Encoding, Accept, X-Requested-With
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - deny
+      x-github-media-type:
+      - github.v3; format=json
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - PyGithub/Python
+    method: GET
+    uri: https://api.github.com/repos/stencila/test/contents/sub/README.md
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA62SX2vCMBTFv0uexXS2WhVkTCZFYYNNplAGkn9tw9KkNOlExe++260PrTCYspdA
+        Djm/3HvuPSFNcoGm6HXx8Pi06Occ9VBBXAaSrShuyzYjoPreiIUiDIXnDfwEjjsyCcgknAgWjEI+
+        5j5LvAEXwLHyCGh/2ENVqcCaOVfYKcakkP1UuqyifWZyXIrCWGyd0Ewqgp2wDjOj4e5AbhdxX4pk
+        lhN4WgI+c7nadcktapdHlaH4x9lFAgdMF5g/FAgmXEMtviIQbvZaGcIvvivJvsmjsqJsWv+OptvE
+        L/W7Q1FPMJGqDr2xg7CONpZG4zTWq0+6nnskekuZv5FxpA7x9tmj/mq4jOZHvl2lyxcze9dghyEY
+        LnUKfkqsGAWg7ZTUHxZNT8gKlfz/ICHL66A3hV+vS+ubG1blfP4CRNeazC8DAAA=
+    headers:
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '332'
+      X-GitHub-Request-Id:
+      - 728A:50FF:3865E2:402CC6:5EC5BC24
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '54'
+      X-Ratelimit-Reset:
+      - '1590018688'
+      access-control-allow-origin:
+      - '*'
+      access-control-expose-headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
+        X-GitHub-Media-Type, Deprecation, Sunset
+      cache-control:
+      - public, max-age=60, s-maxage=60
+      content-encoding:
+      - gzip
+      content-security-policy:
+      - default-src 'none'
+      content-type:
+      - application/json; charset=utf-8
+      date:
+      - Wed, 20 May 2020 23:24:20 GMT
+      etag:
+      - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
+      last-modified:
+      - Wed, 20 May 2020 20:57:03 GMT
+      referrer-policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      server:
+      - GitHub.com
+      status:
+      - 200 OK
+      strict-transport-security:
+      - max-age=31536000; includeSubdomains; preload
+      vary:
+      - Accept, Accept-Encoding, Accept, X-Requested-With, Accept-Encoding
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - deny
+      x-github-media-type:
+      - github.v3; format=json
+      x-xss-protection:
+      - 1; mode=block
+    status:
+      code: 200
+      message: OK
+version: 1

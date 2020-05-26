@@ -3,6 +3,7 @@ omit =
     */*_test.py
     conftest.py
     venv/*
+    projects/*
 
 [html]
 directory = coverage

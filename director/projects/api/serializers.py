@@ -7,7 +7,15 @@ from accounts.models import Account
 from assets.thema import themes
 from lib.resource_allowance import QuotaName, resource_limit_met
 from projects.project_models import Project, ProjectEvent, Snapshot
-from projects.source_models import Source, ElifeSource, UrlSource
+from projects.source_models import (
+    Source,
+    ElifeSource,
+    GithubSource,
+    GoogleDocsSource,
+    GoogleDriveSource,
+    PlosSource,
+    UrlSource,
+)
 
 
 class ProjectAccountField(serializers.PrimaryKeyRelatedField):
@@ -150,6 +158,34 @@ class ElifeSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class GithubSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GithubSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class GoogleDocsSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GoogleDocsSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class GoogleDriveSourceSerializer(SourceSerializer):
+    class Meta:
+        model = GoogleDriveSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class PlosSourceSerializer(SourceSerializer):
+    class Meta:
+        model = PlosSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class UrlSourceSerializer(SourceSerializer):
     class Meta:
         model = UrlSource
@@ -165,6 +201,10 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
     model_serializer_mapping = {
         Source: SourceSerializer,
         ElifeSource: ElifeSourceSerializer,
+        GithubSource: GithubSourceSerializer,
+        GoogleDocsSource: GoogleDocsSourceSerializer,
+        GoogleDriveSource: GoogleDriveSourceSerializer,
+        PlosSource: PlosSourceSerializer,
         UrlSource: UrlSourceSerializer,
     }
 

@@ -13,7 +13,6 @@ from socket import gethostbyname
 from urllib.parse import urlparse, urljoin, unquote
 
 import requests
-from allauth.socialaccount.models import SocialApp
 from django.core.exceptions import ValidationError
 from django.http.multipartparser import parse_header
 from googleapiclient.errors import HttpError
@@ -130,9 +129,8 @@ class ServiceItem(typing.NamedTuple):
 def fetch_google_docs_content(
     service_item: ServiceItem,
 ) -> typing.Tuple[str, ConverterIo]:
-    google_app = SocialApp.objects.filter(provider="google").first()
 
-    gdf = GoogleDocsFacade(google_app.client_id, google_app.secret)
+    gdf = GoogleDocsFacade()
     document = gdf.get_document(service_item.item_id)
     with tempfile.NamedTemporaryFile(delete=False) as download_to:
         download_to.write(json.dumps(document).encode("utf-8"))
