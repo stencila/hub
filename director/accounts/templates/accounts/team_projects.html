@@ -20,10 +20,10 @@
             </delete-confirm-modal>
             {% if total_project_count == 0 or unassigned_projects|length == 0 %}
                 {% if total_project_count == 0 %}
-                    <p>There are no Projects for this account, please <a href="{% url 'project_create' %}">create a
+                    <p>There are no Projects for this organisation, please <a href="{% url 'project_create' %}">create a
                         Project</a>, then come back here to grant this Team access to it.</p>
                 {% else %}
-                    <p>This team already has access to all projects in this Account.</p>
+                    <p>This team already has access to all projects in this Organisation.</p>
                     <br>
                 {% endif %}
             {% else %}

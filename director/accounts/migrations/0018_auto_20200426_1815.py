@@ -2,9 +2,9 @@
 
 from django.db import migrations, models
 
-ACCOUNT_MEMBER_NAME = "Account member"
-ACCOUNT_ADMIN_NAME = "Account admin"
-ACCOUNT_VIEWER_NAME = "Account viewer"
+ACCOUNT_MEMBER_NAME = "member"
+ACCOUNT_ADMIN_NAME = "admin"
+ACCOUNT_VIEWER_NAME = "viewer"
 
 MODIFY_PERMISSION = "modify"
 ADMINISTER_PERMISSION = "administer"

@@ -21,12 +21,12 @@
         </div>
 
     </nav>
-    
+
     <div class="columns">
         <div class="column" style="flex: none; width: 228px">
-                <nav class="panel">
-                    {% for filter_option in filter_options %}
-                    <a href="{{ request.path }}?filter={{ filter_option.key }}"
+            <nav class="panel">
+                {% for filter_option in filter_options %}
+                <a href="{{ request.path }}?filter={{ filter_option.key }}"
                     class="panel-block{% if filter_option == filter %} is-active{% endif %}">
                     {{ filter_option.label }}
                 </a>
@@ -36,9 +36,12 @@
         <div class="column">
             <nav class="level has-margin-small">
                 <div class="level-left">
-                    <h2 class="title">
-                        Projects 
+                  <div class="level-item is-block">
+                    <h2 class="title is-spaced">
+                        Projects
                     </h2>
+                    <div class="subtitle">{{filter.description|capfirst}}</div>
+                  </div>
                 </div>
                 <div class="level-right">
                     {% if request.user.is_authenticated %}
@@ -51,6 +54,7 @@
                     {% endif %}
                 </div>
             </nav>
+            <hr>
             <p class="subtitle">
                 <strong>{{ object_list.count }}</strong> project{{ object_list.count|pluralize }}
             </p>

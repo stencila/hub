@@ -30,9 +30,9 @@ def create_roles():
     role definitions do not diverge from those used in prod databases.
     """
     account_roles = (
-        ("Account member", ("modify", "view")),
-        ("Account admin", ("modify", "administer", "view")),
-        ("Account viewer", ("view",)),
+        ("member", ("modify", "view")),
+        ("admin", ("modify", "administer", "view")),
+        ("viewer", ("view",)),
     )
     for role_name, role_permissions in account_roles:
         role, created = AccountRole.objects.get_or_create(name=role_name)
@@ -105,7 +105,7 @@ class DatabaseTestCase(test.APITestCase):
             instance, token = AuthToken.objects.create(user=user)
             setattr(self, "{}_token".format(username), token)
 
-            account = Account.objects.get(name="{}-personal-account".format(username))
+            account = Account.objects.get(name="{}".format(username))
             setattr(self, "{}_account".format(username), account)
 
             public, _ = Project.objects.get_or_create(

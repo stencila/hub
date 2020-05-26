@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Account{% endblock %}
+{% block title %}Organisations{% endblock %}
 
 {% block content %}
     <nav class="breadcrumb" aria-label="breadcrumbs">
         <ul>
             {% block breadcrumb_items %}
                 <li><a href="/">Home</a></li>
-                <li><a href="{% url 'account_list' %}">Accounts</a></li>
+                <li><a href="{% url 'account_list' %}">Organisations</a></li>
             {% endblock %}
         </ul>
     </nav>
     <hr>
     <div class="columns is-centered">
         <div class="column is-three-quarters">
-            <h2 class="title">Create a new account</h2>
-            <p> You can have multiple accounts. When creating an account you will automatically be added as its
+            <h2 class="title">Create a new organisation</h2>
+            <p> You can have multiple organisations. When creating an organisation you will automatically be added as its
                 Administrator. You can
-                give other users access to the account in the account settings. Please note that account names must be
+                give other users access to the organisation in the organisation settings. Please note that organisation names must be
                 unique throughout the whole Stencila Hub. </p>
             <br>
             {% crispy form %}

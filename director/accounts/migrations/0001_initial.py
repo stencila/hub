@@ -6,8 +6,8 @@ import django.db.models.deletion
 from django.utils.text import slugify
 from django.db import IntegrityError
 
-ACCOUNT_MEMBER_NAME = 'Account member'
-ACCOUNT_ADMIN_NAME = 'Account admin'
+ACCOUNT_MEMBER_NAME = 'member'
+ACCOUNT_ADMIN_NAME = 'admin'
 MODIFY_PERMISSION = 'modify'
 ADMINISTER_PERMISSION = 'administer'
 

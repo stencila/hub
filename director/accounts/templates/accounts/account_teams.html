@@ -1,11 +1,11 @@
 {% extends 'accounts/account_base.html' %}
 {% load account_permissions resource_allowance %}
-{% block title %}Account {{ account.name }} : Teams{% endblock %}
+{% block title %}Organisation {{ account.name }} : Teams{% endblock %}
 {% block account_content %}
     {% if account|resource_limit:'max_teams' == 0 %}
         {# this section for if the account has no team quota #}
         <div class="column">
-            This account&rsquo;s current subscription does not support
+            This organisation&rsquo;s current subscription does not support
             teams. {% include "accounts/_subscription_upgrade_message.html" with account=account is_admin=is_account_admin %}
         </div>
     {% else %}

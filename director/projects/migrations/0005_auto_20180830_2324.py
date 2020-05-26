@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
-ACCOUNT_ADMIN_NAME = 'Account admin'
+ACCOUNT_ADMIN_NAME = 'admin'
 
 PERMISSION_VIEW = 'view'
 PERMISSION_COMMENT = 'comment'

@@ -97,37 +97,27 @@ checks = [
         ada=title("Change Username : Stencila")
     ),
     Check(
-        "/accounts",
+        "/organisations/",
         anon=signin,
-        ada=[title("Account  : Teams"), link(reverse("account_create"))],
+        ada=[title("Organisation : Teams"), link(reverse("account_create"))],
     ),
     Check(
-        "/ada-personal-account",
+        "/ada",
         anon=signin,
-        ada=title("Account ada-personal-account")
+        ada=title("Organisation ada")
     ),
     Check(
-        "/ada-personal-account/members",
+        "/ada/settings",
         anon=signin,
-        ada=title("Account ada-personal-account : Members"),
+        ada=title("Organisation ada : Settings")
     ),
     Check(
-        "/ada-personal-account/teams",
+        "/ada/subscriptions",
         anon=signin,
-        ada=title("Account ada-personal-account : Teams")
+        ada=title("Organisation ada : Subscriptions"),
     ),
     Check(
-        "/ada-personal-account/settings",
-        anon=signin,
-        ada=title("Account ada-personal-account : Settings")
-    ),
-    Check(
-        "/ada-personal-account/subscriptions",
-        anon=signin,
-        ada=title("Account ada-personal-account : Subscriptions"),
-    ),
-    Check(
-        "/ada-personal-account/subscriptions/add",
+        "/ada/subscriptions/add",
         anon=signin,
         ada="plan"
     ),
@@ -137,45 +127,45 @@ checks = [
         ada=[title("Projects"), link(reverse("project_create"))],
     ),
     Check(
-        "/ada-personal-account/ada-public-project",
+        "/ada/ada-public-project",
         # Default view is files
         anon=title("Project ada-public-project : Files"),
         ada=title("Project ada-public-project : Files"),
         bob=title("Project ada-public-project : Files")
     ),
     Check(
-        "/ada-personal-account/ada-private-project",
+        "/ada/ada-private-project",
         anon=403,
         # Default view is files
         ada=title("Project ada-private-project : Files"),
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/files",
+        "/ada/ada-private-project/files",
         anon=403,
         ada=title("Project ada-private-project : Files"),
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/snapshots",
+        "/ada/ada-private-project/snapshots",
         anon=403,
         ada=title("Project ada-private-project : Snapshots"),
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/jobs",
+        "/ada/ada-private-project/jobs",
         anon=403,
         ada=title("Project ada-private-project : Jobs"),
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/sharing",
+        "/ada/ada-private-project/sharing",
         anon=403,
         ada=title("Project ada-private-project : Sharing"),
         bob=403
     ),
     Check(
-        "/ada-personal-account/ada-private-project/settings",
+        "/ada/ada-private-project/settings",
         anon=403,
         ada=title("Project ada-private-project : Settings"),
         bob=403

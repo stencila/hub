@@ -1,6 +1,6 @@
 {% extends 'accounts/account_base.html' %}
 {% load static %}
-{% block title %}Account {{ account.name }} : Members{% endblock %}
+{% block title %}Organisation {{ account.name }} : Members{% endblock %}
 {% block account_content %}
     <section id="account-access" class="column">
         <delete-confirm-modal
@@ -10,13 +10,13 @@
                 :delete-id-value="deleteRoleId"
                 delete-button-label="Remove"
                 @modal-hide="hideDeleteModal()">
-            <template slot="title">Remove account access?</template>
+            <template slot="title">Remove organisation access?</template>
             <template slot="csrf_token">{% csrf_token %}</template>
-            <template slot="body">Are you sure you want to remove access to this account for user <em>[[
+            <template slot="body">Are you sure you want to remove access to this organisation for user <em>[[
                 deleteRoleUsername ]]</em>?
             </template>
         </delete-confirm-modal>
-        <p class="is-uppercase-heading has-bottom-margin">Add people to account</p>
+        <p class="is-uppercase-heading has-bottom-margin">Add people to organisation</p>
         <form method="POST" class="field">
             {% csrf_token %}
             <div class="columns">
@@ -36,13 +36,13 @@
                             </div>
                         </div>
                         <a href="javascript:void(0)" class="help tooltip-link">
-                            How do account roles differ?
+                            How do organisation roles differ?
                             <span class="tooltip-q">?
                                 <div class="tooltip" style="z-index: 100">
-                                    <p class="is-uppercase-heading has-bottom-margin">Account roles</p>
+                                    <p class="is-uppercase-heading has-bottom-margin">Organisation roles</p>
                                     <p>
-                                        Account <strong>members</strong> can add projects to the account; <strong>admins</strong> can also make
-                                        other users members of an account, add teams to the account, and change account settings.
+                                        Organisation <strong>members</strong> can add projects to the organisation; <strong>admins</strong> can also make
+                                        other users members of an organisation, add teams to the organisation, and change organisation settings.
                                     </p>
                                 </div>
                             </span>

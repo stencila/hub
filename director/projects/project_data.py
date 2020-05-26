@@ -16,7 +16,9 @@ class FilterOption(typing.NamedTuple):
 FILTER_OPTIONS = (
     FilterOption("created", "Created by me", "Projects that were created by you."),
     FilterOption(
-        "account", "Account projects", "Projects owned by Accounts to which you belong."
+        "organisation",
+        "Org. projects",
+        "Projects owned by Organisations to which you belong.",
     ),
     FilterOption(
         "shared",
@@ -43,7 +45,7 @@ def get_projects(
         projects = Project.objects.filter(public=True)
         filter_key = "public"
     else:
-        if filter_key == "account":
+        if filter_key == "organisation":
             accounts = fetch_accounts_for_user(user)
             projects = Project.objects.filter(account__in=accounts)
         elif filter_key == "shared":

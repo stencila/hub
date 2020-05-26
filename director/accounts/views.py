@@ -10,7 +10,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import View, ListView, CreateView, UpdateView
+from django.views.generic import View, ListView, CreateView, RedirectView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm, AccountCreateForm
@@ -163,6 +163,9 @@ class AccountAccessView(AccountPermissionsMixin, View):
     def get(self, request: HttpRequest, account_name: str) -> HttpResponse:
         self.perform_account_fetch(request.user, account_name)
 
+        if self.account.user is not None:
+            return redirect("account_redirect", self.account.id)
+
         if not self.has_permission(AccountPermissionType.ADMINISTER):
             raise PermissionDenied
 
@@ -246,7 +249,7 @@ class AccountAccessView(AccountPermissionsMixin, View):
                         AccountUserRole.objects.update_or_create(
                             {"role": role}, user=user, account=account
                         )
-                        messages.success(request, "Account access updated.")
+                        messages.success(request, "Organisation access updated.")
         elif request.POST.get("action") == "delete_access":
             account_user_role = AccountUserRole.objects.get(
                 pk=request.POST["user_role_id"]
@@ -325,7 +328,7 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
     def form_valid(self, form):
         """If the account creation form is valid them make the current user the account creator."""
         self.object = form.save()
-        admin_role = AccountRole.objects.get(name="Account admin")
+        admin_role = AccountRole.objects.get(name="admin")
         AccountUserRole.objects.create(
             role=admin_role, account=self.object, user=self.request.user
         )
@@ -333,3 +336,10 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
 
     def get_success_url(self) -> str:
         return reverse("account_profile", args=(self.object.name,))
+
+
+class OrganisationRedirectView(RedirectView):
+    """Redirect to /organisation - intended as redirect from /accounts."""
+
+    permanent = True
+    pattern_name = "account_list"

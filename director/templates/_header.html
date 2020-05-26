@@ -1,4 +1,4 @@
-{% load static avatar_tags %}
+{% load static avatar_tags user_profile %}
 
 <header class="header">
     <nav id="{{ navbar_id|default:'navbar' }}" class="navbar main-navbar is-shadowless is-fixed-top border-bottom-light"
@@ -41,11 +41,17 @@
                                                 <figure class="logo image is-24x24">
                                                     {% avatar user 24 %}
                                                 </figure>
-                                                <span style="margin: 0 0.5em">{{ user.username }}</span>
+
+                                                {% if user_profile_link != "" %}
+                                                  <a href="{% user_profile_link %}" class="mx-2 has-text-white">{{ user.username }}</a>
+                                                {% else %}
+                                                  <span class="mx-2">{{ user.username }}</span>
+                                                {% endif %}
+
                                             </header>
                                             <div class="dropdown-items">
                                                 <a class="dropdown-item" href="{% url 'project_list' %}">Projects</a>
-                                                <a class="dropdown-item" href="{% url 'account_list' %}">Accounts</a>
+                                                <a class="dropdown-item" href="{% url 'account_list' %}">Organisations</a>
                                                 {% if user.is_staff %}
                                                     <a class="dropdown-item" href="{% url 'admin:index' %}"
                                                        target="_blank" rel="noopener">Admin site</a>

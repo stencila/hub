@@ -4,7 +4,7 @@
     <nav class="breadcrumb" aria-label="breadcrumbs">
         <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="{% url 'account_list' %}">Accounts</a></li>
+            <li><a href="{% url 'account_list' %}">Organisations</a></li>
             <li><a href="{% url 'account_profile' project.account.name %}">{{ project.account.name }}</a></li>
             <li><a href="{% url 'project_overview' project.account.name project.name %}">{{ project.name }}</a></li>
         </ul>

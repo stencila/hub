@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Account {{ account.name }} : Teams{% endblock %}
+{% block title %}Organisation : Teams{% endblock %}
 {% block content %}
     <div class="level">
         <div class="level-left">
@@ -7,7 +7,7 @@
                 <nav class="breadcrumb" aria-label="breadcrumbs">
                     <ul>
                         <li><a href="/">Home</a></li>
-                        <li><a href="{% url 'account_list' %}">Accounts</a></li>
+                        <li><a href="{% url 'account_list' %}">Organisations</a></li>
                     </ul>
                 </nav>
             </div>
@@ -16,7 +16,7 @@
             <p class="level-item">
                 <a class="button is-primary" href="{% url 'account_create' %}">
                     <span class="icon"><i class="fas fa-plus"></i></span>
-                    <span>New Account</span>
+                    <span>New Organisation</span>
                 </a>
             </p>
         </div>
@@ -27,6 +27,7 @@
             <table class="table is-fullwidth is-item-list">
                 <tbody>
                 {% for account_role in object_list %}
+                  {% if not account_role.account.is_personal %}
                     <tr>
                         <td>
                             <a class="is-uppercase-heading"
@@ -40,6 +41,7 @@
                             {{ account_role.account.plan.product.name }} Plan
                         </td>
                     </tr>
+                  {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

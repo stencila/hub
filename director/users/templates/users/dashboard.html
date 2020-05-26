@@ -61,32 +61,4 @@
           </div>
       </div>
     </div>
-    {% comment %} <div class="card">
-        <div class="card-content">
-          {% url 'account_create' as account_url %}
-          {% include 'users/_dashboard-header.html' with icon="fa-people-carry" name="Accounts" url=account_url buttonName="New Account" %}
-          <div class="content">
-              <div class="level">
-                  <div class="level-left">
-                      Account Name
-                  </div>
-                  <div class="level-right">
-                      Your Role
-                  </div>
-              </div>
-              {% for account_role in account_roles %}
-                  <div class="level">
-                      <div class="level-left">
-                          <a href="{% url 'account_profile' account_role.account.name %}">
-                              {{ account_role.account.name }}
-                          </a>
-                      </div>
-                      <div class="level-right">
-                          {{ account_role.role }}
-                      </div>
-                  </div>
-              {% endfor %}
-          </div>
-        </div>
-    </div> {% endcomment %}
 {% endblock %}

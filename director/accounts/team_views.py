@@ -145,6 +145,9 @@ class TeamListView(AccountPermissionsMixin, View):
         self.request_permissions_guard(request, account_name)
         # Assume if they have any Roles for the Account they have access to this page
 
+        if self.account.user is not None:
+            return redirect("account_redirect", self.account.id)
+
         return render(
             request,
             "accounts/account_teams.html",

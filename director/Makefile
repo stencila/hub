@@ -33,7 +33,7 @@ venv: requirements.txt  requirements-dev.txt package.json
 	$(VE)/pip3 install -r requirements.txt
 	$(VE)/pip3 install -r requirements-dev.txt
 	touch venv
-	npm install
+	(cd ../; npm install; npm run start &)
 
 # Build any static files
 # Needs `venv` to setup virtualenv for Django collectstatic

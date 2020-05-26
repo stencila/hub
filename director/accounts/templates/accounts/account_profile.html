@@ -1,23 +1,12 @@
 {% extends 'accounts/account_base.html' %}
 {% load avatar_tags %}
-{% block title %}Account {{ account.name|default:account.pk }}{% endblock %}
+{% block title %}Organisation {{ account.name|default:account.pk }}{% endblock %}
 {% block account_content %}
     <div class="column">
         <div class="columns is-multiline">
             <div class="column is-full is-three-quarters-desktop">
                 <div class="level">
-                    <div class="level-left">
-                        <div class="level-item">
-                            <p class="subtitle">
-                                {% if projects.count == 0 %}
-                                    This account has no projects
-                                {% else %}
-                                    This account has <strong>{{ projects.count }}</strong> project{{ projects.count|pluralize }}
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="level-right">
+                    <div class="level-right ml-auto">
                         <p class="level-item">
                             <a class="button is-primary"
                                href="{% url 'project_create' %}?account_id={{ account.pk }}">
@@ -51,6 +40,7 @@
                 </div>
             </div>
             <div class="column">
+              {% if not account.is_personal %}
                 <div class="panel">
                     <div class="panel-heading">
                         Users
@@ -71,7 +61,7 @@
                         </div>
                     {% empty %}
                         <div class="panel-block">
-                            There are no users linked to this account.
+                            There are no users linked to this organisation.
                         </div>
                     {% endfor %}
                 </div>
@@ -89,10 +79,11 @@
                         </div>
                     {% empty %}
                         <div class="panel-block">
-                            There are no teams linked to this account.
+                            There are no teams linked to this organisation.
                         </div>
                     {% endfor %}
                 </div>
+              {% endif %}
             </div>
         </div>
     </div>

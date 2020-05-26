@@ -4,7 +4,9 @@
         <ul>
             {% block breadcrumb_items %}
                 <li><a href="/">Home</a></li>
-                <li><a href="{% url 'account_list' %}">Accounts</a></li>
+                {% if not account.is_personal %}
+                <li><a href="{% url 'account_list' %}">Organisations</a></li>
+                {% endif %}
                 <li><a href="{% url 'account_profile' account.name %}">{{ account.name }}</a></li>
             {% endblock %}
         </ul>

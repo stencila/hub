@@ -7,7 +7,7 @@ Against which the usage of the computational resources is metered.
 import typing
 
 import djstripe.models
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import AbstractUser
 from django.db import models, IntegrityError
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
@@ -15,6 +15,8 @@ from django.utils.text import slugify
 
 from lib.data_cleaning import clean_slug, SlugType
 from lib.enum_choice import EnumChoice
+
+from users.models import User
 
 
 class AccountPermissionType(EnumChoice):
@@ -62,20 +64,20 @@ class Account(models.Model):
 
     Accounts are the entity against which resource usage is metered.
     Every user has their own personal account.
-    Users can create additional accounts.
+    Organisations can create accounts.
     """
 
     name = models.SlugField(
         null=False,
         blank=False,
         unique=True,
-        help_text="Name of the account. Must be unique.",
+        help_text="Name of the organisation. Must be unique.",
     )
 
     logo = models.ImageField(
         null=True,
         blank=True,
-        help_text="Logo for the account. Please use an image that is 100 x 100 px or smaller.",
+        help_text="Logo for the organisation. Please use an image that is 100 x 100 px or smaller.",
     )
 
     theme = models.TextField(
@@ -91,6 +93,15 @@ class Account(models.Model):
         blank=True,
         help_text="A space separated list of valid hosts for the account."
         "Used for setting Content Security Policy headers when serving content for this account.",
+    )
+
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="account_user",
+        help_text="When set, this is the user assigned to a 'personal' account.",
     )
 
     def save(self, *args, **kwargs) -> None:
@@ -133,6 +144,11 @@ class Account(models.Model):
 
         return subscription.subscription.plan
 
+    @property
+    def is_personal(self) -> bool:
+        """Check for personal account type."""
+        return self.user is not None
+
 
 class Team(models.Model):
     """
@@ -164,18 +180,16 @@ class Team(models.Model):
 
 
 class AccountRole(models.Model):
-    """Roles linked to the Account, depending on their `AccountPermissionType`."""
+    """Roles linked to the Organisation, depending on their `AccountPermissionType`."""
 
     name = models.TextField(
-        null=False,
-        blank=False,
-        help_text="The name of the account role e.g 'Account admin'",
+        null=False, blank=False, help_text="The name of the role e.g 'admin'",
     )
 
     permissions = models.ManyToManyField(
         AccountPermission,
         related_name="roles",
-        help_text="One or more account permissions that the role has e.g `ADMINISTER`.",
+        help_text="One or more permissions that the role has e.g `ADMINISTER`.",
     )
 
     def permissions_text(self) -> typing.Set[str]:
@@ -256,7 +270,7 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
     Create a personal account for a user.
 
     Called when a new `User` is created and saved.
-    Makes sure each user has a Personal `Account` that they are an `Account admin` on so that their `Projects` can be
+    Makes sure each user has a Personal `Account` that they are an `admin` on so that their `Projects` can be
     linked to an `Account`.
     """
     if sender is User and created:
@@ -266,9 +280,12 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
             if suffix_number == 100:
                 raise RuntimeError("Suffix number hit 100.")
 
-            account_name = "{}-personal-account{}".format(
-                slugify(instance.username), suffix
-            )[:50]
+            account_name = "{}".format(slugify(instance.username))[:50]
+
+            if suffix:
+                account_name = "{}".format(suffix)[:50]
+
+            account_name = "admin-user" if account_name == "admin" else account_name
 
             try:
                 account = Account.objects.create(name=account_name)
@@ -277,7 +294,9 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
                 suffix = "-{}".format(suffix_number)
                 suffix_number += 1
 
-        admin_role = AccountRole.objects.get(name="Account admin")
+        account.user = instance
+        account.save()
+        admin_role = AccountRole.objects.get(name="admin")
         AccountUserRole.objects.create(role=admin_role, account=account, user=instance)
 
 

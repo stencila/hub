@@ -154,7 +154,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
             messages.error(
                 self.request,
-                "A project can not be created for the Account <em>{}</em> as it has reached the quota of "
+                "A project can not be created for the Organisation <em>{}</em> as it has reached the quota of "
                 "Projects that its subscription allows. {}".format(
                     escape(account), sub_upgrade_text
                 ),
@@ -168,7 +168,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
             sub_upgrade_text = get_subscription_upgrade_text(is_account_admin, account)
             messages.error(
                 self.request,
-                "This Project must be made public as the subscription for the Account <em>{}</em> does not "
+                "This Project must be made public as the subscription for the Organisation <em>{}</em> does not "
                 "allow private Projects. {}".format(escape(account), sub_upgrade_text),
                 extra_tags="safe",
             )

@@ -1,5 +1,5 @@
 {% extends 'accounts/account_base.html' %}
-{% block title %}Account {{ account.name }} : Subscriptions{% endblock %}
+{% block title %}Organisation {{ account.name }} : Subscriptions{% endblock %}
 {% block scripts %}
     {{ block.super }}
     <script src="https://js.stripe.com/v3/"></script>
@@ -121,7 +121,7 @@
     <section class="column" id="payment-container">
         <p class="title is-capitalized">Subscription Purchase: {{ plan }}</p>
         <div class="stacked-item">
-            <p>You are subscribing the account <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
+            <p>You are subscribing the organisation <em>{{ account }}</em> to a <strong>{{ plan }}</strong> subscription.</p>
         </div>
         <div class="stacked-item">
             <h4 class="title is-4">1. Select Email Address</h4>

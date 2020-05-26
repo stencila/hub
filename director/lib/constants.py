@@ -10,6 +10,7 @@ class UrlRoot(enum.Enum):
 
     about = "about"
     accounts = "accounts"
+    organisations = "organisations"
     admin = "admin"
     api = "api"
     debug = "debug"

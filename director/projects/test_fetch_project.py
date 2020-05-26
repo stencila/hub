@@ -33,8 +33,8 @@ class TestFetchProjectForUser(DatabaseTestCase):
             account=account2, creator=self.user1, name="project3"
         )
 
-        account_member_role = AccountRole.objects.get(name="Account member")
-        account_admin_role = AccountRole.objects.get(name="Account admin")
+        account_member_role = AccountRole.objects.get(name="member")
+        account_admin_role = AccountRole.objects.get(name="admin")
 
         AccountUserRole.objects.create(
             user=self.user1, account=account, role=account_member_role
