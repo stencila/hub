@@ -18,8 +18,8 @@ class HomeView(View):
     """
 
     def get(self, request: HttpRequest, *args, **kwargs):
-        # Send OK to Google's health checker which always hits /
-        # despite sentings to the contrary.
+        # Send OK to Google's health checker which always hits "/"
+        # despite settings to the contrary.
         # This is a known bug being tracked here:
         # https://github.com/kubernetes/ingress-gce/issues/42
         # https://github.com/ory/k8s/issues/113#issuecomment-596281449
