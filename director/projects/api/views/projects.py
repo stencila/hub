@@ -19,18 +19,13 @@ from rest_framework.response import Response
 
 from accounts.models import AccountUserRole
 from general.api.negotiation import IgnoreClientContentNegotiation
-from projects.api.serializers import ProjectSerializer
+from projects.api.serializers import (
+    ProjectSerializer,
+    ProjectCreateSerializer,
+    ProjectDestroySerializer,
+)
 from projects.models import Project, Source
 from projects.views.mixins import ProjectPermissionsMixin, ProjectPermissionType
-
-
-class ProjectCreateRequestSerializer(serializers.ModelSerializer):
-    """The request data when creating a project."""
-
-    class Meta:
-        model = Project
-        fields = ["account", "name", "description", "public"]
-        ref_name = None
 
 
 class ProjectsViewSet(
@@ -43,19 +38,18 @@ class ProjectsViewSet(
 
     # Configuration
 
-    content_negotiation_class = IgnoreClientContentNegotiation
-    serializer_class = ProjectSerializer
-
-    project_permission_required = ProjectPermissionType.VIEW
-
     def get_permissions(self):
         """
         Get the list of permissions that the current action requires.
 
         - `list` and `retrieve`: auth not required but access denied for private projects
-        - `create`: auth required
+        - `create` and `update`: auth required
         """
-        return [permissions.IsAuthenticated()] if self.action == "create" else []
+        return (
+            [permissions.IsAuthenticated()]
+            if self.action in ["create", "update"]
+            else []
+        )
 
     def get_queryset(self) -> QuerySet:
         """Get the projects that the current user has access to."""
@@ -65,6 +59,14 @@ class ProjectsViewSet(
             Q(public=True)
             # TODO: Add Qs for other access
         )
+
+    def get_serializer_class(self):
+        """
+        Override of `GenericAPIView.get_serializer_class`.
+
+        Returns different serializers for different views.
+        """
+        return ProjectCreateSerializer if self.action == "create" else ProjectSerializer
 
     # Views
 
@@ -98,10 +100,6 @@ class ProjectsViewSet(
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
-    @swagger_auto_schema(
-        request_body=ProjectCreateRequestSerializer,
-        responses={status.HTTP_201_CREATED: ProjectSerializer},
-    )
     def create(self, request: Request) -> Response:
         """
         Create a project.
@@ -109,7 +107,7 @@ class ProjectsViewSet(
         Receives details for the new project such as `name` and `description`.
         Returns the details of the created project.
         """
-        serializer = ProjectCreateRequestSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         account = serializer.validated_data.get("account")
@@ -141,7 +139,7 @@ class ProjectsViewSet(
         )
 
         serializer = self.get_serializer(project)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data)
 
     def retrieve(self, request: Request, pk: int) -> Response:
         """
@@ -149,7 +147,47 @@ class ProjectsViewSet(
 
         Returns details of project, including `name` and `description`.
         """
-        # Check that the user has VIEW permissions for the project
-        project = self.get_project(request.user, pk=pk)
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.VIEW
+        )
+
         serializer = self.get_serializer(project)
         return Response(serializer.data)
+
+    def partial_update(self, request: Request, pk: int) -> Response:
+        """
+        Update a project.
+
+        Receives details of the project.
+        Returns updated details of project.
+        """
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.MANAGE
+        )
+
+        serializer = self.get_serializer(project, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+
+    def destroy(self, request: Request, pk: int) -> Response:
+        """
+        Destroy a project.
+
+        Requires the user to be an owner of the project.
+        Uses the `ProjectDestroySerializer` to require confirmation
+        that the project is to be destroyed.
+        """
+        project = self.request_permissions_guard(
+            request, pk=pk, permission=ProjectPermissionType.OWN
+        )
+
+        serializer = ProjectDestroySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data["name"] != project.name:
+            raise ValidationError("Provided name is not the same as the project name.")
+
+        project.delete()
+
+        return Response()

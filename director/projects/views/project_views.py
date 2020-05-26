@@ -8,13 +8,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
-from django.forms import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.html import escape
-from django.views.generic import View, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import View, TemplateView, UpdateView, DetailView
 from github import RateLimitExceededException
 
 from accounts.db_facade import user_is_account_admin
@@ -27,6 +25,11 @@ from lib.resource_allowance import (
 )
 from lib.social_auth_token import user_github_token, user_supported_social_providers
 from projects import parameters_presets
+from projects.api.serializers import (
+    ProjectSerializer,
+    ProjectCreateSerializer,
+    ProjectDestroySerializer,
+)
 from projects.models import Project
 from projects.permission_models import (
     ProjectPermissionType,
@@ -37,9 +40,7 @@ from projects.permission_models import (
 )
 from projects.project_data import get_projects, FilterOption, FILTER_OPTIONS
 from projects.project_forms import (
-    ProjectCreateForm,
     ProjectSharingForm,
-    ProjectSettingsForm,
     ProjectSettingsSessionsForm,
 )
 from projects.source_models import (
@@ -104,88 +105,15 @@ class ProjectListView(View):
         )
 
 
-def project_save(form: ModelForm, saveable: typing.Union[ModelForm, Project]) -> bool:
-    """Try to save the `saveable`, and handle the IntegrityError if raised."""
-    try:
-        saveable.save()
-        return True
-    except IntegrityError as e:
-        # We have to assume that this is due to the project name not being unique
-        if "projects_project.name" in str(e):
-            form.add_error(
-                "name",
-                'The Project name "{}" is already in use in this Account.'.format(
-                    form.cleaned_data["name"]
-                ),
-            )
-            return False
-        raise
-
-
-class ProjectCreateView(LoginRequiredMixin, CreateView):
-    form_class = ProjectCreateForm
+class ProjectCreateView(LoginRequiredMixin, TemplateView):
     template_name = "projects/project_create.html"
 
-    def get_form_kwargs(self):
-        """Pass the request through to the form so it can generate a set of accounts the user can use."""
-        kwargs = super().get_form_kwargs()
-        kwargs["request"] = self.request
-
-        if "account_id" in self.request.GET:
-            # set the initial account if passed in through a GET request (e.g. the link on the Account profile page)
-            initial = kwargs.get("initial", {})
-            initial["account"] = self.request.GET["account_id"]
-            kwargs["initial"] = initial
-
-        return kwargs
-
-    def form_valid(self, form):
-        """
-        Check if the account to which the Project is assigned is allowed more Projects.
-
-        If the project creation form is valid them make the current user the project creator.
-        """
-        account = form.cleaned_data["account"]
-
-        is_account_admin = user_is_account_admin(self.request.user, account)
-
-        if resource_limit_met(account, QuotaName.MAX_PROJECTS):
-            sub_upgrade_text = get_subscription_upgrade_text(is_account_admin, account)
-
-            messages.error(
-                self.request,
-                "A project can not be created for the Account <em>{}</em> as it has reached the quota of "
-                "Projects that its subscription allows. {}".format(
-                    escape(account), sub_upgrade_text
-                ),
-                extra_tags="safe",
-            )
-            return self.form_invalid(form)
-
-        if not form.cleaned_data["public"] and resource_limit_met(
-            account, QuotaName.MAX_PRIVATE_PROJECTS
-        ):
-            sub_upgrade_text = get_subscription_upgrade_text(is_account_admin, account)
-            messages.error(
-                self.request,
-                "This Project must be made public as the subscription for the Account <em>{}</em> does not "
-                "allow private Projects. {}".format(escape(account), sub_upgrade_text),
-                extra_tags="safe",
-            )
-            return self.form_invalid(form)
-
-        self.object = form.save(commit=False)
-        self.object.creator = self.request.user
-
-        if not project_save(form, self.object):
-            return self.form_invalid(form)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "project_overview", args=(self.object.account.name, self.object.name)
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data["project_serializer"] = ProjectCreateSerializer(
+            context=dict(request=self.request)
         )
+        return context_data
 
 
 class ProjectOverviewView(ProjectPermissionsMixin, DetailView):
@@ -499,27 +427,17 @@ class ProjectRoleUpdateView(ProjectPermissionsMixin, LoginRequiredMixin, View):
         return redirect("project_sharing", account_name, project_name)
 
 
-class ProjectSettingsView(ProjectPermissionsMixin, UpdateView):
+class ProjectSettingsView(ProjectPermissionsMixin, DetailView):
     model = Project
-    form_class = ProjectSettingsForm
     template_name = "projects/project_settings.html"
     project_permission_required = ProjectPermissionType.MANAGE
 
-    def get_success_url(self) -> str:
-        return reverse(
-            "project_settings", args=(self.object.account.name, self.object.name),
-        )
-
     def get_context_data(self, **kwargs):
-        context_data = super(ProjectSettingsView, self).get_context_data(**kwargs)
+        context_data = super().get_context_data(**kwargs)
         context_data["project_tab"] = ProjectTab.SETTINGS.value
+        context_data["project_serializer"] = ProjectSerializer(self.object)
+        context_data["project_destroy_serializer"] = ProjectDestroySerializer()
         return context_data
-
-    def form_valid(self, form: ModelForm):
-        """If the form is valid, save the associated model."""
-        if project_save(form, form):
-            return super().form_valid(form)
-        return super().form_invalid(form)
 
 
 class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
@@ -547,13 +465,6 @@ class ProjectSettingsSessionsView(ProjectPermissionsMixin, UpdateView):
             "project_settings_sessions",
             args=(self.object.account.name, self.object.name),
         )
-
-
-class ProjectDeleteView(ProjectPermissionsMixin, DeleteView):
-    model = Project
-    template_name = "projects/project_delete.html"
-    success_url = reverse_lazy("project_list")
-    project_permission_required = ProjectPermissionType.MANAGE
 
 
 class ProjectExecutaView(ProjectPermissionsMixin, View):

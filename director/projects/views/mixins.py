@@ -173,7 +173,7 @@ class ProjectPermissionsMixin(object):
         project_name: typing.Optional[str] = None,
         pk: typing.Optional[int] = None,
         permission: typing.Optional[ProjectPermissionType] = None,
-    ) -> None:
+    ) -> Project:
         """
         Test that the current user has a permission, raising `PermissionDenied` if not.
 
@@ -190,6 +190,8 @@ class ProjectPermissionsMixin(object):
             raise PermissionDenied(
                 "User must have {} permission to do this.".format(permission)
             )
+
+        return self.project
 
     @property
     def highest_permission(self) -> typing.Optional[ProjectPermissionType]:

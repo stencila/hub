@@ -1,0 +1,12 @@
+<div class="field">
+  <div class="control">
+    <label class="checkbox">
+      <input type="checkbox" name="{{ field.name }}" value="true" {% if field.value %}checked{% endif %}>
+        {% if field.label %}{{ field.label }}{% endif %}
+    </label>
+  </div>
+
+  {% if field.help_text %}
+    <span class="help">{{ field.help_text|safe }}</span>
+  {% endif %}
+</div>
