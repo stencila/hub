@@ -6,6 +6,18 @@ register = template.Library()
 
 
 @register.simple_tag
+def render_field(field):
+    """
+    Render a API serializer field as a form element.
+
+    This is an alternative implementation of `rest_framework`'s
+    `render_field` that does not require the `style` parameter.
+    """
+    renderer = HTMLFormRenderer()
+    return renderer.render_field(field, {})
+
+
+@register.simple_tag
 def render_form(serializer):
     """
     Render an API serializer as a form.
@@ -18,15 +30,20 @@ def render_form(serializer):
 
 
 @register.simple_tag
-def render_field(field):
-    """
-    Render a API serializer field as a form element.
-
-    This is an alternative implmenetation of `rest_framework`'s
-    `render_field` that does not require the `style` parameter.
-    """
-    renderer = HTMLFormRenderer()
-    return renderer.render_field(field, {})
+def render_submit(classes="is-primary", icon="", text="Submit"):
+    """Render a submit <button> form element."""
+    return mark_safe(
+        """
+        <button class="button {classes}" type="submit" tabindex="0">
+            <span class="icon">
+                <i class="{icon}"></i>
+            </span>
+            <span>{text}</span>
+        </button>
+    """.format(
+            classes=classes, icon=icon, text=text
+        )
+    )
 
 
 @register.simple_tag

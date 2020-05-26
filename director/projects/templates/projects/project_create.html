@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags form_helpers %}
+{% load form_helpers %}
 
 {% block title %}Project{% endblock %}
 
@@ -10,12 +10,7 @@
         <form method="POST" action="{% url 'api-projects-list' %}">
             {% csrf_token %}
             {% render_form project_serializer %}
-            <button class="button is-primary" type="submit" tabindex="0">
-                <span class="icon">
-                    <i class="fa fa-plus"></i>
-                </span>
-                <span>Create</span>
-            </button>
+            {% render_submit icon="fa fa-plus" text="Create" %}
             {% handle_form success_url="/projects/${id}" %}
         </form>
     </div>

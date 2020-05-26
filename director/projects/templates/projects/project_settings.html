@@ -16,12 +16,7 @@
             {% csrf_token %}
             {% render_field project_serializer.name %}
             {% render_field project_serializer.description %}
-            <button class="button is-primary" type="submit" tabindex="0">
-                <span class="icon">
-                    <i class="fa fa-sync"></i>
-                </span>
-                <span>Update</span>
-            </button>
+            {% render_submit icon="fa fa-sync" text="Update" %}
             {% handle_form is_update=True %}
         </form>
     </section>
@@ -32,12 +27,7 @@
         <form method="PATCH" action="{% url 'api-projects-detail' pk=project.pk %}">
             {% csrf_token %}
             {% render_field project_serializer.theme %}
-            <button class="button is-primary" type="submit" tabindex="0">
-                <span class="icon">
-                    <i class="fa fa-sync"></i>
-                </span>
-                <span>Update</span>
-            </button>
+            {% render_submit icon="fa fa-sync" text="Update" %}
             {% handle_form is_update=True %}
         </form>
     </section>
@@ -49,12 +39,8 @@
             <form method="DELETE" action="{% url 'api-projects-detail' pk=project.pk %}">
                 {% csrf_token %}
                 {% render_form project_destroy_serializer %}
-                <button class="button is-danger" type="submit" tabindex="0">
-                    <span class="icon">
-                        <i class="fa fa-trash"></i>
-                    </span>
-                    <span>Destroy</span>
-                </button>
+                {% render_submit classes="is-danger" icon="fa fa-trash" text="Destroy" %}
+                {# On success, go to home, since project no longer exists #}
                 {% handle_form success_url="/" %}
             </form>
         </section>
