@@ -48,6 +48,7 @@ services:
     image: stencila/hub-broker
     labels:
       kompose.volume.size: 10Gi
+    hostname: broker
     ports:
       - "5672:5672"
       - "15692:15692"
