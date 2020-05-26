@@ -1,3 +1,19 @@
+# [2.29.0](https://github.com/stencila/hub/compare/v2.28.0...v2.29.0) (2020-05-26)
+
+
+### Bug Fixes
+
+* **API exception handler:** Handle non-dict exception data ([c7ff9d9](https://github.com/stencila/hub/commit/c7ff9d92f85dcd5aa990430ebd3a6dd0414d9403))
+* **Director:** Project serializer to handle both create and update ([a997547](https://github.com/stencila/hub/commit/a9975479d2f9d416f0090298e183eac6d325b86b))
+* **Director:** Use form helpers for jobs cancel ([f4336c9](https://github.com/stencila/hub/commit/f4336c926a512376ca7b0ff768fba7c63da90d0d))
+
+
+### Features
+
+* **Director:** Add section to delete project to settings ([6867f9e](https://github.com/stencila/hub/commit/6867f9e6d549c3fdd6945359fb903a63df84dce6)), closes [#402](https://github.com/stencila/hub/issues/402)
+* **Director:** Better handling of errors and success URL ([1d5c5e1](https://github.com/stencila/hub/commit/1d5c5e1769f02e16f1a6dc155b0d6f32466c7d39))
+* **Director API:** Add destroy action for projects ([596f4d6](https://github.com/stencila/hub/commit/596f4d600b63e3791ace52b2c65c9f6789e5eed9))
+
 # [2.28.0](https://github.com/stencila/hub/compare/v2.27.2...v2.28.0) (2020-05-24)
 
 
