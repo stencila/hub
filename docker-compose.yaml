@@ -46,11 +46,15 @@ services:
   broker:
     build: ./broker
     image: stencila/hub-broker
+    labels:
+      kompose.volume.size: 10Gi
     ports:
       - "5672:5672"
       - "15692:15692"
     env_file:
       - .secrets
+    volumes:
+      - broker:/var/lib/rabbitmq
 
   scheduler:
     build: ./scheduler
@@ -91,5 +95,6 @@ services:
       - monitor:/prometheus
 
 volumes:
+  broker:
   monitor:
     
