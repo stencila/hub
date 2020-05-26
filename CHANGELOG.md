@@ -1,3 +1,22 @@
+## [2.29.1](https://github.com/stencila/hub/compare/v2.29.0...v2.29.1) (2020-05-26)
+
+
+### Bug Fixes
+
+* **Broker:** Add volume for presistence across restarts ([1a4411a](https://github.com/stencila/hub/commit/1a4411aba4393d4e78182b5a40eaf2cebc5b028c))
+* **deps:** update dependency google-api-python-client to v1.8.3 ([551ee4f](https://github.com/stencila/hub/commit/551ee4f9e882dd21899f2a61b0be5748d0c9c1ce))
+* **Director:** Add plos source ([fb72b45](https://github.com/stencila/hub/commit/fb72b452be31bf9f213c7de17e2bc10627dcebfe))
+* **Director:** Do not force rediret internal API endpoints ([914ba90](https://github.com/stencila/hub/commit/914ba9046dc193d1f34f01956e3d107dd1ed6416))
+* **Director:** Trigger gdoc pull job from source ([1efa569](https://github.com/stencila/hub/commit/1efa569226a00b9373ec4f1951333b2d8f4feaa4))
+* **Director:** Trigger github pull job from source ([f4c7c8c](https://github.com/stencila/hub/commit/f4c7c8c1a52e5f5c479604b848eb318c0741cc21))
+* **Director:** Trigger pull job from GDrive source ([7f37a52](https://github.com/stencila/hub/commit/7f37a52e36122d33c03917a3f23c8da311b3a8bf))
+* **Worker:** Google docs pull job ([692ec41](https://github.com/stencila/hub/commit/692ec4163ee48c0927cf34a4a159046f082d206f))
+* **Worker:** Pull from github sources ([423c3aa](https://github.com/stencila/hub/commit/423c3aa2f0c8ca6ec83526d1a63254a4b3517d2d))
+* **Worker:** Pull into a subdirectory ([cfb2d75](https://github.com/stencila/hub/commit/cfb2d753a2de816f077771812ca9a54a511a370e))
+* **Worker:** Pull job for Google Drive folder ([e97efac](https://github.com/stencila/hub/commit/e97efacea885fa6fb8690729107a2bc2a88b8994))
+* **Worker:** Pull single file from github ([78b8361](https://github.com/stencila/hub/commit/78b83616927383aba7c75511bf61c574e85dc227))
+* **Worker:** Push job for google doc ([06511d7](https://github.com/stencila/hub/commit/06511d7f559fefa43fd528a56464313455052c1d))
+
 # [2.29.0](https://github.com/stencila/hub/compare/v2.28.0...v2.29.0) (2020-05-26)
 
 
