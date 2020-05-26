@@ -1,3 +1,10 @@
+## [2.29.2](https://github.com/stencila/hub/compare/v2.29.1...v2.29.2) (2020-05-26)
+
+
+### Bug Fixes
+
+* **Worker:** Do not ignore util ([249b7a8](https://github.com/stencila/hub/commit/249b7a8795ebc36d1785a3afbe4bb59f2b9904b4))
+
 ## [2.29.1](https://github.com/stencila/hub/compare/v2.29.0...v2.29.1) (2020-05-26)
 
 
