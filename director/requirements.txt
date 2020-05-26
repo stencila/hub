@@ -23,7 +23,7 @@ djangorestframework-camel-case==1.1.2
 djangorestframework-jwt==1.11.0
 djangorestframework==3.11.0
 drf-yasg==1.17.1
-google-api-python-client==1.8.2
+google-api-python-client==1.8.3
 google-cloud-storage==1.19.1
 inflect==4.1.0
 oauth2client==4.1.3
