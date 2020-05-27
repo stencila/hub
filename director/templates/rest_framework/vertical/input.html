@@ -1,0 +1,17 @@
+<div class="field">
+  {% if field.label %}
+    <label class="label">{{ field.label }}</label>
+  {% endif %}
+
+  <div class="control">
+    <input class="input" name="{{ field.name }}" type="{{ style.input_type }}"
+      {% if style.placeholder %}placeholder="{{ style.placeholder }}"{% endif %}
+      {% if field.value is not None %}value="{{ field.value }}"{% endif %}
+      {% if style.autofocus and style.input_type != "hidden" %}autofocus{% endif %}
+    >
+  </div>
+
+  {% if field.help_text %}
+    <span class="help">{{ field.help_text|safe }}</span>
+  {% endif %}
+</div>

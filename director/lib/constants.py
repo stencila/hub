@@ -48,7 +48,6 @@ class ProjectUrlRoot(enum.Enum):
     """
 
     activity = "activity"
-    delete = "delete"
     executa = "executa"
     files = "files"
     jobs = "jobs"

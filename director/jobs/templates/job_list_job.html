@@ -1,23 +1,8 @@
-{% load tz %}
-{% load avatar_tags %}
+{% load tz avatar_tags form_helpers %}
 
+<div class="job has-text-black" id="job{{job.id}}">
 
-<div class="job has-text-black{% if hideActions %} pointer-events-none{% endif %}" id="job{{job.id}}"{% if not hideActions %} @click.self="navigate()"{% endif %}>
-  <delete-confirm-modal
-          :delete-modal-visible="deleteModalVisible"
-          form-action="{% url 'project_job_list' account.name project.name %}"
-          delete-button-label="OK"
-          delete-action="cancel"
-          @modal-hide="hideDeleteModal()">
-      <template slot="hidden">
-        <input type="hidden" name="job_id" value="{{job.id}}" />
-        <input type="hidden" name="project_id" value="{{project.id}}" />
-      </template>
-      <template slot="title">Cancel this job?</template>
-      <template slot="csrf_token">{% csrf_token %}</template>
-      <template slot="body">Are you sure you want to cancel this job?</template>
-  </delete-confirm-modal>
-  <div class="job-column job-summary pointer-events-none">
+  <div class="job-column job-summary">
     {% if job.status_label %}
     <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status_label|upper}}</span>
     {% endif %}
@@ -28,7 +13,7 @@
 
   </div>
 
-  <div class="job-column job-details flex-grow is-flex flex-col pointer-events-none">
+  <div class="job-column job-details flex-grow is-flex flex-col">
     <header class="job-details-header flex-wrap is-flex mb-2">
 
       <span class="job-info job-icon is-flex" title="ID of this job">
@@ -68,7 +53,7 @@
     </p>
   </div>
 
-  <div class="job-column job-actions pointer-events-none">
+  <div class="job-column job-actions">
     {% if not hideActions %}
       <a class="button is-small is-outlined has-text-weight-semibold pointer-events-all"
             href="{% url 'project_job_detail' project.account.name project.name job.id %}">
@@ -76,26 +61,16 @@
       </a>
     {% endif %}
     {% if not isComplete and canCancel %}
-      <button class="button is-small is-outlined has-text-weight-semibold pointer-events-all" @click.stop="showDeleteModal()">Cancel</button>
+      <form method="PATCH" action="{% url 'api-projects-jobs-cancel' project.id job.id %}">
+        {% csrf_token %}
+        <button class="button is-danger is-small is-outlined" type="submit" tabindex="0">
+          <span class="icon">
+            <i class="fa fa-stop"></i>
+          </span>
+          <span>Cancel</span>
+        </button>
+        {% handle_form success_url="self" %}
+      </form>
     {% endif %}
-    <script>
-      new Vue({
-        el: '#job{{job.id}}',
-        data: {
-          deleteModalVisible: false
-        },
-        methods: {
-          showDeleteModal () {
-            this.deleteModalVisible = true
-          },
-          hideDeleteModal () {
-            this.deleteModalVisible = false
-          },
-          navigate () {
-            window.location.href='{% url 'project_job_detail' project.account.name project.name job.id %}'
-          }
-        }
-      })
-    </script>
   </div>
 </div>

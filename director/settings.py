@@ -58,7 +58,13 @@ class Prod(Configuration):
 
     # Do not redirect the status check and other internal URLs
     # to HTTPS so that HTTP health checks and metric scraping work.
-    SECURE_REDIRECT_EXEMPT = [r"^api/status/?$", r"^internal/", r"^/?$"]
+    SECURE_REDIRECT_EXEMPT = [
+        r"^api/status/?$",
+        r"^api/workers/",
+        r"^api/jobs/",
+        r"^internal/",
+        r"^/?$",
+    ]
 
     INSTALLED_APPS = [
         # Django contrib apps

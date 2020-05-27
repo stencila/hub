@@ -4,59 +4,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
 
-from accounts.models import Account
-from lib.forms import ModelFormWithSubmit
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
-from assets.thema import themes
-
-
-class ProjectCreateForm(ModelFormWithSubmit):
-    class Meta:
-        model = Project
-        fields = ["account", "name", "description", "public"]
-
-    def __init__(self, *args, **kwargs):
-        request = kwargs.pop("request")
-        accounts = Account.objects.filter(user_roles__user=request.user).distinct()
-
-        initial = kwargs.get("initial", {})
-
-        if "account" not in initial:
-            # set the user's personal account as the default in the form for the new Project
-
-            if accounts.count() == 1:
-                initial["account"] = accounts[0].pk
-            else:
-                accounts = accounts.filter(
-                    id__in=[
-                        x.id
-                        for x in accounts
-                        if not x.is_personal
-                        or (x.user is not None and x.user.id == request.user.id)
-                    ]
-                )
-
-                for a in accounts:
-                    if a.user is not None and a.user.id == request.user.id:
-                        initial["account"] = a.pk
-                        break
-
-            kwargs["initial"] = initial
-
-        super().__init__(*args, **kwargs)
-
-        self.fields["account"].queryset = accounts
-        self.fields[
-            "account"
-        ].empty_label = None  # remove the blank/"-----" option from select
-
-
-class ProjectGeneralForm(ModelFormWithSubmit):
-    class Meta:
-        model = Project
-        fields = ["name", "description", "public"]
-
 
 class ProjectSharingForm(forms.ModelForm):
     class Meta:
@@ -78,41 +27,6 @@ class ProjectSharingForm(forms.ModelForm):
             ),
             Submit("submit", "Update", css_class="button is-primary"),
         )
-
-
-class ProjectSettingsForm(forms.ModelForm):
-
-    helper = FormHelper()
-    helper.layout = Layout(
-        Div(
-            HTML(
-                '<p class="title is-4">Identity</p>'
-                '<p class="subtitle is-5">Settings for your project\'s profile.</p>'
-            ),
-            "name",
-            "description",
-            css_class="mt-0 mb-8",
-        ),
-        Div(
-            HTML(
-                '<p class="title is-4">Content</p>'
-                '<p class="subtitle is-5">Settings affecting how content is served for your project.</p>'
-            ),
-            "theme",
-            css_class="mt-0 mb-8",
-        ),
-        Submit("submit", "Update", css_class="button is-primary"),
-    )
-
-    class Meta:
-        model = Project
-        fields = ["name", "description", "theme"]
-        widgets = {
-            "theme": forms.Select(
-                choices=[(None, "")] + [(theme, theme) for theme in themes]
-            ),
-            "hosts": forms.TextInput(),
-        }
 
 
 class ProjectSettingsSessionsForm(forms.ModelForm):

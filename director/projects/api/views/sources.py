@@ -3,7 +3,6 @@ import os
 import shutil
 import typing
 
-from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -305,9 +304,7 @@ class SourceLinkView(ProjectPermissionsMixin, APIView):
 
         doc_id = GoogleDocsSource.parse_address(doc_id, naked=True, strict=True).doc_id
 
-        google_app = SocialApp.objects.filter(provider="google").first()
-
-        gdf = GoogleDocsFacade(google_app.client_id, google_app.secret, token)
+        gdf = GoogleDocsFacade(token)
 
         try:
             document = gdf.get_document(doc_id)
