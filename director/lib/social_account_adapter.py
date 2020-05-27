@@ -1,6 +1,18 @@
 import requests
 from allauth.account.models import EmailAddress
+from allauth.account.signals import user_logged_in
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+
+
+# Remember the last auth provider in the browser. The next time the
+# login page is visited, this provider can be highlighted to encourage
+# the user to use the same provider again.
+def set_last_provider(sender, request, response, user, **kwargs):
+    if "sociallogin" in kwargs:
+        response.set_cookie("auth_provider", kwargs["sociallogin"].account.provider)
+
+
+user_logged_in.connect(set_last_provider)
 
 # Override the default adapter from socialaccount. See
 # https://github.com/pennersr/django-allauth/issues/418#issuecomment-107880925
