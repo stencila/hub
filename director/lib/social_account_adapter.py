@@ -14,6 +14,41 @@ def set_last_provider(sender, request, response, user, **kwargs):
 
 user_logged_in.connect(set_last_provider)
 
+
+# allauth won't automatically add email addresses from a newly connected
+# social account unless it's creating a user. When we automatically link
+# a new social account to an existing user by email matching, bring in
+# email addresses from the new social account. This can improve email
+# matching for users with multiple email addresses if another social
+# account is added later. Delayed until after login to avoid triggering
+# a call to SocialLogin.save on an existing socialaccount.
+def add_new_emails(sender, request, response, user, **kwargs):
+    if "sociallogin" not in kwargs:
+        return
+
+    if not getattr(kwargs["sociallogin"], "autoconnect", False):
+        return
+
+    for e in kwargs["sociallogin"].email_addresses:
+        try:
+            existing = EmailAddress.objects.get(email__iexact=e.email.lower())
+        except EmailAddress.DoesNotExist:
+            new = EmailAddress(
+                email=e.email, verified=e.verified, primary=False, user=user
+            )
+            new.save()
+            continue
+
+        if existing.user != user:
+            continue
+        elif e.verified and not existing.verified:
+            existing.verified = True
+            existing.save()
+
+
+user_logged_in.connect(add_new_emails)
+
+
 # Override the default adapter from socialaccount. See
 # https://github.com/pennersr/django-allauth/issues/418#issuecomment-107880925
 
@@ -40,6 +75,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
                 existing_email = EmailAddress.objects.get(
                     email__iexact=email.email, verified=True
                 )
+                # Mark this sociallogin as automatically connected, so
+                # that the login signal knows to look for new email
+                # addresses.
+                sociallogin.autoconnect = True
                 sociallogin.connect(request, existing_email.user)
                 break
             except EmailAddress.DoesNotExist:
