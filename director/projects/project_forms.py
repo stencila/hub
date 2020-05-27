@@ -3,7 +3,6 @@ import typing
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, HTML, Layout, Submit
 from django import forms
-from django.utils.text import slugify
 
 from accounts.models import Account
 from lib.forms import ModelFormWithSubmit
@@ -28,14 +27,19 @@ class ProjectCreateForm(ModelFormWithSubmit):
 
             if accounts.count() == 1:
                 initial["account"] = accounts[0].pk
-            elif accounts.count() > 1:
-                personal_account_prefix = "{}-personal-account".format(
-                    slugify(request.user.username)
+            else:
+                accounts = accounts.filter(
+                    id__in=[
+                        x.id
+                        for x in accounts
+                        if not x.is_personal
+                        or (x.user is not None and x.user.id == request.user.id)
+                    ]
                 )
 
-                for account in accounts:
-                    if account.name.startswith(personal_account_prefix):
-                        initial["account"] = account.pk
+                for a in accounts:
+                    if a.user is not None and a.user.id == request.user.id:
+                        initial["account"] = a.pk
                         break
 
             kwargs["initial"] = initial

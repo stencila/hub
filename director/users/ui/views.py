@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import FormView, TemplateView
 
-from accounts.models import AccountUserRole
+from accounts.models import Account, AccountUserRole
 from projects.project_data import get_projects, FILTER_OPTIONS
 
 from .forms import UsernameForm, UserSignupForm
@@ -47,23 +47,41 @@ class UsernameChangeView(LoginRequiredMixin, FormView):
     def get_initial(self) -> dict:
         return {"username": self.request.user.username}
 
+    def form_error(self, username):
+        """Display form error message on validation error."""
+        messages.error(
+            self.request,
+            "Username can not be changed to '{}' as it is already in use.".format(
+                username
+            ),
+        )
+
     def form_valid(self, form: UsernameForm) -> HttpResponse:
-        self.request.user.username = form.cleaned_data["username"]
+        """
+        Validate username change.
+
+        Username is only valid if:
+
+        - no other user is using the same name.
+        - no organisation name is the same as the username.
+        """
+        username = form.cleaned_data["username"]
+        self.request.user.username = username
+
+        if Account.objects.filter(name=username).exists():
+            self.form_error(username)
+            return redirect("user_change_username")
+
         try:
             self.request.user.save()
         except IntegrityError:
-            messages.error(
-                self.request,
-                "Username can not be changed to '{}' as it is already in use.".format(
-                    form.cleaned_data["username"]
-                ),
-            )
+            self.form_error(username)
             return redirect("user_change_username")
 
         messages.success(
-            self.request,
-            "Your username was changed to '{}'.".format(form.cleaned_data["username"]),
+            self.request, "Your username was changed to '{}'.".format(username),
         )
+
         return super(UsernameChangeView, self).form_valid(form)
 
 

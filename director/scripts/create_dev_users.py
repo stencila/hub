@@ -10,7 +10,7 @@ def run(*args):
 
     # Admin (super user)
     admin = User.objects.create_user(
-        username="admin",
+        username="admin-user",
         password="admin",
         first_name="Admin",
         email="admin@example.com",

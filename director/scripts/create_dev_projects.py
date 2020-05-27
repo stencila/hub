@@ -17,7 +17,7 @@ def run(*args):
     assert settings.DEBUG
 
     # Assumes that there are at least 3 accounts
-    accounts = Account.objects.all()
+    accounts = Account.objects.filter(user=None)
 
     Project.objects.create(
         account=accounts[0],

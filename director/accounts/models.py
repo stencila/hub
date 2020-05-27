@@ -95,7 +95,7 @@ class Account(models.Model):
         "Used for setting Content Security Policy headers when serving content for this account.",
     )
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         null=True,
         blank=True,
@@ -103,6 +103,9 @@ class Account(models.Model):
         related_name="account_user",
         help_text="When set, this is the user assigned to a 'personal' account.",
     )
+
+    class Meta:
+        unique_together = (("user", "name"),)
 
     def save(self, *args, **kwargs) -> None:
         self.name = clean_slug(self.name, SlugType.ACCOUNT)
@@ -265,7 +268,8 @@ class ProductExtension(models.Model):
     )
 
 
-def create_name_token(create, instance):
+def create_account(instance):
+    """Create an account by using supplied instance name."""
     name = ""
     suffix_number = 2
     suffix = ""
@@ -282,22 +286,14 @@ def create_name_token(create, instance):
 
         name = "admin-user" if name == "admin" or name == "admin-user" else name
 
-        if create:
-            try:
-                account = Account.objects.create(name=name)
-                break
-            except IntegrityError:
-                suffix = "-{}".format(suffix_number)
-                suffix_number += 1
-        else:
-            name = (
-                "admin-user"
-                if name == "admin" or name == "admin-user"
-                else instance.username
-            )
+        try:
+            account = Account.objects.create(name=name)
             break
+        except IntegrityError:
+            suffix = "-{}".format(suffix_number)
+            suffix_number += 1
 
-    return (name, account)
+    return account
 
 
 def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
@@ -313,11 +309,13 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
         if not created:
             try:
                 account = Account.objects.get(user__id=instance.id)
-                account.name = create_name_token(False, instance)[0]
+                account.name = (
+                    "admin-user" if instance.username == "admin" else instance.username
+                )
             except Account.DoesNotExist:
                 account = None
         else:
-            account = create_name_token(True, instance)[1]
+            account = create_account(instance)
             if account is not None:
                 account.user = instance
 
