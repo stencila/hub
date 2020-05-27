@@ -12,9 +12,8 @@ def user_profile_link(context, *args, **kwargs):
     if user is None or not user.is_authenticated:
         return ""
 
-    account = Account.objects.get(user__id=user.id)
-
-    if account is not None:
+    try:
+        account = Account.objects.get(user__id=user.id)
         return "/{}/".format(account.name)
-
-    return ""
+    except Account.DoesNotExist:
+        return ""
