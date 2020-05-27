@@ -48,16 +48,18 @@
             </nav>
         </div>
         <div class="column">
+            {% if project_header_right %}
             <div class="level">
                 <div class="level-left">
                     <div class="level-item">
-                        <!--h2 class="title">{{ project.name }}</h2-->
+
                     </div>
                 </div>
                 <div class="level-right">
                     {% block project_header_right %}{% endblock %}
                 </div>
             </div>
+            {% endif %}
             {% block project_content %}{% endblock %}
         </div>
     </div>

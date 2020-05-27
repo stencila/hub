@@ -7,6 +7,7 @@ from django import forms
 from projects.source_models import Source
 from .project_models import Project, PublishedItem
 
+
 class ProjectSharingForm(forms.ModelForm):
     class Meta:
         model = Project

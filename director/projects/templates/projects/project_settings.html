@@ -5,10 +5,10 @@
 
 {% block project_content %}
 
-    <section class="section">
+    <section class="mb-12">
         <h2 class="title is-4">Identity</h2>
         <h3 class="subtitle is-5">Settings for your project's profile.</h3>
-        <p>
+        <p class="mb-4">
             This project's unique, permananent id is <span class="tag">{{ project.pk }}</span>.
             Use it to access this project via the HTTP <a href="{% url 'api-docs' %}">API</a>.
         </p>
@@ -21,7 +21,7 @@
         </form>
     </section>
 
-    <section class="section">
+    <section class="mb-12">
         <h2 class="title is-4">Content</h2>
         <h3 class="subtitle is-5">Settings affecting how content is served for your project.</h3>
         <form method="PATCH" action="{% url 'api-projects-detail' pk=project.pk %}">
@@ -33,7 +33,7 @@
     </section>
 
     {% if project_permissions|project_permissions_contain:'own' %}
-        <section class="section">
+        <section class="">
             <h2 class="title is-4">Destroy</h2>
             <h3 class="subtitle is-5">Delete this project. Forever.</h3>
             <form method="DELETE" action="{% url 'api-projects-detail' pk=project.pk %}">
@@ -45,5 +45,5 @@
             </form>
         </section>
     {% endif %}
-    
+
 {% endblock %}
