@@ -42,7 +42,7 @@ urlpatterns = [
     # About pages etc
     path(UrlRoot.about.value + "/", include(about_urls)),
     # Accounts App
-    path(UrlRoot.organisations.value + "/", include("accounts.urls")),
+    path(UrlRoot.orgs.value + "/", include("accounts.urls")),
     # Staff (Django) admin
     path(UrlRoot.admin.value + "/", admin.site.urls),
     # API

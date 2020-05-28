@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.fields import JSONField
 from rest_polymorphic.serializers import PolymorphicSerializer
@@ -33,7 +34,10 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
         return Account.objects.filter(
             user_roles__user=request.user,
             user_roles__role__permissions__type__in=("modify", "administer"),
-        ).distinct()
+        ).exclude(
+            ~Q(user__id=request.user.id),
+            ~Q(user__isnull=True),
+        ).order_by("-user").distinct()
 
 
 class ProjectSerializer(serializers.ModelSerializer):
