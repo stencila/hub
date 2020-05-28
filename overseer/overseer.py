@@ -1,34 +1,67 @@
 """
 Stencila Hub Overseer.
 
-A Celery app for monitoring job and worker events.
-A worker must be run with the `--events` option to emit events.
+A Celery app for monitoring jobs and workers. It has three main
+functions:
 
-For the most part, this service simply translates events into data
-that is posted to the `director`'s API for handling there.
+- in the main thread, it captures the job and worker events emitted
+by Celery and translates them into data that is posted to the `director`'s API.
+See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 
-This ignores the `result` of `task_succeeded` events and
+- in another thread, it periodically queries the Celery API to collect information on
+the length of queues and the number of workers listening to each queue
+
+- it serves Prometheus metrics that are scraped by `monitor` (which are in turn
+  can be used by Kubernetes for scaling) workers
+
+Workers must be run with the `--events` option to emit events
+for the `overseer` to handle.
+
+Note: This ignores the `result` of `task_succeeded` events and
 the `exception` and `traceback` of `task_failed` events.
 This is partly to avoid duplicating logic for handling those (see `update_job`
 function in `director`) and because the events are not intended
 for this purpose (the results should be used for that, which is what
 `update_job` does; see https://github.com/celery/celery/issues/2190#issuecomment-51609500).
-
-See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
-(Much of the following docstring are from there.)
 """
 from datetime import datetime
-from typing import Dict, Union
-import os
-import time
+from functools import reduce
+from typing import Dict, List, Set, Union
 import logging
+import os
+import threading
+import time
 
-from prometheus_client import start_http_server, Summary
+from prometheus_client import start_http_server, Summary, Gauge
 from celery import Celery
 from celery.events.receiver import EventReceiver
+from celery.utils.objects import FallbackContext
+import amqp.exceptions
 import httpx
 
+
+logging.basicConfig(level=logging.INFO)
+
+
 app = Celery("overseer", broker=os.environ["BROKER_URL"])
+
+# Monitoring metrics (these are updated by `Receiver` and `Collector` below)
+
+event_processing = Summary(
+    "overseer_event_processing", "Summary of event processing duration"
+)
+
+queue_length = Gauge("overseer_queue_length", "Number of jobs in the queue.", ["queue"])
+
+workers_count = Gauge(
+    "overseer_workers_count", "Number of workers listening to the queue.", ["queue"]
+)
+
+queue_length_worker_ratio = Gauge(
+    "overseer_queue_length_worker_ratio",
+    "Ratio of the number of jobs to the number of workers for each queue.",
+    ["queue"],
+)
 
 # Setup API client
 api = httpx.Client(
@@ -148,21 +181,25 @@ def task_retried(event: Event):
     print("task_retried", event)
 
 
-# Handlers for worker events
+# Keep track of the queues that each worker is listening to
+# so that we can update queue_length_worker_ratio
+WORKERS: Dict[str, List[str]] = {}
+
+# Keep track of all queues ever seen by this process
+# so that we can set metrics to zero if necessary
+QUEUES: Set[str] = set()
 
 
-def worker_online(event: Event):
+def add_worker(hostname: str):
     """
-    Sent when a worker has connected to the broker.
-
-    Fetches more information on the worker and creates a new worker
-    object on the `director`.
+    Add a worker.
+    
+    Gets additional stats and the queues for the worker.
+    The list of queues may initially be empty so try multiple
+    times.
     """
-    hostname = event.get("hostname")
+    logging.info("Adding worker: {}.".format(hostname))
 
-    # Get additional stats and the queues for the worker.
-    # Needed to know which broker and vhost it is listenting to
-    # The list of queues may initially be empty so keep trying
     inspect = app.control.inspect([hostname])
     queues = None
     stats = None
@@ -176,7 +213,39 @@ def worker_online(event: Event):
         time.sleep(0.1)
 
     if queues is None or stats is None:
-        logging.error("Unable to fetch queues and/or stats")
+        logging.error(
+            "Unable to fetch queues and/or stats for worker: {}".format(hostname)
+        )
+
+    global QUEUES
+    if queues is not None:
+        queues = [queue["name"] for queue in queues]
+        WORKERS[hostname] = queues
+        QUEUES = QUEUES.union(queues)
+
+    return (queues, stats)
+
+
+def remove_worker(hostname: str):
+    """Remove a worker."""
+    logging.info("Removing worker: {}.".format(hostname))
+
+    if hostname in WORKERS:
+        del WORKERS[hostname]
+
+
+# Handlers for worker events
+
+
+def worker_online(event: Event):
+    """
+    Sent when a worker has connected to the broker.
+
+    Fetches more information on the worker and creates a new worker
+    object on the `director`.
+    """
+    hostname = event.get("hostname")
+    queues, stats = add_worker(hostname)
 
     response = api.post(
         "workers/online", json=dict(details=dict(queues=queues, stats=stats), **event)
@@ -194,6 +263,10 @@ def worker_heartbeat(event: Event):
     rather trying to resolve which worker this heartbeat is for here,
     we sent the entire event to the `director` and do it over there.
     """
+    hostname = event.get("hostname")
+    if hostname not in WORKERS:
+        add_worker(hostname)
+
     response = api.post("workers/heartbeat", json=event)
     if response.status_code != 200:
         logging.error(response.text)
@@ -206,20 +279,21 @@ def worker_offline(event: Event):
     Sends a POST request to the `director` to mark the
     worker as finished.
     """
+    hostname = event.get("hostname")
+    if hostname in WORKERS:
+        remove_worker(hostname)
+
     response = api.post("workers/offline", json=event)
     if response.status_code != 200:
         logging.error(response.text)
 
 
-# Monitoring metrics
-
-event_processing = Summary(
-    "overseer_event_processing", "Summary of event processing duration"
-)
-
-
 class Receiver(EventReceiver):
-    """Extends Celery's `EventReceiver` class to implement monitoring intrumentation."""
+    """
+    A class for receiving events about jobs and workers.
+    
+    Extends Celery's `EventReceiver` class to implement monitoring intrumentation.
+    """
 
     def __init__(self, connection):
         """Override that connects above handlers to event types."""
@@ -246,10 +320,86 @@ class Receiver(EventReceiver):
             return super().process(type, event)
 
 
+class Collector(threading.Thread):
+    """
+    A thread for collecting information on queues and workers.
+    
+    
+    Based on, the now archived, https://github.com/zerok/celery-prometheus-exporter.
+    """
+
+    periodicity_seconds = 15
+    workers_ping_timeout_seconds = 10
+
+    def __init__(self, app: Celery):
+        self.app = app
+        self.connection = app.connection_or_acquire()
+        if isinstance(self.connection, FallbackContext):
+            self.connection = self.connection.fallback()
+        super().__init__()
+
+    def run(self):
+        while True:
+            # `ping` workers; returns a list of workers e.g. `[{'worker@host': {'ok': 'pong'}}, ...]`
+            try:
+                workers = self.app.control.ping(
+                    timeout=self.workers_ping_timeout_seconds
+                )
+                logging.info("Workers pinged: {}.".format(len(workers)))
+            except Exception:
+                workers = []
+                logging.error("Error pinging workers: {}".format(str(exc)))
+
+            # Update `WORKERS` with list of workers that have been
+            # successfully pinged.
+            hostnames = [list(worker.keys())[0] for worker in workers]
+            for hostname in hostnames:
+                if hostname not in WORKERS:
+                    add_worker(hostname)
+            for hostname in list(WORKERS.keys()):
+                if hostname not in hostnames:
+                    remove_worker(hostname)
+
+            # Update metrics for each queue
+            for queue in QUEUES:
+                try:
+                    length = self.connection.default_channel.queue_declare(
+                        queue=queue, passive=True
+                    ).message_count
+                except (amqp.exceptions.ChannelError,) as exc:
+                    logging.warning(
+                        "Queue Not Found: {}. Setting its value to zero. Error: {}".format(
+                            queue, str(exc)
+                        )
+                    )
+                    length = 0
+
+                workers = len(
+                    set(
+                        [
+                            hostname
+                            for hostname, queues in WORKERS.items()
+                            if queue in queues
+                        ]
+                    )
+                )
+
+                queue_length.labels(queue).set(length)
+                workers_count.labels(queue).set(workers)
+                queue_length_worker_ratio.labels(queue).set(length / max(0.5, workers))
+
+            time.sleep(self.periodicity_seconds)
+
+
 # Start the HTTP server to expose metrics
 start_http_server(4040)
 
-# Connect handlers to events
+# Start the collector
+collector = Collector(app=app)
+collector.daemon = True
+collector.start()
+
+# Start the receiver
 with app.connection() as connection:
     receiver = Receiver(connection)
     receiver.capture(limit=None, timeout=None, wakeup=True)
