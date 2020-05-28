@@ -97,7 +97,7 @@ checks = [
         ada=title("Change Username : Stencila")
     ),
     Check(
-        "/organisations/",
+        "/orgs/",
         anon=signin,
         ada=[title("Organisation : Teams"), link(reverse("account_create"))],
     ),
