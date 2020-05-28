@@ -33,16 +33,17 @@ cover: venv
 	             --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Run `celery worker` during development to check configuration.
-# Change env vars as needed for your dev env.
-# Using concurrency=1 and prefetch-multiplier=1 is closer to what happens in prod
-# "only reserve one task per worker process at a time". 
+# Uses timestamp to generate unique hostnames for workers.
+# Uses concurrency=1 and prefetch-multiplier=1 is closer to what happens in
+# prod: "only reserve one task per worker process at a time". 
 # See https://docs.celeryproject.org/en/stable/userguide/optimizing.html#prefetch-limits
+QUEUES ?= local
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	$(VE)/celery worker \
 		--app worker \
-		--hostname worker@zone \
-		--queues default \
+		--hostname worker-$$(date +'%s')@%h \
+		--queues $(QUEUES) \
 		--concurrency=1 \
 		--prefetch-multiplier=1 \
 		--events \
