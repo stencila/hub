@@ -9,6 +9,7 @@ from django.views import View
 from django.views.generic import FormView, TemplateView
 
 from accounts.models import Account, AccountUserRole
+from lib.constants import DISALLOWED_ACCOUNT_SLUGS
 from projects.project_data import get_projects, FILTER_OPTIONS
 
 from .forms import UsernameForm, UserSignupForm
@@ -47,13 +48,15 @@ class UsernameChangeView(LoginRequiredMixin, FormView):
     def get_initial(self) -> dict:
         return {"username": self.request.user.username}
 
-    def form_error(self, username):
+    def form_error(self, username, message=""):
         """Display form error message on validation error."""
         messages.error(
             self.request,
-            "Username can not be changed to '{}' as it is already in use.".format(
-                username
-            ),
+            (
+                message
+                if message != ""
+                else "Username can not be changed to '{}' as it is already in use."
+            ).format(username),
         )
 
     def form_valid(self, form: UsernameForm) -> HttpResponse:
@@ -64,9 +67,17 @@ class UsernameChangeView(LoginRequiredMixin, FormView):
 
         - no other user is using the same name.
         - no organisation name is the same as the username.
+        - does not match DISALLOWED_ACCOUNT_SLUGS
         """
         username = form.cleaned_data["username"]
         self.request.user.username = username
+
+        if username in DISALLOWED_ACCOUNT_SLUGS:
+            self.form_error(
+                username,
+                "Username can not be changed to '{}', this is a reserved name.",
+            )
+            return redirect("user_change_username")
 
         if Account.objects.filter(name=username).exists():
             self.form_error(username)
