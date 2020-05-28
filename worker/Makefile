@@ -34,14 +34,19 @@ cover: venv
 
 # Run `celery worker` during development to check configuration.
 # Change env vars as needed for your dev env.
+# Using concurrency=1 and prefetch-multiplier=1 is closer to what happens in prod
+# "only reserve one task per worker process at a time". 
+# See https://docs.celeryproject.org/en/stable/userguide/optimizing.html#prefetch-limits
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	$(VE)/celery worker \
 		--app worker \
 		--hostname worker@zone \
 		--queues default \
+		--concurrency=1 \
+		--prefetch-multiplier=1 \
 		--events \
-		--heartbeat-interval 30 \
+		--heartbeat-interval=30 \
 		--loglevel DEBUG
 
 # Build Docker image
