@@ -7,7 +7,6 @@ from django.shortcuts import render
 from sentry_sdk import last_event_id
 
 import views
-from accounts.views import OrganisationRedirectView
 
 # Specify sub paths as their own patterns to make it easier to see which root
 # paths are defined in urlpatterns this will make it easier to keep the
@@ -43,7 +42,6 @@ urlpatterns = [
     # About pages etc
     path(UrlRoot.about.value + "/", include(about_urls)),
     # Accounts App
-    path(UrlRoot.accounts.value + "/", OrganisationRedirectView.as_view()),
     path(UrlRoot.organisations.value + "/", include("accounts.urls")),
     # Staff (Django) admin
     path(UrlRoot.admin.value + "/", admin.site.urls),

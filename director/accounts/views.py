@@ -10,7 +10,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import View, ListView, CreateView, RedirectView, UpdateView
+from django.views.generic import View, ListView, CreateView, UpdateView
 
 from accounts.db_facade import AccountFetchResult, fetch_account
 from accounts.forms import AccountSettingsForm, AccountCreateForm
@@ -336,10 +336,3 @@ class AccountCreateView(AccountPermissionsMixin, CreateView):
 
     def get_success_url(self) -> str:
         return reverse("account_profile", args=(self.object.name,))
-
-
-class OrganisationRedirectView(RedirectView):
-    """Redirect to /organisation - intended as redirect from /accounts."""
-
-    permanent = True
-    pattern_name = "account_list"
