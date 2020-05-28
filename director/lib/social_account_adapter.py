@@ -40,6 +40,8 @@ def add_new_emails(sender, request, response, user, **kwargs):
             continue
 
         if existing.user != user:
+            # TODO: what if this email is verified but the existing
+            # email is unverified? Can this user steal it?
             continue
         elif e.verified and not existing.verified:
             existing.verified = True
