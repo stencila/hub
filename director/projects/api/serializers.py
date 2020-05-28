@@ -31,13 +31,15 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
         request = self.context.get("request", None)
         if request is None:
             return Account.objects.none()
-        return Account.objects.filter(
-            user_roles__user=request.user,
-            user_roles__role__permissions__type__in=("modify", "administer"),
-        ).exclude(
-            ~Q(user__id=request.user.id),
-            ~Q(user__isnull=True),
-        ).order_by("-user").distinct()
+        return (
+            Account.objects.filter(
+                user_roles__user=request.user,
+                user_roles__role__permissions__type__in=("modify", "administer"),
+            )
+            .exclude(~Q(user__id=request.user.id), ~Q(user__isnull=True),)
+            .order_by("-user")
+            .distinct()
+        )
 
 
 class ProjectSerializer(serializers.ModelSerializer):
