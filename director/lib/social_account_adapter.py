@@ -68,7 +68,10 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
 
         self.add_secondary_emails(sociallogin)
 
-        for email in sociallogin.email_addresses:
+        def primary_first(email):
+            return 1 - int(email.primary)
+
+        for email in sorted(sociallogin.email_addresses, key=primary_first):
             if not email.verified:
                 continue
             try:
