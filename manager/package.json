@@ -1,3 +1,24 @@
 {
-  "dependencies": {}
+  "description": "CSS and JS for Stencila Hub Manager",
+  "repository": "https://github.com/stencila/hub",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build:css": "node-sass manager/static/sass/styles.scss manager/static/css/styles.css --output-style compressed",
+    "watch:css": "npm run build:css -- --watch",
+    "build:js": "rollup --config",
+    "build": "npm run build:css && npm run build:js",
+    "start": "npm run watch:css"
+  },
+  "dependencies": {
+    "@vizuaalog/bulmajs": "0.11.0",
+    "bulma": "0.8.2",
+    "bulma-toast": "2.0.1",
+    "htmx.org": "0.0.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "8.0.0",
+    "node-sass": "4.14.1",
+    "rollup": "2.12.0",
+    "rollup-plugin-terser": "6.1.0"
+  }
 }

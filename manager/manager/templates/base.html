@@ -6,13 +6,16 @@
     <title>Stencila</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.min.css' %}">
-
     <script src="{% static 'js/index.js' %}"></script>
-    <script src="{% static 'js/bulma-toast.min.js' %}"></script>
+
+    {% if debug %}
+      <script>
+        htmx.logAll();
+      </script>
+    {% endif %}
   
     {% if SENTRY_DSN %}
       <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js" integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous"></script>
@@ -99,12 +102,11 @@
     <div id="messages">
       {% for message in messages %}
         <script>
-          bulmaToast.toast({
+          manager.Toast({
             message: "{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}",
             type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
             duration: 5000,
             position: "bottom-left",
-            animate: { in: 'bounceInLeft', out: 'bounceOutLeft' },
             closeOnClick: true,
             pauseOnHover: true,
             dismissible: true,
@@ -141,7 +143,8 @@
             </span>
             in&nbsp;
             <a href="https://www.kaikoura.co.nz/">Kaikoura</a>,&nbsp;
-            <a href="https://montreal.ca/">Montreal</a>, and&nbsp;
+            <a href="https://montreal.ca/">Montreal</a>,&nbsp;
+            <a href="https://www.aucklandnz.com/">Auckland</a>, and&nbsp;
             <a href="https://www.wellingtonnz.com/">Wellington</a>.
           </p>
           <p class="level-right has-text-centered">

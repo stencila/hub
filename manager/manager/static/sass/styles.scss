@@ -1,0 +1,119 @@
+@charset "utf-8";
+
+// Import fonts
+
+@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:600&display=swap');
+@import url('https://use.fontawesome.com/releases/v5.1.0/css/all.css');
+
+// Bulma variable overrides
+
+$family-sans-serif: 'Lato', sans-serif;
+$family-monospace: monospace;
+$family-primary: $family-sans-serif;
+$family-secondary: 'Montserrat', sans-serif;
+
+$blue: #2568ef;
+$white: #ffffff;
+
+$primary: $blue;
+
+$navbar-padding-vertical: 0.5rem;
+
+$notification-padding: 1rem 2rem 1rem 1rem;
+
+$title-family: $family-secondary;
+
+$footer-background-color: $primary;
+$footer-color: $white;
+$footer-padding: 2rem 3rem 0.1rem;
+
+// Import Bulma components
+// The following are all the SASS files in Bulma 0.8.2
+// To keep the size of compiled, production CSS to a minimum, only
+// uncomment the imports that are needed.
+
+@import "../../../node_modules/bulma/sass/utilities/initial-variables.sass";
+@import "../../../node_modules/bulma/sass/utilities/functions.sass";
+@import "../../../node_modules/bulma/sass/utilities/derived-variables.sass";
+// @import "../../../node_modules/bulma/sass/utilities/animations.sass";
+@import "../../../node_modules/bulma/sass/utilities/mixins.sass";
+@import "../../../node_modules/bulma/sass/utilities/controls.sass";
+
+@import "../../../node_modules/bulma/sass/base/minireset.sass";
+@import "../../../node_modules/bulma/sass/base/generic.sass";
+@import "../../../node_modules/bulma/sass/base/helpers.sass";
+
+@import "../../../node_modules/bulma/sass/elements/box.sass";
+@import "../../../node_modules/bulma/sass/elements/button.sass";
+@import "../../../node_modules/bulma/sass/elements/container.sass";
+// @import "../../../node_modules/bulma/sass/elements/content.sass";
+@import "../../../node_modules/bulma/sass/elements/icon.sass";
+// @import "../../../node_modules/bulma/sass/elements/image.sass";
+@import "../../../node_modules/bulma/sass/elements/notification.sass";
+// @import "../../../node_modules/bulma/sass/elements/progress.sass";
+// @import "../../../node_modules/bulma/sass/elements/table.sass";
+// @import "../../../node_modules/bulma/sass/elements/tag.sass";
+@import "../../../node_modules/bulma/sass/elements/title.sass";
+@import "../../../node_modules/bulma/sass/elements/other.sass";
+
+@import "../../../node_modules/bulma/sass/form/shared.sass";
+@import "../../../node_modules/bulma/sass/form/input-textarea.sass";
+@import "../../../node_modules/bulma/sass/form/checkbox-radio.sass";
+@import "../../../node_modules/bulma/sass/form/select.sass";
+@import "../../../node_modules/bulma/sass/form/file.sass";
+@import "../../../node_modules/bulma/sass/form/tools.sass";
+
+// @import "../../../node_modules/bulma/sass/components/breadcrumb.sass";
+// @import "../../../node_modules/bulma/sass/components/card.sass";
+// @import "../../../node_modules/bulma/sass/components/dropdown.sass";
+@import "../../../node_modules/bulma/sass/components/level.sass";
+// @import "../../../node_modules/bulma/sass/components/list.sass";
+// @import "../../../node_modules/bulma/sass/components/media.sass";
+// @import "../../../node_modules/bulma/sass/components/menu.sass";
+@import "../../../node_modules/bulma/sass/components/message.sass";
+@import "../../../node_modules/bulma/sass/components/modal.sass";
+@import "../../../node_modules/bulma/sass/components/navbar.sass";
+// @import "../../../node_modules/bulma/sass/components/pagination.sass";
+// @import "../../../node_modules/bulma/sass/components/panel.sass";
+// @import "../../../node_modules/bulma/sass/components/tabs.sass";
+
+@import "../../../node_modules/bulma/sass/grid/columns.sass";
+// @import "../../../node_modules/bulma/sass/grid/tiles.sass";
+
+// @import "../../../node_modules/bulma/sass/layout/hero.sass";
+@import "../../../node_modules/bulma/sass/layout/section.sass";
+@import "../../../node_modules/bulma/sass/layout/footer.sass";
+
+
+.navbar {
+  // Add a screen top border
+  border-top: 3px solid $blue;
+}
+
+#messages {
+  // Places messages in the top left
+  position: sticky;
+  top: calc(#{$navbar-height} + 30px);
+  z-index: 100;
+}
+
+main {
+  // Set the minimum height of the main content so that
+  // the footer is pushed to the bottom of the screen
+  // with only a 4px line to mirror the screen's top border.
+  // See https://github.com/jgthms/bulma/issues/47
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - #{$navbar-height} - 4px);
+  // Top padding to account for navbar
+  padding-top: $navbar-height;
+}
+
+.footer {
+  a {
+    color: $white;
+  }
+  .columns a {
+    margin: 0.5rem;
+  }
+}
