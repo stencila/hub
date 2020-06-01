@@ -5,6 +5,7 @@
     "python.formatting.provider": "black",
     "cSpell.words": [
         "asgi",
+        "favicon",
         "noqa",
         "oauth",
         "pytest",

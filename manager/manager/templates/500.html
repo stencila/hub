@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ooops{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="columns">
+      <div class="column is-8 is-offset-2 has-text-centered">
+        <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px"
+              height="28px">
+        <h1 class="title has-margin-top">Oops!</h1>
+        <p>
+          Sorry, it seems that there is a problem with this page. 
+          Our team has been notified and will rectify it as soon as possible!
+        </p>
+        <p>
+          Stencila is an open source product. You can help make it better
+          (and reduce these problems :) by <a href="https://github.com/stencila/hub#readme">
+          contributing</a> code, documentation, 
+          ideas, bug reports etc. 💖.
+        </p>
+        {% if sentry_event_id %}
+          <script>
+            Sentry.showReportDialog({
+              user: {
+                name: '{{ user_name }}',
+                email: '{{ user_email }}'
+              },
+              eventId: '{{ sentry_event_id }}'
+            })
+          </script>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% load static intercom %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stencila</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/index.js' %}"></script>
+    {% if SENTRY_DSN %}
+      <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js" integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous"></script>
+      <script>
+        Sentry.init({
+          dsn: '{{ SENTRY_DSN }}',
+          release: 'hub@{{ VERSION }}'
+        });
+      </script>
+    {% endif %}
+    {% if POSTHOG_KEY %}
+      <script src="https://t.posthog.com/static/array.js" crossorigin="anonymous"></script>
+      <script>
+        posthog.init('{{ POSTHOG_KEY }}', {
+          api_host: 'https://t.posthog.com',
+          {% if user.is_authenticated %}
+            loaded: function(posthog) {
+              posthog.identify('{{ user.id }}')
+              posthog.people.set({
+                username: '{{ user.username }}',
+                email: '{{ user.email }}'
+              });
+            }
+          {% endif %}
+        })
+      </script>
+    {% endif %}
+  </head>
+  <body>
+    <main>
+      {% block content %}
+      {% endblock %}
+    </main>
+    {% if user.is_authenticated %}
+      {% intercom_tag %}
+    {% endif %}
+  </body>
+</html>

@@ -81,6 +81,8 @@ class Prod(Configuration):
         "django.contrib.staticfiles",
         "django.contrib.sites",
         "django.contrib.humanize",
+        # Third party apps
+        "django_intercom",
     ]
 
     # A list of middleware to use.
@@ -104,7 +106,7 @@ class Prod(Configuration):
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
             "DIRS": [
-                os.path.join(BASE_DIR, "templates"),
+                os.path.join(BASE_DIR, "manager", "templates"),
                 # Ensure that allauth templates are overridden by ours
                 os.path.join(BASE_DIR, "users", "templates"),
             ],
@@ -175,6 +177,10 @@ class Prod(Configuration):
     # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
     STATIC_URL = "/static/"
+
+    STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "manager", "static")]
 
     # Logging
     # See https://docs.djangoproject.com/en/3.0/topics/logging/
@@ -372,7 +378,11 @@ class Dev(Prod):
     INTERNAL_IPS = "127.0.0.1"
 
     # Additional middleware only used in development
-    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + Prod.MIDDLEWARE
+    MIDDLEWARE = (
+        ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+        + Prod.MIDDLEWARE
+        + ["manager.middleware.prettify_html_middleware"]
+    )
 
     # During development just print emails to console
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
