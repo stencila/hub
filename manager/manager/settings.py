@@ -82,7 +82,18 @@ class Prod(Configuration):
         "django.contrib.sites",
         "django.contrib.humanize",
         # Third party apps
+        "allauth",
+        "allauth.account",
+        "allauth.socialaccount.providers.github",
+        "allauth.socialaccount.providers.google",
+        "allauth.socialaccount.providers.orcid",
+        "allauth.socialaccount.providers.twitter",
+        "allauth.socialaccount",
         "django_intercom",
+        # Our apps
+        # Uses dotted paths to AppConfig subclasses as
+        # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
+        "users.apps.UsersConfig",
     ]
 
     # A list of middleware to use.
@@ -117,6 +128,8 @@ class Prod(Configuration):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
+                    "manager.context_processors.versions",
+                    "manager.context_processors.settings",
                 ],
             },
         },
@@ -378,11 +391,7 @@ class Dev(Prod):
     INTERNAL_IPS = "127.0.0.1"
 
     # Additional middleware only used in development
-    MIDDLEWARE = (
-        ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-        + Prod.MIDDLEWARE
-        + ["manager.middleware.prettify_html_middleware"]
-    )
+    MIDDLEWARE = ["debug_toolbar.middleware.DebugToolbarMiddleware"] + Prod.MIDDLEWARE
 
     # During development just print emails to console
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

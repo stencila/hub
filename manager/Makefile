@@ -48,7 +48,7 @@ migrations: venv
 create-devdb-sqlite: venv
 	rm -f dev.sqlite3
 	$(DJ) migrate
-	$(DJ) runscript create_devdb
+	$(DJ) runscript create_dev_db
 
 # Migrate the development database
 migrate-devdb: venv

@@ -1,4 +1,6 @@
 /dev.sqlite3
+/manager/static/css/styles.css
+/manager/static/js/index.js
 /node_modules
 /static
 /venv

@@ -1,26 +1,19 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Uh oh!{% endblock %}
 
 {% block content %}
-<div class="container has-centred" style="max-width: 25em">
-    <div class="modal is-active">
-      <div class="modal-background"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">
-            <span class="icon"><i class="fas fa-frown"></i></span>
-            <span>Sorry but...</span>
-          </p>
-        </header>
-        <section class="modal-card-body">
-            <p>...the page you are looking for doesn't exist</p>
-        </section>
-        <footer class="modal-card-foot">
-            <form method="post">
-                {% csrf_token %}
-                <a class="button is-primary" onclick="history.back()">OK</a>
-            </form>
-        </footer>
+  <section class="section" style="margin-top: 10em;">
+    <div class="columns">
+      <div class="column is-6 is-offset-4 has-text-centered">
+        <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px" height="28px">
+        <h1 class="title has-margin-top">Uh oh!</h1>
+        <p>
+          This page doesn't exist. If you think this is
+          a mistake on our part, please contact us and let us know.
+        </p>
       </div>
     </div>
-</div>
+  </section>
 {% endblock %}

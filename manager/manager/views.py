@@ -1,6 +1,7 @@
 import os
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
@@ -32,10 +33,10 @@ def home(request: HttpRequest) -> HttpResponse:
 
     # Authenticated users get redirected to dashboard
     if request.user.is_authenticated:
-        return redirect("dashboard")
+        return redirect("ui-users-settings")
 
     # Unauthenticated users get redirected to sign in
-    return redirect(settings.LOGIN_URL)
+    return render(request, "base.html")  # redirect(settings.LOGIN_URL)
 
 
 def favicon(request: HttpRequest) -> HttpResponse:
@@ -50,6 +51,30 @@ def favicon(request: HttpRequest) -> HttpResponse:
     )
 
 
+def render_template(request: HttpRequest, template: str) -> HttpResponse:
+    """
+    Render an arbitrary template.
+
+    This view allows testing of templates during development.
+    """
+    return render(request, template)
+
+
+def test_messages(request: HttpRequest) -> HttpResponse:
+    """
+    Test creating user messages.
+
+    Allows testing of the rendering of messages by the
+    base template.
+    """
+    messages.debug(request, "A debug message")
+    messages.info(request, "An info message.")
+    messages.success(request, "A success message.")
+    messages.warning(request, "A warning message.")
+    messages.error(request, "An error message.")
+    return render(request, "base.html")
+
+
 # Handler for 403 errors is Django's default
 # which will render the 403.html template
 handle403 = permission_denied
@@ -57,7 +82,7 @@ handle403 = permission_denied
 
 def test403(request: HttpRequest) -> HttpResponse:
     """
-    A 403 view to test a 403 error.
+    Test raising a 403 error.
 
     This view allows testing of 403 error handling in production
     (ie. test that custom 403 page is displayed)
@@ -72,7 +97,7 @@ handle404 = page_not_found
 
 def test404(request: HttpRequest) -> HttpResponse:
     """
-    A 404 view to test a 404 error.
+    Test raising a 404 error.
 
     This view allows testing of 404 error handling in production
     (ie. test that custom 404 page is displayed)
@@ -105,7 +130,7 @@ def handle500(request, *args, **argv):
 @staff_member_required
 def test500(request: HttpRequest) -> HttpResponse:
     """
-    A 500 view to test a 500 error.
+    Test raising a 500 error.
 
     This view allows testing of 500 error handling in production (e.g that stack traces are
     being sent to Sentry). Can only be tested by staff.

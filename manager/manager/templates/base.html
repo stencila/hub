@@ -6,9 +6,14 @@
     <title>Stencila</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/animate.min.css' %}">
+
     <script src="{% static 'js/index.js' %}"></script>
+    <script src="{% static 'js/bulma-toast.min.js' %}"></script>
+  
     {% if SENTRY_DSN %}
       <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js" integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous"></script>
       <script>
@@ -18,6 +23,7 @@
         });
       </script>
     {% endif %}
+  
     {% if POSTHOG_KEY %}
       <script src="https://t.posthog.com/static/array.js" crossorigin="anonymous"></script>
       <script>
@@ -36,11 +42,115 @@
       </script>
     {% endif %}
   </head>
-  <body>
+
+  <body class="has-navbar-fixed-top">
+    <header>
+      <nav class="navbar is-fixed-top is-spaced has-shadow">
+        <div class="container">
+          <div class="navbar-brand">
+            <a class="navbar-item" href="{% url 'home' %}">
+              <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+            </a>
+            <a class="navbar-burger" data-target="navbar-menu">
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+              <span aria-hidden="true"></span>
+            </a>
+          </div>
+          <div id="navbar-menu" class="navbar-menu">
+            <div class="navbar-end">
+              {% if user.is_anonymous %}
+                <div class="navbar-item">
+                  {% url 'ui-users-signin' as user_signin_url %}
+                  {% if request.path != user_signin_url %}
+                    <div class="buttons">
+                      <a class="button is-primary" href="{% url 'ui-users-signin' %}">
+                        <span class="icon">
+                          <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                        </span>
+                        <span>Sign in</span>
+                      </a>
+                    </div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <div class="navbar-item has-dropdown is-hoverable">
+                  <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+                    {{ user.username }}
+                  </a>
+                  <div class="navbar-dropdown">
+                    <hr class="navbar-divider">
+                    <a class="navbar-item" href="{% url 'ui-users-signout' %}">
+                      <span class="icon">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                      </span>
+                      <span>Sign out</span>
+                    </a>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    {% if messages %}
+    <div id="messages">
+      {% for message in messages %}
+        <script>
+          bulmaToast.toast({
+            message: "{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}",
+            type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
+            duration: 5000,
+            position: "bottom-left",
+            animate: { in: 'bounceInLeft', out: 'bounceOutLeft' },
+            closeOnClick: true,
+            pauseOnHover: true,
+            dismissible: true,
+            opacity: 0.9
+          });
+        </script>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     <main>
-      {% block content %}
-      {% endblock %}
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
     </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="columns">
+          <div class="column is-full has-text-centered">
+            <a>Help</a>
+            <a>API</a>
+            <a href="https://status.stenci.la">Status</a>
+            <a href="https://policies.stenci.la/privacy">Privacy</a>
+            <a href="https://policies.stenci.la/terms">Terms</a>
+          </div>
+        </div>
+        <div class="level" style="font-size: 80%">
+          <p class="level-left has-text-centered">
+            Made with 
+            <span class="icon" style="color:red">
+              <i class="fas fa-heart"></i>
+            </span>
+            in&nbsp;
+            <a href="https://www.kaikoura.co.nz/">Kaikoura</a>,&nbsp;
+            <a href="https://montreal.ca/">Montreal</a>, and&nbsp;
+            <a href="https://www.wellingtonnz.com/">Wellington</a>.
+          </p>
+          <p class="level-right has-text-centered">
+            © {% now 'Y' %} Stencila Ltd.
+          </p>
+        </div>
+      <div class="container">
+    </footer>
+
     {% if user.is_authenticated %}
       {% intercom_tag %}
     {% endif %}
