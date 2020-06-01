@@ -1,0 +1,12 @@
+[flake8]
+
+exclude = venv, node_modules, migrations
+
+# Although Black uses max line length of 88
+# it does not deal with strings and comments
+# So permit long lines for those.
+max-line-length = 120
+
+# Ignore errors that Black handles
+# See https://github.com/psf/black/issues/315#issuecomment-395457972
+extend-ignore = E203

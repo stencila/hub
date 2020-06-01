@@ -4,10 +4,14 @@
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "cSpell.words": [
+        "asgi",
+        "noqa",
         "oauth",
         "pytest",
         "pytestmark",
         "signin",
-        "stencila"
+        "stencila",
+        "venv",
+        "wsgi"
     ]
 }
