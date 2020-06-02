@@ -26,10 +26,10 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Stencila Hub API", default_version="v1", description=description,
     ),
-    urlconf="urls_api",
+    urlconf="manager.api.urls",
     public=True,
     permission_classes=(permissions.AllowAny,),
     generator_class=CustomOpenAPISchemaGenerator,
 ).without_ui()
 
-swagger_view = TemplateView.as_view(template_name="api_swagger.html")
+swagger_view = TemplateView.as_view(template_name="swagger.html")

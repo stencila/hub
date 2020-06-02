@@ -9,7 +9,10 @@
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    {% block styles %}{% endblock %}
+
     <script src="{% static 'js/index.js' %}"></script>
+    {% block scripts %}{% endblock %}
 
     {% if debug %}
       <script>
@@ -128,8 +131,7 @@
       <div class="container">
         <div class="columns">
           <div class="column is-full has-text-centered">
-            <a>Help</a>
-            <a>API</a>
+            <a href="{% url 'api-docs' %}">API</a>
             <a href="https://status.stenci.la">Status</a>
             <a href="https://policies.stenci.la/privacy">Privacy</a>
             <a href="https://policies.stenci.la/terms">Terms</a>

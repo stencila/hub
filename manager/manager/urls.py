@@ -17,7 +17,7 @@ from manager.ui.views import (
 )
 
 urlpatterns = [
-    path(Paths.api.value, include("manager.api.urls")),
+    path(Paths.api.value + "/", include("manager.api.urls")),
     path(Paths.favicon.value, favicon),
     path(Paths.me.value + "/", include("users.ui.urls")),
     path(
