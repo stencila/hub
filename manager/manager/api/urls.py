@@ -7,14 +7,18 @@ generated.
 """
 from django.urls import re_path
 
+import users.api.urls
 from manager.api.views.docs import schema_view, swagger_view
 from manager.api.views.status import StatusView
-import users.api.urls
 
-urlpatterns = [
-    # API schema and docs
-    re_path(r"^$|(docs/?)", swagger_view, name="api-docs"),
-    re_path(r"^schema/?", schema_view, name="api-schema"),
-    # System status
-    re_path(r"^status/?", StatusView.as_view(), name="api-status")
- ] + users.api.urls.tokens.urls + users.api.urls.users.urls
+urlpatterns = (
+    [
+        # API schema and docs
+        re_path(r"^$|(docs/?)", swagger_view, name="api-docs"),
+        re_path(r"^schema/?", schema_view, name="api-schema"),
+        # System status
+        re_path(r"^status/?", StatusView.as_view(), name="api-status"),
+    ]
+    + users.api.urls.tokens.urls
+    + users.api.urls.users.urls
+)

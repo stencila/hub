@@ -1,12 +1,10 @@
 import datetime
 
 from django import db
-
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.loader import MigrationLoader
-
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import permissions, serializers, generics
+from rest_framework import generics, permissions, serializers
 from rest_framework.request import Request
 from rest_framework.response import Response
 from sentry_sdk import capture_message
@@ -39,6 +37,7 @@ class StatusView(generics.GenericAPIView):
 
     @swagger_auto_schema(responses={200: StatusResponse})
     def get(self, request: Request) -> Response:
+        """Get the system status."""
         try:
             pending = migrations_pending()
         except db.OperationalError as exc:
@@ -70,6 +69,7 @@ class StatusView(generics.GenericAPIView):
         response["Pragma"] = "no-cache"
         response["Expires"] = "0"
         return response
+
 
 def migrations_pending() -> bool:
     """

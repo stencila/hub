@@ -119,7 +119,7 @@ class TokenCreateOpenIdTests(TokenTestCase):
 
     def create(self, claims):
         """Post a request with an OpenId token parameter."""
-        return super().create({"openid": jwt.encode(claims, 'not-a-secret')})
+        return super().create({"openid": jwt.encode(claims, "not-a-secret")})
 
     @staticmethod
     def verify_token(token, *args, **kwargs):

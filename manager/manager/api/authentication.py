@@ -2,8 +2,8 @@ import base64
 import binascii
 
 from knox.auth import TokenAuthentication
-from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import HTTP_HEADER_ENCODING, get_authorization_header
+from rest_framework.exceptions import AuthenticationFailed
 
 
 class BasicAuthentication(TokenAuthentication):

@@ -14,4 +14,5 @@ class IgnoreClientContentNegotiation(negotiation.DefaultContentNegotiation):
     """
 
     def select_renderer(self, request, renderers, format_suffix):
+        """Override that simply returns the first rendererer."""
         return (renderers[0], renderers[0].media_type)

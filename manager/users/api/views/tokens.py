@@ -14,6 +14,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.text import slugify
 from drf_yasg.utils import swagger_auto_schema
+from google.auth.transport import requests
+from google.oauth2 import id_token
 from knox.settings import CONSTANTS as KNOX_CONSTANTS
 from knox.settings import knox_settings
 from rest_framework import mixins, serializers, viewsets
@@ -28,8 +30,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 
-from google.auth.transport import requests
-from google.oauth2 import id_token
 from users.api.serializers import TokenSerializer
 
 # Claims verified for OpenID JWTs issued by Google

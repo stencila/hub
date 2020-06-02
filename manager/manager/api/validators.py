@@ -12,7 +12,9 @@ class FromContextDefault:
         self.value_fn = value_fn
 
     def set_context(self, serializer_field):
+        """Set the value from the context."""
         self.value = self.value_fn(serializer_field.context)
 
     def __call__(self):
+        """Return the default value."""
         return self.value

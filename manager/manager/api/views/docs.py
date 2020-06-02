@@ -8,7 +8,10 @@ from rest_framework import permissions
 
 
 class CustomOpenAPISchemaGenerator(OpenAPISchemaGenerator):
+    """A custom schema generator."""
+
     def get_schema(self, *args, **kwargs):
+        """Override to alter the base path of the schema."""
         schema = super().get_schema(*args, **kwargs)
         schema.basePath = "/api"
         return schema
