@@ -3,6 +3,7 @@ import time
 import typing
 from hmac import compare_digest
 
+import jwt
 import knox.auth
 import knox.crypto
 import knox.models
@@ -27,7 +28,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 
-import jwt
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from users.api.serializers import TokenSerializer
@@ -100,6 +100,7 @@ class TokensViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    """A view set for user tokens."""
 
     # Configuration
 

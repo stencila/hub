@@ -12,6 +12,11 @@ from users.models import User
 class UsersViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
 ):
+    """
+    A view set for users.
+
+    Currently only provides `list` and `retrieve` actions.
+    """
 
     # Configuration
 

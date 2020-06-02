@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from general.testing import DatabaseTestCase
+from manager.testing import DatabaseTestCase
 
 
 class UserAPIViewsTests(DatabaseTestCase):

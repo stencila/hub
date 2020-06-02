@@ -3,15 +3,14 @@ import time
 from datetime import datetime
 from unittest import mock
 
+import jwt
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from knox.settings import knox_settings
 from rest_framework import status
 
-import jwt
-from general.testing import DatabaseTestCase
-from rest_framework_jwt.serializers import jwt_encode_handler
+from manager.testing import DatabaseTestCase
 from users.api.views.tokens import GOOGLE_AUDS, GOOGLE_ISS, generate_username
 
 
@@ -120,7 +119,7 @@ class TokenCreateOpenIdTests(TokenTestCase):
 
     def create(self, claims):
         """Post a request with an OpenId token parameter."""
-        return super().create({"openid": jwt_encode_handler(claims)})
+        return super().create({"openid": jwt.encode(claims, 'not-a-secret')})
 
     @staticmethod
     def verify_token(token, *args, **kwargs):

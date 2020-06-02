@@ -90,6 +90,9 @@ class Prod(Configuration):
         "allauth.socialaccount.providers.twitter",
         "allauth.socialaccount",
         "django_intercom",
+        "drf_yasg",
+        "knox",
+        "rest_framework",
         # Our apps
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
@@ -251,9 +254,11 @@ class Prod(Configuration):
         ),
         "DEFAULT_AUTHENTICATION_CLASSES": [
             # Default is for token and Django session authentication
+            "manager.api.authentication.BasicAuthentication",
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ],
+        "EXCEPTION_HANDLER": "manager.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
         "PAGE_SIZE": 50,
         # Use JSON by default when using the test client

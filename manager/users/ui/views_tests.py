@@ -1,6 +1,6 @@
 from django.test import Client
 
-from general.testing import DatabaseTestCase
+from manager.testing import DatabaseTestCase
 
 
 class SignInTestCase(DatabaseTestCase):

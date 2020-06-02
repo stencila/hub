@@ -1,4 +1,4 @@
-from general.api.routers import OptionalSlashRouter
+from manager.api.routers import OptionalSlashRouter
 from users.api.views.tokens import TokensViewSet
 from users.api.views.users import UsersViewSet
 
