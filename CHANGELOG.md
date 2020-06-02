@@ -1,3 +1,24 @@
+# [2.30.0](https://github.com/stencila/hub/compare/v2.29.2...v2.30.0) (2020-06-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.94.0 ([7d579d1](https://github.com/stencila/hub/commit/7d579d14b39cdb019285762635ba0b995928450a))
+* **deps:** update dependency django-allauth to v0.42.0 ([ecf6258](https://github.com/stencila/hub/commit/ecf6258ebb19606a74468a8dda55e2c3c245ffea))
+* **deps:** update dependency google-api-python-client to v1.8.4 ([fa26cfe](https://github.com/stencila/hub/commit/fa26cfecf155334e7272c4056a30684dea71034e))
+* **deps:** update dependency httpx to v0.13.3 ([6dc9b42](https://github.com/stencila/hub/commit/6dc9b42ea09c23013321c92e87232be9ad7ffef6))
+* **deps:** update dependency prometheus_client to v0.8.0 ([5815f29](https://github.com/stencila/hub/commit/5815f29965695ac8d38abd31b282992b6b03c23d))
+* **Director:** Link new oauth user by verified email ([2012200](https://github.com/stencila/hub/commit/20122006b1a668af1d1a6b44a204e1bc0344ffe0))
+* **Director:** Prefer primary email when matching ([3cd6d34](https://github.com/stencila/hub/commit/3cd6d348c65a2e31b17bfae53e406bd8fc1b439c))
+* **Director:** Remember last login provider ([f092c2e](https://github.com/stencila/hub/commit/f092c2e36a8eb82e466c9dec5399de4da3883459))
+* **Director:** Save emails from new social account ([a255ea1](https://github.com/stencila/hub/commit/a255ea1ebd1f3b6876902de912d53f0273565215))
+* **Director:** Use verified github emails in match ([839d726](https://github.com/stencila/hub/commit/839d726f362bc054adbf96ba4f895563e476a0bb))
+
+
+### Features
+
+* **Overseer:** Add metrics for jobs and workers per queue ([ac48429](https://github.com/stencila/hub/commit/ac484295c4dd2c9b3e645d0f1b48655df7330c69))
+
 ## [2.29.2](https://github.com/stencila/hub/compare/v2.29.1...v2.29.2) (2020-05-26)
 
 
