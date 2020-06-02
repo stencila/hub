@@ -1,4 +1,4 @@
 amqp==2.5.2
 celery==4.4.2
 httpx==0.13.1
-prometheus_client==0.7.1
+prometheus_client==0.8.0
