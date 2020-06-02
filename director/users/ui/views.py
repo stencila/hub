@@ -32,6 +32,18 @@ class UserSigninView(LoginView):
 
     template_name = "users/signin.html"
 
+    def get_context_data(self, *args, **kwargs):
+        data = super().get_context_data(*args, **kwargs)
+        data["providers"] = [
+            dict(name="github", title="GitHub", icon="github"),
+            dict(name="google", title="Google", icon="google"),
+            dict(name="orcid", title="ORCID"),
+            dict(name="twitter", title="Twitter", icon="twitter"),
+        ]
+        if "auth_provider" in self.request.COOKIES:
+            data["auth_provider"] = self.request.COOKIES["auth_provider"]
+        return data
+
 
 class UserSignoutView(LogoutView):
     """Override of allauth LogoutView to custom URL and template name."""

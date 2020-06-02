@@ -266,6 +266,8 @@ class Prod(Configuration):
         }
     }
 
+    SOCIALACCOUNT_ADAPTER = "lib.social_account_adapter.SocialAccountAdapter"
+
     REST_FRAMEWORK = {
         # Use camel casing for everything (inputs and outputs)
         "DEFAULT_RENDERER_CLASSES": (
