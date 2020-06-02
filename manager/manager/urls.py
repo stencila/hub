@@ -25,7 +25,7 @@ urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls, name="admin"),
-                path("render/<str:template>", render_template),
+                path("render/", render_template),
                 path("test/messages/", test_messages),
                 path("test/403/", test403),
                 path("test/404/", test404),

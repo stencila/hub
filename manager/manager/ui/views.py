@@ -54,13 +54,23 @@ def favicon(request: HttpRequest) -> HttpResponse:
     )
 
 
-def render_template(request: HttpRequest, template: str) -> HttpResponse:
+def render_template(request: HttpRequest) -> HttpResponse:
     """
     Render an arbitrary template.
 
     This view allows testing of templates during development.
+    You can use it to preview templates for pages e.g.
+
+       http://localhost:8000/stencila/render?template=403.html
+
+    Or, for partial templates by using the `wrap` parameter e.g.
+
+       http://localhost:8000/stencila/render?wrap=users/_search.html
     """
-    return render(request, template)
+    template = request.GET.get("template", "base.html")
+    wrap = request.GET.get("wrap")
+    context = dict(wrap=wrap) if wrap else {}
+    return render(request, template, context)
 
 
 def test_messages(request: HttpRequest) -> HttpResponse:
