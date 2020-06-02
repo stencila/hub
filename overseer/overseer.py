@@ -25,7 +25,6 @@ for this purpose (the results should be used for that, which is what
 `update_job` does; see https://github.com/celery/celery/issues/2190#issuecomment-51609500).
 """
 from datetime import datetime
-from functools import reduce
 from typing import Dict, List, Set, Union
 import logging
 import os
@@ -193,7 +192,7 @@ QUEUES: Set[str] = set()
 def add_worker(hostname: str):
     """
     Add a worker.
-    
+
     Gets additional stats and the queues for the worker.
     The list of queues may initially be empty so try multiple
     times.
@@ -244,7 +243,7 @@ def worker_online(event: Event):
     Fetches more information on the worker and creates a new worker
     object on the `director`.
     """
-    hostname = event.get("hostname")
+    hostname = str(event.get("hostname"))
     queues, stats = add_worker(hostname)
 
     response = api.post(
@@ -263,7 +262,7 @@ def worker_heartbeat(event: Event):
     rather trying to resolve which worker this heartbeat is for here,
     we sent the entire event to the `director` and do it over there.
     """
-    hostname = event.get("hostname")
+    hostname = str(event.get("hostname"))
     if hostname not in WORKERS:
         add_worker(hostname)
 
@@ -279,7 +278,7 @@ def worker_offline(event: Event):
     Sends a POST request to the `director` to mark the
     worker as finished.
     """
-    hostname = event.get("hostname")
+    hostname = str(event.get("hostname"))
     if hostname in WORKERS:
         remove_worker(hostname)
 
@@ -291,7 +290,7 @@ def worker_offline(event: Event):
 class Receiver(EventReceiver):
     """
     A class for receiving events about jobs and workers.
-    
+
     Extends Celery's `EventReceiver` class to implement monitoring intrumentation.
     """
 
@@ -323,8 +322,7 @@ class Receiver(EventReceiver):
 class Collector(threading.Thread):
     """
     A thread for collecting information on queues and workers.
-    
-    
+
     Based on, the now archived, https://github.com/zerok/celery-prometheus-exporter.
     """
 
@@ -332,6 +330,7 @@ class Collector(threading.Thread):
     workers_ping_timeout_seconds = 10
 
     def __init__(self, app: Celery):
+        """Create the collector thread."""
         self.app = app
         self.connection = app.connection_or_acquire()
         if isinstance(self.connection, FallbackContext):
@@ -339,6 +338,7 @@ class Collector(threading.Thread):
         super().__init__()
 
     def run(self):
+        """Run the collector thread."""
         while True:
             # `ping` workers; returns a list of workers e.g. `[{'worker@host': {'ok': 'pong'}}, ...]`
             try:
@@ -346,7 +346,7 @@ class Collector(threading.Thread):
                     timeout=self.workers_ping_timeout_seconds
                 )
                 logging.info("Workers pinged: {}.".format(len(workers)))
-            except Exception:
+            except Exception as exc:
                 workers = []
                 logging.error("Error pinging workers: {}".format(str(exc)))
 

@@ -5,12 +5,4 @@ exclude = 'venv'
 
 [mypy]
 python_version = 3.7
-
-[mypy-celery]
-ignore_missing_imports = true
-
-[mypy-celery.events.receiver]
-ignore_missing_imports = true
-
-[mypy-prometheus_client]
 ignore_missing_imports = true
