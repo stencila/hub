@@ -25,6 +25,7 @@ urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls, name="admin"),
+                path("render/<str:template>", render_template),
                 path("test/messages/", test_messages),
                 path("test/403/", test403),
                 path("test/404/", test404),
@@ -38,10 +39,7 @@ urlpatterns = [
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [
-        path("debug/", include(debug_toolbar.urls)),
-        path("render/<str:template>", render_template),
-    ] + urlpatterns
+    urlpatterns = [path("debug/", include(debug_toolbar.urls))] + urlpatterns
 
 
 handler403 = handle403

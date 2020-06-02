@@ -50,7 +50,7 @@ class SignoutView(LogoutView):
 class UsernameView(LoginRequiredMixin, FormView):
     """View to allow changing of username."""
 
-    template_name = "users/username.html"
+    template_name = "users/username_change.html"
     form_class = UsernameForm
     success_url = reverse_lazy("ui-userS-settings")
 

@@ -32,17 +32,19 @@ class DatabaseTestCase(test.APITestCase):
     The returned value is a `rest_framework.response.Response`.
     """
 
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         """Set up the test fixtures."""
+        super().setUpClass()
         for username in ("ada", "bob", "cam"):
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 user = User.objects.create_user(username, password=username)
-            setattr(self, username, user)
+            setattr(cls, username, user)
 
             instance, token = AuthToken.objects.create(user=user)
-            setattr(self, "{}_token".format(username), token)
+            setattr(cls, "{}_token".format(username), token)
 
     def authenticate(self, user: Optional[User]) -> None:
         """

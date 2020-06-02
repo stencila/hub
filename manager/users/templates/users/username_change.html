@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Change Username{% endblock %}
+{% block title %}{% trans "Change username" %}{% endblock %}
 
 {% block content %}
 <section class="section">
-  <h1 class="title is-3">{% trans "Change your username" %}</h1>
+  <h1 class="title is-3">{% trans "Change username" %}</h1>
   <form class="form" method="post" action="{% url 'ui-users-signup' %}">
     {% csrf_token %}
     {% include "forms/form.html" with form=form %}
-    <button class="button is-primary" type="submit">Change</button>
+    <button class="button is-primary" type="submit">{% trans "Change" %}</button>
   </form>
 </section>
 {% endblock %}
