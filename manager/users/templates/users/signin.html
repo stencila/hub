@@ -10,22 +10,12 @@
     <div class="column">
       <h3 class="title is-6">Sign in using...</h3>
       <div class="buttons">
-        <a class="button is-primary is-outlined" title="Github" href="{% provider_login_url 'github' process='login' %}">
-          <span class="icon"><i class="fab fa-github"></i></span>
-          <span>GitHub</span>
-        </a>
-        <a class="button is-primary is-outlined" title="Google" href="{% provider_login_url 'google' process='login' %}">
-          <span class="icon"><i class="fab fa-google"></i></span>
-          <span>Google</span>
-        </a>
-        <a class="button is-primary is-outlined" title="ORCID" href="{% provider_login_url 'orcid' process='login' %}">
-          <span class="icon"><i class="fas fa-user"></i></span>
-          <span>ORCID</span>
-        </a>
-        <a class="button is-primary is-outlined" title="Twitter" href="{% provider_login_url 'twitter' process='login' %}">
-          <span class="icon"><i class="fab fa-twitter"></i></span>
-          <span>Twitter</span>
-        </a>
+          {% for p in providers %}
+            <a class="button is-primary {% if auth_provider != p.name %}is-outlined{% endif %}" title="{{ p.title}}" href="{% provider_login_url p.name process='login' %}">
+                <span class="icon"><i class="{% if p.icon %}fab fa-{{ p.icon }}{% else %}fas fa-user{% endif %}"></i></span>
+                <span>{{ p.title }}</span>
+            </a>
+          {% endfor %}
       </div>
       <p class="help">
         If you have signed in with one of these services before please use it again to avoid

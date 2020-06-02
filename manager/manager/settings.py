@@ -238,6 +238,8 @@ class Prod(Configuration):
         }
     }
 
+    SOCIALACCOUNT_ADAPTER = "users.social_account_adapter.SocialAccountAdapter"
+
     # django-rest-framework settings
 
     REST_FRAMEWORK = {
