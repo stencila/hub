@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from manager.paths import Paths
-from manager.views import (
+from manager.ui.views import (
     favicon,
     handle403,
     handle404,
