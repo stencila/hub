@@ -4,55 +4,57 @@
 {% block title %}{% trans "Sign in" %}{% endblock %}
 
 {% block content %}
-<section class="section">
-  <h1 class="title is-3">Sign in</h1>
-  <div class="columns is-centered">
-    <div class="column">
-      <h3 class="title is-6">Sign in using...</h3>
-      <div class="buttons">
-          {% for p in providers %}
-            <a class="button is-primary {% if auth_provider != p.name %}is-outlined{% endif %}" title="{{ p.title}}" href="{% provider_login_url p.name process='login' %}">
-                <span class="icon"><i class="{% if p.icon %}fab fa-{{ p.icon }}{% else %}fas fa-user{% endif %}"></i></span>
-                <span>{{ p.title }}</span>
-            </a>
-          {% endfor %}
-      </div>
-      <p class="help">
-        If you have signed in with one of these services before please use it again to avoid
-        creating duplicate user accounts.
-      </p>
+
+<div class="columns is-centered">
+  <div class="column is-half-tablet">
+    <h1 class="title is-3">Sign in using…</h1>
+    <div class="buttons">
+      {% for p in providers %}
+      <a class="button is-primary {% if auth_provider != p.name %}is-outlined{% endif %}" title="{{ p.title}}" href="{% provider_login_url p.name process='login' %}">
+        <span class="icon"><i class="{% if p.icon %}ri-{{ p.icon }}-line{% else %}ri-shield-user-line{% endif %}"></i></span>
+        <span>{{ p.title }}</span>
+      </a>
+      {% endfor %}
     </div>
-  </div>
-  <div class="columns is-centered">
-    <div class="column">
-      <h3 class="title is-6">Or, an existing account...</h3>
-      <form class="form" method="post" action="{% url 'ui-users-signin' %}">
-        {% csrf_token %}
-        {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-        {% endif %}
+    <p class="help">
+      If you have signed in with one of these services before please use it again to avoid
+      creating duplicate user accounts.
+    </p>
 
-        {% include "forms/field.html" with field=form.login %}
-        {% include "forms/field.html" with field=form.password %}
-        {% include "forms/errors.html" with form=form %}
+    <hr />
 
-        <div class="level">
-          <div class="level-left">
-            <div class="level-item">
-              <button class="button is-primary is-outlined" type="submit">Sign in</button>
-            </div>
+    <h3 class="title is-6">Or, an existing account...</h3>
+    <form class="form" method="post" action="{% url 'ui-users-signin' %}">
+      {% csrf_token %}
+      {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+      {% endif %}
+
+      {% include "forms/field.html" with field=form.login %}
+      {% include "forms/field.html" with field=form.password %}
+      {% include "forms/errors.html" with form=form %}
+
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <button class="button is-primary is-outlined" type="submit">
+              <span class="icon"><i class="ri-login-box-line"></i></span>
+              <span>
+                Sign in
+                <span>
+            </button>
           </div>
-          <div class="level-right">
-            <div class="level-item">
-              <div class="has-text-centered">
-                <p class="help"><a href="{% url 'account_reset_password' %}">Forgot your password?</a></p>
-                <p class="help"><a href="{% url 'ui-users-signup' %}">Don't have a user account yet?</a></p>
-              </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="has-text-right">
+              <p class="help"><a href="{% url 'account_reset_password' %}">Forgot your password?</a></p>
+              <p class="help"><a href="{% url 'ui-users-signup' %}">Don't have a user account yet?</a></p>
             </div>
           </div>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
-</section>
+</div>
 {% endblock %}

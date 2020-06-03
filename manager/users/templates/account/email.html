@@ -15,7 +15,7 @@
 <form class="form" method="POST" action="{% url 'account_email' %}">
   {% csrf_token %}
   {% for emailaddress in user.emailaddress_set.all %}
-  <div class="ctrlHolder email-settings__item">
+  <div class="email-settings__item">
     <label 
       for="email_radio_{{forloop.counter}}"
       class="is-size-5 {% if emailaddress.primary %}has-text-weight-bold{%endif%} email-settings__label"
