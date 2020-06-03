@@ -2,5 +2,6 @@
 /manager/static/css/styles.css
 /manager/static/js/index.js
 /node_modules
+/snaps
 /static
 /venv
