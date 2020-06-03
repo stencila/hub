@@ -1,8 +1,10 @@
 from django.db.models import Q, QuerySet
+from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from users.api.serializers import MeSerializer, UserSerializer
@@ -16,6 +18,7 @@ class UsersViewSet(
     A view set for users.
 
     Currently only provides `list` and `retrieve` actions.
+    Authentication is only required for the `me` action.
     """
 
     # Configuration
@@ -24,8 +27,8 @@ class UsersViewSet(
     permission_classes = ()
 
     def get_queryset(self) -> QuerySet:
-        """Get all Users, or only those matching the query (if provided)."""
-        query = self.request.query_params.get("q")
+        """Get all users, or only those matching the search query (if provided)."""
+        query = self.request.query_params.get("search")
         if query is None:
             return User.objects.all()
 
@@ -49,30 +52,42 @@ class UsersViewSet(
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
-                "q",
+                "search",
                 openapi.IN_QUERY,
                 description="String to search for within user usernames, first and last names and email addresses.",
                 type=openapi.TYPE_STRING,
-                required=True,
             )
         ]
     )
-    def list(self, *args, **kwargs):
+    def list(self, request: Request, *args, **kwargs) -> Response:
         """
         List users.
 
         The optional `q` parameter is a search string used to filter user.
         Returns details on each user.
         """
-        return super().list(*args, **kwargs)
+        queryset = self.get_queryset()
 
-    def retrieve(self, *args, **kwargs):
+        template = request.query_params.get("html")
+        if template is not None:
+            return render(
+                request,
+                template or "users/_search_result.html",
+                dict(queryset=queryset),
+            )
+        else:
+            pages = self.paginate_queryset(queryset)
+            serializer = self.get_serializer(pages, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve a user.
 
         Returns details of the user.
         """
-        return super().retrieve(*args, **kwargs)
+        # This method exists only to add the above docs to the schema.
+        return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(responses={200: MeSerializer})
     @action(
@@ -80,7 +95,7 @@ class UsersViewSet(
         permission_classes=[permissions.IsAuthenticated],
         pagination_class=None,
     )
-    def me(self, request, *args, **kwargs):
+    def me(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve the current user.
 

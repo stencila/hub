@@ -27,7 +27,7 @@ class UserAPIViewsTests(DatabaseTestCase):
         authed = self.list_users(self.ada)
         assert authed.data == anon.data
 
-        searched = self.list_users(None, data={"q": "cam"})
+        searched = self.list_users(None, data={"search": "cam"})
         users = searched.data["results"]
         assert len(users) == 1
         assert users[0]["username"] == "cam"
