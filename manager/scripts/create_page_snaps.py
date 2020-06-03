@@ -32,7 +32,7 @@ EXCLUDE = [
 ]
 
 # Paths to visit as an anonymous user
-ANON = ["me/signin", "me/signup"]
+ANON = ["me/signin/", "me/signup/"]
 
 # Viewport sizes to take screenshots at
 VIEWPORTS = [
