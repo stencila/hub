@@ -93,7 +93,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/layout/footer.sass";
 
 // Custom styles
-@import "./view/_settings.scss";
+@import "./users/account/email.scss";
 
 .navbar {
   // Add a screen top border
