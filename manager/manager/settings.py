@@ -346,8 +346,13 @@ class Prod(Configuration):
 
     # Allow for username / password API authentication
     # This is usually disallowed in production (in favour of tokens)
-    # but is permitted during development development for convenience.
+    # but is permitted during development for convenience.
     API_BASIC_AUTH = values.BooleanValue(False)
+
+    # Allow for username / password authentication for non-API views
+    # This is usually disallowed in production but is permitted
+    # during development for ease of testing.
+    UI_BASIC_AUTH = values.BooleanValue(False)
 
     @classmethod
     def post_setup(cls):
@@ -356,11 +361,15 @@ class Prod(Configuration):
         if not cls.DEPLOYMENT_ENVIRONMENT:
             cls.DEPLOYMENT_ENVIRONMENT = cls.__name__.lower()
 
-        # Add Basic auth if allowed
+        # Add API Basic auth if allowed
         if cls.API_BASIC_AUTH:
             cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
                 0, "rest_framework.authentication.BasicAuthentication",
             )
+
+        # Add UI Basic auth if allowed
+        if cls.UI_BASIC_AUTH:
+            cls.MIDDLEWARE += ("manager.middleware.basic_auth",)
 
         #  Setup sentry if a DSN is provided
         if cls.SENTRY_DSN:
@@ -414,6 +423,9 @@ class Dev(Prod):
 
     # In standalone development, default to using a pseudo, in-memory broker
     BROKER_URL = values.Value("memory://", environ_prefix=None)
+
+    # For browser screenshotting allow Basic auth
+    UI_BASIC_AUTH = True
 
 
 class Test(Prod):

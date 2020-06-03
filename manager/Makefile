@@ -104,6 +104,11 @@ test-watch: venv
 cover: venv
 	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
 
+# Create page snapshots
+snaps: venv
+	$(DJ) runscript create_page_snaps
+.PHONY: snaps
+
 # Build Docker image
 build: Dockerfile
 	docker build --tag stencila/hub-director .
