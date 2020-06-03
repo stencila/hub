@@ -79,6 +79,7 @@ lint: lint-format lint-code lint-types lint-docs
 lint-format: venv
 	$(VE)/black --check .
 	$(VE)/isort --check-only
+	npm run lint:format
 
 # Lint code
 lint-code: venv
