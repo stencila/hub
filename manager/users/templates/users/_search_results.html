@@ -6,7 +6,7 @@ for displaying user search results.
 {% endcomment %}
 <div class="dropdown-content">
   {% for user in queryset %}
-    <div class="dropdown-item" data-id="{{ user.id }}">
+    <div class="dropdown-item" data-id="{{ user.id }}" data-username="{{ user.username }}">
       <strong>{{ user.username }}</strong>&nbsp;&nbsp;
       <span>{{ user.first_name }} {{ user.last_name }}<span>
     </div>

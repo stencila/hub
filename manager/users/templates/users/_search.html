@@ -42,7 +42,9 @@ Inspired by Github's user search field (amongst others).
       });
     // Update the `input[name=user]` when a dropdown item is selected
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
-        $search.querySelector('input[name=user]').value = event.target.getAttribute('data-id')
+        var item = htmx.closest(event.target, '.dropdown-item')
+        $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
+        $search.querySelector('input[name=user]').value = item.getAttribute('data-id')
       });
   </script>
 </div>
