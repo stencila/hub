@@ -1,0 +1,48 @@
+{% comment %}
+A search field for users.
+
+Allows interactive searching for users.
+Intended to be used in forms that require a user to be specified
+e.g. adding another user to a team, or a project.
+
+Inspired by Github's user search field (amongst others).
+{% endcomment %}
+<div id="user-search" class="dropdown is-active">
+  <div class="dropdown-trigger">
+    <div class="field">
+      <div class="control has-icons-left has-icons-right">
+        <input
+          class="input"
+          type="text" 
+          name="search"
+          placeholder="Search by username, full name, or email" 
+          hx-trigger="keyup changed delay:500ms" 
+          hx-get="/api/users"
+          hx-indicator="#user-search .htmx-indicator"
+          hx-target="#user-search .dropdown-menu"
+        >
+        <span class="icon is-small is-left">
+          <i class="fas fa-search"></i>
+        </span>
+        <span class="icon is-small is-right htmx-indicator">
+          <i class="fa fa-spinner fa-pulse"></i>
+        </span>
+      </div>
+    </div>
+    {# A hidden input to hold the value of the selected user. Will be submitted with the enclosing form. #}
+    <input type="hidden" name="user">
+  </div>
+  <div class="dropdown-menu"></div>
+  <script>
+    var $search = document.querySelector('#user-search')
+    // Add query parameters to search
+    $search.querySelector('input[name=search]').addEventListener('configRequest.htmx', function(event) {
+        event.detail.parameters['limit'] = '30';
+        event.detail.parameters['html'] = 'users/_search_results.html';
+      });
+    // Update the `input[name=user]` when a dropdown item is selected
+    $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
+        $search.querySelector('input[name=user]').value = event.target.getAttribute('data-id')
+      });
+  </script>
+</div>
