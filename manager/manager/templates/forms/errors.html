@@ -1,7 +1,7 @@
 {% if form.non_field_errors %}
-  <div class="level">
-    {% for error in form.non_field_errors %}
-      <p class="help is-danger">{{ error }}</p>
-    {% endfor %}
-  </div>
+<div class="level">
+  {% for error in form.non_field_errors %}
+  <p class="help is-danger">{{ error }}</p>
+  {% endfor %}
+</div>
 {% endif %}

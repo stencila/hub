@@ -16,11 +16,11 @@
   {% csrf_token %}
   {% for emailaddress in user.emailaddress_set.all %}
   <div class="email-settings__item">
-    <label 
-      for="email_radio_{{forloop.counter}}"
-      class="is-size-5 {% if emailaddress.primary %}has-text-weight-bold{%endif%} email-settings__label"
-    >
-      <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked" {%endif %} value="{{emailaddress.email}}" />
+    <label for="email_radio_{{forloop.counter}}"
+           class="is-size-5 {% if emailaddress.primary %}has-text-weight-bold{%endif%} email-settings__label">
+      <input id="email_radio_{{forloop.counter}}" type="radio" name="email"
+             {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked" {%endif %}
+             value="{{emailaddress.email}}" />
 
       {{ emailaddress.email }}
 

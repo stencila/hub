@@ -22,7 +22,8 @@
     <div class="control">
       <label class="radio" for="id_account_{{ base_account.id }}">
         <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}" />
-        <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
+        <span
+              class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
         {{ account }}
       </label>
     </div>
@@ -52,14 +53,15 @@
   {% for provider in socialaccount_providers %}
   {% if provider.id == "openid" %}
   {% for brand in provider.get_brands %}
-  <a title="{{brand.name}}" class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}" href="{% provider_login_url provider.id openid=brand.openid_url process='connect' %}">
+  <a title="{{brand.name}}" class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}"
+     href="{% provider_login_url provider.id openid=brand.openid_url process='connect' %}">
     <div class="level">
       <div class="level-left">
         <span class="icon">
           {% if brand.name|lower in "github,google,twitter" %}
-            <i class="ri-{{brand.name|lower}}-line"></i>
+          <i class="ri-{{brand.name|lower}}-line"></i>
           {% else %}
-            <i class="ri-shield-user-line"></i>
+          <i class="ri-shield-user-line"></i>
           {% endif %}
         </span>
         <p class="is-uppercase-heading has-text-weight-semibold">{{brand.name}}</p>
@@ -74,14 +76,15 @@
   {% endfor %}
 
   {% endif %}
-  <a title="{{provider.name}}" class="list-menu--item socialaccount_provider {{provider.id}}" href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}">
+  <a title="{{provider.name}}" class="list-menu--item socialaccount_provider {{provider.id}}"
+     href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}">
     <div class="level">
       <div class="level-left">
         <span class="icon">
           {% if provider.name|lower in "github,google,twitter" %}
-            <i class="ri-{{provider.name|lower}}-line"></i>
+          <i class="ri-{{provider.name|lower}}-line"></i>
           {% else %}
-            <i class="ri-shield-user-line"></i>
+          <i class="ri-shield-user-line"></i>
           {% endif %}
         </span>
         <p class="is-uppercase-heading has-text-weight-semibold">{{provider.name}}</p>
