@@ -109,7 +109,7 @@ checks = [
         ada=page404
     ),
     Check(
-        "/stencila/render/500.html",
+        "/stencila/render?template=500.html",
         anon=title("Oops!"),
         ada=title("Oops!")
     ),
