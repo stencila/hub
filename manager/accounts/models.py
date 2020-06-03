@@ -1,4 +1,5 @@
 from django.db import models
+from imagefield.fields import ImageField
 
 from users.models import User
 
@@ -27,6 +28,9 @@ class Account(models.Model):
         User,
         null=True,
         blank=True,
+        # Cascade delete so that when user is deleted, so is this account.
+        # Avoid using `SET_NULL` here as that could result in a personal
+        # account being treated as an organization if the user is deleted.
         on_delete=models.CASCADE,
         related_name="personal_account",
         help_text="The user for this account. Only applies to personal accounts.",
@@ -36,8 +40,15 @@ class Account(models.Model):
         null=False, blank=False, unique=True, help_text="Name of the account.",
     )
 
-    image = models.ImageField(
-        null=True, blank=True, help_text="Image for the account.",
+    image = ImageField(
+        null=True,
+        blank=True,
+        formats={
+            "small": ["default", ("thumbnail", (50, 50))],
+            "medium": ["default", ("thumbnail", (100, 100))],
+        },
+        auto_add_fields=True,
+        help_text="Image for the account.",
     )
 
     theme = models.TextField(
@@ -59,3 +70,8 @@ class Account(models.Model):
     def is_personal(self):
         """Is this a personal account."""
         return self.user is not None
+
+    @property
+    def is_organization(self):
+        """Is this an organizational account."""
+        return self.user is None

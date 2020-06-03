@@ -1,6 +1,7 @@
 /dev.sqlite3
 /manager/static/css/styles.css
 /manager/static/js/index.js
+/media
 /node_modules
 /snaps
 /static
