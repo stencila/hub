@@ -72,7 +72,7 @@
                     <div class="buttons">
                       <a class="button is-primary" href="{% url 'ui-users-signin' %}">
                         <span class="icon">
-                          <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                          <i class="ri-login-box-line" aria-hidden="true"></i>
                         </span>
                         <span>Sign in</span>
                       </a>
@@ -85,10 +85,16 @@
                     {{ user.username }}
                   </a>
                   <div class="navbar-dropdown">
+                    <a class="navbar-item" href="{% url 'ui-users-settings' %}">
+                      <span class="icon">
+                        <i class="ri-settings-4-line" aria-hidden="true"></i>
+                      </span>
+                      <span>Settings</span>
+                    </a>
                     <hr class="navbar-divider">
                     <a class="navbar-item" href="{% url 'ui-users-signout' %}">
                       <span class="icon">
-                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        <i class="ri-logout-box-line" aria-hidden="true"></i>
                       </span>
                       <span>Sign out</span>
                     </a>
@@ -121,7 +127,8 @@
     {% endif %}
 
     <main>
-      <div class="container">
+      <section class="section">
+        <div class="container">
         {% if wrap %}
           {# See the `render_template` view for why this is here #}
           {% include wrap %}
@@ -130,7 +137,8 @@
           {% block content %}
           {% endblock %}
         {% endif %}
-      </div>
+        </div>
+      <section>
     </main>
 
     <footer class="footer">

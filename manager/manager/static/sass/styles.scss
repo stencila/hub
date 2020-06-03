@@ -2,15 +2,24 @@
 
 // Import fonts
 
-@import url('https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:600&display=swap');
-@import url('https://use.fontawesome.com/releases/v5.1.0/css/all.css');
+@import url("https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:600&display=swap");
+// @import url('https://use.fontawesome.com/releases/v5.1.0/css/all.css');
+@import url("https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css");
 
 // Bulma variable overrides
 
-$family-sans-serif: 'Lato', sans-serif;
+$family-sans-serif: "Lato", sans-serif;
 $family-monospace: monospace;
 $family-primary: $family-sans-serif;
-$family-secondary: 'Montserrat', sans-serif;
+$family-secondary: "Montserrat", sans-serif;
+
+$size-1: 2.5rem;
+$size-2: 2rem;
+$size-3: 1.5rem;
+$size-4: 1.25rem;
+$size-5: 1.125rem;
+$size-6: 1rem;
+$size-7: 0.75rem;
 
 $blue: #2568ef;
 $white: #ffffff;
@@ -52,7 +61,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/elements/notification.sass";
 // @import "../../../node_modules/bulma/sass/elements/progress.sass";
 // @import "../../../node_modules/bulma/sass/elements/table.sass";
-// @import "../../../node_modules/bulma/sass/elements/tag.sass";
+@import "../../../node_modules/bulma/sass/elements/tag.sass";
 @import "../../../node_modules/bulma/sass/elements/title.sass";
 @import "../../../node_modules/bulma/sass/elements/other.sass";
 
@@ -63,8 +72,8 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/form/file.sass";
 @import "../../../node_modules/bulma/sass/form/tools.sass";
 
-// @import "../../../node_modules/bulma/sass/components/breadcrumb.sass";
-// @import "../../../node_modules/bulma/sass/components/card.sass";
+@import "../../../node_modules/bulma/sass/components/breadcrumb.sass";
+@import "../../../node_modules/bulma/sass/components/card.sass";
 // @import "../../../node_modules/bulma/sass/components/dropdown.sass";
 @import "../../../node_modules/bulma/sass/components/level.sass";
 // @import "../../../node_modules/bulma/sass/components/list.sass";
@@ -84,6 +93,8 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/layout/section.sass";
 @import "../../../node_modules/bulma/sass/layout/footer.sass";
 
+// Custom styles
+@import "./view/_settings.scss";
 
 .navbar {
   // Add a screen top border
@@ -105,8 +116,6 @@ main {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - #{$navbar-height} - 4px);
-  // Top padding to account for navbar
-  padding-top: $navbar-height;
 }
 
 .footer {
@@ -115,5 +124,29 @@ main {
   }
   .columns a {
     margin: 0.5rem;
+  }
+}
+
+// =============================================================================
+// Reusable elements
+// =============================================================================
+
+a.list-menu--item {
+  &:link,
+  &:visited {
+    color: $text;
+    display: block;
+    padding: 0.5rem;
+    transition-duration: 150ms;
+    transition-property: color, background-color;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  &:hover {
+    background-color: $white-ter;
+    color: $link;
   }
 }

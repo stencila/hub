@@ -1,55 +1,101 @@
-{% extends "base.html" %}
+{% extends "users/_base_settings.html" %}
 {% load i18n %}
 {% block title %}{% trans "Manage account connections" %}{% endblock %}
 
-{% block content %}
-<section class="section">
-  <h1 class="title is-3">{% trans "Manage account connections" %}</h1>
+{% block settings_content %}
+<h1 class="title">{% trans "Manage account connections" %}</h1>
 
-  {% if form.accounts %}
-    <p>{% blocktrans %}You can sign in to your account using any of the following third party
-      accounts:{% endblocktrans %}</p>
+{% if form.accounts %}
+<p>{% blocktrans %}You can sign in to your account using any of the following third party
+  accounts:{% endblocktrans %}</p>
 
-    <form method="post" action="{% url 'socialaccount_connections' %}">
-      {% csrf_token %}
+<form method="post" action="{% url 'socialaccount_connections' %}">
+  {% csrf_token %}
 
-      {% if form.non_field_errors %}
-        <div id="errorMsg">{{ form.non_field_errors }}</div>
-      {% endif %}
-
-      {% for base_account in form.accounts %}
-        {% with base_account.get_provider_account as account %}
-          <div class="field">
-            <div class="control">
-              <label class="radio" for="id_account_{{ base_account.id }}">
-                <input id="id_account_{{ base_account.id }}" type="radio" name="account"
-                  value="{{ base_account.id }}"/>
-                <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
-                {{ account }}
-              </label>
-            </div>
-          </div>
-        {% endwith %}
-      {% endfor %}
-
-      <div class="field">
-        <div class="control">
-          <input type="submit" class="button is-danger" value="{% trans 'Remove' %}">
-        </div>
-      </div>
-      <br>
-    </form>
-  {% else %}
-    <p>{% trans 'You currently have no social network accounts connected to this account.' %}</p>
-    <br>
+  {% if form.non_field_errors %}
+  <div id="errorMsg">{{ form.non_field_errors }}</div>
   {% endif %}
 
-  <h2 class="title is-5">{% trans 'Add a 3rd Party Account' %}</h2>
+  {% for base_account in form.accounts %}
+  {% with base_account.get_provider_account as account %}
+  <div class="field">
+    <div class="control">
+      <label class="radio" for="id_account_{{ base_account.id }}">
+        <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}" />
+        <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
+        {{ account }}
+      </label>
+    </div>
+  </div>
+  {% endwith %}
+  {% endfor %}
 
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
-  </ul>
+  <div class="field">
+    <div class="control">
+      <input type="submit" class="button is-danger" value="{% trans 'Remove' %}">
+    </div>
+  </div>
+  <br>
+</form>
+{% else %}
+<p>{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+<br>
+{% endif %}
+
+<hr />
+
+<div>
+  <h2 class="title">{% trans 'Add a 3rd party account' %}</h2>
+  {% load socialaccount %}
+  {% get_providers as socialaccount_providers %}
+
+  {% for provider in socialaccount_providers %}
+  {% if provider.id == "openid" %}
+  {% for brand in provider.get_brands %}
+  <a title="{{brand.name}}" class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}" href="{% provider_login_url provider.id openid=brand.openid_url process='connect' %}">
+    <div class="level">
+      <div class="level-left">
+        <span class="icon">
+          {% if brand.name|lower in "github,google,twitter" %}
+            <i class="ri-{{brand.name|lower}}-line"></i>
+          {% else %}
+            <i class="ri-shield-user-line"></i>
+          {% endif %}
+        </span>
+        <p class="is-uppercase-heading has-text-weight-semibold">{{brand.name}}</p>
+      </div>
+      <div class="level-right">
+        <div class="control">
+          <span class="icon"><i class="ri-add-line"></i></span>
+        </div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+
+  {% endif %}
+  <a title="{{provider.name}}" class="list-menu--item socialaccount_provider {{provider.id}}" href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}">
+    <div class="level">
+      <div class="level-left">
+        <span class="icon">
+          {% if provider.name|lower in "github,google,twitter" %}
+            <i class="ri-{{provider.name|lower}}-line"></i>
+          {% else %}
+            <i class="ri-shield-user-line"></i>
+          {% endif %}
+        </span>
+        <p class="is-uppercase-heading has-text-weight-semibold">{{provider.name}}</p>
+      </div>
+      <div class="level-right">
+        <div class="control">
+          <span class="icon"><i class="ri-add-line"></i></span>
+        </div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
 
   {% include "socialaccount/snippets/login_extra.html" %}
-</section>
+
+</div>
 {% endblock %}
