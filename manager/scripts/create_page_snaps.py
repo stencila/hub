@@ -42,6 +42,8 @@ VIEWPORTS = [
     (1920, 1080),
 ]
 
+def showPath(path):
+    return "index" if (path == "" or path == "/") else path 
 
 def run(*args):
     """Create screenshots of pages."""
@@ -76,7 +78,7 @@ async def main():
 
             response = await page.goto(url)
             if response.status == 200:
-                print("Snapping: {}".format(path))
+                print("Snapping: {}".format(showPath(path)))
                 files = await snap(page, path)
             else:
                 print("Failed: {}".format(path))
@@ -84,7 +86,7 @@ async def main():
 
             results.append([path, url, response.status, files])
         else:
-            print("Skipping: {}".format(path))
+            print("Skipping: {}".format(showPath(path)))
 
     await browser.close()
 
@@ -147,7 +149,7 @@ async def snap(page, path):
     files = []
     for (width, height) in VIEWPORTS:
         file = (
-            slugify("{}-{}x{}".format(path.replace("/", "-"), width, height)) + ".png"
+            slugify("{}-{}x{}".format(showPath(path).replace("/", "-"), width, height)) + ".png"
         )
         await page.setViewport(dict(width=width, height=height, deviceScaleFactor=1,))
         await page.screenshot({"path": os.path.join("snaps", file)})
