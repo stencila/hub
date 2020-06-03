@@ -7,7 +7,8 @@
     "watch:css": "npm run build:css -- --watch",
     "build:js": "rollup --config",
     "build": "npm run build:css && npm run build:js",
-    "start": "npm run watch:css"
+    "start": "npm run watch:css",
+    "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html"
   },
   "dependencies": {
     "@vizuaalog/bulmajs": "0.11.0",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "8.0.0",
+    "js-beautify": "1.11.0",
     "node-sass": "4.14.1",
     "rollup": "2.12.0",
     "rollup-plugin-terser": "6.1.0"

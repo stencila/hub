@@ -1,66 +1,61 @@
-{% extends 'base.html' %}
+{% extends "users/_base_settings.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Personal settings" %}{% endblock %}
 
-{% block content %}
-<section class="section">
-  <div class="columns is-centered">
-    <div class="column is-three-quarters level-list">
-      <h2 class="title">Settings</h2>
-      <a href="{% url 'ui-users-username' %}">
-        <div class="level">
-          <div class="level-left">  
-            <span class="icon"><i class="fa fa-user"></i></span>
-            <p class="is-uppercase-heading">Username</p>
-          </div>
-          <div class="level-right">
-            <div class="control">
-              <span class="icon"><i class="fas fa-chevron-right"></i></span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <a href="{% url 'account_change_password' %}">
-        <div class="level">
-          <div class="level-left">
-            <span class="icon"><i class="fa fa-key"></i></span>
-            <p class="is-uppercase-heading">Password</p>
-          </div>
-          <div class="level-right">
-            <div class="control">
-              <span class="icon"><i class="fas fa-chevron-right"></i></span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <a href="{% url 'account_email' %}">
-        <div class="level">
-          <div class="level-left">  
-            <span class="icon"><i class="fa fa-envelope"></i></span>
-            <p class="is-uppercase-heading">Email addresses</p>
-          </div>
-          <div class="level-right">
-            <div class="control">
-              <span class="icon"><i class="fas fa-chevron-right"></i></span>
-            </div>
-          </div>
-        </div>
-      </a>
-      <a href="{% url 'socialaccount_connections' %}">
-        <div class="level">
-          <div class="level-left">  
-            <span class="icon"><i class="fa fa-share-square"></i></span>
-            <p class="is-uppercase-heading">Account connections</p>
-          </div>
-          <div class="level-right">
-            <div class="control">
-              <span class="icon"><i class="fas fa-chevron-right"></i></span>
-            </div>
-          </div>
-        </div>
-      </a>
+{% block settings_content %}
+<h2 class="title">Settings</h2>
+<a href="{% url 'ui-users-username' %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="icon"><i class="ri-user-line"></i></span>
+      <p class="is-uppercase-heading has-text-weight-semibold">Username</p>
+    </div>
+
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
     </div>
   </div>
-</section>
+</a>
+<a href="{% url 'account_change_password' %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="icon"><i class="ri-key-line"></i></span>
+      <p class="is-uppercase-heading has-text-weight-semibold">Password</p>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
+<a href="{% url 'account_email' %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="icon"><i class="ri-mail-line"></i></span>
+      <p class="is-uppercase-heading has-text-weight-semibold">Email addresses</p>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
+<a href="{% url 'socialaccount_connections' %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="icon"><i class="ri-user-settings-line"></i></span>
+      <p class="is-uppercase-heading has-text-weight-semibold">Account connections</p>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
 {% endblock %}
