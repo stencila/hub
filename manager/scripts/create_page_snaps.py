@@ -112,7 +112,13 @@ def report(results):
             max-width: 500px;
             max-height: 400px;
             margin: 50px;
-            5px 5px 15px 0px rgba(0,0,0,0.5);
+            box-shadow:
+                0 0.7px 2.2px rgba(0, 0, 0, 0.02),
+                0 1.6px 5.3px rgba(0, 0, 0, 0.028),
+                0 3px 10px rgba(0, 0, 0, 0.035),
+                0 5.4px 17.9px rgba(0, 0, 0, 0.042),
+                0 10px 33.4px rgba(0, 0, 0, 0.05),
+                0 24px 80px rgba(0, 0, 0, 0.07);
         }
     </style>
     <table>"""
@@ -127,7 +133,7 @@ def report(results):
             url=url,
             path=path,
             status=status,
-            images="".join(['<td><img src="{}"></td>'.format(file) for file in files]),
+            images="".join(['<td><a href="{0}" target="_blank"><img src="{0}" loading="lazy"></td>'.format(file) for file in files]),
         )
     with open("snaps/index.html", "w") as file:
         file.write(html)
