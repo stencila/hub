@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="columns">
+  {% block hide_sidebar_start %}
+    <div class="column is-one-third">
+      {% block sidebar_start %}{% endblock %}
+    </div>
+  {% endblock %}
+
+  <div class="column"> 
+    {% block layout_content %}{% endblock %}
+  </div>
+
+  {% block hide_sidebar_end %}
+    <div class="column is-one-third">
+      {% block sidebar_end %}{% endblock %}
+    </div>
+  {% endblock %}
+</div>
+{% endblock %}
