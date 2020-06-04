@@ -126,6 +126,18 @@ $footer-padding: 2rem 3rem 0.1rem;
   border-top: 3px solid $blue;
 }
 
+.navbar-item .icon,
+.navbar-item .icon + span,
+.navbar-link .icon,
+.navbar-link .icon + span {
+  vertical-align: middle;
+}
+
+.navbar__user-avatar {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 #messages {
   // Places messages in the top left
   position: sticky;
@@ -174,4 +186,8 @@ a.list-menu--item {
     background-color: $white-ter;
     color: $link;
   }
+}
+
+.list-menu--icon {
+  margin-right: .5rem;
 }

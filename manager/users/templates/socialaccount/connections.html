@@ -57,7 +57,7 @@
      href="{% provider_login_url provider.id openid=brand.openid_url process='connect' %}">
     <div class="level is-mobile">
       <div class="level-left">
-        <span class="icon">
+        <span class="icon list-menu--icon">
           {% if brand.name|lower in "github,google,twitter" %}
           <i class="ri-{{brand.name|lower}}-line"></i>
           {% else %}
@@ -80,7 +80,7 @@
      href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}">
     <div class="level is-mobile">
       <div class="level-left">
-        <span class="icon">
+        <span class="icon list-menu--icon">
           {% if provider.name|lower in "github,google,twitter" %}
           <i class="ri-{{provider.name|lower}}-line"></i>
           {% else %}
