@@ -77,7 +77,7 @@ async def main():
     results = []
     browser = await launch()
 
-    for path in paths:
+    for idx, path in enumerate(set(paths)):
         ok = True
         for regex in EXCLUDE:
             if re.search(regex, path):
@@ -94,7 +94,7 @@ async def main():
 
             response = await page.goto(url)
             if response.status == 200:
-                print("Snapping: {}".format(showPath(path)))
+                print("Snapping {0}/{1}: {2}".format(idx, len(paths), showPath(path)))
                 files = await snap(page, path)
             else:
                 print("Failed: {}".format(path))
