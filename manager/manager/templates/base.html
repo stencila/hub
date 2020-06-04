@@ -88,6 +88,11 @@
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+                {% if user.personal_account.image %}
+                <figure class="image is-32x32">
+                  <img class="is-rounded" src="{{ user.personal_account.image.small }}">
+                </figure>
+                {% endif %}
                 {{ user.username }}
               </a>
               <div class="navbar-dropdown">

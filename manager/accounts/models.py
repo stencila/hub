@@ -1,4 +1,10 @@
+import base64
+import secrets
+
+import customidenticon
+from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models.signals import post_save
 from imagefield.fields import ImageField
 
 from users.models import User
@@ -24,11 +30,11 @@ class Account(models.Model):
         null=True, auto_now_add=True, help_text="The time the account was created."
     )
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         User,
         null=True,
         blank=True,
-        # Cascade delete so that when user is deleted, so is this account.
+        # Cascade delete so that when the user is deleted, so is this account.
         # Avoid using `SET_NULL` here as that could result in a personal
         # account being treated as an organization if the user is deleted.
         on_delete=models.CASCADE,
@@ -44,8 +50,9 @@ class Account(models.Model):
         null=True,
         blank=True,
         formats={
-            "small": ["default", ("thumbnail", (50, 50))],
-            "medium": ["default", ("thumbnail", (100, 100))],
+            "small": ["default", ("crop", (20, 20))],
+            "medium": ["default", ("crop", (50, 50))],
+            "large": ["default", ("crop", (250, 250))],
         },
         auto_add_fields=True,
         help_text="Image for the account.",
@@ -75,3 +82,26 @@ class Account(models.Model):
     def is_organization(self):
         """Is this an organizational account."""
         return self.user is None
+
+    def save(self, *args, **kwargs):
+        """Override to create an image if the account does not have one."""
+        if not self.image:
+            file = ContentFile(customidenticon.create(self.name, size=5))
+            # Use a random name because self.id is not yet available
+            file.name = secrets.token_hex(12)
+            self.image = file
+        return super().save(*args, **kwargs)
+
+
+def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
+    """
+    Create a personal account for a user.
+
+    Called when a new `User` is created and saved.
+    Makes sure each user has a Personal `Account` that they are an `admin` on.
+    """
+    if sender is User and created:
+        Account.objects.create(name=instance.username, user=instance)
+
+
+post_save.connect(create_personal_account_for_user, sender=User)

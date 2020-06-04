@@ -89,6 +89,7 @@ class Prod(Configuration):
         "allauth.socialaccount.providers.orcid",
         "allauth.socialaccount.providers.twitter",
         "allauth.socialaccount",
+        "imagefield",
         "django_intercom",
         "drf_yasg",
         "knox",
@@ -96,6 +97,7 @@ class Prod(Configuration):
         # Our apps
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
+        "accounts.apps.AccountsConfig",
         "users.apps.UsersConfig",
     ]
 
@@ -197,6 +199,13 @@ class Prod(Configuration):
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
     STATICFILES_DIRS = [os.path.join(BASE_DIR, "manager", "static")]
+
+    # Media files (uploaded by users)
+    # https://docs.djangoproject.com/en/3.0/topics/files/
+
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+    MEDIA_URL = "/media/"
 
     # Logging
     # See https://docs.djangoproject.com/en/3.0/topics/logging/

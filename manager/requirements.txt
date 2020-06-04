@@ -1,3 +1,4 @@
+customidenticon==0.1.5
 dj_database_url==0.5.0
 dj-stripe==2.3.0
 django-allauth==0.41.0
