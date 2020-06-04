@@ -40,9 +40,6 @@ urlpatterns = [
 
     # Account URLs
     #
-    # For the URLs with `<str:account>` it is possible to access the account
-    # using either the numeric `id` field, or the string `name` field.
-    #
     # List personal accounts
     path("users/", account_views.list_users, name="ui-accounts-users"),
     # List organizational accounts
@@ -50,15 +47,15 @@ urlpatterns = [
     # Create a new organizational account (login required)
     path("orgs/new/", account_views.create, name="ui-accounts-create"),
     # Get an account profile
-    path("<str:account>/", account_views.retrieve, name="ui-accounts-retrieve"),
+    path("<slug:account>/", account_views.retrieve, name="ui-accounts-retrieve"),
     # Change an account (login required)
-    path("<str:account>/settings/", account_views.update, name="ui-accounts-update"),
+    path("<slug:account>/settings/", account_views.update, name="ui-accounts-update"),
     # List account teams (login required)
-    path("<str:account>/teams/", team_views.list, name="ui-teams-list"),
+    path("<slug:account>/teams/", team_views.list, name="ui-teams-list"),
     # Create account team (login required)
-    path("<str:account>/teams/new/", team_views.create, name="ui-teams-create"),
+    path("<slug:account>/teams/new/", team_views.create, name="ui-teams-create"),
     # Change account team (login required)
-    path("<str:account>/teams/<str:team>/settings/", team_views.update, name="ui-teams-update"),
+    path("<slug:account>/teams/<slug:team>/settings/", team_views.update, name="ui-teams-update"),
 
     # Home page
     path("", home, name="home"),
