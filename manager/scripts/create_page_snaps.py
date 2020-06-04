@@ -1,6 +1,8 @@
 import asyncio
+import html
 import os
 import re
+import shutil
 from base64 import b64encode
 
 from django.core.exceptions import ViewDoesNotExist
@@ -11,8 +13,14 @@ from pyppeteer import launch
 from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
+# Include here URLs for model instances e.g. accounts, projects, teams etc
+# which are in the urlpatterns as regexes.
 INCLUDE = [
+    # API docs
     "api",
+    # Account profiles (user and org)
+    "joe",
+    "hapuku-university",
     # Render these templates instead of testing the pages (and getting non-200 responses)
     "stencila/render?template=403.html",
     "stencila/render?template=404.html",
@@ -42,8 +50,10 @@ VIEWPORTS = [
     (1920, 1080),
 ]
 
+
 def showPath(path):
-    return "index" if (path == "" or path == "/") else path 
+    return "index" if (path == "" or path == "/") else path
+
 
 def run(*args):
     """Create screenshots of pages."""
@@ -52,8 +62,8 @@ def run(*args):
 
 async def main():
     """Take screenshots of each path."""
-    if not os.path.exists("snaps"):
-        os.mkdir("snaps")
+    shutil.rmtree("snaps")
+    os.mkdir("snaps")
 
     paths = [
         path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
@@ -95,7 +105,7 @@ async def main():
 
 def report(results):
     """Create a HTML report."""
-    html = """
+    report = """
     <style>
         body {
             font-family: Consolas, monospace;
@@ -105,7 +115,7 @@ def report(results):
             border-collapse: collapse;
         }
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #eee;
         }
         td {
             padding: 1em;
@@ -125,7 +135,7 @@ def report(results):
     </style>
     <table>"""
     for (path, url, status, files) in results:
-        html += """
+        report += """
             <tr>
                 <td><a href="{url}">{path}</a></td>
                 <td>{status}</td>
@@ -133,12 +143,19 @@ def report(results):
             </tr>
         """.format(
             url=url,
-            path=path,
+            path=html.escape(path),
             status=status,
-            images="".join(['<td><a href="{0}" target="_blank"><img src="{0}" loading="lazy"></td>'.format(file) for file in files]),
+            images="".join(
+                [
+                    '<td><a href="{0}" target="_blank"><img src="{0}" loading="lazy"></td>'.format(
+                        file
+                    )
+                    for file in files
+                ]
+            ),
         )
     with open("snaps/index.html", "w") as file:
-        file.write(html)
+        file.write(report)
 
 
 async def snap(page, path):
@@ -149,7 +166,8 @@ async def snap(page, path):
     files = []
     for (width, height) in VIEWPORTS:
         file = (
-            slugify("{}-{}x{}".format(showPath(path).replace("/", "-"), width, height)) + ".png"
+            slugify("{}-{}x{}".format(showPath(path).replace("/", "-"), width, height))
+            + ".png"
         )
         await page.setViewport(dict(width=width, height=height, deviceScaleFactor=1,))
         await page.screenshot({"path": os.path.join("snaps", file)})
