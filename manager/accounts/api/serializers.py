@@ -1,45 +1,10 @@
 from rest_framework import serializers
 
-from accounts.models import Account, Team
-from manager.api.helpers import get_filter_from_ident, get_object_from_ident
+from accounts.models import Account, AccountUser, Team
+from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
+from users.api.serializers import UserSerializer
 from users.models import User
-
-
-class AccountSerializer(serializers.ModelSerializer):
-    """
-    A serializer for accounts.
-
-    Includes only basic model fields.
-    Derived serializers add other derived fields (which may
-    require extra queries) and make some read only.
-    """
-
-    class Meta:
-        model = Account
-        fields = [
-            "id",
-            "name",
-            "user",
-            "creator",
-            "created",
-            "image",
-            "theme",
-            "hosts",
-        ]
-
-
-class AccountCreateUpdateSerializer(AccountSerializer):
-    """
-    A serializer for creating and updating accounts.
-
-    Makes certain fields read only.
-    """
-
-    class Meta:
-        model = Account
-        fields = AccountSerializer.Meta.fields
-        read_only_fields = ["id", "creator", "created"]
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -47,8 +12,6 @@ class TeamSerializer(serializers.ModelSerializer):
     A serializer for teams.
 
     Includes only basic model fields.
-    Derived serializers add other derived fields (which may
-    require extra queries) and make some read only.
     """
 
     class Meta:
@@ -66,10 +29,11 @@ class TeamCreateSerializer(TeamSerializer):
     """
     A serializer for creating teams.
 
-    - Makes the `account` field readonly, and based on the `account` URL parameter
-      so that it is not possible to create a team for a different account.
+    - Based on the default team serializer
+    - Makes the `account` field readonly, and based on the `account`
+      URL parameter, so that it is not possible to create a team
+      for a different account.
     - Makes `members` optional.
-    - Validates `name` is unique within the account.
     """
 
     class Meta:
@@ -89,20 +53,6 @@ class TeamCreateSerializer(TeamSerializer):
         required=False, queryset=User.objects.all(), many=True
     )
 
-    def validate_name(self, name: str) -> str:
-        """Check that the team name is unique for the account."""
-        if (
-            Team.objects.filter(
-                **get_filter_from_ident(
-                    self.context["view"].kwargs["account"], prefix="account"
-                ),
-                name=name
-            ).count()
-            != 0
-        ):
-            raise serializers.ValidationError("Team name must be unique for account.")
-        return name
-
 
 class TeamUpdateSerializer(TeamCreateSerializer):
     """
@@ -117,3 +67,80 @@ class TeamUpdateSerializer(TeamCreateSerializer):
         fields = TeamCreateSerializer.Meta.fields
         read_only_fields = ["account"]
         ref_name = None
+
+
+class AccountUserSerializer(serializers.ModelSerializer):
+    """
+    A serializer for account users.
+
+    Includes a nested serializer for the user
+    """
+
+    user = UserSerializer()
+
+    class Meta:
+        model = AccountUser
+        fields = "__all__"
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    """
+    A serializer for accounts.
+
+    Includes only basic model fields.
+    """
+
+    class Meta:
+        model = Account
+        fields = ["id", "name", "user", "creator", "created", "image", "theme", "hosts"]
+
+
+class AccountCreateSerializer(AccountSerializer):
+    """
+    A serializer for creating accounts.
+
+    Gets `creator` from the request user
+    and makes `users` optional.
+    """
+
+    creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    # users = serializers.PrimaryKeyRelatedField(
+    #    required=False, queryset=User.objects.all(), many=True
+    # )
+
+    class Meta:
+        model = Account
+        fields = AccountSerializer.Meta.fields
+
+
+class AccountRetrieveSerializer(AccountSerializer):
+    """
+    A serializer for retrieving accounts.
+
+    Includes more details on the account:
+
+    - the account users
+    - the account teams
+    """
+
+    users = AccountUserSerializer(read_only=True, many=True)
+
+    teams = TeamSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Account
+        fields = AccountSerializer.Meta.fields + ["users", "teams"]
+
+
+class AccountUpdateSerializer(AccountSerializer):
+    """
+    A serializer for updating accounts.
+
+    Makes some fields read only.
+    """
+
+    class Meta:
+        model = Account
+        fields = AccountSerializer.Meta.fields
+        read_only_fields = ["creator", "created"]

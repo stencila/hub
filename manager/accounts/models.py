@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from imagefield.fields import ImageField
 
+from manager.helpers import EnumChoice, unique_slugify
 from users.models import User
 
 
@@ -26,7 +27,7 @@ class Account(models.Model):
     )
 
     created = models.DateTimeField(
-        null=True, auto_now_add=True, help_text="The time the account was created."
+        null=False, auto_now_add=True, help_text="The time the account was created."
     )
 
     user = models.OneToOneField(
@@ -83,27 +84,109 @@ class Account(models.Model):
         return self.user is None
 
     def save(self, *args, **kwargs):
-        """Override to create an image if the account does not have one."""
+        """
+        Save this account.
+
+        - Ensure that name is unique
+        - Create an image if the account does not have one
+        """
+        self.name = unique_slugify(self, self.name, slug_field_name="name")
+
         if not self.image:
             file = ContentFile(customidenticon.create(self.name, size=5))
-            # Use a random name because self.id is not yet available
+            # Use a random name because self.pk may not be available
             file.name = secrets.token_hex(12)
             self.image = file
+
         return super().save(*args, **kwargs)
 
 
-def create_personal_account_for_user(sender, instance, created, *args, **kwargs):
+def make_account_creator_an_administrator(
+    sender, instance: Account, created: bool, *args, **kwargs
+):
+    """
+    Make the account create an administrator.
+
+    Makes sure each account has at least one administrator.
+    """
+    if sender is Account and instance.creator:
+        AccountUser.objects.create(
+            account=instance, user=instance.creator, role=AccountRole.ADMIN
+        )
+
+
+post_save.connect(make_account_creator_an_administrator, sender=Account)
+
+
+def create_personal_account_for_user(
+    sender, instance: User, created: bool, *args, **kwargs
+):
     """
     Create a personal account for a user.
 
-    Called when a new `User` is created and saved.
-    Makes sure each user has a Personal `Account` that they are an `admin` on.
+    Makes sure each user has a personal `Account`.
     """
     if sender is User and created:
-        Account.objects.create(name=instance.username, user=instance)
+        Account.objects.create(name=instance.username, creator=instance, user=instance)
 
 
 post_save.connect(create_personal_account_for_user, sender=User)
+
+
+class AccountRole(EnumChoice):
+    """
+    A user role within an account.
+
+    See `get_description` for what each role can do.
+    """
+
+    MEMBER = "Member"
+    MANAGER = "Manager"
+    ADMIN = "Admin"
+
+    @classmethod
+    def get_description(cls, role: "AccountRole"):
+        """Get the description of an account role."""
+        return {
+            cls.MEMBER.name: "Account member: can create and delete projects.",
+            cls.MANAGER.name: "Account manager: as for member and can create, update and delete teams.",
+            cls.ADMIN.name: "Account administrator: as for manager and can add other users to the account.",
+        }[role.name]
+
+
+class AccountUser(models.Model):
+    """
+    An account user.
+
+    Users can be added, with a role, to an account.
+    """
+
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        help_text="Account to which the user belongs.",
+        related_name="users",
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        help_text="User added to the account.",
+        related_name="accounts",
+    )
+
+    role = models.CharField(
+        null=False,
+        blank=False,
+        max_length=32,
+        choices=AccountRole.as_choices(),
+        help_text="Role the user has within the account.",
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["account", "user"], name="unique_user")
+        ]
 
 
 class Team(models.Model):
@@ -122,8 +205,27 @@ class Team(models.Model):
         related_name="teams",
     )
 
-    name = models.TextField(blank=False, null=False, help_text="Name of the team.")
+    name = models.SlugField(blank=False, null=False, help_text="Name of the team.")
 
     description = models.TextField(blank=True, null=True, help_text="Team description.")
 
     members = models.ManyToManyField(User, help_text="Team members.")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["account", "name"], name="unique_name")
+        ]
+
+    def save(self, *args, **kwargs):
+        """
+        Save this team.
+
+        Ensures that name is unique within the account.
+        """
+        self.name = unique_slugify(
+            self,
+            self.name,
+            slug_field_name="name",
+            queryset=Team.objects.filter(account=self.account),
+        )
+        return super().save(*args, **kwargs)

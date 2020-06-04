@@ -1,18 +1,22 @@
 import logging
 
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, viewsets
+from rest_framework.exceptions import NotFound
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.api.serializers import (
-    AccountCreateUpdateSerializer,
+    AccountCreateSerializer,
+    AccountRetrieveSerializer,
     AccountSerializer,
+    AccountUpdateSerializer,
     TeamCreateSerializer,
     TeamSerializer,
     TeamUpdateSerializer,
 )
-from accounts.models import Account, Team
+from accounts.models import Account, AccountUser, Team
 from manager.api.helpers import get_filter_from_ident, get_object_from_ident
 
 logger = logging.getLogger(__name__)
@@ -31,9 +35,9 @@ class AccountsViewSet(
     Provides basic account CRU(D) views.
     """
 
-    lookup_url_kwarg = "account"
-
     # Configuration
+
+    lookup_url_kwarg = "account"
 
     def get_queryset(self):
         """
@@ -43,7 +47,8 @@ class AccountsViewSet(
         permissions for.
         """
         # TODO: Filter for accounts the user has access to
-        return Account.objects.all()
+        queryset = Account.objects.all()
+        return queryset
 
     def get_object(self):
         """
@@ -52,9 +57,30 @@ class AccountsViewSet(
         Allow for the `id` URL kwarg to be either an integer `pk`
         or a string `name`.
         """
-        account = get_object_from_ident(Account, self.kwargs["account"])
+        ident = self.kwargs["account"]
+        queryset = Account.objects.filter(**get_filter_from_ident(ident))
         # TODO: check user has permissions for action on account
-        return account
+        if self.action == "retrieve":
+            # The `AccountRetrieveSerializer` uses nested serializers
+            # for `teams` and `users`. So we use `prefetch_related`
+            # to reduce the number of DB queries
+            filter = get_filter_from_ident(ident, prefix="account")
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "teams",
+                    queryset=Team.objects.filter(**filter).prefetch_related("members"),
+                ),
+                Prefetch(
+                    "users",
+                    queryset=AccountUser.objects.filter(**filter).select_related(
+                        "user"
+                    ),
+                ),
+            )
+        try:
+            return queryset[0]
+        except IndexError:
+            raise NotFound("Could not find account '{}'".format(ident))
 
     def get_serializer_class(self):
         """
@@ -65,9 +91,10 @@ class AccountsViewSet(
         try:
             return {
                 "list": AccountSerializer,
-                "create": AccountCreateUpdateSerializer,
-                "retrieve": AccountSerializer,
-                "update": AccountCreateUpdateSerializer,
+                "create": AccountCreateSerializer,
+                "retrieve": AccountRetrieveSerializer,
+                "update": AccountUpdateSerializer,
+                "partial_update": AccountUpdateSerializer,
             }[self.action]
         except KeyError:
             logger.error("No serializer defined for action {}".format(self.action))
@@ -75,23 +102,21 @@ class AccountsViewSet(
 
     # Views
 
-    def list(self, request: Request) -> Response:
+    def list(self, request: Request, *args, **kwargs) -> Response:
         """
         List accounts.
 
-        Returns a list of accounts the user has at least `view`
-        access to.
+        Returns a list of accounts.
         """
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
-    def create(self, request: Request) -> Response:
+    def create(self, request: Request, *args, **kwargs) -> Response:
         """
         Create an account.
 
         Returns details for the new account.
         """
-        serializer = self.get_serializer(request.data)
-        return Response(serializer.data)
+        return super().create(request, *args, **kwargs)
 
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -99,9 +124,7 @@ class AccountsViewSet(
 
         Returns details for the account.
         """
-        account = self.get_object()
-        serializer = self.get_serializer(account)
-        return Response(serializer.data)
+        return super().retrieve(request, *args, **kwargs)
 
 
 class TeamsViewSet(
@@ -118,9 +141,9 @@ class TeamsViewSet(
     Provides basic team CRUD views.
     """
 
-    lookup_field = "team"
-
     # Configuration
+
+    lookup_url_kwarg = "team"
 
     def get_queryset(self):
         """
