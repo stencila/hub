@@ -71,6 +71,25 @@
         </div>
         <div id="navbar-menu" class="navbar-menu">
           <div class="navbar-end">
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+                <span class="icon">
+                  <i class="ri-add-circle-line" aria-hidden="true"></i>
+                </span>
+              </a>
+              <div class="navbar-dropdown">
+                <span class="navbar-item">
+                  Create a new...
+                </span>
+                <hr class="navbar-divider">
+                <a class="navbar-item" href="{% url 'ui-accounts-create' %}">
+                  <span class="icon">
+                    <i class="ri-organization-chart" aria-hidden="true"></i>
+                  </span>
+                  <strong>Organization</strong>
+                </a>
+              </div>
+            </div>
             {% if user.is_anonymous %}
             <div class="navbar-item">
               {% url 'ui-users-signin' as user_signin_url %}
@@ -88,16 +107,25 @@
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+                {% if user.personal_account.image %}
+                <figure class="image is-32x32">
+                  <img class="is-rounded" src="{{ user.personal_account.image.small }}">
+                </figure>
+                {% else %}
                 {{ user.username }}
+                {% endif %}
               </a>
               <div class="navbar-dropdown">
+                <span class="navbar-item">
+                  Signed in as&nbsp;<strong>{{ user.username }}</strong>
+                </span>
+                <hr class="navbar-divider">
                 <a class="navbar-item" href="{% url 'ui-users-settings' %}">
                   <span class="icon">
                     <i class="ri-settings-4-line" aria-hidden="true"></i>
                   </span>
                   <span>Settings</span>
                 </a>
-                <hr class="navbar-divider">
                 <a class="navbar-item" href="{% url 'ui-users-signout' %}">
                   <span class="icon">
                     <i class="ri-logout-box-line" aria-hidden="true"></i>

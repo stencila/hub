@@ -11,21 +11,14 @@ Inspired by Github's user search field (amongst others).
   <div class="dropdown-trigger">
     <div class="field">
       <div class="control has-icons-left has-icons-right">
-        <input
-          class="input"
-          type="text" 
-          name="search"
-          placeholder="Search by username, full name, or email" 
-          hx-trigger="keyup changed delay:500ms" 
-          hx-get="/api/users"
-          hx-indicator="#user-search .htmx-indicator"
-          hx-target="#user-search .dropdown-menu"
-        >
+        <input class="input" type="text" name="search" placeholder="Search by username, full name, or email"
+               hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-indicator="#user-search .htmx-indicator"
+               hx-target="#user-search .dropdown-menu">
         <span class="icon is-small is-left">
-          <i class="fas fa-search"></i>
+          <i class="ri-search-line"></i>
         </span>
         <span class="icon is-small is-right htmx-indicator">
-          <i class="fa fa-spinner fa-pulse"></i>
+          <i class="ri-loader-line"></i>
         </span>
       </div>
     </div>
@@ -37,14 +30,15 @@ Inspired by Github's user search field (amongst others).
     var $search = document.querySelector('#user-search')
     // Add query parameters to search
     $search.querySelector('input[name=search]').addEventListener('configRequest.htmx', function(event) {
-        event.detail.parameters['limit'] = '30';
-        event.detail.parameters['html'] = 'users/_search_results.html';
-      });
+      event.detail.parameters['limit'] = '30';
+      event.detail.parameters['html'] = 'users/_search_results.html';
+    });
     // Update the `input[name=user]` when a dropdown item is selected
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
-        var item = htmx.closest(event.target, '.dropdown-item')
-        $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
-        $search.querySelector('input[name=user]').value = item.getAttribute('data-id')
-      });
+      var item = htmx.closest(event.target, '.dropdown-item')
+      $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
+      $search.querySelector('input[name=user]').value = item.getAttribute('data-id')
+    });
+
   </script>
 </div>

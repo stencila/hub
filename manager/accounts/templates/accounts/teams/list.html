@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block content %}
+    <h2 class="title">{% trans "Teams" %}</h2>
+
+    {% for team in teams %}
+    <div>
+      <a href="{% url 'ui-teams-update' team.account.name team.name %}">
+        {{ team.name }}
+      </a>
+    </div>
+    {% endfor %}
+{% endblock %}
