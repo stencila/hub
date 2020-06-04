@@ -62,6 +62,10 @@ show-serializers:
 run: venv
 	$(DJ) runserver
 
+# Run static asset compilation and live-reload server
+run-watch:
+	npm run start
+
 # Run development server with production settings
 run-prod: venv
 	export DJANGO_CONFIGURATION="Prod"; \

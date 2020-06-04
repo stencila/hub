@@ -6,8 +6,10 @@
     "build:css": "node-sass manager/static/sass/styles.scss manager/static/css/styles.css --output-style compressed",
     "watch:css": "npm run build:css -- --watch",
     "build:js": "rollup --config",
+    "watch:js": "rollup --config -w",
+    "watch:serve": "browser-sync start -p localhost:8000 --no-notify -f manager/static/css/**/*.css,manager/static/js/**/*.js,**/templates/**/*.html",
     "build": "npm run build:css && npm run build:js",
-    "start": "npm run watch:css",
+    "start": "concurrently \"npm:watch:css\" \"npm:watch:js\" \"npm:watch:serve\"",
     "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html"
   },
   "dependencies": {
@@ -18,6 +20,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "8.0.0",
+    "browser-sync": "^2.26.7",
+    "concurrently": "^5.2.0",
     "js-beautify": "1.11.0",
     "node-sass": "4.14.1",
     "rollup": "2.12.0",
