@@ -83,33 +83,36 @@
             </div>
           {% endif %}
           <div class="navbar-end">
-            <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link" href="{% url 'ui-users-settings' %}">
-                <span class="icon">
-                  <i class="ri-add-circle-line" aria-hidden="true"></i>
-                </span>
-                <span class="is-hidden-tablet">Crate a…</span>
-              </a>
-              <div class="navbar-dropdown">
-                <!-- TODO: Connect to Project creation URL -->
-                <a class="navbar-item has-text-weight-bold" href="#" style="color: red">
+            {% if user.is_anonymous == False %}
+              <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link" href="{% url 'ui-users-settings' %}">
                   <span class="icon">
-                    <i class="ri-folders-line" aria-hidden="true"></i>
+                    <i class="ri-add-circle-line" aria-hidden="true"></i>
                   </span>
-                  <span>
-                    {% trans "New Project" %}
-                  </span>
+                  <span class="is-hidden-tablet">Crate a…</span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
-                  <span class="icon">
-                    <i class="ri-organization-chart" aria-hidden="true"></i>
-                  </span>
-                  <span>
-                    {% trans "New Organization" %}
-                  <span>
-                </a>
+                <div class="navbar-dropdown">
+                  <!-- TODO: Connect to Project creation URL -->
+                  <a class="navbar-item has-text-weight-bold" href="#" style="color: red">
+                    <span class="icon">
+                      <i class="ri-folders-line" aria-hidden="true"></i>
+                    </span>
+                    <span>
+                      {% trans "New Project" %}
+                    </span>
+                  </a>
+                  <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
+                    <span class="icon">
+                      <i class="ri-organization-chart" aria-hidden="true"></i>
+                    </span>
+                    <span>
+                      {% trans "New Organization" %}
+                    <span>
+                  </a>
+                </div>
               </div>
-            </div>
+            {% endif %}
+
             {% if user.is_anonymous %}
             <div class="navbar-item">
               {% url 'ui-users-signin' as user_signin_url %}
