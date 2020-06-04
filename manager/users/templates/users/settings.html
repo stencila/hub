@@ -1,9 +1,9 @@
-{% extends "users/_base_settings.html" %}
+{% extends "base_centered.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Personal settings" %}{% endblock %}
 
-{% block settings_content %}
+{% block layout_content %}
 <h2 class="title">Settings</h2>
 <a href="{% url 'ui-users-username' %}" class="list-menu--item">
   <div class="level is-mobile">
