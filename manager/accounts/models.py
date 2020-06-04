@@ -104,3 +104,26 @@ def create_personal_account_for_user(sender, instance, created, *args, **kwargs)
 
 
 post_save.connect(create_personal_account_for_user, sender=User)
+
+
+class Team(models.Model):
+    """
+    A team within an account.
+
+    Each `Team` belongs to exactly one `Account`.
+    Each `Team` has one or more `User`s.
+    `User`s can be a member of multiple `Team`s.
+    """
+
+    account = models.ForeignKey(
+        Account,
+        on_delete=models.CASCADE,
+        help_text="Account to which the team belongs.",
+        related_name="teams",
+    )
+
+    name = models.TextField(blank=False, null=False, help_text="Name of the team.")
+
+    description = models.TextField(blank=True, null=True, help_text="Team description.")
+
+    members = models.ManyToManyField(User, help_text="Team members.")

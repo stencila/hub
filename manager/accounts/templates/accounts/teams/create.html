@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "New team" %}{% endblock %}
+
+{% block content %}
+<form hx-post="{% url 'api-accounts-teams-list' account %}">
+  {% include "serializers/_field.html" with field=serializer.name %}
+  {% include "serializers/_field.html" with field=serializer.description %}
+  <label class="label">Members</label>
+  {% include "users/_search.html" %}
+  <div class="field">
+    <div class="control">
+        <input class="input" name="members" type="" value="">
+    </div>
+  </div>
+  {% include "forms/_submit.html" with text="Create" icon="ri-add-line" %}
+</form>
+{% endblock %}

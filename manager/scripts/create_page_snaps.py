@@ -21,6 +21,12 @@ INCLUDE = [
     # Account profiles (user and org)
     "joe",
     "hapuku-university",
+    # Account settings, teams etc
+    "acme-ltd/settings",
+    "acme-ltd/teams",
+    "acme-ltd/teams/new",
+    "acme-ltd/teams/a-team",
+    "acme-ltd/teams/a-team/settings",
     # Render these templates instead of testing the pages (and getting non-200 responses)
     "stencila/render?template=403.html",
     "stencila/render?template=404.html",

@@ -7,13 +7,13 @@ generated.
 """
 from django.urls import re_path
 
-from accounts.api.urls import accounts
+import accounts.api.urls
 from manager.api.views.docs import schema_view, swagger_view
 from manager.api.views.status import StatusView
 from users.api.urls import tokens, users
 
 urlpatterns = (
-    accounts.urls
+    accounts.api.urls.urlpatterns
     + tokens.urls
     + users.urls
     + [
