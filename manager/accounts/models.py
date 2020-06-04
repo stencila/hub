@@ -109,9 +109,9 @@ def make_account_creator_an_administrator(
 
     Makes sure each account has at least one administrator.
     """
-    if sender is Account and instance.creator:
+    if sender is Account and created and instance.creator:
         AccountUser.objects.create(
-            account=instance, user=instance.creator, role=AccountRole.ADMIN
+            account=instance, user=instance.creator, role=AccountRole.ADMIN.name
         )
 
 
