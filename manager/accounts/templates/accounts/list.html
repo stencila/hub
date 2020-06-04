@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% comment %}
+Template for providing a listing of accounts, either personal or
+organizational. See use of `is_orgs` and `is_users` below.
+These could easily be separated into two separate templates
+if necessary.
+{% endcomment %}
+
+{% block title %}{% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}{% endblock %}
+
+{% block content %}
+<h2 class="title">
+  {% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}
+  <h2>
+
+    {% for account in accounts %}
+    <div>
+      <a href="{% url 'ui-accounts-retrieve' account.name %}">
+        {% if account.image %}
+        <img src="{{ account.image.medium }}">
+        {% endif %}
+        {{ account.name }}
+      </a>
+    </div>
+    {% endfor %}
+    {% endblock %}

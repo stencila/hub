@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "New organization" %}{% endblock %}
+
+{% block content %}
+{% include "serializers/_field.html" with field=serializer.name %}
+{% include "serializers/_field.html" with field=serializer.theme %}
+{# {% include "serializers/_serializer.html" with serializer=serializer %} #}
+{% endblock %}
