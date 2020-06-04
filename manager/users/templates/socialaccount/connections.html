@@ -55,7 +55,7 @@
   {% for brand in provider.get_brands %}
   <a title="{{brand.name}}" class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}"
      href="{% provider_login_url provider.id openid=brand.openid_url process='connect' %}">
-    <div class="level">
+    <div class="level is-mobile">
       <div class="level-left">
         <span class="icon">
           {% if brand.name|lower in "github,google,twitter" %}
@@ -78,7 +78,7 @@
   {% endif %}
   <a title="{{provider.name}}" class="list-menu--item socialaccount_provider {{provider.id}}"
      href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params %}">
-    <div class="level">
+    <div class="level is-mobile">
       <div class="level-left">
         <span class="icon">
           {% if provider.name|lower in "github,google,twitter" %}

@@ -10,7 +10,7 @@
     <form class="form" method="post" action="{% url 'ui-users-signup' %}">
       {% csrf_token %}
       {% include "forms/form.html" with form=form %}
-      <button class="button is-primary" type="submit">
+      <button class="button is-primary is-fullwidth-mobile" type="submit">
         Sign up
       </button>
     </form>

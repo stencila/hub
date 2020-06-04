@@ -92,6 +92,32 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/layout/section.sass";
 @import "../../../node_modules/bulma/sass/layout/footer.sass";
 
+// =============================================================================
+// Customize Bulma
+// =============================================================================
+// Add full-width buttons only at mobile breakpoints
+@media screen and (max-width: $tablet) {
+  // Typography customization
+  .title,
+  .is-size-3,
+  .title.is-3 {
+    font-size: 1.125rem;
+  }
+
+  .buttons .button.is-fullwidth-mobile {
+    margin-right: 0 !important;
+  }
+
+  .button.is-fullwidth-mobile {
+    display: flex;
+    width: 100%;
+  }
+}
+
+// =============================================================================
+// Custom styles
+// =============================================================================
+
 // Custom styles
 @import "./users/account/email.scss";
 
