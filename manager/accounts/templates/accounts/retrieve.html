@@ -3,15 +3,17 @@
 
 {% block title %}{{ account.name }}{% endblock %}
 
-{% block hide_sidebar_start %}
+
+{% block sidebar_start %}
+  {% include './_account_sidebar_start.html' %}
 {% endblock %}
 
 {% block hide_sidebar_end %}
 {% endblock %}
 
 {% block layout_content %}
+  <h1 class="title">{{ account.name }}</h1>
   {% if account.image %}
   <img src="{{ account.image.large }}"></img>
   {% endif %}
-  <div>{{ account.name }}</div>
 {% endblock %}
