@@ -1,9 +1,5 @@
-import logging
-
 from django.db.models import Prefetch
-from django.shortcuts import get_object_or_404
-from rest_framework import mixins, viewsets
-from rest_framework.exceptions import NotFound
+from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -16,10 +12,8 @@ from accounts.api.serializers import (
     TeamSerializer,
     TeamUpdateSerializer,
 )
-from accounts.models import Account, AccountUser, Team
-from manager.api.helpers import get_filter_from_ident, get_object_from_ident
-
-logger = logging.getLogger(__name__)
+from accounts.models import Account, AccountQuotas, AccountUser, Team
+from manager.api.helpers import filter_from_ident
 
 
 class AccountsViewSet(
@@ -39,32 +33,74 @@ class AccountsViewSet(
 
     lookup_url_kwarg = "account"
 
+    def get_permissions(self):
+        """
+        Get the permissions that the current action requires.
+
+        Actions `list` and `retrive` do not require authentication (although
+        the data returned is restricted according to user).
+        """
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
+    def get_serializer_class(self):
+        """
+        Get the serializer class for the current action.
+
+        For `create`, checks that the user has not exceeded the number
+        of accounts that they can create. This is primarily an anti-spamming
+        check.
+
+        For `retrieve`, returns a detailed serializer if the user is
+        a member of the account.
+        #TODO: The above
+        """
+        if self.action == "create":
+            user = self.request.user
+            AccountQuotas.ORGS.check(
+                user.personal_account, Account.objects.filter(creator=user).count(),
+            )
+
+        try:
+            return {
+                "list": AccountSerializer,
+                "create": AccountCreateSerializer,
+                "retrieve": AccountRetrieveSerializer,
+                "update": AccountUpdateSerializer,
+                "partial_update": AccountUpdateSerializer,
+            }[self.action]
+        except KeyError:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
     def get_queryset(self):
         """
-        Override of `GenericAPIView.get_queryset`.
+        Get the queryset for the current action.
 
-        Returns the accounts that the user has at least `view`
-        permissions for.
+        For `list`, returns **all** accounts (i.e. the
+        list of accounts is treated as public).
         """
-        # TODO: Filter for accounts the user has access to
-        queryset = Account.objects.all()
-        return queryset
+        if self.action == "list":
+            return Account.objects.all()
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
 
     def get_object(self):
         """
-        Override of `GenericAPIView.get_object`.
+        Get the object for the current action.
 
-        Allow for the `id` URL kwarg to be either an integer `pk`
-        or a string `name`.
+        For `retrieve`, prefetches related data.
+        For `partial-update` and `update`, checks that the user
+        is an account MANAGER or ADMIN.
         """
+        user = self.request.user
         ident = self.kwargs["account"]
-        queryset = Account.objects.filter(**get_filter_from_ident(ident))
-        # TODO: check user has permissions for action on account
+        queryset = Account.objects.filter(**filter_from_ident(ident))
         if self.action == "retrieve":
             # The `AccountRetrieveSerializer` uses nested serializers
             # for `teams` and `users`. So we use `prefetch_related`
             # to reduce the number of DB queries
-            filter = get_filter_from_ident(ident, prefix="account")
+            filter = filter_from_ident(ident, prefix="account")
             queryset = queryset.prefetch_related(
                 Prefetch(
                     "teams",
@@ -77,28 +113,21 @@ class AccountsViewSet(
                     ),
                 ),
             )
+        elif self.action in ["partial_update", "update"]:
+            if (
+                queryset.filter(
+                    users__user=user, users__role__in=["MANAGER", "ADMIN"]
+                ).count()
+                == 0
+            ):
+                raise exceptions.PermissionDenied
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
         try:
             return queryset[0]
         except IndexError:
-            raise NotFound("Could not find account '{}'".format(ident))
-
-    def get_serializer_class(self):
-        """
-        Override of `GenericAPIView.get_serializer_class`.
-
-        Returns different serializers for different views.
-        """
-        try:
-            return {
-                "list": AccountSerializer,
-                "create": AccountCreateSerializer,
-                "retrieve": AccountRetrieveSerializer,
-                "update": AccountUpdateSerializer,
-                "partial_update": AccountUpdateSerializer,
-            }[self.action]
-        except KeyError:
-            logger.error("No serializer defined for action {}".format(self.action))
-            return AccountSerializer
+            raise exceptions.NotFound("Could not find account '{}'".format(ident))
 
     # Views
 
@@ -114,7 +143,7 @@ class AccountsViewSet(
         """
         Create an account.
 
-        Returns details for the new account.
+        Returns data for the new account.
         """
         return super().create(request, *args, **kwargs)
 
@@ -122,9 +151,25 @@ class AccountsViewSet(
         """
         Retrieve an account.
 
-        Returns details for the account.
+        Returns detailed data for the account.
         """
         return super().retrieve(request, *args, **kwargs)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update an account.
+
+        Returns data for the updated account.
+        """
+        return super().partial_update(request, *args, **kwargs)
+
+    def update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update an account.
+
+        Returns data for the updated account.
+        """
+        return super().update(request, *args, **kwargs)
 
 
 class TeamsViewSet(
@@ -145,45 +190,95 @@ class TeamsViewSet(
 
     lookup_url_kwarg = "team"
 
-    def get_queryset(self):
+    def get_permissions(self):
         """
-        Override of `GenericAPIView.get_queryset`.
+        Get the permissions that the current action requires.
 
-        Returns all the teams for the account.
+        Requires authentication for all actions (i.e. no public access).
         """
-        account = get_object_from_ident(Account, self.kwargs["account"])
-        # TODO: check user has view permissions for account
-        return Team.objects.filter(account=account)
-
-    def get_object(self):
-        """
-        Override of `GenericAPIView.get_object`.
-
-        Allow for the `account` and `team` URL kwargs to be either an
-        integer `id` or a string `name`.
-        """
-        account = get_object_from_ident(Account, self.kwargs["account"])
-        # TODO: check user has permissions for action on account
-        return get_object_or_404(
-            Team, account=account, **get_filter_from_ident(self.kwargs["team"])
-        )
+        return [permissions.IsAuthenticated()]
 
     def get_serializer_class(self):
         """
-        Override of `GenericAPIView.get_serializer_class`.
+        Get the serializer class for the current action.
 
-        Returns different serializers for different views.
+        For `create`, checks that the user is an account MANAGER
+        or ADMIN and that the account quota for teams has
+        not been exceeded.
         """
+        if self.action == "create":
+            try:
+                account = Account.objects.get(
+                    **filter_from_ident(self.kwargs["account"]),
+                    users__user=self.request.user,
+                    users__role__in=["MANAGER", "ADMIN"]
+                )
+            except Account.DoesNotExist:
+                raise exceptions.PermissionDenied
+
+            AccountQuotas.TEAMS.check(
+                account, Team.objects.filter(account=account).count(),
+            )
+
         try:
             return {
                 "list": TeamSerializer,
                 "create": TeamCreateSerializer,
                 "retrieve": TeamSerializer,
+                "partial_update": TeamUpdateSerializer,
                 "update": TeamUpdateSerializer,
             }[self.action]
         except KeyError:
-            logger.error("No serializer defined for action {}".format(self.action))
-            return TeamSerializer
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
+    def get_queryset(self):
+        """
+        Get the queryset for the current action.
+
+        For `list`, returns **all** teams for account
+        after checking that the user is an account user.
+        """
+        if self.action == "list":
+            try:
+                account = Account.objects.get(
+                    **filter_from_ident(self.kwargs["account"]),
+                    users__user=self.request.user
+                )
+            except Account.DoesNotExist:
+                raise exceptions.PermissionDenied
+
+            return Team.objects.filter(account=account)
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
+    def get_object(self):
+        """
+        Get the object for the current action.
+
+        For `retrieve`, checks that user is an account user.
+        For `partial-update` and `update`, checks that the user
+        is an account MANAGER or ADMIN.
+        """
+        user = self.request.user
+        if self.action in ["retrieve", "partial_update", "update"]:
+            try:
+                account = Account.objects.get(
+                    **filter_from_ident(self.kwargs["account"]),
+                    users__user=user,
+                    **(
+                        {}
+                        if self.action == "retrieve"
+                        else {"users__role__in": ["MANAGER", "ADMIN"]}
+                    )
+                )
+            except Account.DoesNotExist:
+                raise exceptions.PermissionDenied
+
+            return Team.objects.get(
+                **filter_from_ident(self.kwargs["team"]), account=account
+            )
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
 
     # Views
 
@@ -199,7 +294,7 @@ class TeamsViewSet(
         """
         Create a team.
 
-        Returns details for the new team.
+        Returns data for the new team.
         """
         return super().create(request, *args, **kwargs)
 
@@ -207,7 +302,7 @@ class TeamsViewSet(
         """
         Retrieve a team.
 
-        Returns details for the team.
+        Returns data for the team.
         """
         return super().retrieve(request, *args, **kwargs)
 
@@ -215,9 +310,17 @@ class TeamsViewSet(
         """
         Update a team.
 
-        Returns updated details for the team.
+        Returns data for the updated team.
         """
         return super().partial_update(request, *args, **kwargs)
+
+    def update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update a team.
+
+        Returns data for the updated team.
+        """
+        return super().update(request, *args, **kwargs)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         """

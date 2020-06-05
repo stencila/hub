@@ -14,6 +14,8 @@ class TeamSerializer(serializers.ModelSerializer):
     Includes only basic model fields.
     """
 
+    members = UserSerializer(read_only=True, many=True)
+
     class Meta:
         model = Team
         fields = [
@@ -105,6 +107,7 @@ class AccountCreateSerializer(AccountSerializer):
 
     creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
+    # TODO
     # users = serializers.PrimaryKeyRelatedField(
     #    required=False, queryset=User.objects.all(), many=True
     # )

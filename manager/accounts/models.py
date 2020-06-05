@@ -1,11 +1,14 @@
 import secrets
+from typing import NamedTuple
 
 import customidenticon
 from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from imagefield.fields import ImageField
 
+from manager.api.exceptions import AccountQuotaExceeded
 from manager.helpers import EnumChoice, unique_slugify
 from users.models import User
 
@@ -229,3 +232,40 @@ class Team(models.Model):
             queryset=Team.objects.filter(account=self.account),
         )
         return super().save(*args, **kwargs)
+
+
+class AccountQuota(NamedTuple):
+    """
+    A quota for an account.
+
+    name: Name of the quota
+    default: Default value
+    message: Message if the quota is exceeded
+    """
+
+    name: str
+    default: float
+    message: str
+
+    def check(self, account: Account, queryset: QuerySet):
+        """Check whether a quota has been exceed for an account."""
+        # TODO: Check against the account plan for non-default values
+        # TODO: Append a link to upgrade the plan for the account
+        if queryset >= self.default:
+            raise AccountQuotaExceeded({self.name: self.message})
+
+
+class AccountQuotas:
+    """List of account quotas."""
+
+    ORGS = AccountQuota(
+        "organizations",
+        10,
+        "Exceeds the maximum number of organizations you can create. Please contact us.",
+    )
+
+    TEAMS = AccountQuota(
+        "accounts",
+        1,
+        "Exceeds the maximum number of teams. Please upgrade the plan for this account.",
+    )

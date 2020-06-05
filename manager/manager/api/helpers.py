@@ -6,7 +6,7 @@ from typing import Dict, Optional, Union
 from django.shortcuts import get_object_or_404
 
 
-def get_filter_from_ident(
+def filter_from_ident(
     value: str, prefix: Optional[str] = None
 ) -> Dict[str, Union[str, int]]:
     """
@@ -27,4 +27,4 @@ def get_filter_from_ident(
 
 def get_object_from_ident(cls, value: str):
     """Get an object from an indentifier."""
-    return get_object_or_404(cls, **get_filter_from_ident(value))
+    return get_object_or_404(cls, **filter_from_ident(value))
