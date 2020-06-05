@@ -169,6 +169,11 @@ $footer-padding: 2rem 3rem 0.1rem;
   }
 }
 
+.has-text-link-hover:hover {
+  @extends transition-colors;
+  color: $link !important;
+}
+
 a.list-menu--item {
   &:link,
   &:visited {
