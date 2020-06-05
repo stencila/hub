@@ -1,8 +1,9 @@
 .email-settings__item {
+  margin-bottom: 1rem;
+  padding-bottom: 1.25rem;
+
   &:not(:last-of-type) {
     border-bottom: 1px solid $grey-lighter;
-    margin-bottom: 1rem;
-    padding-bottom: 1.25rem;
   }
 }
 

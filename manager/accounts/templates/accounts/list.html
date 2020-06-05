@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_centered.html' %}
 {% load i18n %}
 
 {% comment %}
@@ -10,19 +10,33 @@ if necessary.
 
 {% block title %}{% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}{% endblock %}
 
-{% block content %}
-<h2 class="title">
-  {% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}
+{% block layout_content %}
+  <h2 class="title">
+    {% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}
   <h2>
 
-    {% for account in accounts %}
-    <div>
-      <a href="{% url 'ui-accounts-retrieve' account.name %}">
+  {% for account in accounts %}
+      <a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
+
+  <div class="level is-mobile">
+    <div class="level-left">
         {% if account.image %}
-        <img src="{{ account.image.medium }}">
+          <span class="icon is-medium list-menu--icon">
+            <img src="{{ account.image.medium }}">
+          </span>
         {% endif %}
-        {{ account.name }}
-      </a>
+
+        <span class="has-text-weight-bold">
+          {{ account.name }}
+        </span>
     </div>
-    {% endfor %}
-    {% endblock %}
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+
+    </div>
+      </a>
+  {% endfor %}
+{% endblock %}

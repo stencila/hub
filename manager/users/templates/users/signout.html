@@ -30,7 +30,7 @@
     <footer class="modal-card-foot">
       <form class="form" method="post" action="{% url 'ui-users-signout' %}">
         {% csrf_token %}
-        <button class="button is-primary" type="submit" onclick="posthog.reset()">
+        <button class="button is-primary is-fullwidth-mobile" type="submit" onclick="posthog.reset()">
           Yes, just sign me out!
         </button>
         <a class="button" href="/">

@@ -1,10 +1,22 @@
-{% extends 'base.html' %}
+{% extends 'base_centered.html' %}
 {% load i18n %}
 
 {% block title %}{% trans "New organization" %}{% endblock %}
 
-{% block content %}
-{% include "serializers/_field.html" with field=serializer.name %}
-{% include "serializers/_field.html" with field=serializer.theme %}
-{# {% include "serializers/_serializer.html" with serializer=serializer %} #}
+{% block layout_content %}
+<form hx-post="{% url "api-accounts-list" %}" hx-ext="json-enc">
+  {% include "serializers/_field.html" with field=serializer.name %}
+  {% include "serializers/_field.html" with field=serializer.theme %}
+
+  <button class="button is-primary is-fullwidth-mobile" type="submit">
+    <span class="icon">
+      <i class="ri-add-fill"></i>
+    </span>
+    <span>Create {% trans "Organization" %}</span>
+  </button>
+</form>
+
+<hr />
+
+<!-- {% include "serializers/_serializer.html" with serializer=serializer %} -->
 {% endblock %}
