@@ -11,24 +11,24 @@ if necessary.
 {% block title %}{% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}{% endblock %}
 
 {% block layout_content %}
-  <h2 class="title">
-    {% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}
-  <h2>
+<h1 class="title">
+  {% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}
+</h1>
 
-  {% for account in accounts %}
-      <a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
+{% for account in accounts %}
+<a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
 
   <div class="level is-mobile">
     <div class="level-left">
-        {% if account.image %}
-          <span class="icon is-medium list-menu--icon">
-            <img src="{{ account.image.medium }}">
-          </span>
-        {% endif %}
+      {% if account.image %}
+      <span class="icon is-medium list-menu--icon">
+        <img src="{{ account.image.medium }}" role="presentation"></img>
+      </span>
+      {% endif %}
 
-        <span class="has-text-weight-bold">
-          {{ account.name }}
-        </span>
+      <span class="has-text-weight-bold">
+        {{ account.name }}
+      </span>
     </div>
     <div class="level-right">
       <div class="control">
@@ -36,7 +36,7 @@ if necessary.
       </div>
     </div>
 
-    </div>
-      </a>
-  {% endfor %}
+  </div>
+</a>
+{% endfor %}
 {% endblock %}

@@ -5,37 +5,37 @@
 
 
 {% block sidebar_start %}
-  <div class="is-hidden-mobile">
-    {% if account.image %}
-      <img src="{{ account.image.large }}"></img>
-    {% endif %}
-    <h1 class="is-size-3 has-text-weight-bold">{{ account.name }}</h1>
+<div class="is-hidden-mobile">
+  {% if account.image %}
+  <img src="{{ account.image.large }}" alt="{{ account.name }}"></img>
+  {% endif %}
+  <h1 class="is-size-3 has-text-weight-bold">{{ account.name }}</h1>
 
-    <p>
-      <a href="#" class="has-text-grey">
-        <span class="icon">
-          <i class="ri-links-line"></i>
-        </span>
-        <span>
+  <p>
+    <a href="#" class="has-text-grey">
+      <span class="icon">
+        <i class="ri-links-line"></i>
+      </span>
+      <span>
         http://stenci.la
-        </span>
-      </a>
-    </p>
+      </span>
+    </a>
+  </p>
 
-    <p>
-      <a href="#" class="has-text-grey">
-        <span class="icon">
-          <i class="ri-mail-line"></i>
-        </span>
-        <span>
+  <p>
+    <a href="#" class="has-text-grey">
+      <span class="icon">
+        <i class="ri-mail-line"></i>
+      </span>
+      <span>
         hello@stenci.la
-        </span>
-      </a>
-    </p>
+      </span>
+    </a>
+  </p>
 
-    <hr />
-  </div>
-  {% include './_account_sidebar_start.html' %}
+  <hr />
+</div>
+{% include './_account_sidebar_start.html' %}
 {% endblock %}
 
 {% block hide_sidebar_end %}
@@ -43,45 +43,45 @@
 
 
 {% block layout_content %}
-  <div class="is-hidden-tablet">
-    <div class="media is-mobile">
-      <div class="media-left">
-        {% if account.image %}
-        <img src="{{ account.image.medium }}"></img>
-        {% endif %}
-      </div>
-      <div class="media-content">
-        <h1 class="is-size-4 has-text-weight-bold">{{ account.name }}</h1>
-
-        <p>
-          <a href="#" class="has-text-grey">
-            <span class="icon">
-              <i class="ri-links-line"></i>
-            </span>
-            <span>
-              http://stenci.la
-            </span>
-          </a>
-        </p>
-
-        <p>
-          <a href="#" class="has-text-grey">
-            <span class="icon">
-              <i class="ri-mail-line"></i>
-            </span>
-            <span>
-              hello@stenci.la
-            </span>
-          </a>
-        </p>
-      </div>
+<div class="is-hidden-tablet">
+  <div class="media is-mobile">
+    <div class="media-left">
+      {% if account.image %}
+      <img src="{{ account.image.medium }}"></img>
+      {% endif %}
     </div>
+    <div class="media-content">
+      <h1 class="is-size-4 has-text-weight-bold">{{ account.name }}</h1>
 
-    <hr />
+      <p>
+        <a href="#" class="has-text-grey">
+          <span class="icon">
+            <i class="ri-links-line"></i>
+          </span>
+          <span>
+            http://stenci.la
+          </span>
+        </a>
+      </p>
+
+      <p>
+        <a href="#" class="has-text-grey">
+          <span class="icon">
+            <i class="ri-mail-line"></i>
+          </span>
+          <span>
+            hello@stenci.la
+          </span>
+        </a>
+      </p>
+    </div>
   </div>
 
-  {% include '_action_bar.html' %}
+  <hr />
+</div>
 
-  {% include '_project_list.html' %}
+{% include '_action_bar.html' %}
+
+{% include '_project_list.html' %}
 
 {% endblock %}

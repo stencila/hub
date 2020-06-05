@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <title>{% block title %}Home{% endblock %} : Stencila</title>
@@ -62,7 +62,8 @@
       <div class="container">
         <div class="navbar-brand">
           <a class="navbar-item navbar-logo" href="{% url 'home' %}">
-            <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+            <img title="Stencila" alt="Homepage" src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px"
+                 height="28px">
           </a>
           <a class="navbar-burger" data-target="navbar-menu">
             <span aria-hidden="true"></span>
@@ -72,45 +73,45 @@
         </div>
         <div id="navbar-menu" class="navbar-menu">
           {% if user.is_anonymous == False %}
-            <div class="navbar-start">
-              <!-- TODO: Connect to Project creation URL -->
-              <a class="navbar-item" href="#" style="color: red">
-                {% trans "Projects" %}
-              </a>
-              <a class="navbar-item" href="{% url 'ui-accounts-orgs' %}">
-                {% trans "Organizations" %}
-              </a>
-            </div>
+          <div class="navbar-start">
+            <!-- TODO: Connect to Project creation URL -->
+            <a class="navbar-item" href="#" style="color: red">
+              {% trans "Projects" %}
+            </a>
+            <a class="navbar-item" href="{% url 'ui-accounts-orgs' %}">
+              {% trans "Organizations" %}
+            </a>
+          </div>
           {% endif %}
           <div class="navbar-end">
             {% if user.is_anonymous == False %}
-              <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link is-arrowless">
+            <div class="navbar-item has-dropdown is-hoverable">
+              <a class="navbar-link is-arrowless">
+                <span class="icon">
+                  <i class="ri-add-circle-line" aria-hidden="true"></i>
+                </span>
+                <span class="is-hidden-tablet">Crate a…</span>
+              </a>
+              <div class="navbar-dropdown">
+                <!-- TODO: Connect to Project creation URL -->
+                <a class="navbar-item has-text-weight-bold" href="#" style="color: red">
                   <span class="icon">
-                    <i class="ri-add-circle-line" aria-hidden="true"></i>
+                    <i class="ri-folders-line" aria-hidden="true"></i>
                   </span>
-                  <span class="is-hidden-tablet">Crate a…</span>
+                  <span>
+                    {% trans "New Project" %}
+                  </span>
                 </a>
-                <div class="navbar-dropdown">
-                  <!-- TODO: Connect to Project creation URL -->
-                  <a class="navbar-item has-text-weight-bold" href="#" style="color: red">
-                    <span class="icon">
-                      <i class="ri-folders-line" aria-hidden="true"></i>
-                    </span>
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
+                  <span class="icon">
+                    <i class="ri-organization-chart" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "New Organization" %}
                     <span>
-                      {% trans "New Project" %}
-                    </span>
-                  </a>
-                  <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
-                    <span class="icon">
-                      <i class="ri-organization-chart" aria-hidden="true"></i>
-                    </span>
-                    <span>
-                      {% trans "New Organization" %}
-                    <span>
-                  </a>
-                </div>
+                </a>
               </div>
+            </div>
             {% endif %}
 
             {% if user.is_anonymous %}
@@ -130,10 +131,10 @@
             </div>
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+              <a class="navbar-link" href="{% url 'ui-users-settings' %}" alt="User profile settings">
                 {% if user.personal_account.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
-                  <img class="is-rounded" src="{{ user.personal_account.image.small }}">
+                  <img class="is-rounded" src="{{ user.personal_account.image.small }}" alt="Your profile image">
                 </figure>
 
                 <span class="is-hidden-tablet">

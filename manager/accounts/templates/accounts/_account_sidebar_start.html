@@ -1,9 +1,8 @@
-
 <!-- TODO: Hide tabs based on allowed permission -->
 <!-- TODO: Add is-active class based on current tag -->
 <!-- TODO: Fix logic for only showing Member and Team counts when count is above 1-->
 
-<aside class="menu">
+<div class="menu">
   <ul class="menu-list is-flex-mobile">
     {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='profile' url_name='account_profile' icon_class='profile' tab_name='Profile' %}
     <!-- {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='members' url_name='account_access' icon_class='user' tab_name='Members' %} -->
@@ -31,4 +30,4 @@
     {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='subscriptions' url_name='account_subscriptions' icon_class='bank-card' tab_name='Billing' %}
     {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='settings' url_name='account_settings' icon_class='settings-4' tab_name='Settings' %}
   </ul>
-</aside>
+</div>
