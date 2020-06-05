@@ -6,7 +6,7 @@
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
     <li class="sidebar__item">
-      <a href="#" class="panel-block transition-colors{% if tab == tab_id %} is-active{% endif %}">
+      <a href="{% url 'ui-accounts-retrieve' account.name %}" class="panel-block transition-colors{% if tab == tab_id %} is-active{% endif %}">
         <span class="icon">
           <i class="ri-profile-line"></i>
         </span>
@@ -18,6 +18,7 @@
 
     <li class="sidebar__item">
       <a href="#" class="panel-block transition-colors">
+      {# <a href="{% url 'ui-users-list' account.name %}" class="panel-block transition-colors"> #}
         <span class="icon">
           <i class="ri-user-line"></i>
         </span>
@@ -28,7 +29,7 @@
     </li>
 
     <li class="sidebar__item">
-      <a href="#" class="panel-block transition-colors">
+      <a href="{% url 'ui-teams-list' account.name %}" class="panel-block transition-colors">
         <span class="icon">
           <i class="ri-group-line"></i>
         </span>
@@ -52,7 +53,7 @@
     {% endcomment %}
 
     <li class="sidebar__item">
-      <a href="#" class="panel-block transition-colors">
+      <a href="{% url 'ui-accounts-update' account.name %}" class="panel-block transition-colors">
         <span class="icon">
           <i class="ri-settings-4-line"></i>
         </span>
