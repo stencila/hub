@@ -2,7 +2,6 @@
   border-bottom: 1px solid $grey-lightest;
   margin-left: -$gap / 4;
   margin-right: -$gap / 4;
-  padding: ($gap / 2) ($gap / 4);
 
   &:hover,
   &:focus {
@@ -16,4 +15,9 @@
   &:last-child {
     border-bottom: none;
   }
+}
+
+.project-list--item-link {
+  display: block;
+  padding: ($gap / 2) ($gap / 4);
 }
