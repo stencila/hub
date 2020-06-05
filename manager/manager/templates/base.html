@@ -2,7 +2,8 @@
 {% load i18n %}
 
 <!DOCTYPE html>
-<html lang="en">
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
   <title>{% block title %}Home{% endblock %} : Stencila</title>
@@ -56,6 +57,7 @@
   {% endif %}
 </head>
 
+{% language LANGUAGE_CODE %}
 <body class="has-navbar-fixed-top">
   <header>
     <nav class="navbar is-fixed-top is-spaced has-shadow">
@@ -238,5 +240,6 @@
   {% intercom_tag %}
   {% endif %}
 </body>
+{% endlanguage %}
 
 </html>
