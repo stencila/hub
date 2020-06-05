@@ -2,7 +2,8 @@
 {% load i18n %}
 
 <!DOCTYPE html>
-<html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
   <title>{% block title %}Home{% endblock %} : Stencila</title>
@@ -56,13 +57,16 @@
   {% endif %}
 </head>
 
+{% language LANGUAGE_CODE %}
+
 <body class="has-navbar-fixed-top">
   <header>
     <nav class="navbar is-fixed-top is-spaced has-shadow">
       <div class="container">
         <div class="navbar-brand">
-          <a class="navbar-item" href="{% url 'home' %}">
-            <img src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px" height="28px">
+          <a class="navbar-item navbar-logo" href="{% url 'home' %}">
+            <img title="Stencila" alt="Homepage" src="{% static 'img/logo-name.svg' %}" alt="Stencila" width="112px"
+                 height="28px">
           </a>
           <a class="navbar-burger" data-target="navbar-menu">
             <span aria-hidden="true"></span>
@@ -130,10 +134,10 @@
             </div>
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link" href="{% url 'ui-users-settings' %}">
+              <a class="navbar-link" href="{% url 'ui-users-settings' %}" alt="User profile settings">
                 {% if user.personal_account.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
-                  <img class="is-rounded" src="{{ user.personal_account.image.small }}">
+                  <img class="is-rounded" src="{{ user.personal_account.image.small }}" alt="Your profile image">
                 </figure>
 
                 <span class="is-hidden-tablet">
@@ -237,5 +241,6 @@
   {% intercom_tag %}
   {% endif %}
 </body>
+{% endlanguage %}
 
 </html>
