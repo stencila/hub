@@ -4,7 +4,7 @@
 {% block title %}{% trans "New organization" %}{% endblock %}
 
 {% block layout_content %}
-<form hx-post="{% url "api-accounts-list" %}" hx-ext="json-enc">
+<form hx-post="{% url "api-accounts-list" %}">
   {% include "serializers/_field.html" with field=serializer.name %}
   {% include "serializers/_field.html" with field=serializer.theme %}
 
