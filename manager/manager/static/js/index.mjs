@@ -3,4 +3,5 @@ export { Navbar } from '@vizuaalog/bulmajs/src/plugins/navbar';
 export { toast as Toast } from 'bulma-toast';
 
 // `htmx` is available globally
-import 'htmx.org';
+import './htmx';
+import './htmx-extensions.js';

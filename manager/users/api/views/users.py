@@ -63,7 +63,7 @@ class UsersViewSet(
         """
         List users.
 
-        The optional `q` parameter is a search string used to filter user.
+        The optional `search` parameter is a search string used to filter user.
         Returns details on each user.
         """
         queryset = self.get_queryset()
@@ -72,7 +72,7 @@ class UsersViewSet(
         if template is not None:
             return render(
                 request,
-                template or "users/_search_result.html",
+                template or "users/_search_results.html",
                 dict(queryset=queryset),
             )
         else:

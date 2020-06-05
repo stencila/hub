@@ -1,5 +1,7 @@
 from django.db.models import Prefetch
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import exceptions, mixins, permissions, viewsets
+from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -16,7 +18,21 @@ from accounts.models import Account, AccountQuotas, AccountUser, Team
 from manager.api.helpers import filter_from_ident
 
 
+class RenderingMixin:
+
+    renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
+
+    def get_template_names(self):
+        template = self.request.META.get("HTTP_X_TEMPLATE")
+        if template:
+            return [template]
+        if self.action == "create":
+            return ["api/_create_redirect.html"]
+        return ["api/_default.html"]
+
+
 class AccountsViewSet(
+    RenderingMixin,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
