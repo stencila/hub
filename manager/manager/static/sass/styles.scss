@@ -96,7 +96,6 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "./users/account/email.scss";
 @import "./projects/index.scss";
 
-
 // =============================================================================
 // Custom styles
 // =============================================================================
@@ -121,13 +120,20 @@ $footer-padding: 2rem 3rem 0.1rem;
     width: 100%;
   }
 
-
   // Standardize horizontal alignment between elements in header and body
   .section {
     padding-left: $gap / 2;
     padding-right: $gap / 2;
   }
 
+  // Fix left alignment of header logo
+  .navbar-logo.navbar-item {
+    padding-left: $gap / 2;
+  }
+
+  // ===========================================================================
+  // Custom elements: mobile breakpoint
+  // ===========================================================================
   .sidebar__start {
     background-color: $white-bis;
     border-bottom: 1px solid $white-ter;
@@ -151,19 +157,51 @@ $footer-padding: 2rem 3rem 0.1rem;
   }
 }
 
-@media screen and (max-width: $tablet) {
-  .navbar-logo.navbar-item {
-    padding-left: $gap / 2;
+// =============================================================================
+// Reusable elements & Utility classes
+// =============================================================================
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  .transition-colors {
+    transition-duration: 150ms;
+    transition-property: color, background-color;
+    transition-timing-function: ease-out;
   }
 }
 
-// Element customization
+a.list-menu--item {
+  &:link,
+  &:visited {
+    @extend .transition-colors;
+    color: $text;
+    display: block;
+    padding: 0.5rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  &:hover {
+    background-color: $white-ter;
+    color: $link;
+  }
+}
+
+.list-menu--icon {
+  margin-right: 0.5rem;
+}
+
+// =============================================================================
+// Custom elements
+// =============================================================================
 
 .navbar {
   // Add a screen top border
   border-top: 3px solid $blue;
 }
 
+// Vertically align icons and texts in links
 a .icon,
 a .icon + span,
 .navbar-item .icon,
@@ -186,7 +224,7 @@ a .icon + span,
 
   &::before {
     background-color: $primary;
-    content: '';
+    content: "";
     left: 0;
     position: absolute;
   }
@@ -232,32 +270,4 @@ main {
   .columns a {
     margin: 0.5rem;
   }
-}
-
-// =============================================================================
-// Reusable elements
-// =============================================================================
-
-a.list-menu--item {
-  &:link,
-  &:visited {
-    color: $text;
-    display: block;
-    padding: 0.5rem;
-    transition-duration: 150ms;
-    transition-property: color, background-color;
-
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-  }
-
-  &:hover {
-    background-color: $white-ter;
-    color: $link;
-  }
-}
-
-.list-menu--icon {
-  margin-right: .5rem;
 }
