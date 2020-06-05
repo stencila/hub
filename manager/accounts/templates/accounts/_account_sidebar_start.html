@@ -1,13 +1,66 @@
-
+{% load i18n %}
 <!-- TODO: Hide tabs based on allowed permission -->
 <!-- TODO: Add is-active class based on current tag -->
+<!-- TODO: Fix logic for only showing Member and Team counts when count is above 1-->
 
-<aside class="menu">
+<div class="menu">
   <ul class="menu-list is-flex-mobile">
-    {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='profile' url_name='account_profile' icon_class='profile' tab_name='Profile' %}
-    {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='members' url_name='account_access' icon_class='user' tab_name='Members' %}
-    {% include "accounts/_account_nav_item.html" with permission_required='modify' tab_id='teams' url_name='account_team_list' icon_class='group' tab_name='Teams' %}
-    {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='subscriptions' url_name='account_subscriptions' icon_class='bank-card' tab_name='Subscriptions' %}
-    {% include "accounts/_account_nav_item.html" with permission_required='administer' tab_id='settings' url_name='account_settings' icon_class='settings-4' tab_name='Settings' %}
+    <li class="sidebar__item">
+      <a href="{% url 'ui-accounts-retrieve' account.name %}" class="panel-block transition-colors{% if tab == tab_id %} is-active{% endif %}">
+        <span class="icon">
+          <i class="ri-profile-line"></i>
+        </span>
+        <span>
+          {% trans 'Profile' %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <a href="#" class="panel-block transition-colors">
+      {# <a href="{% url 'ui-users-list' account.name %}" class="panel-block transition-colors"> #}
+        <span class="icon">
+          <i class="ri-user-line"></i>
+        </span>
+        <span>
+          {% trans 'Members' %} {% if 2 > 1 %}<span class="tag is-light">6</span>{% endif %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <a href="{% url 'ui-teams-list' account.name %}" class="panel-block transition-colors">
+        <span class="icon">
+          <i class="ri-group-line"></i>
+        </span>
+        <span>
+          {% trans 'Teams' %} {% if 2 > 1 %}<span class="tag is-light">2</span>{% endif %}
+        </span>
+      </a>
+    </li>
+
+    {% comment %}
+    <li class="sidebar__item">
+      <a href="#" class="panel-block transition-colors">
+        <span class="icon">
+          <i class="ri-bank-card-line"></i>
+        </span>
+        <span>
+          {% trans 'Billing' %}
+        </span>
+      </a>
+    </li>
+    {% endcomment %}
+
+    <li class="sidebar__item">
+      <a href="{% url 'ui-accounts-update' account.name %}" class="panel-block transition-colors">
+        <span class="icon">
+          <i class="ri-settings-4-line"></i>
+        </span>
+        <span>
+          {% trans 'Settings' %}
+        </span>
+      </a>
+    </li>
   </ul>
-</aside>
+</div>

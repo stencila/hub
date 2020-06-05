@@ -76,7 +76,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/components/dropdown.sass";
 @import "../../../node_modules/bulma/sass/components/level.sass";
 // @import "../../../node_modules/bulma/sass/components/list.sass";
-// @import "../../../node_modules/bulma/sass/components/media.sass";
+@import "../../../node_modules/bulma/sass/components/media.sass";
 @import "../../../node_modules/bulma/sass/components/menu.sass";
 @import "../../../node_modules/bulma/sass/components/message.sass";
 @import "../../../node_modules/bulma/sass/components/modal.sass";
@@ -92,11 +92,17 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/layout/section.sass";
 @import "../../../node_modules/bulma/sass/layout/footer.sass";
 
+// Custom styles
+@import "./users/account/email.scss";
+@import "./projects/index.scss";
+
 // =============================================================================
-// Customize Bulma
+// Custom styles
 // =============================================================================
-// Add full-width buttons only at mobile breakpoints
 @media screen and (max-width: $tablet) {
+  // =============================================================================
+  // Customize Bulma
+  // =============================================================================
   // Typography customization
   .title,
   .is-size-3,
@@ -104,6 +110,7 @@ $footer-padding: 2rem 3rem 0.1rem;
     font-size: 1.125rem;
   }
 
+  // Add full-width buttons only at mobile breakpoints
   .buttons .button.is-fullwidth-mobile {
     margin-right: 0 !important;
   }
@@ -113,13 +120,26 @@ $footer-padding: 2rem 3rem 0.1rem;
     width: 100%;
   }
 
+  // Standardize horizontal alignment between elements in header and body
+  .section {
+    padding-left: $gap / 2;
+    padding-right: $gap / 2;
+  }
+
+  // Fix left alignment of header logo
+  .navbar-logo.navbar-item {
+    padding-left: $gap / 2;
+  }
+
+  // ===========================================================================
+  // Custom elements: mobile breakpoint
+  // ===========================================================================
   .sidebar__start {
-    border-bottom: 1px solid $white-ter;
     background-color: $white-bis;
-    margin-left: -1rem;
-    margin-right: -1rem;
+    border-bottom: 1px solid $white-ter;
     margin-top: -3rem;
     overflow: auto;
+    padding-bottom: $gap / 8;
     padding-left: 0;
     padding-right: 0;
   }
@@ -138,17 +158,57 @@ $footer-padding: 2rem 3rem 0.1rem;
 }
 
 // =============================================================================
-// Custom styles
+// Reusable elements & Utility classes
 // =============================================================================
 
-// Custom styles
-@import "./users/account/email.scss";
+@media screen and (prefers-reduced-motion: no-preference) {
+  .transition-colors {
+    transition-duration: 150ms;
+    transition-property: color, background-color;
+    transition-timing-function: ease-out;
+  }
+}
+
+.has-text-link-hover:hover {
+  @extends transition-colors;
+  color: $link !important;
+}
+
+a.list-menu--item {
+  &:link,
+  &:visited {
+    @extend .transition-colors;
+    color: $text;
+    display: block;
+    padding: 0.5rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  &:hover {
+    background-color: $white-ter;
+    color: $link;
+  }
+}
+
+.list-menu--icon {
+  margin-right: 0.5rem;
+}
+
+// =============================================================================
+// Custom elements
+// =============================================================================
 
 .navbar {
   // Add a screen top border
   border-top: 3px solid $blue;
 }
 
+// Vertically align icons and texts in links
+a .icon,
+a .icon + span,
 .navbar-item .icon,
 .navbar-item .icon + span,
 .navbar-link .icon,
@@ -159,6 +219,36 @@ $footer-padding: 2rem 3rem 0.1rem;
 .navbar__user-avatar {
   display: inline-block;
   vertical-align: middle;
+}
+
+.menu-list a.is-active {
+  font-weight: bold;
+  background-color: inherit;
+  color: inherit;
+  position: relative;
+
+  &::before {
+    background-color: $primary;
+    content: "";
+    left: 0;
+    position: absolute;
+  }
+
+  @media screen and (max-width: $tablet) {
+    &::before {
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+    }
+  }
+
+  @media screen and (min-width: $tablet) {
+    &::before {
+      height: 100%;
+      top: 0;
+      width: 4px;
+    }
+  }
 }
 
 #messages {
@@ -185,32 +275,4 @@ main {
   .columns a {
     margin: 0.5rem;
   }
-}
-
-// =============================================================================
-// Reusable elements
-// =============================================================================
-
-a.list-menu--item {
-  &:link,
-  &:visited {
-    color: $text;
-    display: block;
-    padding: 0.5rem;
-    transition-duration: 150ms;
-    transition-property: color, background-color;
-
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-  }
-
-  &:hover {
-    background-color: $white-ter;
-    color: $link;
-  }
-}
-
-.list-menu--icon {
-  margin-right: .5rem;
 }

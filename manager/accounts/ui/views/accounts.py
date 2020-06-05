@@ -49,7 +49,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
-def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+def update(request: HttpRequest, account: str, *args, **kwargs) -> HttpResponse:
     """Update an account."""
     serializer = viewset("update", request, args, kwargs).get_serializer()
-    return render(request, "accounts/update.html", dict(serializer=serializer))
+    return render(request, "accounts/update.html", dict(serializer=serializer, account_name = account))
