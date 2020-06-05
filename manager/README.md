@@ -8,7 +8,7 @@ Run the Django server by running
 make run
 ```
 
-Then to automatically compile static assets on save and hot-reload in the browserm in another terminal run
+Then to automatically compile static assets on save and hot-reload in the browser, in another terminal run
 
 ``` sh
 make run-watch
