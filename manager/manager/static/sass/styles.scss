@@ -92,11 +92,18 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/bulma/sass/layout/section.sass";
 @import "../../../node_modules/bulma/sass/layout/footer.sass";
 
+// Custom styles
+@import "./users/account/email.scss";
+@import "./projects/index.scss";
+
+
 // =============================================================================
-// Customize Bulma
+// Custom styles
 // =============================================================================
-// Add full-width buttons only at mobile breakpoints
 @media screen and (max-width: $tablet) {
+  // =============================================================================
+  // Customize Bulma
+  // =============================================================================
   // Typography customization
   .title,
   .is-size-3,
@@ -104,6 +111,7 @@ $footer-padding: 2rem 3rem 0.1rem;
     font-size: 1.125rem;
   }
 
+  // Add full-width buttons only at mobile breakpoints
   .buttons .button.is-fullwidth-mobile {
     margin-right: 0 !important;
   }
@@ -113,13 +121,19 @@ $footer-padding: 2rem 3rem 0.1rem;
     width: 100%;
   }
 
+
+  // Standardize horizontal alignment between elements in header and body
+  .section {
+    padding-left: $gap / 2;
+    padding-right: $gap / 2;
+  }
+
   .sidebar__start {
-    border-bottom: 1px solid $white-ter;
     background-color: $white-bis;
-    margin-left: -1rem;
-    margin-right: -1rem;
+    border-bottom: 1px solid $white-ter;
     margin-top: -3rem;
     overflow: auto;
+    padding-bottom: $gap / 8;
     padding-left: 0;
     padding-right: 0;
   }
@@ -137,12 +151,13 @@ $footer-padding: 2rem 3rem 0.1rem;
   }
 }
 
-// =============================================================================
-// Custom styles
-// =============================================================================
+@media screen and (max-width: $tablet) {
+  .navbar-logo.navbar-item {
+    padding-left: $gap / 2;
+  }
+}
 
-// Custom styles
-@import "./users/account/email.scss";
+// Element customization
 
 .navbar {
   // Add a screen top border
