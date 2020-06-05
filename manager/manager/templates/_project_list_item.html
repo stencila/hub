@@ -1,0 +1,17 @@
+<a href="#">
+  <h3 class="title is-size-5-mobile is-4">
+    {{ project.name|default:"Untitled Project" }}
+    {# {% if project.public == False %} #}
+      <span class="tag is-light">
+        <span class="icon">
+          <i class="ri-lock-line"></i>
+        </span>
+        <span>
+          Private
+        </span>
+      </span>
+  </h3>
+  <p class="subtitle is-size-6">
+    {{ project.description|default:"This is a test project to see how this works!" }}
+  </p>
+</a>
