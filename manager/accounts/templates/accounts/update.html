@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends './_base.html' %}
 {% load i18n %}
 
 {% block title %}{{ account.name }} {% trans "Settings" %}{% endblock %}
 
-{% block content %}
-{% include "serializers/_serializer.html" with serializer=serializer %}
+{% block accounts_content %}
+  {% include "serializers/_serializer.html" with serializer=serializer %}
 {% endblock %}
