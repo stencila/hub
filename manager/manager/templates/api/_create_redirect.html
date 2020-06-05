@@ -1,0 +1,10 @@
+<p>
+  <!-- TODO: Improve this UI.. Add a spinner or similar? -->
+  Redirecting to the newly created object...
+</p>
+<script>
+  console.log("This javascript does not seem to get executed");
+  window.location.href = "{% url 'ui-accounts-retrieve' name %}";
+  // Instead might just set a header. e.g. X-Redirect for client
+  // side redirection 
+</script>
