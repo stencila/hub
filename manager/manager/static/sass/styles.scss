@@ -164,6 +164,8 @@ $footer-padding: 2rem 3rem 0.1rem;
   border-top: 3px solid $blue;
 }
 
+a .icon,
+a .icon + span,
 .navbar-item .icon,
 .navbar-item .icon + span,
 .navbar-link .icon,
@@ -174,6 +176,36 @@ $footer-padding: 2rem 3rem 0.1rem;
 .navbar__user-avatar {
   display: inline-block;
   vertical-align: middle;
+}
+
+.menu-list a.is-active {
+  font-weight: bold;
+  background-color: inherit;
+  color: inherit;
+  position: relative;
+
+  &::before {
+    background-color: $primary;
+    content: '';
+    left: 0;
+    position: absolute;
+  }
+
+  @media screen and (max-width: $tablet) {
+    &::before {
+      bottom: 0;
+      height: 2px;
+      width: 100%;
+    }
+  }
+
+  @media screen and (min-width: $tablet) {
+    &::before {
+      height: 100%;
+      top: 0;
+      width: 4px;
+    }
+  }
 }
 
 #messages {
