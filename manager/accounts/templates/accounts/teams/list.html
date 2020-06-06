@@ -3,14 +3,29 @@
 
 {% block title %}{{ account.name }} {% trans "Teams" %}{% endblock %}
 
-{% block accounts_content %}
-    <h2 class="title">{% trans "Teams" %}</h2>
+{% block layout_content %}
+<h1 class="title">
+  {% trans "Teams" %}
+</h1>
 
-    {% for team in teams %}
-    <div>
-      <a href="{% url 'ui-teams-update' team.account.name team.name %}">
+{% for team in teams %}
+<a href="{% url 'ui-accounts-teams-update' account.name team.name %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="icon is-medium list-menu--icon">
+        <i class="ri-group-line"></i>
+      </span>
+      <span class="has-text-weight-bold">
         {{ team.name }}
-      </a>
+      </span>
     </div>
-    {% endfor %}
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
+{% endfor %}
+
 {% endblock %}
