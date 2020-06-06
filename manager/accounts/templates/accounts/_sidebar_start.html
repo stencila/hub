@@ -5,7 +5,7 @@
   <ul class="menu-list is-flex-mobile">
     <li class="sidebar__item">
       <a href="{% url 'ui-accounts-retrieve' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-accounts-retrieve' account.name %}">
+         class="panel-block transition-colors {% is_active 'ui-accounts-retrieve' %}">
         <span class="icon">
           <i class="ri-profile-line"></i>
         </span>
@@ -18,7 +18,7 @@
     {% comment %}
     <li class="sidebar__item">
       <a href="{% url 'ui-users-list' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-users-list' account.name %}">
+         class="panel-block transition-colors {% is_active 'ui-users-list' %}">
         <span class="icon">
           <i class="ri-user-line"></i>
         </span>
@@ -31,8 +31,8 @@
     {% endcomment %}
 
     <li class="sidebar__item">
-      <a href="{% url 'ui-teams-list' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-teams-list' account.name %}">
+      <a href="{% url 'ui-accounts-teams-list' account.name %}"
+         class="panel-block transition-colors {% is_active 'ui-accounts-teams' %}">
         <span class="icon">
           <i class="ri-group-line"></i>
         </span>
@@ -46,7 +46,7 @@
     {% if role in 'MANAGER, ADMIN' %}
     <li class="sidebar__item">
       <a href="{% url 'ui-accounts-update' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-accounts-update' account.name %}">
+         class="panel-block transition-colors {% is_active 'ui-accounts-update' %}">
         <span class="icon">
           <i class="ri-settings-4-line"></i>
         </span>

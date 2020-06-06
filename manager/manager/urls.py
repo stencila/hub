@@ -43,9 +43,9 @@ urlpatterns = [
     # Account URLs
     #
     # List personal accounts
-    path("users/", account_views.list_users, name="ui-accounts-users"),
+    path("users/", account_views.list_users, name="ui-accounts-list-users"),
     # List organizational accounts
-    path("orgs/", account_views.list_orgs, name="ui-accounts-orgs"),
+    path("orgs/", account_views.list_orgs, name="ui-accounts-list-orgs"),
     # Create a new organizational account (login required)
     path("orgs/new/", account_views.create, name="ui-accounts-create"),
     # Get an account profile
@@ -53,11 +53,11 @@ urlpatterns = [
     # Change an account (login required)
     path("<slug:account>/settings/", account_views.update, name="ui-accounts-update"),
     # List account teams (login required)
-    path("<slug:account>/teams/", team_views.list, name="ui-teams-list"),
+    path("<slug:account>/teams/", team_views.list, name="ui-accounts-teams-list"),
     # Create account team (login required)
-    path("<slug:account>/teams/new/", team_views.create, name="ui-teams-create"),
+    path("<slug:account>/teams/new/", team_views.create, name="ui-accounts-teams-create"),
     # Change account team (login required)
-    path("<slug:account>/teams/<slug:team>/settings/", team_views.update, name="ui-teams-update"),
+    path("<slug:account>/teams/<slug:team>/settings/", team_views.update, name="ui-accounts-teams-update"),
 
     # Home page
     path("", home, name="home"),

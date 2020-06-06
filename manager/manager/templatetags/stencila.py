@@ -6,7 +6,7 @@ in templates.
 """
 
 from django import template
-from django.shortcuts import reverse
+from django.urls import resolve
 from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
 
@@ -14,15 +14,19 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def is_active(context, name, *args):
+def is_active(context, name):
     """
-    Return "is-active" if the current path matches that for a named view.
+    Return "is-active" if the current path resolves to a view starting with `name`.
 
-    Used to add the "is-active" CSS class to elements e.g.
+    Used to add the "is-active" CSS class to elements.
+    Most useful when view names reflect the view hierarchy.
+    e.g. `ui-accounts-teams-list` and `ui-accounts-teams-update`
+    with both be "is-active" in this case:
 
-        class="{% is_active 'ui-account-profile' account.name %}"
+        class="{% is_active 'ui-accounts-teams' %}"
     """
-    return "is-active" if context["request"].path == reverse(name, args=args) else ""
+    match = resolve(context["request"].path)
+    return "is-active" if match.url_name.startswith(name) else ""
 
 
 @register.filter
