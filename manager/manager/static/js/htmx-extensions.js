@@ -3,7 +3,7 @@
  */
 htmx.defineExtension('stencila', {
   /**
-   * Encode parameters as JSON
+   * Encode parameters as JSON and add XHR headers prior to sending.
    * 
    * Based on https://github.com/bigskysoftware/htmx/blob/master/src/ext/json-enc.js
    * 
@@ -41,12 +41,23 @@ htmx.defineExtension('stencila', {
 
     xhr.setRequestHeader("Accept", 'text/html');
 
-    var stencilaTemplate = htmx.closest(elt, "[stencila-template]");
+    var stencilaTemplate = htmx.closest(elt, "[hx-template]");
     if (stencilaTemplate) {
-      var templateName = stencilaTemplate.getAttribute('stencila-template');
-      xhr.setRequestHeader("X-Template", templateName);
+      var templateName = stencilaTemplate.getAttribute('hx-template');
+      xhr.setRequestHeader("X-HX-Template", templateName);
     }
 
     return JSON.stringify(parameters);
+  },
+  onEvent : function(name, evt) {
+    if (name == 'beforeOnLoad.htmx') {
+      // This event is triggered before any new content has been swapped
+      // into the DOM.
+      var xhr = evt.detail.xhr;
+      // If response is status `201 Created` with a `Location` header
+      // then redirect to there.
+      var redirectUrl = xhr.getResponseHeader("Location");
+      if (xhr.status == 201 && redirectUrl) window.location.href = redirectUrl;
+    }
   }
 })
