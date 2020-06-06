@@ -94,23 +94,30 @@ class AccountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ["id", "name", "user", "creator", "created", "image", "theme", "hosts"]
+        fields = [
+            "id",
+            "name",
+            "user",
+            "creator",
+            "created",
+            "display_name",
+            "location",
+            "image",
+            "website",
+            "email",
+            "theme",
+            "hosts",
+        ]
 
 
 class AccountCreateSerializer(AccountSerializer):
     """
     A serializer for creating accounts.
 
-    Gets `creator` from the request user
-    and makes `users` optional.
+    Gets `creator` from the request user.
     """
 
     creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
-    # TODO
-    # users = serializers.PrimaryKeyRelatedField(
-    #    required=False, queryset=User.objects.all(), many=True
-    # )
 
     class Meta:
         model = Account

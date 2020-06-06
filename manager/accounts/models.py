@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import QuerySet
 from django.db.models.signals import post_save
+from django.shortcuts import reverse
 from imagefield.fields import ImageField
 
 from manager.api.exceptions import AccountQuotaExceeded
@@ -46,7 +47,10 @@ class Account(models.Model):
     )
 
     name = models.SlugField(
-        null=False, blank=False, unique=True, help_text="Name of the account.",
+        null=False,
+        blank=False,
+        unique=True,
+        help_text="Name of the account. Lowercase only. Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
     )
 
     image = ImageField(
@@ -59,6 +63,28 @@ class Account(models.Model):
         },
         auto_add_fields=True,
         help_text="Image for the account.",
+    )
+
+    display_name = models.CharField(
+        null=True,
+        blank=True,
+        max_length=256,
+        help_text="Name to display in account profile.",
+    )
+
+    location = models.CharField(
+        null=True,
+        blank=True,
+        max_length=256,
+        help_text="Location to display in account profile.",
+    )
+
+    website = models.URLField(
+        null=True, blank=True, help_text="URL to display in account profile.",
+    )
+
+    email = models.EmailField(
+        null=True, blank=True, help_text="Email to display in account profile."
     )
 
     theme = models.TextField(
@@ -85,6 +111,10 @@ class Account(models.Model):
     def is_organization(self):
         """Is this an organizational account."""
         return self.user is None
+
+    def get_url(self):
+        """Get the URL for this account."""
+        return reverse("ui-accounts-retrieve", args=[self.name])
 
     def save(self, *args, **kwargs):
         """
@@ -261,11 +291,11 @@ class AccountQuotas:
     ORGS = AccountQuota(
         "organizations",
         10,
-        "Exceeds the maximum number of organizations you can create. Please contact us.",
+        "Maximum number of organizations you can create has been reached. Please contact us.",
     )
 
     TEAMS = AccountQuota(
         "accounts",
         1,
-        "Exceeds the maximum number of teams. Please upgrade the plan for this account.",
+        "Maximum number of teams for the account has been reached. Please upgrade the plan for this account.",
     )
