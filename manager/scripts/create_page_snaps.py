@@ -13,37 +13,42 @@ from pyppeteer import launch
 from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
-# Include here URLs for model instances e.g. accounts, projects, teams etc
-# which are in the urlpatterns as regexes.
 INCLUDE = [
-    # API docs
-    "api",
-    # Account profiles (user and org)
-    "joe",
-    "hapuku-university",
-    # Account settings, teams etc
-    "acme-ltd/settings",
-    "acme-ltd/teams",
-    "acme-ltd/teams/new",
-    "acme-ltd/teams/a-team",
-    "acme-ltd/teams/a-team/settings",
     # Render these templates instead of testing the pages (and getting non-200 responses)
     "stencila/render?template=403.html",
     "stencila/render?template=404.html",
     "stencila/render?template=500.html",
 ]
 
+# Regex, string pairs for replacing URL parameters
+REPLACE = [
+    (r"<slug:account>", "acme-ltd"),
+    (r"<slug:team>", "team-a"),
+]
+
 # Regexes of paths to exclude
 EXCLUDE = [
-    "^api/.+",
-    "^debug",
-    "^favicon.ico",
-    "^stencila/admin",
+    r"^api/.+",
+    r"^debug",
+    r"^favicon.ico",
+    r"^stencila/admin",
+    # Anything which still has a URL parameter
+    # in it after REPLACE is applied
+    r"\?P<",
+    r"<[a-z]+:[a-z]+>",
+    # Social auth login pages expected to fail because
+    # app tokens not available during development
+    r"^me/[a-z]+/login/",
     # These pages are not expected to return 200 responses
-    "^stencila/test/403",
-    "^stencila/test/404",
-    "^stencila/test/500",
+    r"^stencila/test/403",
+    r"^stencila/test/404",
+    r"^stencila/test/500",
 ]
+
+# Username / password to login as
+# Should have ADMIN access to the accounts / projects
+# specified in REPLACE
+USER_PASS = "admin:admin"
 
 # Paths to visit as an anonymous user
 ANON = ["me/signin/", "me/signup/"]
@@ -74,10 +79,16 @@ async def main():
     paths = [
         path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
     ] + INCLUDE
+
+    for (regex, string) in REPLACE:
+        paths = [re.sub(regex, string, path) for path in paths]
+
+    paths = sorted(set(paths))
+
     results = []
     browser = await launch()
 
-    for idx, path in enumerate(set(paths)):
+    for idx, path in enumerate(paths):
         ok = True
         for regex in EXCLUDE:
             if re.search(regex, path):
@@ -87,22 +98,18 @@ async def main():
             page = await browser.newPage()
 
             if path not in ANON:
-                header = "Basic " + b64encode("user:user".encode()).decode()
+                header = "Basic " + b64encode(USER_PASS.encode()).decode()
                 await page.setExtraHTTPHeaders({"Authorization": header})
 
             url = "http://localhost:8000/{}".format(path)
 
+            print("{0}/{1} Snapping: {2}".format(idx, len(paths), showPath(path)))
             response = await page.goto(url)
-            if response.status == 200:
-                print("Snapping {0}/{1}: {2}".format(idx, len(paths), showPath(path)))
-                files = await snap(page, path)
-            else:
-                print("Failed: {}".format(path))
-                files = []
+            files = await snap(page, path, debug=response.status != 200)
 
             results.append([path, url, response.status, files])
         else:
-            print("Skipping: {}".format(showPath(path)))
+            print("{0}/{1} Skipping: {2}".format(idx, len(paths), showPath(path)))
 
     await browser.close()
 
@@ -143,13 +150,13 @@ def report(results):
     for (path, url, status, files) in results:
         report += """
             <tr>
-                <td><a href="{url}">{path}</a></td>
+                <td><a href="{url}" target="_blank">{path}</a></td>
                 <td>{status}</td>
                 {images}
             </tr>
         """.format(
             url=url,
-            path=html.escape(path),
+            path=html.escape(showPath(path)),
             status=status,
             images="".join(
                 [
@@ -164,10 +171,11 @@ def report(results):
         file.write(report)
 
 
-async def snap(page, path):
+async def snap(page, path, debug=False):
     """Take screenshots of a page at various sizes."""
     # Hide debug toolbar
-    await page.addStyleTag({"content": "#djDebug { display: none !important; }"})
+    if not debug:
+        await page.addStyleTag({"content": "#djDebug { display: none !important; }"})
 
     files = []
     for (width, height) in VIEWPORTS:

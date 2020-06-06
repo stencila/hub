@@ -9,24 +9,26 @@ def run(*args):
     # Ensure that this is only used in development
     assert settings.DEBUG
 
-    first_three_users = User.objects.all()[:3]
-    last_four_users = User.objects.order_by("-id").all()[:4]
+    user = User.objects.get(username="user")
+    staff = User.objects.get(username="staff")
+    admin = User.objects.get(username="admin")
+    random_three_users = User.objects.order_by("?").all()[:3]
 
     for name in ["stencila", "hapuku-university", "craigiburn-college", "acme-ltd"]:
         account = Account.objects.create(name=name)
 
         AccountUser.objects.create(
-            account=account, user=last_four_users[1], role=AccountRole.MEMBER.name
+            account=account, user=user, role=AccountRole.MEMBER.name
         )
         AccountUser.objects.create(
-            account=account, user=last_four_users[2], role=AccountRole.MANAGER.name
+            account=account, user=staff, role=AccountRole.MANAGER.name
         )
         AccountUser.objects.create(
-            account=account, user=last_four_users[3], role=AccountRole.ADMIN.name
+            account=account, user=admin, role=AccountRole.ADMIN.name
         )
 
         a_team = Team.objects.create(account=account, name="a-team")
-        a_team.members.set(first_three_users)
+        a_team.members.set([user, staff, admin])
 
         b_team = Team.objects.create(account=account, name="b-team")
-        b_team.members.set(last_four_users)
+        b_team.members.set(random_three_users)
