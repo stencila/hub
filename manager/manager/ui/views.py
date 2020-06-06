@@ -9,6 +9,8 @@ from django.shortcuts import redirect, render
 from django.views.defaults import page_not_found, permission_denied
 from sentry_sdk import last_event_id
 
+from manager.api.exceptions import AccountQuotaExceeded
+
 
 def home(request: HttpRequest) -> HttpResponse:
     """
@@ -71,6 +73,17 @@ def render_template(request: HttpRequest) -> HttpResponse:
     wrap = request.GET.get("wrap")
     context = dict(wrap=wrap) if wrap else {}
     return render(request, template, context)
+
+
+def test_account_quota_exceeded(request: HttpRequest) -> HttpResponse:
+    """
+    Test raising an `AccountQuotaExceeded` exception.
+
+    Allows testing of the capture and rendering of the exception.
+    """
+    raise AccountQuotaExceeded(
+        {"quota": "You went over some quota. Please upgrade your plan."}
+    )
 
 
 def test_messages(request: HttpRequest) -> HttpResponse:

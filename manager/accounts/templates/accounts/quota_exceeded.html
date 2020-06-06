@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="columns is-centered">
+  <div class="column is-half-tablet">
+    <article class="message message-header-body is-danger">
+      <div class="message-header">
+        <p><span class="icon"><i class="ri-error-warning-line"></i></span>Quota exceeded</p>
+      </div>
+      <div class="message-body">
+        {{ message|default:"An account quota has been exceeded. Please contact us." }}
+      </div>
+    </article>
+  </div>
+</div>
+{% endblock content %}

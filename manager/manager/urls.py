@@ -15,6 +15,7 @@ from manager.ui.views import (
     test403,
     test404,
     test500,
+    test_account_quota_exceeded,
     test_messages,
 )
 
@@ -31,6 +32,7 @@ urlpatterns = [
                 path("admin/", admin.site.urls, name="admin"),
                 path("render/", render_template),
                 path("test/messages/", test_messages),
+                path("test/account-quota-exceeded/", test_account_quota_exceeded),
                 path("test/403/", test403),
                 path("test/404/", test404),
                 path("test/500/", test500),

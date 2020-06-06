@@ -115,6 +115,8 @@ class Prod(Configuration):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "django_prometheus.middleware.PrometheusAfterMiddleware",
         "manager.middleware.method_override",
+        # Must be last one to capture the exception
+        "manager.middleware.CustomExceptionsMiddleware",
     ]
 
     # A string representing the full Python import path to your root URLconf
