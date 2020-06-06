@@ -6,33 +6,51 @@
   {% if account.image %}
   <img src="{{ account.image.large }}" alt="{{ account.name }}"></img>
   {% endif %}
-  <h1 class="is-size-3 has-text-weight-bold">{{ account.name }}</h1>
 
+  <h1 class="is-size-3 has-text-weight-bold">{{ account.display_name | default:account.name }}</h1>
+
+  {% if account.website %}
   <p>
-    <a href="#" class="has-text-grey has-text-link-hover">
+    <a href="{{ account.website }}" class="has-text-grey has-text-link-hover">
       <span class="icon">
         <i class="ri-links-line"></i>
       </span>
       <span>
-        http://stenci.la
+        {{ account.website }}
       </span>
     </a>
   </p>
+  {% endif %}
 
+  {% if account.email %}
   <p>
-    <a href="#" class="has-text-grey has-text-link-hover">
+    <a href="mailto://{{ account.email }}" class="has-text-grey has-text-link-hover">
       <span class="icon">
         <i class="ri-mail-line"></i>
       </span>
       <span>
-        hello@stenci.la
+        {{ account.email }}
       </span>
     </a>
   </p>
+  {% endif %}
+
+  {% if account.location %}
+  <p>
+    <a href="mailto://{{ account.email }}" class="has-text-grey has-text-link-hover">
+      <span class="icon">
+        <i class="ri-map-pin-line"></i>
+      </span>
+      <span>
+        {{ account.location }}
+      </span>
+    </a>
+  </p>
+  {% endif %}
 
   <hr />
 </div>
-{% include './_account_sidebar_start.html' with account=account %}
+{% include './_sidebar_start.html' %}
 {% endblock %}
 
 {% block hide_sidebar_end %}
@@ -48,29 +66,34 @@
       {% endif %}
     </div>
     <div class="media-content">
+      <!-- TODO: Reuse the above for these profile related fields? -->
       <h1 class="is-size-4 has-text-weight-bold">{{ account.name }}</h1>
 
+      {% if account.website %}
       <p>
         <a href="#" class="has-text-grey has-text-link-hover">
           <span class="icon">
             <i class="ri-links-line"></i>
           </span>
           <span>
-            http://stenci.la
+            {{ account.website }}
           </span>
         </a>
       </p>
+      {% endif %}
 
+      {% if account.website %}
       <p>
         <a href="#" class="has-text-grey has-text-link-hover">
           <span class="icon">
             <i class="ri-mail-line"></i>
           </span>
           <span>
-            hello@stenci.la
+            {{ account.email }}
           </span>
         </a>
       </p>
+      {% endif %}
     </div>
   </div>
 

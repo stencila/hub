@@ -44,12 +44,20 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
-    object = viewset("retrieve", request, args, kwargs).get_object()
-    return render(request, "accounts/retrieve.html", dict(account=object))
+    account, role = viewset("retrieve", request, args, kwargs).get_account_role(
+        request.user
+    )
+    return render(request, "accounts/retrieve.html", dict(account=account, role=role))
 
 
 @login_required
-def update(request: HttpRequest, account: str, *args, **kwargs) -> HttpResponse:
+def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update an account."""
-    serializer = viewset("update", request, args, kwargs).get_serializer()
-    return render(request, "accounts/update.html", dict(serializer=serializer, account_name = account))
+    vs = viewset("update", request, args, kwargs)
+    account, role = vs.get_account_role(request.user)
+    serializer = vs.get_serializer(account)
+    return render(
+        request,
+        "accounts/update.html",
+        dict(serializer=serializer, account=account, role=role),
+    )
