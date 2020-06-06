@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<form hx-post="{% url "api-accounts-list" %}" hx-template="accounts/_create_form.html">
+
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
+
+  <hr />
+
+  <span class="title is-3">{% trans "Profile" %}</span>
+  {% include "_help_tip.html" with text="These fields are not required. But they'll help make your profile page awesome!" %}
+  {% include "accounts/_update_profile_fields.html" with serializer=serializer %}
+
+  <hr />
+
+  <button class="button is-primary is-fullwidth-mobile" type="submit">
+    <span class="icon">
+      <i class="ri-add-fill"></i>
+    </span>
+    <span>{% trans "Create Organization" %}</span>
+  </button>
+
+</form>

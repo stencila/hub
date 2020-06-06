@@ -1,10 +1,9 @@
-<p>
-  <!-- TODO: Improve this UI.. Add a spinner or similar? -->
-  Redirecting to the newly created object...
+{% comment %}
+Generic HTML response for the `create` action.
+Usually sent with a 201 response and a `Location` header
+which our `htmx` extension knows to redirect the browser to.
+{% endcomment %}
+
+<p class="notification is-success is-light">
+  Success! Redirecting to your new {{ type|default:"creation" }}...
 </p>
-<script>
-  console.log("This javascript does not seem to get executed");
-  window.location.href = "{% url 'ui-accounts-retrieve' name %}";
-  // Instead might just set a header. e.g. X-Redirect for client
-  // side redirection 
-</script>

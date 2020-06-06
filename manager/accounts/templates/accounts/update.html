@@ -1,8 +1,16 @@
-{% extends './_base.html' %}
+{% extends './base.html' %}
 {% load i18n %}
 
 {% block title %}{{ account.name }} {% trans "Settings" %}{% endblock %}
 
 {% block accounts_content %}
-  {% include "serializers/_serializer.html" with serializer=serializer %}
+<h2 class="title is-3">{% trans "Profile" %}</h2>
+<p class="subtitle is-6">{% trans "Settings for your account's public profile." %}</p>
+{% include "accounts/_update_profile_form.html" %}
+
+<hr>
+
+<h2 class="title is-3">{% trans "Content" %}</h2>
+<p class="subtitle is-6">{% trans "Settings affecting how content is served for your projects." %}</p>
+{% include "accounts/_update_content_form.html" %}
 {% endblock %}

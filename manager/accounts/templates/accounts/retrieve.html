@@ -1,10 +1,10 @@
-{% extends './_base.html' %}
+{% extends './base.html' %}
 {% load i18n %}
 
 {% block title %}{{ account.name }}{% endblock %}
 
 {% block accounts_content %}
-  {% include '_action_bar.html' %}
+{% include '_action_bar.html' %}
 
-  {% include '_project_list.html' %}
+{% include '_project_list.html' %}
 {% endblock %}

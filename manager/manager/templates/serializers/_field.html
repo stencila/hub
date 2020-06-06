@@ -1,14 +1,23 @@
+{% load stencila %}
+
 <div class="field">
   {% if field.label %}
   <label class="label">{{ field.label }}</label>
   {% endif %}
 
-  <div class="control">
-    <input class="input" name="{{ field.name }}" type="{{ style.input_type }}"
-           {% if style.placeholder %}placeholder="{{ style.placeholder }}" {% endif %}
-           {% if field.value is not None %}value="{{ field.value }}" {% endif %}
-           {% if style.autofocus and style.input_type != "hidden" %}autofocus{% endif %}>
+  {% if field|field_element == "select" %}
+  TODO:
+  {% else %}
+  <div class="control {% if icon %}has-icons-left{% endif %}">
+    <input class="input" name="{{ field.name }}" type="{{ field|input_type }}"
+           {% if field.value is not None %}value="{{ field.value }}" {% endif %}>
+    {% if icon %}
+    <span class="icon is-left">
+      <i class="{{ icon }}"></i>
+    </span>
+    {% endif %}
   </div>
+  {% endif %}
 
   {% if field.errors %}
   {% for error in field.errors %}

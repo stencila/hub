@@ -4,19 +4,5 @@
 {% block title %}{% trans "New organization" %}{% endblock %}
 
 {% block layout_content %}
-<form hx-post="{% url "api-accounts-list" %}">
-  {% include "serializers/_field.html" with field=serializer.name %}
-  {% include "serializers/_field.html" with field=serializer.theme %}
-
-  <button class="button is-primary is-fullwidth-mobile" type="submit">
-    <span class="icon">
-      <i class="ri-add-fill"></i>
-    </span>
-    <span>Create {% trans "Organization" %}</span>
-  </button>
-</form>
-
-<hr />
-
-<!-- {% include "serializers/_serializer.html" with serializer=serializer %} -->
+{% include "accounts/_create_form.html" %}
 {% endblock %}
