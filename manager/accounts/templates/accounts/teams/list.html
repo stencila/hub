@@ -1,9 +1,9 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Teams" %}{% endblock %}
+{% block title %}{{ account.name }} {% trans "Teams" %}{% endblock %}
 
-{% block content %}
+{% block accounts_content %}
     <h2 class="title">{% trans "Teams" %}</h2>
 
     {% for team in teams %}

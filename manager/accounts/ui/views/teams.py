@@ -14,11 +14,14 @@ def viewset(request: HttpRequest, *args, **kwargs):
 @login_required
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """List teams."""
-    # Use `select_related` to avoid an extra query for each team
-    queryset = (
-        viewset("list", request, args, kwargs).get_queryset().select_related("account")
+    vs = viewset("list", request, args, kwargs)
+    account, role = vs.get_account_role(request.user)
+    teams = vs.get_queryset(account)
+    return render(
+        request,
+        "accounts/teams/list.html",
+        dict(teams=teams, account=account, role=role),
     )
-    return render(request, "accounts/teams/list.html", dict(teams=queryset))
 
 
 @login_required

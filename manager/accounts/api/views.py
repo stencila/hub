@@ -1,6 +1,6 @@
 from django.db.models import Prefetch
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework import exceptions, mixins, permissions, viewsets
+from rest_framework import exceptions, mixins, permissions, status, viewsets
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -16,25 +16,58 @@ from accounts.api.serializers import (
 )
 from accounts.models import Account, AccountQuotas, AccountUser, Team
 from manager.api.helpers import filter_from_ident
+from users.models import User
 
 
-class RenderingMixin:
+class HtmxMixin:
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
-    def get_template_names(self):
-        template = self.request.META.get("HTTP_X_TEMPLATE")
+    def is_html(self):
+        return self.request.META.get("HTTP_ACCEPT") == "text/html"
+
+    def get_template_name(self):
+        template = self.request.META.get("HTTP_X_HX_TEMPLATE")
         if template:
-            return [template]
+            return template
+
+        serializer_class = self.get_serializer_class()
+        class_dir = serializer_class.Meta.model.__name__.lower() + "s/"
         if self.action == "create":
-            return ["api/_create_redirect.html"]
-        return ["api/_default.html"]
+            return class_dir + "_create_form.html"
+        elif self.action in ["partial_update", "update"]:
+            return class_dir + "_update_form.html"
+        elif self.action == "destroy":
+            return class_dir + "_update_form.html"
+
+        return "api/_default.html"
+
+
+class HtmxCreateModelMixin(HtmxMixin):
+    def create(self, request: Request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    template_name="api/_create_redirect.html",
+                    status=status.HTTP_201_CREATED,
+                    headers={"Location": serializer.instance.get_url()},
+                )
+            else:
+                return Response(
+                    dict(serializer=serializer), template_name=self.get_template_name()
+                )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class AccountsViewSet(
-    RenderingMixin,
     mixins.ListModelMixin,
-    mixins.CreateModelMixin,
+    HtmxCreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
@@ -111,25 +144,33 @@ class AccountsViewSet(
         """
         user = self.request.user
         ident = self.kwargs["account"]
-        queryset = Account.objects.filter(**filter_from_ident(ident))
-        if self.action == "retrieve":
-            # The `AccountRetrieveSerializer` uses nested serializers
-            # for `teams` and `users`. So we use `prefetch_related`
+
+        if self.action in ["retrieve", "partial_update", "update"]:
+            # The API `AccountRetrieveSerializer` uses nested serializers
+            # for `teams` and `users`. Also, the UI `update` view uses the
+            # number of teams and users in the side bar.
+            # So we use `prefetch_related` in all cases
             # to reduce the number of DB queries
-            filter = filter_from_ident(ident, prefix="account")
+            queryset = Account.objects.filter(**filter_from_ident(ident))
+            account_filter = filter_from_ident(ident, prefix="account")
             queryset = queryset.prefetch_related(
                 Prefetch(
                     "teams",
-                    queryset=Team.objects.filter(**filter).prefetch_related("members"),
+                    queryset=Team.objects.filter(**account_filter).prefetch_related(
+                        "members"
+                    ),
                 ),
                 Prefetch(
                     "users",
-                    queryset=AccountUser.objects.filter(**filter).select_related(
-                        "user"
-                    ),
+                    queryset=AccountUser.objects.filter(
+                        **account_filter
+                    ).select_related("user"),
                 ),
             )
-        elif self.action in ["partial_update", "update"]:
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
+        if self.action in ["partial_update", "update"]:
             if (
                 queryset.filter(
                     users__user=user, users__role__in=["MANAGER", "ADMIN"]
@@ -137,13 +178,26 @@ class AccountsViewSet(
                 == 0
             ):
                 raise exceptions.PermissionDenied
-        else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
 
         try:
             return queryset[0]
         except IndexError:
             raise exceptions.NotFound("Could not find account '{}'".format(ident))
+
+    def get_account_role(self, user: User):
+        """
+        Get the account and the account role for the current user.
+
+        Used in UI views to determine whether to render elements or not.
+        """
+        account = self.get_object()
+        role = None
+        if user.is_authenticated:
+            try:
+                role = account.users.get(user=user).role
+            except AccountUser.DoesNotExist:
+                pass
+        return account, role
 
     # Views
 
@@ -155,7 +209,7 @@ class AccountsViewSet(
         """
         return super().list(request, *args, **kwargs)
 
-    def create(self, request: Request, *args, **kwargs) -> Response:
+    def ignore_create(self, request: Request, *args, **kwargs) -> Response:
         """
         Create an account.
 
@@ -247,7 +301,22 @@ class TeamsViewSet(
         except KeyError:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
-    def get_queryset(self):
+    def get_account(self, filters={}):
+        try:
+            return Account.objects.get(
+                users__user=self.request.user,
+                **filter_from_ident(self.kwargs["account"]),
+                **filters
+            )
+        except Account.DoesNotExist:
+            raise exceptions.PermissionDenied
+
+    def get_account_role(self, user):
+        account = self.get_account()
+        role = account.users.get(user=user).role
+        return account, role
+
+    def get_queryset(self, account=None):
         """
         Get the queryset for the current action.
 
@@ -255,19 +324,13 @@ class TeamsViewSet(
         after checking that the user is an account user.
         """
         if self.action == "list":
-            try:
-                account = Account.objects.get(
-                    **filter_from_ident(self.kwargs["account"]),
-                    users__user=self.request.user
-                )
-            except Account.DoesNotExist:
-                raise exceptions.PermissionDenied
-
+            if account is None:
+                account = self.get_account()
             return Team.objects.filter(account=account)
         else:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
-    def get_object(self):
+    def get_object(self, account=None):
         """
         Get the object for the current action.
 
@@ -275,21 +338,12 @@ class TeamsViewSet(
         For `partial-update` and `update`, checks that the user
         is an account MANAGER or ADMIN.
         """
-        user = self.request.user
         if self.action in ["retrieve", "partial_update", "update"]:
-            try:
-                account = Account.objects.get(
-                    **filter_from_ident(self.kwargs["account"]),
-                    users__user=user,
-                    **(
-                        {}
-                        if self.action == "retrieve"
-                        else {"users__role__in": ["MANAGER", "ADMIN"]}
-                    )
-                )
-            except Account.DoesNotExist:
-                raise exceptions.PermissionDenied
-
+            account = self.get_account(
+                {}
+                if self.action == "retrieve"
+                else {"users__role__in": ["MANAGER", "ADMIN"]}
+            )
             return Team.objects.get(
                 **filter_from_ident(self.kwargs["team"]), account=account
             )
