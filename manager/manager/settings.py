@@ -94,6 +94,8 @@ class Prod(Configuration):
         "drf_yasg",
         "knox",
         "rest_framework",
+        # Add this for our template tags
+        "manager",
         # Our apps
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
@@ -112,6 +114,7 @@ class Prod(Configuration):
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "django_prometheus.middleware.PrometheusAfterMiddleware",
+        "manager.middleware.method_override",
     ]
 
     # A string representing the full Python import path to your root URLconf
