@@ -13,6 +13,7 @@
     "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html"
   },
   "dependencies": {
+    "@creativebulma/bulma-tooltip": "1.2.0",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.8.2",
     "bulma-toast": "2.0.1",
