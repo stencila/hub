@@ -4,19 +4,11 @@ Custom template tags.
 All in one file so that it is easy just to `{% load stencila %}`
 in templates.
 """
-import datetime
-import json
-from decimal import Decimal
-from django import template
-from django.conf import settings
-from django.shortcuts import reverse
-from django.http import QueryDict
-from django.utils.encoding import force_str
-from django.utils.functional import Promise
-from django.utils.safestring import mark_safe
 
-from rest_framework.utils.field_mapping import ClassLookupDict
+from django import template
+from django.shortcuts import reverse
 from rest_framework import serializers
+from rest_framework.utils.field_mapping import ClassLookupDict
 
 register = template.Library()
 
