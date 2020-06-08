@@ -125,14 +125,16 @@
                   <span class="icon">
                     <i class="ri-login-box-line" aria-hidden="true"></i>
                   </span>
-                  <span>Sign in</span>
+                  <span>
+                    {% trans "Sign in" %}
+                  </span>
                 </a>
               </div>
               {% endif %}
             </div>
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link" href="{% url 'ui-users-settings' %}" alt="User profile settings">
+              <a class="navbar-link" href="{% url 'ui-users-settings' %}" alt="{% trans "User profile settings" %}">
                 {% if user.personal_account.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
                   <img class="is-rounded" src="{{ user.personal_account.image.small }}" alt="Your profile image">
@@ -154,13 +156,24 @@
                   <span class="icon">
                     <i class="ri-settings-4-line" aria-hidden="true"></i>
                   </span>
-                  <span>Settings</span>
+                  <span>{% trans "Settings" %}</span>
                 </a>
+
+
+                {% if user.is_staff or user.is_superuser %}
+                  <a class="navbar-item has-text-weight-bold" href="{% url 'admin:index' %}">
+                    <span class="icon">
+                      <i class="ri-alert-line" aria-hidden="true"></i>
+                    </span>
+                    <span>{% trans "Admin" %}</span>
+                  </a>
+                {% endif %}
+
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-users-signout' %}">
                   <span class="icon">
                     <i class="ri-logout-box-line" aria-hidden="true"></i>
                   </span>
-                  <span>Sign out</span>
+                  <span>{% trans "Sign out" %}</span>
                 </a>
               </div>
             </div>
