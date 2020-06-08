@@ -5,6 +5,7 @@ export default {
   input: 'manager/static/js/index.mjs',
   output: {
     file: 'manager/static/js/index.js',
+    sourcemap: true,
     name: 'manager',
     format: 'iife'
   },
