@@ -41,9 +41,9 @@ htmx.defineExtension('stencila', {
 
     xhr.setRequestHeader("Accept", 'text/html');
 
-    var stencilaTemplate = htmx.closest(elt, "[hx-template]");
-    if (stencilaTemplate) {
-      var templateName = stencilaTemplate.getAttribute('hx-template');
+    var serverTemplate = htmx.closest(elt, "[hx-template]");
+    if (serverTemplate) {
+      var templateName = serverTemplate.getAttribute('hx-template');
       xhr.setRequestHeader("X-HX-Template", templateName);
     }
 
@@ -54,10 +54,31 @@ htmx.defineExtension('stencila', {
       // This event is triggered before any new content has been swapped
       // into the DOM.
       var xhr = evt.detail.xhr;
-      // If response is status `201 Created` with a `Location` header
-      // then redirect to there.
-      var redirectUrl = xhr.getResponseHeader("Location");
-      if (xhr.status == 201 && redirectUrl) window.location.href = redirectUrl;
+      var elt = evt.detail.elt;
+      // If element has a `hx-redirect` attribute then redirect to the
+      // location specified for the response status code (defaulting to 200).
+      var redirect = htmx.closest(elt, "[hx-redirect]");
+      if (redirect) {
+        var redirectSpecs = redirect.getAttribute('hx-redirect').split(/\s/);
+        for (var index = 0; index < redirectSpecs.length; index++ ){
+          var redirectSpec = redirectSpecs[index];
+          var redirectUrl;
+          var match = /^(\d{3}):(.+)/.exec(redirectSpec);
+          if (match !== null) {
+            if (xhr.status === parseInt(match[1])) redirectUrl = match[2];
+          } else if (xhr.status === 200) {
+            redirectUrl = redirectSpec;
+          }
+          if (redirectUrl) {
+            if (redirectUrl === 'Location') {
+              var location = xhr.getResponseHeader("Location");
+              window.location.href = location;
+            }
+            else window.location.href = redirectUrl;
+            break;
+          }
+        }
+      }
     }
   }
 })
