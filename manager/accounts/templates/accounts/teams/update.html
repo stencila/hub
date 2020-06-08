@@ -12,6 +12,7 @@
 <hr>
 
 <h2 class="title is-4">{% trans "Members" %}</h2>
+{% if role in "MANAGER,ADMIN" %}
 {% include "users/_search.html" %}
 <button class="button is-primary" hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
         hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
@@ -19,6 +20,7 @@
   <span class="icon"><i class="ri-add-line"></i></span>
   <span>Add</span>
 </button>
+{% endif %}
 {% include "./_members.html" %}
 
 <hr>

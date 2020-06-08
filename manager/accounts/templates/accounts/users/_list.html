@@ -7,12 +7,22 @@
     <a href="{% url 'ui-accounts-retrieve' user.user.username %}">
       {{ member.get_full_name|default:user.user.username }}
     </a>
+    <div class="select">
+      <select hx-patch="{% url 'api-accounts-users-detail' account.id user.user.id %}"
+              hx-template="accounts/users/_list.html" hx-target="#accounts-users-list" name="role">
+        <option value="MEMBER" {% if user.role == "MEMBER" %}selected{% endif %}>Member</option>
+        <option value="MANAGER" {% if user.role == "MANAGER" %}selected{% endif %}>Manager</option>
+        <option value="ADMIN" {% if user.role == "ADMIN" %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+    {% if role in "MANAGER,ADMIN" %}
     <a hx-delete="{% url 'api-accounts-users-detail' account.id user.user.id %}" hx-template="accounts/users/_list.html"
        hx-target="#accounts-users-list">
       <span class="icon is-small is-danger">
         <i class="ri-close-circle-line"></i>
       </span>
     </a>
+    {% endif %}
   </li>
   {% endfor %}
 </ul>

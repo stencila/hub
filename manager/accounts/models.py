@@ -294,8 +294,14 @@ class AccountQuotas:
         "Maximum number of organizations you can create has been reached. Please contact us.",
     )
 
+    USERS = AccountQuota(
+        "account_users",
+        5,
+        "Maximum number of users for the account has been reached. Please upgrade the plan for this account.",
+    )
+
     TEAMS = AccountQuota(
-        "accounts",
+        "account_teams",
         5,
         "Maximum number of teams for the account has been reached. Please upgrade the plan for this account.",
     )

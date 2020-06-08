@@ -6,14 +6,22 @@
 {% block accounts_content %}
 <h1 class="title">{% trans "Users" %}</h1>
 
+{% if role in "MANAGER,ADMIN" %}
 {% include "users/_search.html" %}
-
+<div class="select">
+  <select id="accounts-users-add-role" name="role">
+    <option value="MEMBER">Member</option>
+    <option value="MANAGER">Manager</option>
+    <option value="ADMIN">Admin</option>
+  </select>
+</div>
 <button class="button is-primary" hx-post="{% url 'api-accounts-users-list' account.id %}"
-        hx-include="#user-search input[name=id]" hx-template="accounts/users/_list.html"
+        hx-include="#user-search input[name=id], #accounts-users-add-role" hx-template="accounts/users/_list.html"
         hx-target="#accounts-users-list">
   <span class="icon"><i class="ri-add-line"></i></span>
   <span>Add</span>
 </button>
+{% endif %}
 
 {% include "./_list.html" %}
 

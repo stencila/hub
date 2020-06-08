@@ -11,13 +11,14 @@ from accounts.api.serializers import (
     AccountRetrieveSerializer,
     AccountSerializer,
     AccountUpdateSerializer,
+    AccountUserCreateSerializer,
     AccountUserSerializer,
     TeamCreateSerializer,
     TeamDestroySerializer,
     TeamSerializer,
     TeamUpdateSerializer,
 )
-from accounts.models import Account, AccountQuotas, AccountUser, Team
+from accounts.models import Account, AccountQuotas, AccountRole, AccountUser, Team
 from manager.api.helpers import filter_from_ident
 from users.api.serializers import UserIdentifierSerializer
 
@@ -257,8 +258,6 @@ class AccountsUsersViewSet(
     HtmxMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -271,17 +270,28 @@ class AccountsUsersViewSet(
 
     lookup_url_kwarg = "user"
 
-    serializer_class = AccountUserSerializer
-
-    def get_account(self, filters={}):
+    def get_account(self):
         try:
-            return Account.objects.get(
-                users__user=self.request.user,
+            account = Account.objects.get(
                 **filter_from_ident(self.kwargs["account"]),
-                **filters
+                users__user=self.request.user,
+                users__role__in=[
+                    AccountRole.MEMBER.name,
+                    AccountRole.MANAGER.name,
+                    AccountRole.ADMIN.name,
+                ]
+                if self.action in ["list", "retrieve"]
+                else [AccountRole.MANAGER.name, AccountRole.ADMIN.name],
             )
         except Account.DoesNotExist:
             raise exceptions.PermissionDenied
+
+        if self.action == "create":
+            AccountQuotas.USERS.check(
+                account, AccountUser.objects.filter(account=account).count(),
+            )
+
+        return account
 
     def get_account_role(self):
         account = self.get_account()
@@ -289,36 +299,91 @@ class AccountsUsersViewSet(
         return account, role
 
     def get_queryset(self, account=None):
-        """
-        Get the queryset for the current action.
-
-        For `list`, returns **all** teams for account
-        after checking that the user is an account user.
-        """
-        if self.action == "list":
-            if account is None:
-                account = self.get_account()
-            return AccountUser.objects.filter(account=account)
-        else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+        """Get the queryset."""
+        if account is None:
+            account = self.get_account()
+        return AccountUser.objects.filter(account=account)
 
     def get_object(self, account=None):
-        """
-        Get the object for the current action.
-
-        For `retrieve`, checks that user is an account user.
-        For `partial-update`, `update` and `destroy`, checks
-        that the user is an account MANAGER or ADMIN.
-        """
-        if self.action in ["retrieve", "partial_update", "update", "destroy"]:
-            account = self.get_account(
-                {}
-                if self.action == "retrieve"
-                else {"users__role__in": ["MANAGER", "ADMIN"]}
+        """Get the object."""
+        if account is None:
+            account = self.get_account()
+        try:
+            return AccountUser.objects.get(
+                account=account,
+                **filter_from_ident(
+                    self.kwargs["user"], prefix="user", str_key="username"
+                ),
             )
-            return AccountUser.objects.filter(account=account)
+        except AccountUser.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get_serializer_class(self):
+        return (
+            AccountUserCreateSerializer
+            if self.action == "create"
+            else AccountUserSerializer
+        )
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Add an account user.
+
+        Returns data for the new account user.
+        """
+        account, role = self.get_account_role()
+        serializer = self.get_serializer(data=request.data)
+
+        # TODO: Check that the user is not already an account user
+
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.CREATED
+            else:
+                status = self.INVALID
+
+            return Response(dict(account=account, role=role), status=status)
         else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.CREATED)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        account, role = self.get_account_role()
+        account_user = self.get_object()
+        serializer = self.get_serializer(account_user, data=request.data, partial=True)
+
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.UPDATED
+            else:
+                status = self.INVALID
+            return Response(dict(account=account, role=role), status=status)
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=self.UPDATED)
+
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Remove an account user.
+
+        Returns an empty response.
+        """
+        account, role = self.get_account_role()
+        account_user = self.get_object()
+
+        # TODO: Check that there is at least one admin left on the account
+
+        if self.is_html():
+            account_user.delete()
+            status = self.DESTROYED  # TODO: Can't use DESTROYED because HTMX ignores it
+            return Response(dict(account=account, role=role), status=200)
+        else:
+            account_user.delete()
+            return Response(status=self.DESTROYED)
 
 
 class AccountsTeamsViewSet(
@@ -358,7 +423,7 @@ class AccountsTeamsViewSet(
                 account = Account.objects.get(
                     **filter_from_ident(self.kwargs["account"]),
                     users__user=self.request.user,
-                    users__role__in=["MANAGER", "ADMIN"]
+                    users__role__in=[AccountRole.MANAGER.name, AccountRole.ADMIN.name],
                 )
             except Account.DoesNotExist:
                 raise exceptions.PermissionDenied
@@ -383,7 +448,7 @@ class AccountsTeamsViewSet(
             return Account.objects.get(
                 users__user=self.request.user,
                 **filter_from_ident(self.kwargs["account"]),
-                **filters
+                **filters,
             )
         except Account.DoesNotExist:
             raise exceptions.PermissionDenied
@@ -561,7 +626,7 @@ class AccountsTeamsMembersViewSet(HtmxMixin, viewsets.GenericViewSet):
                 **filter_from_ident(self.kwargs["account"], prefix="account"),
                 **filter_from_ident(self.kwargs["team"]),
                 account__users__user=self.request.user,
-                account__users__role__in=["MANAGER", "ADMIN"]
+                account__users__role__in=["MANAGER", "ADMIN"],
             )
         except Team.DoesNotExist:
             raise exceptions.NotFound

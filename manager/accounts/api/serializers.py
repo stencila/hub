@@ -1,10 +1,55 @@
 from rest_framework import exceptions, serializers
 
-from accounts.models import Account, AccountUser, Team
+from accounts.models import Account, AccountRole, AccountUser, Team
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
-from users.api.serializers import UserSerializer
+from users.api.serializers import UserIdentifierSerializer, UserSerializer
 from users.models import User
+
+
+class AccountUserSerializer(serializers.ModelSerializer):
+    """
+    A serializer for account users.
+
+    Includes a nested serializer for the user
+    """
+
+    user = UserSerializer()
+
+    class Meta:
+        model = AccountUser
+        fields = "__all__"
+
+
+class AccountUserCreateSerializer(UserIdentifierSerializer):
+    """
+    A serializer for adding account users.
+
+    Includes a nested serializer for the user
+    """
+
+    account = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Account, context["view"].kwargs["account"]
+            )
+        )
+    )
+
+    role = serializers.ChoiceField(
+        choices=[
+            AccountRole.MEMBER.name,
+            AccountRole.MANAGER.name,
+            AccountRole.ADMIN.name,
+        ]
+    )
+
+    def create(self, validated_data):
+        return AccountUser.objects.create(
+            account=validated_data["account"],
+            user=validated_data["user"],
+            role=validated_data["role"],
+        )
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -90,20 +135,6 @@ class TeamDestroySerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 dict(name="Provided name does not match the team name.")
             )
-
-
-class AccountUserSerializer(serializers.ModelSerializer):
-    """
-    A serializer for account users.
-
-    Includes a nested serializer for the user
-    """
-
-    user = UserSerializer()
-
-    class Meta:
-        model = AccountUser
-        fields = "__all__"
 
 
 class AccountSerializer(serializers.ModelSerializer):
