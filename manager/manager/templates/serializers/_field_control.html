@@ -1,0 +1,18 @@
+{% load stencila %}
+
+<div class="control {% if icon %}has-icons-left{% endif %}">
+  {% if elemment == "select" %}
+  TODO:
+  {% elif element == "textarea" %}
+  <textarea class="textarea" name="{{ field.name }}" {% if placeholder %}placeholder="{{ placeholder }}"
+            {% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+  {% else %}
+  <input class="input" name="{{ field.name }}" type="{{ field|input_type }}"
+         {% if field.value is not None %}value="{{ field.value }}" {% endif %}>
+  {% if icon %}
+  <span class="icon is-left">
+    <i class="{{ icon }}"></i>
+  </span>
+  {% endif %}
+  {% endif %}
+</div>

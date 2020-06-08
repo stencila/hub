@@ -1,0 +1,27 @@
+{% comment %}
+List of team members.
+
+Used in both `./update.html` and `./retrieve.html` to
+list the users in a team.
+{% endcomment %}
+
+<ul id="accounts-teams-members-list">
+  {% for member in team.members.all %}
+  <li>
+    <span class="icon is-small is-round">
+      <img src="{{ member.personal_account.image.small }}" role="presentation"></img>
+    </span>
+    <a href="{% url 'ui-accounts-retrieve' member.username %}">
+      {{ member.get_full_name|default:member.username }}
+    </a>
+    {% if role in "MANAGER,ADMIN" %}
+    <a hx-delete="{% url 'api-accounts-teams-members-detail' account.id team.id member.id %}"
+       hx-template="accounts/teams/_members.html" hx-target="#accounts-teams-members-list">
+      <span class="icon is-small is-danger">
+        <i class="ri-close-circle-line"></i>
+      </span>
+    </a>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>

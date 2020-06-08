@@ -6,6 +6,7 @@ in templates.
 """
 
 from django import template
+from django.db.models import fields
 from django.urls import resolve
 from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
@@ -30,13 +31,13 @@ def is_active(context, name):
 
 
 @register.filter
-def field_element(field):
+def field_element(field, default=None):
     """
     Get the HTML tag name for a serializer field.
 
     See the `field_class_lookup` below.
     """
-    vars = dict(field_class_lookup[field])
+    vars = field_class_lookup[field]
     return vars.get("field_element", "input")
 
 
@@ -47,7 +48,7 @@ def input_type(field):
 
     See the `field_class_lookup` below.
     """
-    vars = dict(field_class_lookup[field])
+    vars = field_class_lookup[field]
     return vars.get("input_type", "")
 
 
@@ -94,16 +95,16 @@ field_class_lookup = ClassLookupDict({
         'field_element': 'checkbox'
     },
     serializers.ChoiceField: {
-        'field_element': 'select',
+        'field_element': 'select'
     },
     serializers.MultipleChoiceField: {
-        'field_element': 'select_multiple',
+        'field_element': 'select_multiple'
     },
     serializers.RelatedField: {
         'field_element': 'select',
     },
     serializers.ManyRelatedField: {
-        'field_element': 'select_multiple',
+        'field_element': 'select_multiple'
     },
     serializers.Serializer: {
         'field_element': 'fieldset'
@@ -118,10 +119,13 @@ field_class_lookup = ClassLookupDict({
         'field_element': 'dict_field'
     },
     serializers.FilePathField: {
-        'field_element': 'select',
+        'field_element': 'select'
+    },
+    fields.TextField: {
+        'field_element': 'textarea'
     },
     serializers.JSONField: {
-        'field_element': 'textarea',
+        'field_element': 'textarea'
     },
 })
 

@@ -1,0 +1,19 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{{ account.name }} {% trans "Team" %} {{ team.name }} {% endblock %}
+
+{% block accounts_content %}
+<h1 class="title">{% trans "Team" %} {{ team.name }}</h1>
+
+{% if team.description %}
+<p>{{ team.description }}</p>
+{% endif %}
+
+<hr>
+
+<h2 class="title is-4">{% trans "Members" %}</h2>
+
+{% include "./_members.html" %}
+
+{% endblock %}

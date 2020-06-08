@@ -1,8 +1,28 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Team settings" %}{% endblock %}
+{% block title %}{{ account.name }} {% trans "Team" %} {{ team.name }} {% trans "Settings" %}{% endblock %}
 
-{% block content %}
-{% include "serializers/_serializer.html" with serializer=serializer %}
+{% block accounts_content %}
+<h1 class="title">{% trans "Team" %} {{ team.name }} {% trans "Settings" %}</h1>
+
+<h2 class="title is-4">{% trans "Details" %}</h2>
+{% include "./_update_details.html" with serializer=update_serializer %}
+
+<hr>
+
+<h2 class="title is-4">{% trans "Members" %}</h2>
+{% include "users/_search.html" %}
+<button class="button is-primary" hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
+        hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
+        hx-target="#accounts-teams-members-list">
+  <span class="icon"><i class="ri-add-line"></i></span>
+  <span>Add</span>
+</button>
+{% include "./_members.html" %}
+
+<hr>
+<h2 class="title is-4">{% trans "Delete" %}</h2>
+{% include "./_destroy.html" with serializer=destroy_serializer %}
+
 {% endblock %}

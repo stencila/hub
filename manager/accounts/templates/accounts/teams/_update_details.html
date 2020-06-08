@@ -1,0 +1,7 @@
+<form hx-patch="{% url 'api-accounts-teams-detail' account.id team.id %}"
+      hx-template="accounts/teams/_update_details.html"
+      hx-redirect="210:{% url 'ui-accounts-teams-update' account.id team.id %}">
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
+  {% include "serializers/_field.html" with field=serializer.description element="textarea" placeholder="Enter a team description" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

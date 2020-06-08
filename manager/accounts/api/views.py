@@ -1,6 +1,7 @@
 from django.db.models import Prefetch
+from django.shortcuts import reverse
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
-from rest_framework import exceptions, mixins, permissions, status, viewsets
+from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -10,66 +11,41 @@ from accounts.api.serializers import (
     AccountRetrieveSerializer,
     AccountSerializer,
     AccountUpdateSerializer,
+    AccountUserSerializer,
     TeamCreateSerializer,
+    TeamDestroySerializer,
     TeamSerializer,
     TeamUpdateSerializer,
 )
 from accounts.models import Account, AccountQuotas, AccountUser, Team
 from manager.api.helpers import filter_from_ident
-from users.models import User
+from users.api.serializers import UserIdentifierSerializer
 
 
 class HtmxMixin:
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
+    CREATED = 201
+    RETRIEVED = 200
+    UPDATED = 210
+    DESTROYED = 204
+    INVALID = 211
+
     def is_html(self):
         return self.request.META.get("HTTP_ACCEPT") == "text/html"
 
-    def get_template_name(self):
+    def get_template_names(self):
         template = self.request.META.get("HTTP_X_HX_TEMPLATE")
         if template:
-            return template
-
-        serializer_class = self.get_serializer_class()
-        class_dir = serializer_class.Meta.model.__name__.lower() + "s/"
-        if self.action == "create":
-            return class_dir + "_create_form.html"
-        elif self.action in ["partial_update", "update"]:
-            return class_dir + "_update_form.html"
-        elif self.action == "destroy":
-            return class_dir + "_update_form.html"
-
-        return "api/_default.html"
-
-
-class HtmxCreateModelMixin(HtmxMixin):
-    def create(self, request: Request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
-        if self.is_html():
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    template_name="api/_create_redirect.html",
-                    status=status.HTTP_201_CREATED,
-                    headers={"Location": serializer.instance.get_url()},
-                )
-            else:
-                return Response(
-                    dict(serializer=serializer), template_name=self.get_template_name()
-                )
-        else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return [template]
+        return ["api/_default.html"]
 
 
 class AccountsViewSet(
+    HtmxMixin,
     mixins.ListModelMixin,
-    HtmxCreateModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -184,7 +160,7 @@ class AccountsViewSet(
         except IndexError:
             raise exceptions.NotFound("Could not find account '{}'".format(ident))
 
-    def get_account_role(self, user: User):
+    def get_account_role(self):
         """
         Get the account and the account role for the current user.
 
@@ -192,9 +168,9 @@ class AccountsViewSet(
         """
         account = self.get_object()
         role = None
-        if user.is_authenticated:
+        if self.request.user.is_authenticated:
             try:
-                role = account.users.get(user=user).role
+                role = account.users.get(user=self.request.user).role
             except AccountUser.DoesNotExist:
                 pass
         return account, role
@@ -209,13 +185,32 @@ class AccountsViewSet(
         """
         return super().list(request, *args, **kwargs)
 
-    def ignore_create(self, request: Request, *args, **kwargs) -> Response:
+    def create(self, request: Request, *args, **kwargs) -> Response:
         """
         Create an account.
 
         Returns data for the new account.
         """
-        return super().create(request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data)
+
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.CREATED
+                headers = {
+                    "Location": reverse(
+                        "ui-accounts-update", args=[serializer.instance.name],
+                    )
+                }
+            else:
+                status = self.INVALID
+                headers = {}
+
+            return Response(dict(serializer=serializer), status=status, headers=headers)
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -231,23 +226,105 @@ class AccountsViewSet(
 
         Returns data for the updated account.
         """
-        return super().partial_update(request, *args, **kwargs)
+        account = self.get_object()
+        serializer = self.get_serializer(account, data=request.data, partial=True)
 
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Update an account.
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.UPDATED
+                headers = {
+                    "Location": reverse(
+                        "ui-accounts-update", args=[serializer.instance.name],
+                    )
+                }
+            else:
+                status = self.INVALID
+                headers = {}
 
-        Returns data for the updated account.
-        """
-        return super().update(request, *args, **kwargs)
+            return Response(
+                dict(account=account, serializer=serializer),
+                status=status,
+                headers=headers,
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.UPDATED)
 
 
-class TeamsViewSet(
+class AccountsUsersViewSet(
+    HtmxMixin,
     mixins.ListModelMixin,
-    mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    A view set for account users.
+
+    Provides basic CRUD views for account users.
+    """
+
+    # Configuration
+
+    lookup_url_kwarg = "user"
+
+    serializer_class = AccountUserSerializer
+
+    def get_account(self, filters={}):
+        try:
+            return Account.objects.get(
+                users__user=self.request.user,
+                **filter_from_ident(self.kwargs["account"]),
+                **filters
+            )
+        except Account.DoesNotExist:
+            raise exceptions.PermissionDenied
+
+    def get_account_role(self):
+        account = self.get_account()
+        role = account.users.get(user=self.request.user).role
+        return account, role
+
+    def get_queryset(self, account=None):
+        """
+        Get the queryset for the current action.
+
+        For `list`, returns **all** teams for account
+        after checking that the user is an account user.
+        """
+        if self.action == "list":
+            if account is None:
+                account = self.get_account()
+            return AccountUser.objects.filter(account=account)
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
+    def get_object(self, account=None):
+        """
+        Get the object for the current action.
+
+        For `retrieve`, checks that user is an account user.
+        For `partial-update`, `update` and `destroy`, checks
+        that the user is an account MANAGER or ADMIN.
+        """
+        if self.action in ["retrieve", "partial_update", "update", "destroy"]:
+            account = self.get_account(
+                {}
+                if self.action == "retrieve"
+                else {"users__role__in": ["MANAGER", "ADMIN"]}
+            )
+            return AccountUser.objects.filter(account=account)
+        else:
+            raise RuntimeError("Unexpected action {}".format(self.action))
+
+
+class AccountsTeamsViewSet(
+    HtmxMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -296,7 +373,7 @@ class TeamsViewSet(
                 "create": TeamCreateSerializer,
                 "retrieve": TeamSerializer,
                 "partial_update": TeamUpdateSerializer,
-                "update": TeamUpdateSerializer,
+                "destroy": TeamDestroySerializer,
             }[self.action]
         except KeyError:
             raise RuntimeError("Unexpected action {}".format(self.action))
@@ -311,10 +388,15 @@ class TeamsViewSet(
         except Account.DoesNotExist:
             raise exceptions.PermissionDenied
 
-    def get_account_role(self, user):
+    def get_account_role(self):
         account = self.get_account()
-        role = account.users.get(user=user).role
+        role = account.users.get(user=self.request.user).role
         return account, role
+
+    def get_account_role_team(self):
+        account, role = self.get_account_role()
+        team = self.get_object(account)
+        return account, role, team
 
     def get_queryset(self, account=None):
         """
@@ -335,10 +417,10 @@ class TeamsViewSet(
         Get the object for the current action.
 
         For `retrieve`, checks that user is an account user.
-        For `partial-update` and `update`, checks that the user
+        For `partial-update` and `destroy`, checks that the user
         is an account MANAGER or ADMIN.
         """
-        if self.action in ["retrieve", "partial_update", "update"]:
+        if self.action in ["retrieve", "partial_update", "destroy"]:
             account = self.get_account(
                 {}
                 if self.action == "retrieve"
@@ -366,7 +448,31 @@ class TeamsViewSet(
 
         Returns data for the new team.
         """
-        return super().create(request, *args, **kwargs)
+        account = self.get_account()
+        serializer = self.get_serializer(data=request.data)
+
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.CREATED
+                headers = {
+                    "Location": reverse(
+                        "ui-accounts-teams-update",
+                        args=[account.name, serializer.instance.name],
+                    )
+                }
+            else:
+                status = self.INVALID
+                headers = {}
+            return Response(
+                dict(account=account, serializer=serializer),
+                status=status,
+                headers=headers,
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.CREATED)
 
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -380,17 +486,32 @@ class TeamsViewSet(
         """
         Update a team.
 
-        Returns data for the updated team.
+        Returns data for the team.
         """
-        return super().partial_update(request, *args, **kwargs)
+        account, role, team = self.get_account_role_team()
+        serializer = self.get_serializer(team, data=request.data, partial=True)
 
-    def update(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Update a team.
-
-        Returns data for the updated team.
-        """
-        return super().update(request, *args, **kwargs)
+        if self.is_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.UPDATED
+                headers = {
+                    "Location": reverse(
+                        "ui-accounts-teams-update",
+                        args=[account.name, serializer.instance.name],
+                    )
+                }
+            else:
+                status = self.INVALID
+            return Response(
+                dict(account=account, role=role, team=team, serializer=serializer),
+                status=status,
+                headers=headers,
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.UPDATED)
 
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -398,4 +519,91 @@ class TeamsViewSet(
 
         Returns an empty response.
         """
-        return super().destroy(request, *args, **kwargs)
+        account, role, team = self.get_account_role_team()
+        serializer = self.get_serializer(team, data=request.data)
+
+        if self.is_html():
+            if serializer.is_valid():
+                team.delete()
+                status = self.DESTROYED
+            else:
+                status = self.INVALID
+            return Response(
+                dict(account=account, team=team, serializer=serializer), status=status
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            team.delete()
+            return Response(status=self.DESTROYED)
+
+
+class AccountsTeamsMembersViewSet(HtmxMixin, viewsets.GenericViewSet):
+    """
+    A view set for account team members.
+
+    Provides views for addition (`create`) and removal (`delete`)
+    of members from a team.
+    """
+
+    serializer_class = UserIdentifierSerializer
+
+    lookup_url_kwarg = "user"
+
+    def get_team(self):
+        """
+        Get the team for this request.
+
+        Will return a 404 if the team or account does not exist
+        or if the user does not have permissions to modify it.
+        """
+        try:
+            return Team.objects.get(
+                **filter_from_ident(self.kwargs["account"], prefix="account"),
+                **filter_from_ident(self.kwargs["team"]),
+                account__users__user=self.request.user,
+                account__users__role__in=["MANAGER", "ADMIN"]
+            )
+        except Team.DoesNotExist:
+            raise exceptions.NotFound
+
+    def get_role(self, team: Team) -> str:
+        return AccountUser.objects.get(
+            account=team.account, user=self.request.user
+        ).role
+
+    def get_response(self, team: Team) -> Response:
+        """
+        Get the response for this request.
+
+        For HTML requests, adds the account and team to the template
+        context. For JSON requests, returns an empty response.
+        """
+        if self.is_html():
+            role = self.get_role(team)
+            return Response(dict(account=team.account, role=role, team=team))
+        else:
+            return Response()
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """Add a user to the team."""
+        team = self.get_team()
+
+        serializer = self.get_serializer(data=self.request.data)
+        serializer.is_valid(raise_exception=True)
+
+        team.members.add(serializer.validated_data["user"])
+
+        return self.get_response(team)
+
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """Remove a user from the team."""
+        team = self.get_team()
+
+        serializer = self.get_serializer(
+            data=filter_from_ident(self.kwargs["user"], str_key="username")
+        )
+        serializer.is_valid(raise_exception=True)
+
+        team.members.remove(serializer.validated_data["user"])
+
+        return self.get_response(team)

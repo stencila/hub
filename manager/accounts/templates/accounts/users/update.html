@@ -1,0 +1,20 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{{ account.name }} {% trans "Users" %}{% endblock %}
+
+{% block accounts_content %}
+<h1 class="title">{% trans "Users" %}</h1>
+
+{% include "users/_search.html" %}
+
+<button class="button is-primary" hx-post="{% url 'api-accounts-users-list' account.id %}"
+        hx-include="#user-search input[name=id]" hx-template="accounts/users/_list.html"
+        hx-target="#accounts-users-list">
+  <span class="icon"><i class="ri-add-line"></i></span>
+  <span>Add</span>
+</button>
+
+{% include "./_list.html" %}
+
+{% endblock %}

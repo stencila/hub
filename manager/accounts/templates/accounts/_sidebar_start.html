@@ -15,10 +15,9 @@
       </a>
     </li>
 
-    {% comment %}
     <li class="sidebar__item">
-      <a href="{% url 'ui-users-list' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-users-list' %}">
+      <a href="{% url 'ui-accounts-users' account.name %}"
+         class="panel-block transition-colors {% is_active 'ui-accounts-users' %}">
         <span class="icon">
           <i class="ri-user-line"></i>
         </span>
@@ -28,7 +27,6 @@
         </span>
       </a>
     </li>
-    {% endcomment %}
 
     <li class="sidebar__item">
       <a href="{% url 'ui-accounts-teams-list' account.name %}"

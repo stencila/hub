@@ -1,0 +1,18 @@
+<ul id="accounts-users-list">
+  {% for user in account.users.all %}
+  <li>
+    <span class="icon is-small is-round">
+      <img src="{{ user.user.personal_account.image.small }}" role="presentation"></img>
+    </span>
+    <a href="{% url 'ui-accounts-retrieve' user.user.username %}">
+      {{ member.get_full_name|default:user.user.username }}
+    </a>
+    <a hx-delete="{% url 'api-accounts-users-detail' account.id user.user.id %}" hx-template="accounts/users/_list.html"
+       hx-target="#accounts-users-list">
+      <span class="icon is-small is-danger">
+        <i class="ri-close-circle-line"></i>
+      </span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>

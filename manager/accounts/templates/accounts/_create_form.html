@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<form hx-post="{% url "api-accounts-list" %}" hx-template="accounts/_create_form.html">
+<form hx-post="{% url "api-accounts-list" %}" hx-template="accounts/_create_form.html" hx-redirect="201:Location">
 
   {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
 

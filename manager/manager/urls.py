@@ -4,6 +4,7 @@ from django.urls import include, path
 
 import accounts.ui.views.accounts as account_views
 import accounts.ui.views.teams as team_views
+import accounts.ui.views.users as user_views
 from manager.paths import Paths
 from manager.ui.views import (
     favicon,
@@ -50,12 +51,16 @@ urlpatterns = [
     path("orgs/new/", account_views.create, name="ui-accounts-create"),
     # Get an account profile
     path("<slug:account>/", account_views.retrieve, name="ui-accounts-retrieve"),
-    # Change an account (login required)
+    # Change account setting (login required)
     path("<slug:account>/settings/", account_views.update, name="ui-accounts-update"),
+    # Change account users (login required)
+    path("<slug:account>/users/", user_views.update, name="ui-accounts-users"),
     # List account teams (login required)
     path("<slug:account>/teams/", team_views.list, name="ui-accounts-teams-list"),
     # Create account team (login required)
     path("<slug:account>/teams/new/", team_views.create, name="ui-accounts-teams-create"),
+    # Change account team (login required)
+    path("<slug:account>/teams/<slug:team>/", team_views.retrieve, name="ui-accounts-teams-retrieve"),
     # Change account team (login required)
     path("<slug:account>/teams/<slug:team>/settings/", team_views.update, name="ui-accounts-teams-update"),
 

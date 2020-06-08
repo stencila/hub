@@ -5,18 +5,10 @@
   <label class="label">{{ field.label }}</label>
   {% endif %}
 
-  {% if field|field_element == "select" %}
-  TODO:
+  {% if element %}
+  {% include "./_field_control.html" %}
   {% else %}
-  <div class="control {% if icon %}has-icons-left{% endif %}">
-    <input class="input" name="{{ field.name }}" type="{{ field|input_type }}"
-           {% if field.value is not None %}value="{{ field.value }}" {% endif %}>
-    {% if icon %}
-    <span class="icon is-left">
-      <i class="{{ icon }}"></i>
-    </span>
-    {% endif %}
-  </div>
+  {% include "./_field_control.html" with element=field|field_element %}
   {% endif %}
 
   {% if field.errors %}

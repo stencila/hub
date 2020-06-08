@@ -296,6 +296,6 @@ class AccountQuotas:
 
     TEAMS = AccountQuota(
         "accounts",
-        1,
+        5,
         "Maximum number of teams for the account has been reached. Please upgrade the plan for this account.",
     )

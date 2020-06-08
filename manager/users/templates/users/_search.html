@@ -23,7 +23,7 @@ Inspired by Github's user search field (amongst others).
       </div>
     </div>
     {# A hidden input to hold the value of the selected user. Will be submitted with the enclosing form. #}
-    <input type="hidden" name="user">
+    <input type="hidden" name="id">
   </div>
   <div class="dropdown-menu"></div>
   <script>
@@ -37,7 +37,7 @@ Inspired by Github's user search field (amongst others).
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
       var item = htmx.closest(event.target, '.dropdown-item')
       $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
-      $search.querySelector('input[name=user]').value = item.getAttribute('data-id')
+      $search.querySelector('input[name=id]').value = item.getAttribute('data-id')
     });
 
   </script>

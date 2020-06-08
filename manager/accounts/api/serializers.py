@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from accounts.models import Account, AccountUser, Team
 from manager.api.helpers import get_object_from_ident
@@ -69,6 +69,27 @@ class TeamUpdateSerializer(TeamCreateSerializer):
         fields = TeamCreateSerializer.Meta.fields
         read_only_fields = ["account"]
         ref_name = None
+
+
+class TeamDestroySerializer(serializers.Serializer):
+    """
+    A serializer for destroying a team.
+
+    Requires the `name` of the team as confirmation that the user
+    really wants to destroy it.
+    """
+
+    name = serializers.CharField(
+        required=True,
+        help_text="Confirm by providing the name of the team to be destroyed.",
+    )
+
+    def validate_name(self, value):
+        """Validate that the provided name matches."""
+        if value != self.instance.name:
+            raise exceptions.ValidationError(
+                dict(name="Provided name does not match the team name.")
+            )
 
 
 class AccountUserSerializer(serializers.ModelSerializer):

@@ -44,9 +44,7 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
-    account, role = viewset("retrieve", request, args, kwargs).get_account_role(
-        request.user
-    )
+    account, role = viewset("retrieve", request, args, kwargs).get_account_role()
     return render(request, "accounts/retrieve.html", dict(account=account, role=role))
 
 
@@ -54,7 +52,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update an account."""
     vs = viewset("update", request, args, kwargs)
-    account, role = vs.get_account_role(request.user)
+    account, role = vs.get_account_role()
     serializer = vs.get_serializer(account)
     return render(
         request,

@@ -7,16 +7,17 @@
 <h1 class="title">{% trans "Teams" %}</h1>
 
 {% if role in "MANAGER,ADMIN" %}
-<button class="button is-primary" type="submit">
+<a class="button is-primary" href="{% url 'ui-accounts-teams-create' account.name %}">
   <span class="icon">
     <i class="ri-add-fill"></i>
   </span>
-  <span>{% trans "Create Team" %}</span>
-</button>
+  <span>{% trans "New Team" %}</span>
+</a>
 {% endif %}
 
 {% for team in teams %}
-<a href="{% url 'ui-accounts-teams-update' account.name team.name %}" class="list-menu--item">
+<a {% if role in "MANAGER,ADMIN" %} href="{% url 'ui-accounts-teams-update' account.name team.name %}" {% else %}
+   href="{% url 'ui-accounts-teams-retrieve' account.name team.name %}" {% endif %} class="list-menu--item">
   <div class="level is-mobile">
     <div class="level-left">
       <span class="icon is-medium list-menu--icon">
@@ -33,6 +34,10 @@
     </div>
   </div>
 </a>
+{% empty %}
+<p>
+  This account has no teams yet.
+</p>
 {% endfor %}
 
 {% endblock %}
