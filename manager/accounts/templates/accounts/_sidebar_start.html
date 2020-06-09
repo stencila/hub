@@ -41,7 +41,7 @@
       </a>
     </li>
 
-    {% if role in 'MANAGER, ADMIN' %}
+    {% if role in 'MANAGER, OWNER' %}
     <li class="sidebar__item">
       <a href="{% url 'ui-accounts-update' account.name %}"
          class="panel-block transition-colors {% is_active 'ui-accounts-update' %}">
@@ -55,7 +55,7 @@
     </li>
     {% endif %}
 
-    {% if role == 'ADMIN' %}
+    {% if role == 'OWNER' %}
     {% comment %}
     <li class="sidebar__item">
       <a href="#" class="panel-block transition-colors">

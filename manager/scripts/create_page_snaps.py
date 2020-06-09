@@ -46,7 +46,7 @@ EXCLUDE = [
 ]
 
 # Username / password to login as
-# Should have ADMIN access to the accounts / projects
+# Should have OWNER access to the accounts / projects
 # specified in REPLACE
 USER_PASS = "admin:admin"
 
