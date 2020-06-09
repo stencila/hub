@@ -16,3 +16,4 @@ class Paths(enum.Enum):
     me = "me"
     orgs = "orgs"
     projects = "projects"
+    users = "users"
