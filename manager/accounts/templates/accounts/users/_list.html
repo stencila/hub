@@ -1,28 +1,61 @@
+{% load i18n %}
+
 <ul id="accounts-users-list">
   {% for user in account.users.all %}
-  <li>
-    <span class="icon is-small is-round">
-      <img src="{{ user.user.personal_account.image.small }}" role="presentation"></img>
-    </span>
-    <a href="{% url 'ui-accounts-retrieve' user.user.username %}">
-      {{ member.get_full_name|default:user.user.username }}
-    </a>
-    <div class="select">
-      <select hx-patch="{% url 'api-accounts-users-detail' account.id user.user.id %}"
-              hx-template="accounts/users/_list.html" hx-target="#accounts-users-list" name="role">
-        <option value="MEMBER" {% if user.role == "MEMBER" %}selected{% endif %}>Member</option>
-        <option value="MANAGER" {% if user.role == "MANAGER" %}selected{% endif %}>Manager</option>
-        <option value="ADMIN" {% if user.role == "ADMIN" %}selected{% endif %}>Admin</option>
-      </select>
+  <li class="collection-list--item collection-list--item-contents">
+    <div class="level is-mobile">
+      <div class="level-left">
+        <span class="icon is-round list-menu--icon">
+          <img src="{{ user.user.personal_account.image.medium }}" role="presentation"></img>
+        </span>
+        <span class="has-text-bold">
+          <a href="{% url 'ui-accounts-retrieve' user.user.username %}">
+            {{ member.get_full_name|default:user.user.username }}
+          </a>
+        </span>
+      </div>
+      <div class="level-right">
+        {% if role in "MANAGER,OWNER" %}
+        <div class="field has-addons">
+          <div class="control">
+            <div class="select is-small-mobile">
+              <select hx-patch="{% url 'api-accounts-users-detail' account.id user.user.id %}"
+                      hx-template="accounts/users/_list.html" hx-target="#accounts-users-list" name="role">
+                <option value="MEMBER" {% if user.role == "MEMBER" %}selected{% endif %}>Member</option>
+                <option value="MANAGER" {% if user.role == "MANAGER" %}selected{% endif %}>Manager</option>
+                <option value="OWNER" {% if user.role == "OWNER" %}selected{% endif %}>Admin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control">
+            <div class="dropdown is-hoverable">
+              <div class="dropdown-trigger">
+                <button class="button is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>
+                    <i class="ri-more-2-line"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" hx-delete="{% url 'api-accounts-users-detail' account.id user.user.id %}"
+                     hx-template="accounts/users/_list.html" hx-target="#accounts-users-list">
+                    <span class="icon is-small is-danger">
+                      <i class="ri-close-circle-line"></i>
+                    </span>
+                    <span>
+                      {% trans "Remove from team" %}
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
-    {% if role in "MANAGER,ADMIN" %}
-    <a hx-delete="{% url 'api-accounts-users-detail' account.id user.user.id %}" hx-template="accounts/users/_list.html"
-       hx-target="#accounts-users-list">
-      <span class="icon is-small is-danger">
-        <i class="ri-close-circle-line"></i>
-      </span>
-    </a>
-    {% endif %}
   </li>
   {% endfor %}
 </ul>

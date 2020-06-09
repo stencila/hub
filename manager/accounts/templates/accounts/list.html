@@ -4,8 +4,7 @@
 {% comment %}
 Template for providing a listing of accounts, either personal or
 organizational. See use of `is_orgs` and `is_users` below.
-These could easily be separated into two separate templates
-if necessary.
+These could easily be separated into two separate templates if necessary.
 {% endcomment %}
 
 {% block title %}{% if is_orgs %}{% trans "Organizations" %}{% else %}{% trans "Users" %}{% endif %}{% endblock %}

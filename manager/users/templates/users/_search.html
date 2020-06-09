@@ -7,20 +7,18 @@ e.g. adding another user to a team, or a project.
 
 Inspired by Github's user search field (amongst others).
 {% endcomment %}
-<div id="user-search" class="dropdown is-hoverable">
+<div id="user-search" class="dropdown is-expanded is-hoverable">
   <div class="dropdown-trigger">
-    <div class="field">
-      <div class="control has-icons-left has-icons-right">
-        <input class="input" type="text" name="search" placeholder="Search by username, full name, or email"
-               hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-indicator="#user-search .htmx-indicator"
-               hx-target="#user-search .dropdown-menu">
-        <span class="icon is-small is-left">
-          <i class="ri-search-line"></i>
-        </span>
-        <span class="icon is-small is-right htmx-indicator">
-          <i class="ri-loader-line"></i>
-        </span>
-      </div>
+    <div class="control has-icons-left has-icons-right">
+      <input class="input" type="text" name="search" placeholder="Search by username, full name, or email"
+             hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-indicator="#user-search .htmx-indicator"
+             hx-target="#user-search .dropdown-menu">
+      <span class="icon is-small is-left">
+        <i class="ri-search-line"></i>
+      </span>
+      <span class="icon is-small is-right htmx-indicator">
+        <i class="ri-loader-line"></i>
+      </span>
     </div>
     {# A hidden input to hold the value of the selected user. Will be submitted with the enclosing form. #}
     <input type="hidden" name="id">

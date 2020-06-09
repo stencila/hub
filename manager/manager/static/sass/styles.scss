@@ -104,7 +104,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 // =============================================================================
 @media screen and (max-width: $tablet) {
   // =============================================================================
-  // Customize Bulma
+  // Customize Bulma: below tablet breakpoint
   // =============================================================================
   // Typography customization
   .title,
@@ -118,9 +118,53 @@ $footer-padding: 2rem 3rem 0.1rem;
     margin-right: 0 !important;
   }
 
+  .input.is-small-mobile,
+  .select.is-small-mobile,
+  .button.is-small-mobile {
+    border-radius: 2px;
+    font-size: 0.75rem;
+  }
+
   .button.is-fullwidth-mobile {
     display: flex;
     width: 100%;
+  }
+
+  .field.has-addons-tablet > .control {
+    &:not(:first-child) {
+      margin-top: -1px;
+    }
+
+    &:not(:first-child),
+    &:last-child {
+      .input,
+      .textarea,
+      .button,
+      .select select {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+    }
+
+    &:not(:last-child) {
+      .button,
+      .input,
+      .textarea,
+      .select select {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+    }
+  }
+
+  .is-expanded-mobile {
+    flex-grow: 1;
+
+    & > *,
+    input,
+    select {
+      width: 100%;
+    }
   }
 
   // Standardize horizontal alignment between elements in header and body
@@ -156,6 +200,51 @@ $footer-padding: 2rem 3rem 0.1rem;
 
     .icon {
       display: none;
+    }
+  }
+}
+
+// =============================================================================
+// Customize Bulma
+// =============================================================================
+@media screen and (min-width: $tablet) {
+  /** Add a custom `has-addons-tablet` class which only allows multiple input fields to be stacked on mobile, but then
+   expanded and unified above `$tablet` breakpoint.
+   @see: https://bulma.io/documentation/form/general/#form-addons for original class documentation. */
+  .field.has-addons-tablet {
+    display: flex;
+    justify-content: flex-start;
+
+    .control {
+      &:not(:last-child) {
+        margin-right: -1px;
+      }
+
+      &.is-expanded {
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+
+      // Remove control element border radiuses to create a seamless control group
+      &:first-child:not(:only-child) .button,
+      &:first-child:not(:only-child) .input,
+      &:first-child:not(:only-child) .select select {
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+      }
+
+      &:not(:first-child):not(:last-child) .button,
+      &:not(:first-child):not(:last-child) .input,
+      &:not(:first-child):not(:last-child) .select select {
+        border-radius: 0;
+      }
+
+      &:last-child:not(:only-child) .button,
+      &:last-child:not(:only-child) .input,
+      &:last-child:not(:only-child) .select select {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+      }
     }
   }
 }
@@ -198,6 +287,26 @@ a.list-menu--item {
 
 .list-menu--icon {
   margin-right: 0.5rem;
+}
+
+.collection-list--item {
+  border-bottom: 1px solid $grey-lightest;
+  margin-left: -$gap / 4;
+  margin-right: -$gap / 4;
+
+  &:hover,
+  &:focus {
+    background-color: $white-ter;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.collection-list--item-contents {
+  display: block;
+  padding: ($gap / 2) ($gap / 4);
 }
 
 // =============================================================================
