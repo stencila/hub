@@ -3,20 +3,14 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from accounts.api.views import AccountsTeamsViewSet, TeamDestroySerializer
-from manager.ui import helpers
-
-
-def viewset(request: HttpRequest, *args, **kwargs):
-    """Create an account view set for the request."""
-    return helpers.viewset(AccountsTeamsViewSet, request, *args, *kwargs)
 
 
 @login_required
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """List teams."""
-    vs = viewset("list", request, args, kwargs)
-    account, role = vs.get_account_role()
-    teams = vs.get_queryset(account)
+    viewset = AccountsTeamsViewSet.init("list", request, args, kwargs)
+    account, role = viewset.get_account_role()
+    teams = viewset.get_queryset(account)
     return render(
         request,
         "accounts/teams/list.html",
@@ -27,9 +21,9 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 @login_required
 def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Create a team."""
-    vs = viewset("create", request, args, kwargs)
-    account, role = vs.get_account_role()
-    serializer = vs.get_serializer()
+    viewset = AccountsTeamsViewSet.init("create", request, args, kwargs)
+    account, role = viewset.get_account_role()
+    serializer = viewset.get_serializer()
     return render(
         request,
         "accounts/teams/create.html",
@@ -40,8 +34,8 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 @login_required
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
-    vs = viewset("retrieve", request, args, kwargs)
-    account, role, team = vs.get_account_role_team()
+    viewset = AccountsTeamsViewSet.init("retrieve", request, args, kwargs)
+    account, role, team = viewset.get_account_role_team()
     return render(
         request,
         "accounts/teams/retrieve.html",
@@ -52,9 +46,9 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 @login_required
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update or destroy a team."""
-    vs = viewset("partial_update", request, args, kwargs)
-    account, role, team = vs.get_account_role_team()
-    update_serializer = vs.get_serializer(team)
+    viewset = AccountsTeamsViewSet.init("partial_update", request, args, kwargs)
+    account, role, team = viewset.get_account_role_team()
+    update_serializer = viewset.get_serializer(team)
     destroy_serializer = TeamDestroySerializer()
     return render(
         request,

@@ -1,3 +1,5 @@
+from typing import Type
+
 from django.db.models import Prefetch
 from django.shortcuts import reverse
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
@@ -32,6 +34,29 @@ class HtmxMixin:
     UPDATED = 210
     DESTROYED = 204
     INVALID = 211
+
+    @classmethod
+    def init(
+        cls: Type[viewsets.ViewSet], action: str, request: Request, args, kwargs
+    ) -> viewsets.ViewSet:
+        """
+        Create a Django Rest Framework `ViewSet` instance for a request.
+
+        This replicates the `as_view` method of the `ViewSetMixin` class
+        so that we can re-use of the permissions and filtering logic defined
+        in the DRF view sets within templated views e.g.
+
+        viewset = AccountsViewSet.init("create", request, args, kwargs)
+        serializer.get_serializer()
+
+        """
+        vs = cls()
+        vs.action = action
+        vs.request = request
+        vs.args = args
+        vs.kwargs = kwargs
+        vs.format_kwarg = None
+        return vs
 
     def is_html(self):
         return self.request.META.get("HTTP_ACCEPT") == "text/html"
