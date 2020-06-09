@@ -33,10 +33,10 @@ venv: requirements.txt  requirements-dev.txt package.json
 	npm install
 
 # Build any static files
-# Needs `venv` to setup virtualenv for Django collectstatic
 # Uses Prod settings to avoid collecting static assets from
 # packages not used in production e.g debug-toolbar
 static: venv
+	npm run build
 	export DJANGO_CONFIGURATION="Prod"; $(DJ) collectstatic --noinput
 .PHONY: static
 
@@ -116,7 +116,7 @@ snaps: venv
 
 # Build Docker image
 build: Dockerfile
-	docker build --tag stencila/hub-director .
+	docker build --tag stencila/hub-manager .
 
 clean:
 	rm -rf venv coverage static
