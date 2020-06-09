@@ -1,8 +1,8 @@
-<!-- TODO: Only show "Private" badge for private projects -->
-<a href="#" class="project-list--item-link transition-colors">
+<a href="{% url 'ui-projects-retrieve' project.account.name project.name %}"
+   class="collection-list--item-contents transition-colors">
   <h2 class="title is-size-5-mobile is-4">
     {{ project.name|default:"Untitled Project" }}
-    {# {% if project.public == False %} #}
+    {% if project.public == False %}
     <span class="tag is-light">
       <span class="icon">
         <i class="ri-lock-line"></i>
@@ -11,8 +11,10 @@
         Private
       </span>
     </span>
+    {% endif %}
   </h2>
+
   <p class="subtitle is-size-6">
-    {{ project.description|default:"This is a test project to see how this works!" }}
+    {{ project.description|default:"This project does not have a description."|truncatechars:180 }}
   </p>
 </a>

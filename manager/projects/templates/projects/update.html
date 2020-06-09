@@ -4,4 +4,22 @@
 {% block title %}{{ project.name }} {% trans "Settings" %}{% endblock %}
 
 {% block projects_content %}
+
+<form>
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
+  {% include "serializers/_field.html" with field=serializer.description element="textarea" placeholder="Enter a project description" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>
+
+<hr>
+
+<h2 class="title is-3">{% trans "Content" %}</h2>
+<p class="subtitle is-6">{% trans "Settings affecting how content is served for this project." %}</p>
+<form>
+  {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>
+
+<hr />
+<h2 class="title is-4 is-outlined">{% trans "Delete" %}</h2>
 {% endblock %}

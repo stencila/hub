@@ -56,8 +56,10 @@
             <ul class="accounts--team-member-list__horizontal">
               {% for member in team.members.all|slice:member_slice %}
               <li class="accounts--team-member-list-item__horizontal">
-                <span class="icon is-round has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="{{ member.get_full_name|default:member.username }}">
-                  <img src="{{ member.personal_account.image.small }}" alt="{{ member.get_full_name|default:member.username }}"></img>
+                <span class="icon is-round has-tooltip-top has-tooltip-text-centered image-tooltip"
+                      data-tooltip="{{ member.get_full_name|default:member.username }}">
+                  <img src="{{ member.personal_account.image.small }}"
+                       alt="{{ member.get_full_name|default:member.username }}"></img>
                 </span>
               </li>
               {% endfor %}

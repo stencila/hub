@@ -1,5 +1,76 @@
 {% extends 'base_full.html' %}
 {% load i18n %}
+{% load stencila %}
+
+{% block sidebar_start %}
+<div class="menu">
+  <ul class="menu-list is-flex-mobile">
+    <li class="sidebar__item">
+      <a href="{% url 'ui-projects-retrieve' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-retrieve' %}">
+        <span class="icon">
+          <i class="ri-file-line"></i>
+        </span>
+        <span>
+          {% trans 'Sources' %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <!-- TODO: Add links to correct page -->
+      <a href="" class="panel-block transition-colors {% is_active 'ui-accounts-users' %}" style="color: red;">
+        <span class="icon">
+          <i class="ri-archive-line"></i>
+        </span>
+        <span>
+          {% trans 'Snapshots' %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <!-- TODO: Add links to correct page -->
+      <a href="" class="panel-block transition-colors {% is_active 'ui-accounts-teams' %}" style="color: red;">
+        <span class="icon">
+          <i class="ri-cpu-line"></i>
+        </span>
+        <span>
+          {% trans 'Jobs' %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <!-- TODO: Add links to correct page -->
+      <a href="" class="panel-block transition-colors {% is_active 'ui-accounts-teams' %}" style="color: red;">
+        <span class="icon">
+          <i class="ri-lock-unlock-line"></i>
+        </span>
+        <span>
+          {% trans 'Sharing' %}
+        </span>
+      </a>
+    </li>
+
+    <li class="sidebar__item">
+      <a href="{% url 'ui-projects-update' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-update' %}">
+        <span class="icon">
+          <i class="ri-settings-4-line"></i>
+        </span>
+        <span>
+          {% trans 'Settings' %}
+        </span>
+      </a>
+    </li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block hide_sidebar_end %}
+{% endblock %}
+
 
 {% block layout_content %}
 {% block projects_content %}{% endblock %}

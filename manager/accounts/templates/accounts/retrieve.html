@@ -6,5 +6,9 @@
 {% block accounts_content %}
 {% include '_action_bar.html' %}
 
-{% include '_project_list.html' %}
+{% comment %}
+TODO: Pass projects list to view
+{% include 'projects/_project_list.html' with projects=account.projects %}
+{% endcomment %}
+ 
 {% endblock %}

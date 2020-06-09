@@ -1,0 +1,7 @@
+<ul class="project-list">
+  {% for project in projects %}
+  <li class="collection-list--item transition-colors">
+    {% include './_project_list_item.html' with project=project %}
+  </li>
+  {% endfor %}
+</ul>
