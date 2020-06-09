@@ -44,14 +44,14 @@ $footer-padding: 2rem 3rem 0.1rem;
 
 @import "../../../node_modules/bulma/sass/utilities/initial-variables.sass";
 @import "../../../node_modules/bulma/sass/utilities/functions.sass";
-@import "../../../node_modules/bulma/sass/utilities/derived-variables.sass";
+@import "../../../node_modules/bulma/sass/utilities/derived-variables.scss";
 // @import "../../../node_modules/bulma/sass/utilities/animations.sass";
 @import "../../../node_modules/bulma/sass/utilities/mixins.sass";
 @import "../../../node_modules/bulma/sass/utilities/controls.sass";
 
 @import "../../../node_modules/bulma/sass/base/minireset.sass";
 @import "../../../node_modules/bulma/sass/base/generic.sass";
-@import "../../../node_modules/bulma/sass/base/helpers.sass";
+@import "../../../node_modules/bulma/sass/helpers/_all.sass";
 
 @import "../../../node_modules/bulma/sass/elements/box.sass";
 @import "../../../node_modules/bulma/sass/elements/button.sass";
