@@ -6,6 +6,7 @@
 @import url("https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css");
 
 // Bulma variable overrides
+@import "../../../node_modules/bulma/sass/utilities/initial-variables.sass";
 
 $family-sans-serif: "Lato", sans-serif;
 $family-monospace: monospace;
@@ -26,6 +27,19 @@ $blue: #2568ef;
 $white: #ffffff;
 
 $primary: $blue;
+$green: #3fa76b;
+$red: #e53e3e;
+$yellow: #ecc94b;
+
+$white-bis: #f7fafc;
+$white-ter: #edf2f7;
+$grey-lightest: #e2e8f0;
+$grey-lighter: #aeb8c3;
+$grey-light: #8495ae;
+$grey: #67778e;
+$grey-dark: #4a5568;
+$grey-darker: #2d3748;
+$black-ter: #1a202c;
 
 $navbar-padding-vertical: 0.5rem;
 
@@ -37,12 +51,13 @@ $footer-background-color: $primary;
 $footer-color: $white;
 $footer-padding: 2rem 3rem 0.1rem;
 
+$input-placeholder-color: $grey;
+
 // Import Bulma components
 // The following are all the SASS files in Bulma 0.8.2
 // To keep the size of compiled, production CSS to a minimum, only
 // uncomment the imports that are needed.
 
-@import "../../../node_modules/bulma/sass/utilities/initial-variables.sass";
 @import "../../../node_modules/bulma/sass/utilities/functions.sass";
 @import "../../../node_modules/bulma/sass/utilities/derived-variables.scss";
 // @import "../../../node_modules/bulma/sass/utilities/animations.sass";
