@@ -100,6 +100,7 @@ class Prod(Configuration):
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
         "accounts.apps.AccountsConfig",
+        "projects.apps.ProjectsConfig",
         "users.apps.UsersConfig",
     ]
 

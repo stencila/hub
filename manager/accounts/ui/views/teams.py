@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
-from accounts.api.views import AccountsTeamsViewSet, TeamDestroySerializer
+from accounts.api.views import AccountsTeamsViewSet, AccountTeamDestroySerializer
 
 
 @login_required
@@ -49,7 +49,7 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = AccountsTeamsViewSet.init("partial_update", request, args, kwargs)
     account, role, team = viewset.get_account_role_team()
     update_serializer = viewset.get_serializer(team)
-    destroy_serializer = TeamDestroySerializer()
+    destroy_serializer = AccountTeamDestroySerializer()
     return render(
         request,
         "accounts/teams/update.html",

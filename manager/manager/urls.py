@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
+import projects.ui.urls
 from manager.paths import Paths
 from manager.ui.views import (
     favicon,
@@ -35,7 +36,9 @@ urlpatterns = [
             ]
         ),
     ),
+    path("", include(projects.ui.urls.before_account_urls)),
     path("", include("accounts.ui.urls")),
+    path("", include(projects.ui.urls.after_account_urls)),
     path("", home, name="home"),
 ]
 

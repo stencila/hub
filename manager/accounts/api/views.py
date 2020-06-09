@@ -8,15 +8,16 @@ from accounts.api.serializers import (
     AccountCreateSerializer,
     AccountRetrieveSerializer,
     AccountSerializer,
+    AccountTeamCreateSerializer,
+    AccountTeamDestroySerializer,
+    AccountTeamSerializer,
+    AccountTeamUpdateSerializer,
     AccountUpdateSerializer,
     AccountUserCreateSerializer,
     AccountUserSerializer,
-    TeamCreateSerializer,
-    TeamDestroySerializer,
-    TeamSerializer,
-    TeamUpdateSerializer,
 )
-from accounts.models import Account, AccountQuotas, AccountRole, AccountUser, Team
+from accounts.models.account import Account, AccountRole, AccountTeam, AccountUser
+from accounts.models.quota import AccountQuotas
 from manager.api.helpers import HtmxMixin, filter_from_ident
 from users.api.serializers import UserIdentifierSerializer
 
@@ -62,9 +63,7 @@ class AccountsViewSet(
         """
         if self.action == "create":
             user = self.request.user
-            AccountQuotas.ORGS.check(
-                user.personal_account, Account.objects.filter(creator=user).count(),
-            )
+            AccountQuotas.ORGS.check(user.personal_account)
 
         try:
             return {
@@ -95,7 +94,7 @@ class AccountsViewSet(
 
         For `retrieve`, prefetches related data.
         For `partial-update` and `update`, checks that the user
-        is an account MANAGER or ADMIN.
+        is an account MANAGER or OWNER.
         """
         user = self.request.user
         ident = self.kwargs["account"]
@@ -111,9 +110,9 @@ class AccountsViewSet(
             queryset = queryset.prefetch_related(
                 Prefetch(
                     "teams",
-                    queryset=Team.objects.filter(**account_filter).prefetch_related(
-                        "members"
-                    ),
+                    queryset=AccountTeam.objects.filter(
+                        **account_filter
+                    ).prefetch_related("members"),
                 ),
                 Prefetch(
                     "users",
@@ -128,7 +127,8 @@ class AccountsViewSet(
         if self.action in ["partial_update", "update"]:
             if (
                 queryset.filter(
-                    users__user=user, users__role__in=["MANAGER", "ADMIN"]
+                    users__user=user,
+                    users__role__in=[AccountRole.MANAGER.name, AccountRole.OWNER.name],
                 ).count()
                 == 0
             ):
@@ -189,7 +189,7 @@ class AccountsViewSet(
         else:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=self.CREATED)
 
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -256,18 +256,16 @@ class AccountsUsersViewSet(
                 users__role__in=[
                     AccountRole.MEMBER.name,
                     AccountRole.MANAGER.name,
-                    AccountRole.ADMIN.name,
+                    AccountRole.OWNER.name,
                 ]
                 if self.action in ["list", "retrieve"]
-                else [AccountRole.MANAGER.name, AccountRole.ADMIN.name],
+                else [AccountRole.MANAGER.name, AccountRole.OWNER.name],
             )
         except Account.DoesNotExist:
             raise exceptions.PermissionDenied
 
         if self.action == "create":
-            AccountQuotas.USERS.check(
-                account, AccountUser.objects.filter(account=account).count(),
-            )
+            AccountQuotas.USERS.check(account)
 
         return account
 
@@ -393,7 +391,7 @@ class AccountsTeamsViewSet(
         Get the serializer class for the current action.
 
         For `create`, checks that the user is an account MANAGER
-        or ADMIN and that the account quota for teams has
+        or OWNER and that the account quota for teams has
         not been exceeded.
         """
         if self.action == "create":
@@ -401,22 +399,20 @@ class AccountsTeamsViewSet(
                 account = Account.objects.get(
                     **filter_from_ident(self.kwargs["account"]),
                     users__user=self.request.user,
-                    users__role__in=[AccountRole.MANAGER.name, AccountRole.ADMIN.name],
+                    users__role__in=[AccountRole.MANAGER.name, AccountRole.OWNER.name],
                 )
             except Account.DoesNotExist:
                 raise exceptions.PermissionDenied
 
-            AccountQuotas.TEAMS.check(
-                account, Team.objects.filter(account=account).count(),
-            )
+            AccountQuotas.TEAMS.check(account)
 
         try:
             return {
-                "list": TeamSerializer,
-                "create": TeamCreateSerializer,
-                "retrieve": TeamSerializer,
-                "partial_update": TeamUpdateSerializer,
-                "destroy": TeamDestroySerializer,
+                "list": AccountTeamSerializer,
+                "create": AccountTeamCreateSerializer,
+                "retrieve": AccountTeamSerializer,
+                "partial_update": AccountTeamUpdateSerializer,
+                "destroy": AccountTeamDestroySerializer,
             }[self.action]
         except KeyError:
             raise RuntimeError("Unexpected action {}".format(self.action))
@@ -451,7 +447,7 @@ class AccountsTeamsViewSet(
         if self.action == "list":
             if account is None:
                 account = self.get_account()
-            return Team.objects.filter(account=account)
+            return AccountTeam.objects.filter(account=account)
         else:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
@@ -461,15 +457,20 @@ class AccountsTeamsViewSet(
 
         For `retrieve`, checks that user is an account user.
         For `partial-update` and `destroy`, checks that the user
-        is an account MANAGER or ADMIN.
+        is an account MANAGER or OWNER.
         """
         if self.action in ["retrieve", "partial_update", "destroy"]:
             account = self.get_account(
                 {}
                 if self.action == "retrieve"
-                else {"users__role__in": ["MANAGER", "ADMIN"]}
+                else {
+                    "users__role__in": [
+                        AccountRole.MANAGER.name,
+                        AccountRole.OWNER.name,
+                    ]
+                }
             )
-            return Team.objects.get(
+            return AccountTeam.objects.get(
                 **filter_from_ident(self.kwargs["team"]), account=account
             )
         else:
@@ -600,21 +601,24 @@ class AccountsTeamsMembersViewSet(HtmxMixin, viewsets.GenericViewSet):
         or if the user does not have permissions to modify it.
         """
         try:
-            return Team.objects.get(
+            return AccountTeam.objects.get(
                 **filter_from_ident(self.kwargs["account"], prefix="account"),
                 **filter_from_ident(self.kwargs["team"]),
                 account__users__user=self.request.user,
-                account__users__role__in=["MANAGER", "ADMIN"],
+                account__users__role__in=[
+                    AccountRole.MANAGER.name,
+                    AccountRole.OWNER.name,
+                ],
             )
-        except Team.DoesNotExist:
+        except AccountTeam.DoesNotExist:
             raise exceptions.NotFound
 
-    def get_role(self, team: Team) -> str:
+    def get_role(self, team: AccountTeam) -> str:
         return AccountUser.objects.get(
             account=team.account, user=self.request.user
         ).role
 
-    def get_response(self, team: Team) -> Response:
+    def get_response(self, team: AccountTeam) -> Response:
         """
         Get the response for this request.
 

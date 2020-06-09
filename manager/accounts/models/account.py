@@ -1,15 +1,12 @@
 import secrets
-from typing import NamedTuple
 
 import customidenticon
 from django.core.files.base import ContentFile
 from django.db import models
-from django.db.models import QuerySet
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
 from imagefield.fields import ImageField
 
-from manager.api.exceptions import AccountQuotaExceeded
 from manager.helpers import EnumChoice, unique_slugify
 from users.models import User
 
@@ -144,7 +141,7 @@ def make_account_creator_an_administrator(
     """
     if sender is Account and created and instance.creator:
         AccountUser.objects.create(
-            account=instance, user=instance.creator, role=AccountRole.ADMIN.name
+            account=instance, user=instance.creator, role=AccountRole.OWNER.name
         )
 
 
@@ -175,15 +172,15 @@ class AccountRole(EnumChoice):
 
     MEMBER = "Member"
     MANAGER = "Manager"
-    ADMIN = "Admin"
+    OWNER = "Admin"
 
     @classmethod
     def get_description(cls, role: "AccountRole"):
         """Get the description of an account role."""
         return {
-            cls.MEMBER.name: "Account member: can create and delete projects.",
-            cls.MANAGER.name: "Account manager: as for member and can create, update and delete teams.",
-            cls.ADMIN.name: "Account administrator: as for manager and can add other users to the account.",
+            cls.MEMBER.name: "Can create, update and delete projects.",
+            cls.MANAGER.name: "As for member and can create, update and delete teams.",
+            cls.OWNER.name: "As for manager and can also add and remove users and change their role.",
         }[role.name]
 
 
@@ -218,17 +215,19 @@ class AccountUser(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["account", "user"], name="unique_user")
+            models.UniqueConstraint(
+                fields=["account", "user"], name="account_user_unique_user"
+            )
         ]
 
 
-class Team(models.Model):
+class AccountTeam(models.Model):
     """
     A team within an account.
 
-    Each `Team` belongs to exactly one `Account`.
-    Each `Team` has one or more `User`s.
-    `User`s can be a member of multiple `Team`s.
+    Each `AccountTeam` belongs to exactly one `Account`.
+    Each `AccountTeam` has one or more `User`s.
+    `User`s can be a member of multiple `AccountTeam`s.
     """
 
     account = models.ForeignKey(
@@ -246,7 +245,9 @@ class Team(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["account", "name"], name="unique_name")
+            models.UniqueConstraint(
+                fields=["account", "name"], name="account_team_unique_name"
+            )
         ]
 
     def save(self, *args, **kwargs):
@@ -259,49 +260,6 @@ class Team(models.Model):
             self,
             self.name,
             slug_field_name="name",
-            queryset=Team.objects.filter(account=self.account),
+            queryset=AccountTeam.objects.filter(account=self.account),
         )
         return super().save(*args, **kwargs)
-
-
-class AccountQuota(NamedTuple):
-    """
-    A quota for an account.
-
-    name: Name of the quota
-    default: Default value
-    message: Message if the quota is exceeded
-    """
-
-    name: str
-    default: float
-    message: str
-
-    def check(self, account: Account, queryset: QuerySet):
-        """Check whether a quota has been exceed for an account."""
-        # TODO: Check against the account plan for non-default values
-        # TODO: Append a link to upgrade the plan for the account
-        if queryset >= self.default:
-            raise AccountQuotaExceeded({self.name: self.message})
-
-
-class AccountQuotas:
-    """List of account quotas."""
-
-    ORGS = AccountQuota(
-        "organizations",
-        10,
-        "Maximum number of organizations you can create has been reached. Please contact us.",
-    )
-
-    USERS = AccountQuota(
-        "account_users",
-        5,
-        "Maximum number of users for the account has been reached. Please upgrade the plan for this account.",
-    )
-
-    TEAMS = AccountQuota(
-        "account_teams",
-        5,
-        "Maximum number of teams for the account has been reached. Please upgrade the plan for this account.",
-    )

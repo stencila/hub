@@ -23,7 +23,7 @@ INCLUDE = [
 # Regex, string pairs for replacing URL parameters
 REPLACE = [
     (r"<slug:account>", "acme-ltd"),
-    (r"<slug:team>", "team-a"),
+    (r"<slug:team>", "a-team"),
 ]
 
 # Regexes of paths to exclude

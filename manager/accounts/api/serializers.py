@@ -1,6 +1,6 @@
 from rest_framework import exceptions, serializers
 
-from accounts.models import Account, AccountRole, AccountUser, Team
+from accounts.models import Account, AccountRole, AccountTeam, AccountUser
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from users.api.serializers import UserIdentifierSerializer, UserSerializer
@@ -40,7 +40,7 @@ class AccountUserCreateSerializer(UserIdentifierSerializer):
         choices=[
             AccountRole.MEMBER.name,
             AccountRole.MANAGER.name,
-            AccountRole.ADMIN.name,
+            AccountRole.OWNER.name,
         ]
     )
 
@@ -52,7 +52,7 @@ class AccountUserCreateSerializer(UserIdentifierSerializer):
         )
 
 
-class TeamSerializer(serializers.ModelSerializer):
+class AccountTeamSerializer(serializers.ModelSerializer):
     """
     A serializer for teams.
 
@@ -62,7 +62,7 @@ class TeamSerializer(serializers.ModelSerializer):
     members = UserSerializer(read_only=True, many=True)
 
     class Meta:
-        model = Team
+        model = AccountTeam
         fields = [
             "id",
             "account",
@@ -72,7 +72,7 @@ class TeamSerializer(serializers.ModelSerializer):
         ]
 
 
-class TeamCreateSerializer(TeamSerializer):
+class AccountTeamCreateSerializer(AccountTeamSerializer):
     """
     A serializer for creating teams.
 
@@ -84,8 +84,8 @@ class TeamCreateSerializer(TeamSerializer):
     """
 
     class Meta:
-        model = Team
-        fields = TeamSerializer.Meta.fields
+        model = AccountTeam
+        fields = AccountTeamSerializer.Meta.fields
         ref_name = None
 
     account = serializers.HiddenField(
@@ -101,7 +101,7 @@ class TeamCreateSerializer(TeamSerializer):
     )
 
 
-class TeamUpdateSerializer(TeamCreateSerializer):
+class AccountTeamUpdateSerializer(AccountTeamCreateSerializer):
     """
     A serializer for updating teams.
 
@@ -110,13 +110,13 @@ class TeamUpdateSerializer(TeamCreateSerializer):
     """
 
     class Meta:
-        model = Team
-        fields = TeamCreateSerializer.Meta.fields
+        model = AccountTeam
+        fields = AccountTeamCreateSerializer.Meta.fields
         read_only_fields = ["account"]
         ref_name = None
 
 
-class TeamDestroySerializer(serializers.Serializer):
+class AccountTeamDestroySerializer(serializers.Serializer):
     """
     A serializer for destroying a team.
 
@@ -188,7 +188,7 @@ class AccountRetrieveSerializer(AccountSerializer):
 
     users = AccountUserSerializer(read_only=True, many=True)
 
-    teams = TeamSerializer(read_only=True, many=True)
+    teams = AccountTeamSerializer(read_only=True, many=True)
 
     class Meta:
         model = Account

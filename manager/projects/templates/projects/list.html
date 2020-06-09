@@ -1,0 +1,26 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Projects" %}{% endblock %}
+
+{% block layout_content %}
+<h1 class="title">{% trans "Projects" %}</h1>
+
+{% for project in projects %}
+<a href="{% url 'ui-projects-retrieve' project.account.name project.name %}" class="list-menu--item">
+
+  <div class="level is-mobile">
+    <div class="level-left">
+      <span class="has-text-weight-bold">
+        {{ project.name }}
+      </span>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
+{% endfor %}
+{% endblock %}
