@@ -1,27 +1,57 @@
+{% load i18n %}
+
 {% comment %}
 List of team members.
 
-Used in both `./update.html` and `./retrieve.html` to
-list the users in a team.
+Used in both `./update.html` and `./retrieve.html` to list the users in a team.
 {% endcomment %}
 
 <ul id="accounts-teams-members-list">
   {% for member in team.members.all %}
-  <li>
-    <span class="icon is-small is-round">
-      <img src="{{ member.personal_account.image.small }}" role="presentation"></img>
-    </span>
-    <a href="{% url 'ui-accounts-retrieve' member.username %}">
-      {{ member.get_full_name|default:member.username }}
-    </a>
-    {% if role in "MANAGER,ADMIN" %}
-    <a hx-delete="{% url 'api-accounts-teams-members-detail' account.id team.id member.id %}"
-       hx-template="accounts/teams/_members.html" hx-target="#accounts-teams-members-list">
-      <span class="icon is-small is-danger">
-        <i class="ri-close-circle-line"></i>
-      </span>
-    </a>
-    {% endif %}
+  <li class="collection-list--item collection-list--item-contents">
+    <div class="level is-mobile">
+      <div class="level-left">
+        <span class="icon is-round list-menu--icon">
+          <img src="{{ member.personal_account.image.medium }}" role="presentation"></img>
+        </span>
+        <span>
+          <a href="{% url 'ui-accounts-retrieve' member.username %}">
+            {{ member.get_full_name|default:member.username }}
+          </a>
+        </span>
+      </div>
+      <div class="level-right">
+        <div class="field has-addons">
+          {% if role in "MANAGER,OWNER" %}
+          <div class="control">
+            <div class="dropdown is-hoverable">
+              <div class="dropdown-trigger">
+                <button class="button is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>
+                    <i class="ri-more-2-line"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <a class="dropdown-item"
+                     hx-delete="{% url 'api-accounts-teams-members-detail' account.id team.id member.id %}"
+                     hx-template="accounts/teams/_members.html" hx-target="#accounts-teams-members-list">
+                    <span class="icon">
+                      <i class="ri-user-unfollow-line"></i>
+                    </span>
+                    <span>
+                      {% trans "Remove from team" %}
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </li>
   {% endfor %}
 </ul>

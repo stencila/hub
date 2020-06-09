@@ -98,6 +98,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 @import "../../../node_modules/@creativebulma/bulma-tooltip/src/sass/index.sass";
 
 // Custom styles
+@import "./accounts/teams/index.scss";
 @import "./accounts/users/email.scss";
 @import "./projects/index.scss";
 
@@ -225,8 +226,18 @@ $footer-padding: 2rem 3rem 0.1rem;
   width: 0.5em;
 }
 
+.level.is-mobile .level-left,
+.level.is-mobile .level-right {
+  flex-shrink: 1;
+}
+
 .navbar-link:not(.is-arrowless)::after {
   border-color: $grey;
+}
+
+// Hide border on images with tooltips
+.image-tooltip[data-tooltip] {
+  border-bottom: none;
 }
 
 @media screen and (min-width: $tablet) {

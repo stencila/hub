@@ -4,37 +4,86 @@
 {% block title %}{{ account.name }} {% trans "Teams" %}{% endblock %}
 
 {% block accounts_content %}
-<h1 class="title">{% trans "Teams" %}</h1>
 
-{% if role in "MANAGER,ADMIN" %}
-<a class="button is-primary" href="{% url 'ui-accounts-teams-create' account.name %}">
-  <span class="icon">
-    <i class="ri-add-fill"></i>
-  </span>
-  <span>{% trans "New Team" %}</span>
-</a>
-{% endif %}
-
-{% for team in teams %}
-<a {% if role in "MANAGER,ADMIN" %} href="{% url 'ui-accounts-teams-update' account.name team.name %}" {% else %}
-   href="{% url 'ui-accounts-teams-retrieve' account.name team.name %}" {% endif %} class="list-menu--item">
-  <div class="level is-mobile">
-    <div class="level-left">
-      <span class="icon is-medium list-menu--icon">
-        <i class="ri-group-line"></i>
-      </span>
-      <span class="has-text-weight-bold">
-        {{ team.name }}
-      </span>
-    </div>
-    <div class="level-right">
-      <div class="control">
-        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
-      </div>
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <h1 class="title">{% trans "Teams" %}</h1>
     </div>
   </div>
-</a>
-{% empty %}
+
+  <div class="level-right">
+    <p class="level-item">
+      {% if role in "MANAGER,OWNER" %}
+      <a class="button is-primary" href="{% url 'ui-accounts-teams-create' account.name %}">
+        <span class="icon">
+          <i class="ri-add-fill"></i>
+        </span>
+        <span>{% trans "New Team" %}</span>
+      </a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+<ul>
+  {% for team in teams %}
+  <li class="collection-list--item">
+    <a {% if role in "MANAGER,OWNER" %} href="{% url 'ui-accounts-teams-update' account.name team.name %}" {% else %}
+       href="{% url 'ui-accounts-teams-retrieve' account.name team.name %}" {% endif %}
+       class="list-menu--item collection-list--item-contents">
+      <div class="level is-mobile">
+        <div class="level-left accounts--team-list-item">
+          <div>
+            <h2 class="has-text-weight-bold is-size-4">
+              {{ team.name }}
+              {% if user in team.members.all %}
+              <span class="tag is-light is-success"
+                    title="{% blocktrans count counter=team.members.count %}Team has {{ counter }} member{% plural %}Team has {{ counter }} members{% endblocktrans %}">
+                <span class="icon is-small" title="{% trans "You are a member of this team" %}">
+                  <i class="ri-user-follow-line"></i>
+                </span>
+              </span>
+              {% endif  %}
+            </h2>
+            {% if team.description %}
+            <p>
+              {{ team.description }}
+            </p>
+            {% endif %}
+
+            {% with member_slice=3 member_slice_string="-3" %}
+            <ul class="accounts--team-member-list__horizontal">
+              {% for member in team.members.all|slice:member_slice %}
+              <li class="accounts--team-member-list-item__horizontal">
+                <span class="icon is-round has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="{{ member.get_full_name|default:member.username }}">
+                  <img src="{{ member.personal_account.image.small }}" alt="{{ member.get_full_name|default:member.username }}"></img>
+                </span>
+              </li>
+              {% endfor %}
+              {% if team.members.all|length > member_slice %}
+              <li class="accounts--team-member-list-item__horizontal">
+                <span class="tag is-light"
+                      title="{% blocktrans count counter=team.members.count|add:member_slice_string %}Team has {{ counter }} additional member{% plural %}Team has {{ counter }} additional members{% endblocktrans %}">
+                  +{{ team.members.count|add:member_slice_string}}
+                </span>
+              </li>
+              {% endif %}
+            </ul>
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="level-right">
+          <div class="control level-item">
+            <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </li>
+  {% empty %}
+</ul>
 <p>
   This account has no teams yet.
 </p>

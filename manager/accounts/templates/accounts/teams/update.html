@@ -11,20 +11,35 @@
 
 <hr>
 
-<h2 class="title is-4">{% trans "Members" %}</h2>
-{% if role in "MANAGER,ADMIN" %}
-{% include "users/_search.html" %}
-<button class="button is-primary" hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
-        hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
-        hx-target="#accounts-teams-members-list">
-  <span class="icon"><i class="ri-add-line"></i></span>
-  <span>Add</span>
-</button>
+<h2 class="title is-4">
+  {% trans "Members" %}
+  <span class="tag is-light"
+        title="{% blocktrans count counter=team.members.count %}Team has {{ counter }} member{% plural %}Team has {{ counter }} members{% endblocktrans %}">
+    {{ team.members.count}}
+  </span>
+</h2>
+{% if role in "MANAGER,OWNER" %}
+<form class="mb-2">
+  <div class="field has-addons">
+    <div class="control is-expanded">
+      {% include "users/_search.html" %}
+    </div>
+    <div class="control">
+      <button class="button is-primary is-outlined"
+              hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
+              hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
+              hx-target="#accounts-teams-members-list">
+        <span class="icon"><i class="ri-add-line"></i></span>
+        <span>Add</span>
+      </button>
+    </div>
+  </div>
+</form>
 {% endif %}
 {% include "./_members.html" %}
 
-<hr>
-<h2 class="title is-4">{% trans "Delete" %}</h2>
+<hr />
+<h2 class="title is-4 is-outlined">{% trans "Delete" %}</h2>
 {% include "./_destroy.html" with serializer=destroy_serializer %}
 
 {% endblock %}
