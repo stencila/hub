@@ -66,9 +66,9 @@
         <div class="navbar-brand">
           <a class="navbar-item navbar-logo" href="{% url 'home' %}">
             {% if user.is_anonymous %}
-              <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+            <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
             {% else %}
-              <img title="Homepage" src="{% static 'img/stencilaIcon.svg' %}" alt="Stencila" width="28px" height="28px">
+            <img title="Homepage" src="{% static 'img/stencilaIcon.svg' %}" alt="Stencila" width="28px" height="28px">
             {% endif %}
           </a>
           <a class="navbar-burger" data-target="navbar-menu">
