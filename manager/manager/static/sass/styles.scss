@@ -209,6 +209,26 @@ $footer-padding: 2rem 3rem 0.1rem;
 // =============================================================================
 // Customize Bulma
 // =============================================================================
+.dropdown.is-expanded {
+  &,
+  .dropdown-trigger,
+  .dropdown-menu {
+    width: 100%;
+  }
+}
+
+.select:not(.is-multiple):not(.is-loading)::after,
+.navbar-link:not(.is-arrowless)::after {
+  border-width: 2px;
+  height: 0.5em;
+  margin-top: -0.35em;
+  width: 0.5em;
+}
+
+.navbar-link:not(.is-arrowless)::after {
+  border-color: $grey;
+}
+
 @media screen and (min-width: $tablet) {
   /** Add a custom `has-addons-tablet` class which only allows multiple input fields to be stacked on mobile, but then
    expanded and unified above `$tablet` breakpoint.
