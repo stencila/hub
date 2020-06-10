@@ -11,6 +11,8 @@
       <h1 class="title">{% trans "Organizations" %}</h1>
     </div>
   </div>
+
+  {% if user.is_authenticated %}
   <div class="level-right">
     <p class="level-item">
       <a class="button is-primary is-small-mobile" href="{% url 'ui-accounts-create' %}">
@@ -23,14 +25,15 @@
       </a>
     </p>
   </div>
+  {% endif %}
 </div>
 
 <div class="field has-addons">
   <div class="control has-icons-left is-expanded">
-    <input id="orgs-search-input" class="input" type="text" name="search"
-           placeholder="Search by name for orgs where I am a..." hx-trigger="keyup changed delay:500ms, role-changed"
-           hx-get="/api/accounts" hx-include="#orgs-search-role, #orgs-search-is-org"
-           hx-template="accounts/_list_orgs_result.html" hx-target="#orgs-search-result">
+    <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
+           hx-trigger="keyup changed delay:500ms, role-changed" hx-get="/api/accounts"
+           hx-include="#orgs-search-role, #orgs-search-is-org" hx-template="accounts/_list_orgs_result.html"
+           hx-target="#orgs-search-result">
     <span class="icon is-small is-left">
       <i class="ri-search-line"></i>
     </span>
@@ -39,10 +42,10 @@
   <div class="control">
     <div class="select">
       <select id="orgs-search-role" name="role">
+        <option value="">All</option>
         <option value="member">Member</option>
         <option value="manager">Manager</option>
         <option value="owner">Owner</option>
-        <option value="">All</option>
       </select>
     </div>
   </div>
