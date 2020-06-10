@@ -38,9 +38,9 @@
             <h2 class="has-text-weight-bold is-size-4">
               {{ team.name }}
               {% if user in team.members.all %}
-              <span class="tag is-light is-success"
-                    title="{% blocktrans count counter=team.members.count %}Team has {{ counter }} member{% plural %}Team has {{ counter }} members{% endblocktrans %}">
-                <span class="icon is-small" title="{% trans "You are a member of this team" %}">
+              <span class="tag is-light is-success has-tooltip-top has-tooltip-text-centered image-tooltip"
+                    data-tooltip="{% trans "You are a member of this team" %}">
+                <span class="icon is-small">
                   <i class="ri-user-follow-line"></i>
                 </span>
               </span>
