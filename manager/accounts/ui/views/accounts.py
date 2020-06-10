@@ -39,7 +39,12 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
     viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
     account, role = viewset.get_account_role()
-    return render(request, "accounts/retrieve.html", dict(account=account, role=role))
+    projects = account.projects.all()
+    return render(
+        request,
+        "accounts/retrieve.html",
+        dict(account=account, role=role, projects=projects),
+    )
 
 
 @login_required

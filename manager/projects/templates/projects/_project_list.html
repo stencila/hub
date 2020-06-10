@@ -3,5 +3,8 @@
   <li class="collection-list--item transition-colors">
     {% include './_project_list_item.html' with project=project %}
   </li>
+  {% empty %}
+  <span class="icon"><i class="ri-alert-line"></i></span>
+  No projects matching this search.
   {% endfor %}
 </ul>

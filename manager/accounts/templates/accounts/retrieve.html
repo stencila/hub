@@ -6,9 +6,21 @@
 {% block accounts_content %}
 {% include '_action_bar.html' %}
 
-{% comment %}
-TODO: Pass projects list to view
-{% include 'projects/_project_list.html' with projects=account.projects %}
-{% endcomment %}
+<div class="field">
+  <div class="control has-icons-left is-expanded">
+    <input id="projects-search-input" class="input" type="text" name="search"
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
+           hx-get="{% url 'api-projects-list' %}" hx-include="input[name=account]"
+           hx-template="projects/_project_list.html" hx-target="#projects-search-result">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+  </div>
+  <input type="hidden" name="account" value="{{account.id}}">
+</div>
+
+<div id="projects-search-result">
+  {% include 'projects/_project_list.html' %}
+</div>
 
 {% endblock %}

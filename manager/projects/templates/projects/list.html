@@ -27,6 +27,20 @@
   </div>
 </div>
 
-{% include './_project_list.html' with projects=projects %}
+<div class="field">
+  <div class="control has-icons-left is-expanded">
+    <input id="projects-search-input" class="input" type="text" name="search"
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
+           hx-get="{% url 'api-projects-list' %}" hx-template="projects/_project_list.html"
+           hx-target="#projects-search-result">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+  </div>
+</div>
+
+<div id="projects-search-result">
+  {% include './_project_list.html' %}
+</div>
 
 {% endblock %}

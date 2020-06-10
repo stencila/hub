@@ -91,7 +91,7 @@ def run(*args):
 
     # A stencila account is needed as the default for running jobs etc
 
-    stencila = Account.objects.create(name="stencila")
+    # stencila = Account.objects.create(name="stencila")
 
     # Example organizations
 
@@ -160,35 +160,31 @@ def run(*args):
     # Projects
     #################################################################
 
-    # Assumes that there are at least 3 accounts
-    accounts = Account.objects.all()
+    # Each account has one private and one public project
 
-    Project.objects.create(
-        account=accounts[0],
-        creator=random_account_user(accounts[0]),
-        public=True,
-        name="first-project",
-        description="""
-The project description. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut la
-bore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex eacom
-modo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. E
-xcepteur sint occaecat cupidatat non roident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        """.strip(),
-    )
+    for account in Account.objects.all():
+        Project.objects.create(
+            name="first-project",
+            title="First project",
+            account=account,
+            creator=random_account_user(account),
+            public=True,
+            description="""
+    A public project. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut la
+    bore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex eacom
+    modo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. E
+    xcepteur sint occaecat cupidatat non roident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            """.strip(),
+        )
 
-    Project.objects.create(
-        name="second-project",
-        account=accounts[1],
-        creator=random_account_user(accounts[1]),
-        public=True,
-    )
-
-    Project.objects.create(
-        name="third-project",
-        account=accounts[2],
-        creator=random_account_user(accounts[2]),
-        public=False,
-    )
+        Project.objects.create(
+            name="second-project",
+            title="Second project",
+            account=account,
+            creator=random_account_user(account),
+            public=False,
+            description="A private project.",
+        )
 
 
 def random_users(num=None):
