@@ -310,6 +310,17 @@ $input-placeholder-color: $grey;
   }
 }
 
+.has-text-nowrap {
+  white-space: nowrap;
+}
+
+.has-text-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .has-text-link-hover:hover {
   @extends transition-colors;
   color: $link !important;

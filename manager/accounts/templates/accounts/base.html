@@ -11,7 +11,8 @@
 
   {% if account.website %}
   <p>
-    <a href="{{ account.website }}" class="has-text-grey has-text-link-hover">
+    <a href="{{ account.website }}" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis"
+       rel="nofollow">
       <span class="icon">
         <i class="ri-links-line"></i>
       </span>
@@ -24,7 +25,8 @@
 
   {% if account.email %}
   <p>
-    <a href="mailto://{{ account.email }}" class="has-text-grey has-text-link-hover">
+    <a href="mailto://{{ account.email }}" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis"
+       rel="author">
       <span class="icon">
         <i class="ri-mail-line"></i>
       </span>
@@ -71,7 +73,7 @@
 
       {% if account.website %}
       <p>
-        <a href="#" class="has-text-grey has-text-link-hover">
+        <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
           <span class="icon">
             <i class="ri-links-line"></i>
           </span>
@@ -84,7 +86,7 @@
 
       {% if account.email %}
       <p>
-        <a href="#" class="has-text-grey has-text-link-hover">
+        <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
           <span class="icon">
             <i class="ri-mail-line"></i>
           </span>
