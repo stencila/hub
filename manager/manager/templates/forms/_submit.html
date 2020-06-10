@@ -1,4 +1,4 @@
-<button class="button {{ classes|default:'is-primary' }}" type="submit" tabindex="0">
+<button class="button {{ classes|default:'is-primary' }}" type="submit" {% if disabled %}disabled{% endif %}>
   <span class="icon">
     <i class="{{ icon|default:'ri-refresh-line' }}"></i>
   </span>
