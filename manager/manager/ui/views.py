@@ -33,12 +33,9 @@ def home(request: HttpRequest) -> HttpResponse:
     if settings.SECURE_SSL_REDIRECT and not request.is_secure():
         return redirect("https://" + request.get_host() + "/")
 
-    # TODO: Currently just rendering base, but see below
-    return render(request, "base.html")
-
     # Authenticated users get redirected to dashboard
     if request.user.is_authenticated:
-        return redirect("ui-users-settings")
+        return redirect("ui-accounts-retrieve", request.user.username)
 
     # Unauthenticated users get redirected to sign in
     return redirect(settings.LOGIN_URL)
