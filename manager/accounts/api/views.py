@@ -90,6 +90,12 @@ class AccountsViewSet(
             queryset = queryset.filter(
                 Q(name__icontains=search) | Q(display_name__icontains=search)
             )
+        
+        isa = self.request.GET.get("is", None)
+        if isa == "org":
+            queryset = queryset.filter(user__isnull=True)
+        elif isa == "user":
+            queryset = queryset.filter(user__isnull=False)
 
         return queryset
 

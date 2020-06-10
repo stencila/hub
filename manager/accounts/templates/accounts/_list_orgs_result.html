@@ -1,0 +1,24 @@
+{% for account in accounts %}
+<a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
+  <div class="level is-mobile">
+    <div class="level-left">
+      {% if account.image %}
+      <span class="icon is-medium list-menu--icon">
+        <img src="{{ account.image.medium }}" role="presentation"></img>
+      </span>
+      {% endif %}
+      <span class="has-text-weight-bold">
+        {{ account.display_name|default:account.name }}
+      </span>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+  </div>
+</a>
+{% empty %}
+<span class="icon"><i class="ri-alert-line"></i></span>
+No organizations matching this search could be found
+{% endfor %}

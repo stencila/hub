@@ -12,8 +12,8 @@ def list_orgs(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     Filters the default queryset to only include organizational accounts.
     """
     viewset = AccountsViewSet.init("list", request, args, kwargs)
-    queryset = viewset.get_queryset().filter(user__isnull=True)
-    return render(request, "accounts/list.html", dict(accounts=queryset, is_orgs=True))
+    accounts = viewset.get_queryset().filter(user__isnull=True)
+    return render(request, "accounts/list_orgs.html", dict(accounts=accounts))
 
 
 def list_users(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -23,8 +23,8 @@ def list_users(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     Filters the default queryset to only include personal accounts.
     """
     viewset = AccountsViewSet.init("list", request, args, kwargs)
-    queryset = viewset.get_queryset().filter(user__isnull=False)
-    return render(request, "accounts/list.html", dict(accounts=queryset, is_users=True))
+    accounts = viewset.get_queryset().filter(user__isnull=False)
+    return render(request, "accounts/list_users.html", dict(accounts=accounts))
 
 
 @login_required

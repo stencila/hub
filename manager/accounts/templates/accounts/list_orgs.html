@@ -1,0 +1,47 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Organizations" %}{% endblock %}
+
+{% block layout_content %}
+
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <h1 class="title">{% trans "Organizations" %}</h1>
+    </div>
+  </div>
+  <div class="level-right">
+    <p class="level-item">
+      <a class="button is-primary is-hidden-mobile" href="/orgs/new/">
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
+        <span>
+          New Organization
+        </span>
+      </a>
+    </p>
+  </div>
+</div>
+
+<div id="orgs-search-control" class="control has-icons-left has-icons-right">
+  <input class="input" type="text" name="search" placeholder="Search by name" hx-trigger="keyup changed delay:500ms"
+         hx-get="/api/accounts" hx-include="input[name=is]" hx-template="accounts/_list_orgs_result.html"
+         hx-indicator="#orgs-search-control .htmx-indicator" hx-target="#orgs-search-result">
+  <input type="hidden" name="is" value="org">
+  <span class="icon is-small is-left">
+    <i class="ri-search-line"></i>
+  </span>
+  <span class="icon is-small is-right htmx-indicator">
+    <i class="ri-loader-line"></i>
+  </span>
+</div>
+
+<br>
+
+<div id="orgs-search-result">
+  {% include 'accounts/_list_orgs_result.html' %}
+</div>
+
+{% endblock %}
