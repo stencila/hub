@@ -13,12 +13,12 @@
   </div>
   <div class="level-right">
     <p class="level-item">
-      <a class="button is-primary is-hidden-mobile" href="/orgs/new/">
+      <a class="button is-primary is-small-mobile" href="{% url 'ui-accounts-create' %}">
         <span class="icon">
           <i class="ri-add-line"></i>
         </span>
         <span>
-          New Organization
+          {% trans "New Organization" %}
         </span>
       </a>
     </p>
