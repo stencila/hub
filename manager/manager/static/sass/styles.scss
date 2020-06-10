@@ -480,6 +480,19 @@ a .icon + span,
   }
 }
 
+.menu-list a[disabled] {
+  &,
+  &:hover,
+  &:focus {
+    color: $grey-lighter;
+    cursor: not-allowed;
+  }
+
+  &:hover {
+    background-color: $white;
+  }
+}
+
 #messages {
   // Places messages in the top left
   position: sticky;
