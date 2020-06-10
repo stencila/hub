@@ -9,12 +9,6 @@ from django.views.generic import FormView, TemplateView
 from .forms import SignupForm, UsernameForm
 
 
-class SettingsView(LoginRequiredMixin, TemplateView):
-    """Dashboard of settings available to the user."""
-
-    template_name = "users/settings.html"
-
-
 class SignupView(SignupView):
     """Override allauth SignupView to custom URL and template name."""
 

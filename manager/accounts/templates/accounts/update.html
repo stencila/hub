@@ -13,4 +13,11 @@
 <h2 class="title is-3">{% trans "Content" %}</h2>
 <p class="subtitle is-6">{% trans "Settings affecting how content is served for your projects." %}</p>
 {% include "accounts/_update_content_form.html" %}
+
+{% if account.is_personal %}
+<hr>
+<h2 class="title is-3">{% trans "Other" %}</h2>
+{% include "accounts/_update_user_settings.html" %}
+{% endif %}
+
 {% endblock %}
