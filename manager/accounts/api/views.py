@@ -1,11 +1,14 @@
 from django.db.models import Prefetch, Q
+from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
+from django.utils.http import urlencode
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from accounts.api.serializers import (
     AccountCreateSerializer,
+    AccountListSerializer,
     AccountRetrieveSerializer,
     AccountSerializer,
     AccountTeamCreateSerializer,
@@ -23,10 +26,7 @@ from users.api.serializers import UserIdentifierSerializer
 
 
 class AccountsViewSet(
-    HtmxMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet,
+    HtmxMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
 ):
     """
     A view set for accounts.
@@ -67,7 +67,7 @@ class AccountsViewSet(
 
         try:
             return {
-                "list": AccountSerializer,
+                "list": AccountListSerializer,
                 "create": AccountCreateSerializer,
                 "retrieve": AccountRetrieveSerializer,
                 "update": AccountUpdateSerializer,
@@ -85,17 +85,40 @@ class AccountsViewSet(
         """
         queryset = Account.objects.all()
 
+        if self.request.user.is_authenticated:
+            queryset = queryset.annotate(
+                role=RawSQL(
+                    """
+                       SELECT role FROM accounts_accountuser
+                       WHERE
+                          account_id = accounts_account.id AND
+                          user_id = %s
+                """,
+                    [self.request.user.id],
+                )
+            )
+
+            role = self.request.GET.get("role", "").lower()
+            if role == "member":
+                queryset = queryset.filter(role__isnull=False)
+            elif role == "manager":
+                queryset = queryset.filter(role=AccountRole.MANAGER.name)
+            elif role == "owner":
+                queryset = queryset.filter(role=AccountRole.OWNER.name)
+        else:
+            queryset = queryset.extra(select={"role": "NULL"})
+
         search = self.request.GET.get("search", None)
         if search is not None:
             queryset = queryset.filter(
                 Q(name__icontains=search) | Q(display_name__icontains=search)
             )
-        
+
         isa = self.request.GET.get("is", None)
-        if isa == "org":
-            queryset = queryset.filter(user__isnull=True)
-        elif isa == "user":
+        if isa == "user":
             queryset = queryset.filter(user__isnull=False)
+        else:
+            queryset = queryset.filter(user__isnull=True)
 
         return queryset
 
@@ -176,10 +199,26 @@ class AccountsViewSet(
         queryset = self.get_queryset()
 
         if self.accepts_html():
-            return Response(dict(accounts=queryset))
+            url = (
+                (
+                    reverse("ui-accounts-list-user")
+                    if self.request.GET.get("is") == "user"
+                    else reverse("ui-accounts-list-orgs")
+                )
+                + "?"
+                + "&".join(
+                    [
+                        "{}={}".format(key, value)
+                        for key, value in self.request.GET.items()
+                        if key != "is" and value
+                    ]
+                )
+            )
+            return Response(dict(accounts=queryset), headers={"X-HX-Push": url})
         else:
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
+            pages = self.paginate_queryset(queryset)
+            serializer = self.get_serializer(pages, many=True)
+            return self.get_paginated_response(serializer.data)
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         """

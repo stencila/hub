@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% for account in accounts %}
 <a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
   <div class="level is-mobile">
@@ -12,6 +14,16 @@
       </span>
     </div>
     <div class="level-right">
+      {% if account.role %}
+      {% with role=account.role %}
+      <span class="tag is-light {% if role == 'MANAGER' %}has-background-warning-light{% elif role == 'OWNER' %}has-background-danger-light{% endif %} has-tooltip-top has-tooltip-text-centered image-tooltip"
+            data-tooltip="{% blocktrans %}You are a {{ role }} of this organization {% endblocktrans %}">
+        <span class="icon is-small">
+          <i class="ri-user{% if role == 'MANAGER' %}-star{% elif role == 'OWNER' %}-settings{% endif %}-line"></i>
+        </span>
+      </span>
+      {% endwith %}
+      {% endif  %}
       <div class="control">
         <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
       </div>

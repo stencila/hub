@@ -25,17 +25,35 @@
   </div>
 </div>
 
-<div id="orgs-search-control" class="control has-icons-left has-icons-right">
-  <input class="input" type="text" name="search" placeholder="Search by name" hx-trigger="keyup changed delay:500ms"
-         hx-get="/api/accounts" hx-include="input[name=is]" hx-template="accounts/_list_orgs_result.html"
-         hx-indicator="#orgs-search-control .htmx-indicator" hx-target="#orgs-search-result">
-  <input type="hidden" name="is" value="org">
-  <span class="icon is-small is-left">
-    <i class="ri-search-line"></i>
-  </span>
-  <span class="icon is-small is-right htmx-indicator">
-    <i class="ri-loader-line"></i>
-  </span>
+<div class="field has-addons">
+  <div class="control has-icons-left is-expanded">
+    <input id="orgs-search-input" class="input" type="text" name="search"
+           placeholder="Search by name for orgs where I am a..." hx-trigger="keyup changed delay:500ms, role-changed"
+           hx-get="/api/accounts" hx-include="#orgs-search-role, #orgs-search-is-org"
+           hx-template="accounts/_list_orgs_result.html" hx-target="#orgs-search-result">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+  </div>
+  {% if user.is_authenticated %}
+  <div class="control">
+    <div class="select">
+      <select id="orgs-search-role" name="role">
+        <option value="member">Member</option>
+        <option value="manager">Manager</option>
+        <option value="owner">Owner</option>
+        <option value="">All</option>
+      </select>
+    </div>
+  </div>
+  {% endif %}
+  <input id="orgs-search-is-org" type="hidden" name="is" value="org">
+  <script>
+    document.querySelector('#orgs-search-role').addEventListener('change', function(event) {
+      document.querySelector('#orgs-search-input').dispatchEvent(new Event('role-changed'));
+    });
+
+  </script>
 </div>
 
 <br>

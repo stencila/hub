@@ -176,7 +176,23 @@ class AccountCreateSerializer(AccountSerializer):
         fields = AccountSerializer.Meta.fields
 
 
-class AccountRetrieveSerializer(AccountSerializer):
+class AccountListSerializer(AccountSerializer):
+    """
+    A serializer for listing accounts.
+
+    Includes the role of the user making the request.
+    """
+
+    role = serializers.CharField(
+        read_only=True, help_text="Role of the current user on the account (if any)."
+    )
+
+    class Meta:
+        model = Account
+        fields = AccountSerializer.Meta.fields + ["role"]
+
+
+class AccountRetrieveSerializer(AccountListSerializer):
     """
     A serializer for retrieving accounts.
 
@@ -192,7 +208,7 @@ class AccountRetrieveSerializer(AccountSerializer):
 
     class Meta:
         model = Account
-        fields = AccountSerializer.Meta.fields + ["users", "teams"]
+        fields = AccountListSerializer.Meta.fields + ["users", "teams"]
 
 
 class AccountUpdateSerializer(AccountSerializer):
