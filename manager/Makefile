@@ -75,6 +75,7 @@ run-prod: venv
 format: venv
 	$(VE)/black --exclude migrations .
 	$(VE)/isort --apply
+	npm run lint:format
 
 # Lint everything
 lint: lint-format lint-code lint-types lint-docs
@@ -83,7 +84,6 @@ lint: lint-format lint-code lint-types lint-docs
 lint-format: venv
 	$(VE)/black --exclude migrations --check .
 	$(VE)/isort --check-only
-	npm run lint:format
 
 # Lint code
 lint-code: venv
