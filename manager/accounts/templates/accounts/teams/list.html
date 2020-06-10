@@ -65,7 +65,8 @@
               {% endfor %}
               {% if team.members.all|length > member_slice %}
               <li class="accounts--team-member-list-item__horizontal">
-                <span class="tag is-light"
+                <span class="tag is-light has-tooltip-top has-tooltip-text-centered image-tooltip"
+                      data-tooltip="{% blocktrans count counter=team.members.count|add:member_slice_string %}Team has {{ counter }} additional member{% plural %}Team has {{ counter }} additional members{% endblocktrans %}"
                       title="{% blocktrans count counter=team.members.count|add:member_slice_string %}Team has {{ counter }} additional member{% plural %}Team has {{ counter }} additional members{% endblocktrans %}">
                   +{{ team.members.count|add:member_slice_string}}
                 </span>
