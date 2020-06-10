@@ -120,7 +120,8 @@ class AccountsViewSet(
         else:
             queryset = queryset.filter(user__isnull=True)
 
-        return queryset
+        # TODO: Find a better way to order role so MANAGER is before MEMBER
+        return queryset.order_by("-role")
 
     def get_object(self):
         """
