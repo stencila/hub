@@ -1,0 +1,86 @@
+{% load i18n %}
+
+<tr>
+  <td class="px-0" style="weight: 1em;">
+    <span>
+      <i title="Disk" class="ri-file-line"></i>
+    </span>
+  </td>
+  <td class="has-text-weight-bold pl-2">
+    <p class="table-icon-label">elifesciences.rmd</p>
+  </td>
+  <td class="is-sr-only-mobile">4&nbsp;weeks, 1&nbsp;day ago</td>
+  <td class="has-text-right" style="weight: 1em;">
+    <div class="dropdown is-hoverable">
+      <div class="dropdown-trigger">
+        <button class="button is-small has-text-weight-bold" aria-haspopup="true" aria-controls="dropdown-menu">
+          <span>
+            <i class="ri-more-2-line"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu has-text-left" role="menu">
+        <div class="dropdown-content">
+          <a href="#" target="_blank" rel="noopener" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-external-link-line"></i>
+            </span>
+            <span>{% trans "Open" %}</span>
+          </a>
+          <a href="#" target="_blank" rel="noopener" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-eye-line"></i>
+            </span>
+            <span>{% trans "Preview" %}</span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-download-line"></i>
+            </span>
+            <span>{% trans "Download" %}</span>
+          </a>
+          <hr class="dropdown-divider">
+          <div class="dropdown dropdown-item is-hoverable px-0 py-0">
+            <a class="dropdown-trigger dropdown-item px-0 py-0">
+              <div class="level is-mobile dropdown-item">
+                <div class="level-left">
+                    <span class="icon">
+                      <i class="ri-file-transfer-line"></i>
+                    </span>
+                    <span>{% trans "Save As…" %}</span>
+                </div>
+                <div>
+                  <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+                </div>
+              </div>
+            </a>
+            <div class="dropdown-menu has-text-left" role="menu">
+              <div class="dropdown-content">
+                <a href="#" class="dropdown-item indent">HTML</a>
+                <a href="#" class="dropdown-item indent">Markdown</a>
+                <a href="#" class="dropdown-item indent">Microsoft Word</a>
+                <a href="#" class="dropdown-item indent">Other</a>
+              </div>
+            </div>
+          </div>
+
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-edit-line"></i>
+            </span>
+            <span>{% trans "Rename" %}</span>
+          </a>
+
+          <hr class="dropdown-divider" />
+
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-delete-bin-line"></i>
+            </span>
+            <span>{% trans "Delete" %}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>

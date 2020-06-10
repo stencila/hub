@@ -77,7 +77,7 @@ $input-placeholder-color: $grey;
 @import "../../../node_modules/bulma/sass/elements/image.sass";
 @import "../../../node_modules/bulma/sass/elements/notification.sass";
 // @import "../../../node_modules/bulma/sass/elements/progress.sass";
-// @import "../../../node_modules/bulma/sass/elements/table.sass";
+@import "../../../node_modules/bulma/sass/elements/table.sass";
 @import "../../../node_modules/bulma/sass/elements/tag.sass";
 @import "../../../node_modules/bulma/sass/elements/title.sass";
 @import "../../../node_modules/bulma/sass/elements/other.sass";
@@ -190,6 +190,17 @@ body {
     }
   }
 
+  .is-sr-only-mobile {
+    border: none !important;
+    clip: rect(0, 0, 0, 0) !important;
+    height: 0.01em !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: absolute !important;
+    white-space: nowrap !important;
+    width: 0.01em !important;
+  }
+
   // Standardize horizontal alignment between elements in header and body
   .section {
     padding-left: $gap / 2;
@@ -201,13 +212,25 @@ body {
     padding-left: $gap / 2;
   }
 
+  .level-left + .level-right {
+    margin-top: $gap / 2;
+  }
+
+  .has-flex-justify-content-space-between-mobile {
+    justify-content: space-between;
+  }
+
+  .has-flex-justify-content-end-mobile {
+    justify-content: flex-end;
+  }
+
   // ===========================================================================
   // Custom elements: mobile breakpoint
   // ===========================================================================
   .sidebar__start {
     background-color: $white-bis;
     border-bottom: 1px solid $white-ter;
-    margin-top: -3rem;
+    margin-top: -4rem;
     overflow: auto;
     padding-bottom: $gap / 8;
     padding-left: 0;
@@ -216,6 +239,10 @@ body {
 
   .sidebar__item {
     flex-shrink: 0;
+
+    &:first-child {
+      padding-left: 1rem;
+    }
 
     &:last-child {
       padding-right: 2rem;
@@ -236,6 +263,21 @@ body {
   .dropdown-menu {
     width: 100%;
   }
+}
+
+.dropdown.is-hoverable:hover
+  .dropdown-menu
+  .dropdown:not(.is-active)
+  .dropdown-menu,
+.dropdown.is-active .dropdown-menu .dropdown:not(.is-active) .dropdown-menu {
+  display: none;
+}
+
+.dropdown.is-hoverable:hover
+  .dropdown-menu
+  .dropdown.is-hoverable:hover
+  .dropdown-menu {
+  display: block;
 }
 
 .select:not(.is-multiple):not(.is-loading)::after,

@@ -5,17 +5,28 @@
 
 {% block projects_content %}
 <div class="level">
-  <div class="level-left is-clearfix">
-    <div class="level-item is-pulled-left">
+  <div class="level-left is-flex has-flex-justify-content-space-between-mobile">
+    <div class="level-item mb-0">
       <h1 class="title">
         {{ project.title|default:project.name }}
       </h1>
     </div>
+
+    <p class="level-item">
+      <a class="button is-success is-small-mobile">
+        <span class="icon">
+          <i class="ri-play-line"></i>
+        </span>
+        <span>
+          {% trans "Run" %}
+        </span>
+      </a>
+    </p>
   </div>
 
   <div class="level-right">
-    <div class="buttons">
-      <div class="dropdown is-hoverable level-item mb-0 mr-2">
+    <div class="buttons has-flex-justify-content-end-mobile">
+      <div class="dropdown is-hoverable level-item mr-2 mb-0">
         <div class="dropdown-trigger">
           <button class="button is-primary is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
             <span class="icon">
@@ -98,4 +109,34 @@
     </div>
   </div>
 </div>
+
+<table class="table is-fullwidth is-striped is-hoverable">
+  <thead>
+    <tr class="table-header is-sr-only">
+      <th>
+        {% trans "Source Type" %}
+      </th>
+      <th>
+        {% trans "Source Name" %}
+      </th>
+      <th>
+        {% trans "Date Updated" %}
+      </th>
+      <th>
+        {% trans "Source Actions" %}
+      </th>
+    </tr>
+  </thead>
+  <tbody id="file_list_body">
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+    {% include "./_source_list_item.html" %}
+  </tbody>
+  <tbody></tbody>
+</table>
+
 {% endblock %}
