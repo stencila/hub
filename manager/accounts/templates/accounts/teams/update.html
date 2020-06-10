@@ -24,7 +24,7 @@
     <div class="control is-expanded">
       {% include "users/_search.html" %}
     </div>
-    <div class="control">
+    <div class="control has-background-white">
       <button class="button is-primary is-outlined"
               hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
               hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
