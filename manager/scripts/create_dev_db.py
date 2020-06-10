@@ -128,8 +128,8 @@ def run(*args):
         team1 = AccountTeam.objects.create(account=account, name="first-team")
         team1.members.set([member, owner, manager] + random_users())
 
-        # Each account has a random number of others teams each 
-        # with a random name and random number of random users 
+        # Each account has a random number of others teams each
+        # with a random name and random number of random users
         # (who don't need to be be users of the organizations)
         for index in range(random.randint(1, 5)):
             team = AccountTeam.objects.create(account=account, name=random_team_name())
@@ -140,18 +140,21 @@ def run(*args):
     biotech.location = "Portland, USA"
     biotech.website = "https://biotech.example.com"
     biotech.email = "contact@biotech.example.com"
+    biotech.save()
 
     hapuku = Account.objects.get(name="hapuku-university")
     hapuku.display_name = "Hapuku University"
     hapuku.location = "Hapuku, Kaikoura, New Zealand"
     hapuku.website = "https://hapuku.example.edu"
     hapuku.email = "contact@hapuku.example.edu"
+    hapuku.save()
 
     pewsey = Account.objects.get(name="pewsey-publishing")
     pewsey.display_name = "Pewsey Publishing"
     pewsey.location = "UK"
     pewsey.website = "https://pewsey.example.com"
     pewsey.email = "contact@pewsey.example.com"
+    pewsey.save()
 
     #################################################################
     # Projects
@@ -200,9 +203,11 @@ def random_account_user(account):
     """Get a random user for an account."""
     return AccountUser.objects.filter(account=account).order_by("?").first().user
 
+
 def random_account_role():
     """Get a random account role."""
     return random.choice([e.name for e in AccountRole])
+
 
 def random_team_name():
     """Get a random team name."""
