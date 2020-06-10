@@ -120,9 +120,15 @@ class Account(models.Model):
         Save this account.
 
         - Ensure that name is unique
+        - If the account `is_personal` then make sure that the
+          user's `username` is the same as `name`
         - Create an image if the account does not have one
         """
         self.name = unique_slugify(self.name, instance=self)
+
+        if self.is_personal and self.user.username != self.name:
+            self.user.username = self.name
+            self.user.save()
 
         if not self.image:
             file = ContentFile(customidenticon.create(self.name, size=5))
