@@ -1,14 +1,14 @@
 {% load stencila %}
 
+{% uuid as field_id %}
+
 <div class="field">
-  {% if field.label %}
-  <label class="label">{{ field.label }}</label>
-  {% endif %}
+  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
 
   {% if element %}
-  {% include "./_field_control.html" %}
+  {% include "./_field_control.html" with field_id=field_id %}
   {% else %}
-  {% include "./_field_control.html" with element=field|field_element %}
+  {% include "./_field_control.html" with element=field|field_element field_id=field_id %}
   {% endif %}
 
   {% if field.errors %}

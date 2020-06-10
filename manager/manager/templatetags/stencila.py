@@ -5,6 +5,8 @@ All in one file so that it is easy just to `{% load stencila %}`
 in templates.
 """
 
+from uuid import uuid4
+
 from django import template
 from django.db.models import fields
 from django.urls import resolve
@@ -51,6 +53,10 @@ def input_type(field):
     vars = field_class_lookup[field]
     return vars.get("input_type", "")
 
+
+@register.simple_tag
+def uuid():
+    return uuid4()
 
 # fmt: off
 
