@@ -42,8 +42,8 @@
     </li>
 
     <li class="sidebar__item">
-      <!-- TODO: Add links to correct page -->
-      <a href="" class="panel-block transition-colors {% is_active 'ui-accounts-teams' %}" style="color: red;">
+      <a href="{% url 'ui-projects-sharing' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-accounts-teams' %}">
         <span class="icon">
           <i class="ri-lock-unlock-line"></i>
         </span>

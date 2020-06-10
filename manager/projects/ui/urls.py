@@ -19,6 +19,11 @@ after_account_urls = [
         name="ui-projects-retrieve",
     ),
     path(
+        "<slug:account>/<slug:project>/sharing/",
+        project_views.sharing,
+        name="ui-projects-sharing",
+    ),
+    path(
         "<slug:account>/<slug:project>/settings/",
         project_views.update,
         name="ui-projects-update",

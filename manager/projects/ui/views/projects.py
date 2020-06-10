@@ -38,3 +38,11 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         "projects/update.html",
         dict(project=project, role=role, serializer=serializer),
     )
+
+
+@login_required
+def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Retrieve a project's sharing settings."""
+    viewset = ProjectsViewSet.init("list", request, args, kwargs)
+    project, role = viewset.get_project_role()
+    return render(request, "projects/sharing.html", dict(project=project, role=role))
