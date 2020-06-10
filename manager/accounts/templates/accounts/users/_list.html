@@ -15,7 +15,8 @@
         </span>
       </div>
       <div class="level-right">
-        {% if role in "MANAGER,OWNER" %}
+        {# Do not allow managers or owners to change their role or remove themselves. Can cause UX confusion. #}
+        {% if role in "MANAGER,OWNER" and request.user != user.user %}
         <div class="field has-addons">
           <div class="control">
             <div class="select is-small-mobile">
