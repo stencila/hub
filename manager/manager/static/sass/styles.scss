@@ -112,6 +112,7 @@ $input-placeholder-color: $grey;
 
 // Bulma extensions
 @import "../../../node_modules/@creativebulma/bulma-tooltip/src/sass/index.sass";
+@import "../../../node_modules/bulma-switch/src/sass/index.sass";
 
 // Custom styles
 @import "./accounts/teams/index.scss";
