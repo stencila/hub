@@ -200,20 +200,12 @@ class AccountsViewSet(
         queryset = self.get_queryset()
 
         if self.accepts_html():
-            url = (
-                (
-                    reverse("ui-accounts-list-user")
-                    if self.request.GET.get("is") == "user"
-                    else reverse("ui-accounts-list-orgs")
-                )
-                + "?"
-                + "&".join(
-                    [
-                        "{}={}".format(key, value)
-                        for key, value in self.request.GET.items()
-                        if key != "is" and value
-                    ]
-                )
+            url = "?" + "&".join(
+                [
+                    "{}={}".format(key, value)
+                    for key, value in self.request.GET.items()
+                    if key != "is" and value
+                ]
             )
             return Response(dict(accounts=queryset), headers={"X-HX-Push": url})
         else:
