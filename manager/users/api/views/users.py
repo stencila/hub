@@ -7,12 +7,16 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from manager.api.helpers import HtmxMixin
 from users.api.serializers import MeSerializer, UserSerializer
 from users.models import User
 
 
 class UsersViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
+    HtmxMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
 ):
     """
     A view set for users.
@@ -28,15 +32,15 @@ class UsersViewSet(
 
     def get_queryset(self) -> QuerySet:
         """Get all users, or only those matching the search query (if provided)."""
-        query = self.request.query_params.get("search")
-        if query is None:
+        search = self.request.GET.get("search")
+        if search is None:
             return User.objects.all()
 
         return User.objects.filter(
-            Q(username__icontains=query)
-            | Q(first_name__icontains=query)
-            | Q(last_name__icontains=query)
-            | Q(email__icontains=query)
+            Q(username__icontains=search)
+            | Q(first_name__icontains=search)
+            | Q(last_name__icontains=search)
+            | Q(email__icontains=search)
         )
 
     def get_serializer_class(self):
@@ -68,13 +72,8 @@ class UsersViewSet(
         """
         queryset = self.get_queryset()
 
-        template = request.query_params.get("html")
-        if template is not None:
-            return render(
-                request,
-                template or "users/_search_results.html",
-                dict(queryset=queryset),
-            )
+        if self.accepts_html():
+            return Response(dict(queryset=queryset))
         else:
             pages = self.paginate_queryset(queryset)
             serializer = self.get_serializer(pages, many=True)

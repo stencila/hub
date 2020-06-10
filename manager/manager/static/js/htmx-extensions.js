@@ -4,6 +4,8 @@
 htmx.defineExtension('stencila', {
   /**
    * Encode parameters as JSON and add XHR headers prior to sending.
+   * This is only used for POST, PATCH and PUT requests that have a body.
+   * See below for how headers are set for all requests (including GET)
    * 
    * Based on https://github.com/bigskysoftware/htmx/blob/master/src/ext/json-enc.js
    * 
@@ -12,13 +14,6 @@ htmx.defineExtension('stencila', {
    * 
    * - Sets the `X-CSRFToken` header.
    *   See https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax
-   * 
-   * - Sets the `Accept` header so that we get HTML back from the API
-   *   instead of JSON
-   * 
-   * - Looks for the closest `stencila-template` attribute and sends it as `X-Template`
-   *   Akin to https://github.com/bigskysoftware/htmx/blob/master/src/ext/client-side-templates.js
-   *   but server-side.
    */
   encodeParameters : function(xhr, parameters, elt) {
     xhr.overrideMimeType('text/json');
@@ -39,18 +34,33 @@ htmx.defineExtension('stencila', {
     }
     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
 
-    xhr.setRequestHeader("Accept", 'text/html');
-
-    var serverTemplate = htmx.closest(elt, "[hx-template]");
-    if (serverTemplate) {
-      var templateName = serverTemplate.getAttribute('hx-template');
-      xhr.setRequestHeader("X-HX-Template", templateName);
-    }
-
     return JSON.stringify(parameters);
   },
   onEvent : function(name, evt) {
-    if (name == 'beforeOnLoad.htmx') {
+    if (name == 'beforeRequest.htmx') {
+      /**
+       * This event is triggered before an AJAX request is issued.
+       * If the event is cancelled, no request will occur.
+       *
+       * - Sets the `Accept` header so that we get HTML back from the API
+       *   instead of JSON
+       * 
+       * - Looks for the closest `stencila-template` attribute and sends it as `X-Template`
+       *   Akin to https://github.com/bigskysoftware/htmx/blob/master/src/ext/client-side-templates.js
+       *   but server-side.
+       */
+      var xhr = evt.detail.xhr;
+      var elt = evt.detail.elt;
+
+      xhr.setRequestHeader("Accept", 'text/html');
+
+      var serverTemplate = htmx.closest(elt, "[hx-template]");
+      if (serverTemplate) {
+        var templateName = serverTemplate.getAttribute('hx-template');
+        xhr.setRequestHeader("X-HX-Template", templateName);
+      }
+    }
+    else if (name == 'beforeOnLoad.htmx') {
       // This event is triggered before any new content has been swapped
       // into the DOM.
       var xhr = evt.detail.xhr;

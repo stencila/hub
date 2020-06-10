@@ -11,8 +11,8 @@ Inspired by Github's user search field (amongst others).
   <div class="dropdown-trigger">
     <div class="control has-icons-left has-icons-right">
       <input class="input" type="text" name="search" placeholder="Search by username, full name, or email"
-             hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-indicator="#user-search .htmx-indicator"
-             hx-target="#user-search .dropdown-menu">
+             hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-template="users/_search_results.html"
+             hx-indicator="#user-search .htmx-indicator" hx-target="#user-search .dropdown-menu">
       <span class="icon is-small is-left">
         <i class="ri-search-line"></i>
       </span>
@@ -29,7 +29,6 @@ Inspired by Github's user search field (amongst others).
     // Add query parameters to search
     $search.querySelector('input[name=search]').addEventListener('configRequest.htmx', function(event) {
       event.detail.parameters['limit'] = '30';
-      event.detail.parameters['html'] = 'users/_search_results.html';
     });
     // Update the `input[name=user]` when a dropdown item is selected
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {

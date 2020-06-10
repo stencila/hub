@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import reverse
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
@@ -83,10 +83,15 @@ class AccountsViewSet(
         For `list`, returns **all** accounts (i.e. the
         list of accounts is treated as public).
         """
-        if self.action == "list":
-            return Account.objects.all()
-        else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+        queryset = Account.objects.all()
+
+        search = self.request.GET.get("search", None)
+        if search is not None:
+            queryset = queryset.filter(
+                Q(name__icontains=search) | Q(display_name__icontains=search)
+            )
+
+        return queryset
 
     def get_object(self):
         """
@@ -162,7 +167,13 @@ class AccountsViewSet(
 
         Returns a list of accounts.
         """
-        return super().list(request, *args, **kwargs)
+        queryset = self.get_queryset()
+
+        if self.accepts_html():
+            return Response(dict(accounts=queryset))
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
 
     def create(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -172,7 +183,7 @@ class AccountsViewSet(
         """
         serializer = self.get_serializer(data=request.data)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.CREATED
@@ -208,7 +219,7 @@ class AccountsViewSet(
         account = self.get_object()
         serializer = self.get_serializer(account, data=request.data, partial=True)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.UPDATED
@@ -312,7 +323,7 @@ class AccountsUsersViewSet(
 
         # TODO: Check that the user is not already an account user
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.CREATED
@@ -330,7 +341,7 @@ class AccountsUsersViewSet(
         account_user = self.get_object()
         serializer = self.get_serializer(account_user, data=request.data, partial=True)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.UPDATED
@@ -353,7 +364,7 @@ class AccountsUsersViewSet(
 
         # TODO: Check that there is at least one admin left on the account
 
-        if self.is_html():
+        if self.accepts_html():
             account_user.delete()
             status = self.DESTROYED  # TODO: Can't use DESTROYED because HTMX ignores it
             return Response(dict(account=account, role=role), status=200)
@@ -495,7 +506,7 @@ class AccountsTeamsViewSet(
         account = self.get_account()
         serializer = self.get_serializer(data=request.data)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.CREATED
@@ -535,7 +546,7 @@ class AccountsTeamsViewSet(
         account, role, team = self.get_account_role_team()
         serializer = self.get_serializer(team, data=request.data, partial=True)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 serializer.save()
                 status = self.UPDATED
@@ -566,7 +577,7 @@ class AccountsTeamsViewSet(
         account, role, team = self.get_account_role_team()
         serializer = self.get_serializer(team, data=request.data)
 
-        if self.is_html():
+        if self.accepts_html():
             if serializer.is_valid():
                 team.delete()
                 status = self.DESTROYED
@@ -625,7 +636,7 @@ class AccountsTeamsMembersViewSet(HtmxMixin, viewsets.GenericViewSet):
         For HTML requests, adds the account and team to the template
         context. For JSON requests, returns an empty response.
         """
-        if self.is_html():
+        if self.accepts_html():
             role = self.get_role(team)
             return Response(dict(account=team.account, role=role, team=team))
         else:

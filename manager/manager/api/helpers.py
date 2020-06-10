@@ -31,8 +31,8 @@ class HtmxMixin:
         so that we can re-use of the permissions and filtering logic defined
         in the DRF view sets within templated views e.g.
 
-        viewset = AccountsViewSet.init("create", request, args, kwargs)
-        serializer.get_serializer()
+            viewset = AccountsViewSet.init("create", request, args, kwargs)
+            serializer.get_serializer()
 
         """
         vs = cls()
@@ -43,7 +43,7 @@ class HtmxMixin:
         vs.format_kwarg = None
         return vs
 
-    def is_html(self):
+    def accepts_html(self):
         return self.request.META.get("HTTP_ACCEPT") == "text/html"
 
     def get_template_names(self):
