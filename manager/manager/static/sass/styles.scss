@@ -322,7 +322,7 @@ $input-placeholder-color: $grey;
 }
 
 .has-text-link-hover:hover {
-  @extends transition-colors;
+  @extend .transition-colors;
   color: $link !important;
 }
 
