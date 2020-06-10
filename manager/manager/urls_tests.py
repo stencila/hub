@@ -58,15 +58,10 @@ def skip(path, *args, **kwargs):
 checks = [
     Check(
         "/",
-        anon=title("Home"),
-        ada=title("Home")
+        anon=signin,
+        ada=title("ada")
     ),
     # User `me` namespace URLs
-    Check(
-        "/me",
-        anon=signin,
-        ada=title("Personal settings")
-    ),
     Check(
         "/me/username/change/",
         anon=signin,
