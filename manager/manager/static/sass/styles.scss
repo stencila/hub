@@ -321,6 +321,10 @@ $input-placeholder-color: $grey;
   text-overflow: ellipsis;
 }
 
+.button {
+  @extend .transition-colors;
+}
+
 .has-text-link-hover:hover {
   @extend .transition-colors;
   color: $link !important;
