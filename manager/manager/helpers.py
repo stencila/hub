@@ -1,6 +1,6 @@
 import enum
 import re
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from django.db.models import Model, QuerySet
 from django.template.defaultfilters import slugify
@@ -28,7 +28,7 @@ class EnumChoice(enum.Enum):
 
 def slug_strip(value: str, separator: str = "-") -> str:
     """
-    Clean up a slug by removing slug separator characters at beginning or end.
+    Clean up a slug by removing slug separator characters.
 
     If an alternate separator is used, it will also replace any instances of
     the default '-' separator with the new separator.
@@ -50,42 +50,79 @@ def slug_strip(value: str, separator: str = "-") -> str:
     return value
 
 
+def slug_start_dedigit(value: str):
+    """
+    Replace the first leading digit with the number as a word.
+
+    This avoids having a slugs that looks the same as numeric ids in
+    URLs (e.g. for accounts, projects). But, mainly for aesthetics,
+    will also prevent any names with leading digits. 
+    """
+    return re.sub(
+        r"^\d",
+        lambda match: {
+            "0": "zero",
+            "1": "one",
+            "2": "two",
+            "3": "three",
+            "4": "four",
+            "5": "five",
+            "6": "six",
+            "7": "seven",
+            "8": "eight",
+            "9": "nine",
+        }[match.group(0)]
+        + "-"
+        if len(value) > 0
+        else "",
+        value,
+    )
+
+
 def unique_slugify(
-    instance: Model,
     value: str,
-    slug_field_name: str = "slug",
+    instance: Model = None,
     queryset: QuerySet = None,
+    slug_field_name: str = "name",
+    slug_len: Optional[str] = None,
     slug_separator: str = "-",
 ) -> str:
     """
-    Calculate and store a unique slug of ``value`` for an instance.
+    Calculate a unique slug of ``value``.
+
+    ``queryset`` doesn't need to be provided if instance is  - it'll default
+    to using the ``.all()`` queryset from the model's default manager.
 
     ``slug_field_name`` should be a string matching the name of the field to
     store the slug in (and the field to check against for uniqueness).
 
-    ``queryset`` usually doesn't need to be explicitly provided - it'll default
-    to using the ``.all()`` queryset from the model's default manager.
-
     From https://djangosnippets.org/snippets/690/ with some modifications:
+    - does not require an instance (can be used for input validation)
     - returns the slug instead of setting the field
     """
-    slug_field = instance._meta.get_field(slug_field_name)
-
-    slug = getattr(instance, slug_field.attname)
-    slug_len = slug_field.max_length
+    if slug_len is None:
+        if instance:
+            slug_len = instance._meta.get_field(slug_field_name).max_length
+        else:
+            slug_len = 256
 
     # Sort out the initial slug, limiting its length if necessary.
     slug = slugify(value)
+    slug = re.sub("_", slug_separator, slug)
     if slug_len:
         slug = slug[:slug_len]
     slug = slug_strip(slug, slug_separator)
+    slug = slug_start_dedigit(slug)
     original_slug = slug
 
     # Create the queryset if one wasn't explicitly provided and exclude the
     # current instance from the queryset.
     if queryset is None:
-        queryset = instance.__class__._default_manager.all()
-    if instance.pk:
+        if instance:
+            queryset = instance.__class__._default_manager.all()
+        else:
+            raise RuntimeError("Must provide queryset or instance")
+    if instance and instance.pk:
         queryset = queryset.exclude(pk=instance.pk)
 
     # Find a unique slug. If one matches, at '-2' to the end and try again

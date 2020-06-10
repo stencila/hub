@@ -17,3 +17,8 @@ class Paths(enum.Enum):
     orgs = "orgs"
     projects = "projects"
     users = "users"
+
+    @classmethod
+    def has(cls, value: str):
+        """Check if this enum has a value."""
+        return value in cls._value2member_map_

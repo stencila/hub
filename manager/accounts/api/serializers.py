@@ -3,6 +3,8 @@ from rest_framework import exceptions, serializers
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
+from manager.helpers import unique_slugify
+from manager.paths import Paths
 from users.api.serializers import UserIdentifierSerializer, UserSerializer
 from users.models import User
 
@@ -142,7 +144,11 @@ class AccountSerializer(serializers.ModelSerializer):
     A serializer for accounts.
 
     Includes only basic model fields.
+    Checks that the account `name` is not a reserved path
+    and not already in use.
     """
+
+    name = serializers.CharField(help_text=Account._meta.get_field("name").help_text)
 
     class Meta:
         model = Account
@@ -160,6 +166,49 @@ class AccountSerializer(serializers.ModelSerializer):
             "theme",
             "hosts",
         ]
+
+    def validate_name(self, name):
+        """
+        Slugify and validate the name field.
+        
+        The `unique_slugify` function will automatically avoid
+        duplication (by appending digits). To let the user know
+        of similar account names, we manually check for duplicates
+        before that is called.
+        """
+        if Paths.has(name):
+            raise exceptions.ValidationError(
+                "Account name '{0}' is unavailable.".format(name)
+            )
+
+        if (
+            Account.objects.filter(name=name)
+            .exclude(id=self.instance.id if self.instance else None)
+            .count()
+        ):
+            raise exceptions.ValidationError(
+                "Account name '{0}' is already in use.".format(name)
+            )
+
+        name = unique_slugify(
+            name, instance=self.instance, queryset=Account.objects.all()
+        )
+
+        MIN_LENGTH = 3
+        if len(name) < MIN_LENGTH:
+            raise exceptions.ValidationError(
+                "Account name must have at least {0} valid characters.".format(
+                    MIN_LENGTH
+                )
+            )
+
+        MAX_LENGTH = 64
+        if len(name) > MAX_LENGTH:
+            raise exceptions.ValidationError(
+                "Account name must be less than {0} characters long.".format(MAX_LENGTH)
+            )
+
+        return name
 
 
 class AccountCreateSerializer(AccountSerializer):

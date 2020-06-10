@@ -47,7 +47,9 @@ class Account(models.Model):
         null=False,
         blank=False,
         unique=True,
-        help_text="Name of the account. Lowercase only. Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
+        max_length=64,
+        help_text="Name of the account. Lowercase and no spaces or leading numbers. "
+        "Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
     )
 
     image = ImageField(
@@ -120,7 +122,7 @@ class Account(models.Model):
         - Ensure that name is unique
         - Create an image if the account does not have one
         """
-        self.name = unique_slugify(self, self.name, slug_field_name="name")
+        self.name = unique_slugify(self.name, instance=self)
 
         if not self.image:
             file = ContentFile(customidenticon.create(self.name, size=5))
@@ -257,9 +259,8 @@ class AccountTeam(models.Model):
         Ensures that name is unique within the account.
         """
         self.name = unique_slugify(
-            self,
             self.name,
-            slug_field_name="name",
+            instance=self,
             queryset=AccountTeam.objects.filter(account=self.account),
         )
         return super().save(*args, **kwargs)
