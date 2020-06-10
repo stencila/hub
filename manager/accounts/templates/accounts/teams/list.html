@@ -52,7 +52,7 @@
             </p>
             {% endif %}
 
-            {% with member_slice=3 member_slice_string="-3" %}
+            {% with member_slice=7 member_slice_string="-7" %}
             <ul class="accounts--team-member-list__horizontal">
               {% for member in team.members.all|slice:member_slice %}
               <li class="accounts--team-member-list-item__horizontal">
