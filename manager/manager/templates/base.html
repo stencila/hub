@@ -147,7 +147,8 @@
             </div>
             {% else %}
             <div class="navbar-item has-dropdown is-hoverable">
-              <a class="navbar-link" href="{% url 'ui-users-settings' %}" alt="{% trans "User profile settings" %}">
+              <a class="navbar-link" href="{% url 'ui-accounts-retrieve' user.username %}"
+                 alt="{% trans "Your user profile" %}">
                 {% if user.personal_account.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
                   <img class="is-rounded" src="{{ user.personal_account.image.small }}" alt="Your profile image">
@@ -161,9 +162,10 @@
                 {% endif %}
               </a>
               <div class="navbar-dropdown">
-                <span class="navbar-item is-hidden-mobile">
+                <a class="navbar-item is-hidden-mobile" href="{% url 'ui-accounts-retrieve' user.username %}"
+                   alt="{% trans "Your user profile" %}">
                   Signed in as&nbsp;<strong>{{ user.username }}</strong>
-                </span>
+                </a>
                 <hr class="navbar-divider">
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-update' user.username %}">
                   <span class="icon">
