@@ -97,6 +97,8 @@
             </a>
           </div>
           <div class="navbar-end">
+
+            {% if user.is_authenticated %}
             <div class="navbar-item has-dropdown is-hoverable">
               <a class="navbar-link is-arrowless">
                 <span class="icon">
@@ -123,20 +125,27 @@
                 </a>
               </div>
             </div>
+            {% endif %}
 
             {% if user.is_anonymous %}
             <div class="navbar-item">
-              {% url 'ui-users-signin' as user_signin_url %}
               <div class="buttons">
-                <a class="button {% if request.path != user_signin_url %}is-primary{% endif %} has-text-weight-bold"
-                   href="{% url 'ui-users-signin' %}" {% if request.path == user_signin_url %}disabled{% endif %}>
-                  <span class="icon">
-                    <i class="ri-login-box-line" aria-hidden="true"></i>
-                  </span>
-                  <span>
-                    {% trans "Sign in" %}
-                  </span>
+                {% url 'ui-users-signin' as user_signin_url %}
+                {% url 'ui-users-signup' as user_signup_url %}
+
+                {% if request.path != user_signin_url %}
+                <a class="button is-primary is-outlined has-text-weight-bold" href="{% url 'ui-users-signin' %}"
+                   {% if request.path == user_signin_url %}disabled{% endif %}>
+                  {% trans "Sign in" %}
                 </a>
+                {% endif %}
+
+                {% if request.path != user_signup_url %}
+                <a class="button is-primary {% if request.path == user_signin_url %}is-outlined{% endif %} has-text-weight-bold"
+                   href="{% url 'ui-users-signup' %}">
+                  {% trans "Sign up" %}
+                </a>
+                {% endif %}
               </div>
             </div>
             {% else %}
