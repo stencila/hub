@@ -55,6 +55,14 @@ class HtmxMixin:
             return [template]
         return ["api/_default.html"]
 
+    def get_success_headers(self, serializer):
+        location = self.get_success_url(serializer)
+        if location:
+            headers = {"Location": location}
+        else:
+            headers = {}
+        return headers
+
 
 class HtmxListMixin:
     def list(self, request: Request, *args, **kwargs) -> Response:
@@ -73,7 +81,7 @@ class HtmxListMixin:
                     if value
                 ]
             )
-            return Response({self.queryset: queryset}, headers={"X-HX-Push": url})
+            return Response({self.queryset_name: queryset}, headers={"X-HX-Push": url})
         else:
             pages = self.paginate_queryset(queryset)
             serializer = self.get_serializer(pages, many=True)
@@ -93,7 +101,7 @@ class HtmxCreateMixin:
             if serializer.is_valid():
                 serializer.save()
                 status = self.CREATED
-                headers = {"Location": self.get_success_url(serializer)}
+                headers = self.get_success_headers(serializer)
             else:
                 status = self.INVALID
                 headers = {}
@@ -119,7 +127,7 @@ class HtmxUpdateMixin:
             if serializer.is_valid():
                 serializer.save()
                 status = self.UPDATED
-                headers = {"Location": self.get_success_url(serializer)}
+                headers = self.get_success_headers(serializer)
             else:
                 status = self.INVALID
                 headers = {}
@@ -149,11 +157,15 @@ class HtmxDestroyMixin:
             if serializer.is_valid():
                 instance.delete()
                 status = self.DESTROYED
+                headers = self.get_success_headers(serializer)
             else:
                 status = self.INVALID
+                headers = {}
 
             return Response(
-                {self.object_name: instance, "serializer": serializer}, status=status
+                {self.object_name: instance, "serializer": serializer},
+                status=status,
+                headers=headers,
             )
         else:
             serializer.is_valid(raise_exception=True)

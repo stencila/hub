@@ -144,10 +144,19 @@ class ProjectsViewSet(
             raise RuntimeError("Unexpected action {}".format(self.action))
 
     def get_success_url(self, serializer):
-        if self.action in ["create", "partial_update"]:
+        """
+        Get the URL to use in the Location header when an action is successful.
+
+        For `create`, redirects to the "main" page for the project.
+        
+        This should only need to be used for `create`, because for other actions
+        it is possible to specify which URL to redirect to using (because the instance
+        `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
+        """
+        if self.action in ["create"]:
             project = serializer.instance
             return reverse(
-                "ui-projects-update", args=[project.account.name, project.name]
+                "ui-projects-retrieve", args=[project.account.name, project.name]
             )
         else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+            return None
