@@ -1,6 +1,10 @@
+import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
-import { terser } from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
+import { terser } from "rollup-plugin-terser";
+
+// Plugins to only include during production builds
+const prodPlugins = [terser()];
 
 export default {
   input: "manager/static/js/src/index.js",
@@ -13,8 +17,9 @@ export default {
   plugins: [
     resolve(),
     replace({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
     }),
-    terser(),
+    babel({ babelHelpers: "bundled", presets: ["@babel/preset-env"] }),
+    ...(process.env.NODE_ENV === "production" ? prodPlugins : []),
   ],
 };

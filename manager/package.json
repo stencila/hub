@@ -27,6 +27,9 @@
     "htmx.org": "0.0.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
+    "@rollup/plugin-babel": "^5.0.3",
     "@rollup/plugin-node-resolve": "8.0.0",
     "@rollup/plugin-replace": "^2.3.3",
     "browser-sync": "^2.26.7",
