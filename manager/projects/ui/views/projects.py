@@ -21,28 +21,32 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Retrieve an project."""
+    """Retrieve a project."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
-    project, role = viewset.get_project_role()
-    return render(request, "projects/retrieve.html", dict(project=project, role=role))
+    project = viewset.get_object()
+    return render(
+        request, "projects/retrieve.html", dict(project=project, role=project.role)
+    )
 
 
 @login_required
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Update an project."""
-    viewset = ProjectsViewSet.init("update", request, args, kwargs)
-    project, role = viewset.get_project_role()
+    """Update a project."""
+    viewset = ProjectsViewSet.init("partial_update", request, args, kwargs)
+    project = viewset.get_object()
     serializer = viewset.get_serializer(project)
     return render(
         request,
         "projects/update.html",
-        dict(project=project, role=role, serializer=serializer),
+        dict(project=project, role=project.role, serializer=serializer),
     )
 
 
 @login_required
 def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project's sharing settings."""
-    viewset = ProjectsViewSet.init("list", request, args, kwargs)
-    project, role = viewset.get_project_role()
-    return render(request, "projects/sharing.html", dict(project=project, role=role))
+    viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
+    project = viewset.get_object()
+    return render(
+        request, "projects/sharing.html", dict(project=project, role=project.role)
+    )

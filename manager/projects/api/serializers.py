@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountQuota
 from projects.models import Project
 
@@ -65,9 +66,27 @@ class ProjectSerializer(serializers.ModelSerializer):
         return data
 
 
+class ProjectListSerializer(ProjectSerializer):
+    """
+    Serializer for listing projects.
+
+    Includes the role of the user making the request.
+    """
+
+    role = serializers.CharField(
+        read_only=True, help_text="Role of the current user on the project (if any)."
+    )
+
+    account = AccountListSerializer()
+
+    class Meta:
+        model = Project
+        fields = ProjectSerializer.Meta.fields + ["role"]
+
+
 class ProjectCreateSerializer(ProjectSerializer):
     """
-    Serializer used when creating a project.
+    Serializer for creating a project.
 
     Set's the request user as the project creator.
     """
@@ -79,9 +98,14 @@ class ProjectCreateSerializer(ProjectSerializer):
         fields = ProjectSerializer.Meta.fields + ["creator"]
 
 
+ProjectRetrieveSerializer = ProjectSerializer
+
+ProjectUpdateSerializer = ProjectSerializer
+
+
 class ProjectDestroySerializer(serializers.Serializer):
     """
-    Serializer used when destroying a project.
+    Serializer for destroying a project.
 
     Requires the `name` of the project as confirmation that the user
     really wants to destroy it.

@@ -84,6 +84,7 @@ class ProjectRole(EnumChoice):
     COMMENTER = "Commenter"
     SUGGESTER = "Suggester"
     AUTHOR = "Author"
+    MANAGER = "Manager"
     OWNER = "Owner"
 
     @classmethod
@@ -94,6 +95,7 @@ class ProjectRole(EnumChoice):
             cls.COMMENTER.name: "Project commenter",
             cls.SUGGESTER.name: "Project suggester",
             cls.AUTHOR.name: "Project author",
+            cls.MANAGER.name: "Project manager",
             cls.OWNER.name: "Project owner",
         }[role.name]
 
@@ -114,6 +116,8 @@ class ProjectAgent(models.Model):
 
     user = models.ForeignKey(
         User,
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
         related_name="projects",
         help_text="A user given access to the project.",
@@ -121,6 +125,8 @@ class ProjectAgent(models.Model):
 
     team = models.ForeignKey(
         AccountTeam,
+        null=True,
+        blank=True,
         on_delete=models.CASCADE,
         related_name="projects",
         help_text="A team given access to the project.",
@@ -137,6 +143,6 @@ class ProjectAgent(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["project", "user", "team"], name="unique_agent"
+                fields=["project", "user", "team"], name="unique_project_agent"
             )
         ]

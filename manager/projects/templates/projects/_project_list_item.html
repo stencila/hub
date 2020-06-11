@@ -1,7 +1,16 @@
-<a href="{% url 'ui-projects-retrieve' project.account.name project.name %}"
+{% load i18n %}
+
+{% with account=project.account %}
+<a href="{% url 'ui-projects-retrieve' account.name project.name %}"
    class="collection-list--item-contents transition-colors">
   <h2 class="title is-size-5-mobile is-4">
-    {{ project.name|default:"Untitled Project" }}
+    <span class="icon is-medium has-tooltip-top has-tooltip-text-centered image-tooltip"
+          data-tooltip="Project belongs to @{{ account.name }}">
+      <img src="{{ account.image.medium }}" role="presentation"></img>
+    </span>
+
+    {{ project.title|default:project.name|default:"Untitled Project" }}
+
     {% if project.public == False %}
     <span class="tag is-light">
       <span class="icon">
@@ -12,9 +21,21 @@
       </span>
     </span>
     {% endif %}
+
+    {% if project.role %}
+    {% with role=project.role %}
+    <span class="tag is-light {% if role == 'MANAGER' %}has-background-warning-light{% elif role == 'OWNER' %}has-background-danger-light{% endif %} has-tooltip-top has-tooltip-text-centered image-tooltip"
+          data-tooltip="{% blocktrans %}You are a {{ role }} on this project{% endblocktrans %}">
+      <span class="icon is-small">
+        <i class="ri-user{% if role == 'MANAGER' %}-star{% elif role == 'OWNER' %}-settings{% endif %}-line"></i>
+      </span>
+    </span>
+    {% endwith %}
+    {% endif %}
   </h2>
 
   <p class="subtitle is-size-6">
     {{ project.description|default:"This project does not have a description."|truncatechars:180 }}
   </p>
 </a>
+{% endwith %}
