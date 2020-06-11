@@ -17,10 +17,11 @@ class HtmxMixin:
 
     # If these codes are changed, they need to also be changed in
     # 'static/js/htmx-extensions.js`
+    # Can't use 204 for destroyed because `htmx` ignores that code
     CREATED = 201
     RETRIEVED = 200
     UPDATED = 210
-    DESTROYED = 211  # Can't used 204 here because htmx ignores that
+    DESTROYED = 211
     INVALID = 212
 
     @classmethod
@@ -110,7 +111,30 @@ class HtmxCreateMixin:
         else:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=self.CREATED)
+            return Response(serializer.data, status=201)
+
+
+class HtmxRetrieveMixin:
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Retrieve an object.
+
+        Returns data for the object.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        if self.accepts_html():
+            headers = self.get_success_headers(serializer)
+            return Response(
+                {self.object_name: instance, "serializer": serializer},
+                status=status,
+                headers=headers,
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 
 class HtmxUpdateMixin:
@@ -140,7 +164,7 @@ class HtmxUpdateMixin:
         else:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=self.UPDATED)
+            return Response(serializer.data)
 
 
 class HtmxDestroyMixin:
@@ -170,7 +194,7 @@ class HtmxDestroyMixin:
         else:
             serializer.is_valid(raise_exception=True)
             obj.delete()
-            return Response(status=self.DESTROYED)
+            return Response(status=204)
 
 
 def filter_from_ident(

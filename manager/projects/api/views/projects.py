@@ -10,6 +10,7 @@ from manager.api.helpers import (
     HtmxDestroyMixin,
     HtmxListMixin,
     HtmxMixin,
+    HtmxRetrieveMixin,
     HtmxUpdateMixin,
     filter_from_ident,
 )
@@ -27,7 +28,7 @@ class ProjectsViewSet(
     HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
-    mixins.RetrieveModelMixin,
+    HtmxRetrieveMixin,
     HtmxUpdateMixin,
     HtmxDestroyMixin,
     viewsets.GenericViewSet,
@@ -47,7 +48,7 @@ class ProjectsViewSet(
         Get the permissions that the current action requires.
 
         Actions `list` and `retrive` do not require authentication (although
-        the data returned is restricted).
+        the data returned is restricted based on role).
         """
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
@@ -115,8 +116,11 @@ class ProjectsViewSet(
         """
         Get the project.
 
-        Uses `get_queryset` to ensure the same access restrictions
-        are applied when getting an individual project.
+        For all actions, uses `get_queryset` to ensure the same access
+        restrictions are applied when getting an individual project.
+
+        For `partial-update` and `destroy`, further checks that the user
+        is a project MANAGER or OWNER.
         """
         filter = filter_from_ident(self.kwargs["project"])
 
@@ -126,11 +130,21 @@ class ProjectsViewSet(
         elif "id" not in filter:
             raise RuntimeError("Must provide project id if not providing account")
 
-        return self.get_queryset().get(**filter)
+        instance = self.get_queryset().get(**filter)
+
+        if (
+            self.action == "partial_update"
+            and instance.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name]
+        ) or (self.action == "destroy" and instance.role != ProjectRole.OWNER.name):
+            raise exceptions.PermissionDenied
+
+        return instance
 
     def get_serializer_class(self):
         """
         Get the serializer class for the current action.
+
+        For this class, each action has it's own serializer.
         """
         try:
             return {
