@@ -12,6 +12,11 @@
     "start": "concurrently \"npm:watch:css\" \"npm:watch:js\" \"npm:watch:serve\"",
     "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html **/templates/**/**/*.html"
   },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not IE_Mob 11"
+  ],
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "^2.4.2",
