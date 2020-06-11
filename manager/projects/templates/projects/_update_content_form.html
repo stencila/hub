@@ -1,0 +1,7 @@
+{% comment %}
+Form to update the content related fields fields of a project.
+{% endcomment %}
+<form hx-patch="{% url 'api-projects-detail' project.id %}" hx-template="projects/_update_content_form.html">
+  {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

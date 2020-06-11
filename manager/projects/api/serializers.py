@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountQuota
@@ -26,12 +26,13 @@ class ProjectSerializer(serializers.ModelSerializer):
     account = ProjectAccountField(help_text="The account that the project is owned by.")
 
     public = serializers.BooleanField(
-        default=False, help_text="Should the project is publically visible?"
+        default=True, help_text="Should the project is publically visible?"
     )
 
     theme = serializers.ChoiceField(
         choices=[],  # TODO
         allow_blank=True,
+        required=False,
         help_text="The default theme for the project.",
     )
 
@@ -58,10 +59,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             public = self.instance.public
         assert public is not None
 
-        AccountQuota.PROJECTS_TOTAL.check(account)
+        # TODO
+        # AccountQuota.PROJECTS_TOTAL.check(account)
 
-        if not public:
-            AccountQuota.PROJECTS_PRIVATE.check(account)
+        # TODO
+        # #if not public:
+        #    AccountQuota.PROJECTS_PRIVATE.check(account)
 
         return data
 
@@ -114,3 +117,10 @@ class ProjectDestroySerializer(serializers.Serializer):
     name = serializers.CharField(
         help_text="Confirm by providing the name of the project to be destroyed."
     )
+
+    def validate_name(self, value):
+        """Validate that the provided name matches."""
+        if value != self.instance.name:
+            raise exceptions.ValidationError(
+                dict(name="Provided name does not match the project name.")
+            )

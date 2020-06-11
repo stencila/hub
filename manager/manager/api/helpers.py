@@ -15,12 +15,12 @@ class HtmxMixin:
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
-    # If these codes are changed, they need to also be changed in 
+    # If these codes are changed, they need to also be changed in
     # 'static/js/htmx-extensions.js`
     CREATED = 201
     RETRIEVED = 200
     UPDATED = 210
-    DESTROYED = 211 # Can't used 204 here because htmx ignores that
+    DESTROYED = 211  # Can't used 204 here because htmx ignores that
     INVALID = 212
 
     @classmethod
@@ -56,6 +56,30 @@ class HtmxMixin:
         return ["api/_default.html"]
 
 
+class HtmxListMixin:
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        """
+        List objects.
+
+        Returns a list of objects.
+        """
+        queryset = self.get_queryset()
+
+        if self.accepts_html():
+            url = "?" + "&".join(
+                [
+                    "{}={}".format(key, value)
+                    for key, value in self.request.GET.items()
+                    if value
+                ]
+            )
+            return Response({self.queryset: queryset}, headers={"X-HX-Push": url})
+        else:
+            pages = self.paginate_queryset(queryset)
+            serializer = self.get_serializer(pages, many=True)
+            return self.get_paginated_response(serializer.data)
+
+
 class HtmxCreateMixin:
     def create(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -79,6 +103,62 @@ class HtmxCreateMixin:
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=self.CREATED)
+
+
+class HtmxUpdateMixin:
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update an object.
+
+        Returns data for the updated object.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+        if self.accepts_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.UPDATED
+                headers = {"Location": self.get_success_url(serializer)}
+            else:
+                status = self.INVALID
+                headers = {}
+
+            return Response(
+                {self.object_name: instance, "serializer": serializer},
+                status=status,
+                headers=headers,
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.UPDATED)
+
+
+class HtmxDestroyMixin:
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Destroy an object.
+
+        Returns an empty response.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+
+        if self.accepts_html():
+            if serializer.is_valid():
+                instance.delete()
+                status = self.DESTROYED
+            else:
+                status = self.INVALID
+
+            return Response(
+                {self.object_name: instance, "serializer": serializer}, status=status
+            )
+        else:
+            serializer.is_valid(raise_exception=True)
+            obj.delete()
+            return Response(status=self.DESTROYED)
 
 
 def filter_from_ident(

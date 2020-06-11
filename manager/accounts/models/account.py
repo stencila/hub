@@ -148,13 +148,13 @@ class Account(models.Model):
         return super().save(*args, **kwargs)
 
 
-def make_account_creator_an_administrator(
+def make_account_creator_an_owner(
     sender, instance: Account, created: bool, *args, **kwargs
 ):
     """
-    Make the account create an administrator.
+    Make the account create an owner.
 
-    Makes sure each account has at least one administrator.
+    Makes sure each account has at least one owner.
     """
     if sender is Account and created and instance.creator:
         AccountUser.objects.create(
@@ -162,7 +162,7 @@ def make_account_creator_an_administrator(
         )
 
 
-post_save.connect(make_account_creator_an_administrator, sender=Account)
+post_save.connect(make_account_creator_an_owner, sender=Account)
 
 
 def create_personal_account_for_user(

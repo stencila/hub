@@ -5,7 +5,14 @@ from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from manager.api.helpers import HtmxMixin, filter_from_ident
+from manager.api.helpers import (
+    HtmxCreateMixin,
+    HtmxDestroyMixin,
+    HtmxListMixin,
+    HtmxMixin,
+    HtmxUpdateMixin,
+    filter_from_ident,
+)
 from projects.api.serializers import (
     ProjectCreateSerializer,
     ProjectDestroySerializer,
@@ -17,7 +24,13 @@ from projects.models import Project, ProjectRole
 
 
 class ProjectsViewSet(
-    HtmxMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
+    HtmxMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    mixins.RetrieveModelMixin,
+    HtmxUpdateMixin,
+    HtmxDestroyMixin,
+    viewsets.GenericViewSet,
 ):
     """
     A view set for projects.
@@ -25,9 +38,9 @@ class ProjectsViewSet(
     Provides basic CRUD views for projects.
     """
 
-    # Configuration
-
     lookup_url_kwarg = "project"
+    object_name = "project"
+    queryset_name = "projects"
 
     def get_permissions(self):
         """
@@ -105,10 +118,15 @@ class ProjectsViewSet(
         Uses `get_queryset` to ensure the same access restrictions
         are applied when getting an individual project.
         """
-        return self.get_queryset().get(
-            **filter_from_ident(self.kwargs["account"], prefix="account"),
-            **filter_from_ident(self.kwargs["project"])
-        )
+        filter = filter_from_ident(self.kwargs["project"])
+
+        account = self.kwargs.get("account")
+        if account:
+            filter.update(**filter_from_ident(account, prefix="account"))
+        elif "id" not in filter:
+            raise RuntimeError("Must provide project id if not providing account")
+
+        return self.get_queryset().get(**filter)
 
     def get_serializer_class(self):
         """
@@ -125,26 +143,11 @@ class ProjectsViewSet(
         except KeyError:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
-    # Views
-
-    def list(self, request: Request, *args, **kwargs) -> Response:
-        """
-        List project.
-
-        Returns a list of project.
-        """
-        queryset = self.get_queryset()
-
-        if self.accepts_html():
-            url = "?" + "&".join(
-                [
-                    "{}={}".format(key, value)
-                    for key, value in self.request.GET.items()
-                    if value
-                ]
+    def get_success_url(self, serializer):
+        if self.action in ["create", "partial_update"]:
+            project = serializer.instance
+            return reverse(
+                "ui-projects-update", args=[project.account.name, project.name]
             )
-            return Response(dict(projects=queryset), headers={"X-HX-Push": url})
         else:
-            pages = self.paginate_queryset(queryset)
-            serializer = self.get_serializer(pages, many=True)
-            return self.get_paginated_response(serializer.data)
+            raise RuntimeError("Unexpected action {}".format(self.action))

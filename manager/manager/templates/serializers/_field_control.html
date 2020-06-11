@@ -1,8 +1,23 @@
 {% load stencila %}
 
 <div class="control {% if icon %}has-icons-left{% endif %}">
-  {% if elemment == "select" %}
-  TODO:
+  {% if element == "select" %}
+  <div class="select">
+    <select id="{{ field_id }}" name="{{ field.name }}">
+      {% if field.allow_null or field.allow_blank %}
+      <option value="" {% if not field.value %}selected{% endif %}>--------</option>
+      {% endif %}
+      {% for select in field.iter_options %}
+      {% if select.start_option_group %}
+      <optgroup label="{{ select.label }}">
+        {% elif select.end_option_group %}
+      </optgroup>
+      {% else %}
+      <option value="{{ select.value }}">{{ select.display_text }}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
   {% elif element == "textarea" %}
   <textarea id="{{ field_id }}" class="textarea" name="{{ field.name }}"
             {% if placeholder %}placeholder="{{ placeholder }}" {% endif %}{% if autofocus %}

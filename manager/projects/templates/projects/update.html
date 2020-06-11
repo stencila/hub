@@ -6,32 +6,18 @@
 {% block projects_content %}
 <h1 class="title">{% trans "Project Settings" %}</h2>
 
-  {# TODO: Connect form once POST/PATCH is implemented #}
-
-  <form>
-    {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
-    {% include "serializers/_field.html" with field=serializer.description element="textarea" placeholder="Enter a project description" %}
-    {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" disabled=True %}
-  </form>
+  {% include "./_update_profile_form.html" %}
 
   <hr>
 
   <h2 class="title is-3">{% trans "Content" %}</h2>
   <p class="subtitle is-6">{% trans "Settings affecting how content is served for this project." %}</p>
 
-  {# TODO: Connect form once POST/PATCH is implemented #}
-  <form>
-    {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
-    {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" disabled=True %}
-  </form>
-
-  {% comment %}
-  TODO: Use serializer.destroy to avoid prefilling project name
-  TODO: Update HTMX callback urls once DELETE endpoint is created
+  {% include "./_update_content_form.html" %}
 
   <hr />
+
   <h2 class="title is-4 is-outlined">{% trans "Delete" %}</h2>
-  {% include "./_destroy.html" with serializer=serializer %}
-  {% endcomment %}
+  {% include "./_destroy_form.html" with serializer=destroy_serializer %}
 
   {% endblock %}

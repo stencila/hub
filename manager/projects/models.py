@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.signals import post_save
 
 from accounts.models import Account, AccountTeam
 from manager.helpers import EnumChoice
@@ -48,7 +49,7 @@ class Project(models.Model):
     )
 
     public = models.BooleanField(
-        default=False, help_text="Should the project be publicly visible?"
+        default=True, help_text="Should the project be publicly visible?"
     )
 
     description = models.TextField(
@@ -68,6 +69,23 @@ class Project(models.Model):
                 fields=["account", "name"], name="unique_project_name"
             )
         ]
+
+
+def make_project_creator_an_owner(
+    sender, instance: Project, created: bool, *args, **kwargs
+):
+    """
+    Make the project create an owner.
+
+    Makes sure each project has at least one owner.
+    """
+    if sender is Project and created and instance.creator:
+        ProjectAgent.objects.create(
+            project=instance, user=instance.creator, role=ProjectRole.OWNER.name
+        )
+
+
+post_save.connect(make_project_creator_an_owner, sender=Project)
 
 
 class ProjectRole(EnumChoice):
