@@ -8,17 +8,20 @@ from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import viewsets
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.request import Request
+from rest_framework.response import Response
 
 
 class HtmxMixin:
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
+    # If these codes are changed, they need to also be changed in 
+    # 'static/js/htmx-extensions.js`
     CREATED = 201
     RETRIEVED = 200
     UPDATED = 210
-    DESTROYED = 204
-    INVALID = 211
+    DESTROYED = 211 # Can't used 204 here because htmx ignores that
+    INVALID = 212
 
     @classmethod
     def init(
@@ -51,6 +54,31 @@ class HtmxMixin:
         if template:
             return [template]
         return ["api/_default.html"]
+
+
+class HtmxCreateMixin:
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Create an object.
+
+        Returns data for the new object.
+        """
+        serializer = self.get_serializer(data=request.data)
+
+        if self.accepts_html():
+            if serializer.is_valid():
+                serializer.save()
+                status = self.CREATED
+                headers = {"Location": self.get_success_url(serializer)}
+            else:
+                status = self.INVALID
+                headers = {}
+
+            return Response(dict(serializer=serializer), status=status, headers=headers)
+        else:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=self.CREATED)
 
 
 def filter_from_ident(

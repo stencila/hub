@@ -1,5 +1,5 @@
 <form hx-delete="{% url 'api-accounts-teams-detail' account.id team.id %}" hx-template="accounts/teams/_destroy.html"
-      hx-redirect="204:{% url 'ui-accounts-teams-list' account.id %}">
+      hx-redirect="DESTORYED:{% url 'ui-accounts-teams-list' account.id %}">
   {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" placeholder="Enter the team's name" %}
   {% include "forms/_submit.html" with text="Delete team" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile is-outlined" %}
 </form>

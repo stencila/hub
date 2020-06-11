@@ -101,6 +101,15 @@ class Account(models.Model):
         "Used for setting Content Security Policy headers when serving content for this account.",
     )
 
+    def __str__(self):
+        """
+        Get the string representation of the account.
+
+        Example of where this is used: to generate the <select>
+        <option> display text when choosing an account. 
+        """
+        return self.name
+
     @property
     def is_personal(self):
         """Is this a personal account."""

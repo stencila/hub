@@ -73,9 +73,17 @@ htmx.defineExtension('stencila', {
         for (var index = 0; index < redirectSpecs.length; index++ ){
           var redirectSpec = redirectSpecs[index];
           var redirectUrl;
-          var match = /^(\d{3}):(.+)/.exec(redirectSpec);
+          var codes = {
+            'CREATED': 201,
+            'RETRIEVED': 200,
+            'UPDATED': 210,
+            'DESTROYED': 211,
+            'INVALID': 212
+          }
+          var match = /^(CREATED|RETRIEVED|UPDATED|DESTROYED|INVALID):(.+)/.exec(redirectSpec);
           if (match !== null) {
-            if (xhr.status === parseInt(match[1])) redirectUrl = match[2];
+            var code = codes[match[1]]
+            if (xhr.status === code) redirectUrl = match[2];
           } else if (xhr.status === 200) {
             redirectUrl = redirectSpec;
           }

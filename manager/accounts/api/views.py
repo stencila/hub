@@ -402,12 +402,10 @@ class AccountsUsersViewSet(
 
         # TODO: Check that there is at least one admin left on the account
 
+        account_user.delete()
         if self.accepts_html():
-            account_user.delete()
-            status = self.DESTROYED  # TODO: Can't use DESTROYED because HTMX ignores it
-            return Response(dict(account=account, role=role), status=200)
+            return Response(dict(account=account, role=role), status=self.DESTROYED)
         else:
-            account_user.delete()
             return Response(status=self.DESTROYED)
 
 
