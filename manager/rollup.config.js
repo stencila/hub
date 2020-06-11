@@ -3,7 +3,7 @@ import { terser } from "rollup-plugin-terser";
 import replace from "@rollup/plugin-replace";
 
 export default {
-  input: "manager/static/js/index.mjs",
+  input: "manager/static/js/src/index.js",
   output: {
     file: "manager/static/js/index.js",
     sourcemap: true,
