@@ -93,14 +93,14 @@ class ProjectRole(EnumChoice):
     A user or team role within an account.
 
     See `get_description` for what each role can do.
-    Some of roles can alos be applied to the public.
+    Some of roles can also be applied to the public.
     For example, a project might be made public with
-    the `COMMENTER` role allowing anyone to comment.
+    the `REVIEWER` role allowing anyone to comment.
     """
 
     READER = "Reader"
-    COMMENTER = "Commenter"
-    SUGGESTER = "Suggester"
+    REVIEWER = "Reviewer"
+    EDITOR = "Editor"
     AUTHOR = "Author"
     MANAGER = "Manager"
     OWNER = "Owner"
@@ -109,12 +109,12 @@ class ProjectRole(EnumChoice):
     def get_description(cls, role: "ProjectRole"):
         """Get the description of a project role."""
         return {
-            cls.READER.name: "Project reader",
-            cls.COMMENTER.name: "Project commenter",
-            cls.SUGGESTER.name: "Project suggester",
-            cls.AUTHOR.name: "Project author",
-            cls.MANAGER.name: "Project manager",
-            cls.OWNER.name: "Project owner",
+            cls.READER.name: "Can view project, but not make edits or share with others.",
+            cls.REVIEWER.name: "Can view project files and leave comments, but not edit project or share with others.",
+            cls.EDITOR.name: "Can edit project files and leave comments, but not share with other.",
+            cls.AUTHOR.name: "Can edit project files and leave comments, but not share with other.",
+            cls.MANAGER.name: "Can edit project files, settings, and share with others.",
+            cls.OWNER.name: "Can edit project files, settings, share with others, as well as delete a project",
         }[role.name]
 
 
