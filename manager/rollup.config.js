@@ -1,13 +1,20 @@
-import resolve from '@rollup/plugin-node-resolve';
-import { terser } from 'rollup-plugin-terser';
+import resolve from "@rollup/plugin-node-resolve";
+import { terser } from "rollup-plugin-terser";
+import replace from "@rollup/plugin-replace";
 
 export default {
-  input: 'manager/static/js/index.mjs',
+  input: "manager/static/js/index.mjs",
   output: {
-    file: 'manager/static/js/index.js',
+    file: "manager/static/js/index.js",
     sourcemap: true,
-    name: 'manager',
-    format: 'iife'
+    name: "manager",
+    format: "iife",
   },
-  plugins: [ resolve(), terser() ]
+  plugins: [
+    resolve(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    }),
+    terser(),
+  ],
 };

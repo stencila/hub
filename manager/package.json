@@ -5,7 +5,7 @@
   "scripts": {
     "build:css": "node-sass manager/static/sass/styles.scss manager/static/css/styles.css --output-style compressed",
     "watch:css": "npm run build:css -- --watch",
-    "build:js": "rollup --config",
+    "build:js": "NODE_ENV=production rollup --config",
     "watch:js": "rollup --config -w",
     "watch:serve": "browser-sync start -p localhost:8000 --no-notify -f manager/static/css/**/*.css,manager/static/js/**/*.js,**/templates/**/*.html",
     "build": "npm run build:css && npm run build:js",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
+    "@popperjs/core": "^2.4.2",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "^0.9.0",
     "bulma-switch": "^2.0.0",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "8.0.0",
+    "@rollup/plugin-replace": "^2.3.3",
     "browser-sync": "^2.26.7",
     "concurrently": "^5.2.0",
     "js-beautify": "1.11.0",

@@ -99,7 +99,7 @@
           <div class="navbar-end">
 
             {% if user.is_authenticated %}
-            <div class="navbar-item has-dropdown is-hoverable">
+            <div class="navbar-item has-dropdown">
               <a class="navbar-link is-arrowless">
                 <span class="icon">
                   <i class="ri-add-circle-line" aria-hidden="true"></i>
@@ -149,7 +149,7 @@
               </div>
             </div>
             {% else %}
-            <div class="navbar-item has-dropdown is-hoverable">
+            <div class="navbar-item has-dropdown">
               <a class="navbar-link" href="{% url 'ui-accounts-retrieve' user.username %}"
                  alt="{% trans "Your user profile" %}">
                 {% if user.personal_account.image %}

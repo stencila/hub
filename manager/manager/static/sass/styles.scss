@@ -281,6 +281,23 @@ body {
   display: block;
 }
 
+// Override Bulma Dropdown positioning as we are using Popper.js to perform the calculations.
+// Without this the dropdown positioning jitters and jumps around on activation.
+// @see https://popper.js.org
+.navbar-dropdown.is-boxed,
+.navbar-item.is-active .navbar-dropdown.is-boxed,
+.navbar-item.is-hoverable:focus .navbar-dropdown.is-boxed,
+.navbar-item.is-hoverable:focus-within .navbar-dropdown.is-boxed,
+.navbar-item.is-hoverable:hover .navbar-dropdown.is-boxed,
+.navbar.is-spaced .navbar-dropdown,
+.navbar.is-spaced .navbar-item.is-active .navbar-dropdown,
+.navbar.is-spaced .navbar-item.is-hoverable:focus .navbar-dropdown,
+.navbar.is-spaced .navbar-item.is-hoverable:focus-within .navbar-dropdown,
+.navbar.is-spaced .navbar-item.is-hoverable:hover .navbar-dropdown {
+  top: 0;
+  transform: translate3d(0, 48px, 0);
+}
+
 .select:not(.is-multiple):not(.is-loading)::after,
 .navbar-link:not(.is-arrowless)::after {
   border-width: 2px;
