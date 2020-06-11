@@ -1,20 +1,10 @@
+{% load i18n %}
+
 <div class="level is-mobile">
   <!-- Left side -->
   <div class="level-left">
     <div class="level-item">
-      <div class="is-hidden-tablet">
-        <a class="button">
-          <span class="icon">
-            <i class="ri-search-line"></i>
-          </span>
-        </a>
-      </div>
-      <form class="field is-hidden-mobile">
-        <label class="is-sr-only" for="project-search">
-          Project search:
-        </label>
-        <input id="project-search" name="name" class="input is-small" type="text" placeholder="Find a project…">
-      </form>
+      <h2 class="title is-3">{% trans "Projects" %}</h2>
     </div>
   </div>
 
@@ -23,6 +13,8 @@
     <p class="level-item"><strong>All</strong></p>
     <p class="level-item"><a>Public</a></p>
     <p class="level-item"><a>Private</a></p>
+
+    {% if role in 'MEMBER, MANAGER, OWNER' %}
     <p class="level-item">
       <a class="button is-primary is-hidden-mobile">
         <span class="icon">
@@ -39,5 +31,6 @@
         </span>
       </a>
     </p>
+    {% endif %}
   </div>
 </div>

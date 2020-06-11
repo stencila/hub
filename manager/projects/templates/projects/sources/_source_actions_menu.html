@@ -53,6 +53,7 @@
         </div>
       </div>
 
+      {% if role in 'MEMBER, MANAGER, OWNER' %}
       <a href="#" class="dropdown-item">
         <span class="icon">
           <i class="ri-edit-line"></i>
@@ -68,6 +69,7 @@
         </span>
         <span>{% trans "Delete" %}</span>
       </a>
+      {% endif %}
     </div>
   </div>
 </div>
