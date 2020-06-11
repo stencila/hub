@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
-from projects.models import Project
+from projects.models import Project, ProjectAgent, ProjectRole
 from users.models import User
 
 
@@ -160,31 +160,40 @@ def run(*args):
     # Projects
     #################################################################
 
-    # Each account has one private and one public project
+    # Each account has one private and one public project which
+    # the generic `member`, `manager` etc accounts all have access to
+    # at the corresponding levels
 
     for account in Account.objects.all():
-        Project.objects.create(
+        public = Project.objects.create(
             name="first-project",
             title="First project",
             account=account,
             creator=random_account_user(account),
             public=True,
-            description="""
-    A public project. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut la
-    bore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex eacom
-    modo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. E
-    xcepteur sint occaecat cupidatat non roident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            """.strip(),
+            description="A public project for account {0}.".format(account.name),
         )
 
-        Project.objects.create(
+        private = Project.objects.create(
             name="second-project",
             title="Second project",
             account=account,
             creator=random_account_user(account),
             public=False,
-            description="A private project.",
+            description="A private project for account {0}.".format(account.name),
         )
+
+        for project in [public, private]:
+            # The generic users have their roles on these project
+            ProjectAgent.objects.create(
+                project=project, user=member, role=ProjectRole.AUTHOR.name
+            )
+            ProjectAgent.objects.create(
+                project=project, user=manager, role=ProjectRole.MANAGER.name
+            )
+            ProjectAgent.objects.create(
+                project=project, user=owner, role=ProjectRole.OWNER.name
+            )
 
 
 def random_users(num=None):
