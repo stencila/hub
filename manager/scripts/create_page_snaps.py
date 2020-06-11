@@ -22,8 +22,9 @@ INCLUDE = [
 
 # Regex, string pairs for replacing URL parameters
 REPLACE = [
-    (r"<slug:account>", "acme-ltd"),
-    (r"<slug:team>", "a-team"),
+    (r"<slug:account>", "biotech-corp"),
+    (r"<slug:team>", "first-team"),
+    (r"<slug:project>", "first-project"),
 ]
 
 # Regexes of paths to exclude
@@ -48,7 +49,7 @@ EXCLUDE = [
 # Username / password to login as
 # Should have OWNER access to the accounts / projects
 # specified in REPLACE
-USER_PASS = "admin:admin"
+USER_PASS = "owner:owner"
 
 # Paths to visit as an anonymous user
 ANON = ["me/signin/", "me/signup/"]
