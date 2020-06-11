@@ -596,6 +596,8 @@ class AccountsTeamsViewSet(
                 }
             else:
                 status = self.INVALID
+                headers = {}
+
             return Response(
                 dict(account=account, role=role, team=team, serializer=serializer),
                 status=status,

@@ -61,6 +61,8 @@ class AccountTeamSerializer(serializers.ModelSerializer):
     Includes only basic model fields.
     """
 
+    name = serializers.CharField(help_text=Account._meta.get_field("name").help_text)
+
     members = UserSerializer(read_only=True, many=True)
 
     class Meta:
@@ -72,6 +74,45 @@ class AccountTeamSerializer(serializers.ModelSerializer):
             "description",
             "members",
         ]
+
+    def validate(self, data):
+        """
+        Slugify and validate the name field.
+        
+        Needs to be done in `validate` (not `validate_name`) so that the
+        account is also available.
+        """
+        account = self.instance.account if self.instance else data.get("account")
+        assert account is not None
+
+        name = unique_slugify(
+            data["name"],
+            instance=self.instance,
+            queryset=AccountTeam.objects.filter(account=account),
+        )
+
+        MIN_LENGTH = 3
+        if len(name) < MIN_LENGTH:
+            raise exceptions.ValidationError(
+                dict(
+                    name="Team name must have at least {0} valid characters.".format(
+                        MIN_LENGTH
+                    )
+                )
+            )
+
+        MAX_LENGTH = 64
+        if len(name) > MAX_LENGTH:
+            raise exceptions.ValidationError(
+                dict(
+                    name="Team name must be less than {0} characters long.".format(
+                        MAX_LENGTH
+                    )
+                )
+            )
+
+        data["name"] = name
+        return data
 
 
 class AccountTeamCreateSerializer(AccountTeamSerializer):

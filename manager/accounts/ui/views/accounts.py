@@ -1,8 +1,23 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect as redir
 from django.shortcuts import render
 
 from accounts.api.views import AccountsViewSet
+
+
+def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Redirect from an account `id` URL to an account `name` URL.
+    
+    For instances where we need to redirect to the account using `id`
+    (e.g. because its name may have changed in a form).
+    This uses `get_object` to ensure the same access control applies
+    to the redirect.
+    """
+    viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
+    account = viewset.get_object()
+    return redir("/{0}{1}".format(account.name, kwargs["rest"]))
 
 
 def list_orgs(request: HttpRequest, *args, **kwargs) -> HttpResponse:

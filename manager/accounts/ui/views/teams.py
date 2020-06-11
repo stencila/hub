@@ -1,8 +1,25 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect as redir
 from django.shortcuts import render
 
 from accounts.api.views import AccountsTeamsViewSet, AccountTeamDestroySerializer
+
+
+def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Redirect from a team `id` URL to a team `name` URL.
+    
+    For instances where we need to redirect to the team using `id`
+    (e.g. because its name may have changed in a form).
+    This uses `get_object` to ensure the same access control applies
+    to the redirect.
+    """
+    viewset = AccountsTeamsViewSet.init("retrieve", request, args, kwargs)
+    team = viewset.get_object()
+    return redir(
+        "/{0}/teams/{1}{2}".format(team.account.name, team.name, kwargs["rest"])
+    )
 
 
 @login_required
