@@ -1,6 +1,6 @@
 {% load stencila %}
 
-{% uuid as field_id %}
+{% with field_id=field.name %}
 
 <div class="field">
   <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
@@ -21,3 +21,5 @@
   <span class="help">{{ field.help_text|safe }}</span>
   {% endif %}
 </div>
+
+{% endwith %}
