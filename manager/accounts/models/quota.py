@@ -41,7 +41,7 @@ class AccountQuotas:
     USERS = AccountQuota(
         "account_users",
         lambda account: AccountUser.objects.filter(account=account).count(),
-        5,
+        100,
         "Maximum number of users for the account has been reached. "
         "Please upgrade the plan for this account.",
     )
