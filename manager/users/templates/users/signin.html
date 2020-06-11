@@ -32,7 +32,7 @@
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
       {% endif %}
 
-      {% include "forms/field.html" with field=form.login %}
+      {% include "forms/field.html" with field=form.login autofocus=True %}
       {% include "forms/field.html" with field=form.password %}
       {% include "forms/errors.html" with form=form %}
 

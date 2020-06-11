@@ -1,3 +1,4 @@
+{# TODO: add "for" attributes to label tags #}
 {% if field.is_hidden %}
 {{ field }}
 {% else %}
@@ -11,7 +12,7 @@
   <label class="label">{{ field.label }}</label>
   <div class="control">
     <input class="input" type="{{ field.field.widget.input_type }}" name="{{ field.name }}" {% if field.value != None %}
-           value="{{ field.value }}" {% endif %}>
+           value="{{ field.value }}" {% endif %} {% if autofocus == True %}autofocus{% endif %}>
   </div>
   {% if field.field.help_text %}
   <p class="help">{{ field.field.help_text|safe }}</p>
