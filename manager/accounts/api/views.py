@@ -43,7 +43,7 @@ class AccountsViewSet(
         Get the permissions that the current action requires.
 
         Actions `list` and `retrive` do not require authentication (although
-        the data returned is restricted according to user).
+        the data returned is restricted).
         """
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
