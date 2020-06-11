@@ -56,7 +56,13 @@ def input_type(field):
 
 @register.simple_tag
 def uuid():
+    """
+    Get a UUID.
+    
+    Used for generating unique element ids in templates.
+    """
     return uuid4()
+
 
 # fmt: off
 
