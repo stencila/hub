@@ -134,8 +134,7 @@
                 {% url 'ui-users-signup' as user_signup_url %}
 
                 {% if request.path != user_signin_url %}
-                <a class="button is-primary is-outlined has-text-weight-bold" href="{% url 'ui-users-signin' %}"
-                   {% if request.path == user_signin_url %}disabled{% endif %}>
+                <a class="button is-primary is-outlined has-text-weight-bold" href="{% url 'ui-users-signin' %}">
                   {% trans "Sign in" %}
                 </a>
                 {% endif %}
