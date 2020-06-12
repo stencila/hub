@@ -1,7 +1,7 @@
 from rest_framework import exceptions, serializers
 
 from accounts.api.serializers import AccountListSerializer
-from accounts.models import Account, AccountQuota
+from accounts.models import Account, AccountQuotas
 from projects.models import Project
 
 
@@ -9,6 +9,8 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
     """
     Field for a project account.
 
+    Sets the default to the name in the query.
+    
     Limits the set of valid accounts for a project to those that
     the user is a member of.
     """
@@ -17,7 +19,14 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
         request = self.context.get("request", None)
         if request is None:
             return Account.objects.none()
-        return Account.objects.filter(users__user=request.user,).distinct()
+
+        queryset = Account.objects.filter(users__user=request.user)
+
+        account = request.GET.get("account")
+        if account:
+            queryset = queryset.filter(name=account)
+
+        return queryset
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -44,7 +53,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         """
         Validate the project fields.
 
-        Checks that the account has sufficient quotas to
+        Checks that the user is
+        
+        Also checks that the account has sufficient quotas to
         create the project. This function is written to be able to used
         when either creating (self.instance is None) or updating
         (self.instance is not None) a project.
@@ -59,12 +70,25 @@ class ProjectSerializer(serializers.ModelSerializer):
             public = self.instance.public
         assert public is not None
 
-        # TODO
-        # AccountQuota.PROJECTS_TOTAL.check(account)
+        request = self.context.get("request")
+        assert request is not None
 
-        # TODO
-        # #if not public:
-        #    AccountQuota.PROJECTS_PRIVATE.check(account)
+        # If creating, then check that user is an account
+        # member and check the quota for the total
+        # number of projects
+        if not self.instance:
+            if (
+                Account.objects.filter(name=account, users__user=request.user).count()
+                == 0
+            ):
+                raise exceptions.PermissionDenied
+
+            AccountQuotas.PROJECTS_TOTAL.check(account)
+
+        # If creating or changing `public` then check quota for
+        # the number of private projects.
+        if data.get("public") and public is False:
+            AccountQuotas.PROJECTS_PRIVATE.check(account)
 
         return data
 
