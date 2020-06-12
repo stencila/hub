@@ -39,9 +39,12 @@
   </div>
 </div>
 
+{% if project.description %}
 <p>
   {{ project.description }}
 </p>
+{# TODO: Add link for project Managers/Owners to set a project description. #}
+{% endif %}
 
 <hr />
 

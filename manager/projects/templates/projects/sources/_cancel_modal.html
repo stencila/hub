@@ -1,2 +1,17 @@
-<button class="button" hx-get="{% url 'api-projects-sources-list' project.id %}"
-        hx-template="projects/sources/_source_list.html" hx-target="#source-list">Cancel</button>
+<button class="{{ classes|default:"delete" }}" aria-label="close"
+        hx-get="{% url 'ui-projects-retrieve' project.account.name project.name %}" hx-template="projects/retrieve.html"
+        hx-target="body">
+  {% if icon %}
+  <span class="icon">
+    <i class="{{ icon }}"></i>
+  </span>
+  {% if label %}
+  <span>
+    {{ label}}
+  </span>
+  {% endif %}
+  </span>
+  {% else %}
+  {{ label }}
+  {% endif %}
+</button>

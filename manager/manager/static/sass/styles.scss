@@ -54,6 +54,8 @@ $footer-padding: 2rem 3rem 0.1rem;
 
 $input-placeholder-color: $grey;
 
+$modal-background-background-color: transparentize(darken($blue, 30%), .3);
+
 // Import Bulma components
 // The following are all the SASS files in Bulma 0.8.2
 // To keep the size of compiled, production CSS to a minimum, only
@@ -401,6 +403,9 @@ body {
   }
 }
 
+.cursor-close {
+  cursor: url('../img/close-circle-line.svg'), pointer;
+}
 
 .is-flipped {
   transform: rotateY(180deg);
