@@ -63,8 +63,9 @@
 
       <hr class="dropdown-divider" />
 
-      <a class="dropdown-item" hx-get="{% url 'api-projects-sources-render' project.id %}?action=destroy&source={{ source.id }}"
-         hx-template="projects/sources/_destroy_modal.html" hx-target="#projects-sources-action-modal">
+      <a class="dropdown-item"
+         hx-get="{% url 'api-projects-sources-render' project.id %}?action=destroy&source={{ source.id }}"
+         hx-template="projects/sources/_destroy_modal.html" hx-target="#source-list">
         <span class="icon">
           <i class="ri-delete-bin-line"></i>
         </span>

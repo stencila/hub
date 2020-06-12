@@ -1,10 +1,7 @@
-<div class="modal is-active">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <form hx-delete="{% url 'api-projects-sources-detail' project.id source.id %}"
-          hx-template="projects/sources/_source_list.html" hx-target="#source-list">
-      <p>Are you sure you want to delete {{ source.path }}?</p>
-      {% include "forms/_submit.html" with text="Delete source" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile is-outlined" %}
-    </form>
-  </div>
+<div>
+  <form hx-delete="{% url 'api-projects-sources-detail' project.id source.id %}"
+        hx-template="projects/sources/_source_list.html" hx-target="#source-list">
+    <p>Are you sure you want to delete {{ source.path }}?</p>
+    {% include "forms/_submit.html" with text="Delete source" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile is-outlined" %}
+  </form>
 </div>

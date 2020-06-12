@@ -1,11 +1,8 @@
-<div class="modal is-active">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <form hx-post="{% url 'api-projects-sources-list' project.id %}" hx-template="projects/sources/_source_list.html"
-          hx-target="#source-list">
-      <input type="hidden" name="project" value={{ project.id }}>
-      {% include "serializers/_field.html" with field=serializer.path %}
-      {% include "forms/_submit.html" with text="Create source" icon="ri-add-line" classes="is-fullwidth-mobile" %}
-    </form>
-  </div>
+<div>
+  <form hx-post="{% url 'api-projects-sources-list' project.id %}" hx-template="projects/sources/_source_list.html"
+        hx-target="#source-list">
+    <input type="hidden" name="project" value={{ project.id }}>
+    {% include "serializers/_field.html" with field=serializer.path %}
+    {% include "forms/_submit.html" with text="Create source" icon="ri-add-line" classes="is-fullwidth-mobile" %}
+  </form>
 </div>

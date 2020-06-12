@@ -32,9 +32,7 @@
       <div class="dropdown-menu" id="dropdown-menu" role="menu">
         <div class="dropdown-content">
           <a hx-get="{% url 'api-projects-sources-render' project.id %}?action=create"
-             hx-template="projects/sources/_create_file_modal.html"
-             hx-target="#projects-sources-action-modal"
-             class="dropdown-item">
+             hx-template="projects/sources/_create_file_modal.html" hx-target="#source-list" class="dropdown-item">
             <span class="icon">
               <i class="ri-file-add-line"></i>
             </span>
