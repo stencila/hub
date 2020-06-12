@@ -2,9 +2,9 @@ from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
 from rest_framework import exceptions, mixins, permissions, viewsets
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.decorators import action
 
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -297,7 +297,7 @@ class ProjectsSourcesViewSet(
         project = self.get_project()
         return Source.objects.filter(project=project)
 
-    def get_object(self, source = None) -> Source:
+    def get_object(self, source=None) -> Source:
         """Get a project source."""
         source = source or self.kwargs["source"]
         try:
@@ -305,7 +305,7 @@ class ProjectsSourcesViewSet(
         except IndexError:
             raise exceptions.NotFound
 
-    def get_serializer_class(self, action = None):
+    def get_serializer_class(self, action=None):
         """Get the serializer class for the current action."""
         action = action or self.action
         if action == "create":
@@ -340,5 +340,7 @@ class ProjectsSourcesViewSet(
             serializer = serializer_class(instance)
         else:
             serializer = None
-        
-        return Response(self.get_response_context(instance=instance, serializer=serializer))
+
+        return Response(
+            self.get_response_context(instance=instance, serializer=serializer)
+        )
