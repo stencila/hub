@@ -21,22 +21,34 @@ from accounts.api.serializers import (
 )
 from accounts.models.account import Account, AccountRole, AccountTeam, AccountUser
 from accounts.models.quota import AccountQuotas
-from manager.api.helpers import HtmxMixin, filter_from_ident
+from manager.api.helpers import (
+    HtmxCreateMixin,
+    HtmxListMixin,
+    HtmxMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    filter_from_ident,
+)
 from users.api.serializers import UserIdentifierSerializer
 
 
 class AccountsViewSet(
-    HtmxMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
+    HtmxMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    viewsets.GenericViewSet,
 ):
     """
     A view set for accounts.
 
-    Provides basic account CRU(D) views.
+    Provides basic account CRU(D) views for accounts.
     """
 
-    # Configuration
-
     lookup_url_kwarg = "account"
+    object_name = "account"
+    queryset_name = "accounts"
 
     def get_permissions(self):
         """
@@ -48,33 +60,6 @@ class AccountsViewSet(
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
-
-    def get_serializer_class(self):
-        """
-        Get the serializer class for the current action.
-
-        For `create`, checks that the user has not exceeded the number
-        of accounts that they can create. This is primarily an anti-spamming
-        check.
-
-        For `retrieve`, returns a detailed serializer if the user is
-        a member of the account.
-        #TODO: The above
-        """
-        if self.action == "create":
-            user = self.request.user
-            AccountQuotas.ORGS.check(user.personal_account)
-
-        try:
-            return {
-                "list": AccountListSerializer,
-                "create": AccountCreateSerializer,
-                "retrieve": AccountRetrieveSerializer,
-                "update": AccountUpdateSerializer,
-                "partial_update": AccountUpdateSerializer,
-            }[self.action]
-        except KeyError:
-            raise RuntimeError("Unexpected action {}".format(self.action))
 
     def get_queryset(self):
         """
@@ -117,7 +102,7 @@ class AccountsViewSet(
         isa = self.request.GET.get("is", None)
         if isa == "user":
             queryset = queryset.filter(user__isnull=False)
-        else:
+        elif isa == "org":
             queryset = queryset.filter(user__isnull=True)
 
         # TODO: Find a better way to order role so MANAGER is before MEMBER
@@ -128,157 +113,82 @@ class AccountsViewSet(
         Get the object for the current action.
 
         For `retrieve`, prefetches related data.
-        For `partial-update` and `update`, checks that the user
+    
+        For `partial-update` and `update`, also checks that the user
         is an account MANAGER or OWNER.
         """
-        user = self.request.user
         ident = self.kwargs["account"]
+        queryset = self.get_queryset().filter(**filter_from_ident(ident))
 
-        if self.action in ["retrieve", "partial_update", "update"]:
+        if self.action in ["retrieve", "partial_update"]:
             # The API `AccountRetrieveSerializer` uses nested serializers
             # for `teams` and `users`. Also, the UI `update` view uses the
             # number of teams and users in the side bar.
-            # So we use `prefetch_related` in all cases
-            # to reduce the number of DB queries
-            queryset = Account.objects.filter(**filter_from_ident(ident))
-            account_filter = filter_from_ident(ident, prefix="account")
+            # So we use `prefetch_related` to reduce the number of DB queries
+            filter = filter_from_ident(ident, prefix="account")
             queryset = queryset.prefetch_related(
                 Prefetch(
                     "teams",
-                    queryset=AccountTeam.objects.filter(
-                        **account_filter
-                    ).prefetch_related("members"),
+                    queryset=AccountTeam.objects.filter(**filter).prefetch_related(
+                        "members"
+                    ),
                 ),
                 Prefetch(
                     "users",
-                    queryset=AccountUser.objects.filter(
-                        **account_filter
-                    ).select_related("user"),
+                    queryset=AccountUser.objects.filter(**filter).select_related(
+                        "user"
+                    ),
                 ),
             )
         else:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
-        if self.action in ["partial_update", "update"]:
-            if (
-                queryset.filter(
-                    users__user=user,
-                    users__role__in=[AccountRole.MANAGER.name, AccountRole.OWNER.name],
-                ).count()
-                == 0
-            ):
-                raise exceptions.PermissionDenied
-
         try:
-            return queryset[0]
+            # Using [0] adds LIMIT 1 to query so is more efficient than `.get(**filter)`
+            instance = queryset[0]
         except IndexError:
-            raise exceptions.NotFound("Could not find account '{}'".format(ident))
+            raise exceptions.NotFound
 
-    def get_account_role(self):
+        if (
+            self.action == "partial_update"
+            and instance.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
+        ) or (self.action == "destroy" and instance.role != AccountRole.OWNER.name):
+            raise exceptions.PermissionDenied
+
+        return instance
+
+    def get_serializer_class(self):
         """
-        Get the account and the account role for the current user.
+        Get the serializer class for the current action.
 
-        Used in UI views to determine whether to render elements or not.
+        For this class, each action has it's own serializer.
         """
-        account = self.get_object()
-        role = None
-        if self.request.user.is_authenticated:
-            try:
-                role = account.users.get(user=self.request.user).role
-            except AccountUser.DoesNotExist:
-                pass
-        return account, role
+        try:
+            return {
+                "list": AccountListSerializer,
+                "create": AccountCreateSerializer,
+                "retrieve": AccountRetrieveSerializer,
+                "update": AccountUpdateSerializer,
+                "partial_update": AccountUpdateSerializer,
+            }[self.action]
+        except KeyError:
+            raise RuntimeError("Unexpected action {}".format(self.action))
 
-    # Views
-
-    def list(self, request: Request, *args, **kwargs) -> Response:
+    def get_success_url(self, serializer):
         """
-        List accounts.
+        Get the URL to use in the Location header when an action is successful.
 
-        Returns a list of accounts.
+        For `create`, redirects to the "projects" page for the organization
+        to encourage them to create a project for it.
+        
+        This should only need to be used for `create`, because for other actions
+        it is possible to directly specify which URL to redirect to (because the instance
+        `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
         """
-        queryset = self.get_queryset()
-
-        if self.accepts_html():
-            url = "?" + "&".join(
-                [
-                    "{}={}".format(key, value)
-                    for key, value in self.request.GET.items()
-                    if key != "is" and value
-                ]
-            )
-            return Response(dict(accounts=queryset), headers={"X-HX-Push": url})
+        if self.action in ["create"]:
+            return reverse("ui-accounts-retrieve", args=[serializer.instance.name])
         else:
-            pages = self.paginate_queryset(queryset)
-            serializer = self.get_serializer(pages, many=True)
-            return self.get_paginated_response(serializer.data)
-
-    def create(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Create an account.
-
-        Returns data for the new account.
-        """
-        serializer = self.get_serializer(data=request.data)
-
-        if self.accepts_html():
-            if serializer.is_valid():
-                serializer.save()
-                status = self.CREATED
-                headers = {
-                    "Location": reverse(
-                        "ui-accounts-update", args=[serializer.instance.name],
-                    )
-                }
-            else:
-                status = self.INVALID
-                headers = {}
-
-            return Response(dict(serializer=serializer), status=status, headers=headers)
-        else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=self.CREATED)
-
-    def retrieve(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Retrieve an account.
-
-        Returns detailed data for the account.
-        """
-        return super().retrieve(request, *args, **kwargs)
-
-    def partial_update(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Update an account.
-
-        Returns data for the updated account.
-        """
-        account = self.get_object()
-        serializer = self.get_serializer(account, data=request.data, partial=True)
-
-        if self.accepts_html():
-            if serializer.is_valid():
-                serializer.save()
-                status = self.UPDATED
-                headers = {
-                    "Location": reverse(
-                        "ui-accounts-update", args=[serializer.instance.name],
-                    )
-                }
-            else:
-                status = self.INVALID
-                headers = {}
-
-            return Response(
-                dict(account=account, serializer=serializer),
-                status=status,
-                headers=headers,
-            )
-        else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=self.UPDATED)
+            return None
 
 
 class AccountsUsersViewSet(

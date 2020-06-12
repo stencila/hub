@@ -1,6 +1,12 @@
 from rest_framework import exceptions, serializers
 
-from accounts.models import Account, AccountRole, AccountTeam, AccountUser
+from accounts.models import (
+    Account,
+    AccountQuotas,
+    AccountRole,
+    AccountTeam,
+    AccountUser,
+)
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
@@ -264,6 +270,17 @@ class AccountCreateSerializer(AccountSerializer):
     class Meta:
         model = Account
         fields = AccountSerializer.Meta.fields
+
+    def validate(self, data):
+        """
+        Validate the data.
+        
+        Checks that the user has not exceeded the number
+        of accounts that they can create. This is primarily an anti-spamming
+        check.
+        """
+        AccountQuotas.ORGS.check(data["creator"].personal_account)
+        return data
 
 
 class AccountListSerializer(AccountSerializer):

@@ -53,23 +53,23 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
     viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
-    account, role = viewset.get_account_role()
+    account = viewset.get_object()
     projects = account.projects.all()
     return render(
         request,
         "accounts/retrieve.html",
-        dict(account=account, role=role, projects=projects),
+        dict(account=account, role=account.role, projects=projects),
     )
 
 
 @login_required
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update an account."""
-    viewset = AccountsViewSet.init("update", request, args, kwargs)
-    account, role = viewset.get_account_role()
+    viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
+    account = viewset.get_object()
     serializer = viewset.get_serializer(account)
     return render(
         request,
         "accounts/update.html",
-        dict(serializer=serializer, account=account, role=role),
+        dict(serializer=serializer, account=account, role=account.role),
     )
