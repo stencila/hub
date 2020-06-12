@@ -167,5 +167,5 @@ class ProjectAgent(models.Model):
             # Each team should only have one role for a project
             models.UniqueConstraint(
                 fields=["project", "team"], name="%(class)s_unique_project_team"
-            )
+            ),
         ]

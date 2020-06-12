@@ -181,7 +181,7 @@ WHERE project.id = projects_project.id""",
         For `create`, redirects to the "main" page for the project.
         
         This should only need to be used for `create`, because for other actions
-        it is possible to specify which URL to redirect to using (because the instance
+        it is possible to directly specify which URL to redirect to (because the instance
         `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
         """
         if self.action in ["create"]:
