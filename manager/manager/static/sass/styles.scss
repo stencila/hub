@@ -360,6 +360,11 @@ body {
       }
     }
   }
+
+  // Align individual user role select dropdown to the role dropdown in the user search bar
+  .user-role-select {
+    min-width: 9.75rem;
+  }
 }
 
 .control:focus-within ~ .control .button.is-primary.is-outlined {

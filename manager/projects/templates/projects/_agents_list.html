@@ -29,7 +29,7 @@
         <div class="field has-addons">
           <div class="control">
             <div class="select is-small-mobile">
-              <select hx-patch="{% url 'api-projects-agents-detail' project.id agent.id %}"
+              <select class="user-role-select" hx-patch="{% url 'api-projects-agents-detail' project.id agent.id %}"
                       hx-template="projects/_agents_list.html" hx-target="#projects-agents-list" name="role">
                 <option value="AUTHOR" {% if agent.role == "AUTHOR" %}selected{% endif %}>Author</option>
                 <option value="MANAGER" {% if agent.role == "MANAGER" %}selected{% endif %}>Manager</option>
