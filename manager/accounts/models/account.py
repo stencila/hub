@@ -233,7 +233,7 @@ class AccountUser(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["account", "user"], name="account_user_unique_user"
+                fields=["account", "user"], name="%(class)s_unique_account_user"
             )
         ]
 
@@ -263,7 +263,7 @@ class AccountTeam(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["account", "name"], name="account_team_unique_name"
+                fields=["account", "name"], name="%(class)s_unique_account_name"
             )
         ]
 

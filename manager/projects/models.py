@@ -66,7 +66,7 @@ class Project(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["account", "name"], name="unique_project_name"
+                fields=["account", "name"], name="%(class)s_unique_account_name"
             )
         ]
 
@@ -160,7 +160,12 @@ class ProjectAgent(models.Model):
 
     class Meta:
         constraints = [
+            # Each user should only have one role for a project
             models.UniqueConstraint(
-                fields=["project", "user", "team"], name="unique_project_agent"
+                fields=["project", "user"], name="%(class)s_unique_project_user"
+            ),
+            # Each team should only have one role for a project
+            models.UniqueConstraint(
+                fields=["project", "team"], name="%(class)s_unique_project_team"
             )
         ]

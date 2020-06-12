@@ -185,15 +185,14 @@ def run(*args):
 
         for project in [public, private]:
             # The generic users have their roles on these project
-            ProjectAgent.objects.create(
-                project=project, user=member, role=ProjectRole.AUTHOR.name
-            )
-            ProjectAgent.objects.create(
-                project=project, user=manager, role=ProjectRole.MANAGER.name
-            )
-            ProjectAgent.objects.create(
-                project=project, user=owner, role=ProjectRole.OWNER.name
-            )
+            for user, role in [
+                (member, ProjectRole.AUTHOR.name),
+                (manager, ProjectRole.MANAGER.name),
+                (owner, ProjectRole.OWNER.name),
+            ]:
+                # Each user can only have a single role on a project, so check none already
+                if ProjectAgent.objects.filter(project=project, user=user).count() == 0:
+                    ProjectAgent.objects.create(project=project, user=user, role=role)
 
 
 def random_users(num=None):
