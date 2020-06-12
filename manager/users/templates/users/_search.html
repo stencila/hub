@@ -21,8 +21,11 @@ Inspired by Github's user search field (amongst others).
         <i class="ri-loader-line"></i>
       </span>
     </div>
-    {# A hidden input to hold the value of the selected user. Will be submitted with the enclosing form. #}
-    <input type="hidden" name="id">
+    {% comment %}
+    A hidden input to hold the value of the selected user. Will be submitted with the enclosing form.
+    The name of this field can be overriden with the teplate variable `id_name`.
+    {% endcomment %}
+    <input id="user-search-result-id" type="hidden" name="{{ id_name|default:'id' }}">
   </div>
   <div class="dropdown-menu"></div>
   <script>
@@ -35,7 +38,7 @@ Inspired by Github's user search field (amongst others).
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
       var item = htmx.closest(event.target, '.dropdown-item')
       $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
-      $search.querySelector('input[name=id]').value = item.getAttribute('data-id')
+      $search.querySelector('#user-search-result-id').value = item.getAttribute('data-id')
     });
 
   </script>
