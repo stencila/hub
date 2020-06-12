@@ -180,7 +180,9 @@ class Prod(Configuration):
         {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
     ]
 
-    LOGIN_URL = "/me/signin"
+    # URL to redirect users for authentication required views
+    # Note: the trailing / is important to avoid a redirect loop.
+    LOGIN_URL = "/me/signin/"
 
     LOGIN_REDIRECT_URL = "/"
 

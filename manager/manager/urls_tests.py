@@ -63,11 +63,6 @@ checks = [
     ),
     # User `me` namespace URLs
     Check(
-        "/me/username/change/",
-        anon=signin,
-        ada=title("Change username")
-    ),
-    Check(
         "/me/password/change/",
         anon=signin,
         ada=title("Change password")
