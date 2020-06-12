@@ -4,5 +4,6 @@
     <input type="hidden" name="project" value={{ project.id }}>
     {% include "serializers/_field.html" with field=serializer.path %}
     {% include "forms/_submit.html" with text="Create source" icon="ri-add-line" classes="is-fullwidth-mobile" %}
+    {% include "./_cancel_modal.html" %}
   </form>
 </div>

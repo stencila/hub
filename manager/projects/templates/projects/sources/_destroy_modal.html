@@ -3,5 +3,6 @@
         hx-template="projects/sources/_source_list.html" hx-target="#source-list">
     <p>Are you sure you want to delete {{ source.path }}?</p>
     {% include "forms/_submit.html" with text="Delete source" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile is-outlined" %}
+    {% include "./_cancel_modal.html" %}
   </form>
 </div>

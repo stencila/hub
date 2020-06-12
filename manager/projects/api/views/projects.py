@@ -321,9 +321,9 @@ class ProjectsSourcesViewSet(
 
     def get_response_context(self, **kwargs):
         """Override to provide additional cotext when rendering templates."""
-        return super().get_response_context(
-            queryset=self.get_queryset(), project=self.get_project(), **kwargs
-        )
+        if "queryset" not in kwargs:
+            kwargs.update({"queryset": self.get_queryset()})
+        return super().get_response_context(project=self.get_project(), **kwargs)
 
     @action(detail=False)
     def render(self, request: Request, *args, **kwargs) -> Response:
