@@ -15,13 +15,16 @@ from manager.api.helpers import (
     filter_from_ident,
 )
 from projects.api.serializers import (
+    ProjectAgentCreateSerializer,
+    ProjectAgentSerializer,
+    ProjectAgentUpdateSerializer,
     ProjectCreateSerializer,
     ProjectDestroySerializer,
     ProjectListSerializer,
     ProjectRetrieveSerializer,
     ProjectUpdateSerializer,
 )
-from projects.models import Project, ProjectRole
+from projects.models import Project, ProjectAgent, ProjectRole
 
 
 class ProjectsViewSet(
@@ -47,8 +50,8 @@ class ProjectsViewSet(
         """
         Get the permissions that the current action requires.
 
-        Actions `list` and `retrive` do not require authentication (although
-        the data returned is restricted based on role).
+        Override defaults so that `list` and `retrive` do not require
+        authentication (although the data returned is restricted based on role).
         """
         if self.action in ["list", "retrieve"]:
             return [permissions.AllowAny()]
@@ -158,11 +161,7 @@ WHERE project.id = projects_project.id""",
         return instance
 
     def get_serializer_class(self):
-        """
-        Get the serializer class for the current action.
-
-        For this class, each action has it's own serializer.
-        """
+        """Get the serializer class for the current action."""
         try:
             return {
                 "list": ProjectListSerializer,
@@ -179,10 +178,6 @@ WHERE project.id = projects_project.id""",
         Get the URL to use in the Location header when an action is successful.
 
         For `create`, redirects to the "main" page for the project.
-        
-        This should only need to be used for `create`, because for other actions
-        it is possible to directly specify which URL to redirect to (because the instance
-        `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
         """
         if self.action in ["create"]:
             project = serializer.instance
@@ -191,3 +186,71 @@ WHERE project.id = projects_project.id""",
             )
         else:
             return None
+
+
+class ProjectsAgentsViewSet(
+    HtmxMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    HtmxDestroyMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    A view set for projects agents (users or teams).
+
+    Provides basic CRUD views for project agents.
+    
+    Uses `ProjectsViewSet.get_object` so that we can obtain the
+    role of the user for the project (including inherited role from the account).
+    """
+
+    lookup_url_kwarg = "agent"
+    object_name = "agent"
+    queryset_name = "agents"
+
+    def get_project(self) -> Project:
+        """Get the project and check that the user has permission to the perform action."""
+        project = ProjectsViewSet.init(
+            self.action, self.request, self.args, self.kwargs
+        ).get_object()
+
+        if (
+            self.action in ["create", "destroy"]
+            and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name,]
+        ) or project.role is None:
+            raise exceptions.PermissionDenied
+
+        return project
+
+    def get_queryset(self):
+        """Get project agents."""
+        project = self.get_project()
+        return ProjectAgent.objects.filter(project=project)
+
+    def get_object(self) -> ProjectAgent:
+        """Get a project agent."""
+        try:
+            return self.get_queryset().filter(id=self.kwargs["agent"])[0]
+        except IndexError:
+            raise exceptions.NotFound
+
+    def get_serializer_class(self):
+        """Get the serializer class for the current action."""
+        if self.action == "create":
+            # Call `get_project` to perform permission check
+            self.get_project()
+            return ProjectAgentCreateSerializer
+        elif self.action == "partial_update":
+            return ProjectAgentUpdateSerializer
+        elif self.action == "destroy":
+            return None
+        else:
+            return ProjectAgentSerializer
+
+    def get_response_context(self, **kwargs):
+        """Override to provide additional cotext when rendering templates."""
+        return super().get_response_context(
+            queryset=self.get_queryset(), project=self.get_project(), **kwargs
+        )

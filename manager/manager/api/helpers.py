@@ -56,6 +56,34 @@ class HtmxMixin:
             return [template]
         return ["api/_default.html"]
 
+    def get_response_context(
+        self, queryset=None, instance=None, serializer=None, **kwargs
+    ):
+        context = kwargs
+
+        if queryset is not None:
+            context[self.queryset_name] = queryset
+        elif "queryset" in self.request.META.get("HTTP_X_HX_EXTRA_CONTEXT", ""):
+            context[self.queryset_name] = self.get_queryset()
+
+        if instance is not None:
+            context[self.object_name] = instance
+
+        if serializer is not None:
+            context["serializer"] = serializer
+
+        return context
+
+    def get_success_url(self, serializer):
+        """
+        Get the URL to use in the Location header when an action is successful.
+
+        This should only need to be overridden for `create`, because for other actions
+        it is possible to directly specify which URL to redirect to (because the instance
+        `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
+        """
+        return None
+
     def get_success_headers(self, serializer):
         location = self.get_success_url(serializer)
         if location:
@@ -82,7 +110,9 @@ class HtmxListMixin:
                     if value
                 ]
             )
-            return Response({self.queryset_name: queryset}, headers={"X-HX-Push": url})
+            return Response(
+                self.get_response_context(queryset=queryset), headers={"X-HX-Push": url}
+            )
         else:
             pages = self.paginate_queryset(queryset)
             serializer = self.get_serializer(pages, many=True)
@@ -107,7 +137,13 @@ class HtmxCreateMixin:
                 status = self.INVALID
                 headers = {}
 
-            return Response(dict(serializer=serializer), status=status, headers=headers)
+            return Response(
+                self.get_response_context(
+                    instance=serializer.instance, serializer=serializer
+                ),
+                status=status,
+                headers=headers,
+            )
         else:
             serializer.is_valid(raise_exception=True)
             serializer.save()
@@ -125,15 +161,11 @@ class HtmxRetrieveMixin:
         serializer = self.get_serializer(instance)
 
         if self.accepts_html():
-            headers = self.get_success_headers(serializer)
             return Response(
-                {self.object_name: instance, "serializer": serializer},
-                status=status,
-                headers=headers,
+                self.get_response_context(instance=instance, serializer=serializer),
+                headers=self.get_success_headers(serializer),
             )
         else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
             return Response(serializer.data)
 
 
@@ -157,7 +189,7 @@ class HtmxUpdateMixin:
                 headers = {}
 
             return Response(
-                {self.object_name: instance, "serializer": serializer},
+                self.get_response_context(instance=instance, serializer=serializer),
                 status=status,
                 headers=headers,
             )
@@ -175,25 +207,31 @@ class HtmxDestroyMixin:
         Returns an empty response.
         """
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data)
+
+        serializer_class = self.get_serializer_class()
+        if serializer_class:
+            serializer = serializer_class(instance, data=request.data)
+        else:
+            serializer = None
 
         if self.accepts_html():
-            if serializer.is_valid():
+            if serializer and not serializer.is_valid():
+                status = self.INVALID
+                headers = {}
+            else:
                 instance.delete()
                 status = self.DESTROYED
                 headers = self.get_success_headers(serializer)
-            else:
-                status = self.INVALID
-                headers = {}
 
             return Response(
-                {self.object_name: instance, "serializer": serializer},
+                self.get_response_context(instance=instance, serializer=serializer),
                 status=status,
                 headers=headers,
             )
         else:
-            serializer.is_valid(raise_exception=True)
-            obj.delete()
+            if serializer:
+                serializer.is_valid(raise_exception=True)
+            instance.delete()
             return Response(status=204)
 
 

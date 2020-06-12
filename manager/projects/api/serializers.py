@@ -1,8 +1,126 @@
+from django.db.models import Q
 from rest_framework import exceptions, serializers
 
 from accounts.api.serializers import AccountListSerializer
-from accounts.models import Account, AccountQuotas
-from projects.models import Project
+from accounts.models import Account, AccountQuotas, AccountTeam
+from manager.api.helpers import get_object_from_ident
+from manager.api.validators import FromContextDefault
+from projects.models import Project, ProjectAgent, ProjectRole
+from users.models import User
+
+
+class ProjectAgentSerializer(serializers.ModelSerializer):
+    """
+    A serializer for project agents.
+
+    Translates the `user` and `team` fields into
+    `type` and `agent` (an id).
+    """
+
+    type = serializers.SerializerMethodField()
+
+    agent = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProjectAgent
+        fields = ["id", "project", "type", "agent", "role"]
+
+    def get_type(self, instance):
+        if instance.user:
+            return "user"
+        if instance.team:
+            return "team"
+
+    def get_agent(self, instance):
+        if instance.user:
+            return instance.user.id
+        if instance.team:
+            return instance.team.id
+
+
+class ProjectAgentCreateSerializer(ProjectAgentSerializer):
+    """
+    A serializer for adding project agents.
+
+    Includes an hidden field for the `project` and restricts
+    the choices for `role`.
+    """
+
+    project = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Project, context["view"].kwargs["project"]
+            )
+        )
+    )
+
+    type = serializers.ChoiceField(choices=["user", "team"], write_only=True)
+
+    agent = serializers.IntegerField(write_only=True)
+
+    role = serializers.ChoiceField(
+        choices=[
+            ProjectRole.AUTHOR.name,
+            ProjectRole.MANAGER.name,
+            ProjectRole.OWNER.name,
+        ]
+    )
+
+    def validate(self, data):
+        """
+        Validate the data.
+        
+        - valid user or team id
+        - no existing role for the agent
+        """
+        if data["type"] == "user":
+            if User.objects.filter(id=data["agent"]).count() == 0:
+                raise exceptions.ValidationError(
+                    {"agent": "User with id {0} does not exist.".format(data["agent"])}
+                )
+        elif data["type"] == "team":
+            if AccountTeam.objects.filter(id=data["agent"]).count() == 0:
+                raise exceptions.ValidationError(
+                    {"agent": "Team with id {0} does not exist.".format(data["agent"])}
+                )
+
+        if (
+            ProjectAgent.objects.filter(
+                Q(user_id=data["agent"]) | Q(team_id=data["agent"]),
+                project=data["project"],
+            ).count()
+            > 0
+        ):
+            raise exceptions.ValidationError({"agent": "Already has a project role."})
+
+        return data
+
+    def create(self, validated_data):
+        """Create the project agent."""
+        return ProjectAgent.objects.create(
+            project=validated_data["project"],
+            user_id=validated_data["agent"]
+            if validated_data["type"] == "user"
+            else None,
+            team_id=validated_data["agent"]
+            if validated_data["type"] == "team"
+            else None,
+            role=validated_data["role"],
+        )
+
+
+class ProjectAgentUpdateSerializer(serializers.ModelSerializer):
+    """
+    A serializer for updating project agents.
+
+    Only allows changing the `role` field (do not
+    want to allow changing to a different project for example).
+    """
+
+    class Meta:
+        model = ProjectAgent
+        fields = "__all__"
+        read_only_fields = ["id", "project", "user", "team"]
 
 
 class ProjectAccountField(serializers.PrimaryKeyRelatedField):

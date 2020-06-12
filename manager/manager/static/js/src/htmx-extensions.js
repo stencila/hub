@@ -59,6 +59,12 @@ htmx.defineExtension('stencila', {
         var templateName = serverTemplate.getAttribute('hx-template');
         xhr.setRequestHeader("X-HX-Template", templateName);
       }
+
+      var extraContent = htmx.closest(elt, "[hx-extra-context]");
+      if (extraContent) {
+        var extraContentNames = extraContent.getAttribute('hx-extra-context');
+        xhr.setRequestHeader("X-HX-Extra-Context", extraContentNames);
+      }
     }
     else if (name == 'beforeOnLoad.htmx') {
       // This event is triggered before any new content has been swapped

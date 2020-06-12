@@ -48,25 +48,31 @@
 
 {% if role in "MANAGER,OWNER" %}
 <form class="field has-addons-tablet">
+  <input type="hidden" name="type" value="user">
   <div class="control is-expanded">
-    {% include "users/_search.html" %}
+    {% include "users/_search.html" with id_name="agent" %}
   </div>
   <div class="control is-expanded-mobile">
     <div class="select">
-      <select id="accounts-users-add-role" name="role">
-        <option value="MEMBER">Member</option>
+      <select id="projects-agents-add-role" name="role">
+        <option value="AUTHOR">Author</option>
         <option value="MANAGER">Manager</option>
         <option value="OWNER">Owner</option>
       </select>
     </div>
   </div>
   <div class="control">
-    <button class="button is-primary is-outlined is-fullwidth-mobile" hx-target="#accounts-users-list">
+    <button class="button is-primary is-outlined is-fullwidth-mobile"
+            hx-post="{% url 'api-projects-agents-list' project.id %}"
+            hx-include="#projects-agents-add-type, #user-search-result-id, #projects-agents-add-role"
+            hx-template="projects/_agents_list.html" hx-target="#projects-agents-list">
       <span class="icon"><i class="ri-add-line"></i></span>
       <span>Add</span>
     </button>
   </div>
 </form>
 {% endif %}
+
+{% include "./_agents_list.html" with agents=project.agents.all %}
 
 {% endblock %}
