@@ -1,10 +1,16 @@
+{% load i18n %}
+
 <ul class="project-list">
   {% for project in projects %}
   <li class="collection-list--item transition-colors">
     {% include './_project_list_item.html' with project=project %}
   </li>
   {% empty %}
-  <span class="icon"><i class="ri-alert-line"></i></span>
-  No projects matching this search.
+  <li class="has-text-weight-bold pt-3 is-size-4 has-text-grey">
+    <span class="icon is-vcentered"><i class="ri-alert-line"></i></span>
+    <span class="is-vcentered">
+      {% trans 'No projects matching this search.' %}
+    </span>
+  </li>
   {% endfor %}
 </ul>

@@ -401,6 +401,15 @@ body {
   }
 }
 
+
+.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.is-vcentered {
+  vertical-align: middle;
+}
+
 .has-text-nowrap {
   white-space: nowrap;
 }
@@ -555,5 +564,17 @@ main {
   }
   .columns a {
     margin: 0.5rem;
+  }
+}
+
+.illustration-backdrop {
+  width: 90%;
+  margin: 0 5%;
+
+  @media screen and (min-width: $tablet) {
+    width: 50%;
+    margin-left: 25%;
+    margin-right: 25%;
+    
   }
 }
