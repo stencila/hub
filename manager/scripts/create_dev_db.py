@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
-from projects.models import Project, ProjectAgent, ProjectRole
+from projects.models import Project, ProjectAgent, ProjectRole, Source
 from users.models import User
 
 
@@ -194,6 +194,18 @@ def run(*args):
                 if ProjectAgent.objects.filter(project=project, user=user).count() == 0:
                     ProjectAgent.objects.create(project=project, user=user, role=role)
 
+    #################################################################
+    # Sources
+    #################################################################
+
+    # Each project has at least one of each type of source
+
+    for project in Project.objects.all():
+        for path in ["first-source", "second-source"]:
+            Source.objects.create(
+                project=project, path=path, creator=random_project_user(project),
+            )
+
 
 def random_users(num=None):
     """Get a random set of users."""
@@ -217,4 +229,14 @@ def random_team_name():
     """Get a random team name."""
     return random.choice(
         ["editors", "authors", "reviewers", "special-project-team", "vision-2020-team"]
+    )
+
+
+def random_project_user(project):
+    """Get a random user for an project."""
+    return (
+        ProjectAgent.objects.filter(project=project, user__isnull=False)
+        .order_by("?")
+        .first()
+        .user
     )

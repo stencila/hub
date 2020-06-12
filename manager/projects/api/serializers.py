@@ -5,7 +5,7 @@ from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountQuotas, AccountTeam
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
-from projects.models import Project, ProjectAgent, ProjectRole
+from projects.models import Project, ProjectAgent, ProjectRole, Source
 from users.models import User
 
 
@@ -266,3 +266,9 @@ class ProjectDestroySerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 dict(name="Provided name does not match the project name.")
             )
+
+
+class SourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Source
+        fields = "__all__"

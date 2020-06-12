@@ -4,6 +4,7 @@ from django.shortcuts import reverse
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -23,8 +24,9 @@ from projects.api.serializers import (
     ProjectListSerializer,
     ProjectRetrieveSerializer,
     ProjectUpdateSerializer,
+    SourceSerializer,
 )
-from projects.models import Project, ProjectAgent, ProjectRole
+from projects.models import Project, ProjectAgent, ProjectRole, Source
 
 
 class ProjectsViewSet(
@@ -217,7 +219,7 @@ class ProjectsAgentsViewSet(
         ).get_object()
 
         if (
-            self.action in ["create", "destroy"]
+            self.action in ["create", "partial_update", "destroy"]
             and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name,]
         ) or project.role is None:
             raise exceptions.PermissionDenied
@@ -254,3 +256,89 @@ class ProjectsAgentsViewSet(
         return super().get_response_context(
             queryset=self.get_queryset(), project=self.get_project(), **kwargs
         )
+
+
+class ProjectsSourcesViewSet(
+    HtmxMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    HtmxDestroyMixin,
+    viewsets.GenericViewSet,
+):
+    """A view set for project sources."""
+
+    lookup_url_kwarg = "source"
+    object_name = "source"
+    queryset_name = "sources"
+
+    def get_project(self) -> Project:
+        """Get the project and check that the user has permission to the perform action."""
+        project = ProjectsViewSet.init(
+            self.action, self.request, self.args, self.kwargs
+        ).get_object()
+
+        if (
+            self.action in ["create", "partial_update", "destroy"]
+            and project.role
+            not in [
+                ProjectRole.AUTHOR.name,
+                ProjectRole.MANAGER.name,
+                ProjectRole.OWNER.name,
+            ]
+        ) or project.role is None:
+            raise exceptions.PermissionDenied
+
+        return project
+
+    def get_queryset(self):
+        """Get project sources."""
+        project = self.get_project()
+        return Source.objects.filter(project=project)
+
+    def get_object(self, source = None) -> Source:
+        """Get a project source."""
+        source = source or self.kwargs["source"]
+        try:
+            return self.get_queryset().filter(id=source)[0]
+        except IndexError:
+            raise exceptions.NotFound
+
+    def get_serializer_class(self, action = None):
+        """Get the serializer class for the current action."""
+        action = action or self.action
+        if action == "create":
+            # Call `get_project` to perform permission check
+            self.get_project()
+            return SourceSerializer
+        elif action == "partial_update":
+            return SourceSerializer
+        elif action == "destroy":
+            return None
+        else:
+            return SourceSerializer
+
+    def get_response_context(self, **kwargs):
+        """Override to provide additional cotext when rendering templates."""
+        return super().get_response_context(
+            queryset=self.get_queryset(), project=self.get_project(), **kwargs
+        )
+
+    @action(detail=False)
+    def render(self, request: Request, *args, **kwargs) -> Response:
+        action = self.request.GET.get("action", "retrieve")
+        source = self.request.GET.get("source")
+
+        if source:
+            instance = self.get_object(source)
+        else:
+            instance = None
+
+        serializer_class = self.get_serializer_class(action)
+        if serializer_class:
+            serializer = serializer_class(instance)
+        else:
+            serializer = None
+        
+        return Response(self.get_response_context(instance=instance, serializer=serializer))
