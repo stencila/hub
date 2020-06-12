@@ -64,16 +64,29 @@ class ProjectsViewSet(
         queryset = Project.objects.all().select_related("account")
 
         if self.request.user.is_authenticated:
+            # Annotate the queryset with the role of the user
+            # Role is the "greater" of the project role and the
+            # account rol (for the account that owns the project).
             queryset = queryset.annotate(
                 role=RawSQL(
                     """
-                       SELECT role
-                       FROM projects_projectagent
-                       WHERE
-                          project_id = projects_project.id AND
-                          user_id = %s
-                """,
-                    [self.request.user.id],
+SELECT
+    CASE account_role.role
+    WHEN "OWNER" THEN "OWNER"
+    WHEN "MANAGER" THEN
+        CASE project_role.role
+        WHEN "OWNER" THEN "OWNER"
+        ELSE "MANAGER" END
+    ELSE project_role.role END AS role
+FROM projects_project AS project
+    LEFT JOIN
+        (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
+        ON project.id = project_role.project_id
+    LEFT JOIN
+        (SELECT account_id, "role" FROM accounts_accountuser WHERE user_id = %s) AS account_role
+        ON project.account_id = account_role.account_id
+WHERE project.id = projects_project.id""",
+                    [self.request.user.id, self.request.user.id],
                 )
             )
 
@@ -130,7 +143,11 @@ class ProjectsViewSet(
         elif "id" not in filter:
             raise RuntimeError("Must provide project id if not providing account")
 
-        instance = self.get_queryset().get(**filter)
+        try:
+            # Using [0] adds LIMIT 1 to query so is more efficient than `.get(**filter)`
+            instance = self.get_queryset().filter(**filter)[0]
+        except IndexError:
+            raise exceptions.NotFound
 
         if (
             self.action == "partial_update"
