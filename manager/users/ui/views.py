@@ -1,12 +1,11 @@
 from allauth.account.views import LoginView, LogoutView, SignupView
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
-from django.views.generic import FormView, TemplateView
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.views.generic import FormView, TemplateView
 
 from .forms import SignupForm, UsernameForm
 
