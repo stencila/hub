@@ -367,6 +367,10 @@ body {
   color: $white;
 }
 
+.htmx-indicator {
+  @extend .has-text-grey;
+}
+
 // =============================================================================
 // Reusable elements & Utility classes
 // =============================================================================
@@ -376,6 +380,19 @@ body {
     transition-duration: 150ms;
     transition-property: color, background-color;
     transition-timing-function: ease-out;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotateZ(0);
+    }
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: 3s linear 1s infinite running spin;
   }
 }
 

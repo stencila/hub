@@ -29,13 +29,16 @@
 </div>
 
 <div class="field has-addons">
-  <div class="control has-icons-left is-expanded">
+  <div class="control has-icons-left has-icons-right is-expanded">
     <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
            hx-trigger="keyup changed delay:500ms, role-changed" hx-get="/api/accounts"
            hx-include="#orgs-search-role, #orgs-search-is-org" hx-template="accounts/_list_orgs_result.html"
-           hx-target="#orgs-search-result">
+           hx-target="#orgs-search-result" hx-indicator="#orgs-search-indicator">
     <span class="icon is-small is-left">
       <i class="ri-search-line"></i>
+    </span>
+    <span class="icon is-right htmx-indicator" id="orgs-search-indicator">
+      <i class="ri-loader-line animate-spin"></i>
     </span>
   </div>
   {% if user.is_authenticated %}
