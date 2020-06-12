@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      {% if role in 'MEMBER, MANAGER, OWNER' %}
+      {% if role in 'AUTHOR, MANAGER, OWNER' %}
       <a href="#" class="dropdown-item">
         <span class="icon">
           <i class="ri-edit-line"></i>
@@ -63,7 +63,8 @@
 
       <hr class="dropdown-divider" />
 
-      <a href="#" class="dropdown-item">
+      <a class="dropdown-item" hx-get="{% url 'api-projects-sources-render' project.id %}?action=destroy&source={{ source.id }}"
+         hx-template="projects/sources/_destroy_modal.html" hx-target="#projects-sources-action-modal">
         <span class="icon">
           <i class="ri-delete-bin-line"></i>
         </span>

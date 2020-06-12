@@ -1,0 +1,111 @@
+{% load i18n %}
+
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <form class="field">
+        <label class="is-sr-only" for="project-search">
+          {% trans "File filter" %}
+        </label>
+        <input id="file-filter" name="name" class="input is-small-mobile" type="text"
+               placeholder="{% trans "Filter files…" %}">
+      </form>
+    </div>
+  </div>
+
+  <div class="level-right">
+    {% if role in 'AUTHOR, MANAGER, OWNER' %}
+    <div class="dropdown level-item">
+      <div class="dropdown-trigger">
+        <button class="button is-primary is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+          <span class="icon">
+            <i class="ri-add-line"></i>
+          </span>
+          <span>
+            {% trans "New" %}
+          </span>
+          <span class="icon">
+            <i class="ri-arrow-down-s-line"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+          <a hx-get="{% url 'api-projects-sources-render' project.id %}?action=create"
+             hx-template="projects/sources/_create_file_modal.html"
+             hx-target="#projects-sources-action-modal"
+             class="dropdown-item">
+            <span class="icon">
+              <i class="ri-file-add-line"></i>
+            </span>
+            <span>
+              {% trans "File" %}
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-folder-add-line"></i>
+            </span>
+            <span>
+              {% trans "Folder" %}
+            </span>
+          </a>
+          <hr class="dropdown-divider">
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-upload-cloud-2-line"></i>
+            </span>
+            <span>
+              {% trans "File upload" %}
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-github-line"></i>
+            </span>
+            <span>
+              GitHub
+            </span>
+          </a>
+          <a class="dropdown-item">
+            <span class="icon">
+              <i class="ri-google-line"></i>
+            </span>
+            <span>
+              Google Docs
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-links-line"></i>
+            </span>
+            <span>
+              URL
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<table class="table is-fullwidth is-striped is-hoverable">
+  <thead>
+    <tr class="table-header is-sr-only">
+      <th>
+        {% trans "Source Type" %}
+      </th>
+      <th>
+        {% trans "Source Name" %}
+      </th>
+      <th>
+        {% trans "Date Updated" %}
+      </th>
+      <th>
+        {% trans "Source Actions" %}
+      </th>
+    </tr>
+  </thead>
+  {% include "./_source_list.html" %}
+</table>
