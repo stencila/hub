@@ -1,5 +1,8 @@
+import copy
+
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
+from django.http.request import HttpRequest
 from django.shortcuts import reverse
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.decorators import action
@@ -275,8 +278,12 @@ class ProjectsSourcesViewSet(
 
     def get_project(self) -> Project:
         """Get the project and check that the user has permission to the perform action."""
+        # Only pass on the request `user` so that any source filter query parameters
+        # are not applied to projects
+        request = HttpRequest()
+        request.user = self.request.user
         project = ProjectsViewSet.init(
-            self.action, self.request, self.args, self.kwargs
+            self.action, request, self.args, self.kwargs,
         ).get_object()
 
         if (
@@ -295,7 +302,13 @@ class ProjectsSourcesViewSet(
     def get_queryset(self):
         """Get project sources."""
         project = self.get_project()
-        return Source.objects.filter(project=project)
+        queryset = Source.objects.filter(project=project)
+
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(Q(path__icontains=search))
+
+        return queryset
 
     def get_object(self, source=None) -> Source:
         """Get a project source."""
@@ -327,6 +340,9 @@ class ProjectsSourcesViewSet(
 
     @action(detail=False)
     def render(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Render a template for a source.
+        """
         action = self.request.GET.get("action", "retrieve")
         source = self.request.GET.get("source")
 
