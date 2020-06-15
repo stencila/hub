@@ -42,7 +42,15 @@
 
 <div class="has-text-centered">
   <h3 class="title is-4 has-text-grey">
-    {% trans 'This organization does not have any projects yet.' %}
+    {% if account.user %}
+      {% if account.user == request.user %}
+        {% trans "You do not have any projects yet." %}
+      {% else %}
+        {% trans 'This user does not have any projects yet.' %}
+      {% endif %}
+    {% else %}
+      {% trans 'This organization does not have any projects yet.' %}
+    {% endif %}
   </h3>
 
   <img class="illustration-backdrop is-flipped" src="{% static 'img/illustrations/wonder.svg' %}" role="presentation" />
