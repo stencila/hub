@@ -37,8 +37,8 @@ def home(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         return redirect("ui-accounts-retrieve", request.user.username)
 
-    # Unauthenticated users get redirected to sign in
-    return redirect(settings.LOGIN_URL)
+    # Unauthenticated users get redirected to the project listing page
+    return redirect("ui-projects-list")
 
 
 def favicon(request: HttpRequest) -> HttpResponse:
