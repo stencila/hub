@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load static %}
 
 <div class="level is-mobile">
   <div class="level-left">
@@ -100,6 +101,20 @@
   </div>
 </div>
 
+{% if sources|length == 0 %}
+
+<div class="has-text-centered">
+  <h3 class="title is-4 has-text-grey">
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+    {% trans 'Start working on this project by adding a new source.' %}
+    {% else %}
+    {% trans 'This project does not have any sources yet.' %}
+    {% endif %}
+  </h3>
+
+  <img class="illustration-backdrop" src="{% static 'img/illustrations/project.svg' %}" role="presentation" />
+</div>
+{% else %}
 <table class="table is-fullwidth is-striped is-hoverable">
   <thead>
     <tr class="table-header is-sr-only">
@@ -121,3 +136,4 @@
     {% include "./_source_list.html" %}
   </tbody>
 </table>
+{% endif %}
