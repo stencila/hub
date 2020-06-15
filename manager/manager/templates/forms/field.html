@@ -6,7 +6,7 @@
   {% if field.field.widget.input_type == "checkbox" %}
   <label class="checkbox">
     <input type="checkbox" name="{{ field.name }}">
-    {{ field.label }}
+    {{ field.label|safe }}
   </label>
   {% else %}
   <label class="label">{{ field.label }}</label>

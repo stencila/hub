@@ -7,9 +7,9 @@ class SignupForm(AllauthSignupForm):
     """Form for users to sign up."""
 
     termsconditions = forms.BooleanField(
-        label="I have read and agree to the Terms and Conditions",
+        label='I have read and agree to the <a href="https://policies.stenci.la/terms">terms and conditions</a>',
         required=True,
-        help_text='Please read and agree to our <a href="https://policies.stenci.la/terms">Terms and Conditions</a>',
+        help_text='Please read and agree to our Terms and Conditions',
     )
 
 
