@@ -42,9 +42,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
     instance = viewset.get_object()
-    return render(
-        request, "projects/retrieve.html", dict(project=instance, role=instance.role)
-    )
+    return render(request, "projects/retrieve.html", dict(project=instance))
 
 
 @login_required
@@ -59,7 +57,6 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         "projects/update.html",
         dict(
             project=instance,
-            role=instance.role,
             serializer=serializer,
             destroy_serializer=destroy_serializer,
         ),
@@ -71,6 +68,4 @@ def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project's sharing settings."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
     instance = viewset.get_object()
-    return render(
-        request, "projects/sharing.html", dict(project=instance, role=instance.role)
-    )
+    return render(request, "projects/sharing.html", dict(project=instance))

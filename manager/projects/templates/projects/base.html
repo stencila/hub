@@ -46,7 +46,7 @@
     </li>
 
 
-    {% if role in 'MANAGER, OWNER' %}
+    {% if project.role in 'MANAGER, OWNER' %}
     <li class="sidebar__item">
       <a href="{% url 'ui-projects-sharing' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-sharing' %}">
