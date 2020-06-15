@@ -1,13 +1,15 @@
 from django.urls import path, re_path
 
 import projects.ui.views.projects as project_views
-from manager.paths import Paths
+from manager.paths import RootPaths
 
 # URLs that must go before `accounts.ui.urls`
 before_account_urls = [
-    path(Paths.projects.value + "/", project_views.list, name="ui-projects-list"),
+    path(RootPaths.projects.value + "/", project_views.list, name="ui-projects-list"),
     path(
-        Paths.projects.value + "/new/", project_views.create, name="ui-projects-create"
+        RootPaths.projects.value + "/new/",
+        project_views.create,
+        name="ui-projects-create",
     ),
     re_path(
         r"^(?P<account>[^/]+)/(?P<project>\d+)(?P<rest>.*)",
@@ -16,7 +18,7 @@ before_account_urls = [
     ),
 ]
 
-# URls that mist go after `accounts.ui.urls`
+# URLs that must go after `accounts.ui.urls`
 after_account_urls = [
     path(
         "<slug:account>/<slug:project>/",

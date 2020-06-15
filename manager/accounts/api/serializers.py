@@ -10,7 +10,7 @@ from accounts.models import (
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
-from manager.paths import Paths
+from manager.paths import RootPaths
 from users.api.serializers import UserIdentifierSerializer, UserSerializer
 from users.models import User
 
@@ -223,7 +223,7 @@ class AccountSerializer(serializers.ModelSerializer):
         of similar account names, we manually check for duplicates
         before that is called.
         """
-        if Paths.has(name):
+        if RootPaths.has(name):
             raise exceptions.ValidationError(
                 "Account name '{0}' is unavailable.".format(name)
             )

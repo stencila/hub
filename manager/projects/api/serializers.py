@@ -3,8 +3,10 @@ from rest_framework import exceptions, serializers
 
 from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountQuotas, AccountTeam
+from accounts.paths import AccountPaths
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
+from manager.helpers import unique_slugify
 from projects.models import Project, ProjectAgent, ProjectRole, Source
 from users.models import User
 
@@ -156,6 +158,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         default=True, help_text="Should the project is publically visible?"
     )
 
+    name = serializers.CharField(help_text=Project._meta.get_field("name").help_text)
+
     theme = serializers.ChoiceField(
         choices=[],  # TODO
         allow_blank=True,
@@ -171,7 +175,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         """
         Validate the project fields.
 
-        Checks that the user is
+        TODO: Check that the user is a member of the account
         
         Also checks that the account has sufficient quotas to
         create the project. This function is written to be able to used
@@ -207,6 +211,47 @@ class ProjectSerializer(serializers.ModelSerializer):
         # the number of private projects.
         if data.get("public") and public is False:
             AccountQuotas.PROJECTS_PRIVATE.check(account)
+
+        # Check the name is valid for this account
+        name = data.get("name")
+        if name:
+            if AccountPaths.has(name):
+                raise exceptions.ValidationError(
+                    "Project name '{0}' is unavailable.".format(name)
+                )
+
+            if (
+                Project.objects.filter(account=account, name=name)
+                .exclude(id=self.instance.id if self.instance else None)
+                .count()
+            ):
+                raise exceptions.ValidationError(
+                    "Project name '{0}' is already in use for this account.".format(
+                        name
+                    )
+                )
+
+            data["name"] = name = unique_slugify(
+                name,
+                instance=self.instance,
+                queryset=Project.objects.filter(account=account),
+            )
+
+            MIN_LENGTH = 3
+            if len(name) < MIN_LENGTH:
+                raise exceptions.ValidationError(
+                    "Project name must have at least {0} valid characters.".format(
+                        MIN_LENGTH
+                    )
+                )
+
+            MAX_LENGTH = 64
+            if len(name) > MAX_LENGTH:
+                raise exceptions.ValidationError(
+                    "Project name must be less than {0} characters long.".format(
+                        MAX_LENGTH
+                    )
+                )
 
         return data
 

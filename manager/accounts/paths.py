@@ -3,19 +3,17 @@ from enum import unique
 
 
 @unique
-class RootPaths(enum.Enum):
+class AccountPaths(enum.Enum):
     """
-    Contains all the root paths used in the base urlpatterns.
+    Contains all the paths used in account urlpatterns.
 
     The purpose of this is to make it easier to keep the list of
-    disallowed account names up to date.
+    disallowed project names up to date.
     """
 
-    api = "api"
-    favicon = "favicon.ico"
-    me = "me"
-    orgs = "orgs"
-    projects = "projects"
+    sharing = "sharing"
+    settings = "settings"
+    teams = "teams"
     users = "users"
 
     @classmethod

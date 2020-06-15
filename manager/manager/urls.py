@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 import projects.ui.urls
-from manager.paths import Paths
+from manager.paths import RootPaths
 from manager.ui.views import (
     favicon,
     handle403,
@@ -19,9 +19,9 @@ from manager.ui.views import (
 )
 
 urlpatterns = [
-    path(Paths.api.value + "/", include("manager.api.urls")),
-    path(Paths.favicon.value, favicon),
-    path(Paths.me.value + "/", include("users.ui.urls")),
+    path(RootPaths.api.value + "/", include("manager.api.urls")),
+    path(RootPaths.favicon.value, favicon),
+    path(RootPaths.me.value + "/", include("users.ui.urls")),
     path(
         "stencila/",
         include(
