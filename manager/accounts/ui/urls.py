@@ -23,6 +23,11 @@ urlpatterns = [
     ),
     path("<slug:account>/", account_views.retrieve, name="ui-accounts-retrieve"),
     path("<slug:account>/settings/", account_views.update, name="ui-accounts-update"),
+    path(
+        "<slug:account>/settings/image",
+        account_views.update_image,
+        name="ui-accounts-update-image",
+    ),
     path("<slug:account>/users/", user_views.update, name="ui-accounts-users"),
     path("<slug:account>/teams/", team_views.list, name="ui-accounts-teams-list"),
     path(

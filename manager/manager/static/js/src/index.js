@@ -1,4 +1,5 @@
 // These are available as `manager.Toast` etc
+export { File } from "@vizuaalog/bulmajs/src/plugins/file";
 export { Navbar } from "@vizuaalog/bulmajs/src/plugins/navbar";
 export { toast as Toast } from "bulma-toast";
 import "./dropdowns";

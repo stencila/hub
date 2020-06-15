@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
 from django.shortcuts import render
 
 from accounts.api.views import AccountsViewSet
+from accounts.ui.forms import AccountImageForm
 
 
 def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -68,8 +69,29 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
     account = viewset.get_object()
     serializer = viewset.get_serializer(account)
+    update_image_form = AccountImageForm()
     return render(
         request,
         "accounts/update.html",
-        dict(serializer=serializer, account=account, role=account.role),
+        dict(
+            account=account,
+            role=account.role,
+            serializer=serializer,
+            update_image_form=update_image_form,
+        ),
     )
+
+
+@login_required
+def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Update an account's image."""
+    if request.method == "POST":
+        viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
+        account = viewset.get_object()
+        form = AccountImageForm(request.POST, request.FILES, instance=account)
+        if form.is_valid():
+            form.save()
+            return redir("ui-accounts-update", account.name)
+        raise RuntimeError("Error attempting to save the account image.")
+    else:
+        raise Http404
