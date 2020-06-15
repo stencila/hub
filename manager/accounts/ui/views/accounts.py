@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 from accounts.api.views import AccountsViewSet
 from accounts.ui.forms import AccountImageForm
+from projects.api.views.projects import ProjectsViewSet
 
 
 def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -53,9 +54,10 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
-    viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
-    account = viewset.get_object()
-    projects = account.projects.all()
+    account_viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
+    account = account_viewset.get_object()
+    projects_viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
+    projects = projects_viewset.get_queryset().filter(account=account)
     return render(
         request,
         "accounts/retrieve.html",

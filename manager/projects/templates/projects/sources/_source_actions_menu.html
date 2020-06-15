@@ -28,6 +28,8 @@
         </span>
         <span>{% trans "Download" %}</span>
       </a>
+
+      {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <hr class="dropdown-divider">
       <div class="dropdown dropdown-item px-0 py-0" data-placement="right-start">
         <a class="dropdown-trigger dropdown-item px-0 py-0">
@@ -53,7 +55,6 @@
         </div>
       </div>
 
-      {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <a href="#" class="dropdown-item">
         <span class="icon">
           <i class="ri-edit-line"></i>
