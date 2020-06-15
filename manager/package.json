@@ -7,8 +7,9 @@
     "watch:css": "npm run build:css -- --watch",
     "build:js": "NODE_ENV=production rollup --config",
     "watch:js": "rollup --config -w",
+    "build:py": "node generate.js",
     "watch:serve": "browser-sync start -p localhost:8000 --no-notify -f manager/static/css/**/*.css,manager/static/js/**/*.js,**/templates/**/*.html",
-    "build": "npm run build:css && npm run build:js",
+    "build": "npm run build:css && npm run build:js && npm run build:py",
     "start": "concurrently \"npm:watch:css\" \"npm:watch:js\" \"npm:watch:serve\"",
     "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html **/templates/**/**/*.html"
   },
@@ -20,6 +21,7 @@
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "^2.4.2",
+    "@stencila/thema": "^2.10.2",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "^0.9.0",
     "bulma-switch": "^2.0.0",

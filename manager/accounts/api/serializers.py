@@ -11,6 +11,7 @@ from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.paths import RootPaths
+from manager.themes import Themes
 from users.api.serializers import UserIdentifierSerializer, UserSerializer
 from users.models import User
 
@@ -196,6 +197,13 @@ class AccountSerializer(serializers.ModelSerializer):
     """
 
     name = serializers.CharField(help_text=Account._meta.get_field("name").help_text)
+
+    theme = serializers.ChoiceField(
+        choices=Themes.as_choices(),
+        allow_blank=True,
+        required=False,
+        help_text="The default theme for the account.",
+    )
 
     class Meta:
         model = Account

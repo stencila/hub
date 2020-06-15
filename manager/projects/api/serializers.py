@@ -7,6 +7,7 @@ from accounts.paths import AccountPaths
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
+from manager.themes import Themes
 from projects.models import Project, ProjectAgent, ProjectRole, Source
 from users.models import User
 
@@ -155,13 +156,13 @@ class ProjectSerializer(serializers.ModelSerializer):
     account = ProjectAccountField(help_text="The account that the project is owned by.")
 
     public = serializers.BooleanField(
-        default=True, help_text="Should the project is publically visible?"
+        default=True, help_text="Should the project be publicly visible?"
     )
 
     name = serializers.CharField(help_text=Project._meta.get_field("name").help_text)
 
     theme = serializers.ChoiceField(
-        choices=[],  # TODO
+        choices=Themes.as_choices(),
         allow_blank=True,
         required=False,
         help_text="The default theme for the project.",

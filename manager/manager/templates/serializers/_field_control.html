@@ -13,11 +13,17 @@
         {% elif select.end_option_group %}
       </optgroup>
       {% else %}
-      <option value="{{ select.value }}">{{ select.display_text }}</option>
+      <option value="{{ select.value }}" {% if select.value == field.value %}selected{% endif %}
+              {% if select.disabled %}disabled{% endif %}>{{ select.display_text }}</option>
       {% endif %}
       {% endfor %}
     </select>
   </div>
+  {% if icon %}
+  <span class="icon is-left">
+    <i class="{{ icon }}"></i>
+  </span>
+  {% endif %}
   {% elif element == "textarea" %}
   <textarea id="{{ field_id }}" class="textarea" name="{{ field.name }}"
             {% if placeholder %}placeholder="{{ placeholder }}" {% endif %}{% if autofocus %}
