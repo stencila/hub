@@ -38,8 +38,10 @@
     {% endif %}
   </h2>
 
+  {% if project.description %}
   <p class="subtitle is-size-6">
-    {{ project.description|default:"This project does not have a description."|truncatechars:180 }}
+    {{ project.description|truncatechars:180 }}
   </p>
+  {% endif %}
 </a>
 {% endwith %}

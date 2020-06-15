@@ -43,7 +43,17 @@
 <p>
   {{ project.description }}
 </p>
-{# TODO: Add link for project Managers/Owners to set a project description. #}
+{% elif project.role in 'MANAGER, OWNER' %}
+<p>
+  <a class="button is-white is-light is-small" href="{% url 'ui-projects-update' project.account.name project.name %}">
+    <span class="icon">
+      <i class="ri-add-line"></i>
+    </span>
+    <span>
+      {% trans "Add project description" %}
+    </span>
+  </a>
+</p>
 {% endif %}
 
 <hr />
