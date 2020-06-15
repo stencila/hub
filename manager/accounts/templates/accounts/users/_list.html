@@ -55,6 +55,11 @@
             </div>
           </div>
         </div>
+        {% else %}
+        <p data-tooltip="{% trans "You cannot change your own role." %}"
+           class="has-tooltip-top has-tooltip-text-centered">
+          {{ role|title }}
+        </p>
         {% endif %}
       </div>
     </div>

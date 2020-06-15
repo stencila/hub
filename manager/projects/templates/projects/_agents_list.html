@@ -64,7 +64,10 @@
           </div>
         </div>
         {% else %}
-        {{ project.role }}
+        <p data-tooltip="{% trans "You cannot change your own role." %}"
+           class="has-tooltip-top has-tooltip-text-centered">
+          {{ project.role|title }}
+        </p>
         {% endif %}
       </div>
     </div>
