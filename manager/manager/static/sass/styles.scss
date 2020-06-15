@@ -54,7 +54,7 @@ $footer-padding: 2rem 3rem 0.1rem;
 
 $input-placeholder-color: $grey;
 
-$modal-background-background-color: transparentize(darken($blue, 30%), .3);
+$modal-background-background-color: transparentize(darken($blue, 30%), 0.3);
 
 // Import Bulma components
 // The following are all the SASS files in Bulma 0.8.2
@@ -114,7 +114,6 @@ $modal-background-background-color: transparentize(darken($blue, 30%), .3);
 
 // Bulma extensions
 @import "../../../node_modules/@creativebulma/bulma-tooltip/src/sass/index.sass";
-@import "../../../node_modules/bulma-switch/src/sass/index.sass";
 
 // Custom styles
 @import "./accounts/teams/index.scss";
@@ -382,6 +381,169 @@ body {
 // Reusable elements & Utility classes
 // =============================================================================
 
+input[type="checkbox"].toggle {
+  @extend .is-sr-only;
+
+  & + label {
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 3rem;
+
+    &:before {
+      background: $white;
+      border-radius: 4px;
+      border: 0.1rem solid transparent;
+      bottom: 0.375rem;
+      color: $grey;
+      content: "\eb99";
+      display: block;
+      font-family: "remixicon" !important;
+      font-weight: bold;
+      height: calc(2.5em - 0.75rem);
+      line-height: 1.625em;
+      position: absolute;
+      text-align: center;
+      transform: translateX(0.375rem);
+      transition: transform 150ms ease-out;
+      vertical-align: middle;
+      width: 1.5rem;
+      z-index: 1;
+    }
+
+    &:after {
+      background-color: $grey-lighter;
+      border-radius: 4px;
+      border: 0.1rem solid transparent;
+      content: "";
+      display: block;
+      height: 2.5em;
+      bottom: 0;
+      position: absolute;
+      transition: background-color 150ms ease-out;
+      width: 4rem;
+      z-index: 0;
+    }
+  }
+
+  &:checked {
+    & + label:before {
+      content: "\eb7b";
+      color: $success;
+      transform: translateX(2rem);
+    }
+
+    & + label:after {
+      background: $success;
+    }
+  }
+
+  &.is-inline {
+    & + label {
+      display: inline-block;
+      height: 2.5em;
+      line-height: 2.5em;
+      padding-bottom: 0;
+      vertical-align: top;
+
+      &:before {
+        height: calc(100% - 0.75rem);
+        top: 0.375rem;
+        transform: translateX(-3.75rem);
+      }
+
+      &:after {
+        height: 100%;
+        position: absolute;
+        top: 0;
+        transform: translateX(-4.25rem);
+      }
+    }
+
+    &:checked + label:before {
+      transform: translateX(-2.25rem);
+    }
+
+    &.toggle__label-before {
+      & + label {
+        &:before {
+          right: 0;
+          top: 0.5rem;
+          transform: translateX(-2rem);
+        }
+
+        &:after {
+          display: inline-block;
+          margin-left: 0.5rem;
+          position: relative;
+          transform: none;
+          vertical-align: middle;
+        }
+      }
+
+      &:checked {
+        & + label:before {
+          transform: translateX(-0.5rem);
+        }
+      }
+    }
+  }
+
+  &.is-small {
+    & + label {
+      line-height: 1.5;
+      padding-bottom: 1.5em;
+
+      &:before {
+        height: calc(1.5em - 0.5rem);
+        line-height: 90%;
+        bottom: 0.25rem;
+        transform: translateX(0.25rem);
+      }
+
+      &:after {
+        height: 1.5em;
+        width: 3rem;
+      }
+    }
+
+    &:checked + label:before {
+      transform: translateX(1.25rem);
+    }
+
+    &.is-inline {
+      height: 1.5em;
+
+      & + label:before {
+        top: 0.25rem;
+        transform: translateX(-3.25rem);
+      }
+
+      & + label:after {
+        transform: translateX(-3.5rem);
+      }
+
+      &:checked + label:before {
+        transform: translateX(-2.25rem);
+      }
+    }
+
+    &.toggle__label-before {
+      & + label:before {
+        top: 0.375rem;
+        transform: translateX(-1.25rem);
+      }
+
+      & + label:after {
+        transform: translateX(0);
+      }
+
+      &:checked + label:before {
+        transform: translateX(-0.25rem);
+      }
+    }
+  }
+}
+
 @media screen and (prefers-reduced-motion: no-preference) {
   .transition-colors {
     transition-duration: 150ms;
@@ -404,7 +566,7 @@ body {
 }
 
 .cursor-close {
-  cursor: url('../img/close-circle-line.svg'), pointer;
+  cursor: url("../img/close-circle-line.svg"), pointer;
 }
 
 .is-vcentered {
@@ -580,6 +742,5 @@ main {
     width: 50%;
     margin-left: 25%;
     margin-right: 25%;
-    
   }
 }
