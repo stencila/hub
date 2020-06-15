@@ -501,6 +501,10 @@ a .icon + span,
 .navbar__user-avatar {
   display: inline-block;
   vertical-align: middle;
+
+  & > img {
+    max-height: 2rem;
+  }
 }
 
 .menu-list a.is-active {
