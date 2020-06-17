@@ -261,7 +261,7 @@ async def snip(page, path, user, selector):
         selector,
     )
     if rect:
-        padding = 5
+        padding = 8
         await page.screenshot(
             {
                 "path": os.path.join("snaps", file),
