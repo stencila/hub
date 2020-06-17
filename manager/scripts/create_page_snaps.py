@@ -63,7 +63,7 @@ USERS = [
 # be snapped.
 ELEMS = [
     # Organizations
-    [r"^orgs/$", ["button.is-primary"]],
+    [r"^orgs/$", ["a.is-primary"]],
     [
         r"^orgs/new/$",
         ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"],
@@ -151,7 +151,7 @@ async def main():
                 "{0}/{1} {4}Snapping{5}: {2} as {3}".format(
                     idx, len(paths), showPath(path), user, colors.OK, colors.RESET
                 ),
-                end=":"
+                end=":",
             )
 
             # Authenticate if necessary
@@ -190,7 +190,7 @@ async def main():
                         "{0}/{1} {3}Snipping{4}: {2}".format(
                             idx, len(paths), selector, colors.INFO, colors.RESET
                         ),
-                        end =':'
+                        end=":",
                     )
                     file = await snip(page, path, user, selector)
                     if file:
@@ -244,9 +244,31 @@ async def snip(page, path, user, selector):
         + ".png"
     )
 
-    element = await page.querySelector(selector)
-    if element:
-        await element.screenshot({"path": os.path.join("snaps", file)})
+    # Take element screenshots in a smallish viewport so that
+    # they are not too wide.
+    await page.setViewport(dict(width=800, height=800, deviceScaleFactor=1,))
+
+    rect = await page.evaluate("""
+    (selector) => {
+        const el = document.querySelector(selector);
+        if (el == null) return null;
+
+        const {x, y, width, height} = el.getBoundingClientRect();
+        return {x, y, width, height};
+    }""", selector)
+    if rect:
+        padding = 5
+        await page.screenshot(
+            {
+                "path": os.path.join("snaps", file),
+                "clip": dict(
+                    x=rect["x"] - padding,
+                    y=rect["y"] - padding,
+                    width=rect["width"] + padding * 2,
+                    height=rect["height"] + padding * 2,
+                ),
+            }
+        )
         return file
     else:
         return None
