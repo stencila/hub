@@ -102,7 +102,8 @@ def run(*args):
 
 async def main():
     """Take screenshots of each path, for each user and of each element (if specified)."""
-    shutil.rmtree("snaps")
+    if os.path.exists("snaps"):
+        shutil.rmtree("snaps")
     os.mkdir("snaps")
 
     paths = [
@@ -248,14 +249,17 @@ async def snip(page, path, user, selector):
     # they are not too wide.
     await page.setViewport(dict(width=800, height=800, deviceScaleFactor=1,))
 
-    rect = await page.evaluate("""
+    rect = await page.evaluate(
+        """
     (selector) => {
         const el = document.querySelector(selector);
         if (el == null) return null;
 
         const {x, y, width, height} = el.getBoundingClientRect();
         return {x, y, width, height};
-    }""", selector)
+    }""",
+        selector,
+    )
     if rect:
         padding = 5
         await page.screenshot(
@@ -403,4 +407,3 @@ class colors:
     WARNING = "\033[93m"
     ERROR = "\033[91m"
     RESET = "\033[0m"
-

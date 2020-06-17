@@ -8,7 +8,7 @@
 <h2 class="title is-3">{% trans "Profile" %}</h2>
 <p class="subtitle is-6">{% trans "Settings for your account's public profile." %}</p>
 <div data-label="profile-form">
-{% include "accounts/_update_profile_form.html" %}
+  {% include "accounts/_update_profile_form.html" %}
 </div>
 
 <hr>
@@ -16,48 +16,48 @@
 <h2 class="title is-3">{% trans "Image" %}</h2>
 <p class="subtitle is-6">{% trans "Your account's profile image." %}</p>
 <div data-label="image-form">
-<form method="post" action="{% url 'ui-accounts-update-image' account.name %}" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="field has-addons">
-    <div class="control">
-      <div class="file has-name">
-        <label class="file-label">
-          <input class="file-input" type="file" name="image">
-          <span class="file-cta">
-            <span class="file-icon">
-              <i class="ri-file-upload-line"></i>
+  <form method="post" action="{% url 'ui-accounts-update-image' account.name %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="field has-addons">
+      <div class="control">
+        <div class="file has-name">
+          <label class="file-label">
+            <input class="file-input" type="file" name="image">
+            <span class="file-cta">
+              <span class="file-icon">
+                <i class="ri-file-upload-line"></i>
+              </span>
+              <span class="file-label">
+                Choose a file…
+              </span>
             </span>
-            <span class="file-label">
-              Choose a file…
+            <span class="file-name">
+              No file chosen.
             </span>
-          </span>
-          <span class="file-name">
-            No file chosen.
-          </span>
-        </label>
+          </label>
+        </div>
+      </div>
+      <div class="control">
+        <button class="button is-primary" type="submit">
+          Upload
+        </button>
       </div>
     </div>
-    <div class="control">
-      <button class="button is-primary" type="submit">
-        Upload
-      </button>
+  </form>
+  <div>
+
+    <hr>
+
+    <h2 class="title is-3">{% trans "Content" %}</h2>
+    <p class="subtitle is-6">{% trans "Settings affecting how content is served for your projects." %}</p>
+    <div data-label="content-form">
+      {% include "accounts/_update_content_form.html" %}
     </div>
-  </div>
-</form>
-<div>
 
-<hr>
+    {% if account.is_personal %}
+    <hr>
+    <h2 class="title is-3">{% trans "Other" %}</h2>
+    {% include "accounts/_update_user_settings.html" %}
+    {% endif %}
 
-<h2 class="title is-3">{% trans "Content" %}</h2>
-<p class="subtitle is-6">{% trans "Settings affecting how content is served for your projects." %}</p>
-<div data-label="content-form">
-{% include "accounts/_update_content_form.html" %}
-</div>
-
-{% if account.is_personal %}
-<hr>
-<h2 class="title is-3">{% trans "Other" %}</h2>
-{% include "accounts/_update_user_settings.html" %}
-{% endif %}
-
-{% endblock %}
+    {% endblock %}
