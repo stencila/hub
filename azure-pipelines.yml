@@ -25,8 +25,12 @@ jobs:
       - script: make lint
         displayName: Lint
 
-      - script: make snaps
-        displayName: Snapshots
+      - script: |
+          make -C manager run &
+          make -C manager snaps
+          kill %1
+          npx gh-pages -f -d manager/snaps
+        displayName: Publish snapshots
 
       - script: make cover
         displayName: Test
