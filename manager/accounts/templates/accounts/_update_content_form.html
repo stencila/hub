@@ -2,6 +2,9 @@
 
 <form hx-patch="{% url 'api-accounts-detail' account.id %}" hx-template="accounts/_update_content_form.html">
   {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
+  <p class="help">Preview these themes at <a href="https://stencila.github.io/thema">https://stencila.github.io/thema</a>.<p>
+  <br>
+  
   {% include "serializers/_field.html" with field=serializer.hosts icon="ri-server-line" %}
   {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
 </form>
