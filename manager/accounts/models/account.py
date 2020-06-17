@@ -189,7 +189,7 @@ class AccountRole(EnumChoice):
 
     MEMBER = "Member"
     MANAGER = "Manager"
-    OWNER = "Admin"
+    OWNER = "Owner"
 
     @classmethod
     def get_description(cls, role: "AccountRole"):
