@@ -26,10 +26,16 @@ jobs:
         displayName: Lint
 
       - script: |
-          make -C manager run &
+          make -C manager create-devdb-sqlite run &
           make -C manager snaps
           kill %1
           npx gh-pages -f -d manager/snaps
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
         displayName: Publish snapshots
 
       - script: make cover
