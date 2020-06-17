@@ -1,0 +1,32 @@
+{% load stencila %}
+
+{% with field_id=field.name %}
+
+<div class="field">
+  {% if element == "checkbox" %}
+  <input id="{{ field_id }}" type="checkbox" name="{{ field.name }}" class="toggle"
+         {% if value is True %}checked{% endif %}>
+  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+  {% else %}
+
+  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+
+  {% if element %}
+  {% include "./_field_control.html" with field_id=field_id %}
+  {% else %}
+  {% include "./_field_control.html" with element=field|field_element field_id=field_id %}
+  {% endif %}
+
+  {% if field.errors %}
+  {% for error in field.errors %}
+  <span class="help is-danger">{{ error }}</span>
+  {% endfor %}
+  {% endif %}
+
+  {% if field.help_text %}
+  <span class="help">{{ field.help_text|safe }}</span>
+  {% endif %}
+  {% endif %}
+</div>
+
+{% endwith %}

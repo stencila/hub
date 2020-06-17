@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign out" %}{% endblock %}
+
+{% block content %}
+<div class="modal is-active">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">
+        Sign out
+      </p>
+    </header>
+    <section class="modal-card-body">
+      <p>Are you sure?</p>
+      <small>
+        Why we are asking?
+        It's a <a href="https://labs.detectify.com/2017/03/15/loginlogout-csrf-time-to-reconsider/">security</a> <a
+           href="https://stackoverflow.com/questions/3521290/logout-get-or-post">measure</a>
+      </small>
+      {% comment %}
+      We'll also confirm guest users want to log out e.g. "You are currently a guest user with no
+      password or password recovery email address. If you logout you will not
+      be able to log back in and recover any of your work.
+      To save your work please <a href="{# url 'user_join' #}">sign up</a>.""
+      {% endcomment %}
+    </section>
+    <footer class="modal-card-foot">
+      <form class="form" method="post" action="{% url 'ui-users-signout' %}">
+        {% csrf_token %}
+        <div class="buttons">
+          <button class="button is-primary is-fullwidth-mobile" type="submit" onclick="posthog.reset()">
+            <span class="icon">
+              <i class="ri-logout-box-line"></i>
+            </span>
+            <span>
+              Yes, just sign me out!
+            </span>
+          </button>
+          <a class="button is-fullwidth-mobile" href="/">
+            <span class="icon">
+              <i class="ri-arrow-go-back-line"></i>
+            </span>
+            <span>
+              No, I'll stick around
+            </span>
+          </a>
+        </div>
+
+      </form>
+    </footer>
+  </div>
+</div>
+{% endblock %}

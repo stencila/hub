@@ -1,0 +1,25 @@
+@import "./sources/index.scss";
+
+.project-list--item {
+  border-bottom: 1px solid $grey-lightest;
+  margin-left: -$gap / 4;
+  margin-right: -$gap / 4;
+
+  &:hover,
+  &:focus {
+    background-color: $white-ter;
+  }
+
+  &:first-child {
+    margin-top: -($gap / 2);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.project-list--item-link {
+  display: block;
+  padding: ($gap / 2) ($gap / 4);
+}

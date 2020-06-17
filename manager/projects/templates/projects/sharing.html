@@ -1,0 +1,78 @@
+{% extends './base.html' %}
+{% load i18n %}
+{% load stencila %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block projects_content %}
+<div class="level">
+  <div class="level-left">
+    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
+      <div class="level-left">
+        <h1 class="title level-item mb-0">
+          {% trans "Sharing" %}
+        </h1>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <div>
+      <div class="field mb-0 has-text-right-tablet">
+        <input id="public-toggle" type="checkbox" name="public-project"
+               class="toggle is-small is-inline toggle__label-before" {% if project.public %}checked{% endif %}>
+        <label for="public-toggle">Public</label>
+      </div>
+
+      {# TODO: Think about published project URLs entry points #}
+      {% if project.public %}
+      <div>
+        <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+          <span class="icon">
+            <i class="ri-global-line"></i>
+          </span>
+          <span>
+            https://public-url-of-the-project.com
+          </span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<h2 class="title is-4">{% trans "Collaborators" %}</h2>
+
+{% if project.role in "MANAGER,OWNER" %}
+<form class="field has-addons-tablet">
+  <input type="hidden" name="type" value="user">
+  <div class="control is-expanded">
+    {% include "users/_search.html" with id_name="agent" %}
+  </div>
+  <div class="control is-expanded-mobile">
+    <div class="select">
+      <select id="projects-agents-add-role" name="role">
+        <option value="AUTHOR">Author</option>
+        <option value="MANAGER">Manager</option>
+        <option value="OWNER">Owner</option>
+      </select>
+    </div>
+  </div>
+  <div class="control">
+    <button class="button is-primary is-outlined is-fullwidth-mobile"
+            hx-post="{% url 'api-projects-agents-list' project.id %}"
+            hx-include="#projects-agents-add-type, #user-search-result-id, #projects-agents-add-role"
+            hx-template="projects/_agents_list.html" hx-target="#projects-agents-list">
+      <span class="icon"><i class="ri-add-line"></i></span>
+      <span>Add</span>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% include "./_agents_list.html" with agents=project.agents.all %}
+
+{% endblock %}

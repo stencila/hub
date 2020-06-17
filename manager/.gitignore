@@ -1,0 +1,9 @@
+/dev.sqlite3
+/manager/static/css/styles.css
+/manager/static/js/index.js
+/manager/static/js/index.js.map
+/media
+/node_modules
+/snaps
+/static
+/venv

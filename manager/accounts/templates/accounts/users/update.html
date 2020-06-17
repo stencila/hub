@@ -1,0 +1,37 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{{ account.name }} {% trans "Users" %}{% endblock %}
+
+{% block accounts_content %}
+<h1 class="title">{% trans "Users" %}</h1>
+
+{% if role in "MANAGER,OWNER" %}
+<form class="field has-addons-tablet">
+  <div class="control is-expanded">
+    {% include "users/_search.html" %}
+  </div>
+  <div class="control is-expanded-mobile">
+    <div class="select">
+      <select id="accounts-users-add-role" name="role">
+        <option value="MEMBER">Member</option>
+        <option value="MANAGER">Manager</option>
+        <option value="OWNER">Owner</option>
+      </select>
+    </div>
+  </div>
+  <div class="control">
+    <button class="button is-primary is-outlined is-fullwidth-mobile"
+            hx-post="{% url 'api-accounts-users-list' account.id %}"
+            hx-include="#user-search input[name=id], #accounts-users-add-role" hx-template="accounts/users/_list.html"
+            hx-target="#accounts-users-list">
+      <span class="icon"><i class="ri-add-line"></i></span>
+      <span>Add</span>
+    </button>
+  </div>
+</form>
+{% endif %}
+
+{% include "./_list.html" %}
+
+{% endblock %}

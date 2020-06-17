@@ -1,0 +1,95 @@
+{% extends "base_centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Manage e-mail addresses" %}{% endblock %}
+
+
+{% block layout_content %}
+<h1 class="title is-3">{% trans "Manage e-mail addresses" %}</h1>
+
+{% if user.emailaddress_set.all %}
+<p>
+  {% trans 'The following e-mail addresses are associated with your account:' %}
+</p>
+
+<form class="form" method="POST" action="{% url 'account_email' %}">
+  {% csrf_token %}
+  {% for emailaddress in user.emailaddress_set.all %}
+  <div class="email-settings__item">
+    <label for="email_radio_{{forloop.counter}}"
+           class="is-size-5 {% if emailaddress.primary %}has-text-weight-bold{%endif%} email-settings__label">
+      <input id="email_radio_{{forloop.counter}}" type="radio" name="email"
+             {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked" {%endif %}
+             value="{{emailaddress.email}}" />
+
+      {{ emailaddress.email }}
+
+      {% if emailaddress.primary %}
+      <span class="tag is-success is-light">
+        {% trans "Primary" %}
+      </span>
+      {% endif %}
+    </label>
+
+    {% if emailaddress.verified %}
+    <span class="tag is-success is-light">
+      {% trans "Verified" %}
+    </span>
+    {% else %}
+    <span class="tag is-warning is-light">
+      {% trans "Unverified" %}
+    </span>
+    {% endif %}
+  </div>
+  {% endfor %}
+  <span class="buttons">
+    <button class="button is-fullwidth-mobile" type="submit" name="action_primary">
+      <span class="icon">
+        <i class="ri-mail-star-line"></i>
+      </span>
+      <span>
+        {% trans 'Make primary' %}
+      </span>
+    </button>
+    <button class="button is-fullwidth-mobile" type="submit" name="action_send">
+      <span class="icon">
+        <i class="ri-mail-send-line"></i>
+      </span>
+      <span>
+        {% trans 'Re-send verification' %}
+      </span>
+    </button>
+    <button class="button is-danger is-outlined is-fullwidth-mobile" type="submit" name="action_remove">
+      <span class="icon">
+        <i class="ri-delete-bin-line"></i>
+      </span>
+      <span>
+        {% trans 'Remove' %}
+      </span>
+    </button>
+  </span>
+</form>
+<br>
+{% else %}
+<p class="message is-warning">
+  {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
+</p>
+{% endif %}
+
+<hr />
+
+<h2 class="title is-3">{% trans "Add an e-mail address" %}</h2>
+
+<form class="form" method="POST" action="{% url 'account_email' %}">
+  {% csrf_token %}
+  {% include "forms/form.html" with form=form %}
+  <button class="button is-primary is-outlined is-fullwidth-mobile" name="action_add" type="submit">
+    <span class="icon">
+      <i class="ri-mail-add-line"></i>
+    </span>
+    <span>
+      {% trans "Add e-mail" %}
+    </span>
+  </button>
+</form>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'base_full.html' %}
+{% load i18n %}
+
+{% block sidebar_start %}
+<div class="is-hidden-mobile">
+  {% if account.image %}
+  <img src="{{ account.image.large }}" alt="{{ account.name }}"></img>
+  {% endif %}
+
+  <h1 class="is-size-3 has-text-weight-bold">{{ account.display_name | default:account.name }}</h1>
+
+  {% if account.website %}
+  <p>
+    <a href="{{ account.website }}" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis"
+       rel="nofollow">
+      <span class="icon">
+        <i class="ri-links-line"></i>
+      </span>
+      <span>
+        {{ account.website }}
+      </span>
+    </a>
+  </p>
+  {% endif %}
+
+  {% if account.email %}
+  <p>
+    <a href="mailto://{{ account.email }}" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis"
+       rel="author">
+      <span class="icon">
+        <i class="ri-mail-line"></i>
+      </span>
+      <span>
+        {{ account.email }}
+      </span>
+    </a>
+  </p>
+  {% endif %}
+
+  {% if account.location %}
+  <p>
+    <a class="has-text-grey">
+      <span class="icon">
+        <i class="ri-map-pin-line"></i>
+      </span>
+      <span>
+        {{ account.location }}
+      </span>
+    </a>
+  </p>
+  {% endif %}
+
+  <hr />
+</div>
+{% include './_sidebar_start.html' %}
+{% endblock %}
+
+{% block hide_sidebar_end %}
+{% endblock %}
+
+
+{% block layout_content %}
+<div class="is-hidden-tablet">
+  <div class="media is-mobile">
+    <div class="media-left">
+      {% if account.image %}
+      <img src="{{ account.image.medium }}"></img>
+      {% endif %}
+    </div>
+    <div class="media-content">
+      <!-- TODO: Reuse the above for these profile related fields? -->
+      <h1 class="is-size-4 has-text-weight-bold">{{ account.name }}</h1>
+
+      {% if account.website %}
+      <p>
+        <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+          <span class="icon">
+            <i class="ri-links-line"></i>
+          </span>
+          <span>
+            {{ account.website }}
+          </span>
+        </a>
+      </p>
+      {% endif %}
+
+      {% if account.email %}
+      <p>
+        <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+          <span class="icon">
+            <i class="ri-mail-line"></i>
+          </span>
+          <span>
+            {{ account.email }}
+          </span>
+        </a>
+      </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <hr />
+</div>
+
+{% block accounts_content %}{% endblock %}
+
+{% endblock %}

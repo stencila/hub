@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="columns">
+  {% block hide_sidebar_start %}
+  <div class="sidebar sidebar__start column is-one-quarter is-one-fifth-desktop">
+    {% block sidebar_start %}{% endblock %}
+  </div>
+  {% endblock %}
+
+  <div class="column">
+    {% block action_bar %}{% endblock %}
+    {% block layout_content %}{% endblock %}
+  </div>
+
+  {% block hide_sidebar_end %}
+  <div class="column is-one-quarter is-one-fifth-desktop">
+    {% block sidebar_end %}{% endblock %}
+  </div>
+  {% endblock %}
+</div>
+{% endblock %}

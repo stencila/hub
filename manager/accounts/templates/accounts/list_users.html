@@ -1,0 +1,35 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Users" %}{% endblock %}
+
+{% block layout_content %}
+<h1 class="title">{% trans "Users" %}</h1>
+
+{% for account in accounts %}
+<a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
+
+  <div class="level is-mobile">
+    <div class="level-left">
+      {% if account.image %}
+      <span class="icon is-medium list-menu--icon">
+        <img src="{{ account.image.medium }}" role="presentation"></img>
+      </span>
+      {% endif %}
+
+      <span class="has-text-weight-bold">
+        {{ account.name }}
+      </span>
+    </div>
+    <div class="level-right">
+      <div class="control">
+        <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+      </div>
+    </div>
+
+  </div>
+</a>
+{% endfor %}
+</div>
+
+{% endblock %}

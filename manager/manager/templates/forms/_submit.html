@@ -1,0 +1,6 @@
+<button class="button {{ classes|default:'is-primary' }}" type="submit" {% if disabled %}disabled{% endif %}>
+  <span class="icon">
+    <i class="{{ icon|default:'ri-refresh-line' }}"></i>
+  </span>
+  <span>{{ text|default:'Submit' }}</span>
+</button>

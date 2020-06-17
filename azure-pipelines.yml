@@ -25,6 +25,9 @@ jobs:
       - script: make lint
         displayName: Lint
 
+      - script: make snaps
+        displayName: Snapshots
+
       - script: make cover
         displayName: Test
 

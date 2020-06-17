@@ -1,0 +1,43 @@
+{
+  "description": "CSS and JS for Stencila Hub Manager",
+  "repository": "https://github.com/stencila/hub",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build:css": "node-sass manager/static/sass/styles.scss manager/static/css/styles.css --output-style compressed",
+    "watch:css": "npm run build:css -- --watch",
+    "build:js": "NODE_ENV=production rollup --config",
+    "watch:js": "rollup --config -w",
+    "build:py": "node generate.js",
+    "watch:serve": "browser-sync start -p localhost:8000 --no-notify -f manager/static/css/**/*.css,manager/static/js/**/*.js,**/templates/**/*.html",
+    "build": "npm run build:css && npm run build:js && npm run build:py",
+    "start": "concurrently \"npm:watch:css\" \"npm:watch:js\" \"npm:watch:serve\"",
+    "lint:format": "js-beautify --editorconfig --end-with-newline --indent-size 2 --type html --brace-style none,preserve-inline --wrap-line-length 120 --wrap-attributes aligned-multiple --templating django --file **/templates/*.html **/templates/**/*.html **/templates/**/**/*.html"
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11",
+    "not IE_Mob 11"
+  ],
+  "dependencies": {
+    "@creativebulma/bulma-tooltip": "1.2.0",
+    "@popperjs/core": "^2.4.2",
+    "@stencila/thema": "^2.10.2",
+    "@vizuaalog/bulmajs": "0.11.0",
+    "bulma": "^0.9.0",
+    "bulma-toast": "2.0.1",
+    "htmx.org": "0.0.4"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
+    "@rollup/plugin-babel": "^5.0.3",
+    "@rollup/plugin-node-resolve": "8.0.0",
+    "@rollup/plugin-replace": "^2.3.3",
+    "browser-sync": "^2.26.7",
+    "concurrently": "^5.2.0",
+    "js-beautify": "1.11.0",
+    "node-sass": "4.14.1",
+    "rollup": "2.12.0",
+    "rollup-plugin-terser": "6.1.0"
+  }
+}

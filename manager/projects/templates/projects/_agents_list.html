@@ -1,0 +1,76 @@
+{% load i18n %}
+
+<ul id="projects-agents-list">
+  {% for agent in agents %}
+  <li class="collection-list--item collection-list--item-contents">
+    <div class="level is-mobile">
+      <div class="level-left">
+        {% if agent.user %}
+        {% with user=agent.user %}
+        <span class="icon is-round list-menu--icon">
+          <img src="{{ user.personal_account.image.medium }}" role="presentation"></img>
+        </span>
+        <span class="has-text-bold">
+          <a href="{% url 'ui-accounts-retrieve' user.username %}">
+            {{ user.get_full_name|default:user.username }}
+          </a>
+        </span>
+        {% endwith %}
+        {% else %}
+        <span class="has-text-bold">
+          <!-- TODO: Add team details -->
+          Team
+        </span>
+        {% endif %}
+      </div>
+      <div class="level-right">
+        {# Do not allow managers or owners to change their role or remove themselves. Can cause UX confusion. #}
+        {% if project.role in "MANAGER,OWNER" and request.user != agent.user %}
+        <div class="field has-addons">
+          <div class="control">
+            <div class="select is-small-mobile">
+              <select class="user-role-select" hx-patch="{% url 'api-projects-agents-detail' project.id agent.id %}"
+                      hx-template="projects/_agents_list.html" hx-target="#projects-agents-list" name="role">
+                <option value="AUTHOR" {% if agent.role == "AUTHOR" %}selected{% endif %}>Author</option>
+                <option value="MANAGER" {% if agent.role == "MANAGER" %}selected{% endif %}>Manager</option>
+                <option value="OWNER" {% if agent.role == "OWNER" %}selected{% endif %}>Owner</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control">
+            <div class="dropdown">
+              <div class="dropdown-trigger">
+                <button class="button is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>
+                    <i class="ri-more-2-line"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" hx-delete="{% url 'api-projects-agents-detail' project.id agent.id %}"
+                     hx-template="projects/_agents_list.html" hx-target="#projects-agents-list">
+                    <span class="icon is-small is-danger">
+                      <i class="ri-user-unfollow-line"></i>
+                    </span>
+                    <span>
+                      {% trans "Remove from project" %}
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <p data-tooltip="{% trans "You cannot change your own role." %}"
+           class="has-tooltip-top has-tooltip-text-centered">
+          {{ project.role|title }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>

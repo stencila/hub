@@ -1,0 +1,25 @@
+{# TODO: add "for" attributes to label tags #}
+{% if field.is_hidden %}
+{{ field }}
+{% else %}
+<div class="field">
+  {% if field.field.widget.input_type == "checkbox" %}
+  <label class="checkbox">
+    <input type="checkbox" name="{{ field.name }}">
+    {{ field.label|safe }}
+  </label>
+  {% else %}
+  <label class="label">{{ field.label }}</label>
+  <div class="control">
+    <input class="input" type="{{ field.field.widget.input_type }}" name="{{ field.name }}" {% if field.value != None %}
+           value="{{ field.value }}" {% endif %} {% if autofocus == True %}autofocus{% endif %}>
+  </div>
+  {% if field.field.help_text %}
+  <p class="help">{{ field.field.help_text|safe }}</p>
+  {% endif %}
+  {% for error in field.errors %}
+  <p class="help is-danger">{{ error }}</p>
+  {% endfor %}
+  {% endif %}
+</div>
+{% endif %}

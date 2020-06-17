@@ -1,0 +1,14 @@
+{% comment %}
+Form for account profile related fields.
+
+Note: This form uses `hx-redirect` because if any of these fields change the surrounding
+page chrome needs to be updated. It redirects using `id` because it is possible
+that the name is changed.
+{% endcomment %}
+
+<form hx-patch="{% url 'api-accounts-detail' account.id %}" hx-template="accounts/_update_profile_form.html"
+      hx-redirect="UPDATED:{% url 'ui-accounts-update' account.id %}">
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
+  {% include "accounts/_update_profile_fields.html" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

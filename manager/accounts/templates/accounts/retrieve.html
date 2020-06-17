@@ -1,0 +1,84 @@
+{% extends './base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ account.name }}{% endblock %}
+
+{% block accounts_content %}
+
+<div class="level is-mobile">
+  <!-- Left side -->
+  <div class="level-left">
+    <div class="level-item">
+      <h2 class="title is-3">{% trans "Projects" %}</h2>
+    </div>
+  </div>
+
+  <!-- Right side -->
+  <div class="level-right">
+    {% if role in 'MEMBER, MANAGER, OWNER' %}
+    <p class="level-item">
+      <a class="button is-primary is-hidden-mobile" href="{% url 'ui-projects-create' %}?account={{ account.name }}">
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
+        <span>
+          {% trans 'New project' %}
+        </span>
+      </a>
+
+      <a class="button is-primary is-hidden-tablet" title="New Project"
+         href="{% url 'ui-projects-create' %}?account={{ account.name }}">
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
+      </a>
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+{% if projects|length == 0 %}
+
+<div class="has-text-centered">
+  <h3 class="title is-4 has-text-grey">
+    {% if account.user %}
+    {% if account.user == request.user %}
+    {% trans "You do not have any projects yet." %}
+    {% else %}
+    {% trans 'This user does not have any projects yet.' %}
+    {% endif %}
+    {% else %}
+    {% trans 'This organization does not have any projects yet.' %}
+    {% endif %}
+  </h3>
+
+  <img class="illustration-backdrop" src="{% static 'img/illustrations/wonder.svg' %}" role="presentation" />
+</div>
+
+{% else %}
+
+<div class="field">
+  <div class="control has-icons-left has-icons-right is-expanded">
+    <input id="projects-search-input" class="input" type="text" name="search"
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
+           hx-get="{% url 'api-projects-list' %}" hx-include="input[name=account]"
+           hx-template="projects/_project_list.html" hx-target="#projects-search-result"
+           hx-indicator="#projects-search-indicator">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+    <span class="icon is-right htmx-indicator" id="projects-search-indicator">
+      <i class="ri-loader-line animate-spin"></i>
+    </span>
+  </div>
+  <input type="hidden" name="account" value="{{account.id}}">
+</div>
+
+<div id="projects-search-result">
+  {% include 'projects/_project_list.html' %}
+</div>
+
+{% endif %}
+
+{% endblock %}

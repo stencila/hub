@@ -1,0 +1,22 @@
+.accounts--team-list-item {
+  align-items: flex-start;
+  flex-direction: column;
+
+  h2 {
+    margin-bottom: $gap / 8;
+  }
+}
+
+.accounts--team-member-list-item__horizontal {
+  display: inline-block;
+  margin-right: $gap / 16;
+
+  & > a {
+    &:hover,
+    &:focus {
+      .team-member-list--member-name {
+        width: auto;
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{% comment %}
+Form for updating details of a team.
+
+Refreshes this page on UPDATED (210) because team name may have changed.
+Note: the redirect must use ids instead of names) in case the team name is changed
+(or the account name is changed elsewhere).
+{% endcomment %}
+<form hx-patch="{% url 'api-accounts-teams-detail' account.id team.id %}"
+      hx-template="accounts/teams/_update_details.html"
+      hx-redirect="UPDATED:{% url 'ui-accounts-teams-update' account.id team.id %}">
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
+  {% include "serializers/_field.html" with field=serializer.description element="textarea" placeholder="Enter a team description" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

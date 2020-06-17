@@ -1,0 +1,15 @@
+[run]
+omit =
+    */*_tests.py
+    */migrations/*
+    */admin.py
+    manage.py
+    manager/wsgi.py
+    manager/asgi.py
+    venv/*
+
+[html]
+directory = coverage
+
+[xml]
+output = coverage.xml

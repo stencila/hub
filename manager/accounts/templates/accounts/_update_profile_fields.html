@@ -1,0 +1,14 @@
+{% comment %}
+Profile related fields of an account.
+
+This is a seperate partial to `accounts/_update_profile_form.html`
+so that these fields can also be used in `accounts/create.html`.
+
+Currently excludes `image` file because file content is not compatible with JSON encoding
+of forms. TODO: Fix, or provide a different form that does not use HTMX.
+{% endcomment %}
+
+{% include "serializers/_field.html" with field=serializer.display_name icon="ri-honour-line" %}
+{% include "serializers/_field.html" with field=serializer.location icon="ri-map-pin-line" %}
+{% include "serializers/_field.html" with field=serializer.website icon="ri-links-line" %}
+{% include "serializers/_field.html" with field=serializer.email icon="ri-mail-line" %}

@@ -1,0 +1,69 @@
+{% load i18n %}
+
+<ul id="accounts-users-list">
+  {% for account_user in account.users.all %}
+  {% with user=account_user.user %}
+  <li class="collection-list--item collection-list--item-contents">
+    <div class="level is-mobile">
+      <div class="level-left">
+        <span class="icon is-round list-menu--icon">
+          <img src="{{ user.personal_account.image.medium }}" role="presentation"></img>
+        </span>
+        <span class="has-text-bold">
+          <a href="{% url 'ui-accounts-retrieve' user.username %}">
+            {{ user.get_full_name|default:user.username }}
+          </a>
+        </span>
+      </div>
+      <div class="level-right">
+        {# Do not allow managers or owners to change their role or remove themselves. Can cause UX confusion. #}
+        {% if role in "MANAGER,OWNER" and request.user != user %}
+        <div class="field has-addons">
+          <div class="control">
+            <div class="select is-small-mobile">
+              <select class="user-role-select" hx-patch="{% url 'api-accounts-users-detail' account.id user.id %}"
+                      hx-template="accounts/users/_list.html" hx-target="#accounts-users-list" name="role">
+                <option value="MEMBER" {% if account_user.role == "MEMBER" %}selected{% endif %}>Member</option>
+                <option value="MANAGER" {% if account_user.role == "MANAGER" %}selected{% endif %}>Manager</option>
+                <option value="OWNER" {% if account_user.role == "OWNER" %}selected{% endif %}>Owner</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control">
+            <div class="dropdown">
+              <div class="dropdown-trigger">
+                <button class="button is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+                  <span>
+                    <i class="ri-more-2-line"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  <a class="dropdown-item" hx-delete="{% url 'api-accounts-users-detail' account.id user.id %}"
+                     hx-template="accounts/users/_list.html" hx-target="#accounts-users-list">
+                    <span class="icon is-small is-danger">
+                      <i class="ri-user-unfollow-line"></i>
+                    </span>
+                    <span>
+                      {% trans "Remove from account" %}
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <p data-tooltip="{% trans "You cannot change your own role." %}"
+           class="has-tooltip-top has-tooltip-text-centered">
+          {{ role|title }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </li>
+  {% endwith %}
+  {% endfor %}
+</ul>

@@ -1,0 +1,51 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Projects" %}{% endblock %}
+
+{% block layout_content %}
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <h1 class="title">
+        <h1 class="title">{% trans "Projects" %}</h1>
+      </h1>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <div class="level-right">
+    <p class="level-item">
+      <a class="button is-primary is-small-mobile" href="{% url 'ui-projects-create' %}">
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
+        <span>
+          {% trans "New Project" %}
+        </span>
+      </a>
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="field">
+  <div class="control has-icons-left has-icons-right is-expanded">
+    <input id="projects-search-input" class="input" type="text" name="search"
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
+           hx-get="{% url 'api-projects-list' %}" hx-template="projects/_project_list.html"
+           hx-indicator="#projects-search-indicator" hx-target="#projects-search-result">
+    <span class="icon is-left">
+      <i class="ri-search-line"></i>
+    </span>
+    <span class="icon is-right htmx-indicator" id="projects-search-indicator">
+      <i class="ri-loader-line animate-spin"></i>
+    </span>
+  </div>
+</div>
+
+<div id="projects-search-result">
+  {% include './_project_list.html' %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<div class="modal-card">
+  <header class="modal-card-head">
+    <p class="modal-card-title">{% trans "Delete source" %}</p>
+    {% include "./_cancel_modal.html" with project=project account=account classes="delete pull-right" %}
+  </header>
+  <form hx-delete="{% url 'api-projects-sources-detail' project.id source.id %}" hx-ext="stencila"
+        hx-redirect="DESTROYED:{% url 'ui-projects-retrieve' project.account.name project.name %}">
+    <section class="modal-card-body">
+
+      {% with file_name=source.path %}
+      <p>{% blocktrans %}Are you sure you want to delete <code>{{ file_name }}</code>?{% endblocktrans %}</p>
+      {% endwith %}
+      <input type="hidden" name="project" value="{{ project.id }}" />
+    </section>
+    <footer class="modal-card-foot buttons">
+      {% include "./_cancel_modal.html" with project=project account=account classes="button is-outlined is-fullwidth-mobile" label="Cancel" icon="ri-arrow-go-back-line" %}
+      {% include "forms/_submit.html" with text="Delete source" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile" %}
+    </footer>
+  </form>
+</div>

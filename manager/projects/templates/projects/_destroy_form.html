@@ -1,0 +1,5 @@
+<form hx-delete="{% url 'api-projects-detail' project.id %}" hx-template="projects/_destroy_form.html"
+      hx-redirect="DESTROYED:{% url 'ui-projects-list' %}">
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" placeholder="Enter the project name" %}
+  {% include "forms/_submit.html" with text="Delete project" icon="ri-delete-bin-line" classes="is-danger is-fullwidth-mobile is-outlined" %}
+</form>

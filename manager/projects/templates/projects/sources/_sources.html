@@ -1,0 +1,139 @@
+{% load i18n %}
+{% load static %}
+
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <form class="field">
+        <label class="is-sr-only" for="file-filter">
+          {% trans "File filter" %}
+        </label>
+        <div class="control has-icons-left has-icons-right">
+          <input id="file-filter" class="input" type="text" name="search"
+                 placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
+                 hx-get="{% url 'api-projects-sources-list' project.id %}"
+                 hx-template="projects/sources/_source_list.html" hx-indicator="#file-filter-indicator"
+                 hx-target="#source-list">
+          <span class="icon is-small is-left">
+            <i class="ri-filter-line"></i>
+          </span>
+          <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
+            <i class="ri-loader-line"></i>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="level-right">
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+    <div class="dropdown level-item">
+      <div class="dropdown-trigger">
+        <button class="button is-primary is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+          <span class="icon">
+            <i class="ri-add-line"></i>
+          </span>
+          <span>
+            {% trans "New" %}
+          </span>
+          <span class="icon">
+            <i class="ri-arrow-down-s-line"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu" id="dropdown-menu" role="menu">
+        <div class="dropdown-content">
+          <a hx-get="{% url 'api-projects-sources-render' project.id %}?action=create"
+             hx-template="projects/sources/_create_file_modal.html" hx-target="#modal-target" class="dropdown-item"
+             hx-swap="beforeend">
+            <span class="icon">
+              <i class="ri-file-add-line"></i>
+            </span>
+            <span>
+              {% trans "File" %}
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-folder-add-line"></i>
+            </span>
+            <span>
+              {% trans "Folder" %}
+            </span>
+          </a>
+          <hr class="dropdown-divider">
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-upload-cloud-2-line"></i>
+            </span>
+            <span>
+              {% trans "File upload" %}
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-github-line"></i>
+            </span>
+            <span>
+              GitHub
+            </span>
+          </a>
+          <a class="dropdown-item">
+            <span class="icon">
+              <i class="ri-google-line"></i>
+            </span>
+            <span>
+              Google Docs
+            </span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <span class="icon">
+              <i class="ri-links-line"></i>
+            </span>
+            <span>
+              URL
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if sources|length == 0 %}
+
+<div class="has-text-centered">
+  <h3 class="title is-4 has-text-grey">
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+    {% trans 'Start working on this project by adding a new source.' %}
+    {% else %}
+    {% trans 'This project does not have any sources yet.' %}
+    {% endif %}
+  </h3>
+
+  <img class="illustration-backdrop" src="{% static 'img/illustrations/project.svg' %}" role="presentation" />
+</div>
+{% else %}
+<table class="table is-fullwidth is-striped is-hoverable">
+  <thead>
+    <tr class="table-header is-sr-only">
+      <th>
+        {% trans "Source Type" %}
+      </th>
+      <th>
+        {% trans "Source Name" %}
+      </th>
+      <th>
+        {% trans "Date Updated" %}
+      </th>
+      <th>
+        {% trans "Source Actions" %}
+      </th>
+    </tr>
+  </thead>
+  <tbody id="source-list">
+    {% include "./_source_list.html" %}
+  </tbody>
+</table>
+{% endif %}

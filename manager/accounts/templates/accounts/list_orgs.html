@@ -1,0 +1,71 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Organizations" %}{% endblock %}
+
+{% block layout_content %}
+
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <h1 class="title">{% trans "Organizations" %}</h1>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <div class="level-right">
+    <p class="level-item">
+      <a class="button is-primary is-small-mobile" href="{% url 'ui-accounts-create' %}">
+        <span class="icon">
+          <i class="ri-add-line"></i>
+        </span>
+        <span>
+          {% trans "New Organization" %}
+        </span>
+      </a>
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="field has-addons">
+  <div class="control has-icons-left has-icons-right is-expanded">
+    <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
+           hx-trigger="keyup changed delay:500ms, role-changed" hx-get="/api/accounts"
+           hx-include="#orgs-search-role, #orgs-search-is-org" hx-template="accounts/_list_orgs_result.html"
+           hx-target="#orgs-search-result" hx-indicator="#orgs-search-indicator">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+    <span class="icon is-right htmx-indicator" id="orgs-search-indicator">
+      <i class="ri-loader-line animate-spin"></i>
+    </span>
+  </div>
+  {% if user.is_authenticated %}
+  <div class="control">
+    <div class="select">
+      <select id="orgs-search-role" name="role">
+        <option value="">All</option>
+        <option value="member">Member</option>
+        <option value="manager">Manager</option>
+        <option value="owner">Owner</option>
+      </select>
+    </div>
+  </div>
+  {% endif %}
+  <input id="orgs-search-is-org" type="hidden" name="is" value="org">
+  <script>
+    document.querySelector('#orgs-search-role').addEventListener('change', function(event) {
+      document.querySelector('#orgs-search-input').dispatchEvent(new Event('role-changed'));
+    });
+
+  </script>
+</div>
+
+<br>
+
+<div id="orgs-search-result">
+  {% include 'accounts/_list_orgs_result.html' %}
+</div>
+
+{% endblock %}

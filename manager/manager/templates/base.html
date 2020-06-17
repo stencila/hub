@@ -1,0 +1,277 @@
+{% load static intercom %}
+{% load i18n %}
+
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <title>{% block title %}Home{% endblock %} : Stencila</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+  {% block styles %}{% endblock %}
+
+  <script src="{% static 'js/index.js' %}"></script>
+  {% block scripts %}{% endblock %}
+
+  {% if debug %}
+  <script>
+    htmx.logAll();
+
+  </script>
+  {% endif %}
+
+  {% if SENTRY_DSN %}
+  <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js"
+          integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous">
+  </script>
+  <script>
+    Sentry.init({
+      dsn: '{{ SENTRY_DSN }}',
+      release: 'hub@{{ VERSION }}'
+    });
+
+  </script>
+  {% endif %}
+
+  {% if POSTHOG_KEY %}
+  <script src="https://t.posthog.com/static/array.js" crossorigin="anonymous"></script>
+  <script>
+    posthog.init('{{ POSTHOG_KEY }}', {
+      api_host: 'https://t.posthog.com',
+      {% if user.is_authenticated %}
+      loaded: function(posthog) {
+        posthog.identify('{{ user.id }}')
+        posthog.people.set({
+          username: '{{ user.username }}',
+          email: '{{ user.email }}'
+        });
+      }
+      {% endif %}
+    })
+
+  </script>
+  {% endif %}
+</head>
+
+{% language LANGUAGE_CODE %}
+
+<body class="has-navbar-fixed-top">
+  <header>
+    <nav class="navbar is-fixed-top is-spaced has-shadow">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item navbar-logo" href="{% url 'home' %}">
+            {% if user.is_anonymous %}
+            <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+            {% else %}
+            <img title="Homepage" src="{% static 'img/stencilaIcon.svg' %}" alt="Stencila" width="28px" height="28px">
+            {% endif %}
+          </a>
+          <a class="navbar-burger" data-target="navbar-menu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+        <div id="navbar-menu" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item" href="{% url 'ui-projects-list' %}">
+              <span class="icon">
+                <i class="ri-book-2-line" aria-hidden="true"></i>
+              </span>
+              <span>
+                {% trans "Projects" %}
+              </span>
+            </a>
+            <a class="navbar-item" href="{% url 'ui-accounts-list-orgs' %}">
+              <span class="icon">
+                <i class="ri-building-4-line" aria-hidden="true"></i>
+              </span>
+              <span>
+                {% trans "Organizations" %}
+              </span>
+            </a>
+          </div>
+          <div class="navbar-end">
+
+            {% if user.is_authenticated %}
+            <div class="navbar-item has-dropdown">
+              <a class="navbar-link is-arrowless">
+                <span class="icon">
+                  <i class="ri-add-circle-line" aria-hidden="true"></i>
+                </span>
+                <span class="is-hidden-tablet">Create a…</span>
+              </a>
+              <div class="navbar-dropdown">
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-create' %}">
+                  <span class="icon">
+                    <i class="ri-book-2-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "New Project" %}
+                  </span>
+                </a>
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
+                  <span class="icon">
+                    <i class="ri-building-4-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "New Organization" %}
+                    <span>
+                </a>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if user.is_anonymous %}
+            <div class="navbar-item">
+              <div class="buttons">
+                {% url 'ui-users-signin' as user_signin_url %}
+                {% url 'ui-users-signup' as user_signup_url %}
+
+                {% if request.path != user_signin_url %}
+                <a class="button is-primary is-outlined has-text-weight-bold" href="{% url 'ui-users-signin' %}">
+                  {% trans "Sign in" %}
+                </a>
+                {% endif %}
+
+                {% if request.path != user_signup_url %}
+                <a class="button is-primary {% if request.path == user_signin_url %}is-outlined{% endif %} has-text-weight-bold"
+                   href="{% url 'ui-users-signup' %}">
+                  {% trans "Sign up" %}
+                </a>
+                {% endif %}
+              </div>
+            </div>
+            {% else %}
+            <div class="navbar-item has-dropdown">
+              <a class="navbar-link" href="{% url 'ui-accounts-retrieve' user.username %}"
+                 alt="{% trans "Your user profile" %}">
+                {% if user.personal_account.image %}
+                <figure class="image is-32x32 navbar__user-avatar">
+                  <img class="is-rounded" src="{{ user.personal_account.image.medium }}" alt="Your profile image">
+                </figure>
+
+                <span class="is-hidden-tablet">
+                  <span class="is-hidden-mobile">Signed in as&nbsp;</span><strong>{{ user.username }}</strong>
+                </span>
+                {% else %}
+                {{ user.username }}
+                {% endif %}
+              </a>
+              <div class="navbar-dropdown">
+                <a class="navbar-item is-hidden-mobile" href="{% url 'ui-accounts-retrieve' user.username %}"
+                   alt="{% trans "Your user profile" %}">
+                  Signed in as&nbsp;<strong>{{ user.username }}</strong>
+                </a>
+                <hr class="navbar-divider">
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-update' user.username %}">
+                  <span class="icon">
+                    <i class="ri-settings-4-line" aria-hidden="true"></i>
+                  </span>
+                  <span>{% trans "Settings" %}</span>
+                </a>
+
+
+                {% if user.is_staff or user.is_superuser %}
+                <a class="navbar-item has-text-weight-bold" href="{% url 'admin:index' %}">
+                  <span class="icon">
+                    <i class="ri-alert-line" aria-hidden="true"></i>
+                  </span>
+                  <span>{% trans "Admin" %}</span>
+                </a>
+                {% endif %}
+
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-users-signout' %}">
+                  <span class="icon">
+                    <i class="ri-logout-box-line" aria-hidden="true"></i>
+                  </span>
+                  <span>{% trans "Sign out" %}</span>
+                </a>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  {% if messages %}
+  <div id="messages">
+    {% for message in messages %}
+    <script>
+      manager.Toast({
+        message: "{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}",
+        type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
+        duration: 5000,
+        position: "bottom-left",
+        closeOnClick: true,
+        pauseOnHover: true,
+        dismissible: true,
+        opacity: 0.9
+      });
+
+    </script>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main hx-ext='stencila'>
+    <section class="section">
+      <div class="container">
+        {% if wrap %}
+        {# See the `render_template` view for why this is here #}
+        {% include wrap %}
+        {% else %}
+        {# For all other views, extend this template and override the 'content' block #}
+        {% block content %}
+        {% endblock %}
+        {% endif %}
+      </div>
+      <section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns">
+        <div class="column is-full has-text-centered">
+          <a href="{% url 'api-docs' %}">API</a>
+          <a href="https://status.stenci.la">Status</a>
+          <a href="https://policies.stenci.la/privacy">Privacy</a>
+          <a href="https://policies.stenci.la/terms">Terms</a>
+        </div>
+      </div>
+      <div class="level" style="font-size: 80%">
+        <p class="level-left has-text-centered">
+          Made with
+          <span class="icon has-text-danger">
+            <i class="ri-heart-fill"></i>
+          </span>
+          in&nbsp;
+          <a href="https://www.kaikoura.co.nz/">Kaikoura</a>,&nbsp;
+          <a href="https://montreal.ca/">Montreal</a>,&nbsp;
+          <a href="https://www.aucklandnz.com/">Auckland</a>, and&nbsp;
+          <a href="https://www.wellingtonnz.com/">Wellington</a>.
+        </p>
+        <p class="level-right has-text-centered">
+          © {% now 'Y' %} Stencila Ltd.
+        </p>
+      </div>
+      <div class="container">
+  </footer>
+
+  {% if user.is_authenticated %}
+  {% intercom_tag %}
+  {% endif %}
+  <div class="modal" id="modal-target">
+    <div class="modal-background cursor-close"></div>
+  </div>
+</body>
+{% endlanguage %}
+
+</html>

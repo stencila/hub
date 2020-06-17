@@ -1,0 +1,6 @@
+<form hx-post="{% url 'api-accounts-teams-list' account.id %}" hx-template="accounts/teams/_create_details.html"
+      hx-redirect="CREATED:Location">
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.description element="textarea" placeholder="Enter a team description" %}
+  {% include "forms/_submit.html" with text="Create Team" icon="ri-add-line" classes="is-primary is-fullwidth-mobile" %}
+</form>

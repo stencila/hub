@@ -1,0 +1,1 @@
+This folder contains templates that override those from `django-allauth`. This folder should **not** be renamed: it needs to be called `account` for the overrides to work. Some templates have been modified to fit template styles used elsewhere, others are just copied from `django-allauth` (but act a placeholders to indicate what could be modified in the future).

@@ -1,0 +1,40 @@
+{% load stencila %}
+
+<div class="control {% if icon %}has-icons-left{% endif %}">
+  {% if element == "select" %}
+  <div class="select">
+    <select id="{{ field_id }}" name="{{ field.name }}">
+      {% if field.allow_null or field.allow_blank %}
+      <option value="" {% if not field.value %}selected{% endif %}>--------</option>
+      {% endif %}
+      {% for select in field.iter_options %}
+      {% if select.start_option_group %}
+      <optgroup label="{{ select.label }}">
+        {% elif select.end_option_group %}
+      </optgroup>
+      {% else %}
+      <option value="{{ select.value }}" {% if select.value == field.value %}selected{% endif %}
+              {% if select.disabled %}disabled{% endif %}>{{ select.display_text }}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+  </div>
+  {% if icon %}
+  <span class="icon is-left">
+    <i class="{{ icon }}"></i>
+  </span>
+  {% endif %}
+  {% elif element == "textarea" %}
+  <textarea id="{{ field_id }}" class="textarea" name="{{ field.name }}"
+            {% if placeholder %}placeholder="{{ placeholder }}" {% endif %}{% if autofocus %}
+            autofocus{% endif %}>{% if field.value %}{{ field.value }}{% endif %}</textarea>
+  {% else %}
+  <input class="input" name="{{ field.name }}" id="{{ field_id }}" type="{{ field|input_type }}"
+         {% if autofocus %}autofocus{% endif %} {% if field.value is not None %}value="{{ field.value }}" {% endif %}>
+  {% if icon %}
+  <span class="icon is-left">
+    <i class="{{ icon }}"></i>
+  </span>
+  {% endif %}
+  {% endif %}
+</div>
