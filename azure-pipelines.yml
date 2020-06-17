@@ -26,7 +26,8 @@ jobs:
         displayName: Lint
 
       - script: |
-          make -C manager create-devdb-sqlite run &
+          make -C manager create-devdb-sqlite
+          make -C manager run &
           make -C manager snaps
           kill %1
           npx gh-pages -f -d manager/snaps
