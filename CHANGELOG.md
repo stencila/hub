@@ -1,3 +1,11 @@
+## [2.31.1](https://github.com/stencila/hub/compare/v2.31.0...v2.31.1) (2020-06-17)
+
+
+### Bug Fixes
+
+* **Accounts:** Fix end tag ([178aed0](https://github.com/stencila/hub/commit/178aed0e76380902bd1dce4996e3997b007ab736))
+* **CI:** Do snapshots as part of release ([6f2e812](https://github.com/stencila/hub/commit/6f2e8127add14e6cedd23d5818dff5bc97b884ec))
+
 # [2.31.0](https://github.com/stencila/hub/compare/v2.30.0...v2.31.0) (2020-06-17)
 
 
