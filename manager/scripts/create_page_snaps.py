@@ -46,13 +46,27 @@ EXCLUDE = [
     r"^stencila/test/500",
 ]
 
-# Username / password to login as
-# Should have OWNER access to the accounts / projects
-# specified in REPLACE
-USER_PASS = "owner:owner"
+# Regexes of paths to visit as particular user/s.
+# First matching regex is used.
+# Can be a list of users.
+USERS = [
+    # Do not authenticate for these:
+    [r"^me/(signin|signup)/", "anon"],
+    # Defaults to authenticating as `owner` user
+    [r".*", "owner"],
+]
 
-# Paths to visit as an anonymous user
-ANON = ["me/signin/", "me/signup/"]
+# Regexes of paths to the CSS selectors on that page that should
+# be snapped.
+ELEMS = [
+    # Organizations
+    [r"^orgs/$", ["button.is-primary"]],
+    [r"^orgs/new/$", ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"]],
+    [r"^[^/]+/settings/$", [".menu", "[data-label=profile-form]", "[data-label=image-form]", "[data-label=content-form]"]],
+    [r"^[^/]+/users/$", [".menu", "form"]],
+    [r"^projects/new/$", ["form", "button.is-primary"]]
+]
+
 
 # Viewport sizes to take screenshots at
 VIEWPORTS = [
@@ -73,12 +87,12 @@ def run(*args):
 
 
 async def main():
-    """Take screenshots of each path."""
+    """Take screenshots of each path, for each user and of each element (if specified)."""
     shutil.rmtree("snaps")
     os.mkdir("snaps")
 
     paths = [
-        path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
+        #path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
     ] + INCLUDE
 
     for (regex, string) in REPLACE:
@@ -90,31 +104,114 @@ async def main():
     browser = await launch()
 
     for idx, path in enumerate(paths):
-        ok = True
+
+        # Check if this path should be excluded
+        exclude = False
         for regex in EXCLUDE:
             if re.search(regex, path):
-                ok = False
+                exclude = True
                 break
-        if ok:
-            page = await browser.newPage()
+        if exclude:
+            print("{0}/{1} Skipping: {2}".format(idx, len(paths), showPath(path)))
+            continue
 
-            if path not in ANON:
-                header = "Basic " + b64encode(USER_PASS.encode()).decode()
+        page = await browser.newPage()
+
+        # Get the list of users to visit this page as
+        users = None
+        for regex, users in USERS:
+            if re.search(regex, path):
+                break
+        assert users is not None, "Misconfiguration: USERS should have a catchall regex"
+        if not isinstance(users, list):
+            users = [users]
+
+        # Visit page as each user
+        for user in users:
+            print(
+                "{0}/{1} Snapping: {2} as {3}".format(
+                    idx, len(paths), showPath(path), user
+                )
+            )
+
+            # Authenticate if necessary
+            if user is not "anon":
+                header = "Basic " + b64encode("{0}:{0}".format(user).encode()).decode()
                 await page.setExtraHTTPHeaders({"Authorization": header})
 
             url = "http://localhost:8000/{}".format(path)
-
-            print("{0}/{1} Snapping: {2}".format(idx, len(paths), showPath(path)))
             response = await page.goto(url)
-            files = await snap(page, path, debug=response.status != 200)
 
-            results.append([path, url, response.status, files])
-        else:
-            print("{0}/{1} Skipping: {2}".format(idx, len(paths), showPath(path)))
+            # Hide debug toolbar unless there was an error
+            if response.status == 200:
+                await page.addStyleTag(
+                    {"content": "#djDebug { display: none !important; }"}
+                )
+
+            # Snapshot the page
+            snaps = await snap(page, path, user)
+
+            # Snapshot elements within the page
+            selectors = None
+            for regex, selects in ELEMS:
+                if re.search(regex, path):
+                    selectors = selects
+                    break
+            snips = []
+            if selectors:
+                if not isinstance(selectors, list):
+                    selectors = [selectors]
+                for selector in selectors:
+                    print("{0}/{1} Snipping: {2}".format(idx, len(paths), selector))
+                    file = await snip(page, path, user, selector)
+                    snips.append(file)
+
+            results.append([path, url, response.status, snaps, snips])
 
     await browser.close()
 
     report(results)
+
+
+async def snap(page, path, user):
+    """Take screenshots of the entire page at various viewport sizes."""
+    files = []
+    for (width, height) in VIEWPORTS:
+        file = (
+            slugify(
+                "{path}-{user}-{width}x{height}".format(
+                    path=showPath(path).replace("/", "-"),
+                    user=user,
+                    width=width,
+                    height=height,
+                )
+            )
+            + ".png"
+        )
+        await page.setViewport(dict(width=width, height=height, deviceScaleFactor=1,))
+        await page.screenshot({"path": os.path.join("snaps", file)})
+        files.append(file)
+
+    return files
+
+
+async def snip(page, path, user, selector):
+    """Take screenshot of a particular element in the page."""
+    file = (
+        slugify(
+            "{path}-{user}-{selector}".format(
+                path=showPath(path).replace("/", "-"), user=user, selector=selector
+            )
+        )
+        + ".png"
+    )
+
+    element = await page.querySelector(selector)
+    if element:
+
+        await element.screenshot({"path": os.path.join("snaps", file)})
+    
+    return file
 
 
 def report(results):
@@ -148,47 +245,35 @@ def report(results):
         }
     </style>
     <table>"""
-    for (path, url, status, files) in results:
+    for (path, url, status, snaps, snips) in results:
         report += """
             <tr>
                 <td><a href="{url}" target="_blank">{path}</a></td>
                 <td>{status}</td>
-                {images}
+                {snaps}
+                <td>{snips}</td>
             </tr>
         """.format(
             url=url,
             path=html.escape(showPath(path)),
             status=status,
-            images="".join(
+            snaps="".join(
                 [
                     '<td><a href="{0}" target="_blank"><img src="{0}" loading="lazy"></td>'.format(
                         file
                     )
-                    for file in files
+                    for file in snaps
                 ]
             ),
+            snips="".join(
+                [
+                    '<a href="{0}" target="_blank"><img src="{0}" loading="lazy">'.format(file)
+                    for file in snips
+                ]
+            )
         )
     with open("snaps/index.html", "w") as file:
         file.write(report)
-
-
-async def snap(page, path, debug=False):
-    """Take screenshots of a page at various sizes."""
-    # Hide debug toolbar
-    if not debug:
-        await page.addStyleTag({"content": "#djDebug { display: none !important; }"})
-
-    files = []
-    for (width, height) in VIEWPORTS:
-        file = (
-            slugify("{}-{}x{}".format(showPath(path).replace("/", "-"), width, height))
-            + ".png"
-        )
-        await page.setViewport(dict(width=width, height=height, deviceScaleFactor=1,))
-        await page.screenshot({"path": os.path.join("snaps", file)})
-        files.append(file)
-
-    return files
 
 
 def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
