@@ -41,6 +41,7 @@ def run(*args):
 
     for spec in [
         # Generic users that are added to EVERY account in these different roles
+        ("a-user", "A", "User"),
         ("member", "Member", "User"),
         ("manager", "Manager", "User"),
         ("owner", "Owner", "User"),
@@ -93,9 +94,9 @@ def run(*args):
 
     # stencila = Account.objects.create(name="stencila")
 
-    # Example organizations
+    # Generic and example organizations
 
-    for name in ["biotech-corp", "hapuku-university", "pewsey-publishing"]:
+    for name in ["an-org", "biotech-corp", "hapuku-university", "pewsey-publishing"]:
         account = Account.objects.create(name=name)
 
         # Add their image
@@ -134,6 +135,13 @@ def run(*args):
         for index in range(random.randint(1, 5)):
             team = AccountTeam.objects.create(account=account, name=random_team_name())
             team.members.set(random_users())
+
+    anorg = Account.objects.get(name="an-org")
+    anorg.display_name = "An Organization"
+    anorg.location = "Earth"
+    anorg.website = "https://example.org"
+    anorg.email = "contact@example.org"
+    anorg.save()
 
     biotech = Account.objects.get(name="biotech-corp")
     biotech.display_name = "Biotech Corporation"

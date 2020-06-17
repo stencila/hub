@@ -23,7 +23,7 @@ INCLUDE = [
 
 # Regex, string pairs for replacing URL parameters
 REPLACE = [
-    (r"<slug:account>", "biotech-corp"),
+    (r"<slug:account>", "an-org"),
     (r"<slug:team>", "first-team"),
     (r"<slug:project>", "first-project"),
 ]
@@ -224,7 +224,7 @@ async def snap(page, path, user):
                     width=width,
                     height=height,
                 )
-            )
+            ).strip("-")
             + ".png"
         )
         await page.setViewport(dict(width=width, height=height, deviceScaleFactor=1,))
@@ -239,9 +239,11 @@ async def snip(page, path, user, selector):
     file = (
         slugify(
             "{path}-{user}-{selector}".format(
-                path=showPath(path).replace("/", "-"), user=user, selector=selector
+                path=showPath(path).replace("/", "-"),
+                user=user,
+                selector=re.sub("[^0-9a-zA-Z]+", "-", selector),
             )
-        )
+        ).strip("-")
         + ".png"
     )
 
