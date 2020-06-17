@@ -3,12 +3,15 @@ import html
 import os
 import re
 import shutil
+import sys
 from base64 import b64encode
 
 from django.core.exceptions import ViewDoesNotExist
 from django.urls import URLPattern, URLResolver
 from django.utils.text import slugify
 from pyppeteer import launch
+
+from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
 INCLUDE = [
@@ -38,6 +41,8 @@ EXCLUDE = [
     # Social auth login pages expected to fail because
     # app tokens not available during development
     r"^me/[a-z]+/login/",
+    # Non-GET URLs
+    r"[^/]+/settings/image",
     # These pages are not expected to return 200 responses
     r"^stencila/test/403",
     r"^stencila/test/404",
@@ -101,7 +106,7 @@ async def main():
     os.mkdir("snaps")
 
     paths = [
-        # path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
+        path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
     ] + INCLUDE
 
     for (regex, string) in REPLACE:
@@ -109,6 +114,7 @@ async def main():
 
     paths = sorted(set(paths))
 
+    errors = 0
     results = []
     browser = await launch()
 
@@ -121,7 +127,11 @@ async def main():
                 exclude = True
                 break
         if exclude:
-            print("{0}/{1} Skipping: {2}".format(idx, len(paths), showPath(path)))
+            print(
+                "{0}/{1} {3}Skipping{4}: {2}".format(
+                    idx, len(paths), showPath(path), colors.WARNING, colors.RESET
+                )
+            )
             continue
 
         page = await browser.newPage()
@@ -138,9 +148,10 @@ async def main():
         # Visit page as each user
         for user in users:
             print(
-                "{0}/{1} Snapping: {2} as {3}".format(
-                    idx, len(paths), showPath(path), user
-                )
+                "{0}/{1} {4}Snapping{5}: {2} as {3}".format(
+                    idx, len(paths), showPath(path), user, colors.OK, colors.RESET
+                ),
+                end=":"
             )
 
             # Authenticate if necessary
@@ -153,9 +164,13 @@ async def main():
 
             # Hide debug toolbar unless there was an error
             if response.status == 200:
+                print(" {0}✔️{1}".format(colors.OK, colors.RESET))
                 await page.addStyleTag(
                     {"content": "#djDebug { display: none !important; }"}
                 )
+            else:
+                print(" {0}❌{1}".format(colors.ERROR, colors.RESET))
+                errors += 1
 
             # Snapshot the page
             snaps = await snap(page, path, user)
@@ -171,15 +186,29 @@ async def main():
                 if not isinstance(selectors, list):
                     selectors = [selectors]
                 for selector in selectors:
-                    print("{0}/{1} Snipping: {2}".format(idx, len(paths), selector))
+                    print(
+                        "{0}/{1} {3}Snipping{4}: {2}".format(
+                            idx, len(paths), selector, colors.INFO, colors.RESET
+                        ),
+                        end =':'
+                    )
                     file = await snip(page, path, user, selector)
-                    snips.append(file)
+                    if file:
+                        print(" {0}✔️{1}".format(colors.OK, colors.RESET))
+                        snips.append(file)
+                    else:
+                        print(" {0}❌{1}".format(colors.ERROR, colors.RESET))
+                        errors += 1
 
             results.append([path, url, response.status, snaps, snips])
 
     await browser.close()
 
     report(results)
+
+    if errors > 0:
+        print("\n\n{1}Errors{2}: {0}".format(errors, colors.ERROR, colors.RESET))
+        sys.exit(errors)
 
 
 async def snap(page, path, user):
@@ -217,10 +246,10 @@ async def snip(page, path, user, selector):
 
     element = await page.querySelector(selector)
     if element:
-
         await element.screenshot({"path": os.path.join("snaps", file)})
-
-    return file
+        return file
+    else:
+        return None
 
 
 def report(results):
@@ -344,3 +373,12 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
         else:
             raise TypeError("%s does not appear to be a urlpattern object" % p)
     return views
+
+
+class colors:
+    OK = "\033[92m"
+    INFO = "\033[94m"
+    WARNING = "\033[93m"
+    ERROR = "\033[91m"
+    RESET = "\033[0m"
+
