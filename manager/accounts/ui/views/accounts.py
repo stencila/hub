@@ -11,7 +11,7 @@ from projects.api.views.projects import ProjectsViewSet
 def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Redirect from an account `id` URL to an account `name` URL.
-    
+
     For instances where we need to redirect to the account using `id`
     (e.g. because its name may have changed in a form).
     This uses `get_object` to ensure the same access control applies

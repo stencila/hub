@@ -10,8 +10,6 @@ from django.urls import URLPattern, URLResolver
 from django.utils.text import slugify
 from pyppeteer import launch
 
-from manager.urls import urlpatterns
-
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
 INCLUDE = [
     # Render these templates instead of testing the pages (and getting non-200 responses)
@@ -61,10 +59,21 @@ USERS = [
 ELEMS = [
     # Organizations
     [r"^orgs/$", ["button.is-primary"]],
-    [r"^orgs/new/$", ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"]],
-    [r"^[^/]+/settings/$", [".menu", "[data-label=profile-form]", "[data-label=image-form]", "[data-label=content-form]"]],
+    [
+        r"^orgs/new/$",
+        ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"],
+    ],
+    [
+        r"^[^/]+/settings/$",
+        [
+            ".menu",
+            "[data-label=profile-form]",
+            "[data-label=image-form]",
+            "[data-label=content-form]",
+        ],
+    ],
     [r"^[^/]+/users/$", [".menu", "form"]],
-    [r"^projects/new/$", ["form", "button.is-primary"]]
+    [r"^projects/new/$", ["form", "button.is-primary"]],
 ]
 
 
@@ -92,7 +101,7 @@ async def main():
     os.mkdir("snaps")
 
     paths = [
-        #path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
+        # path for (_, path, _) in extract_views_from_urlpatterns(urlpatterns)
     ] + INCLUDE
 
     for (regex, string) in REPLACE:
@@ -135,7 +144,7 @@ async def main():
             )
 
             # Authenticate if necessary
-            if user is not "anon":
+            if user != "anon":
                 header = "Basic " + b64encode("{0}:{0}".format(user).encode()).decode()
                 await page.setExtraHTTPHeaders({"Authorization": header})
 
@@ -210,7 +219,7 @@ async def snip(page, path, user, selector):
     if element:
 
         await element.screenshot({"path": os.path.join("snaps", file)})
-    
+
     return file
 
 
@@ -267,10 +276,12 @@ def report(results):
             ),
             snips="".join(
                 [
-                    '<a href="{0}" target="_blank"><img src="{0}" loading="lazy">'.format(file)
+                    '<a href="{0}" target="_blank"><img src="{0}" loading="lazy">'.format(
+                        file
+                    )
                     for file in snips
                 ]
-            )
+            ),
         )
     with open("snaps/index.html", "w") as file:
         file.write(report)

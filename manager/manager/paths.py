@@ -21,4 +21,4 @@ class RootPaths(enum.Enum):
     @classmethod
     def has(cls, value: str):
         """Check if this enum has a value."""
-        return value in cls._value2member_map_
+        return value in cls._value2member_map_  # type: ignore

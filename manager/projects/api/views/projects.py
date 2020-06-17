@@ -1,10 +1,8 @@
-import copy
-
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.http.request import HttpRequest
 from django.shortcuts import reverse
-from rest_framework import exceptions, mixins, permissions, viewsets
+from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -65,7 +63,7 @@ class ProjectsViewSet(
     def get_queryset(self):
         """
         Get the set of projects that the user has access to and which meet filter criteria.
-        
+
         TODO: Currently this ignores an authenticated user's access to
               projects inherited from membership of a team.
         """
@@ -206,7 +204,7 @@ class ProjectsAgentsViewSet(
     A view set for projects agents (users or teams).
 
     Provides basic CRUD views for project agents.
-    
+
     Uses `ProjectsViewSet.get_object` so that we can obtain the
     role of the user for the project (including inherited role from the account).
     """
@@ -223,7 +221,7 @@ class ProjectsAgentsViewSet(
 
         if (
             self.action in ["create", "partial_update", "destroy"]
-            and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name,]
+            and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name]
         ) or project.role is None:
             raise exceptions.PermissionDenied
 
@@ -340,9 +338,7 @@ class ProjectsSourcesViewSet(
 
     @action(detail=False)
     def render(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Render a template for a source.
-        """
+        """Render a template for a source."""
         action = self.request.GET.get("action", "retrieve")
         source = self.request.GET.get("source")
 

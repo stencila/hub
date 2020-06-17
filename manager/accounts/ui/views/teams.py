@@ -9,7 +9,7 @@ from accounts.api.views import AccountsTeamsViewSet, AccountTeamDestroySerialize
 def redirect(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Redirect from a team `id` URL to a team `name` URL.
-    
+
     For instances where we need to redirect to the team using `id`
     (e.g. because its name may have changed in a form).
     This uses `get_object` to ensure the same access control applies

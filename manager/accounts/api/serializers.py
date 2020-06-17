@@ -53,7 +53,7 @@ class AccountUserCreateSerializer(UserIdentifierSerializer):
         ]
     )
 
-    def create(self, validated_data):
+    def create(self, validated_data):  # noqa: D102
         return AccountUser.objects.create(
             account=validated_data["account"],
             user=validated_data["user"],
@@ -85,7 +85,7 @@ class AccountTeamSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """
         Slugify and validate the name field.
-        
+
         Needs to be done in `validate` (not `validate_name`) so that the
         account is also available.
         """
@@ -225,7 +225,7 @@ class AccountSerializer(serializers.ModelSerializer):
     def validate_name(self, name):
         """
         Slugify and validate the name field.
-        
+
         The `unique_slugify` function will automatically avoid
         duplication (by appending digits). To let the user know
         of similar account names, we manually check for duplicates
@@ -282,7 +282,7 @@ class AccountCreateSerializer(AccountSerializer):
     def validate(self, data):
         """
         Validate the data.
-        
+
         Checks that the user has not exceeded the number
         of accounts that they can create. This is primarily an anti-spamming
         check.

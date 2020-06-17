@@ -11,7 +11,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 
-class HtmxMixin:
+class HtmxMixin:  # noqa: D101
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
@@ -47,10 +47,10 @@ class HtmxMixin:
         vs.format_kwarg = None
         return vs
 
-    def accepts_html(self):
+    def accepts_html(self):  # noqa: D102
         return self.request.META.get("HTTP_ACCEPT") == "text/html"
 
-    def get_template_names(self):
+    def get_template_names(self):  # noqa: D102
         template = self.request.META.get("HTTP_X_HX_TEMPLATE")
         if template:
             return [template]
@@ -58,7 +58,7 @@ class HtmxMixin:
 
     def get_response_context(
         self, queryset=None, instance=None, serializer=None, **kwargs
-    ):
+    ):  # noqa: D102
         context = kwargs
 
         if queryset is not None:
@@ -84,7 +84,7 @@ class HtmxMixin:
         """
         return None
 
-    def get_success_headers(self, serializer):
+    def get_success_headers(self, serializer):  # noqa: D102
         location = self.get_success_url(serializer)
         if location:
             headers = {"Location": location}
@@ -93,7 +93,7 @@ class HtmxMixin:
         return headers
 
 
-class HtmxListMixin:
+class HtmxListMixin:  # noqa: D101
     def list(self, request: Request, *args, **kwargs) -> Response:
         """
         List objects.
@@ -119,7 +119,7 @@ class HtmxListMixin:
             return self.get_paginated_response(serializer.data)
 
 
-class HtmxCreateMixin:
+class HtmxCreateMixin:  # noqa: D101
     def create(self, request: Request, *args, **kwargs) -> Response:
         """
         Create an object.
@@ -150,7 +150,7 @@ class HtmxCreateMixin:
             return Response(serializer.data, status=201)
 
 
-class HtmxRetrieveMixin:
+class HtmxRetrieveMixin:  # noqa: D101
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve an object.
@@ -169,7 +169,7 @@ class HtmxRetrieveMixin:
             return Response(serializer.data)
 
 
-class HtmxUpdateMixin:
+class HtmxUpdateMixin:  # noqa: D101
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
         """
         Update an object.
@@ -199,7 +199,7 @@ class HtmxUpdateMixin:
             return Response(serializer.data)
 
 
-class HtmxDestroyMixin:
+class HtmxDestroyMixin:  # noqa: D101
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         """
         Destroy an object.

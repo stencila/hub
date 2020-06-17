@@ -1,7 +1,6 @@
 from django.db.models import Prefetch, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
-from django.utils.http import urlencode
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -10,7 +9,6 @@ from accounts.api.serializers import (
     AccountCreateSerializer,
     AccountListSerializer,
     AccountRetrieveSerializer,
-    AccountSerializer,
     AccountTeamCreateSerializer,
     AccountTeamDestroySerializer,
     AccountTeamSerializer,
@@ -113,7 +111,7 @@ class AccountsViewSet(
         Get the object for the current action.
 
         For `retrieve`, prefetches related data.
-    
+
         For `partial-update` and `update`, also checks that the user
         is an account MANAGER or OWNER.
         """
@@ -180,7 +178,7 @@ class AccountsViewSet(
 
         For `create`, redirects to the "projects" page for the organization
         to encourage them to create a project for it.
-        
+
         This should only need to be used for `create`, because for other actions
         it is possible to directly specify which URL to redirect to (because the instance
         `id` is already available). ie. use `hx-redirect="UPDATED:{% url ....`
@@ -207,7 +205,7 @@ class AccountsUsersViewSet(
 
     lookup_url_kwarg = "user"
 
-    def get_account(self):
+    def get_account(self):  # noqa: D102
         try:
             account = Account.objects.get(
                 **filter_from_ident(self.kwargs["account"]),
@@ -228,7 +226,7 @@ class AccountsUsersViewSet(
 
         return account
 
-    def get_account_role(self):
+    def get_account_role(self):  # noqa: D102
         account = self.get_account()
         role = account.users.get(user=self.request.user).role
         return account, role
@@ -253,7 +251,7 @@ class AccountsUsersViewSet(
         except AccountUser.DoesNotExist:
             raise exceptions.NotFound
 
-    def get_serializer_class(self):
+    def get_serializer_class(self):  # noqa: D102
         return (
             AccountUserCreateSerializer
             if self.action == "create"
@@ -284,7 +282,9 @@ class AccountsUsersViewSet(
             serializer.save()
             return Response(serializer.data, status=self.CREATED)
 
-    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+    def partial_update(
+        self, request: Request, *args, **kwargs
+    ) -> Response:  # noqa: D102
         account, role = self.get_account_role()
         account_user = self.get_object()
         serializer = self.get_serializer(account_user, data=request.data, partial=True)
@@ -374,7 +374,7 @@ class AccountsTeamsViewSet(
         except KeyError:
             raise RuntimeError("Unexpected action {}".format(self.action))
 
-    def get_account(self, filters={}):
+    def get_account(self, filters={}):  # noqa: D102
         try:
             return Account.objects.get(
                 users__user=self.request.user,
@@ -384,12 +384,12 @@ class AccountsTeamsViewSet(
         except Account.DoesNotExist:
             raise exceptions.PermissionDenied
 
-    def get_account_role(self):
+    def get_account_role(self):  # noqa: D102
         account = self.get_account()
         role = account.users.get(user=self.request.user).role
         return account, role
 
-    def get_account_role_team(self):
+    def get_account_role_team(self):  # noqa: D102
         account, role = self.get_account_role()
         team = self.get_object(account)
         return account, role, team
@@ -572,7 +572,7 @@ class AccountsTeamsMembersViewSet(HtmxMixin, viewsets.GenericViewSet):
         except AccountTeam.DoesNotExist:
             raise exceptions.NotFound
 
-    def get_role(self, team: AccountTeam) -> str:
+    def get_role(self, team: AccountTeam) -> str:  # noqa: D102
         return AccountUser.objects.get(
             account=team.account, user=self.request.user
         ).role

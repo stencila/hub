@@ -3,11 +3,11 @@
 {% with field_id=field.name %}
 
 <div class="field">
-{% if element == "checkbox" %}
-<input id="{{ field_id }}" type="checkbox" name="{{ field.name }}" class="toggle"
-       {% if value is True %}checked{% endif %}>
-<label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
-{% else %}
+  {% if element == "checkbox" %}
+  <input id="{{ field_id }}" type="checkbox" name="{{ field.name }}" class="toggle"
+         {% if value is True %}checked{% endif %}>
+  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+  {% else %}
 
   <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
 

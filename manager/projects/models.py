@@ -171,7 +171,7 @@ class ProjectAgent(models.Model):
         ]
 
 
-class Source(models.Model):
+class Source(models.Model):  # noqa: D101
 
     project = models.ForeignKey(
         Project,

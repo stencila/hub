@@ -56,7 +56,7 @@ def slug_start_dedigit(value: str):
 
     This avoids having a slugs that looks the same as numeric ids in
     URLs (e.g. for accounts, projects). But, mainly for aesthetics,
-    will also prevent any names with leading digits. 
+    will also prevent any names with leading digits.
     """
     return re.sub(
         r"^\d",
@@ -84,7 +84,7 @@ def unique_slugify(
     instance: Model = None,
     queryset: QuerySet = None,
     slug_field_name: str = "name",
-    slug_len: Optional[str] = None,
+    slug_len: Optional[int] = None,
     slug_separator: str = "-",
 ) -> str:
     """

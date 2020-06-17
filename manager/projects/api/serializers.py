@@ -28,13 +28,13 @@ class ProjectAgentSerializer(serializers.ModelSerializer):
         model = ProjectAgent
         fields = ["id", "project", "type", "agent", "role"]
 
-    def get_type(self, instance):
+    def get_type(self, instance):  # noqa: D102
         if instance.user:
             return "user"
         if instance.team:
             return "team"
 
-    def get_agent(self, instance):
+    def get_agent(self, instance):  # noqa: D102
         if instance.user:
             return instance.user.id
         if instance.team:
@@ -72,7 +72,7 @@ class ProjectAgentCreateSerializer(ProjectAgentSerializer):
     def validate(self, data):
         """
         Validate the data.
-        
+
         - valid user or team id
         - no existing role for the agent
         """
@@ -131,12 +131,12 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
     Field for a project account.
 
     Sets the default to the name in the query.
-    
+
     Limits the set of valid accounts for a project to those that
     the user is a member of.
     """
 
-    def get_queryset(self):
+    def get_queryset(self):  # noqa: D102
         request = self.context.get("request", None)
         if request is None:
             return Account.objects.none()
@@ -177,7 +177,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         Validate the project fields.
 
         TODO: Check that the user is a member of the account
-        
+
         Also checks that the account has sufficient quotas to
         create the project. This function is written to be able to used
         when either creating (self.instance is None) or updating
@@ -314,7 +314,7 @@ class ProjectDestroySerializer(serializers.Serializer):
             )
 
 
-class SourceSerializer(serializers.ModelSerializer):
+class SourceSerializer(serializers.ModelSerializer):  # noqa: D101
     class Meta:
         model = Source
         fields = "__all__"

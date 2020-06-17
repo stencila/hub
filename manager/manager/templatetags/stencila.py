@@ -58,7 +58,7 @@ def input_type(field):
 def uuid():
     """
     Get a UUID.
-    
+
     Used for generating unique element ids in templates.
     """
     return uuid4()

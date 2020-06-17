@@ -106,7 +106,7 @@ class Account(models.Model):
         Get the string representation of the account.
 
         Example of where this is used: to generate the <select>
-        <option> display text when choosing an account. 
+        <option> display text when choosing an account.
         """
         return self.name
 
