@@ -30,7 +30,7 @@ jobs:
           make -C manager run &
           make -C manager snaps
           kill %1
-          npx gh-pages -f -d manager/snaps
+          npx gh-pages --repo https://$(GITHUB_TOKEN)@github.com/stencila/hub.git -f -d manager/snaps
         env:
           GIT_AUTHOR_NAME: Stencila CI Bot
           GIT_AUTHOR_EMAIL: ci@stenci.la
