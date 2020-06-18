@@ -1,3 +1,10 @@
+## [2.31.2](https://github.com/stencila/hub/compare/v2.31.1...v2.31.2) (2020-06-18)
+
+
+### Bug Fixes
+
+* **Snaps:** Add project related screenshots ([98841e7](https://github.com/stencila/hub/commit/98841e7a7c9b99ac0f1d6bc3615e578c8f6f6f33))
+
 ## [2.31.1](https://github.com/stencila/hub/compare/v2.31.0...v2.31.1) (2020-06-17)
 
 
