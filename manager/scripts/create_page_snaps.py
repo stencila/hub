@@ -69,7 +69,7 @@ ELEMS = [
         ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"],
     ],
     [
-        r"^[^/]+/settings/$",
+        r"^an-org/settings/$",
         [
             ".menu",
             "[data-label=profile-form]",
@@ -77,8 +77,11 @@ ELEMS = [
             "[data-label=content-form]",
         ],
     ],
-    [r"^[^/]+/users/$", [".menu", "form"]],
+    [r"^an-org/users/$", [".menu", "form"]],
+    # Projects
+    [r"^projects/$", ["a.is-primary"]],
     [r"^projects/new/$", ["form", "button.is-primary"]],
+    [r"^an-org/first-project/sharing/$", ["form", "#projects-agents-list .field"]],
 ]
 
 
