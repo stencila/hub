@@ -17,4 +17,4 @@ google-api-python-client==1.8.3
 Pillow==7.1.2
 psycopg2-binary==2.8.5
 pyjwt==1.7.1
-sentry-sdk==0.14.3
+sentry-sdk==0.15.1
