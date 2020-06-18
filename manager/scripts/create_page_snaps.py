@@ -254,11 +254,55 @@ async def snip(page, path, user, selector):
     # they are not too wide.
     await page.setViewport(dict(width=800, height=800, deviceScaleFactor=1,))
 
+    await page.addStyleTag(
+        {
+            "content": """
+            .snipTarget {
+                background: white;
+                box-shadow: 0 0 8px 4px rgba(102, 255, 102, 0.5);
+                position: relative;
+                z-index: 300;
+            }
+
+            .snipBackdrop {
+              background-color: rgba(0,0,0,0.5);
+              content: '';
+              height: 100vh;
+              left: 0;
+              position: fixed;
+              top: 0;
+              width: 100vw;
+              z-index: 200;
+            }
+        """
+        }
+    )
+
+    with open("temp.html", "w") as f:
+        f.write(await page.content())
+
     rect = await page.evaluate(
         """
     (selector) => {
+        const target = document.querySelector(".snipTarget");
+        if (target != null) {
+            target.classList.remove("snipTarget")
+        }
+
         const el = document.querySelector(selector);
         if (el == null) return null;
+
+        el.classList.add("snipTarget")
+        
+        let backdrop = document.querySelector('.snipBackdrop');
+        if (backdrop !== null) {
+            backdrop.parentElement.remove(backdrop)
+            backdrop = undefined
+        }
+
+        backdrop = document.createElement('span')
+        backdrop.classList.add("snipBackdrop")
+        el.parentElement.append(backdrop)
 
         const {x, y, width, height} = el.getBoundingClientRect();
         return {x, y, width, height};
@@ -266,7 +310,7 @@ async def snip(page, path, user, selector):
         selector,
     )
     if rect:
-        padding = 8
+        padding = 15
         await page.screenshot(
             {
                 "path": os.path.join("snaps", file),
