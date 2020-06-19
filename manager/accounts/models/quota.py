@@ -2,7 +2,7 @@ from typing import Callable, NamedTuple
 
 from accounts.models.account import Account, AccountTeam, AccountUser
 from manager.api.exceptions import AccountQuotaExceeded
-from projects.models import Project
+from projects.models.projects import Project
 
 
 class AccountQuota(NamedTuple):

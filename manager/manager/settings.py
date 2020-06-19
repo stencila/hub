@@ -89,10 +89,13 @@ class Prod(Configuration):
         "allauth.socialaccount.providers.orcid",
         "allauth.socialaccount.providers.twitter",
         "allauth.socialaccount",
-        "imagefield",
+        "django_celery_beat",
         "django_intercom",
+        "django_prometheus",
         "drf_yasg",
+        "imagefield",
         "knox",
+        "polymorphic",
         "rest_framework",
         # Add this for our template tags
         "manager",
@@ -100,6 +103,7 @@ class Prod(Configuration):
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
         "accounts.apps.AccountsConfig",
+        "jobs.apps.JobsConfig",
         "projects.apps.ProjectsConfig",
         "users.apps.UsersConfig",
     ]
@@ -255,7 +259,7 @@ class Prod(Configuration):
         }
     }
 
-    SOCIALACCOUNT_ADAPTER = "users.social_account_adapter.SocialAccountAdapter"
+    SOCIALACCOUNT_ADAPTER = "users.socialaccount.adapter.SocialAccountAdapter"
 
     # django-rest-framework settings
 

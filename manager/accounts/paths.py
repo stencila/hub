@@ -11,7 +11,6 @@ class AccountPaths(enum.Enum):
     disallowed project names up to date.
     """
 
-    sharing = "sharing"
     settings = "settings"
     teams = "teams"
     users = "users"

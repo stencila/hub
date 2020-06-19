@@ -59,7 +59,7 @@ urlpatterns = [
                         [
                             path("", team_views.list, name="ui-accounts-teams-list"),
                             path(
-                                "new",
+                                "new/",
                                 team_views.create,
                                 name="ui-accounts-teams-create",
                             ),

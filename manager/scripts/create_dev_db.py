@@ -4,13 +4,18 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
-from projects.models import Project, ProjectAgent, ProjectRole, Source
+from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.sources import (
+    ElifeSource,
+    GithubSource,
+    GoogleDocsSource,
+    UrlSource,
+)
 from users.models import User
 
 
 def run(*args):
     """Create development database."""
-
     # Ensure that this is only used in development
     assert settings.DEBUG
 
@@ -209,10 +214,20 @@ def run(*args):
     # Each project has at least one of each type of source
 
     for project in Project.objects.all():
-        for path in ["first-source", "second-source"]:
-            Source.objects.create(
-                project=project, path=path, creator=random_project_user(project),
-            )
+        ElifeSource.objects.create(project=project, path="elife-source", article=5000)
+        GithubSource.objects.create(
+            project=project, path="github-source", repo="org/{}".format(project.name)
+        )
+        GoogleDocsSource.objects.create(
+            project=project,
+            path="google-docs-source",
+            doc_id="gdoc-{}".format(project.name),
+        )
+        UrlSource.objects.create(
+            project=project,
+            path="url-source",
+            url="http://example.org/{}".format(project.name),
+        )
 
 
 def random_users(num=None):
