@@ -3,7 +3,7 @@
 {% if role %}
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-projects">
       <a href="{% url 'ui-accounts-retrieve' account.name %}"
          class="panel-block transition-colors {% is_active 'ui-accounts-retrieve' %}">
         <span class="icon">
@@ -19,7 +19,7 @@
 
     {% if role in 'MANAGER, OWNER' %}
     {# TODO?: Show non-editable list of users to non-admin users  #}
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-users">
       <a href="{% url 'ui-accounts-users' account.name %}"
          class="panel-block transition-colors {% is_active 'ui-accounts-users' %}">
         <span class="icon">
@@ -33,7 +33,7 @@
     </li>
     {% endif %}
 
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-teams">
       <a href="#"
          class="panel-block transition-colors {% is_active 'ui-projects-jobs' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip"
          disabled data-tooltip="{% trans 'This feature is coming soon!' %}">
@@ -53,7 +53,7 @@
     {% endif %}
 
     {% if role in 'MANAGER, OWNER' %}
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-settings">
       <a href="{% url 'ui-accounts-update' account.name %}"
          class="panel-block transition-colors {% is_active 'ui-accounts-update' %}">
         <span class="icon">
@@ -68,7 +68,7 @@
 
     {% if role == 'OWNER' %}
     {% comment %}
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-billing">
       <a href="#" class="panel-block transition-colors">
         <span class="icon">
           <i class="ri-bank-card-line"></i>

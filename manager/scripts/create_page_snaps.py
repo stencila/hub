@@ -9,6 +9,7 @@ from base64 import b64encode
 from django.core.exceptions import ViewDoesNotExist
 from django.urls import URLPattern, URLResolver
 from django.utils.text import slugify
+from PIL import Image, ImageFilter
 from pyppeteer import launch
 
 from manager.urls import urlpatterns
@@ -59,29 +60,84 @@ USERS = [
     [r".*", "owner"],
 ]
 
+
+def elem(name: str, selector: str, parent: str = None, padding: int = 50):
+    return dict(name=name, selector=selector, parent=parent, padding=padding)
+
+
 # Regexes of paths to the CSS selectors on that page that should
 # be snapped.
 ELEMS = [
-    # Organizations
-    [r"^orgs/$", ["a.is-primary"]],
+    # fmt: off
+    [
+        r"^orgs/$",
+        [
+            elem("org-new-button", "a.is-primary"),
+            elem("org-search", ".field")
+        ],
+    ],
     [
         r"^orgs/new/$",
-        ["[data-label=name-field]", "[data-label=profile-fields]", "button.is-primary"],
+        [
+            elem("org-new-name-field", "#name-field"),
+            elem("org-new-profile-fields", "#profile-fields"),
+            elem("org-new-create-button", "button.is-primary"),
+        ],
     ],
     [
         r"^an-org/settings/$",
         [
-            ".menu",
-            "[data-label=profile-form]",
-            "[data-label=image-form]",
-            "[data-label=content-form]",
+            elem("org-settings-menu-item", "#menu-item-settings", ".menu", padding=20),
+            elem("org-settings-profile", "#profile-form"),
+            elem("org-settings-image-form", "#image-form"),
+            elem("org-settings-theme-field", "label[for=theme] + .control"),
+            elem("org-settings-hosts-field", "label[for=hosts] + .control"),
         ],
     ],
-    [r"^an-org/users/$", [".menu", "form"]],
-    # Projects
-    [r"^projects/$", ["a.is-primary"]],
-    [r"^projects/new/$", ["form", "button.is-primary"]],
-    [r"^an-org/first-project/sharing/$", ["form", "#projects-agents-list .field"]],
+    [
+        r"^an-org/users/$",
+        [
+            elem("org-users-menu-item", "#menu-item-users", ".menu", 20),
+            elem("org-users-add-user", "form"),
+            elem("org-users-change-user", "#accounts-users-list .field"),
+        ],
+    ],
+    [
+        r"^projects/$",
+        [
+            elem("project-new-button", "a.is-primary")
+        ]
+    ],
+    [
+        r"^projects/new/$",
+        [
+            elem("project-new-account-field", "#account"),
+            elem("project-new-name-field", "label[for=name] + .control"),
+            elem("project-new-public-field", ".field:last-of-type"),
+            elem("project-new-create-button", "button.is-primary")
+        ]
+    ],
+    [
+        r"^an-org/first-project/settings/$",
+        [
+            elem("project-settings-menu-item", "#menu-item-settings", ".menu", padding=20),
+            elem("project-settings-name-field", "label[for=name] + .control"),
+            elem("project-settings-title-field", "label[for=title] + .control"),
+            elem("project-settings-description-field", "label[for=description] + .control"),
+            elem("project-settings-theme-field", "label[for=theme] + .control"),
+            elem("project-settings-delete-form", "form[hx-delete]"),
+        ],
+    ],
+    [
+        r"^an-org/first-project/sharing/$",
+        [
+            elem("project-sharing-menu-item", "#menu-item-sharing", ".menu", padding=20),
+            elem("project-sharing-public", "label[for=public-toggle]", padding=5),
+            elem("project-sharing-add-agent", "form"),
+            elem("project-sharing-change-agent", "#projects-agents-list .field"),
+        ],
+    ],
+    # fmt: on
 ]
 
 
@@ -92,10 +148,6 @@ VIEWPORTS = [
     # Desktop
     (1920, 1080),
 ]
-
-
-def showPath(path):
-    return "index" if (path == "" or path == "/") else path
 
 
 def run(*args):
@@ -180,23 +232,92 @@ async def main():
             snaps = await snap(page, path, user)
 
             # Snapshot elements within the page
-            selectors = None
-            for regex, selects in ELEMS:
+            elements = None
+            for regex, elems in ELEMS:
                 if re.search(regex, path):
-                    selectors = selects
+                    elements = elems
                     break
             snips = []
-            if selectors:
-                if not isinstance(selectors, list):
-                    selectors = [selectors]
-                for selector in selectors:
+            if elements:
+
+                # Take element screenshots in a narrowish viewport so that
+                # they are not too wide.
+                await page.setViewport(
+                    dict(width=850, height=5000, deviceScaleFactor=1,)
+                )
+
+                # Add styles for snips
+                await page.addStyleTag(
+                    dict(
+                        content="""
+                    .snipTarget {
+                        background-color: white;
+                        margin: -7px;
+                        padding: 7px;
+                        position: relative;
+                        z-index: 300;
+                    }
+
+                    #snipBackdrop {
+                        background-color: #efefef;
+                        opacity: 0.5;
+                        content: '';
+                        height: 100vh;
+                        left: 0;
+                        position: fixed;
+                        top: 0;
+                        width: 100vw;
+                        z-index: 200;
+                    }
+                """
+                    )
+                )
+
+                # Add function for setting the class for the target element
+                # adding a backdrop, and returning the snipshot rectangle
+                await page.evaluate(
+                    """
+                window.snip = (selector, parentSelector, padding) => {
+                    const el = document.querySelector(selector)
+                    if (el == null) return null;
+
+                    const target = document.querySelector('.snipTarget')
+                    if (target != null) {
+                        target.classList.remove('snipTarget')
+                    }
+                    el.classList.add('snipTarget')
+
+                    let backdrop = document.querySelector('#snipBackdrop')
+                    if (backdrop === null) {
+                        backdrop = document.createElement('span')
+                        backdrop.id = 'snipBackdrop'
+                        document.body.append(backdrop)
+                    }
+
+                    let box = el
+                    if (parentSelector) {
+                        box = document.querySelector(parentSelector)
+                        if (box === null) box = el
+                    }
+
+                    let { x, y, width, height } = box.getBoundingClientRect()
+                    x = Math.max(x - padding, 0)
+                    y = Math.max(y - padding, 0)
+                    width = Math.min(width + 2 * padding, window.innerWidth - x)
+                    height = height + 2 * padding
+                    return { x, y, width, height }
+                }
+                """
+                )
+
+                for element in elements:
                     print(
                         "{0}/{1} {3}Snipping{4}: {2}".format(
-                            idx, len(paths), selector, colors.INFO, colors.RESET
+                            idx, len(paths), element["name"], colors.INFO, colors.RESET
                         ),
                         end=":",
                     )
-                    file = await snip(page, path, user, selector)
+                    file = await snip(page, path, user, element)
                     if file:
                         print(" {0}✔️{1}".format(colors.OK, colors.RESET))
                         snips.append(file)
@@ -213,6 +334,10 @@ async def main():
     if errors > 0:
         print("\n\n{1}Errors{2}: {0}".format(errors, colors.ERROR, colors.RESET))
         sys.exit(errors)
+
+
+def showPath(path):
+    return "index" if (path == "" or path == "/") else path
 
 
 async def snap(page, path, user):
@@ -237,91 +362,23 @@ async def snap(page, path, user):
     return files
 
 
-async def snip(page, path, user, selector):
+async def snip(page, path, user, element):
     """Take screenshot of a particular element in the page."""
-    file = (
-        slugify(
-            "{path}-{user}-{selector}".format(
-                path=showPath(path).replace("/", "-"),
-                user=user,
-                selector=re.sub("[^0-9a-zA-Z]+", "-", selector),
-            )
-        ).strip("-")
-        + ".png"
-    )
-
-    # Take element screenshots in a smallish viewport so that
-    # they are not too wide.
-    await page.setViewport(dict(width=800, height=800, deviceScaleFactor=1,))
-
-    await page.addStyleTag(
-        {
-            "content": """
-            .snipTarget {
-                background: white;
-                box-shadow: 0 0 8px 4px rgba(102, 255, 102, 0.5);
-                position: relative;
-                z-index: 300;
-            }
-
-            .snipBackdrop {
-              background-color: rgba(0,0,0,0.5);
-              content: '';
-              height: 100vh;
-              left: 0;
-              position: fixed;
-              top: 0;
-              width: 100vw;
-              z-index: 200;
-            }
-        """
-        }
-    )
-
-    with open("temp.html", "w") as f:
-        f.write(await page.content())
-
     rect = await page.evaluate(
-        """
-    (selector) => {
-        const target = document.querySelector(".snipTarget");
-        if (target != null) {
-            target.classList.remove("snipTarget")
-        }
-
-        const el = document.querySelector(selector);
-        if (el == null) return null;
-
-        el.classList.add("snipTarget")
-        
-        let backdrop = document.querySelector('.snipBackdrop');
-        if (backdrop !== null) {
-            backdrop.parentElement.remove(backdrop)
-            backdrop = undefined
-        }
-
-        backdrop = document.createElement('span')
-        backdrop.classList.add("snipBackdrop")
-        el.parentElement.append(backdrop)
-
-        const {x, y, width, height} = el.getBoundingClientRect();
-        return {x, y, width, height};
-    }""",
-        selector,
+        "window.snip", element["selector"], element["parent"], element["padding"],
     )
     if rect:
-        padding = 15
-        await page.screenshot(
-            {
-                "path": os.path.join("snaps", file),
-                "clip": dict(
-                    x=rect["x"] - padding,
-                    y=rect["y"] - padding,
-                    width=rect["width"] + padding * 2,
-                    height=rect["height"] + padding * 2,
-                ),
-            }
-        )
+        file = element["name"] + ".png"
+        path = os.path.join("snaps", file)
+
+        # Screenshot it
+        await page.screenshot({"clip": rect, "path": path})
+
+        # Add drop shadow to the file
+        image = Image.open(path)
+        image = addShadow(image)
+        image.save(path)
+
         return file
     else:
         return None
@@ -456,3 +513,52 @@ class colors:
     WARNING = "\033[93m"
     ERROR = "\033[91m"
     RESET = "\033[0m"
+
+
+def addShadow(
+    image,
+    iterations=10,
+    border=30,
+    offset=[4, 4],
+    backgroundColour="white",
+    shadowColour="#999",
+):
+    """
+    Add a drop shadown to an image
+
+    image: base image to give a drop shadow
+    iterations: number of times to apply the blur filter to the shadow
+    border: border to give the image to leave space for the shadow
+    offset: offset of the shadow as [x,y]
+    backgroundCOlour: colour of the background
+    shadowColour: colour of the drop shadow
+
+    From https://en.wikibooks.org/wiki/Python_Imaging_Library/Drop_Shadows
+    """
+
+    # Calculate the size of the shadow's image
+    fullWidth = image.size[0] + abs(offset[0]) + 2 * border
+    fullHeight = image.size[1] + abs(offset[1]) + 2 * border
+
+    # Create the shadow's image. Match the parent image's mode.
+    shadow = Image.new(image.mode, (fullWidth, fullHeight), backgroundColour)
+
+    # Place the shadow, with the required offset
+    shadowLeft = border + max(offset[0], 0)  # if <0, push the rest of the image right
+    shadowTop = border + max(offset[1], 0)  # if <0, push the rest of the image down
+    # Paste in the constant colour
+    shadow.paste(
+        shadowColour,
+        [shadowLeft, shadowTop, shadowLeft + image.size[0], shadowTop + image.size[1]],
+    )
+
+    # Apply the BLUR filter repeatedly
+    for i in range(iterations):
+        shadow = shadow.filter(ImageFilter.BLUR)
+
+    # Paste the original image on top of the shadow
+    imgLeft = border - min(offset[0], 0)  # if the shadow offset was <0, push right
+    imgTop = border - min(offset[1], 0)  # if the shadow offset was <0, push down
+    shadow.paste(image, (imgLeft, imgTop))
+
+    return shadow
