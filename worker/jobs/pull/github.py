@@ -55,6 +55,6 @@ def pull_directory(gh, remote_parent: str, local_parent: str) -> List[str]:
                 shutil.rmtree(local_path)
             with open(local_path, "wb") as fh:
                 file_content = gh.get_contents(content.path).decoded_content
-                shutil.copyfileobj(BytesIO(file_content), fh)
+                shutil.copyfileobj(BytesIO(file_content), fh)  # type: ignore
         pulled.append(local_path)
     return pulled

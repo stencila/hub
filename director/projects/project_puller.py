@@ -136,7 +136,7 @@ class ProjectSourcePuller(object):
                     )  # remove path if it is a directory
 
                 with open(to_utf8(output_path), "wb") as f:
-                    shutil.copyfileobj(BytesIO(scf.get_binary_content()), f)
+                    shutil.copyfileobj(BytesIO(scf.get_binary_content()), f)  # type: ignore
 
                 if scf.error_exists:
                     for message in scf.message_iterator():
