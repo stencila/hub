@@ -43,16 +43,16 @@
       </div>
       <div class="dropdown-menu" id="dropdown-menu" role="menu">
         <div class="dropdown-content">
-          <a hx-get="{% url 'api-projects-sources-render' project.id %}?action=create"
-             hx-template="projects/sources/_create_file_modal.html" hx-target="#modal-target" class="dropdown-item"
-             hx-swap="beforeend">
+          <a class="dropdown-item"
+             href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
             <span class="icon">
               <i class="ri-file-add-line"></i>
             </span>
             <span>
-              {% trans "File" %}
+              eLife article
             </span>
           </a>
+          {% comment %}
           <a href="#" class="dropdown-item">
             <span class="icon">
               <i class="ri-folder-add-line"></i>
@@ -94,6 +94,7 @@
               URL
             </span>
           </a>
+          {% endcomment %}
         </div>
       </div>
     </div>

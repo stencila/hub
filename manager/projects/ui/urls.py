@@ -1,7 +1,9 @@
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 
 import projects.ui.views.projects as project_views
+import projects.ui.views.sources as sources_views
 from manager.paths import RootPaths
+from projects.paths import ProjectPaths
 
 # URLs that must go before `accounts.ui.urls`
 before_account_urls = [
@@ -22,17 +24,37 @@ before_account_urls = [
 after_account_urls = [
     path(
         "<slug:account>/<slug:project>/",
-        project_views.retrieve,
-        name="ui-projects-retrieve",
-    ),
-    path(
-        "<slug:account>/<slug:project>/sharing/",
-        project_views.sharing,
-        name="ui-projects-sharing",
-    ),
-    path(
-        "<slug:account>/<slug:project>/settings/",
-        project_views.update,
-        name="ui-projects-update",
-    ),
+        include(
+            [
+                path("", project_views.retrieve, name="ui-projects-retrieve",),
+                path(
+                    ProjectPaths.sharing.value + "/",
+                    project_views.sharing,
+                    name="ui-projects-sharing",
+                ),
+                path(
+                    ProjectPaths.settings.value + "/",
+                    project_views.update,
+                    name="ui-projects-update",
+                ),
+                path(
+                    ProjectPaths.sources.value + "/",
+                    include(
+                        [
+                            path(
+                                "new/<str:type>",
+                                sources_views.create,
+                                name="ui-projects-sources-create",
+                            ),
+                            path(
+                                "delete/<str:source>",
+                                sources_views.destroy,
+                                name="ui-projects-sources-destroy",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    )
 ]

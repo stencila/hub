@@ -2,10 +2,7 @@
 
 <tr>
   <td class="source-table--file-type pr-0 is-vcentered">
-    <span>
-      {# TODO: Change icon dependeing on file type #}
-      <i title="Disk" class="ri-file-line"></i>
-    </span>
+    {% include './_file_type_icon.html' with mimetype=source.mimetype %}
   </td>
   <td class="has-text-weight-bold pl-2 is-vcentered">
     <p class="table-icon-label">{{ source.path }}</p>

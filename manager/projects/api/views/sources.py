@@ -1,0 +1,133 @@
+from django.db.models import Q
+from django.http.request import HttpRequest
+from rest_framework import exceptions, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
+
+from manager.api.helpers import (
+    HtmxCreateMixin,
+    HtmxDestroyMixin,
+    HtmxListMixin,
+    HtmxMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+)
+from projects.api.serializers import SourcePolymorphicSerializer
+from projects.api.views.projects import ProjectsViewSet
+from projects.models.projects import Project, ProjectRole
+from projects.models.sources import Source
+
+
+class ProjectsSourcesViewSet(
+    HtmxMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    HtmxDestroyMixin,
+    viewsets.GenericViewSet,
+):
+    """A view set for project sources."""
+
+    lookup_url_kwarg = "source"
+    object_name = "source"
+    queryset_name = "sources"
+
+    def get_project(self) -> Project:
+        """Get the project and check that the user has permission to the perform action."""
+        # Only pass on the request `user` so that any source filter query parameters
+        # are not applied to projects
+        request = HttpRequest()
+        request.user = self.request.user
+        project = ProjectsViewSet.init(
+            self.action, request, self.args, self.kwargs,
+        ).get_object()
+
+        if (
+            self.action in ["create", "partial_update", "destroy"]
+            and project.role
+            not in [
+                ProjectRole.AUTHOR.name,
+                ProjectRole.MANAGER.name,
+                ProjectRole.OWNER.name,
+            ]
+        ) or project.role is None:
+            raise exceptions.PermissionDenied
+
+        return project
+
+    def get_queryset(self):
+        """Get project sources."""
+        project = self.get_project()
+        queryset = Source.objects.filter(project=project)
+
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(Q(path__icontains=search))
+
+        return queryset
+
+    def get_object(self, source=None) -> Source:
+        """Get a project source."""
+        source = source or self.kwargs["source"]
+        try:
+            return self.get_queryset().filter(id=source)[0]
+        except IndexError:
+            raise exceptions.NotFound
+
+    def get_serializer_class(self, action=None, source_class: str = None):
+        """Get the serializer class for the current action."""
+        action = action or self.action
+        if action == "create":
+            # Call `get_project` to perform permission check
+            self.get_project()
+            # Get the serializer for the type of source
+            source_class = source_class or self.request.data.get("type")
+            if source_class is not None:
+                cls = SourcePolymorphicSerializer.class_name_serializer_mapping.get(
+                    source_class
+                )
+                if cls is None:
+                    raise RuntimeError(
+                        "Unhandled source type: {0}".format(source_class)
+                    )
+                return cls
+            raise RuntimeError(
+                "Unable to determine source type from '{0}'".format(source_class)
+            )
+        elif action == "partial_update":
+            return SourcePolymorphicSerializer
+        elif action == "destroy":
+            return None
+        else:
+            return SourcePolymorphicSerializer
+
+    def get_response_context(self, **kwargs):
+        """Override to provide additional cotext when rendering templates."""
+        if "queryset" not in kwargs:
+            kwargs.update({"queryset": self.get_queryset()})
+        return super().get_response_context(project=self.get_project(), **kwargs)
+
+    @action(detail=False)
+    def render(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Render a template for a source.
+        """
+        action = self.request.GET.get("action", "retrieve")
+        source = self.request.GET.get("source")
+
+        if source:
+            instance = self.get_object(source)
+        else:
+            instance = None
+
+        serializer_class = self.get_serializer_class(action)
+        if serializer_class:
+            serializer = serializer_class(instance)
+        else:
+            serializer = None
+
+        return Response(
+            self.get_response_context(instance=instance, serializer=serializer)
+        )

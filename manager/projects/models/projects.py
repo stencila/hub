@@ -169,37 +169,3 @@ class ProjectAgent(models.Model):
                 fields=["project", "team"], name="%(class)s_unique_project_team"
             ),
         ]
-
-
-class Source(models.Model):  # noqa: D101
-
-    project = models.ForeignKey(
-        Project,
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="sources",
-    )
-
-    path = models.TextField(
-        null=False,
-        default=".",
-        help_text="The path that the file or directory from the source is mapped to in the Project",
-    )
-
-    creator = models.ForeignKey(
-        User,
-        null=True,  # Should only be null if the creator is deleted
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="sources_created",
-        help_text="The user who created the source.",
-    )
-
-    created = models.DateTimeField(
-        auto_now_add=True, help_text="The time the source was created."
-    )
-
-    updated = models.DateTimeField(
-        auto_now=True, help_text="The time the source was last changed"
-    )

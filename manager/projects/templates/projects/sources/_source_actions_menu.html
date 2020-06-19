@@ -10,12 +10,14 @@
   </div>
   <div class="dropdown-menu has-text-left" role="menu">
     <div class="dropdown-content">
-      <a href="#" target="_blank" rel="noopener" class="dropdown-item">
+      {% if source.url %}
+      <a href="{{ source.url }}" target="_blank" rel="noopener" class="dropdown-item">
         <span class="icon">
           <i class="ri-external-link-line"></i>
         </span>
         <span>{% trans "Open" %}</span>
       </a>
+      {% endif %}
       <a href="#" target="_blank" rel="noopener" class="dropdown-item">
         <span class="icon">
           <i class="ri-eye-line"></i>
@@ -62,11 +64,8 @@
         <span>{% trans "Rename" %}</span>
       </a>
 
-      <hr class="dropdown-divider" />
-
       <a class="dropdown-item"
-         hx-get="{% url 'api-projects-sources-render' project.id %}?action=destroy&source={{ source.id }}"
-         hx-template="projects/sources/_destroy_modal.html" hx-target="#modal-target" hx-swap="beforeend">
+         href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
         <span class="icon">
           <i class="ri-delete-bin-line"></i>
         </span>

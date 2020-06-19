@@ -27,7 +27,8 @@ from projects.api.serializers import (
     ProjectUpdateSerializer,
     SourceSerializer,
 )
-from projects.models import Project, ProjectAgent, ProjectRole, Source
+from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.sources import Source
 
 
 class ProjectsViewSet(

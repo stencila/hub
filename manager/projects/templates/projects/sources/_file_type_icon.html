@@ -1,0 +1,16 @@
+{% comment %}
+Renders the icon class name to use for a source based on its mimetype.
+{% endcomment %}
+<span class="has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="File type {{ mimetype }}">
+  {% spaceless %}
+  {% if mimetype == 'application/vnd.google-apps.document' %}
+  <i class="ri-google-line"></i>
+  {% elif mimetype == 'text/xml+jats' %}
+  <i class="ri-file-code-line"></i>
+  {% elif mimetype == 'application/x-directory' %}
+  <i class="ri-folder-line"></i>
+  {% else %}
+  <i class="ri-file-unknow-line"></i>
+  {% endif %}
+  {% endspaceless %}
+</span>

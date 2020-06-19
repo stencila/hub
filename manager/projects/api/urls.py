@@ -1,11 +1,8 @@
 from django.urls import include, path
 
 from manager.api.routers import OptionalSlashRouter
-from projects.api.views.projects import (
-    ProjectsAgentsViewSet,
-    ProjectsSourcesViewSet,
-    ProjectsViewSet,
-)
+from projects.api.views.projects import ProjectsAgentsViewSet, ProjectsViewSet
+from projects.api.views.sources import ProjectsSourcesViewSet
 
 projects = OptionalSlashRouter()
 projects.register("projects", ProjectsViewSet, "api-projects")

@@ -1,5 +1,6 @@
 from django.db.models import Q
 from rest_framework import exceptions, serializers
+from rest_polymorphic.serializers import PolymorphicSerializer
 
 from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountQuotas, AccountTeam
@@ -8,7 +9,16 @@ from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
-from projects.models import Project, ProjectAgent, ProjectRole, Source
+from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.sources import (
+    ElifeSource,
+    GithubSource,
+    GoogleDocsSource,
+    GoogleDriveSource,
+    PlosSource,
+    Source,
+    UrlSource,
+)
 from users.models import User
 
 
@@ -314,7 +324,114 @@ class ProjectDestroySerializer(serializers.Serializer):
             )
 
 
-class SourceSerializer(serializers.ModelSerializer):  # noqa: D101
+class SourceSerializer(serializers.ModelSerializer):
+    """
+    Base serializer for source instances.
+
+    Project is read only to prevent a change to another
+    project for which the user does not have permissions.
+    """
+
+    project = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Project, context["view"].kwargs["project"]
+            )
+        )
+    )
+
     class Meta:
         model = Source
-        fields = "__all__"
+        exclude = ["polymorphic_ctype"]
+        read_only_fields = ["creator", "created", "updated", "project"]
+
+
+class ElifeSourceSerializer(SourceSerializer):
+    """
+    Serializer for eLife sources.
+    """
+
+    class Meta:
+        model = ElifeSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class GithubSourceSerializer(SourceSerializer):
+    """
+    Serializer for GitHub sources.
+    """
+
+    class Meta:
+        model = GithubSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class GoogleDocsSourceSerializer(SourceSerializer):
+    """
+    Serializer for Google Docs sources.
+    """
+
+    class Meta:
+        model = GoogleDocsSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class GoogleDriveSourceSerializer(SourceSerializer):
+    """
+    Serializer for Google Drive sources.
+    """
+
+    class Meta:
+        model = GoogleDriveSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class PlosSourceSerializer(SourceSerializer):
+    """
+    Serializer for PLOS sources.
+    """
+
+    class Meta:
+        model = PlosSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class UrlSourceSerializer(SourceSerializer):
+    """
+    Serializer for URL sources.
+    """
+
+    class Meta:
+        model = UrlSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
+class SourcePolymorphicSerializer(PolymorphicSerializer):
+    """
+    Serializer which dispatches to the appropriate serializer depending upon source type.
+    """
+
+    resource_type_field_name = "type"
+
+    model_serializer_mapping = {
+        Source: SourceSerializer,
+        ElifeSource: ElifeSourceSerializer,
+        GithubSource: GithubSourceSerializer,
+        GoogleDocsSource: GoogleDocsSourceSerializer,
+        GoogleDriveSource: GoogleDriveSourceSerializer,
+        PlosSource: PlosSourceSerializer,
+        UrlSource: UrlSourceSerializer,
+    }
+
+    class_name_serializer_mapping = dict(
+        [
+            (model.__name__, serializer)
+            for model, serializer in model_serializer_mapping.items()
+        ]
+    )
