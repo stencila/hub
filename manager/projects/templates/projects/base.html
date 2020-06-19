@@ -5,7 +5,7 @@
 {% block sidebar_start %}
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-sources">
       <a href="{% url 'ui-projects-retrieve' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-retrieve' %}">
         <span class="icon">
@@ -17,7 +17,7 @@
       </a>
     </li>
 
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-snapshots">
       <!-- TODO: Add links to correct page -->
       <a href="#"
          class="panel-block transition-colors {% is_active 'ui-projects-snapshots' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip"
@@ -31,7 +31,7 @@
       </a>
     </li>
 
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-jobs">
       <!-- TODO: Add links to correct page -->
       <a href="#"
          class="panel-block transition-colors {% is_active 'ui-projects-jobs' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip"
@@ -47,7 +47,7 @@
 
 
     {% if project.role in 'MANAGER, OWNER' %}
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-sharing">
       <a href="{% url 'ui-projects-sharing' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-sharing' %}">
         <span class="icon">
@@ -59,7 +59,7 @@
       </a>
     </li>
 
-    <li class="sidebar__item">
+    <li class="sidebar__item" id="menu-item-settings">
       <a href="{% url 'ui-projects-update' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-update' %}">
         <span class="icon">
