@@ -1,4 +1,4 @@
-amqp==2.5.2
+amqp==2.6.0
 celery==4.4.5
 crispy-forms-bulma==1.1.4
 dj_database_url==0.5.0
