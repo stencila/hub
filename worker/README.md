@@ -31,7 +31,7 @@ If you want to run tests individually, use `pytest` directly e.g. to only run th
 Some of the jobs, in particular those in [`jobs/pull`](jobs/pull), involve making HTTP requests. To speed up test runs and to allow them to be run offline, we use `pytest-recording` to record requests and their responses. To enable this for a test add the `@pytest.mark.vcr` decorator and run the test once with `--record-mode=rewrite` e.g.
 
 ```bash
-./venv/bin/pytest --record-mode=rewrite jobs/pull/elife_pull.py
+./venv/bin/pytest --record-mode=rewrite jobs/pull/elife_test.py
 ```
 
 The generated YAML files in the `casettes` folder should be committed. If needs be, you can run tests again with `rewrite` mode to update the casettes.
