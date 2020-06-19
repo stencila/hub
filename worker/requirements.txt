@@ -2,6 +2,6 @@ amqp==2.5.2
 celery==4.4.2
 kubernetes==11.0.0
 lxml==4.5.1
-PyGithub==1.43.8
+PyGithub==1.51
 google-api-python-client==1.9.3
 oauth2client==4.1.3
