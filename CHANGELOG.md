@@ -1,3 +1,18 @@
+## [2.32.1](https://github.com/stencila/hub/compare/v2.32.0...v2.32.1) (2020-06-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.96.0 ([18a9e79](https://github.com/stencila/hub/commit/18a9e799085471c39edc0dc92b930d66fca1dbe1))
+* **deps:** update dependency @stencila/thema to v2.10.2 ([ec21c77](https://github.com/stencila/hub/commit/ec21c77b722ef2ade344d6f2e0946e0aa5e012d7))
+* **deps:** update dependency amqp to v2.6.0 ([ef6f610](https://github.com/stencila/hub/commit/ef6f6109557f697400e33e29f97ea73bd27e963f))
+* **deps:** update dependency celery to v4.4.5 ([cc9dcf5](https://github.com/stencila/hub/commit/cc9dcf5578d9b36605f7de0123343665dbb6c4f1))
+* **deps:** update dependency django to v2.2.13 ([ebf529a](https://github.com/stencila/hub/commit/ebf529a7c71a74aba43cac37ff2f6135ff1651e4))
+* **deps:** update dependency djangorestframework-camel-case to v1.2.0 ([dac80ce](https://github.com/stencila/hub/commit/dac80cee0671542faf4b32b2817b4c935e8ebd27))
+* **deps:** update dependency google-api-python-client to v1.9.3 ([9fd79d3](https://github.com/stencila/hub/commit/9fd79d3dc15d13b6c655147c46d1a5f0eec4d578))
+* **deps:** update dependency requests to v2.24.0 ([f95a02a](https://github.com/stencila/hub/commit/f95a02a16f1c9e58bd1508144ed0f3557713141e))
+* **deps:** update dependency sentry-sdk to v0.15.1 ([7d1d17d](https://github.com/stencila/hub/commit/7d1d17d2ed5ae31f1a46cb69d62a30db02a971d3))
+
 # [2.32.0](https://github.com/stencila/hub/compare/v2.31.2...v2.32.0) (2020-06-19)
 
 
