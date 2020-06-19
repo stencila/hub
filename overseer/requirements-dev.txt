@@ -1,5 +1,5 @@
 black==19.10b0
-flake8==3.8.2
+flake8==3.8.3
 flower==0.9.4
-mypy==0.770
+mypy==0.780
 pydocstyle==5.0.2
