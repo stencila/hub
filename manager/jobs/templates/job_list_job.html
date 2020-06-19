@@ -1,0 +1,77 @@
+{% load tz avatar_tags form_helpers %}
+
+<div class="job has-text-black" id="job{{job.id}}">
+
+  <div class="job-column job-summary">
+    {% if job.status_label %}
+    <span class="tag is-uppercase job-tag {{job.colour}}">{{job.status_label|upper}}</span>
+    {% endif %}
+    <div class="job-icon status is-flex">
+      <i data-feather="{{job.icon}}" class="icon flex-shrink-0"></i>
+      <span class="text truncate has-text-weight-bold">{{job.method}}</span>
+    </div>
+
+  </div>
+
+  <div class="job-column job-details flex-grow is-flex flex-col">
+    <header class="job-details-header flex-wrap is-flex mb-2">
+
+      <span class="job-info job-icon is-flex" title="ID of this job">
+        <span class="job-detail">{% if job.id %}#{{job.id}}{% endif %}</span>
+      </span>
+
+      <span class="job-info job-icon job-user is-flex" title="User who created this job">
+        <figure class="user-avatar job-user-image icon overflow-hidden">
+          {% avatar job.creator 16 %}
+        </figure>
+        <span
+              class="job-detail is-uppercase">{% if job.creator %}{{job.creator.username}}{% else %}Anonymous{% endif %}</span>
+      </span>
+
+      {% if job.began %}
+      <span class="job-info job-icon is-flex" title="Date/time when this job was created">
+        <i data-feather="calendar" class="icon flex-shrink-0"></i>
+        {% localtime on %}
+        <span class="job-detail is-uppercase">{{job.began|localtime|date:"F n, Y g:i A"}}</span>
+        {% endlocaltime %}
+      </span>
+      {% endif %}
+
+      {% if job.get_runtime %}
+      <span class="job-info job-icon is-flex" title="Time taken for this job to run">
+        <i data-feather="clock" class="icon flex-shrink-0"></i>
+        <span class="job-detail is-lowercase">{{job.get_runtime}}</span>
+      </span>
+      {% endif %}
+    </header>
+
+    <p class="job-details-content is-size-6 content">
+      {% for log in job.log reversed %}
+      {% if forloop.first %}
+      {{log.message|truncatewords_html:15}}
+      {% endif %}
+      {% endfor %}
+    </p>
+  </div>
+
+  <div class="job-column job-actions">
+    {% if not hideActions %}
+    <a class="button is-small is-outlined has-text-weight-semibold pointer-events-all"
+       href="{% url 'project_job_detail' project.account.name project.name job.id %}">
+      Details
+    </a>
+    {% endif %}
+    {% if not isComplete and canCancel %}
+    <form method="PATCH" action="{% url 'api-projects-jobs-cancel' project.id job.id %}">
+      {% csrf_token %}
+      <button class="button is-danger is-small is-outlined" type="submit" tabindex="0">
+        <span class="icon">
+          <i class="fa fa-stop"></i>
+        </span>
+        <span>Cancel</span>
+      </button>
+      {% handle_form success_url="self" %}
+    </form>
+    {% endif %}
+  </div>
+</div>

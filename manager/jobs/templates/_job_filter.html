@@ -1,0 +1,15 @@
+<div class="level-item flex-grow flex-start">
+  <div class="field is-full-width">
+    <label class="label is-size-7" for="status">{{label}}</label>
+    <div class="control">
+      <div class="select select-full-width is-info">
+        <select name="{{element}}" id="{{element}}">
+          <option value="">{{default_option}}</option>
+          {% for name, value in options %}
+          <option value="{{value|lower}}" {% if selected == value %} selected{% endif %}>{{name}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
