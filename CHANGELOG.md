@@ -1,3 +1,15 @@
+# [2.32.0](https://github.com/stencila/hub/compare/v2.31.2...v2.32.0) (2020-06-19)
+
+
+### Bug Fixes
+
+* **Snaps:** Improve highlighting, add drop shadow, more elems ([d225254](https://github.com/stencila/hub/commit/d22525499dccf1fdf10bd9a76df1b79d465a0b92))
+
+
+### Features
+
+* **Snaps:** Highlight elements when taking screenshots ([7dd4f15](https://github.com/stencila/hub/commit/7dd4f15d88c5d763cb8aae674c5af912a4629846))
+
 ## [2.31.2](https://github.com/stencila/hub/compare/v2.31.1...v2.31.2) (2020-06-18)
 
 
