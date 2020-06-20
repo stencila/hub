@@ -1,8 +1,10 @@
 import mimetypes
 import os
 import re
+from pathlib import Path
 from typing import Optional, Type, Union
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -279,6 +281,14 @@ class Source(PolymorphicModel):
         """
         return Source.mimetype_from_path(self.path)
 
+    def absolute_path(self) -> str:
+        """
+        Get the absolute path of the source within the project's working directory.
+        """
+        return os.path.join(
+            settings.STORAGE_DIR, "projects", str(self.project.id), "working", self.path
+        )
+
     def pull(self, user: User) -> Job:
         """
         Pull the source to the filesystem.
@@ -336,35 +346,6 @@ class ElifeSource(Source):
     def mimetype(self) -> str:
         """Get the mimetype of an eLife article."""
         return "text/xml+jats"
-
-
-def files_source_file_path(instance: "FileSource", filename: str):
-    """Generate a file path for uploading files."""
-    return "projects/{0}/{1}".format(instance.id, filename)
-
-
-class FileSource(Source):
-    """A file uploaded to the Hub."""
-
-    size = models.IntegerField(
-        null=True, blank=True, help_text="Size of the file in bytes"
-    )
-
-    file = models.FileField(
-        null=False,
-        blank=True,
-        upload_to=files_source_file_path,
-        help_text="The actual file stored",
-    )
-
-    def __str__(self) -> str:
-        return "file://{}".format(self.file.name or "")
-
-    def save(self, *args, **kwargs):
-        """Override of base superclass `save` method to update the size property from the file size."""
-        if self.file:
-            self.size = self.file.size
-        super().save(*args, **kwargs)
 
 
 class GithubSource(Source):
@@ -545,6 +526,32 @@ class PlosSource(Source):
     def mimetype(self) -> str:
         """Get the mimetype of an PLOS article."""
         return "text/xml+jats"
+
+
+class UploadSource(Source):
+    """
+    A file that has been uploaded to the Hub.
+
+    This allows us to keep track of files that have been explictly
+    uploaded to the project folder, rather than being derived from
+    pulling other sources, or being derived from jobs.
+    """
+
+    def __str__(self) -> str:
+        return "upload://{}".format(self.path)
+
+    def pull(self, file):
+        """
+        Write an uploaded file to disk.
+
+        This is analogous to "pull" for other types of sources
+        and may be used to trigger further jobs.
+        """
+        path = self.absolute_path()
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "wb+") as dest:
+            for chunk in file.chunks():
+                dest.write(chunk)
 
 
 class UrlSource(Source):

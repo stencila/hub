@@ -1,5 +1,5 @@
 """
-Django settings for director project.
+Django settings for manager service.
 
 Uses `django-configurations` to define settings
 for different environments.
@@ -356,7 +356,7 @@ class Prod(Configuration):
     BROKER_URL = values.SecretValue(environ_prefix=None)
 
     ###########################################################################
-    # Settings used internally in the `director`'s own code
+    # Settings used internally in the `manager`'s own code
     #
     # Some of these may be renamed / removed in the future
     ###########################################################################
@@ -374,6 +374,11 @@ class Prod(Configuration):
     # This is usually disallowed in production but is permitted
     # during development for ease of testing.
     UI_BASIC_AUTH = values.BooleanValue(False)
+
+    # Path to the `storage` service mounted as a
+    # local directory. Defaults to the `data` sub-directory
+    # of the `storage` service in this repo
+    STORAGE_DIR = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
 
     @classmethod
     def post_setup(cls):

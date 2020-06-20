@@ -47,6 +47,11 @@ after_account_urls = [
                                 name="ui-projects-sources-create",
                             ),
                             path(
+                                "upload",
+                                sources_views.upload,
+                                name="ui-projects-sources-upload",
+                            ),
+                            path(
                                 "rename/<str:source>",
                                 sources_views.rename,
                                 name="ui-projects-sources-rename",

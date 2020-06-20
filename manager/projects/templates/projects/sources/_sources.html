@@ -45,6 +45,14 @@
       </div>
       <div class="dropdown-menu" id="dropdown-menu" role="menu">
         <div class="dropdown-content">
+          <a class="dropdown-item" href="{% url 'ui-projects-sources-upload' project.account.name project.name %}">
+            <span class="icon">
+              <i class="ri-upload-cloud-line"></i>
+            </span>
+            <span>
+              Upload
+            </span>
+          </a>
           <a class="dropdown-item"
              href="{% url 'ui-projects-sources-create' project.account.name project.name 'url' %}">
             <span class="icon">

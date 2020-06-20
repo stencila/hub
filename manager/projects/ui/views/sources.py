@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 from django.template.loader import select_template
 
 from projects.api.views.sources import ProjectsSourcesViewSet
-from projects.models.sources import Source
+from projects.models.sources import Source, UploadSource
 
 
 @login_required
@@ -56,6 +56,33 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             source_class=source_class,
         ),
     )
+
+
+@login_required
+def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Upload files to the project.
+
+    If there is no existing `UploadSource` with the path, then one
+    will be created. Otherwise the content of the source will be
+    replaced with the uploaded content.
+    """
+    viewset = ProjectsSourcesViewSet.init("create", request, args, kwargs)
+    project = viewset.get_project()
+
+    if request.method == "GET":
+        return render(request, "projects/sources/upload.html", dict(project=project))
+    elif request.method == "POST":
+        files = request.FILES.getlist("files")
+        if files:
+            for file in files:
+                source, created = UploadSource.objects.get_or_create(
+                    project=project, path=file.name
+                )
+                source.pull(file)
+        return redirect("ui-projects-retrieve", project.account.name, project.name)
+    else:
+        raise Http404
 
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:

@@ -19,6 +19,7 @@ from projects.models.sources import (
     GoogleDriveSource,
     PlosSource,
     Source,
+    UploadSource,
     UrlSource,
 )
 from users.models import User
@@ -480,6 +481,17 @@ class PlosSourceSerializer(SourceSerializer):
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
+class UploadSourceSerializer(SourceSerializer):
+    """
+    Serializer for uploaded sources.
+    """
+
+    class Meta:
+        model = UploadSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+
 class UrlSourceSerializer(SourceSerializer):
     """
     Serializer for URL sources.
@@ -505,6 +517,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
         GoogleDocsSource: GoogleDocsSourceSerializer,
         GoogleDriveSource: GoogleDriveSourceSerializer,
         PlosSource: PlosSourceSerializer,
+        UploadSource: UploadSourceSerializer,
         UrlSource: UrlSourceSerializer,
     }
 

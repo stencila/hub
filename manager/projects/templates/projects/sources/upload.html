@@ -1,0 +1,45 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "New upload source" %}{% endblock %}
+
+{% block layout_content %}
+<form method="POST" action="{% url 'ui-projects-sources-upload' project.account.name project.name %}"
+      enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <h1 class="title is-3">{% trans "Upload project sources" %}</h1>
+
+  <p class="subtitle">
+    Upload one or more files to you project folder.
+    You can then convert them to other formats or use them as data in you executable documents.
+  </p>
+
+  <div class="field has-addons">
+    <div class="control">
+      <div class="file has-name">
+        <label class="file-label">
+          <input class="file-input" type="file" name="files" multiple="true">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="ri-file-upload-line"></i>
+            </span>
+            <span class="file-label">
+              Choose some files…
+            </span>
+          </span>
+          <span class="file-name">
+            No files chosen.
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="control">
+      <button class="button is-primary" type="submit">
+        Upload
+      </button>
+    </div>
+  </div>
+
+</form>
+{% endblock %}

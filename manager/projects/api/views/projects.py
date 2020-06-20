@@ -1,11 +1,7 @@
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
-from django.http.request import HttpRequest
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
-from rest_framework.decorators import action
-from rest_framework.request import Request
-from rest_framework.response import Response
 
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -25,10 +21,8 @@ from projects.api.serializers import (
     ProjectListSerializer,
     ProjectRetrieveSerializer,
     ProjectUpdateSerializer,
-    SourceSerializer,
 )
 from projects.models.projects import Project, ProjectAgent, ProjectRole
-from projects.models.sources import Source
 
 
 class ProjectsViewSet(
