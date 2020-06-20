@@ -79,6 +79,24 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
+def rename(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Rename (ie change the path of) a source."""
+    viewset = ProjectsSourcesViewSet.init("partial_update", request, args, kwargs)
+    source = viewset.get_object()
+    serializer = viewset.get_serializer(source)
+    return render(
+        request,
+        "projects/sources/rename.html",
+        dict(
+            serializer=serializer,
+            source=source,
+            project=source.project,
+            account=source.project.account,
+        ),
+    )
+
+
+@login_required
 def destroy(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Destory a source."""
     viewset = ProjectsSourcesViewSet.init("destroy", request, args, kwargs)

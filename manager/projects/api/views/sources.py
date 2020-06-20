@@ -97,37 +97,11 @@ class ProjectsSourcesViewSet(
                 "Unable to determine source type from '{0}'".format(source_class)
             )
         elif action == "partial_update":
-            return SourcePolymorphicSerializer
+            source = self.get_object()
+            return SourcePolymorphicSerializer.model_serializer_mapping[
+                source.__class__
+            ]
         elif action == "destroy":
             return None
         else:
             return SourcePolymorphicSerializer
-
-    def get_response_context(self, **kwargs):
-        """Override to provide additional cotext when rendering templates."""
-        if "queryset" not in kwargs:
-            kwargs.update({"queryset": self.get_queryset()})
-        return super().get_response_context(project=self.get_project(), **kwargs)
-
-    @action(detail=False)
-    def render(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Render a template for a source.
-        """
-        action = self.request.GET.get("action", "retrieve")
-        source = self.request.GET.get("source")
-
-        if source:
-            instance = self.get_object(source)
-        else:
-            instance = None
-
-        serializer_class = self.get_serializer_class(action)
-        if serializer_class:
-            serializer = serializer_class(instance)
-        else:
-            serializer = None
-
-        return Response(
-            self.get_response_context(instance=instance, serializer=serializer)
-        )

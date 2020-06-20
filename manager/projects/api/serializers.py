@@ -366,7 +366,11 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Validate that the path does not yet exist for the project.
         """
-        if Source.objects.filter(project=data["project"], path=data["path"]):
+        project = data.get("project", self.instance.project if self.instance else None)
+        path = data.get("path", self.instance.path if self.instance else None)
+        id = self.instance.id if self.instance else None
+
+        if Source.objects.filter(project=project, path=path).exclude(id=id).count():
             raise exceptions.ValidationError(
                 dict(path="A source with this path already exists in the project.")
             )

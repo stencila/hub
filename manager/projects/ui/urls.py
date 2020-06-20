@@ -47,6 +47,11 @@ after_account_urls = [
                                 name="ui-projects-sources-create",
                             ),
                             path(
+                                "rename/<str:source>",
+                                sources_views.rename,
+                                name="ui-projects-sources-rename",
+                            ),
+                            path(
                                 "delete/<str:source>",
                                 sources_views.destroy,
                                 name="ui-projects-sources-destroy",
