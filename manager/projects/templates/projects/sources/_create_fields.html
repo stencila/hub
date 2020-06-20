@@ -1,0 +1,7 @@
+{% load i18n %}
+
+{# Used when there is no custom _create_<type>_fields.html template for a source type #}
+
+<h2 class="title is-5">{{ source_class }}</h2>
+
+{% include "serializers/_serializer.html" with serializer=serializer %}

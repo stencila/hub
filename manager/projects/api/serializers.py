@@ -1,3 +1,5 @@
+import re
+
 from django.db.models import Q
 from rest_framework import exceptions, serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
@@ -320,7 +322,7 @@ class ProjectDestroySerializer(serializers.Serializer):
         """Validate that the provided name matches."""
         if value != self.instance.name:
             raise exceptions.ValidationError(
-                dict(name="Provided name does not match the project name.")
+                "Provided name does not match the project name."
             )
 
 
@@ -345,6 +347,31 @@ class SourceSerializer(serializers.ModelSerializer):
         exclude = ["polymorphic_ctype"]
         read_only_fields = ["creator", "created", "updated", "project"]
 
+    def validate_path(self, value):
+        """
+        Validate the path field.
+
+        Splits into parts and checks that it each part only contains valid
+        characters.
+        """
+        for part in value.split("/"):
+            match = re.search(r"^[A-Za-z][A-Za-z0-9\.\-_ ]*$", part, re.I)
+            if not match:
+                raise exceptions.ValidationError(
+                    'Path contains an invalid part: "{0}"'.format(part)
+                )
+        return value
+
+    def validate(self, data):
+        """
+        Validate that the path does not yet exist for the project.
+        """
+        if Source.objects.filter(project=data["project"], path=data["path"]):
+            raise exceptions.ValidationError(
+                dict(path="A source with this path already exists in the project.")
+            )
+        return data
+
 
 class ElifeSourceSerializer(SourceSerializer):
     """
@@ -362,10 +389,47 @@ class GithubSourceSerializer(SourceSerializer):
     Serializer for GitHub sources.
     """
 
+    url = serializers.CharField(
+        required=False, allow_blank=True, help_text="The URL of the repository."
+    )
+
+    repo = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="A GitHub repository name (e.g. org/name).",
+    )
+
     class Meta:
         model = GithubSource
         exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
+
+    def validate(self, data):
+        """
+        Validate the url field.
+        """
+        url = data.get("url")
+        repo = data.get("repo")
+        if url:
+            address = GithubSource.parse_address(url, strict=True)
+            del data["url"]
+            data["repo"] = address.repo
+            data["subpath"] = address.subpath
+            return data
+        elif repo:
+            if not re.match(r"^(?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+)$"):
+                raise exceptions.ValidationError(
+                    dict(repo="Not a valid GitHub repository name.")
+                )
+            return data
+        else:
+            raise exceptions.ValidationError(
+                dict(
+                    url="Please provide either a GitHub URL or a GitHub repository name."
+                )
+            )
+
+        return super.validate()
 
 
 class GoogleDocsSourceSerializer(SourceSerializer):
@@ -373,10 +437,21 @@ class GoogleDocsSourceSerializer(SourceSerializer):
     Serializer for Google Docs sources.
     """
 
+    doc_id = serializers.CharField(
+        help_text="A Google Doc id e.g. 1iNeKTbnIcW_92Hmc8qxMkrW2jPrvwjHuANju2hkaYkA, or its "
+        "URL e.g https://docs.google.com/document/d/1iNeKTbnIcW_92Hmc8qxMkrW2jPrvwjHuANju2hkaYkA/edit"
+    )
+
     class Meta:
         model = GoogleDocsSource
         exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
+
+    def validate_doc_id(self, value):
+        """
+        Validate the document id.
+        """
+        return GoogleDocsSource.parse_address(value, naked=True, strict=True).doc_id
 
 
 class GoogleDriveSourceSerializer(SourceSerializer):

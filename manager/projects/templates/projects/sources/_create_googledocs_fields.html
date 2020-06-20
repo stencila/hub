@@ -1,0 +1,9 @@
+{% load i18n %}
+
+<h2 class="title is-5">Google Docs</h2>
+<p class="subtitle">
+  A Google Doc source lets you pull from, and push to, a Google Doc.
+</p>
+
+{% include "serializers/_field.html" with field=serializer.doc_id icon="ri-at-line" autofocus=True %}
+{% include "./_create_common_fields.html" %}

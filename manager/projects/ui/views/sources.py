@@ -9,7 +9,21 @@ from projects.models.sources import Source
 
 @login_required
 def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Create a source."""
+    """
+    Create a source.
+
+    Looks for a template with name:
+
+       projects/sources/create_<source-type>.html
+
+    but falls back to using `projects/sources/create.html` with inclusion of:
+
+       projects/sources/_create_<source-type>_fields.html
+
+    falling back to:
+
+       projects/sources/_create_fields.html
+    """
     viewset = ProjectsSourcesViewSet.init("create", request, args, kwargs)
     project = viewset.get_project()
 
@@ -21,15 +35,20 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             "projects/sources/create_{0}.html".format(source_type),
             "projects/sources/create.html",
         ]
-    )
-    fields_template = "projects/sources/_create_{0}_fields.html".format(source_type)
+    ).template.name
+    fields_template = select_template(
+        [
+            "projects/sources/_create_{0}_fields.html".format(source_type),
+            "projects/sources/_create_fields.html",
+        ]
+    ).template.name
 
     serializer_class = viewset.get_serializer_class(source_class=source_class)
     serializer = serializer_class()
 
     return render(
         request,
-        template.template.name,
+        template,
         dict(
             project=project,
             serializer=serializer,

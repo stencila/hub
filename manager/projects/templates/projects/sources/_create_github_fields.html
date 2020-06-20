@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<h2 class="title is-5">GitHub</h2>
+<p class="subtitle">
+  A GitHub source lets you pull all, or part of, a repository from GitHub.
+</p>
+
+<p class="help">
+  Please provide either a GitHub URL for a repository, or path within the repository,
+  or the repository name and path within it.
+</p>
+
+<hr>
+
+{% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True %}
+
+<hr>
+
+{% include "serializers/_field.html" with field=serializer.repo icon="ri-at-line" autofocus=True %}
+{% include "serializers/_field.html" with field=serializer.subpath icon="ri-at-line" %}
+
+<hr>
+
+{% include "./_create_common_fields.html" %}

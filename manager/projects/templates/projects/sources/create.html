@@ -13,7 +13,7 @@
   <hr>
 
   <div id="source-create-fields">
-    {% include fields_template %}
+    {% include fields_template with serializer=serializer source_class=source_class %}
   </div>
 
   <input type="hidden" name="type" value="{{ source_class }}">

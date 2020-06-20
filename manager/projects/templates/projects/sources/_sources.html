@@ -46,12 +46,39 @@
       <div class="dropdown-menu" id="dropdown-menu" role="menu">
         <div class="dropdown-content">
           <a class="dropdown-item"
+             href="{% url 'ui-projects-sources-create' project.account.name project.name 'url' %}">
+            <span class="icon">
+              <i class="ri-links-line"></i>
+            </span>
+            <span>
+              URL
+            </span>
+          </a>
+          <a class="dropdown-item"
+             href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}">
+            <span class="icon">
+              <i class="ri-github-line"></i>
+            </span>
+            <span>
+              GitHub
+            </span>
+          </a>
+          <a class="dropdown-item"
+             href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledocs' %}">
+            <span class="icon">
+              <i class="ri-google-line"></i>
+            </span>
+            <span>
+              Google Doc
+            </span>
+          </a>
+          <a class="dropdown-item"
              href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
             <span class="icon">
               <i class="ri-file-add-line"></i>
             </span>
             <span>
-              eLife article
+              eLife
             </span>
           </a>
           {% comment %}
@@ -70,30 +97,6 @@
             </span>
             <span>
               {% trans "File upload" %}
-            </span>
-          </a>
-          <a href="#" class="dropdown-item">
-            <span class="icon">
-              <i class="ri-github-line"></i>
-            </span>
-            <span>
-              GitHub
-            </span>
-          </a>
-          <a class="dropdown-item">
-            <span class="icon">
-              <i class="ri-google-line"></i>
-            </span>
-            <span>
-              Google Docs
-            </span>
-          </a>
-          <a href="#" class="dropdown-item">
-            <span class="icon">
-              <i class="ri-links-line"></i>
-            </span>
-            <span>
-              URL
             </span>
           </a>
           {% endcomment %}
