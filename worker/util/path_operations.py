@@ -86,7 +86,7 @@ def relative_path_join(directory: str, relative_path: str) -> str:
     """
     Join `relative_path` on to `directory`.
 
-    Then ensure that the generated path is inside the `director`y (i.e. relative_path does not contain path traversal
+    Then ensure that the generated path is inside the `directory` (i.e. relative_path does not contain path traversal
     components).
     """
     full_path = utf8_realpath(utf8_path_join(directory, relative_path))

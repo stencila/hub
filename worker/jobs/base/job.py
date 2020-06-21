@@ -42,7 +42,7 @@ class Job(celery.Task):
 
         This appends an entry to the log and updates the
         state with the log as metadata. This makes the
-        log and any extra details available to the `director`.
+        log and any extra details available to the `manager`.
         (see the `update_job` for how these are extracted)
         """
         self.log_entries.append(
@@ -79,7 +79,7 @@ class Job(celery.Task):
         """
         Job has been terminated.
 
-        When cancelling a job the `director` sends the `SIGUSR1`
+        When cancelling a job the `manager` sends the `SIGUSR1`
         signal which causes a `SoftTimeLimitExceeded` to be thrown
         and this method to be called.
 
