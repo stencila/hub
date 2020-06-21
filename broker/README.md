@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `broker` is the mediator between task producers, such as the `director`, and `worker`s, the task consumers. To initiate a task, a producer sends a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
+The `broker` is the mediator between task producers, such as the `manager`, and `worker`s, the task consumers. To initiate a task, a producer sends a message to the `broker`'s queue, which the `broker` then delivers to a `worker`.
 
 ## Solution
 
