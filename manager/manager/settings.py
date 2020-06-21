@@ -110,8 +110,10 @@ class Prod(Configuration):
 
     # A list of middleware to use.
     MIDDLEWARE = [
-        "django_prometheus.middleware.PrometheusBeforeMiddleware",
         "django.middleware.security.SecurityMiddleware",
+        # Whitenoise must be above all other middleware apart from Django’s SecurityMiddleware
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+        "django_prometheus.middleware.PrometheusBeforeMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
@@ -210,7 +212,7 @@ class Prod(Configuration):
 
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, "manager", "static")]
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
     # Media files (uploaded by users)
     # https://docs.djangoproject.com/en/3.0/topics/files/
