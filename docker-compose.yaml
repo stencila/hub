@@ -20,12 +20,12 @@ services:
     env_file:
       - .config
     depends_on:
-      - director
+      - manager
       - monitor
 
-  director:
-    build: ./director
-    image: stencila/hub-director
+  manager:
+    build: ./manager
+    image: stencila/hub-manager
     ports:
       - "8000:8000"
     env_file:
@@ -74,7 +74,7 @@ services:
     env_file:
       - .secrets
     depends_on:
-      - director
+      - manager
       - broker
 
   worker:

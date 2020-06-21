@@ -49,12 +49,12 @@ We also welcome your suggestions or code contributions for feature you'd like to
 Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service (🦄 not all of these are written yet) provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development:
 
 * [`router`](router): A [Nginx](https://nginx.org/) server that routes requests to other services.
-* [`director`](director): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
+* [`manager`](manager): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
 * [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker.
 * [`worker`](worker): A [Celery](https://docs.celeryproject.org) process that runs jobs from the broker's queue.
 * [`scheduler`](scheduler): A Celery process that places periodic, scheduled jobs on the broker's queue.
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
-* [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the director.
+* [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the manager.
 * [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
 
 ## 🛠️ Develop
@@ -84,13 +84,13 @@ The top level `Makefile` contains recipes for common development tasks e.g `make
 make
 ```
 
-The top level `make` recipes mostly just invoke the corresponding recipe in the `Makefile` for each service. You can run them individually by either `cd`ing into the service's folder or using the `make -C` option e.g. to just run the `director` service,
+The top level `make` recipes mostly just invoke the corresponding recipe in the `Makefile` for each service. You can run them individually by either `cd`ing into the service's folder or using the `make -C` option e.g. to just run the `manager` service,
 
 ```sh
-make -C director run
+make -C manager run
 ```
 
-> 💁 Tip: The individual `run` recipes are useful for quickly iterating during development and, in the case of the `director`, will hot-reload when source files are edited. Where possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
+> 💁 Tip: The individual `run` recipes are useful for quickly iterating during development and, in the case of the `manager`, will hot-reload when source files are edited. Where possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
 
 > 💁 Tip: If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking correctly to one or more of the other services.
 
@@ -134,14 +134,14 @@ docker-compose up --build
 Or, to just bring up one or two of the services _and_ their dependents,
 
 ```sh
-docker-compose up director worker
+docker-compose up manager worker
 ```
 
-To create a development database for integration testing, stand up the `database` service and then use the `director`'s `create-devdb-pg` recipe to populate it:
+To create a development database for integration testing, stand up the `database` service and then use the `manager`'s `create-devdb-pg` recipe to populate it:
 
 ```sh
 docker-compose start database
-make -C director create-devdb-pg
+make -C manager create-devdb-pg
 ```
 
 > 💁 Tip: [pgAdmin](https://www.pgadmin.org/) is useful for inspecting the development PostgreSQL database
