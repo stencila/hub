@@ -5,7 +5,7 @@ A Celery app for monitoring jobs and workers. It has three main
 functions:
 
 - in the main thread, it captures the job and worker events emitted
-by Celery and translates them into data that is posted to the `director`'s API.
+by Celery and translates them into data that is posted to the `manager`'s API.
 See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 
 - in another thread, it periodically queries the Celery API to collect information on
@@ -20,7 +20,7 @@ for the `overseer` to handle.
 Note: This ignores the `result` of `task_succeeded` events and
 the `exception` and `traceback` of `task_failed` events.
 This is partly to avoid duplicating logic for handling those (see `update_job`
-function in `director`) and because the events are not intended
+function in `manager`) and because the events are not intended
 for this purpose (the results should be used for that, which is what
 `update_job` does; see https://github.com/celery/celery/issues/2190#issuecomment-51609500).
 """
@@ -64,7 +64,7 @@ queue_length_worker_ratio = Gauge(
 
 # Setup API client
 api = httpx.Client(
-    base_url=os.path.join(os.environ["DIRECTOR_URL"], "api/"),
+    base_url=os.path.join(os.environ["MANAGER_URL"], "api/"),
     headers={"content-type": "application/json", "accept": "application/json"},
     timeout=30,
 )
@@ -84,7 +84,7 @@ def update_job(id, data: dict):
     """
     Update a job.
 
-    Sends a PATCH request to the `director` to update the
+    Sends a PATCH request to the `manager` to update the
     state of the job. Reused below for individual task event handlers.
     """
     response = api.patch("jobs/{}".format(id), json=data)
@@ -241,7 +241,7 @@ def worker_online(event: Event):
     Sent when a worker has connected to the broker.
 
     Fetches more information on the worker and creates a new worker
-    object on the `director`.
+    object on the `manager`.
     """
     hostname = str(event.get("hostname"))
     queues, stats = add_worker(hostname)
@@ -257,10 +257,10 @@ def worker_heartbeat(event: Event):
     """
     Sent by a worker every `event.freq` seconds.
 
-    Sends a POST request to the `director` to create a heartbeat.
+    Sends a POST request to the `manager` to create a heartbeat.
     Because of the intricacies of uniquely identifying workers,
     rather trying to resolve which worker this heartbeat is for here,
-    we sent the entire event to the `director` and do it over there.
+    we sent the entire event to the `manager` and do it over there.
     """
     hostname = str(event.get("hostname"))
     if hostname not in WORKERS:
@@ -275,7 +275,7 @@ def worker_offline(event: Event):
     """
     Sent when a worker has disconnected from the broker.
 
-    Sends a POST request to the `director` to mark the
+    Sends a POST request to the `manager` to mark the
     worker as finished.
     """
     hostname = str(event.get("hostname"))
