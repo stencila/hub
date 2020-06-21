@@ -1,7 +1,6 @@
 import mimetypes
 import os
 import re
-from pathlib import Path
 from typing import Optional, Type, Union
 
 from django.conf import settings
@@ -12,6 +11,7 @@ from django.db import models
 from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job
+from manager.media import private_storage
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import get_user_github_token, get_user_google_token
@@ -528,30 +528,35 @@ class PlosSource(Source):
         return "text/xml+jats"
 
 
+def upload_source_path(instance, filename):
+    """
+    Get the path to upload the file to.
+
+    To avoid a lot of files in a single directory,
+    nests within project.
+    """
+    return "projects/{project}/sources/upload-{id}-{filename}".format(
+        project=instance.project.id, id=instance.id, filename=filename
+    )
+
+
 class UploadSource(Source):
     """
     A file that has been uploaded to the Hub.
 
-    This allows us to keep track of files that have been explictly
+    This allows us to keep track of files that have been explicitly
     uploaded to the project folder, rather than being derived from
     pulling other sources, or being derived from jobs.
     """
 
+    file = models.FileField(
+        storage=private_storage(),
+        upload_to=upload_source_path,
+        help_text="The uploaded file.",
+    )
+
     def __str__(self) -> str:
         return "upload://{}".format(self.path)
-
-    def pull(self, file):
-        """
-        Write an uploaded file to disk.
-
-        This is analogous to "pull" for other types of sources
-        and may be used to trigger further jobs.
-        """
-        path = self.absolute_path()
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "wb+") as dest:
-            for chunk in file.chunks():
-                dest.write(chunk)
 
 
 class UrlSource(Source):

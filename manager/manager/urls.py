@@ -47,11 +47,15 @@ handler404 = handle404
 handler500 = handle500
 
 if settings.DEBUG:
+    import os
     import debug_toolbar
     from django.conf.urls.static import static
 
     urlpatterns = (
         [path("debug/", include(debug_toolbar.urls))]
         + urlpatterns
-        + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+        + static(
+            settings.MEDIA_URL,
+            document_root=os.path.join(settings.MEDIA_ROOT, "public"),
+        )
     )

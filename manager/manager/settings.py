@@ -212,7 +212,7 @@ class Prod(Configuration):
 
     STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
     # Media files (uploaded by users)
     # https://docs.djangoproject.com/en/3.0/topics/files/
@@ -377,10 +377,10 @@ class Prod(Configuration):
     # during development for ease of testing.
     UI_BASIC_AUTH = values.BooleanValue(False)
 
-    # Path to the `storage` service mounted as a
-    # local directory. Defaults to the `data` sub-directory
-    # of the `storage` service in this repo
-    STORAGE_DIR = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
+    # The mode for file storage:
+    #   local: local filesystem
+    #   bucket: Google Cloud Storage bucket
+    STORAGE_MODE = "bucket"
 
     @classmethod
     def post_setup(cls):
@@ -473,6 +473,9 @@ class Dev(Prod):
     # For browser screenshotting allow Basic auth
     UI_BASIC_AUTH = True
 
+    # Use local file storage
+    STORAGE_MODE = "local"
+
 
 class Test(Prod):
     """
@@ -493,3 +496,7 @@ class Test(Prod):
 
     # During testing, default to using a pseudo, in-memory broker
     BROKER_URL = "memory://"
+
+    # During testing, use local file storage because do not have Google bucket
+    # credentials.
+    STORAGE_MODE = "local"

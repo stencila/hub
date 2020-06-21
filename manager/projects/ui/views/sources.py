@@ -79,7 +79,8 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
                 source, created = UploadSource.objects.get_or_create(
                     project=project, path=file.name
                 )
-                source.pull(file)
+                source.file = file
+                source.save()
         return redirect("ui-projects-retrieve", project.account.name, project.name)
     else:
         raise Http404
