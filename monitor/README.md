@@ -8,7 +8,7 @@ The `monitor` is the Hub's application monitoring service. It collects and store
 
 We use [Prometheus](https://prometheus.io/), a popular open-source application monitoring project orignally developed at SoundCloud.
 
-Other services use so called "exporters" to expose metrics that Prometheus periodically scrapes, usually from the `/metrics` endpoint. For example, the `director` uses the `django_prometheus` Python package as an exporter and the `broker` uses the `rabbitmq_prometheus` plugin.
+Other services use so called "exporters" to expose metrics that Prometheus periodically scrapes, usually from the `/metrics` endpoint. For example, the `manager` uses the `django_prometheus` Python package as an exporter and the `broker` uses the `rabbitmq_prometheus` plugin.
 
 Prometheus exposes a simple tool for visualization of metrics at http://localhost:9090/graph. For example, a graph of the `up` metric for each of the services monitored:
 
