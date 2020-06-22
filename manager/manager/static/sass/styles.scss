@@ -150,6 +150,13 @@ body {
     font-size: 0.75rem;
   }
 
+  .control.has-icons-left .input.is-small-mobile ~ .icon,
+  .control.has-icons-left .select.is-small-mobile ~ .icon,
+  .control.has-icons-right .input.is-small-mobile ~ .icon,
+  .control.has-icons-right .select.is-small-mobile ~ .icon {
+    font-size: 0.75rem;
+  }
+
   .button.is-fullwidth-mobile {
     display: flex;
     width: 100%;
