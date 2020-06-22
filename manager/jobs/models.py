@@ -188,18 +188,30 @@ class Worker(models.Model):
         max_length=512, help_text="The `hostname` of the worker.",
     )
 
-    utcoffset = models.IntegerField(help_text="The `utcoffset` of the worker.",)
+    utcoffset = models.IntegerField(
+        null=True, blank=True, help_text="The `utcoffset` of the worker.",
+    )
 
-    pid = models.IntegerField(help_text="The `pid` of the worker.",)
+    pid = models.IntegerField(
+        null=True, blank=True, help_text="The `pid` of the worker.",
+    )
 
-    freq = models.FloatField(help_text="The worker's heatbeat frequency (in seconds)",)
+    freq = models.FloatField(
+        null=True, blank=True, help_text="The worker's heatbeat frequency (in seconds)",
+    )
 
     software = models.CharField(
-        max_length=256, help_text="The name and version of the worker's software.",
+        max_length=256,
+        null=True,
+        blank=True,
+        help_text="The name and version of the worker's software.",
     )
 
     os = models.CharField(
-        max_length=64, help_text="Operating system that the worker is running on.",
+        max_length=64,
+        null=True,
+        blank=True,
+        help_text="Operating system that the worker is running on.",
     )
 
     details = FallbackJSONField(
@@ -211,6 +223,8 @@ class Worker(models.Model):
 
     signature = models.CharField(
         max_length=512,
+        null=True,
+        blank=True,
         help_text="The signature of the worker used to identify it. "
         "It is possible, but unlikely, that two or more active workers have the same signature.",
     )
@@ -379,6 +393,7 @@ class JobStatus(EnumChoice):
 
     @classmethod
     def has_ended(cls, status: str) -> bool:
+        """Has the job ended."""
         return status in [
             member.value
             for member in (
@@ -623,16 +638,19 @@ class Job(models.Model):
     # Shortcuts to the functions for controlling
     # and updating jobs.
     def dispatch(self) -> "Job":
+        """Dispatch the job."""
         from jobs.jobs import dispatch_job
 
         return dispatch_job(self)
 
     def update(self) -> "Job":
+        """Update the job."""
         from jobs.jobs import update_job
 
         return update_job(self)
 
     def cancel(self) -> "Job":
+        """Cancel the job."""
         from jobs.jobs import cancel_job
 
         return cancel_job(self)

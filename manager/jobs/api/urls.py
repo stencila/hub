@@ -1,6 +1,5 @@
 from django.urls import include, path
 
-from general.api.routers import OptionalSlashRouter
 from jobs.api.views import (
     AccountsBrokerView,
     AccountsQueuesViewSet,
@@ -11,6 +10,7 @@ from jobs.api.views import (
     ProjectsJobsViewSet,
     WorkersViewSet,
 )
+from manager.api.routers import OptionalSlashRouter
 
 # Public routes, nested under accounts or projects
 
@@ -42,15 +42,15 @@ workers.register("workers", WorkersViewSet, "api-workers")
 
 urlpatterns = (
     [
-        path("accounts/<int:account>/broker", AccountsBrokerView.as_view()),
-        path("accounts/<int:account>/", include(accounts_zones.urls)),
-        path("accounts/<int:account>/", include(accounts_queues.urls)),
-        path("accounts/<int:account>/", include(accounts_workers.urls)),
+        path("accounts/<account>/broker", AccountsBrokerView.as_view()),
+        path("accounts/<account>/", include(accounts_zones.urls)),
+        path("accounts/<account>/", include(accounts_queues.urls)),
+        path("accounts/<account>/", include(accounts_workers.urls)),
         path(
-            "accounts/<int:account>/workers/<int:worker>/",
+            "accounts/<account>/workers/<worker>/",
             include(accounts_workers_heartbeats.urls),
         ),
-        path("projects/<int:project>/", include(projects_jobs.urls)),
+        path("projects/<project>/", include(projects_jobs.urls)),
     ]
     + jobs.urls
     + workers.urls

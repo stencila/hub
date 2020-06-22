@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django.db.models import Prefetch, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
@@ -28,6 +30,23 @@ from manager.api.helpers import (
     filter_from_ident,
 )
 from users.api.serializers import UserIdentifierSerializer
+from users.models import User
+
+
+def get_account(
+    identifier: str, user: User, roles: Optional[List[AccountRole]] = None,
+):
+    """
+    Get an account for the user, optionally requiring one or more roles.
+    """
+    try:
+        return Account.objects.get(
+            **filter_from_ident(identifier),
+            **(dict(users__user=user) if user else {}),
+            **(dict(users__role__in=[role.name for role in roles]) if roles else {}),
+        )
+    except Account.DoesNotExist:
+        raise exceptions.PermissionDenied
 
 
 class AccountsViewSet(

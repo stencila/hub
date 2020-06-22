@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
@@ -23,6 +25,62 @@ from projects.api.serializers import (
     ProjectUpdateSerializer,
 )
 from projects.models.projects import Project, ProjectAgent, ProjectRole
+from users.models import User
+
+
+def get_projects(user: User):
+    """
+    Get a queryset of projects for the user.
+
+    Each project is annotated with the role of the user
+    for the project.
+    """
+    if user.is_authenticated:
+        # Annotate the queryset with the role of the user
+        # Role is the "greater" of the project role and the
+        # account role (for the account that owns the project).
+        # Authenticated users can see public projects and those in
+        # which they have a role
+        return Project.objects.annotate(
+            role=RawSQL(
+                """
+SELECT
+CASE account_role.role
+WHEN "OWNER" THEN "OWNER"
+WHEN "MANAGER" THEN
+    CASE project_role.role
+    WHEN "OWNER" THEN "OWNER"
+    ELSE "MANAGER" END
+ELSE project_role.role END AS role
+FROM projects_project AS project
+LEFT JOIN
+    (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
+    ON project.id = project_role.project_id
+LEFT JOIN
+    (SELECT account_id, "role" FROM accounts_accountuser WHERE user_id = %s) AS account_role
+    ON project.account_id = account_role.account_id
+WHERE project.id = projects_project.id""",
+                [user.id, user.id],
+            )
+        ).filter(Q(public=True) | Q(role__isnull=False))
+    else:
+        # Unauthenticated users can only see public projects
+        return Project.objects.filter(public=True).extra(select={"role": "NULL"})
+
+
+def get_project(
+    identifier: str, user: User, roles: Optional[List[ProjectRole]] = None,
+):
+    """
+    Get a project for the user, optionally requiring one or more roles.
+    """
+    try:
+        return get_projects(user).get(
+            **filter_from_ident(identifier),
+            **(dict(role__in=[role.name for role in roles]) if roles else {}),
+        )
+    except Project.DoesNotExist:
+        raise exceptions.PermissionDenied
 
 
 class ProjectsViewSet(
@@ -62,51 +120,17 @@ class ProjectsViewSet(
         TODO: Currently this ignores an authenticated user's access to
               projects inherited from membership of a team.
         """
-        queryset = Project.objects.all().select_related("account")
-
-        if self.request.user.is_authenticated:
-            # Annotate the queryset with the role of the user
-            # Role is the "greater" of the project role and the
-            # account rol (for the account that owns the project).
-            queryset = queryset.annotate(
-                role=RawSQL(
-                    """
-SELECT
-    CASE account_role.role
-    WHEN "OWNER" THEN "OWNER"
-    WHEN "MANAGER" THEN
-        CASE project_role.role
-        WHEN "OWNER" THEN "OWNER"
-        ELSE "MANAGER" END
-    ELSE project_role.role END AS role
-FROM projects_project AS project
-    LEFT JOIN
-        (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
-        ON project.id = project_role.project_id
-    LEFT JOIN
-        (SELECT account_id, "role" FROM accounts_accountuser WHERE user_id = %s) AS account_role
-        ON project.account_id = account_role.account_id
-WHERE project.id = projects_project.id""",
-                    [self.request.user.id, self.request.user.id],
-                )
-            )
-
-            # Authenticated users can see public projects and those in
-            # which they have a role
-            queryset = queryset.filter(Q(public=True) | Q(role__isnull=False))
-
-            role = self.request.GET.get("role", "").lower()
-            if role == "manager":
-                queryset = queryset.filter(role=ProjectRole.MANAGER.name)
-            elif role == "owner":
-                queryset = queryset.filter(role=ProjectRole.OWNER.name)
-        else:
-            # Unauthenticated users can only see public projects
-            queryset = queryset.filter(public=True).extra(select={"role": "NULL"})
+        queryset = get_projects(self.request.user).select_related("account")
 
         account = self.request.GET.get("account")
         if account:
             queryset = queryset.filter(account_id=account)
+
+        role = self.request.GET.get("role", "").lower()
+        if role == "manager":
+            queryset = queryset.filter(role=ProjectRole.MANAGER.name)
+        elif role == "owner":
+            queryset = queryset.filter(role=ProjectRole.OWNER.name)
 
         public = self.request.GET.get("public")
         if public:

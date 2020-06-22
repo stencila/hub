@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
+from jobs.models import Job, Queue, Worker, Zone
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import (
     ElifeSource,
@@ -97,7 +98,14 @@ def run(*args):
 
     # A stencila account is needed as the default for running jobs etc
 
-    # stencila = Account.objects.create(name="stencila")
+    stencila = Account.objects.create(name="stencila")
+
+    AccountUser.objects.create(
+        account=stencila, user=admin, role=AccountRole.OWNER.name
+    )
+    AccountUser.objects.create(
+        account=stencila, user=staff, role=AccountRole.MANAGER.name
+    )
 
     # Generic and example organizations
 
@@ -228,6 +236,25 @@ def run(*args):
             path="url-source",
             url="http://example.org/{}".format(project.name),
         )
+
+    #################################################################
+    # Jobs, queues, workers, zones
+    #################################################################
+
+    # Each account...
+    for account in Account.objects.all():
+
+        zone = Zone.objects.create(account=account, name="first-zone")
+
+        queue = Queue.objects.create(zone=zone, name="first-queue")
+
+        worker = Worker.objects.create(hostname="first-worker")
+        worker.queues.add(queue)
+
+        # Each project...
+        for project in account.projects.all():
+
+            Job.objects.create(project=project, creator=random_account_user(account))
 
 
 def random_users(num=None):

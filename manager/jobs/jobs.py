@@ -1,5 +1,5 @@
 """
-Module that defines the interface between the `director` (i.e Django) and the `broker` (i.e. RabbitMQ).
+Module that defines the interface between the `manager` (i.e Django) and the `broker` (i.e. RabbitMQ).
 
 Defines three functions involved in a job's lifecycle:
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Setup the Celery app
 # This is used to send and cancel jobs
-celery = Celery("director", broker=settings.BROKER_URL, backend="rpc://")
+celery = Celery("manager", broker=settings.BROKER_URL, backend="rpc://")
 celery.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each

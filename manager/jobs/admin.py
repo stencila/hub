@@ -5,6 +5,8 @@ from jobs.models import Job, Pipeline, PipelineSchedule, Zone
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
+    """Admin interface for jobs."""
+
     list_display = [
         "id",
         "project_id",
@@ -21,11 +23,15 @@ class JobAdmin(admin.ModelAdmin):
 
 @admin.register(Pipeline)
 class PipelineAdmin(admin.ModelAdmin):
+    """Admin interface for pipelines."""
+
     list_display = ["id", "project_id", "name"]
 
 
 @admin.register(PipelineSchedule)
 class PipelineScheduleAdmin(admin.ModelAdmin):
+    """Admin interface for pipeline schedules."""
+
     exclude = [
         "name",
         "task",
@@ -42,6 +48,8 @@ class PipelineScheduleAdmin(admin.ModelAdmin):
 
 @admin.register(Zone)
 class ZoneAdmin(admin.ModelAdmin):
+    """Admin interface for zones."""
+
     list_display = [
         "id",
         "account_id",

@@ -2,8 +2,10 @@ from django.shortcuts import reverse
 from rest_framework import serializers
 
 from accounts.models import Account
-from general.api.validators import FromContextDefault
 from jobs.models import Job, JobMethod, JobStatus, Queue, Worker, WorkerHeartbeat, Zone
+from manager.api.helpers import get_object_from_ident
+from manager.api.validators import FromContextDefault
+from projects.models.projects import Project
 
 
 class JobListSerializer(serializers.ModelSerializer):
@@ -84,11 +86,26 @@ class JobCreateSerializer(JobRetrieveSerializer):
         ]
         ref_name = None
 
+    project = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Project, context["view"].kwargs["project"]
+            )
+        )
+    )
     creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
     method = serializers.ChoiceField(choices=JobMethod.as_choices(), required=True)
     params = serializers.JSONField(required=False)
 
     # TODO: allow for project and zone to be specified; validate each against user / account
+
+    def create(self, validated_data):
+        """
+        Create and dispatch a job.
+        """
+        job = super().create(validated_data)
+        job.dispatch()
+        return job
 
 
 class JobUpdateSerializer(JobRetrieveSerializer):
@@ -123,7 +140,7 @@ class ZoneCreateSerializer(ZoneSerializer):
     """
     A zone serializer for the `create` action.
 
-    Makes `account` readonly, and based on the `pk` URL parameter
+    Makes `account` readonly, and based on the URL parameter
     so that it is not possible to create a zone for a different account.
     Also validates `name` is unique within an account.
     """
@@ -135,15 +152,19 @@ class ZoneCreateSerializer(ZoneSerializer):
 
     account = serializers.HiddenField(
         default=FromContextDefault(
-            lambda context: Account.objects.get(id=context["view"].kwargs["pk"])
+            lambda context: get_object_from_ident(
+                Account, context["view"].kwargs["account"]
+            )
         )
     )
 
-    def validate_name(self, name: str) -> str:
-        pk = self.context["view"].kwargs["pk"]
-        if Zone.objects.filter(account=pk, name=name).count() != 0:
-            raise serializers.ValidationError("Zone name must be unique for account.")
-        return name
+    def validate(self, data):
+        """Validate that the zone name is unique for the account."""
+        if Zone.objects.filter(account=data["account"], name=data["name"]).count() != 0:
+            raise serializers.ValidationError(
+                dict(name="Zone name must be unique for account.")
+            )
+        return data
 
 
 class QueueSerializer(serializers.ModelSerializer):

@@ -8,6 +8,7 @@ generated.
 from django.urls import re_path
 
 import accounts.api.urls
+import jobs.api.urls
 import projects.api.urls
 from manager.api.views.docs import schema_view, swagger_view
 from manager.api.views.status import StatusView
@@ -16,6 +17,7 @@ from users.api.urls import tokens, users
 urlpatterns = (
     accounts.api.urls.urlpatterns
     + projects.api.urls.urlpatterns
+    + jobs.api.urls.urlpatterns
     + tokens.urls
     + users.urls
     + [

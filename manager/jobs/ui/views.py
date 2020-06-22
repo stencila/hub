@@ -26,6 +26,7 @@ class JobViewMixin(ProjectPermissionsMixin):
     def post(
         self, request: HttpRequest, account_name: str, project_name: str
     ) -> HttpResponse:
+        """Handle a POST request."""
         project = ProjectPermissionsMixin.get_object(self, account_name=account_name)
         self.request_permissions_guard(
             request, pk=project.id, permission=ProjectPermissionType.EDIT
