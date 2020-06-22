@@ -98,19 +98,22 @@ lint-docs: venv
 	$(VE)/pydocstyle
 
 # Run tests
-test: venv
+# Tests require that static files are built because they
+# do not use the development serving of static files, they
+# use whitenoise served static files instead.
+test: venv static
 	$(VE)/pytest
 
 # Rerun tests when files change
-test-watch: venv
+test-watch: venv static
 	$(VE)/ptw
 
 # Run tests with coverage and migrations
-cover: venv
+cover: venv static
 	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
 
 # Create page snapshots
-snaps: venv
+snaps: venv static
 	$(DJ) runscript create_page_snaps
 .PHONY: snaps
 
