@@ -69,6 +69,27 @@ def elem(name: str, selector: str, parent: str = None, padding: int = 50):
 # be snapped.
 ELEMS = [
     # fmt: off
+
+    #
+    # Users
+    #
+    [
+        r"^me/signin/$",
+        [
+            elem("user-signin-social-buttons", "main .buttons"),
+            elem("user-signin-username-password-form", "form")
+        ],
+    ],
+    [
+        r"^me/signup/$",
+        [
+            elem("user-signup-form", "form"),
+        ],
+    ],
+
+    #
+    # Organizations
+    #
     [
         r"^orgs/$",
         [
@@ -102,6 +123,10 @@ ELEMS = [
             elem("org-users-change-user", "#accounts-users-list .field"),
         ],
     ],
+
+    #
+    # Projects
+    #
     [
         r"^projects/$",
         [
