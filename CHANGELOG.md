@@ -1,3 +1,25 @@
+# [2.33.0](https://github.com/stencila/hub/compare/v2.32.1...v2.33.0) (2020-06-22)
+
+
+### Bug Fixes
+
+* **CSS:** Reduce icon size for is-small-mobile controls ([8073e30](https://github.com/stencila/hub/commit/8073e30dd92c0be31ae2a523999eed3dfe0bb1db))
+* **Deps:** Upgrade pygithub to v1.51 ([8204e12](https://github.com/stencila/hub/commit/8204e120bc8ef22738220bae822bfbd0b368ddae))
+* **Jobs:** Update views to use consistent approach to permissions ([407482d](https://github.com/stencila/hub/commit/407482dbdcb3196d11c051595e4ddd512b7cb25c))
+* **Snaps:** Avoid breaking element styles ([49ad39c](https://github.com/stencila/hub/commit/49ad39c1548421860ec88ba8ea0106507a4a1538))
+
+
+### Features
+
+* **Jobs:** Add jobs app from director ([b32352f](https://github.com/stencila/hub/commit/b32352f8d0d6bd49571bbb7def0ce3baae9e6bbe))
+* **Manager:** Use django-storages for media files ([e1ab522](https://github.com/stencila/hub/commit/e1ab522868c0e52b8ebee8961d09763c844fb0dc))
+* **Snaps:** Add snips for user signin and signup ([76529df](https://github.com/stencila/hub/commit/76529dfbc2c53b0b3c8160147cd9637298cf0f62))
+* **Sources:** Add create forms and validation ([abfb27e](https://github.com/stencila/hub/commit/abfb27eaa8a94c087c00d78f422dbf1d20a3c823))
+* **Sources:** Add rename action ([9e91114](https://github.com/stencila/hub/commit/9e91114715c3881c92ae7d2d4691a1f54b57ee40))
+* **Sources:** Hide source filter until working ([2d3f2a0](https://github.com/stencila/hub/commit/2d3f2a01681d2a0b5ea8bf89e8c4abacb144d10a))
+* **Static files:** Use whitenoise to optimize serving of static files ([59ec3cc](https://github.com/stencila/hub/commit/59ec3cc06d431b43b77b04561b806555252467b1))
+* **Upload source:** Add upload source ([65f874b](https://github.com/stencila/hub/commit/65f874bf17938f021be4769c71aa0cec11fb4bd6))
+
 ## [2.32.1](https://github.com/stencila/hub/compare/v2.32.0...v2.32.1) (2020-06-19)
 
 
