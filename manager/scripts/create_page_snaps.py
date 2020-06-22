@@ -251,9 +251,6 @@ async def main():
                     dict(
                         content="""
                     .snipTarget {
-                        background-color: white;
-                        margin: -7px;
-                        padding: 7px;
                         position: relative;
                         z-index: 300;
                     }
