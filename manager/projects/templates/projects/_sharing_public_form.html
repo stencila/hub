@@ -1,0 +1,25 @@
+<form hx-trigger="change" include-vals="public: document.querySelector('#public-toggle').checked"
+      hx-patch="{% url 'api-projects-detail' project.id %}" hx-target="#public-target">
+  <div class="field mb-0 has-text-right-tablet">
+    <input id="public-toggle" type="checkbox" class="toggle is-small is-inline toggle__label-before"
+           {% if project.public %}checked{% endif %}>
+    <label for="public-toggle">Public</label>
+  </div>
+  <div id="public-target">
+  </div>
+  {% comment %}
+  {# TODO: Think about published project URLs entry points #}
+  {% if project.public %}
+  <div>
+    <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+      <span class="icon">
+        <i class="ri-global-line"></i>
+      </span>
+      <span>
+        https://public-url-of-the-project.com
+      </span>
+    </a>
+  </div>
+  {% endif %}
+  {% endcomment %}
+</form>

@@ -1,6 +1,8 @@
 {% load i18n %}
 
-<form hx-post="{% url "api-projects-list" %}" hx-template="projects/_create_form.html" hx-redirect="CREATED:Location">
+<form hx-post="{% url "api-projects-list" %}"
+      include-vals="public: document.querySelector('form [name=public]').checked"
+      hx-template="projects/_create_form.html" hx-redirect="CREATED:Location">
 
   {% include "serializers/_field.html" with field=serializer.account icon="ri-at-line" %}
   {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" autofocus=True %}

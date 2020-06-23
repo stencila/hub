@@ -231,7 +231,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         if name:
             if AccountPaths.has(name):
                 raise exceptions.ValidationError(
-                    "Project name '{0}' is unavailable.".format(name)
+                    dict(name="Project name '{0}' is unavailable.".format(name))
                 )
 
             if (
@@ -240,8 +240,10 @@ class ProjectSerializer(serializers.ModelSerializer):
                 .count()
             ):
                 raise exceptions.ValidationError(
-                    "Project name '{0}' is already in use for this account.".format(
-                        name
+                    dict(
+                        name="Project name '{0}' is already in use for this account.".format(
+                            name
+                        )
                     )
                 )
 
@@ -254,16 +256,20 @@ class ProjectSerializer(serializers.ModelSerializer):
             MIN_LENGTH = 3
             if len(name) < MIN_LENGTH:
                 raise exceptions.ValidationError(
-                    "Project name must have at least {0} valid characters.".format(
-                        MIN_LENGTH
+                    dict(
+                        name="Project name must have at least {0} valid characters.".format(
+                            MIN_LENGTH
+                        )
                     )
                 )
 
             MAX_LENGTH = 64
             if len(name) > MAX_LENGTH:
                 raise exceptions.ValidationError(
-                    "Project name must be less than {0} characters long.".format(
-                        MAX_LENGTH
+                    dict(
+                        name="Project name must be less than {0} characters long.".format(
+                            MAX_LENGTH
+                        )
                     )
                 )
 
