@@ -2,69 +2,57 @@
  * A custom HTMX extension for doing things we need to do
  */
 htmx.defineExtension('stencila', {
-  /**
-   * Encode parameters as JSON and add XHR headers prior to sending.
-   * This is only used for POST, PATCH and PUT requests that have a body.
-   * See below for how headers are set for all requests (including GET)
-   * 
-   * Based on https://github.com/bigskysoftware/htmx/blob/master/src/ext/json-enc.js
-   * 
-   * - Has the problematic `setRequestHeader` line removed
-   *   See https://github.com/bigskysoftware/htmx/issues/74.
-   * 
-   * - Sets the `X-CSRFToken` header.
-   *   See https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax
-   */
-  encodeParameters : function(xhr, parameters, elt) {
-    xhr.overrideMimeType('text/json');
-
-    function getCookie(name) {
-      var cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-          var cookies = document.cookie.split(';');
-          for (var i = 0; i < cookies.length; i++) {
-              var cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-
-    return JSON.stringify(parameters);
-  },
   onEvent : function(name, evt) {
-    if (name == 'beforeRequest.htmx') {
+    if (name === 'configRequest.htmx') {
       /**
-       * This event is triggered before an AJAX request is issued.
-       * If the event is cancelled, no request will occur.
+       * This event is triggered after htmx has collected parameters for inclusion in the request.
+       * It can be used to include or update the parameters that htmx will send.
        *
        * - Sets the `Accept` header so that we get HTML back from the API
        *   instead of JSON
+       * 
+       * - Sets the `X-CSRFToken` header.
+       *   See https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax
        * 
        * - Looks for the closest `stencila-template` attribute and sends it as `X-Template`
        *   Akin to https://github.com/bigskysoftware/htmx/blob/master/src/ext/client-side-templates.js
        *   but server-side.
        */
-      var xhr = evt.detail.xhr;
+      var verb = evt.detail.verb;
+      var headers = evt.detail.headers;
       var elt = evt.detail.elt;
 
-      xhr.setRequestHeader("Accept", 'text/html');
+      headers['Accept'] = 'text/html';
 
-      var serverTemplate = htmx.closest(elt, "[hx-template]");
+      if (verb !== "get") {
+        function getCookie(name) {
+          var cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              var cookies = document.cookie.split(';');
+              for (var i = 0; i < cookies.length; i++) {
+                  var cookie = cookies[i].trim();
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        headers['X-CSRFToken'] = getCookie('csrftoken');
+      }
+
+      var serverTemplate = htmx.closest(elt, '[hx-template]');
       if (serverTemplate) {
         var templateName = serverTemplate.getAttribute('hx-template');
-        xhr.setRequestHeader("X-HX-Template", templateName);
+        headers['X-HX-Template'] = templateName;
       }
 
-      var extraContent = htmx.closest(elt, "[hx-extra-context]");
+      var extraContent = htmx.closest(elt, '[hx-extra-context]');
       if (extraContent) {
         var extraContentNames = extraContent.getAttribute('hx-extra-context');
-        xhr.setRequestHeader("X-HX-Extra-Context", extraContentNames);
-      }
+        headers['X-HX-Extra-Context'] = extraContentNames;
+      }  
     }
     else if (name == 'beforeOnLoad.htmx') {
       // This event is triggered before any new content has been swapped

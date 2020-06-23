@@ -5,7 +5,9 @@ export { toast as Toast } from "bulma-toast";
 import "./dropdowns";
 import { initDropdowns } from "./dropdowns";
 // `htmx` is available globally
-import "./htmx";
+import "htmx.org";
+import "htmx.org/dist/ext/json-enc";
+import "htmx.org/dist/ext/include-vals";
 import "./htmx-extensions.js";
 
 // =============================================================================
