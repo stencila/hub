@@ -396,6 +396,10 @@ body {
 // Reusable elements & Utility classes
 // =============================================================================
 
+.leading-loose {
+  line-height: 2
+}
+
 input[type="checkbox"].toggle {
   @extend .is-sr-only;
 
