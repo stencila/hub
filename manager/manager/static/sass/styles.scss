@@ -167,7 +167,7 @@ body {
       margin-top: -1px;
     }
 
-    &:not(:first-child),
+    &:not(:first-of-type),
     &:last-child {
       .input,
       .textarea,
@@ -240,7 +240,8 @@ body {
     background-color: $white-bis;
     border-bottom: 1px solid $white-ter;
     margin-top: -4rem;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: $gap / 8;
     padding-left: 0;
     padding-right: 0;
