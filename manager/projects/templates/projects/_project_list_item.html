@@ -3,7 +3,7 @@
 {% with account=project.account %}
 <a href="{% url 'ui-projects-retrieve' account.name project.name %}"
    class="collection-list--item-contents transition-colors">
-  <h2 class="title is-size-5-mobile is-4">
+  <h2 class="title is-size-5-mobile is-4 leading-loose">
     {# Hide Organization avatar when listing projects on an Organization/User page #}
     {% url 'ui-accounts-retrieve' account.name as account_url %}
     {% if request.path != account_url %}

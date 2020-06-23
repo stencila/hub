@@ -167,7 +167,7 @@ body {
       margin-top: -1px;
     }
 
-    &:not(:first-child),
+    &:not(:first-of-type),
     &:last-child {
       .input,
       .textarea,
@@ -186,6 +186,31 @@ body {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
+    }
+  }
+
+  .field.has-addons-tablet .file-label {
+    flex-wrap: wrap;
+    width: 100%;
+
+    & > * {
+      flex-grow: 1;
+      max-width: none;
+    }
+
+    .file-cta {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      flex-basis: 100%;
+    }
+
+    .file-name {
+      border-top: none;
+      border-radius: 0;
+      border-left: 1px solid $grey-lighter;
+      border-right: 1px solid $grey-lighter;
     }
   }
 
@@ -240,7 +265,8 @@ body {
     background-color: $white-bis;
     border-bottom: 1px solid $white-ter;
     margin-top: -4rem;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: $gap / 8;
     padding-left: 0;
     padding-right: 0;
@@ -260,6 +286,13 @@ body {
     .icon {
       display: none;
     }
+  }
+}
+
+@media screen and (max-width: $desktop) {
+  .has-dropdown .navbar-dropdown {
+    transform: none !important;
+    position: relative !important;
   }
 }
 
@@ -375,6 +408,16 @@ body {
   }
 }
 
+
+.field.has-addons-tablet .control {
+  &:not(:last-of-type) {
+    .file.has-name .file-name {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+}
+
 .control:focus-within ~ .control .button.is-primary.is-outlined {
   background-color: $primary;
   color: $white;
@@ -387,6 +430,10 @@ body {
 // =============================================================================
 // Reusable elements & Utility classes
 // =============================================================================
+
+.leading-loose {
+  line-height: 2
+}
 
 input[type="checkbox"].toggle {
   @extend .is-sr-only;

@@ -11,11 +11,10 @@
   <h1 class="title is-3">{% trans "Upload project sources" %}</h1>
 
   <p class="subtitle">
-    Upload one or more files to you project folder.
-    You can then convert them to other formats or use them as data in you executable documents.
+    {% trans "Upload one or more files to you project folder. You can then convert them to other formats or use them as data in you executable documents." %}
   </p>
 
-  <div class="field has-addons">
+  <div class="field has-addons-tablet">
     <div class="control">
       <div class="file has-name">
         <label class="file-label">
@@ -25,18 +24,18 @@
               <i class="ri-file-upload-line"></i>
             </span>
             <span class="file-label">
-              Choose some files…
+              {% trans "Choose some files…" %}
             </span>
           </span>
           <span class="file-name">
-            No files chosen.
+            {% trans "No files chosen" %}
           </span>
         </label>
       </div>
     </div>
     <div class="control">
-      <button class="button is-primary" type="submit">
-        Upload
+      <button class="button is-primary is-fullwidth-mobile" type="submit">
+        {% trans "Upload" %}
       </button>
     </div>
   </div>

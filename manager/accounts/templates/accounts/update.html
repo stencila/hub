@@ -18,7 +18,7 @@
 <div id="image-form">
   <form method="post" action="{% url 'ui-accounts-update-image' account.name %}" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="field has-addons">
+    <div class="field has-addons-tablet">
       <div class="control">
         <div class="file has-name">
           <label class="file-label">
@@ -28,18 +28,18 @@
                 <i class="ri-file-upload-line"></i>
               </span>
               <span class="file-label">
-                Choose a file…
+                {% trans "Choose an image…" %}
               </span>
             </span>
             <span class="file-name">
-              No file chosen.
+              {% trans "No image chosen" %}
             </span>
           </label>
         </div>
       </div>
       <div class="control">
-        <button class="button is-primary" type="submit">
-          Upload
+        <button class="button is-primary is-fullwidth-mobile" type="submit">
+          {% trans "Upload" %}
         </button>
       </div>
     </div>
