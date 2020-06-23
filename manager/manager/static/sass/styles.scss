@@ -263,6 +263,13 @@ body {
   }
 }
 
+@media screen and (max-width: $desktop) {
+  .has-dropdown .navbar-dropdown {
+    transform: none !important;
+    position: relative !important;
+  }
+}
+
 // =============================================================================
 // Customize Bulma
 // =============================================================================
