@@ -4,13 +4,12 @@
 <div class="level is-mobile">
   <div class="level-left">
     <div class="level-item">
-      {% comment %}
       <form class="field">
         <label class="is-sr-only" for="file-filter">
           {% trans "File filter" %}
         </label>
         <div class="control has-icons-left has-icons-right">
-          <input id="file-filter" disabled class="input is-small-mobile" type="text" name="search"
+          <input id="file-filter" class="input is-small-mobile" type="text" name="search"
                  placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
                  hx-get="{% url 'api-projects-sources-list' project.id %}"
                  hx-template="projects/sources/_source_list.html" hx-indicator="#file-filter-indicator"
@@ -23,7 +22,6 @@
           </span>
         </div>
       </form>
-      {% endcomment %}
     </div>
   </div>
 
