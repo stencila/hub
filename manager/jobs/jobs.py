@@ -75,27 +75,30 @@ def dispatch_job(job: Job) -> Job:
             ),
         ).order_by("-priority")
 
-        queue = queues[0] if len(queues) else None
-
-        if queue:
-            # Send the job to the queue
-            task = signature(
-                job.method,
-                kwargs=job.params,
-                queue=queue.name,
-                task_id=str(job.id),
-                app=celery,
-            )
-            task.apply_async()
-
-            job.queue = queue
-            job.status = JobStatus.DISPATCHED.name
+        # Fallback to the default Stencila queue
+        # Apart from anything else having this fallback is useful in development
+        # because if means that the `overseer` service does not need to be running
+        # in order keep track of the numbers of workers listening on each queue
+        # (during development `worker`s listen to the default queue)
+        if len(queues):
+            queue = queues[0]
         else:
-            # No queue could be found for the job
-            logger.error(
-                "Could not find a suitable queue for job: {id}".format(id=job.id)
+            queue, _ = Queue.get_or_create(
+                account_name="stencila", queue_name="default"
             )
-            job.status = JobStatus.REJECTED.name
+
+        # Send the job to the queue
+        task = signature(
+            job.method,
+            kwargs=job.params,
+            queue=queue.name,
+            task_id=str(job.id),
+            app=celery,
+        )
+        task.apply_async()
+
+        job.queue = queue
+        job.status = JobStatus.DISPATCHED.name
 
     job.save()
     return job

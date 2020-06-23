@@ -37,7 +37,7 @@ cover: venv
 # Uses concurrency=1 and prefetch-multiplier=1 is closer to what happens in
 # prod: "only reserve one task per worker process at a time". 
 # See https://docs.celeryproject.org/en/stable/userguide/optimizing.html#prefetch-limits
-QUEUES ?= local
+QUEUES ?= default
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	$(VE)/celery worker \
