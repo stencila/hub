@@ -1,3 +1,11 @@
+## [2.33.1](https://github.com/stencila/hub/compare/v2.33.0...v2.33.1) (2020-06-23)
+
+
+### Bug Fixes
+
+* **Deps:** Upgrade HTMX and use extensions ([38b8c0e](https://github.com/stencila/hub/commit/38b8c0e59a86624870650224ecd965c56d8dba55))
+* **Projects:** Fix setting of public ([79d5519](https://github.com/stencila/hub/commit/79d551956b0580a1862dea6cd545706fb4d03d39))
+
 # [2.33.0](https://github.com/stencila/hub/compare/v2.32.1...v2.33.0) (2020-06-22)
 
 
