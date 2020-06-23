@@ -79,52 +79,76 @@
         </div>
         <div id="navbar-menu" class="navbar-menu">
           <div class="navbar-start">
-            <a class="navbar-item" href="{% url 'ui-projects-list' %}">
-              <span class="icon">
-                <i class="ri-book-2-line" aria-hidden="true"></i>
-              </span>
-              <span>
-                {% trans "Projects" %}
-              </span>
-            </a>
-            <a class="navbar-item" href="{% url 'ui-accounts-list-orgs' %}">
-              <span class="icon">
-                <i class="ri-building-4-line" aria-hidden="true"></i>
-              </span>
-              <span>
-                {% trans "Organizations" %}
-              </span>
-            </a>
-          </div>
-          <div class="navbar-end">
-
-            {% if user.is_authenticated %}
-            <div class="navbar-item has-dropdown">
-              <a class="navbar-link is-arrowless">
+            <div class="navbar-item px-0 {% if user.is_authenticated %}has-dropdown{% endif%}">
+              <a class="navbar-link {% if user.is_anonymous %}is-arrowless{% endif%}"
+                 href="{% url 'ui-projects-list' %}">
                 <span class="icon">
-                  <i class="ri-add-circle-line" aria-hidden="true"></i>
+                  <i class="ri-book-2-line" aria-hidden="true"></i>
                 </span>
-                <span class="is-hidden-tablet">Create a…</span>
+                <span>{% trans "Projects" %}</span>
               </a>
+
+              {% if user.is_authenticated %}
               <div class="navbar-dropdown">
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-list' %}">
+                  <span class="icon">
+                    <i class="ri-stack-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "All Projects" %}
+                  </span>
+                </a>
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-create' %}">
                   <span class="icon">
-                    <i class="ri-book-2-line" aria-hidden="true"></i>
+                    <i class="ri-add-circle-line" aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "New Project" %}
                   </span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
+              </div>
+              {% endif %}
+            </div>
+
+            {% if user.is_authenticated %}
+            <hr class="dropdown-divider is-hidden-desktop">
+            {% endif %}
+
+            <div class="navbar-item px-0 {% if user.is_authenticated %}has-dropdown{% endif%}">
+              <a class="navbar-link {% if user.is_anonymous %}is-arrowless{% endif%}"
+                 href="{% url 'ui-accounts-list-orgs' %}">
+                <span class="icon">
+                  <i class="ri-building-4-line" aria-hidden="true"></i>
+                </span>
+                <span>{% trans "Organizations" %}</span>
+              </a>
+
+              {% if user.is_authenticated %}
+              <div class="navbar-dropdown">
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-list-orgs' %}">
                   <span class="icon">
-                    <i class="ri-building-4-line" aria-hidden="true"></i>
+                    <i class="ri-stack-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "All Organizations" %}
+                  </span>
+                </a>
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-create' %}">
+                  <span class="icon">
+                    <i class="ri-add-circle-line" aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "New Organization" %}
-                    <span>
+                  </span>
                 </a>
               </div>
+              {% endif %}
             </div>
+          </div>
+          <div class="navbar-end">
+
+            {% if user.is_authenticated %}
+            <hr class="dropdown-divider is-hidden-desktop">
             {% endif %}
 
             {% if user.is_anonymous %}
@@ -156,7 +180,7 @@
                   <img class="is-rounded" src="{{ user.personal_account.image.medium }}" alt="Your profile image">
                 </figure>
 
-                <span class="is-hidden-tablet">
+                <span class="is-hidden-desktop pl-1">
                   <span class="is-hidden-mobile">Signed in as&nbsp;</span><strong>{{ user.username }}</strong>
                 </span>
                 {% else %}
@@ -164,7 +188,7 @@
                 {% endif %}
               </a>
               <div class="navbar-dropdown">
-                <a class="navbar-item is-hidden-mobile" href="{% url 'ui-accounts-retrieve' user.username %}"
+                <a class="navbar-item is-hidden-touch" href="{% url 'ui-accounts-retrieve' user.username %}"
                    alt="{% trans "Your user profile" %}">
                   Signed in as&nbsp;<strong>{{ user.username }}</strong>
                 </a>
