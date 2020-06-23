@@ -9,13 +9,16 @@ Defines three functions involved in a job's lifecycle:
 - `cancel_job` - remove job from the queue, or terminate it if already started
 
 """
+import datetime
 import logging
 
 from celery import Celery, signature
 from celery.result import AsyncResult
 from django.conf import settings
+from django.db.models import Q
+from django.utils import timezone
 
-from jobs.models import Job, JobMethod, JobStatus, Queue
+from jobs.models import Job, JobMethod, JobStatus, Queue, Worker
 
 logger = logging.getLogger(__name__)
 
@@ -60,22 +63,39 @@ def dispatch_job(job: Job) -> Job:
         for child in job.children.all():
             dispatch_job(child)
     else:
-        # TODO: Implement as in docstring but using zones (and a default queue per zone)
-        queue, _ = Queue.get_or_create(account_name="stencila", queue_name="default")
-        job.queue = queue
+        # Find queues that have active workers on them
+        # order by descending priority
+        queues = Queue.objects.filter(
+            Q(zone__account=job.project.account) | Q(zone__account__name="stencila"),
+            workers__in=Worker.objects.filter(
+                # Has not finished
+                finished__isnull=True,
+                # Has been updated in the last x minutes
+                updated__gte=timezone.now() - datetime.timedelta(minutes=15),
+            ),
+        ).order_by("-priority")
 
-        # TODO: Send the task to the account's vhost on the broker
-        # currently, this just sends to the stencila vhost
-        task = signature(
-            job.method,
-            kwargs=job.params,
-            queue=job.queue.name,
-            task_id=str(job.id),
-            app=celery,
-        )
-        task.apply_async()
+        queue = queues[0] if len(queues) else None
 
-        job.status = JobStatus.DISPATCHED.value
+        if queue:
+            # Send the job to the queue
+            task = signature(
+                job.method,
+                kwargs=job.params,
+                queue=queue.name,
+                task_id=str(job.id),
+                app=celery,
+            )
+            task.apply_async()
+
+            job.queue = queue
+            job.status = JobStatus.DISPATCHED.name
+        else:
+            # No queue could be found for the job
+            logger.error(
+                "Could not find a suitable queue for job: {id}".format(id=job.id)
+            )
+            job.status = JobStatus.REJECTED.name
 
     job.save()
     return job
@@ -132,6 +152,9 @@ def check_job(job: Job) -> Job:
     TODO: if a `series` or `chain` job, then update the next child when the previous
     child has succeeded.
     """
+    for child in job.children.all():
+        print(child.status)
+
     return job
 
 

@@ -297,6 +297,7 @@ class Source(PolymorphicModel):
         attributes sufficient to pull it. This may include authentication tokens.
         """
         return Job.objects.create(
+            project=self.project,
             creator=user,
             method="pull",
             params=dict(
@@ -315,12 +316,25 @@ class Source(PolymorphicModel):
             "Push is not implemented for class {}".format(self.__class__.__name__)
         )
 
-    def save(self, *args, **kwargs):
-        """Override of save."""
-        # Make sure there are no leading or trailing slashes in the path to
-        # make them consistent
-        self.path = self.path.strip("/")
-        super().save(*args, **kwargs)
+    def convert(self, user: User, to: str) -> Job:
+        """
+        Convert a source to another format.
+        """
+        return Job.objects.create(project=self.project, creator=user, method="convert")
+
+    def preview(self, user: User) -> Job:
+        """
+        Generate a HTML preview of a source.
+
+        Creates a `series` job comprising a
+        `pull` job followed by a `convert` job.
+        """
+        preview = Job.objects.create(
+            project=self.project, creator=user, method="series"
+        )
+        preview.children.add(self.pull(user))
+        preview.children.add(self.convert(user, to="html"))
+        return preview
 
 
 # Source classes in alphabetical order
@@ -590,3 +604,15 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
+
+    def pull(self, user: User) -> Job:
+        """Pull a URL source into a folder."""
+        source_address = self.to_address()
+        source_address["type"] = "http"
+
+        return Job.objects.create(
+            project=self.project,
+            creator=user,
+            method="pull",
+            params=dict(source=source_address, project=self.project.id, path=self.path),
+        )

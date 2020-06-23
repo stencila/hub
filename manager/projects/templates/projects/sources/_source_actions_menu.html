@@ -18,13 +18,27 @@
         <span>{% trans "Open" %}</span>
       </a>
       {% endif %}
-      {% comment %}
-      <a href="#" target="_blank" rel="noopener" class="dropdown-item">
+
+      {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+      <hr class="dropdown-divider">
+
+      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
+         hx-redirect="CREATED:Location">
+        <span class="icon">
+          <i class="ri-download-2-line"></i>
+        </span>
+        <span>{% trans "Pull" %}</span>
+      </a>
+
+      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-preview' project.id source.id %}"
+         hx-redirect="CREATED:Location">
         <span class="icon">
           <i class="ri-eye-line"></i>
         </span>
         <span>{% trans "Preview" %}</span>
       </a>
+
+      {% comment %}
       <a href="#" class="dropdown-item">
         <span class="icon">
           <i class="ri-download-line"></i>
@@ -32,10 +46,6 @@
         <span>{% trans "Download" %}</span>
       </a>
       {% endcomment %}
-
-      {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
-      <hr class="dropdown-divider">
-
       {% comment %}
       <div class="dropdown dropdown-item px-0 py-0" data-placement="right-start">
         <a class="dropdown-trigger dropdown-item px-0 py-0">
@@ -61,6 +71,8 @@
         </div>
       </div>
       {% endcomment %}
+
+      <hr class="dropdown-divider">
 
       <a class="dropdown-item"
          href="{% url 'ui-projects-sources-rename' project.account.name project.name source.id %}">

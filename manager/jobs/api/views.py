@@ -294,8 +294,7 @@ class WorkersViewSet(viewsets.GenericViewSet):
         Record that a worker has come online.
 
         An internal route, intended primarily for the `overseer` service.
-        Receives event data.
-        Returns an empty response.
+        Receives event data. Returns an empty response.
         """
         event = request.data
 
@@ -313,11 +312,11 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         queues = details.get("queues", [])
         if queues:
-            for queue in queues:
-                queue_instance, created = Queue.get_or_create(
-                    account_name=account_name, queue_name=queue.get("name"),
+            for queue_name in queues:
+                queue, created = Queue.get_or_create(
+                    account_name=account_name, queue_name=queue_name,
                 )
-                worker.queues.add(queue_instance)
+                worker.queues.add(queue)
         else:
             logger.warn(
                 "Worker appear to not be listening to any queues: {}".format(

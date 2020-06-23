@@ -1,6 +1,10 @@
 from django.db.models import Q
 from django.http.request import HttpRequest
+from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -102,3 +106,45 @@ class ProjectsSourcesViewSet(
             return None
         else:
             return SourcePolymorphicSerializer
+
+    @action(detail=True, methods=["POST"])
+    def pull(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Pull the source.
+
+        Creates a pull job and redirects to the job.
+        """
+        source = self.get_object()
+        job = source.pull(request.user)
+        job.dispatch()
+        return self._redirect_to_job(job)
+
+    @action(detail=True, methods=["POST"])
+    def preview(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Preview the source.
+
+        Creates a preview job and redirects to the job.
+        """
+        source = self.get_object()
+        job = source.preview(request.user)
+        job.dispatch()
+        return self._redirect_to_job(job)
+
+    def _redirect_to_job(self, job):
+        """
+        Redirect to the URL for the job.
+        """
+        if self.accepts_html():
+            return Response(
+                status=self.CREATED,
+                headers=dict(
+                    Location=reverse(
+                        "ui-projects-jobs-retrieve",
+                        args=[job.project.account.name, job.project.name, job.id],
+                    )
+                    + "?redirect"
+                ),
+            )
+        else:
+            return redirect("api-projects-jobs-detail", job.project.id, job.id)

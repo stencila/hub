@@ -1,5 +1,6 @@
 from django.urls import include, path, re_path
 
+import projects.ui.views.jobs as jobs_views
 import projects.ui.views.projects as project_views
 import projects.ui.views.sources as sources_views
 from manager.paths import RootPaths
@@ -61,6 +62,18 @@ after_account_urls = [
                                 sources_views.destroy,
                                 name="ui-projects-sources-destroy",
                             ),
+                        ]
+                    ),
+                ),
+                path(
+                    ProjectPaths.jobs.value + "/",
+                    include(
+                        [
+                            path(
+                                "<int:job>",
+                                jobs_views.retrieve,
+                                name="ui-projects-jobs-retrieve",
+                            )
                         ]
                     ),
                 ),
