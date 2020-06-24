@@ -60,8 +60,11 @@ def dispatch_job(job: Job) -> Job:
             dispatch_job(job.children.first())
     elif job.method == JobMethod.parallel.value:
         # Dispatch all child jobs simultaneously
-        for child in job.children.all():
-            dispatch_job(child)
+        # for child in job.children.all():
+        #    if not child.is_active:
+        #        dispatch_job(child)
+        job.is_active = True
+        job.status = JobStatus.DISPATCHED.value
     else:
         # Find queues that have active workers on them
         # order by descending priority
@@ -98,13 +101,14 @@ def dispatch_job(job: Job) -> Job:
         task.apply_async()
 
         job.queue = queue
-        job.status = JobStatus.DISPATCHED.name
+        job.is_active = True
+        job.status = JobStatus.DISPATCHED.value
 
     job.save()
     return job
 
 
-def update_job(job: Job) -> Job:
+def update_job(job: Job, force=False) -> Job:
     """
     Update a job based on it's result.
 
@@ -115,14 +119,28 @@ def update_job(job: Job) -> Job:
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.
     """
-    # Get an async result from the backend if the job
+    # Avoid unnecessary update
+    if not job.is_active and not force:
+        return job
+
+    # For compound jobs, update each child
+    if job.method == JobMethod.parallel.value:
+        is_active = False
+        for child in job.children.all():
+            update_job(child)
+            if child.is_active:
+                is_active = True
+        job.is_active = is_active
+
+    # For atomic jobs, get an async result from the backend if the job
     # is not recorded as ready.
-    if not JobStatus.has_ended(job.status) or job.result is None or job.error is None:
+    else:
         async_result = AsyncResult(str(job.id), app=celery)
         status = async_result.status
         info = async_result.info
 
-        job.status = status
+        if status != JobStatus.PENDING.value:
+            job.status = status
 
         if status in [JobStatus.RUNNING.value, JobStatus.SUCCESS.value] and isinstance(
             async_result.info, dict
@@ -139,10 +157,14 @@ def update_job(job: Job) -> Job:
             # For FAILURE, `info` is the raised Exception
             job.error = dict(type=type(info).__name__, message=str(info))
 
-        if job.parent is not None:
-            check_job(job.parent)
+        # If the job has a result and no error, then mark it suceeded:
+        if job.result is not None and job.error is None:
+            job.status = JobStatus.SUCCESS.value
 
-        job.save()
+        if JobStatus.has_ended(job.status):
+            job.is_active = False
+
+    job.save()
     return job
 
 

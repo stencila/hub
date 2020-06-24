@@ -486,7 +486,11 @@ class Job(models.Model):
     )
 
     created = models.DateTimeField(
-        null=True, auto_now_add=True, help_text="The time the job was created."
+        null=False, auto_now_add=True, help_text="The time the job was created."
+    )
+
+    updated = models.DateTimeField(
+        null=False, auto_now=True, help_text="The time the job was last updated."
     )
 
     queue = models.ForeignKey(
@@ -515,6 +519,10 @@ class Job(models.Model):
         blank=True,
         null=True,
         help_text="The current status of the job.",
+    )
+
+    is_active = models.BooleanField(
+        null=False, default=False, db_index=True, help_text="Is the job active?"
     )
 
     method = models.CharField(
@@ -643,11 +651,11 @@ class Job(models.Model):
 
         return dispatch_job(self)
 
-    def update(self) -> "Job":
+    def update(self, force=False) -> "Job":
         """Update the job."""
         from jobs.jobs import update_job
 
-        return update_job(self)
+        return update_job(self, force)
 
     def cancel(self) -> "Job":
         """Cancel the job."""

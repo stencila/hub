@@ -33,7 +33,7 @@ from manager.api.helpers import (
     filter_from_ident,
 )
 from projects.api.views.projects import get_project
-from projects.models.projects import ProjectRole
+from projects.models.projects import Project, ProjectRole
 
 logger = logging.getLogger(__name__)
 
@@ -267,11 +267,12 @@ class JobsViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         from the job queue.
         """
         job = self.get_object()
-        job.update()
 
         serializer = self.get_serializer(job, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        job.update(force=True)
 
         return Response()
 
@@ -392,6 +393,12 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
+    def get_project(self, roles: Optional[List[ProjectRole]] = None) -> Project:
+        """
+        Get the project for the current action and check user has roles.
+        """
+        return get_project(self.kwargs, self.request.user, roles)
+
     def get_queryset(self, roles: Optional[List[ProjectRole]] = None):
         """
         Get the queryset for the current action.
@@ -400,8 +407,12 @@ class ProjectsJobsViewSet(
         returns all jobs for the project.
         Otherwise, raises permission denied.
         """
-        project = get_project(self.kwargs["project"], self.request.user, roles)
-        return Job.objects.filter(project=project)
+        project = self.get_project(roles)
+        return (
+            Job.objects.filter(project=project)
+            .order_by("-created")
+            .select_related("project", "project__account")
+        )
 
     def get_object(self):
         """
