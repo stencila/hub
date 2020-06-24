@@ -14,6 +14,7 @@ class ProjectPaths(enum.Enum):
     jobs = "jobs"
     sharing = "sharing"
     settings = "settings"
+    snapshots = "snapshots"
     sources = "sources"
 
     @classmethod

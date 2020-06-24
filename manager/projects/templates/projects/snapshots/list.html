@@ -1,10 +1,8 @@
 {% extends '../base.html' %}
 {% load i18n %}
 
-{% block title %}{{ project.name }}{% endblock %}
+{% block title %}Snapshots : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-
-testing
-
+{% include './_list.html' %}
 {% endblock %}

@@ -1,0 +1,8 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Project snapshot" %}{% endblock %}
+
+{% block projects_content %}
+{% include './_retrieve.html' %}
+{% endblock %}

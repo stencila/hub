@@ -1,0 +1,15 @@
+{% comment %}
+A partial for displaying a list of snapshots.
+{% endcomment %}
+<div>
+  {% for snapshot in snapshots %}
+  <a
+     href="{% url 'ui-projects-snapshots-retrieve' snapshot.project.account.name snapshot.project.name snapshot.id %}">{{ snapshot.id }}</a>
+  <pre>
+    created: {{ snapshot.created }}
+    creator: {{ snapshot.creator }}
+</pre>
+  {% empty %}
+  No snapshots yet.
+  {% endfor %}
+</div>

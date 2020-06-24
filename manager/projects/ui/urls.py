@@ -2,6 +2,7 @@ from django.urls import include, path, re_path
 
 import projects.ui.views.jobs as jobs_views
 import projects.ui.views.projects as project_views
+import projects.ui.views.snapshots as snapshots_views
 import projects.ui.views.sources as sources_views
 from manager.paths import RootPaths
 from projects.paths import ProjectPaths
@@ -43,6 +44,9 @@ after_account_urls = [
                     include(
                         [
                             path(
+                                "", sources_views.list, name="ui-projects-sources-list",
+                            ),
+                            path(
                                 "new/<str:type>",
                                 sources_views.create,
                                 name="ui-projects-sources-create",
@@ -51,6 +55,11 @@ after_account_urls = [
                                 "upload",
                                 sources_views.upload,
                                 name="ui-projects-sources-upload",
+                            ),
+                            path(
+                                "<str:source>",
+                                sources_views.retrieve,
+                                name="ui-projects-sources-retrieve",
                             ),
                             path(
                                 "rename/<str:source>",
@@ -66,14 +75,32 @@ after_account_urls = [
                     ),
                 ),
                 path(
+                    ProjectPaths.snapshots.value + "/",
+                    include(
+                        [
+                            path(
+                                "",
+                                snapshots_views.list,
+                                name="ui-projects-snapshots-list",
+                            ),
+                            path(
+                                "<int:snapshot>",
+                                snapshots_views.retrieve,
+                                name="ui-projects-snapshots-retrieve",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
                     ProjectPaths.jobs.value + "/",
                     include(
                         [
+                            path("", jobs_views.list, name="ui-projects-jobs-list"),
                             path(
                                 "<int:job>",
                                 jobs_views.retrieve,
                                 name="ui-projects-jobs-retrieve",
-                            )
+                            ),
                         ]
                     ),
                 ),

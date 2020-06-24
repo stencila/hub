@@ -12,6 +12,7 @@ from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
 from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
     GithubSource,
@@ -331,6 +332,34 @@ class ProjectDestroySerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 "Provided name does not match the project name."
             )
+
+
+class SnapshotSerializer(serializers.ModelSerializer):
+    """
+    A serializer for snapshots.
+    """
+
+    project = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Project, context["view"].kwargs["project"]
+            )
+        )
+    )
+
+    class Meta:
+        model = Snapshot
+        fields = "__all__"
+        read_only_fields = ["id", "project", "creator", "created", "job"]
+
+    def create(self, validated_data):
+        project = validated_data.get("project")
+        assert project is not None
+
+        request = self.context.get("request")
+        assert request is not None
+
+        return Snapshot.create(project, request.user)
 
 
 class SourceSerializer(serializers.ModelSerializer):

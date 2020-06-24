@@ -1,0 +1,14 @@
+{% comment %}
+A partial for displaying a snapshot.
+{% endcomment %}
+<div>
+  <pre>
+    created: {{ snapshot.created }}
+    creator: {{ snapshot.creator }}
+</pre>
+
+  <h2>Job</h2>
+  {% include '../jobs/_retrieve.html' with job=snapshot.job %}
+
+  {{ serializer.data|json_script:"job-data" }}
+</div>
