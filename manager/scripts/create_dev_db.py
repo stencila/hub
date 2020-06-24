@@ -222,19 +222,42 @@ def run(*args):
     # Each project has at least one of each type of source
 
     for project in Project.objects.all():
-        ElifeSource.objects.create(project=project, path="elife-source", article=5000)
+        ElifeSource.objects.create(
+            project=project,
+            creator=random_project_user(project),
+            path="elife-article-5000",
+            article=5000,
+        )
         GithubSource.objects.create(
-            project=project, path="github-source", repo="org/{}".format(project.name)
+            project=project,
+            creator=random_project_user(project),
+            path="stencila-test-repo",
+            repo="stencila/test",
+        )
+        GithubSource.objects.create(
+            project=project,
+            creator=random_project_user(project),
+            path="star-wars-data",
+            repo="evelinag/StarWars-social-network",
+            subpath="data",
         )
         GoogleDocsSource.objects.create(
             project=project,
+            creator=random_project_user(project),
             path="google-docs-source",
             doc_id="gdoc-{}".format(project.name),
         )
         UrlSource.objects.create(
             project=project,
-            path="url-source",
-            url="http://example.org/{}".format(project.name),
+            creator=random_project_user(project),
+            path="example-dot-org",
+            url="https://example.org",
+        )
+        UrlSource.objects.create(
+            creator=random_project_user(project),
+            project=project,
+            path="subdir/mtcars.csv",
+            url="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
         )
 
     #################################################################
@@ -250,11 +273,6 @@ def run(*args):
 
         worker = Worker.objects.create(hostname="first-worker")
         worker.queues.add(queue)
-
-        # Each project...
-        for project in account.projects.all():
-
-            Job.objects.create(project=project, creator=random_account_user(account))
 
 
 def random_users(num=None):
