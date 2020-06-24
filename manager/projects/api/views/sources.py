@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -61,7 +62,9 @@ class ProjectsSourcesViewSet(
     def get_queryset(self):
         """Get project sources."""
         project = self.get_project()
-        queryset = Source.objects.filter(project=project)
+        queryset = Source.objects.filter(project=project).select_related(
+            "project", "project__account"
+        )
 
         search = self.request.GET.get("search")
         if search:
@@ -116,8 +119,7 @@ class ProjectsSourcesViewSet(
         """
         source = self.get_object()
         job = source.pull(request.user)
-        job.dispatch()
-        return self._redirect_to_job(job)
+        return redirect_to_job(job, accepts_html=self.accepts_html())
 
     @action(detail=True, methods=["POST"])
     def preview(self, request: Request, *args, **kwargs) -> Response:
@@ -128,23 +130,4 @@ class ProjectsSourcesViewSet(
         """
         source = self.get_object()
         job = source.preview(request.user)
-        job.dispatch()
-        return self._redirect_to_job(job)
-
-    def _redirect_to_job(self, job):
-        """
-        Redirect to the URL for the job.
-        """
-        if self.accepts_html():
-            return Response(
-                status=self.CREATED,
-                headers=dict(
-                    Location=reverse(
-                        "ui-projects-jobs-retrieve",
-                        args=[job.project.account.name, job.project.name, job.id],
-                    )
-                    + "?redirect"
-                ),
-            )
-        else:
-            return redirect("api-projects-jobs-detail", job.project.id, job.id)
+        return redirect_to_job(job, accepts_html=self.accepts_html())

@@ -7,6 +7,16 @@ from projects.api.views.sources import ProjectsSourcesViewSet
 from projects.models.sources import Source, UploadSource
 
 
+def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Get a list of project sources."""
+    viewset = ProjectsSourcesViewSet.init("list", request, args, kwargs)
+    project = viewset.get_project()
+    sources = viewset.get_queryset()
+    return render(
+        request, "projects/sources.html", dict(project=project, sources=sources)
+    )
+
+
 @login_required
 def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
@@ -81,7 +91,7 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
                 )
                 source.file = file
                 source.save()
-        return redirect("ui-projects-retrieve", project.account.name, project.name)
+        return redirect("ui-projects-sources", project.account.name, project.name)
     else:
         raise Http404
 
@@ -89,8 +99,11 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a source."""
     viewset = ProjectsSourcesViewSet.init("retrieve", request, args, kwargs)
-    instance = viewset.get_object()
-    return render(request, "projects/sources/retrieve.html", dict(source=instance))
+    project = viewset.get_project()
+    source = viewset.get_object()
+    return render(
+        request, "projects/sources/retrieve.html", dict(project=project, source=source)
+    )
 
 
 @login_required

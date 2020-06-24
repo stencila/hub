@@ -22,7 +22,7 @@
       {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <hr class="dropdown-divider">
 
-      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
+      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-pull' project.id source.id %}" hx-swap="none"
          hx-redirect="CREATED:Location">
         <span class="icon">
           <i class="ri-download-2-line"></i>
@@ -30,7 +30,7 @@
         <span>{% trans "Pull" %}</span>
       </a>
 
-      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-preview' project.id source.id %}"
+      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-preview' project.id source.id %}" hx-swap="none"
          hx-redirect="CREATED:Location">
         <span class="icon">
           <i class="ri-eye-line"></i>

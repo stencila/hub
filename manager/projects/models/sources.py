@@ -1,16 +1,19 @@
+import datetime
 import mimetypes
 import os
 import re
-from typing import Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 from polymorphic.models import PolymorphicModel
 
-from jobs.models import Job
+from jobs.models import Job, JobMethod, JobStatus
 from manager.media import private_storage
 from projects.models.projects import Project
 from users.models import User
@@ -65,7 +68,7 @@ class Source(PolymorphicModel):
     path = models.TextField(
         null=False,
         blank=False,
-        help_text="The path that the file or directory from the source is mapped to in the project",
+        help_text="The path that the source is mapped to in the project.",
     )
 
     creator = models.ForeignKey(
@@ -82,7 +85,13 @@ class Source(PolymorphicModel):
     )
 
     updated = models.DateTimeField(
-        auto_now=True, help_text="The time the source was last changed"
+        auto_now=True, help_text="The time the source was last changed."
+    )
+
+    jobs = models.ManyToManyField(
+        Job,
+        help_text="Jobs associated with this source. "
+        "e.g. pull, push or convert jobs",
     )
 
     class Meta:
@@ -254,6 +263,15 @@ class Source(PolymorphicModel):
             ),
         )
 
+    def authorization_token(self, user: User) -> str:
+        """
+        Get an authorization token for user to pull or push the source.
+
+        This method should be overridden by derived classes to return
+        a token specific for the source if one is necessary.
+        """
+        return None
+
     @staticmethod
     def mimetype_from_path(path: str, default: str = "unknown") -> str:
         """
@@ -281,22 +299,13 @@ class Source(PolymorphicModel):
         """
         return Source.mimetype_from_path(self.path)
 
-    def absolute_path(self) -> str:
-        """
-        Get the absolute path of the source within the project's working directory.
-        """
-        return os.path.join(
-            settings.STORAGE_DIR, "projects", str(self.project.id), "working", self.path
-        )
-
     def pull(self, user: User) -> Job:
         """
         Pull the source to the filesystem.
 
-        Creates a `Job` having the `pull` method and a dictionary of `source`
-        attributes sufficient to pull it. This may include authentication tokens.
+        Creates a job, dispatches it and add it to the sources `jobs` list.
         """
-        return Job.objects.create(
+        job = Job.objects.create(
             project=self.project,
             creator=user,
             method="pull",
@@ -304,6 +313,20 @@ class Source(PolymorphicModel):
                 source=self.to_address(), project=self.project.id, path=self.path
             ),
         )
+
+        try:
+            token = self.authorization_token(user)
+            if token:
+                job.params["source"]["token"] = token
+        except Exception as exc:
+            job.status = JobStatus.FAILURE.name
+            job.error = str(exc)
+            job.save()
+        else:
+            job.dispatch()
+
+        self.jobs.add(job)
+        return job
 
     def push(self) -> Job:
         """
@@ -335,6 +358,56 @@ class Source(PolymorphicModel):
         preview.children.add(self.pull(user))
         preview.children.add(self.convert(user, to="html"))
         return preview
+
+    # Properties related to jobs. Provide shortcuts for
+    # obtaining info such as the files created in the last pull,
+    # or the time of the last push
+
+    @property
+    def is_active(self, since=datetime.timedelta(minutes=15)) -> bool:
+        """
+        Is the source currently active.
+
+        A source is considered active if it has an active job.
+        The `since` parameter is included to ignore old, orphaned jobs
+        which may have not have had their status updated.
+        """
+        return (
+            self.jobs.filter(
+                is_active=True, created__gte=timezone.now() - since
+            ).count()
+            > 0
+        )
+
+    @property
+    def latest_jobs(self, n=10) -> List[Job]:
+        """
+        Get the latest jobs for the source.
+
+        This is a relatively costly property in that it will update
+        the status of each job in the database (if it has changed).
+        """
+        jobs = self.jobs.order_by("-created").select_related("creator")[:n]
+        for job in jobs:
+            job.update()
+        return jobs
+
+    @property
+    def latest_files(self) -> Dict[str, Dict]:
+        """
+        Get the files pulled by the latest pull job.
+
+        Pull jobs currently return a list of files that were pulled
+        (or are meant to). In the future they may return
+        a dictionary of paths to file info.
+        """
+        try:
+            job = self.jobs.filter(
+                method=JobMethod.pull.value, result__isnull=False
+            ).order_by("-ended", "-created")[0]
+            return job.result
+        except IndexError:
+            return None
 
 
 # Source classes in alphabetical order
@@ -425,16 +498,9 @@ class GithubSource(Source):
 
         return None
 
-    def pull(self, user: User) -> Job:
-        """Pull a Github source to the filesystem."""
-        source_address = self.to_address()
-        source_address["token"] = get_user_github_token(user)
-
-        return Job.objects.create(
-            creator=user,
-            method="pull",
-            params=dict(source=source_address, project=self.project.id, path=self.path),
-        )
+    def authorization_token(self, user: User) -> str:
+        """Get the Github authorization token for the user."""
+        return get_user_github_token(user)
 
 
 class GoogleDocsSource(Source):
@@ -497,16 +563,9 @@ class GoogleDocsSource(Source):
 
         return None
 
-    def pull(self, user: User) -> Job:
-        """Pull a Google Doc into the project folder."""
-        source_address = self.to_address()
-        source_address["token"] = get_user_google_token(user)
-
-        return Job.objects.create(
-            creator=user,
-            method="pull",
-            params=dict(source=source_address, project=self.project.id, path=self.path),
-        )
+    def authorization_token(self, user: User) -> str:
+        """Get the Google authorization token for the user."""
+        return get_user_google_token(user)
 
 
 class GoogleDriveSource(Source):
@@ -519,16 +578,9 @@ class GoogleDriveSource(Source):
         """Get the provider name for a Google Drive source."""
         return "Google"
 
-    def pull(self, user: User) -> Job:
-        """Pull a Google Drive folder into the project folder."""
-        source_address = self.to_address()
-        source_address["token"] = get_user_google_token(user)
-
-        return Job.objects.create(
-            creator=user,
-            method="pull",
-            params=dict(source=source_address, project=self.project.id, path=self.path),
-        )
+    def authorization_token(self, user: User) -> str:
+        """Get the Google authorization token for the user."""
+        return get_user_google_token(user)
 
 
 class PlosSource(Source):
@@ -604,15 +656,3 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
-
-    def pull(self, user: User) -> Job:
-        """Pull a URL source into a folder."""
-        source_address = self.to_address()
-        source_address["type"] = "http"
-
-        return Job.objects.create(
-            project=self.project,
-            creator=user,
-            method="pull",
-            params=dict(source=source_address, project=self.project.id, path=self.path),
-        )

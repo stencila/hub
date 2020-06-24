@@ -27,6 +27,16 @@
       </span>
     </a>
 
+    <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
+       hx-post="{% url 'api-projects-snapshots-list' project.id %}" hx-swap="none" hx-redirect="CREATED:Location">
+      <span class="icon">
+        <i class="ri-camera-line"></i>
+      </span>
+      <span>
+        {% trans "Snapshot" %}
+      </span>
+    </a>
+
     <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered" disabled
        data-tooltip="This feature is coming soon!">
       <span class="icon">
@@ -58,6 +68,6 @@
 
 <hr />
 
-{% include "./sources/_sources.html" with sources=project.sources.all %}
+{% include "./sources/_sources.html" %}
 
 {% endblock %}

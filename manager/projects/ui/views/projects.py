@@ -39,10 +39,15 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Retrieve a project."""
+    """
+    Retrieve a project.
+    
+    Currently redirect to the project sources, but in the future
+    could be an overview page, with a preview of the main document etc.
+    """
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
-    instance = viewset.get_object()
-    return render(request, "projects/retrieve.html", dict(project=instance))
+    project = viewset.get_object()
+    return redir("ui-projects-sources-list", project.account.name, project.name)
 
 
 @login_required

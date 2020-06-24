@@ -1,0 +1,57 @@
+{% comment %}
+A partial for displaying a source (with updating, via polling).
+
+This is a partial mainly because it is self-replacing (see below).
+
+If the source is active then will have `hx-trigger="every 2s"` so that it's status,
+results etc get updated. Uses `hx-swap="outerHTML"` so that the trigger
+is removed when the source is inactive. Also includes the source as JSON data
+in case the enclosing page want to use that data to trigger further events
+(e.g. when the source is ended).
+{% endcomment %}
+{% load humanize %}
+<div {% if source.is_active %} hx-trigger="every 2s"
+     hx-get="{% url 'api-projects-sources-detail' source.project.id source.id %}"
+     hx-template="projects/sources/_retrieve.html" hx-swap="outerHTML" {% endif %}>
+
+  <pre>
+# Basic properties
+
+type_name: {{ source.type_name }}
+path: {{ source.path }}
+
+creator (User): {{ source.creator }}
+created (Date): {{ source.created|naturaltime }}
+updated (Date): {{ source.updated|naturaltime }}
+is_active (is there an active job for this source?): {{ source.is_active }}
+
+# Files
+
+The files from the last time that the source was pulled.
+{% if source.latest_files %}
+  {{ source.latest_files }}
+{% else %}
+  No files. Source has not been successfully pulled yet?
+{% endif %}
+
+# Jobs
+
+The latest jobs for the source.
+{% for job in source.latest_jobs %}
+  id: {{ job.id }}
+  created: {{ job.created|naturaltime }}
+  creator: {{ job.creator_id }}
+  is_active: {{ job.is_active }}
+  method: {{ job.method }}
+  params: {{ job.params }}
+  status: {{ job.status }}
+  log: {{ job.log }}
+  result: {{ job.result }}
+  error: {{ job.error }}
+{% empty %}
+  No jobs.
+{% endfor %}
+  </pre>
+
+  {{ serializer.data|json_script:"source-data" }}
+</div>

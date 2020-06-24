@@ -1,0 +1,26 @@
+{% extends '../base.html' %}
+{% load i18n humanize stencila %}
+
+{% block title %}{{ source.path }} : {{ project.name }} {% endblock %}
+
+{% block projects_content %}
+{# Create a pull job and then redirect to this page (which will now have an active source #}
+<a class="button" {% if source_active %}disabled{% endif %}
+   hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
+   hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.id %}"
+   hx-swap="none">
+  <span class="icon">
+    <i class="ri-download-2-line"></i>
+  </span>
+  <span>{% trans "Pull" %}</span>
+</a>
+<a class="button is-outlined is-danger"
+   href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
+  <span class="icon">
+    <i class="ri-delete-bin-line"></i>
+  </span>
+  <span>{% trans "Delete" %}</span>
+</a>
+<hr>
+{% include 'projects/sources/_retrieve.html' %}
+{% endblock %}

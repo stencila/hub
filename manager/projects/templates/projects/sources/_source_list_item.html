@@ -5,7 +5,8 @@
     {% include './_file_type_icon.html' with mimetype=source.mimetype %}
   </td>
   <td class="has-text-weight-bold pl-2 is-vcentered">
-    <p class="table-icon-label">{{ source.path }}</p>
+    <a class="table-icon-label"
+       href="{% url 'ui-projects-sources-retrieve' source.project.account.name source.project.name source.id %}">{{ source.path }}</a>
   </td>
   <td class="is-sr-only-mobile has-text-grey is-vcentered">{{ source.updated|naturaltime }}</td>
   <td class="has-text-right is-vcentered" style="weight: 1em;">
