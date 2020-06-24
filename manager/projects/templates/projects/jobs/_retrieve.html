@@ -11,15 +11,27 @@ is removed when the job is inactive. Also includes the job as JSON data
 in case the enclosing page want to use that data to trigger further events
 (e.g. when the job is ended).
 {% endcomment %}
-<div {% if not job.has_ended %} hx-trigger="every 2s"
-     hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}" hx-template="projects/jobs/_retrieve.html"
-     hx-swap="outerHTML" {% endif %}>
+<div {% if job.is_active %} hx-trigger="every 3s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}"
+     hx-template="projects/jobs/_retrieve.html" hx-swap="outerHTML" {% endif %}>
   <pre>
-id: {{ job.id }}
-method: {{ job.method }}
-params: {{ job.params }}
-status: {{ job.status }}
-result: {{ job.result }}
-    </pre>
+    is_active: {{ job.is_active }}
+    status: {{ job.status }}
+    method: {{ job.method }}
+    params: {{ job.params }}
+    log: {{ job.log }}
+    result: {{ job.result }}
+    error: {{ job.error }}
+  </pre>
+
+  <h2>Children</h2>
+  <ol>
+    {% for child in job.children.all %}
+    <li>
+      <a href="{% url 'ui-projects-jobs-retrieve' job.project.account_id job.project.id child.id %}">
+        {{ child.method }} {{ child.params }} {{ child.status }}
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
   {{ serializer.data|json_script:"job-data" }}
 </div>

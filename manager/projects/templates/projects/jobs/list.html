@@ -1,8 +1,8 @@
 {% extends '../base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Project job" %}{% endblock %}
+{% block title %}Jobs : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-{% include './_retrieve.html' %}
+{% include './_list.html' %}
 {% endblock %}

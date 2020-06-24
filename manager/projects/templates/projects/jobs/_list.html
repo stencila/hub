@@ -1,0 +1,15 @@
+{% comment %}
+A partial for displaying a list of jobs.
+{% endcomment %}
+<div>
+  {% for job in jobs %}
+  <a href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}">{{ job.id }}</a>
+  <pre>
+    method: {{ job.method }}
+    params: {{ job.params }}
+    status: {{ job.status }}
+    error: {{ job.error }}
+    </pre>
+  <hr />
+  {% endfor %}
+</div>
