@@ -1,10 +1,14 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
+from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -69,15 +73,22 @@ WHERE project.id = projects_project.id""",
 
 
 def get_project(
-    identifier: str, user: User, roles: Optional[List[ProjectRole]] = None,
+    identifiers: Dict[str, str], user: User, roles: Optional[List[ProjectRole]] = None,
 ):
     """
     Get a project for the user, optionally requiring one or more roles.
     """
+    filter = filter_from_ident(identifiers["project"])
+
+    account = identifiers.get("account")
+    if account:
+        filter.update(**filter_from_ident(account, prefix="account"))
+    elif "id" not in filter:
+        raise RuntimeError("Must provide project id if not providing account")
+
     try:
         return get_projects(user).get(
-            **filter_from_ident(identifier),
-            **(dict(role__in=[role.name for role in roles]) if roles else {}),
+            **filter, **(dict(role__in=[role.name for role in roles]) if roles else {}),
         )
     except Project.DoesNotExist:
         raise exceptions.PermissionDenied
@@ -154,33 +165,18 @@ class ProjectsViewSet(
         """
         Get the project.
 
-        For all actions, uses `get_queryset` to ensure the same access
-        restrictions are applied when getting an individual project.
-
         For `partial-update` and `destroy`, further checks that the user
         is a project MANAGER or OWNER.
         """
-        filter = filter_from_ident(self.kwargs["project"])
-
-        account = self.kwargs.get("account")
-        if account:
-            filter.update(**filter_from_ident(account, prefix="account"))
-        elif "id" not in filter:
-            raise RuntimeError("Must provide project id if not providing account")
-
-        try:
-            # Using [0] adds LIMIT 1 to query so is more efficient than `.get(**filter)`
-            instance = self.get_queryset().filter(**filter)[0]
-        except IndexError:
-            raise exceptions.NotFound
+        project = get_project(self.kwargs, self.request.user)
 
         if (
             self.action == "partial_update"
-            and instance.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name]
-        ) or (self.action == "destroy" and instance.role != ProjectRole.OWNER.name):
+            and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name]
+        ) or (self.action == "destroy" and project.role != ProjectRole.OWNER.name):
             raise exceptions.PermissionDenied
 
-        return instance
+        return project
 
     def get_serializer_class(self):
         """Get the serializer class for the current action."""
