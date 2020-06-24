@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="columns is-centered">
+  <div class="column is-half-tablet">
+    <article class="message message-header-body is-danger">
+      <div class="message-header">
+        <p><span class="icon"><i class="ri-error-warning-line"></i></span>Account token missing</p>
+      </div>
+      <div class="message-body">
+        {{ message|default:"A token for a third party account is missing. Please contact us." }}
+      </div>
+    </article>
+  </div>
+</div>
+{% endblock content %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.authentication import BasicAuthentication
 
-from manager.api.exceptions import AccountQuotaExceeded
+from manager.api.exceptions import AccountQuotaExceeded, SocialTokenMissing
 
 
 def basic_auth(get_response):
@@ -40,8 +40,7 @@ class CustomExceptionsMiddleware:
     """
     Handle custom exceptions.
 
-    Renders pages for `AccountQuotaExceeded` and other
-    exceptions.
+    Renders pages for custom exceptions e.g. `AccountQuotaExceeded`
     """
 
     def __init__(self, get_response):
@@ -61,3 +60,9 @@ class CustomExceptionsMiddleware:
             return render(
                 request, "accounts/quota_exceeded.html", dict(message=message)
             )
+        elif isinstance(exception, SocialTokenMissing):
+            try:
+                message = list(exception.detail.values())[0]
+            except (TypeError, IndexError):
+                message = None
+            return render(request, "users/token_missing.html", dict(message=message))

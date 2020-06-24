@@ -5,11 +5,24 @@ class AccountQuotaExceeded(exceptions.APIException):
     """
     A custom API exception for when an account quota is exceeded.
 
-    Should be instantiated with a diction of details.
+    Should be instantiated with a dictionary of details of
+    the quota that was exceeded.
     """
 
     status_code = status.HTTP_402_PAYMENT_REQUIRED
     default_detail = "An account quota was exceeded"
+
+
+class SocialTokenMissing(exceptions.APIException):
+    """
+    A custom API exception for when a user is missing a social account token.
+
+    Should be instantiated with a dictionary of the scoial
+    auth provider and a message.
+    """
+
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = "No token available for a social account provider."
 
 
 class ConflictError(exceptions.APIException):

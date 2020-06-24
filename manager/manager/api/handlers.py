@@ -8,7 +8,7 @@ from rest_framework.views import exception_handler
 from sentry_sdk import capture_exception
 
 
-def custom_exception_handler(exc, context):
+def custom_exception_handler(exc, context) -> Response:
     """
     Handle API exceptions.
 
@@ -62,9 +62,10 @@ def custom_exception_handler(exc, context):
         if len(errors):
             data["errors"] = errors
 
-        response.data = data
-
-        return response
+        # Always return JSON errors
+        return Response(
+            data, status=response.status_code, content_type="application/json"
+        )
 
     # rest_framework did not handle this exception so
     # generate a API response to prevent it from getting handled by the
