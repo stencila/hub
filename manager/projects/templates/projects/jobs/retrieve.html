@@ -4,7 +4,5 @@
 {% block title %}{% trans "Project job" %}{% endblock %}
 
 {% block layout_content %}
-<div hx-trigger="every 2s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}"
-     hx-template="projects/jobs/_retrieve.html">
-</div>
+{% include './_retrieve.html' %}
 {% endblock %}
