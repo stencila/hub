@@ -48,7 +48,7 @@
               <i class="ri-upload-cloud-line"></i>
             </span>
             <span>
-              Upload
+              {% trans "Upload" %}
             </span>
           </a>
           <a class="dropdown-item"
@@ -57,11 +57,11 @@
               <i class="ri-links-line"></i>
             </span>
             <span>
-              URL
+              {% trans "URL" %}
             </span>
           </a>
           <a class="dropdown-item"
-             href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}">
+             {# href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}" #} disabled>
             <span class="icon">
               <i class="ri-github-line"></i>
             </span>
@@ -70,7 +70,8 @@
             </span>
           </a>
           <a class="dropdown-item"
-             href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledocs' %}">
+             {# href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledocs' %}" #}
+             disabled>
             <span class="icon">
               <i class="ri-google-line"></i>
             </span>
@@ -78,15 +79,42 @@
               Google Doc
             </span>
           </a>
-          <a class="dropdown-item"
-             href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
+          <a class="dropdown-item" disabled>
             <span class="icon">
-              <i class="ri-file-add-line"></i>
+              <i class="ri-drive-line"></i>
             </span>
             <span>
-              eLife
+              Google Drive
             </span>
           </a>
+
+          <div class="dropdown dropdown-item px-0 py-0" data-placement="right-start">
+            <a class="dropdown-trigger dropdown-item px-0 py-0">
+              <div class="level is-mobile dropdown-item">
+                <div class="level-left">
+                  <span class="icon">
+                    <i class="ri-newspaper-line"></i>
+                  </span>
+                  <span>{% trans "From journal…" %}</span>
+                </div>
+                <div>
+                  <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+                </div>
+              </div>
+            </a>
+            <div class="dropdown-menu has-text-left" role="menu">
+              <div class="dropdown-content">
+
+                <a class="dropdown-item"
+                   href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
+                  eLife
+                </a>
+                <a class="dropdown-item" disabled>
+                  PLOS
+                </a>
+              </div>
+            </div>
+          </div>
           {% comment %}
           <a href="#" class="dropdown-item">
             <span class="icon">
