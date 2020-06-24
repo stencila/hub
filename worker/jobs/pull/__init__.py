@@ -18,6 +18,7 @@ PULL_FUNCS: Dict[str, Callable[[dict, str, str], List[str]]] = {
     "googledrive": pull_gdrive,
     "http": pull_http,
     "plos": pull_plos,
+    "url": pull_http, # URL is used as an alias for HTTP e.g `UrlSource`
 }
 
 
