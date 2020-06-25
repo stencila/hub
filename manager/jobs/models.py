@@ -5,6 +5,7 @@ from enum import unique
 from typing import Optional
 
 import inflect
+import shortuuid
 from django.core import validators
 from django.db import models
 from django.utils import timezone
@@ -467,6 +468,14 @@ class Job(models.Model):
     The fields `queue`, `worker` and `retries` provide for additional
     information on where and how the job was executed.
     """
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=32,
+        editable=False,
+        default=shortuuid.uuid,
+        help_text="The unique id of the job.",
+    )
 
     project = models.ForeignKey(
         "projects.Project",

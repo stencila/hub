@@ -97,7 +97,7 @@ after_account_urls = [
                         [
                             path("", jobs_views.list, name="ui-projects-jobs-list"),
                             path(
-                                "<int:job>",
+                                "<str:job>",
                                 jobs_views.retrieve,
                                 name="ui-projects-jobs-retrieve",
                             ),
