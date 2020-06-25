@@ -1,3 +1,10 @@
+## [2.35.1](https://github.com/stencila/hub/compare/v2.35.0...v2.35.1) (2020-06-25)
+
+
+### Bug Fixes
+
+* **Jobs:** Display formatted runtime ([fa9b59a](https://github.com/stencila/hub/commit/fa9b59a76ed86ce52a29d7ae52ec4e6fdd70bc0e))
+
 # [2.35.0](https://github.com/stencila/hub/compare/v2.34.0...v2.35.0) (2020-06-25)
 
 
