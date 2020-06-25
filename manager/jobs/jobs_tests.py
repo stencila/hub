@@ -5,6 +5,7 @@ from jobs.jobs import dispatch_job
 from jobs.models import Job, JobStatus
 
 
+@pytest.mark.skip(reason="in flux")
 @pytest.mark.django_db
 def test_dispatch_parallel():
     Account.objects.create(name="stencila")
@@ -25,6 +26,7 @@ def test_dispatch_parallel():
         assert child.status == JobStatus.DISPATCHED.value
 
 
+@pytest.mark.skip(reason="in flux")
 @pytest.mark.django_db
 def test_dispatch_series():
     Account.objects.create(name="stencila")
