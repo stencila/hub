@@ -642,6 +642,7 @@ input[type="checkbox"].toggle {
   @extend .transition-colors;
 }
 
+a.has-text-link-hover:hover,
 .has-text-link-hover:hover {
   @extend .transition-colors;
   color: $link !important;
