@@ -4,6 +4,8 @@ build:
 
 # Run Docker image
 run: build
-	docker run --rm --network=host \
+	docker run --rm \
+      	-p 5672:5672 \
+      	-p 15692:15692 \
 		-e RABBITMQ_DEFAULT_PASS=password \
 		stencila/hub-broker
