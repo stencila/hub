@@ -1,3 +1,10 @@
+# [2.35.0](https://github.com/stencila/hub/compare/v2.34.0...v2.35.0) (2020-06-25)
+
+
+### Features
+
+* **Snaps:** Add snapshots for project sources ([da5a156](https://github.com/stencila/hub/commit/da5a156e040724beee011b464bc3a1c1d21d2418))
+
 # [2.34.0](https://github.com/stencila/hub/compare/v2.33.1...v2.34.0) (2020-06-25)
 
 
