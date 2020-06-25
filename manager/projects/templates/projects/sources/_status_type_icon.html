@@ -1,0 +1,17 @@
+{% comment %}
+Renders the icon class name to use for a source based on its status.
+{% endcomment %}
+
+{% if status == 'SUCCESS' %}
+<span class="icon is-vcentered has-text-success {{classes}}">
+  <i class="ri-check-line"></i>
+</span>
+{% elif status == 'FAILURE' %}
+<span class="icon is-vcentered has-text-danger {{classes}}">
+  <i class="ri-close-line"></i>
+</span>
+{% else %}
+<span class="icon is-vcentered has-text-info {{classes}}">
+  <i class="ri-loader-2-line"></i>
+</span>
+{% endif %}

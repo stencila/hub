@@ -23,3 +23,55 @@
   display: block;
   padding: ($gap / 2) ($gap / 4);
 }
+
+// =============================================================================
+// Jobs
+// =============================================================================
+
+.job-list {
+  list-style-type: none;
+
+  li {
+    &:last-of-type .job-list--item {
+      border-bottom: 1px solid $grey-lightest;
+    }
+
+    &:nth-child(even) .job-list--item {
+      background-color: $white-bis;
+    }
+
+    &:hover .job-list--item {
+      background-color: $white-ter;
+    }
+  }
+}
+
+.job-list--item {
+  @extend .transition-colors;
+  border-bottom: 1px solid $grey-lightest;
+  padding: ($gap / 2) 0;
+  position: relative;
+
+  a {
+    position: relative;
+    z-index: 1;
+  }
+
+  code {
+    color: $text;
+  }
+}
+
+.job-list--id,
+a.job-list--id {
+  @extend .expand-link;
+  color: $grey;
+  font-size: 0.825rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.job-list--meta {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}

@@ -4,23 +4,86 @@
 {% block title %}{{ source.path }} : {{ project.name }} {% endblock %}
 
 {% block projects_content %}
-{# Create a pull job and then redirect to this page (which will now have an active source #}
-<a class="button" {% if source_active %}disabled{% endif %}
-   hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
-   hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.id %}"
-   hx-swap="none">
-  <span class="icon">
-    <i class="ri-download-2-line"></i>
-  </span>
-  <span>{% trans "Pull" %}</span>
-</a>
-<a class="button is-outlined is-danger"
-   href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
-  <span class="icon">
-    <i class="ri-delete-bin-line"></i>
-  </span>
-  <span>{% trans "Delete" %}</span>
-</a>
-<hr>
+
+<div class="level">
+  <div class="level-left">
+    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
+      <div class="level-left">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+          <ul>
+            <li><a href="{% url 'ui-projects-retrieve' project.account.name project.name %}">{{ project.name }}</a></li>
+            <li class="is-active"><a href="#" aria-current="page">{{ source.path }}</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+
+    {# Create a pull job and then redirect to this page (which will now have an active source #}
+    {% if source.type_name != "Upload" %}
+    <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
+       hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
+       hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.id %}"
+       hx-swap="none">
+      <span class="icon">
+        <i class="ri-download-2-line"></i>
+      </span>
+      <span>{% trans "Pull" %}</span>
+    </a>
+    {% endif %}
+
+    <a class="button is-danger is-outlined is-small-mobile is-expanded-mobile"
+       href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
+      <span class="icon">
+        <i class="ri-delete-bin-line"></i>
+      </span>
+      <span>{% trans "Delete" %}</span>
+    </a>
+  </div>
+</div>
+
+<div class="notification px-3 py-2 mt-2">
+  <h1 class="title is-5 mb-0">
+    {{source.path}}
+    {% if source.type != "Upload" %}
+    <span class="icon is-vcentered has-text-grey-light" data-tooltip="{% trans "This is a remote source" %}">
+      <i class="ri-global-line"></i>
+    </span>
+    {% endif %}
+  </h1>
+  <div class="level">
+    <div class="level-left">
+      {% if source.creator %}
+      <span class="pr-1">
+        {% blocktrans with update_time=source.updated|naturaltime %}
+        Updated {{ update_time }} by
+        {% endblocktrans %}
+        <span class="icon is-small is-vcentered pr-1">
+          <img src="{{ source.creator.personal_account.image.small }}" role="presentation"></img>
+        </span>
+        <span class="is-vcentered">
+          {{ source.creator.username }}
+        </span>
+        {% endif %}
+    </div>
+    <div class="level-right">
+      {% if source.latest_jobs %}
+      {% for job in source.latest_jobs %}
+      {% if forloop.first %}
+      {% trans "Latest job:" %}&nbsp;
+      <a href="{% url 'ui-projects-jobs-retrieve' source.project.account.name source.project.name job.id %}">
+        {{ source.created|naturaltime }}
+
+        {% include "./_status_type_icon.html" with status=job.status %}
+      </a>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 {% include 'projects/sources/_retrieve.html' %}
 {% endblock %}

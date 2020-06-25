@@ -1,12 +1,16 @@
 {% load humanize i18n %}
 
-<tr>
+<tr class="is-relative">
   <td class="source-table--file-type pr-0 is-vcentered">
     {% include './_file_type_icon.html' with mimetype=source.mimetype %}
   </td>
   <td class="has-text-weight-bold pl-2 is-vcentered">
-    <a class="table-icon-label"
+    {% if source.type == "uploadsource" %}
+    {{ source.path }}
+    {% else %}
+    <a class="table-icon-label has-text-black has-text-link-hover"
        href="{% url 'ui-projects-sources-retrieve' source.project.account.name source.project.name source.id %}">{{ source.path }}</a>
+    {% endif %}
   </td>
   <td class="is-sr-only-mobile has-text-grey is-vcentered">{{ source.updated|naturaltime }}</td>
   <td class="has-text-right is-vcentered" style="weight: 1em;">

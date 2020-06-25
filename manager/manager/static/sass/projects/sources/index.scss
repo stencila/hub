@@ -1,3 +1,7 @@
 .source-table--file-type {
   width: 1em;
 }
+
+a.table-icon-label {
+  @extend .expand-link;
+}

@@ -91,7 +91,7 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
                 )
                 source.file = file
                 source.save()
-        return redirect("ui-projects-sources", project.account.name, project.name)
+        return redirect("ui-projects-sources-list", project.account.name, project.name)
     else:
         raise Http404
 

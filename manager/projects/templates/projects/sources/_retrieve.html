@@ -9,49 +9,43 @@ is removed when the source is inactive. Also includes the source as JSON data
 in case the enclosing page want to use that data to trigger further events
 (e.g. when the source is ended).
 {% endcomment %}
-{% load humanize %}
+
+{% load i18n humanize stencila %}
+
 <div {% if source.is_active %} hx-trigger="every 2s"
      hx-get="{% url 'api-projects-sources-detail' source.project.id source.id %}"
      hx-template="projects/sources/_retrieve.html" hx-swap="outerHTML" {% endif %}>
 
-  <pre>
-# Basic properties
-
-type_name: {{ source.type_name }}
-path: {{ source.path }}
-
-creator (User): {{ source.creator }}
-created (Date): {{ source.created|naturaltime }}
-updated (Date): {{ source.updated|naturaltime }}
-is_active (is there an active job for this source?): {{ source.is_active }}
-
-# Files
-
-The files from the last time that the source was pulled.
-{% if source.latest_files %}
-  {{ source.latest_files }}
-{% else %}
-  No files. Source has not been successfully pulled yet?
-{% endif %}
-
-# Jobs
-
-The latest jobs for the source.
-{% for job in source.latest_jobs %}
-  id: {{ job.id }}
-  created: {{ job.created|naturaltime }}
-  creator: {{ job.creator_id }}
-  is_active: {{ job.is_active }}
-  method: {{ job.method }}
-  params: {{ job.params }}
-  status: {{ job.status }}
-  log: {{ job.log }}
-  result: {{ job.result }}
-  error: {{ job.error }}
-{% empty %}
-  No jobs.
-{% endfor %}
-  </pre>
+  {% if source.latest_files %}
+  <table class="table is-fullwidth is-striped is-hoverable">
+    <thead>
+      <tr class="table-header is-sr-only">
+        <th>
+          {% trans "Source Type" %}
+        </th>
+        <th>
+          {% trans "Source Name" %}
+        </th>
+      </tr>
+    </thead>
+    <tbody id="source-list">
+      {% for file in source.latest_files %}
+      <tr>
+        <td class="source-table--file-type pr-0 is-vcentered">
+          {% include './_file_type_icon.html' with mimetype=file.mimetype %}
+        </td>
+        <td class="source-table--file-type pr-0 is-vcentered">
+          {{ file }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <h3 class="title is-4 has-text-grey">
+    {% trans 'No files. Source has not been successfully pulled yet?' %}
+  </h3>
+  {% endif %}
 
   {{ serializer.data|json_script:"source-data" }}
 </div>
