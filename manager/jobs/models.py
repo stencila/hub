@@ -457,6 +457,9 @@ class Job(models.Model):
     populated with the current user. Jobs created as part of a pipline
     may not have a creator.
 
+    The `description` can be used to provide the user with a summary of
+    what the job is doing.
+
     The fields `method`, `params`, `result` correspond to
     the same properties in [JSON RPC](https://www.jsonrpc.org/specification).
 
@@ -475,6 +478,12 @@ class Job(models.Model):
         editable=False,
         default=shortuuid.uuid,
         help_text="The unique id of the job.",
+    )
+
+    description = models.TextField(
+        null=True,
+        blank=True,
+        help_text="A short description of the job.",  # See property `summary_string`
     )
 
     project = models.ForeignKey(
@@ -581,6 +590,28 @@ class Job(models.Model):
     retries = models.IntegerField(
         blank=True, null=True, help_text="The number of retries to fulfil the job.",
     )
+
+    @property
+    def summary_string(self) -> str:
+        """
+        Get a short textual summary of the job.
+
+        Intended for user interfaces.
+        If the `description` field is not set then will be derived from
+        the job's `method` and `params` fields.
+        """
+        if self.description:
+            return self.description
+
+        method = self.method
+        params = self.params
+
+        summary = method.title()
+        if method == "pull":
+            path = params and params["path"]
+            summary += " '{0}'".format(path)
+
+        return summary
 
     @property
     def position(self):
