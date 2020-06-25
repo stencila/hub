@@ -1,15 +1,62 @@
 {% comment %}
 A partial for displaying a list of snapshots.
 {% endcomment %}
+
+{% load i18n stencila %}
+
 <div>
-  {% for snapshot in snapshots %}
-  <a
-     href="{% url 'ui-projects-snapshots-retrieve' snapshot.project.account.name snapshot.project.name snapshot.id %}">{{ snapshot.id }}</a>
-  <pre>
-    created: {{ snapshot.created }}
-    creator: {{ snapshot.creator }}
-</pre>
-  {% empty %}
-  No snapshots yet.
-  {% endfor %}
+
+  {% if snapshots %}
+  <table class="table is-fullwidth is-striped is-hoverable">
+    <thead>
+      <tr class="table-header">
+        <th>
+          {% trans "Created" %}
+        </th>
+        <th>
+          {% trans "Created by" %}
+        </th>
+        <th>
+          {% trans "Details" %}
+        </th>
+      </tr>
+    </thead>
+    <tbody id="source-list">
+      {% for snapshot in snapshots %}
+      <tr class="is-relative">
+        <td class="source-table--file-type pr-0 is-vcentered">
+          {{ snapshot.created }}
+        </td>
+        <td class="source-table--file-type pr-0 is-vcentered">
+          <span class="icon is-small is-vcentered pr-1">
+            <img src="{{ snapshot.creator.personal_account.image.small }}" role="presentation"></img>
+          </span>
+          <span class="is-vcentered">
+            {{ snapshot.creator.username }}
+          </span>
+        </td>
+        <td class="source-table--file-type pr-0 is-vcentered">
+          <a href="{% url 'ui-projects-snapshots-retrieve' snapshot.project.account.name snapshot.project.name snapshot.id %}"
+             class="button is-outlined is-small expand-link">
+            {% trans "Details" %}
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+
+  <div class="has-text-centered">
+    <h3 class="title is-4 has-text-grey">
+      {% trans 'No snapshots yet' %}
+    </h3>
+
+    <p class="subtitle">
+      {% trans "Snapshots are for…"  %}
+    </p>
+  </div>
+
+  {% endif %}
 </div>

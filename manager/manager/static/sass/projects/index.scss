@@ -64,21 +64,11 @@
 
 .job-list--id,
 a.job-list--id {
+  @extend .expand-link;
   color: $grey;
   font-size: 0.825rem;
   letter-spacing: 1px;
-  position: static;
   text-transform: uppercase;
-
-  &:before {
-    content: "";
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    z-index: 0;
-  }
 }
 
 .job-list--meta {

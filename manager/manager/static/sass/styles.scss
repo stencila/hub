@@ -431,6 +431,20 @@ body {
 // Reusable elements & Utility classes
 // =============================================================================
 
+.expand-link {
+  position: static;
+
+  &:before {
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 0;
+  }
+}
+
 .leading-loose {
   line-height: 2
 }
