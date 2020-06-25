@@ -12,7 +12,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     viewset = ProjectsSnapshotsViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
-    snapshots = viewset.get_queryset()
+    snapshots = viewset.get_queryset(project)
 
     return render(
         request,
@@ -28,7 +28,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     viewset = ProjectsSnapshotsViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
-    snapshot = viewset.get_object()
+    snapshot = viewset.get_object(project)
 
     return render(
         request,

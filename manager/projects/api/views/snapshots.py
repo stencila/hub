@@ -37,19 +37,34 @@ class ProjectsSnapshotsViewSet(
     object_name = "snapshot"
     queryset_name = "snapshots"
 
-    def get_project(self, roles: Optional[List[ProjectRole]] = None) -> Project:
+    def get_project(self) -> Project:
         """
         Get the project for the current action and check user has roles.
-        """
-        return get_project(self.kwargs, self.request.user, roles)
 
-    def get_queryset(self):
+        Mutating actions require that the user be an AUTHOR or above.
+        """
+        return get_project(
+            self.kwargs,
+            self.request.user,
+            [
+                ProjectRole.AUTHOR,
+                ProjectRole.EDITOR,
+                ProjectRole.MANAGER,
+                ProjectRole.OWNER,
+            ]
+            if self.action in ["create", "partial_update", "destroy"]
+            else [],
+        )
+
+    def get_queryset(self, project: Optional[Project] = None):
         """Get project snapshots."""
-        project = self.get_project()
+        project = project or self.get_project()
         queryset = (
             Snapshot.objects.filter(project=project)
             .order_by("-created")
-            .select_related("project", "project__account")
+            .select_related(
+                "creator", "creator__personal_account", "project", "project__account"
+            )
         )
         return queryset
 
