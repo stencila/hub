@@ -393,11 +393,22 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
-    def get_project(self, roles: Optional[List[ProjectRole]] = None) -> Project:
+    def get_project(self) -> Project:
         """
         Get the project for the current action and check user has roles.
+
+        All actions require that the user be an AUTHOR or above.
         """
-        return get_project(self.kwargs, self.request.user, roles)
+        return get_project(
+            self.kwargs,
+            self.request.user,
+            [
+                ProjectRole.AUTHOR,
+                ProjectRole.EDITOR,
+                ProjectRole.MANAGER,
+                ProjectRole.OWNER,
+            ],
+        )
 
     def get_queryset(self, project: Optional[Project] = None):
         """
@@ -437,14 +448,7 @@ class ProjectsJobsViewSet(
         """
         if self.action in ("create", "execute"):
             # Get project as permission check
-            self.get_project(
-                [
-                    ProjectRole.AUTHOR,
-                    ProjectRole.EDITOR,
-                    ProjectRole.MANAGER,
-                    ProjectRole.OWNER,
-                ]
-            )
+            self.get_project()
             return JobCreateSerializer
         elif self.action == "list":
             return JobListSerializer

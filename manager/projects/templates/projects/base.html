@@ -29,6 +29,7 @@
       </a>
     </li>
 
+    {% if project.role in 'AUTHOR, EDITOR, MANAGER, OWNER' %}
     <li class="sidebar__item" id="menu-item-jobs">
       <a href="{% url 'ui-projects-jobs-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-jobs' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
@@ -40,7 +41,7 @@
         </span>
       </a>
     </li>
-
+    {% endif %}
 
     {% if project.role in 'MANAGER, OWNER' %}
     <li class="sidebar__item" id="menu-item-sharing">
