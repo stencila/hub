@@ -1,0 +1,88 @@
+{% load i18n humanize stencila %}
+
+<div class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% endif %}">
+  <div class="column is-2">
+    {% if is_list_item %}
+    <a class="job-list--id"
+       href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}">
+      {% trans "Job" %} {{ job.id }}
+    </a>
+    {% else %}
+    <span class="job-list--id">
+      {% trans "Job" %} {{ job.id }}
+    </span>
+    {% endif %}
+    <div>
+      <div class="tag has-text-weight-bold">
+        {{ job.method|title }}
+      </div>
+    </div>
+    {% if job.status %}
+    <div
+         class="has-text-weight-bold tag mt-1 is-light {% if job.status == "SUCCESS" %}is-success{% elif job.status == "FAILURE" %}is-danger{% endif %}">
+      {% include "../sources/_status_type_icon.html" with status=job.status %}
+      <span class="is-vcentered">
+        {% blocktrans with status=job.status|title %}
+        {{ status }}
+        {% endblocktrans %}
+      </span>
+    </div>
+    {% endif %}
+  </div>
+  <div class="column">
+    <div class="job-list--meta">
+      <span class="pr-1">
+        <span class="icon is-small is-vcentered pr-1">
+          <img src="{{ job.creator.personal_account.image.small }}" role="presentation"></img>
+        </span>
+        <span class="is-vcentered">
+          {{ job.creator.username }}
+        </span>
+      </span>
+
+      ·
+
+      <span alt="{{ job.created }}">
+        <span class="icon is-vcentered">
+          <i class="ri-calendar-line"></i>
+        </span>
+        <span class="is-vcentered">
+          {{ job.created|naturaltime }}
+        </span>
+      </span>
+
+      {% if job.runtime %}
+
+      <span class="pl-1">
+        ·
+        <span class="icon is-vcentered">
+          <i class="ri-timer-line"></i>
+        </span>
+        <span class="is-vcentered">
+          {{ job.runtime|naturaltime }}
+        </span>
+      </span>
+      {% endif %}
+    </div>
+
+    <div>
+      {% include "./summary/_job_summary.html" %}
+      {% if job.error.message %}
+      <div class="notification is-light px-2 py-2 is-family-code">
+        {% blocktrans with error=job.error.message %}
+        {{ error }}
+        {% endblocktrans %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if is_list_item %}
+  <div class="column is-2">
+    <a href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}"
+       class="button is-outlined is-fullwidth is-small has-text-weight-bold">
+      {% trans "Details" %}
+    </a>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,14 @@
+{% load i18n humanize stencila %}
+
+<div class="has-text-weight-bold mb-1">
+{% if job.method == "pull" %}
+  {% include "./_pull_summary.html" %}
+{% elif job.method == "series" %}
+  {% blocktrans with job_count=job.children|length %}
+  {{ job_count }}
+  sub-jobs
+  {% endblocktrans %}
+{% else %}
+  {{ job.method }}
+{% endif %}
+</div>

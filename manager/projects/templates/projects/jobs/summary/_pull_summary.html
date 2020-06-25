@@ -1,0 +1,5 @@
+{% load i18n humanize stencila %}
+
+{% blocktrans with path=job.params.path %}
+  Pull <code>{{ path }}</code>
+{% endblocktrans %}
