@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
-from jobs.models import Job, Queue, Worker, Zone
+from jobs.models import Queue, Worker, Zone
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import (
     ElifeSource,

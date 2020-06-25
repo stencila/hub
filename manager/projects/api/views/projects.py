@@ -4,11 +4,7 @@ from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
-from rest_framework.decorators import action
-from rest_framework.request import Request
-from rest_framework.response import Response
 
-from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,

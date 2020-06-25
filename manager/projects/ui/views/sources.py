@@ -63,7 +63,7 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             serializer=serializer,
             fields_template=fields_template,
             source_class=source_class,
-            project=project
+            project=project,
         ),
     )
 

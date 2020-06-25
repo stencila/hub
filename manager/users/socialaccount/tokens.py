@@ -22,7 +22,7 @@ def get_user_social_token(
             ).format(title=provider_id.value.title(), provider=provider_id.value)
             raise SocialTokenMissing({provider_id.value: message})
         else:
-            return toke
+            return token
 
     if user.is_anonymous:
         return None

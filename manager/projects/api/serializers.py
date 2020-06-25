@@ -353,6 +353,9 @@ class SnapshotSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "project", "creator", "created", "job"]
 
     def create(self, validated_data):
+        """
+        Create a new snapshot for a project.
+        """
         project = validated_data.get("project")
         assert project is not None
 
@@ -388,7 +391,7 @@ class SourceSerializer(serializers.ModelSerializer):
     def get_type(self, source: Source):
         """
         Get the name of the class of the source.
-        
+
         This is intended to match the `type` field
         of the `PolymorphicSourceSerializer`.
         """

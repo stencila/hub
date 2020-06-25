@@ -41,7 +41,7 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Retrieve a project.
-    
+
     Currently redirect to the project sources, but in the future
     could be an overview page, with a preview of the main document etc.
     """

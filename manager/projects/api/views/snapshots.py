@@ -1,24 +1,17 @@
-from typing import List, Optional
+from typing import Optional
 
-from django.db.models import Q
-from django.http.request import HttpRequest
-from django.shortcuts import redirect, reverse
+from django.shortcuts import reverse
 from rest_framework import exceptions, viewsets
-from rest_framework.decorators import action
-from rest_framework.request import Request
-from rest_framework.response import Response
 
-from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
     HtmxListMixin,
     HtmxMixin,
     HtmxRetrieveMixin,
-    HtmxUpdateMixin,
 )
 from projects.api.serializers import SnapshotSerializer
-from projects.api.views.projects import ProjectsViewSet, get_project
+from projects.api.views.projects import get_project
 from projects.models.projects import Project, ProjectRole
 from projects.models.snapshots import Snapshot
 
