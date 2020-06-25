@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from enum import unique
+from typing import Optional
 
 import inflect
 from django.core import validators
@@ -585,7 +586,7 @@ class Job(models.Model):
         )
 
     @property
-    def get_runtime(self):
+    def runtime_formatted(self) -> Optional[str]:
         """
         Format the runtime into a format that can be printed to the screen.
 
@@ -595,26 +596,27 @@ class Job(models.Model):
         - If job has started & not ended calculate time relative to now.
         - If job has ended, calculate difference.
         """
-        if self.began is not None:
-            now = datetime.now(timezone.utc)
-            difference = now - self.began
-            p = inflect.engine()
+        if self.runtime is not None:
+            runtime = self.runtime
+        elif self.began is not None:
+            ended = self.ended if self.ended is not None else datetime.now(timezone.utc)
+            runtime = (ended - self.began).seconds
+        else:
+            return None
 
-            if self.ended is not None:
-                difference = self.ended - self.began
+        h, rem = divmod(runtime, 3600)
+        m, s = divmod(rem, 60)
 
-            h, rem = divmod(difference.seconds, 3600)
-            m, s = divmod(rem, 60)
+        if h == 0 and m == 0 and s == 0:
+            return "<1 sec"
 
-            output = [
-                "%d %s" % (h, p.plural("hour", h)) if h != 0 else "",
-                "%d %s" % (m, p.plural("min", m)) if m != 0 else "",
-                "%d %s" % (s, p.plural("sec", s)) if s != 0 else "",
-            ]
-
-            return " ".join(x for x in output)
-
-        return ""
+        p = inflect.engine()
+        output = [
+            "%d %s" % (h, p.plural("hour", h)) if h != 0 else "",
+            "%d %s" % (m, p.plural("min", m)) if m != 0 else "",
+            "%d %s" % (s, p.plural("sec", s)) if s != 0 else "",
+        ]
+        return " ".join(x for x in output).strip()
 
     @property
     def icon(self):

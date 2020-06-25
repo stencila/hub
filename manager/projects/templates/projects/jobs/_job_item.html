@@ -51,15 +51,14 @@
         </span>
       </span>
 
-      {% if job.runtime %}
-
+      {% if job.runtime_formatted %}
       <span class="pl-1">
         ·
         <span class="icon is-vcentered">
           <i class="ri-timer-line"></i>
         </span>
         <span class="is-vcentered">
-          {{ job.runtime|naturaltime }}
+          {{ job.runtime_formatted }}
         </span>
       </span>
       {% endif %}
