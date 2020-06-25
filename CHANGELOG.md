@@ -1,3 +1,45 @@
+# [2.34.0](https://github.com/stencila/hub/compare/v2.33.1...v2.34.0) (2020-06-25)
+
+
+### Bug Fixes
+
+* **CSS:** Fix styling of file upload forms on mobile ([c11692f](https://github.com/stencila/hub/commit/c11692f5823000ee92255f2b042a27c4ca7d6737))
+* **CSS:** Fix vertical scroll for sidebar menus on mobile breakpoints ([317e769](https://github.com/stencila/hub/commit/317e7696d382607041f2bc43a99fe82bb0af20df))
+* **Dropdowns:** Keep dropdown menus in-line on touch breakpoints ([979a474](https://github.com/stencila/hub/commit/979a4748f94934010d17484fd8d7a261c1a5e3ee))
+* **Job:** Allow reuse of previously fetched project ([b19903f](https://github.com/stencila/hub/commit/b19903f4fe8d6c4206cdf6b57a577af7dafce78e))
+* **Jobs:** Improve updating of job status; add is_active ([8275ed6](https://github.com/stencila/hub/commit/8275ed6104bda9ddfd325598c98942034b463e8a))
+* **Jobs:** Restrict access to jobs to project members ([f2a5621](https://github.com/stencila/hub/commit/f2a56210590c03cd64bc7a1653b06572612801a7))
+* **Nav:** Fix link to create new organization ([a55acef](https://github.com/stencila/hub/commit/a55acef32b3b46f9d75c9537761376594af98cff))
+* **Projects:** Align sharing view title and toggle ([fea7020](https://github.com/stencila/hub/commit/fea702056bdc6ffff13b59f464fc50397e6d132e))
+* **Projects:** Disable links to details view for Uploaded file types ([db89110](https://github.com/stencila/hub/commit/db89110d3a5c0b663775f5cb71773570c9cf31b5))
+* **Projects:** Fix file-upload success redirect URL ([7dc6d1e](https://github.com/stencila/hub/commit/7dc6d1e4e005f254fe08cbc8e5d223252376682a))
+* **Projects:** Fix project view CTA buttons missing border bottoms ([8d8969f](https://github.com/stencila/hub/commit/8d8969fc567156f26839e1e01af9007d52d25c53))
+* **Projects:** Give project title and icons space when line wraps ([cd94673](https://github.com/stencila/hub/commit/cd946736c44bbd3706856f17152f2cd314601ec7))
+* **Projects:** Temporarily disable table row links due to bug ([4dfa784](https://github.com/stencila/hub/commit/4dfa784bdea94e97026b15d416695d28501541ad))
+* **Snapshots:** Add project parameter to get_object ([23f29fb](https://github.com/stencila/hub/commit/23f29fb09256fdc8d3ef2b63049b46e9859e5442))
+* **Snapshots:** Align table header labels to the left ([49955c4](https://github.com/stencila/hub/commit/49955c43331400d10742c390ade4c55971e296ae))
+* **Source:** Renable file filter ([fe29dcf](https://github.com/stencila/hub/commit/fe29dcfa67c6da735ff0522fe9ad1ac074fb793f))
+* **Sources:** Improve efficiency and consistency of fetching template contexts ([ba20b7d](https://github.com/stencila/hub/commit/ba20b7de82f348f84feca0ab0942cd6ae6a5dc42))
+* **Worker:** Add alias for URL source ([8b09c95](https://github.com/stencila/hub/commit/8b09c95a3337cd840c43489ecf32628aa9d80e8f))
+* **Worker:** eLife source return list of all files ([927782d](https://github.com/stencila/hub/commit/927782d46564e22dfed2270b29ac9f5c463c291d))
+
+
+### Features
+
+* **Accounts/Projects:** Add header to "New x" views ([e7746a4](https://github.com/stencila/hub/commit/e7746a4c5d1fd6c3cf97d2b1ba0aede60ee2f52d))
+* **eLife source:** Add eLife logo and add snaps for new sources ([b95ed27](https://github.com/stencila/hub/commit/b95ed27e9f4145056cfbf35ca49d33ae2e7f8657))
+* **Jobs:** Add job list and show children of compound jobs ([80ded47](https://github.com/stencila/hub/commit/80ded471911f7f874d15ac3eb045380854f56c9a))
+* **Jobs:** Add templates and styles for Job items ([f1e1564](https://github.com/stencila/hub/commit/f1e1564f8992d49e5f62e6be7bd5d26b73de5613))
+* **Nav:** Move "New X" buttons under respective Projects/Orgs nav items ([19df3a8](https://github.com/stencila/hub/commit/19df3a8a55e47993285d3694c0eec3e84ffe4b94))
+* **Projects:** Add templates and styles for Source detail  view ([fe3a9d8](https://github.com/stencila/hub/commit/fe3a9d8403fcde31c3fd030d0f04de55e1aa1f42))
+* **Projects:** Make entire Source item row clickable ([9d18922](https://github.com/stencila/hub/commit/9d18922c846d39b31573de2bd00f834a18cf77fa))
+* **Projects:** Reorganize "New source" menu, add placeholder sources ([9776d95](https://github.com/stencila/hub/commit/9776d95d1e0b5a2dbcab457b3e6bd1322e749be6))
+* **Snapshots:** Add templates and styles ([01df7e8](https://github.com/stencila/hub/commit/01df7e8f62a2d78ab68b06863b04295a4c9a3cd2))
+* **Snapshots:** Inital version of job based snapshots ([504f1f8](https://github.com/stencila/hub/commit/504f1f8e66702c87379a3704460d1253f50cde36))
+* **Sources:** Add retrieve view for sources ([b2dc63c](https://github.com/stencila/hub/commit/b2dc63c00b3d7b01c62df075c51dceaae558e616))
+* **Sources:** Connect jobs for pull and preview ([c9ddfdc](https://github.com/stencila/hub/commit/c9ddfdcffb891831b887bcba158bef28396b0190))
+* **User tokens:** Add exception handling for missing social auth token ([2ed6d12](https://github.com/stencila/hub/commit/2ed6d12c88d46aef8b9c076dc79dd027953069e8))
+
 ## [2.33.1](https://github.com/stencila/hub/compare/v2.33.0...v2.33.1) (2020-06-23)
 
 
