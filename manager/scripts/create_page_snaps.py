@@ -148,6 +148,13 @@ ELEMS = [
         ]
     ],
     [
+        r"^an-org/first-project/sources/$",
+        [
+            elem("project-sources-menu-item", "#menu-item-sources", ".menu", padding=20),
+            elem("project-sources-new-button", "button.is-primary"),
+        ],
+    ],
+    [
         r"^an-org/first-project/sources/upload$",
         [
             elem("project-sources-new-upload", "form"),
