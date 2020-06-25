@@ -4,13 +4,12 @@ import os
 import re
 from typing import Dict, List, Optional, Type, Union
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db import models
-from django.db.models import Q
 from django.utils import timezone
+from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job, JobMethod, JobStatus
@@ -94,6 +93,14 @@ class Source(PolymorphicModel):
         "e.g. pull, push or convert jobs",
     )
 
+    # The default object manager which will fetch data from multiple
+    # tables (one query for each type of source)
+    objects = PolymorphicManager()
+
+    # An additional manager which will only fetch data from the `Source`
+    # table.
+    objects_base = models.Manager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -102,9 +109,17 @@ class Source(PolymorphicModel):
         ]
 
     @property
-    def type(self) -> Type["Source"]:
-        """Get the type of a source instance e.g. `GoogleDocsSource`."""
-        return ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
+    def type_class(self) -> str:
+        """
+        Get the name the class of a source instance.
+
+        Fetches the name of the model class based on the `polymorphic_ctype_id`
+        (with caching) and then cases it properly.
+        """
+        all_lower = ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
+        for cls in Source.__subclasses__():
+            if cls.__name__.lower() == all_lower:
+                return cls.__name__
 
     @property
     def type_name(self) -> str:
@@ -116,7 +131,7 @@ class Source(PolymorphicModel):
         of the name. Can be overridden in derived classes if
         necessary.
         """
-        return self.__class__.__name__[:-6]
+        return self.type_class[:-6]
 
     def __str__(self) -> str:
         """

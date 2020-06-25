@@ -11,9 +11,9 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Get a list of project sources."""
     viewset = ProjectsSourcesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
-    sources = viewset.get_queryset()
+    sources = viewset.get_queryset(project)
     return render(
-        request, "projects/sources.html", dict(project=project, sources=sources)
+        request, "projects/sources.html", dict(sources=sources, project=project)
     )
 
 
@@ -60,10 +60,10 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         request,
         template,
         dict(
-            project=project,
             serializer=serializer,
             fields_template=fields_template,
             source_class=source_class,
+            project=project
         ),
     )
 
@@ -100,9 +100,9 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a source."""
     viewset = ProjectsSourcesViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
-    source = viewset.get_object()
+    source = viewset.get_object(project)
     return render(
-        request, "projects/sources/retrieve.html", dict(project=project, source=source)
+        request, "projects/sources/retrieve.html", dict(source=source, project=project)
     )
 
 
@@ -110,12 +110,12 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update a source."""
     viewset = ProjectsSourcesViewSet.init("partial_update", request, args, kwargs)
-    instance = viewset.get_object()
-    serializer = viewset.get_serializer(instance)
+    source = viewset.get_object()
+    serializer = viewset.get_serializer(source)
     return render(
         request,
         "projects/sources/update.html",
-        dict(source=instance, serializer=serializer),
+        dict(serializer=serializer, source=source),
     )
 
 
@@ -123,7 +123,8 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def rename(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Rename (ie change the path of) a source."""
     viewset = ProjectsSourcesViewSet.init("partial_update", request, args, kwargs)
-    source = viewset.get_object()
+    project = viewset.get_project()
+    source = viewset.get_object(project)
     serializer = viewset.get_serializer(source)
     return render(
         request,
@@ -131,19 +132,20 @@ def rename(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         dict(
             serializer=serializer,
             source=source,
-            project=source.project,
-            account=source.project.account,
+            project=project,
+            account=project.account,
         ),
     )
 
 
 @login_required
 def destroy(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Destory a source."""
+    """Destroy a source."""
     viewset = ProjectsSourcesViewSet.init("destroy", request, args, kwargs)
-    source = viewset.get_object()
+    project = viewset.get_project()
+    source = viewset.get_object(project)
     return render(
         request,
         "projects/sources/destroy.html",
-        dict(source=source, project=source.project, account=source.project.account),
+        dict(source=source, project=project, account=project.account),
     )

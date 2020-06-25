@@ -1,7 +1,7 @@
+from typing import Optional
+
 from django.db.models import Q
-from django.http.request import HttpRequest
-from django.shortcuts import redirect, reverse
-from rest_framework import exceptions, viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -15,8 +15,8 @@ from manager.api.helpers import (
     HtmxRetrieveMixin,
     HtmxUpdateMixin,
 )
-from projects.api.serializers import SourcePolymorphicSerializer
-from projects.api.views.projects import ProjectsViewSet
+from projects.api.serializers import SourcePolymorphicSerializer, SourceSerializer
+from projects.api.views.projects import get_project
 from projects.models.projects import Project, ProjectRole
 from projects.models.sources import Source
 
@@ -36,33 +36,40 @@ class ProjectsSourcesViewSet(
     object_name = "source"
     queryset_name = "sources"
 
+    def get_permissions(self):
+        """
+        Get the permissions that the current action requires.
+
+        Actions `list` and `retreive` do not require authentication
+        for public projects (i.e. anon users can view sources).
+        """
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
     def get_project(self) -> Project:
-        """Get the project and check that the user has permission to the perform action."""
-        # Only pass on the request `user` so that any source filter query parameters
-        # are not applied to projects
-        request = HttpRequest()
-        request.user = self.request.user
-        project = ProjectsViewSet.init(
-            self.action, request, self.args, self.kwargs,
-        ).get_object()
+        """
+        Get the project and check that the user has permission for the current action.
+        """
+        return get_project(
+            self.kwargs,
+            self.request.user,
+            [ProjectRole.AUTHOR, ProjectRole.MANAGER, ProjectRole.OWNER]
+            if self.action in ["create", "partial_update", "destroy"]
+            else None,
+        )
 
-        if (
-            self.action in ["create", "partial_update", "destroy"]
-            and project.role
-            not in [
-                ProjectRole.AUTHOR.name,
-                ProjectRole.MANAGER.name,
-                ProjectRole.OWNER.name,
-            ]
-        ) or project.role is None:
-            raise exceptions.PermissionDenied
+    def get_queryset(self, project: Optional[Project] = None):
+        """
+        Get sources for the project.
 
-        return project
+        For `list` action uses the base object manager to avoid
+        making additional database queries for each source type.
+        """
+        manager = Source.objects_base if self.action == "list" else Source.objects
 
-    def get_queryset(self):
-        """Get project sources."""
-        project = self.get_project()
-        queryset = Source.objects.filter(project=project).select_related(
+        project = project or self.get_project()
+        queryset = manager.filter(project=project).select_related(
             "project", "project__account"
         )
 
@@ -72,18 +79,18 @@ class ProjectsSourcesViewSet(
 
         return queryset
 
-    def get_object(self, source=None) -> Source:
-        """Get a project source."""
-        source = source or self.kwargs["source"]
-        try:
-            return self.get_queryset().filter(id=source)[0]
-        except IndexError:
-            raise exceptions.NotFound
+    def get_object(self, project: Optional[Project] = None) -> Source:
+        """Get a source for the project."""
+        return self.get_queryset(project).get(id=self.kwargs["source"])
 
     def get_serializer_class(self, action=None, source_class: str = None):
         """Get the serializer class for the current action."""
         action = action or self.action
-        if action == "create":
+        if action == "list":
+            # Use the base serializer class which gives the type
+            # of the source
+            return SourceSerializer
+        elif action == "create":
             # Call `get_project` to perform permission check
             self.get_project()
             # Get the serializer for the type of source
