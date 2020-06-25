@@ -61,10 +61,10 @@ class ProjectsSnapshotsViewSet(
         )
         return queryset
 
-    def get_object(self):
+    def get_object(self, project: Optional[Project] = None):
         """Get a project snapshot."""
         try:
-            return self.get_queryset().filter(id=self.kwargs["snapshot"])[0]
+            return self.get_queryset(project).filter(id=self.kwargs["snapshot"])[0]
         except IndexError:
             raise exceptions.NotFound
 
