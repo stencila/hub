@@ -9,7 +9,7 @@ A partial for displaying a list of snapshots.
   {% if snapshots %}
   <table class="table is-fullwidth is-striped is-hoverable">
     <thead>
-      <tr class="table-header">
+      <tr class="table-header has-text-left">
         <th>
           {% trans "Created" %}
         </th>
@@ -37,7 +37,7 @@ A partial for displaying a list of snapshots.
         </td>
         <td class="source-table--file-type pr-0 is-vcentered">
           <a href="{% url 'ui-projects-snapshots-retrieve' snapshot.project.account.name snapshot.project.name snapshot.id %}"
-             class="button is-outlined is-small expand-link">
+             class="button is-outlined is-small">
             {% trans "Details" %}
           </a>
         </td>
