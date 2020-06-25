@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
 from jobs.api.views import ProjectsJobsViewSet
 
@@ -10,8 +10,8 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Get a list of project jobs."""
     viewset = ProjectsJobsViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
-    jobs = viewset.get_queryset()
-    return render(request, "projects/jobs/list.html", dict(project=project, jobs=jobs))
+    jobs = viewset.get_queryset(project)
+    return render(request, "projects/jobs/list.html", dict(jobs=jobs, project=project))
 
 
 @login_required
@@ -21,7 +21,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     viewset = ProjectsJobsViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
-    job = viewset.get_object()
+    job = viewset.get_object(project)
 
     # If the ?redirect parameter is present
     # then check if the job is already ready and we
@@ -35,5 +35,5 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "projects/jobs/retrieve.html",
-        dict(project=project, job=job, redirect_on_success=redirect_on_success),
+        dict(job=job, project=project, redirect_on_success=redirect_on_success),
     )

@@ -399,7 +399,7 @@ class ProjectsJobsViewSet(
         """
         return get_project(self.kwargs, self.request.user, roles)
 
-    def get_queryset(self, roles: Optional[List[ProjectRole]] = None):
+    def get_queryset(self, project: Optional[Project] = None):
         """
         Get the queryset for the current action.
 
@@ -407,20 +407,20 @@ class ProjectsJobsViewSet(
         returns all jobs for the project.
         Otherwise, raises permission denied.
         """
-        project = self.get_project(roles)
+        project = project or self.get_project()
         return (
             Job.objects.filter(project=project)
             .order_by("-created")
             .select_related("project", "project__account")
         )
 
-    def get_object(self):
+    def get_object(self, project: Optional[Project] = None):
         """
         Get the object for the current action.
 
         Will update details of the job, regardless of the option.
         """
-        queryset = self.get_queryset()
+        queryset = self.get_queryset(project)
         try:
             job = queryset.get(id=self.kwargs["job"])
         except Job.DoesNotExist:
@@ -436,7 +436,8 @@ class ProjectsJobsViewSet(
         project author, manager, or owner.
         """
         if self.action in ("create", "execute"):
-            self.get_queryset(
+            # Get project as permission check
+            self.get_project(
                 [
                     ProjectRole.AUTHOR,
                     ProjectRole.EDITOR,
