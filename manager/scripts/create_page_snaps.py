@@ -16,6 +16,11 @@ from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
 INCLUDE = [
+    # Forms for creating new sources
+    # These pages are used below in `ELEMS`
+    "an-org/first-project/sources/new/%s" % type
+    for type in ["github", "googledocs", "googledrive", "url", "elife", "plos",]
+] + [
     # Render these templates instead of testing the pages (and getting non-200 responses)
     "stencila/render?template=403.html",
     "stencila/render?template=404.html",
@@ -140,6 +145,24 @@ ELEMS = [
             elem("project-new-name-field", "label[for=name] + .control"),
             elem("project-new-public-field", ".field:last-of-type"),
             elem("project-new-create-button", "button.is-primary")
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/upload$",
+        [
+            elem("project-sources-new-upload", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/github$",
+        [
+            elem("project-sources-new-github", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/elife$",
+        [
+            elem("project-sources-new-elife", "form"),
         ]
     ],
     [

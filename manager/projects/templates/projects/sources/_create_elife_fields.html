@@ -1,8 +1,11 @@
-{% load i18n %}
+{% load static i18n %}
 
-<h2 class="title is-5">eLife</h2>
+<h2 class="title is-5">
+  <img alt="eLife" src="{% static '/img/elife-full-color-horizontal-2020.svg' %}" role="presentation" />
+</h2>
 <p class="subtitle">
   An eLife source lets you pull an existing eLife article from it's published JATS XML.
+  You can then enrich the article with code and/or save it as another format e.g. R Markdown.
 </p>
 
 {% include "serializers/_field.html" with field=serializer.article icon="ri-at-line" autofocus=True %}
