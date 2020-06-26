@@ -22,10 +22,8 @@ def pull_gdrive(source: dict, project: str, path: str) -> List[str]:
     """
     Pull a google drive folder
     """
-    assert "folder_id" in source, "source must have a folder_id"
-    assert (
-        "token" in source and source["token"] is not None
-    ), "source must include a token"
+    assert source.get("folder_id"), "A folder id is required"
+    assert source.get("token"), "A Google authentication token is required"
 
     credentials = GoogleCredentials(
         source["token"], None, None, None, None, None, "Stencila Hub Client",
