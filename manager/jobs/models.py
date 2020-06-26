@@ -2,10 +2,12 @@ import json
 import re
 from datetime import datetime
 from enum import unique
-from typing import Optional
+from typing import Optional, Union
 
 import inflect
 import shortuuid
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core import validators
 from django.db import models
 from django.utils import timezone
@@ -591,6 +593,30 @@ class Job(models.Model):
         blank=True, null=True, help_text="The number of retries to fulfil the job.",
     )
 
+    callback_type = models.ForeignKey(
+        ContentType,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text="The type of the object to call back.",
+    )
+
+    callback_id = models.CharField(
+        null=True,
+        blank=True,
+        max_length=256,
+        help_text="The id of the object to call back.",
+    )
+
+    callback_method = models.CharField(
+        null=True,
+        blank=True,
+        max_length=128,
+        help_text="The name of the method to call back.",
+    )
+
+    callback_object = GenericForeignKey("callback_type", "callback_id")
+
     @property
     def summary_string(self) -> str:
         """
@@ -687,6 +713,7 @@ class Job(models.Model):
 
     # Shortcuts to the functions for controlling
     # and updating jobs.
+
     def dispatch(self) -> "Job":
         """Dispatch the job."""
         from jobs.jobs import dispatch_job
@@ -704,6 +731,31 @@ class Job(models.Model):
         from jobs.jobs import cancel_job
 
         return cancel_job(self)
+
+    # Methods for registering and running callbacks
+
+    @staticmethod
+    def create_callback(model: models.Model, id: Union[int, str], method: str):
+        """
+        Create a dictionary of callback fields.
+
+        A shortcut for use when creating a job.
+        """
+        return dict(
+            callback_type=ContentType.objects.get_for_model(model),
+            callback_id=id,
+            callback_method=method,
+        )
+
+    def run_callback(self):
+        """
+        If a callback was registered on job creation then run it.
+        """
+        if self.callback_type:
+            if self.callback_id and self.callback_method:
+                obj = self.callback_object
+                func = getattr(obj, self.callback_method)
+                func(self)
 
 
 class Pipeline(models.Model):
