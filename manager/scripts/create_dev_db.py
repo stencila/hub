@@ -1,5 +1,5 @@
-import random
 import mimetypes
+import random
 
 from django.conf import settings
 from django.db.utils import IntegrityError
@@ -338,4 +338,3 @@ def create_files_for_source(source, paths):
             encoding=encoding,
             modified=timezone.now(),
         )
-

@@ -43,7 +43,13 @@ after_account_urls = [
                 path(
                     ProjectPaths.files.value + "/",
                     include(
-                        [path("", files_views.list, name="ui-projects-files-list",)]
+                        [
+                            re_path(
+                                r"(?P<prefix>.*)?",
+                                files_views.list,
+                                name="ui-projects-files-list",
+                            )
+                        ]
                     ),
                 ),
                 path(

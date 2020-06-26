@@ -16,12 +16,7 @@ from projects.models.projects import Project, ProjectRole
 
 
 class ProjectsFilesViewSet(
-    HtmxMixin,
-    HtmxListMixin,
-    HtmxCreateMixin,
-    HtmxRetrieveMixin,
-    HtmxDestroyMixin,
-    viewsets.GenericViewSet,
+    HtmxMixin, HtmxListMixin, viewsets.GenericViewSet,
 ):
     """A view set for project files."""
 
@@ -33,29 +28,35 @@ class ProjectsFilesViewSet(
         """
         Get the project for the current action and check user has roles.
 
-        Mutating actions require that the user be an AUTHOR or above.
+        Requires that user has read access to the project.
         """
-        return get_project(
-            self.kwargs,
-            self.request.user,
-            [
-                ProjectRole.AUTHOR,
-                ProjectRole.EDITOR,
-                ProjectRole.MANAGER,
-                ProjectRole.OWNER,
-            ]
-            if self.action in ["create", "partial_update", "destroy"]
-            else [],
-        )
+        return get_project(self.kwargs, self.request.user)
 
     def get_queryset(self, project: Optional[Project] = None):
-        """Get project files."""
+        """
+        Get project files.
+        
+        Allows for filtering:
+          - using a search string
+          - using beginning of path (e.g for subdirectory listing)
+        """
         project = project or self.get_project()
         queryset = (
             File.objects.filter(project=project)
             .order_by("path")
             .select_related("project", "project__account", "job", "source")
         )
+
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(path__icontains=search)
+
+        prefix = self.request.GET.get("prefix")
+        if prefix:
+            if not prefix.endswith("/"):
+                prefix += "/"
+            queryset = queryset.filter(path__startswith=prefix)
+
         return queryset
 
     def get_object(self, project: Optional[Project] = None):

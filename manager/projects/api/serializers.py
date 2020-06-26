@@ -351,7 +351,6 @@ class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = "__all__"
-        read_only_fields = "__all__"
 
 
 class SnapshotSerializer(serializers.ModelSerializer):
