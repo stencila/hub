@@ -12,7 +12,7 @@ from django.utils import timezone
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
-from jobs.models import Job, JobMethod, JobStatus
+from jobs.models import Job, JobMethod
 from manager.media import private_storage
 from projects.models.projects import Project
 from users.models import User
@@ -320,7 +320,6 @@ class Source(PolymorphicModel):
 
         Creates a job, dispatches it and add it to the sources `jobs` list.
         """
-
         source = self.to_address()
         source["token"] = self.authorization_token(user)
 
@@ -328,9 +327,7 @@ class Source(PolymorphicModel):
             project=self.project,
             creator=user,
             method="pull",
-            params=dict(
-                source=source, project=self.project.id, path=self.path
-            )
+            params=dict(source=source, project=self.project.id, path=self.path),
         )
         job.dispatch()
         self.jobs.add(job)
