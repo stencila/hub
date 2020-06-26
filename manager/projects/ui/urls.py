@@ -1,5 +1,6 @@
 from django.urls import include, path, re_path
 
+import projects.ui.views.files as files_views
 import projects.ui.views.jobs as jobs_views
 import projects.ui.views.projects as project_views
 import projects.ui.views.snapshots as snapshots_views
@@ -38,6 +39,12 @@ after_account_urls = [
                     ProjectPaths.settings.value + "/",
                     project_views.update,
                     name="ui-projects-update",
+                ),
+                path(
+                    ProjectPaths.files.value + "/",
+                    include(
+                        [path("", files_views.list, name="ui-projects-files-list",)]
+                    ),
                 ),
                 path(
                     ProjectPaths.sources.value + "/",

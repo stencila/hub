@@ -16,36 +16,7 @@ in case the enclosing page want to use that data to trigger further events
      hx-get="{% url 'api-projects-sources-detail' source.project.id source.id %}"
      hx-template="projects/sources/_retrieve.html" hx-swap="outerHTML" {% endif %}>
 
-  {% if source.latest_files %}
-  <table class="table is-fullwidth is-striped is-hoverable">
-    <thead>
-      <tr class="table-header is-sr-only">
-        <th>
-          {% trans "Source Type" %}
-        </th>
-        <th>
-          {% trans "Source Name" %}
-        </th>
-      </tr>
-    </thead>
-    <tbody id="source-list">
-      {% for file in source.latest_files %}
-      <tr>
-        <td class="source-table--file-type pr-0 is-vcentered">
-          {% include './_file_type_icon.html' with mimetype=file.mimetype %}
-        </td>
-        <td class="source-table--file-type pr-0 is-vcentered">
-          {{ file }}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <h3 class="title is-4 has-text-grey">
-    {% trans 'No files. Source has not been successfully pulled yet?' %}
-  </h3>
-  {% endif %}
+  {% include "../files/_list.html" with files=source.files.all %}
 
   {{ serializer.data|json_script:"source-data" }}
 </div>
