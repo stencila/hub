@@ -1,3 +1,11 @@
+# [2.36.0](https://github.com/stencila/hub/compare/v2.35.1...v2.36.0) (2020-06-26)
+
+
+### Features
+
+* **Job:** Use a string for job ids ([5be5028](https://github.com/stencila/hub/commit/5be50287160070599fce908a3c83384ab4a08bdd)), closes [#458](https://github.com/stencila/hub/issues/458)
+* **Jobs:** Add job description field and summary_string property ([929ec6e](https://github.com/stencila/hub/commit/929ec6ea5c71b7cda32526dea857e8e3ee9db578))
+
 ## [2.35.1](https://github.com/stencila/hub/compare/v2.35.0...v2.35.1) (2020-06-25)
 
 
