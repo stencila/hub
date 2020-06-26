@@ -329,6 +329,7 @@ class Source(PolymorphicModel):
             creator=user,
             method="pull",
             params=dict(source=source, project=self.project.id, path=self.path),
+            **Job.create_callback(Source, self.id, "pull_callback"),
         )
         job.dispatch()
         self.jobs.add(job)
