@@ -1,3 +1,11 @@
+## [2.36.1](https://github.com/stencila/hub/compare/v2.36.0...v2.36.1) (2020-06-26)
+
+
+### Bug Fixes
+
+* **Manager source pulls:** Allow for no token ([605dfcd](https://github.com/stencila/hub/commit/605dfcdf2f33db24457f61de6a9c67dda2e6cb85))
+* **Worker pull jobs:** Do not require token for Github ([dec2f47](https://github.com/stencila/hub/commit/dec2f4767a860fffb9af98aa0481b21e647684ec))
+
 # [2.36.0](https://github.com/stencila/hub/compare/v2.35.1...v2.36.0) (2020-06-26)
 
 
