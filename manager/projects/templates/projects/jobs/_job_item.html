@@ -65,7 +65,7 @@
     </div>
 
     <div>
-      {% include "./summary/_job_summary.html" %}
+      {{ job.summary_string }}
       {% if job.error.message %}
       <div class="notification is-light px-2 py-2 is-family-code">
         {% blocktrans with error=job.error.message %}

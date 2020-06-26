@@ -48,7 +48,10 @@ class Snapshot(models.Model):
         each source.
         """
         job = Job.objects.create(
-            project=project, creator=user, method=JobMethod.parallel.name
+            description="Snapshot project '{0}'".format(project.name),
+            project=project,
+            creator=user,
+            method=JobMethod.parallel.name,
         )
         job.children.set([source.pull(user) for source in project.sources.all()])
         job.dispatch()

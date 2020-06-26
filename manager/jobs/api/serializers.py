@@ -15,14 +15,21 @@ class JobListSerializer(serializers.ModelSerializer):
     This serializer includes all model fields.
     Some are made read only in derived serializers
     (e.g. can not be set in `create` or `update` views).
+
+    Also adds "cheap to calculate" properties derived from other
+    fields. e.g. `summary_string`
     """
+
+    summary_string = serializers.CharField(read_only=True)
+
+    runtime_formatted = serializers.CharField(read_only=True)
+
+    url_global = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = "__all__"
         ref_name = None
-
-    url_global = serializers.SerializerMethodField()
 
     def get_url_global(self, job: Job):
         """
