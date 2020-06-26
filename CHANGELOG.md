@@ -1,3 +1,19 @@
+# [2.37.0](https://github.com/stencila/hub/compare/v2.36.1...v2.37.0) (2020-06-26)
+
+
+### Bug Fixes
+
+* **Jobs:** Use a local function for id generation ([272cb93](https://github.com/stencila/hub/commit/272cb93ed49d36694ae4bc823681563a7b21dd8a))
+* **Source pull:** Add callback to job creation ([3f134a9](https://github.com/stencila/hub/commit/3f134a98f6c3aa5253cae932022b9c501d491022))
+* **Worker pull jobs:** Ensure that dirs are present ([0db9d85](https://github.com/stencila/hub/commit/0db9d85c832d5ed6e4bfbfee9c71494bcdf636df))
+
+
+### Features
+
+* **Files:** Adds files (back) into projects ([8e4425e](https://github.com/stencila/hub/commit/8e4425e923effbd74c8be04ae1b33b8e61920e73))
+* **Jobs:** Add callbacks to jobs ([f008c38](https://github.com/stencila/hub/commit/f008c383f6ad76415266b3643755bffb640e7747))
+* **Worker:** Pull jobs return a dictionary of file paths with info on each file ([ce37007](https://github.com/stencila/hub/commit/ce37007d1b824bf1b60a113028595e8ae2101a79))
+
 ## [2.36.1](https://github.com/stencila/hub/compare/v2.36.0...v2.36.1) (2020-06-26)
 
 
