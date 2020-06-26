@@ -320,26 +320,19 @@ class Source(PolymorphicModel):
 
         Creates a job, dispatches it and add it to the sources `jobs` list.
         """
+
+        source = self.to_address()
+        source["token"] = self.authorization_token(user)
+
         job = Job.objects.create(
             project=self.project,
             creator=user,
             method="pull",
             params=dict(
-                source=self.to_address(), project=self.project.id, path=self.path
-            ),
+                source=source, project=self.project.id, path=self.path
+            )
         )
-
-        try:
-            token = self.authorization_token(user)
-            if token:
-                job.params["source"]["token"] = token
-        except Exception as exc:
-            job.status = JobStatus.FAILURE.name
-            job.error = str(exc)
-            job.save()
-        else:
-            job.dispatch()
-
+        job.dispatch()
         self.jobs.add(job)
         return job
 
