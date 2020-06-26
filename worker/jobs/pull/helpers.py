@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from pathlib import Path
 import tempfile
 import ipaddress
 import mimetypes
@@ -20,6 +21,7 @@ def begin_pull(working_dir: str) -> str:
     for the pull to create files. Returns absolute path to
     the temporary directory.
     """
+    Path(working_dir).mkdir(parents=True, exist_ok=True)
     return tempfile.mkdtemp(dir=working_dir)
 
 
