@@ -435,6 +435,10 @@ body {
 // Reusable elements & Utility classes
 // =============================================================================
 
+.align-items-flex-start {
+  align-items: flex-start;
+}
+
 .expand-link {
   position: static;
 

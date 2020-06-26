@@ -2,16 +2,6 @@
 
 <div class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% endif %}">
   <div class="column is-2">
-    {% if is_list_item %}
-    <a class="job-list--id"
-       href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}">
-      {% trans "Job" %} {{ job.id }}
-    </a>
-    {% else %}
-    <span class="job-list--id">
-      {% trans "Job" %} {{ job.id }}
-    </span>
-    {% endif %}
     <div>
       <div class="tag has-text-weight-bold">
         {{ job.method|title }}
@@ -30,8 +20,8 @@
     {% endif %}
   </div>
   <div class="column">
-    <div class="job-list--meta">
-      <span class="pr-1">
+    <div class="job-list--meta mb-2">
+      <span>
         <span class="icon is-small is-vcentered pr-1">
           <img src="{{ job.creator.personal_account.image.small }}" role="presentation"></img>
         </span>
@@ -39,8 +29,6 @@
           {{ job.creator.username }}
         </span>
       </span>
-
-      ·
 
       <span alt="{{ job.created }}">
         <span class="icon is-vcentered">
@@ -52,8 +40,7 @@
       </span>
 
       {% if job.runtime_formatted %}
-      <span class="pl-1">
-        ·
+      <span>
         <span class="icon is-vcentered">
           <i class="ri-timer-line"></i>
         </span>
@@ -62,10 +49,22 @@
         </span>
       </span>
       {% endif %}
+
+      <span alt="Job ID">
+        <span class="icon is-vcentered">
+          <i class="ri-hashtag"></i>
+        </span>
+        <span class="is-vcentered">
+          {{ job.id }}
+        </span>
+      </span>
     </div>
 
     <div>
-      {{ job.summary_string }}
+      <span class="has-text-weight-bold">
+        {{ job.summary_string }}
+      </span>
+
       {% if job.error.message %}
       <div class="notification is-light px-2 py-2 is-family-code">
         {% blocktrans with error=job.error.message %}
