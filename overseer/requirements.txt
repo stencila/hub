@@ -1,4 +1,4 @@
 amqp==2.6.0
-celery==4.4.5
+celery==4.4.6
 httpx==0.13.3
 prometheus_client==0.8.0
