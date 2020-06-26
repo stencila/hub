@@ -50,6 +50,10 @@
 </div>
 
 
+{% for dir in dirs %}
+<a href="{% url 'ui-projects-files-list' project.account.name project.name dir.1 %}">{{ dir.0 }}</a> /
+{% endfor %}
+
 <form class="field">
   <label class="is-sr-only" for="file-filter">
     {% trans "File filter" %}

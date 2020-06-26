@@ -9,17 +9,20 @@ from projects.api.views.files import ProjectsFilesViewSet
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Get a list of project files.
-    
+
     The trailing part of the URL becomes the `prefix` query
     parameter, consistent with API ending e.g.
 
-       /api/projects/1/files/sub?search=foo
+      /<account>/<project>/files/sub?search=foo
 
     is equivalent to:
 
-       /api/projects/1/files?prefix=sub&search=foo
+      /api/projects/<project>/files?prefix=sub&search=foo
     """
     prefix = kwargs.get("prefix")
+    if prefix and not prefix.endswith("/"):
+        prefix += "/"
+
     request.GET = request.GET.copy()
     request.GET["prefix"] = prefix
 
@@ -27,8 +30,16 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     files = viewset.get_queryset(project)
 
+    # List of tuples for directory breadcrumbs
+    dirs = [("root", "")]
+    path = ""
+    for name in prefix.split("/"):
+        if name:
+            path += name + "/"
+            dirs.append((name, path))
+
     return render(
         request,
         "projects/files/list.html",
-        dict(prefix=prefix, files=files, project=project),
+        dict(prefix=prefix, dirs=dirs, files=files, project=project,),
     )

@@ -30,7 +30,7 @@
         {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
       </td>
       <td class="is-vcentered">
-        {{ file.path }}
+        {{ file.path|remove_prefix:prefix }}
       </td>
       <td class="is-vcentered">
         {% if file.source %}
@@ -43,7 +43,7 @@
         {{ file.modified|naturaltime }}
       </td>
       <td class="is-vcentered">
-        {{ file.size|formatbytes }}
+        {{ file.size|format_bytes }}
       </td>
     </tr>
     {% endfor %}
