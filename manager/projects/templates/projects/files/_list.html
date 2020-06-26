@@ -1,5 +1,7 @@
 {% load i18n humanize stencila %}
 
+{% is_active 'ui-projects-files' as is_root_files_list %}
+
 {% if files %}
 <table class="table is-fullwidth is-striped is-hoverable">
   <thead>
@@ -21,7 +23,7 @@
       </th>
     </tr>
   </thead>
-  <tbody id="source-list">
+  <tbody id="file-list">
     {% for file in files %}
     <tr>
       <td class="source-table--file-type pr-0 is-vcentered">
@@ -47,8 +49,6 @@
     {% endfor %}
   </tbody>
 </table>
-{% else %}
-<h3 class="title is-4 has-text-grey">
-  {% trans 'No files.' %}
-</h3>
+{% elif is_root_files_list %}
+{% include "../_assets_empty_state.html" with asset_type="file" %}
 {% endif %}
