@@ -1,0 +1,54 @@
+{% load i18n humanize stencila %}
+
+{% if files %}
+<table class="table is-fullwidth is-striped is-hoverable">
+  <thead>
+    <tr class="table-header is-sr-only">
+      <th>
+        {% trans "Type" %}
+      </th>
+      <th>
+        {% trans "Path" %}
+      </th>
+      <th>
+        {% trans "Source" %}
+      </th>
+      <th>
+        {% trans "Last modified" %}
+      </th>
+      <th>
+        {% trans "Size" %}
+      </th>
+    </tr>
+  </thead>
+  <tbody id="source-list">
+    {% for file in files %}
+    <tr>
+      <td class="source-table--file-type pr-0 is-vcentered">
+        {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
+      </td>
+      <td class="is-vcentered">
+        {{ file.path }}
+      </td>
+      <td class="is-vcentered">
+        {% if file.source %}
+        <a href="{% url 'ui-projects-sources-retrieve' file.project.account.name file.project.name file.source.id %}">
+          {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name %}
+        </a>
+        {% endif %}
+      </td>
+      <td class="is-vcentered">
+        {{ file.modified|naturaltime }}
+      </td>
+      <td class="is-vcentered">
+        {{ file.size|formatbytes }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<h3 class="title is-4 has-text-grey">
+  {% trans 'No files.' %}
+</h3>
+{% endif %}

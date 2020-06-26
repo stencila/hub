@@ -9,9 +9,10 @@ from .gdrive import pull_gdrive
 from .github import pull_github
 from .http import pull_http
 from .plos import pull_plos
+from .helpers import Files
 
 # Functions for pulling individual source types
-PULL_FUNCS: Dict[str, Callable[[dict, str, str], List[str]]] = {
+PULL_FUNCS: Dict[str, Callable[[dict, str, str], Files]] = {
     "elife": pull_elife,
     "github": pull_github,
     "googledocs": pull_gdoc,

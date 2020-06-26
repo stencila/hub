@@ -64,6 +64,20 @@ def uuid():
     return uuid4()
 
 
+@register.filter
+def formatbytes(num, suffix="B"):
+    """
+    Format bytes as a human readable string.
+
+    Thanks to https://stackoverflow.com/a/1094933.
+    """
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, "Yi", suffix)
+
+
 # fmt: off
 
 field_class_lookup = ClassLookupDict({

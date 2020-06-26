@@ -5,10 +5,10 @@ from typing import List
 
 from lxml import etree
 
-from .base import HttpSession
+from .helpers import HttpSession, begin_pull, end_pull, Files
 
 
-def pull_plos(source: dict, project: str, path: str) -> List[str]:
+def pull_plos(source: dict, working_dir: str, path: str) -> Files:
     """
     Pull a plos article.
 
@@ -41,14 +41,15 @@ def pull_plos(source: dict, project: str, path: str) -> List[str]:
     )
 
     folder, xml = os.path.split(path)
-    folder = os.path.join(project, folder)
 
     session = HttpSession()
     response = session.fetch_url(url)
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
-    os.makedirs(os.path.join(project, "{}.media".format(path)), exist_ok=True)
+
+    temporary_dir = begin_pull(working_dir)
+    os.makedirs(os.path.join(temporary_dir, "{}.media".format(path)), exist_ok=True)
 
     # Get the figures and rewrite hrefs
     for graphic in root.iterdescendants(tag="graphic"):
@@ -68,8 +69,8 @@ def pull_plos(source: dict, project: str, path: str) -> List[str]:
         new_href = "{}.media/{}".format(xml, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "png"
-        session.pull(url, os.path.join(folder, new_href))
+        session.pull(url, os.path.join(temporary_dir, new_href))
 
-    tree.write(open(os.path.join(folder, xml), "wb"))
+    tree.write(open(os.path.join(temporary_dir, folder, xml), "wb"))
 
-    return [path]
+    return end_pull(working_dir, path, temporary_dir)

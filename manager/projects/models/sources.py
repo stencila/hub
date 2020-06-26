@@ -2,18 +2,19 @@ import datetime
 import mimetypes
 import os
 import re
-from typing import Dict, List, Optional, Type, Union
+from typing import List, Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
-from jobs.models import Job, JobMethod
+from jobs.models import Job
 from manager.media import private_storage
+from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import get_user_github_token, get_user_google_token
@@ -328,10 +329,34 @@ class Source(PolymorphicModel):
             creator=user,
             method="pull",
             params=dict(source=source, project=self.project.id, path=self.path),
+            **Job.create_callback(Source, self.id, "pull_callback"),
         )
         job.dispatch()
         self.jobs.add(job)
         return job
+
+    @transaction.atomic
+    def pull_callback(self, job: Job):
+        """
+        Update the files associated with this source.
+        """
+        result = job.result
+        if not result:
+            return
+
+        for file in self.files.all():
+            info = result.get(file.path)
+            if info:
+                # Update an existing file
+                file.update(info, job=job, source=self)
+                del result[file.path]
+            else:
+                # Delete an existing file
+                file.delete()
+
+        # Add a new file
+        for path, info in result.items():
+            File.create(self.project, path, info, job=job, source=self)
 
     def push(self) -> Job:
         """
@@ -396,23 +421,6 @@ class Source(PolymorphicModel):
         for job in jobs:
             job.update()
         return jobs
-
-    @property
-    def latest_files(self) -> Dict[str, Dict]:
-        """
-        Get the files pulled by the latest pull job.
-
-        Pull jobs currently return a list of files that were pulled
-        (or are meant to). In the future they may return
-        a dictionary of paths to file info.
-        """
-        try:
-            job = self.jobs.filter(
-                method=JobMethod.pull.value, result__isnull=False
-            ).order_by("-ended", "-created")[0]
-            return job.result
-        except IndexError:
-            return None
 
 
 # Source classes in alphabetical order

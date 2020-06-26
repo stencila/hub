@@ -157,12 +157,14 @@ def update_job(job: Job, force=False) -> Job:
             # For FAILURE, `info` is the raised Exception
             job.error = dict(type=type(info).__name__, message=str(info))
 
-        # If the job has a result and no error, then mark it suceeded:
+        # If the job has a result and no error, then mark it succeeded:
         if job.result is not None and job.error is None:
             job.status = JobStatus.SUCCESS.value
 
-        if JobStatus.has_ended(job.status):
+        # If the job has just ended then mark it as inactive and run it's callback
+        if job.is_active and JobStatus.has_ended(job.status):
             job.is_active = False
+            job.run_callback()
 
     job.save()
     return job

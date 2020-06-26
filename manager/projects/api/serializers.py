@@ -11,6 +11,7 @@ from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
+from projects.models.files import File
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
@@ -332,6 +333,25 @@ class ProjectDestroySerializer(serializers.Serializer):
             raise exceptions.ValidationError(
                 "Provided name does not match the project name."
             )
+
+
+class FileSerializer(serializers.ModelSerializer):
+    """
+    A serializer for files.
+    """
+
+    project = serializers.HiddenField(
+        default=FromContextDefault(
+            lambda context: get_object_from_ident(
+                Project, context["view"].kwargs["project"]
+            )
+        )
+    )
+
+    class Meta:
+        model = File
+        fields = "__all__"
+        read_only_fields = "__all__"
 
 
 class SnapshotSerializer(serializers.ModelSerializer):
