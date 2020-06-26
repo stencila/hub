@@ -5,11 +5,11 @@
 {% block sidebar_start %}
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
-    <li class="sidebar__item" id="menu-item-sources">
+    <li class="sidebar__item" id="menu-item-files">
       <a href="{% url 'ui-projects-files-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-files' %}">
         <span class="icon">
-          <i class="ri-file-line"></i>
+          <i class="ri-file-3-line"></i>
         </span>
         <span>
           {% trans 'Files' %}
@@ -21,7 +21,7 @@
       <a href="{% url 'ui-projects-sources-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-sources' %}">
         <span class="icon">
-          <i class="ri-file-line"></i>
+          <i class="ri-file-cloud-line"></i>
         </span>
         <span>
           {% trans 'Sources' %}
