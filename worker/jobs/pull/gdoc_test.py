@@ -19,7 +19,7 @@ def test_missing_token(tempdir):
     doc_id = "1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
     with pytest.raises(AssertionError) as excinfo:
         pull_gdoc(dict(doc_id=doc_id), tempdir.path, "{}.json".format(doc_id))
-    assert "source must include a token" in str(excinfo.value)
+    assert "A Google authentication token is required" in str(excinfo.value)
 
 
 @pytest.mark.vcr

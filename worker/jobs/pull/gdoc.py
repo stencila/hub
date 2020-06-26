@@ -10,8 +10,8 @@ def pull_gdoc(source: dict, project: str, path: str) -> List[str]:
     """
     Pull google doc using given user token
     """
-    assert "doc_id" in source, "source must have a doc_id"
-    assert "token" in source, "source must include a token"
+    assert source.get("doc_id"), "A document id is required"
+    assert source.get("token"), "A Google authentication token is required"
 
     credentials = GoogleCredentials(
         source["token"], None, None, None, None, None, "Stencila Hub Client",

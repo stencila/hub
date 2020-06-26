@@ -19,17 +19,34 @@ from util.path_operations import (
 
 def pull_github(source: dict, project: str, path: str) -> List[str]:
     """
-    Pull github repo/subpath using given user token
+    Pull a GitHub repo/subpath.
+
+    If a token is provided in `source` it will be used to authenticate.
+    The token could either be an OAuth2 token for a user, or if that
+    is not available a OAuth2 key/secret for a client application
+    (see https://developer.github.com/v3/#authentication).
     """
     assert "repo" in source, "source must have a repo"
     assert "subpath" in source, "source must have a subpath"
-    assert "token" in source, "source must include a token"
 
     subpath = "" if source["subpath"] is None else source["subpath"]
     if subpath.endswith("/"):
         subpath = subpath[:-1]
 
-    gh = Github(source["token"]).get_repo(source["repo"])
+    token = source.get("token")
+    if token is None:
+        # Unauthenticated access
+        client = Github()
+    elif ":" in token:
+        # Authenticate as a client application
+        # No extra permissions, just higher rate limits
+        key, secret = token.split(":")
+        client = Github(key, secret)
+    else:
+        # Authenticate as a user
+        client = Github(token)
+
+    gh = client.get_repo(source["repo"])
     local_path = utf8_normpath(utf8_path_join(project, path))
     utf8_makedirs(local_path, exist_ok=True)
     pulled = pull_directory(gh, subpath, local_path)

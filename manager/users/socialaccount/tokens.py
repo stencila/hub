@@ -62,7 +62,8 @@ def get_user_github_token(user: User) -> Optional[str]:
     """
     Get a user's Github token.
     """
-    return get_user_social_token(user, ProviderId.github, raise_exception=True).token
+    token = get_user_social_token(user, ProviderId.github)
+    return token.token if token else None
 
 
 def get_user_google_token(user: User) -> Optional[str]:
@@ -70,4 +71,5 @@ def get_user_google_token(user: User) -> Optional[str]:
     Get a user's Google token and refresh it if necessary.
     """
     # TODO: check and refresh if needed
-    return get_user_social_token(user, ProviderId.google, raise_exception=True).token
+    token = get_user_social_token(user, ProviderId.google)
+    return token.token if token else None
