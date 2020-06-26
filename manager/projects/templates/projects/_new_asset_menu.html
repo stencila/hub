@@ -1,8 +1,8 @@
 {% load i18n %}
 {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
-<div class="dropdown level-item">
-  <div class="dropdown-trigger">
-    <button class="button is-primary is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+<div class="dropdown level-item {{ classes }}">
+  <div class="dropdown-trigger width-full">
+    <button class="button is-primary is-small-mobile width-full" aria-haspopup="true" aria-controls="dropdown-menu">
       <span class="icon">
         <i class="ri-add-line"></i>
       </span>

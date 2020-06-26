@@ -1,6 +1,6 @@
 {% load i18n static %}
 
-<div class="level is-mobile">
+<div class="level">
   <div class="level-left">
     {% if sources %}
     <div class="level-item">
@@ -26,10 +26,10 @@
     {% endif %}
   </div>
 
-  <div class="level-right buttons">
+  <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
     {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
     {# TODO: Add ability to pull sources in aggregate #}
-    <a class="button is-small-mobile" disabled>
+    <a class="button is-small-mobile is-expanded-mobile" disabled>
       <span class="icon">
         <i class="ri-download-cloud-2-line"></i>
       </span>
@@ -39,7 +39,9 @@
     </a>
     {% endif %}
 
-    {% include '../_new_asset_menu.html' %}
+    <div class=" is-expanded-mobile">
+      {% include '../_new_asset_menu.html' with classes="width-full" %}
+    </div>
   </div>
 </div>
 

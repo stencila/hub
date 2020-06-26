@@ -461,6 +461,10 @@ body {
   line-height: 2
 }
 
+.width-full {
+  width: 100%;
+}
+
 input[type="checkbox"].toggle {
   @extend .is-sr-only;
 
