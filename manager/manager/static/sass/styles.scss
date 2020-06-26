@@ -352,6 +352,10 @@ body {
   flex-shrink: 1;
 }
 
+.level-left {
+  max-width: 100%;
+}
+
 .navbar-link:not(.is-arrowless)::after {
   border-color: $grey;
 }
@@ -443,6 +447,10 @@ body {
     width: 100%;
     z-index: 0;
   }
+}
+
+.is-underlined {
+  text-decoration: underline;
 }
 
 .leading-loose {
