@@ -4,6 +4,9 @@ A partial for displaying a list of jobs.
 
 {% load i18n humanize stencila %}
 
+{% include "./_action_bar.html" %}
+
+{% if jobs %}
 <ul class="job-list">
   {% for job in jobs %}
   {% if job.parent == None %}
@@ -13,3 +16,16 @@ A partial for displaying a list of jobs.
   {% endif %}
   {% endfor %}
 </ul>
+{% else %}
+
+<div class="has-text-centered">
+  <h3 class="title is-4 has-text-grey">
+    {% trans 'No Jobs yet' %}
+  </h3>
+
+  <p class="subtitle">
+    {% trans "Jobs are tasks and pipelines for processing and executing your project."  %}
+  </p>
+</div>
+
+{% endif %}
