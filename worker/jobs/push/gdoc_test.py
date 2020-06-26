@@ -45,7 +45,7 @@ def test_ok(tempdir):
         dict(doc_id=doc_id_1, token=GOOGLE_TOKEN,), tempdir.path, doc_json,
     )
 
-    path = os.path.join(tempdir.path, pulled[0])
+    path = os.path.join(tempdir.path, list(pulled.keys())[0])
     body = json.loads(open(path, "rb").read())
     revision_id = body["revisionId"]
 
@@ -84,7 +84,7 @@ def test_ok(tempdir):
     files_resource.delete(fileId=doc_id_2).execute()
 
     # Check that the change is reflected in the newly pulled doc
-    path = os.path.join(tempdir.path, pulled[0])
+    path = os.path.join(tempdir.path, list(pulled.keys())[0])
     body = json.loads(open(path, "rb").read())
     assert new_text in str(body)
     assert old_text not in str(body)

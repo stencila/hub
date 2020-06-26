@@ -15,7 +15,8 @@ def test_public_repo(tempdir):
 def test_subdirectory(tempdir):
     source = dict(repo="stencila/test", subpath="")
     subdir = "a/very/very/deep/sub/directory"
-    pull_github(source, os.path.join(tempdir.path, subdir), "")
+    pull_github(source, tempdir.path, subdir)
+    print(os.listdir(tempdir.path))
     for expected in (
         ".travis.yml",
         "README.md",

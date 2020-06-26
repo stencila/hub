@@ -16,8 +16,10 @@ from util.path_operations import (
     utf8_unlink,
 )
 
+from .helpers import begin_pull, end_pull, Files
 
-def pull_github(source: dict, project: str, path: str) -> List[str]:
+
+def pull_github(source: dict, working_dir: str, path: str) -> Files:
     """
     Pull a GitHub repo/subpath.
 
@@ -47,14 +49,13 @@ def pull_github(source: dict, project: str, path: str) -> List[str]:
         client = Github(token)
 
     gh = client.get_repo(source["repo"])
-    local_path = utf8_normpath(utf8_path_join(project, path))
+    local_path = utf8_normpath(utf8_path_join(working_dir, path))
     utf8_makedirs(local_path, exist_ok=True)
     pulled = pull_directory(gh, subpath, local_path)
     return pulled
 
 
-def pull_directory(gh, remote_parent: str, local_parent: str) -> List[str]:
-    pulled = []
+def pull_directory(gh, remote_parent: str, local_parent: str):
     contents = gh.get_contents(remote_parent)
 
     if isinstance(contents, ContentFile):
@@ -66,12 +67,10 @@ def pull_directory(gh, remote_parent: str, local_parent: str) -> List[str]:
             if utf8_path_exists(local_path) and not utf8_isdir(local_path):
                 utf8_unlink(local_path)
             utf8_makedirs(local_path, exist_ok=True)
-            pulled += pull_directory(gh, content.path, local_path)
+            pull_directory(gh, content.path, local_path)
         else:
             if utf8_path_exists(local_path) and utf8_isdir(local_path):
                 shutil.rmtree(local_path)
             with open(local_path, "wb") as fh:
                 file_content = gh.get_contents(content.path).decoded_content
                 shutil.copyfileobj(BytesIO(file_content), fh)  # type: ignore
-        pulled.append(local_path)
-    return pulled

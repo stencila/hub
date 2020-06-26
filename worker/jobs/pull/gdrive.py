@@ -8,6 +8,8 @@ from googleapiclient.http import MediaIoBaseDownload
 from oauth2client.client import GoogleCredentials
 from typing import List
 
+from .helpers import begin_pull, end_pull, Files
+
 from util.path_operations import (
     utf8_path_join,
     utf8_normpath,
@@ -18,7 +20,7 @@ from util.path_operations import (
 )
 
 
-def pull_gdrive(source: dict, project: str, path: str) -> List[str]:
+def pull_gdrive(source: dict, working_dir: str, path: str) -> Files:
     """
     Pull a google drive folder
     """
@@ -30,10 +32,12 @@ def pull_gdrive(source: dict, project: str, path: str) -> List[str]:
     )
     drive_service = build("drive", "v3", credentials=credentials, cache_discovery=False)
     files_resource = drive_service.files()
-    local_path = utf8_normpath(utf8_path_join(project, path))
-    utf8_makedirs(local_path, exist_ok=True)
 
-    return pull_directory(files_resource, source["folder_id"], local_path,)
+    temporary_dir = begin_pull(working_dir)
+    local_path = utf8_normpath(utf8_path_join(temporary_dir, path))
+    utf8_makedirs(local_path, exist_ok=True)
+    pull_directory(files_resource, source["folder_id"], local_path)
+    return end_pull(working_dir, path, temporary_dir)
 
 
 def pull_directory(files_resource, drive_parent: str, local_parent: str) -> List[str]:
