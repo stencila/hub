@@ -451,6 +451,16 @@ class JobStatus(EnumChoice):
         return icon
 
 
+def generate_job_id():
+    """
+    Generate a unique job id.
+
+    The is separate function to avoid new AlterField migrations
+    being created as happens when `default=shortuuid.uuid`.
+    """
+    return shortuuid.uuid()
+
+
 class Job(models.Model):
     """
     A job, usually, but not necessarily associated with a project.
@@ -478,7 +488,7 @@ class Job(models.Model):
         primary_key=True,
         max_length=32,
         editable=False,
-        default=shortuuid.uuid,
+        default=generate_job_id,
         help_text="The unique id of the job.",
     )
 
