@@ -21,9 +21,9 @@ def pull_elife(source: dict, working_dir: str, path: str) -> Files:
 
     url = "https://elifesciences.org/articles/{article}.xml".format(**source)
 
-    folder, xml = os.path.split(path)
-    if not xml.endswith(".xml"):
-        xml += ".xml"
+    folder, article = os.path.split(path)
+    if not article.endswith(".xml"):
+        article += ".xml"
 
     session = HttpSession()
     response = session.fetch_url(url)
@@ -32,7 +32,7 @@ def pull_elife(source: dict, working_dir: str, path: str) -> Files:
     xlinkns = "http://www.w3.org/1999/xlink"
 
     temporary_dir = begin_pull(working_dir)
-    os.makedirs(os.path.join(temporary_dir, "{}.media".format(xml)), exist_ok=True)
+    os.makedirs(os.path.join(temporary_dir, "{}.media".format(article)), exist_ok=True)
 
     # Get the figures and rewrite hrefs
     for graphic in root.iterdescendants(tag="graphic"):
@@ -49,11 +49,13 @@ def pull_elife(source: dict, working_dir: str, path: str) -> Files:
         filename = href.replace("elife-{}-".format(source["article"]), "")
         filename = re.sub(r"-v\d+\.tif$", ".jpg", filename)
 
-        new_href = "{}.media/{}".format(xml, filename)
+        new_href = "{}.media/{}".format(article, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "jpeg"
         session.pull(url, os.path.join(temporary_dir, folder, new_href))
 
-    tree.write(open(os.path.join(temporary_dir, folder, xml), "wb"))
+    tree.write(open(os.path.join(temporary_dir, folder, article), "wb"))
 
-    return end_pull(working_dir, path, temporary_dir)
+    files = end_pull(working_dir, path, temporary_dir)
+    files[article]["mimetype"] = "application/jats+xml"
+    return files

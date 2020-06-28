@@ -42,7 +42,7 @@ def test_ok(tempdir):
         ]
     ]
 
-    assert files["45187.jats.xml"]["mimetype"] == "application/xml"
+    assert files["45187.jats.xml"]["mimetype"] == "application/jats+xml"
     assert files["45187.jats.xml.media/fig1.jpg"]["mimetype"] == "image/jpeg"
 
     assert sorted(files.keys()) == sorted(file_paths)

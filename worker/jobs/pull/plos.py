@@ -40,7 +40,7 @@ def pull_plos(source: dict, working_dir: str, path: str) -> Files:
         journal, doi
     )
 
-    folder, xml = os.path.split(path)
+    folder, article = os.path.split(path)
 
     session = HttpSession()
     response = session.fetch_url(url)
@@ -66,11 +66,13 @@ def pull_plos(source: dict, working_dir: str, path: str) -> Files:
             url += "figure?image?id={}.{}&size=medium".format(doi, id)
 
         filename = "{}.png".format(id)
-        new_href = "{}.media/{}".format(xml, filename)
+        new_href = "{}.media/{}".format(article, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "png"
         session.pull(url, os.path.join(temporary_dir, new_href))
 
-    tree.write(open(os.path.join(temporary_dir, folder, xml), "wb"))
+    tree.write(open(os.path.join(temporary_dir, folder, article), "wb"))
 
-    return end_pull(working_dir, path, temporary_dir)
+    files = end_pull(working_dir, path, temporary_dir)
+    files[article]["mimetype"] = "application/jats+xml"
+    return files
