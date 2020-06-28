@@ -1,3 +1,21 @@
+# [2.38.0](https://github.com/stencila/hub/compare/v2.37.0...v2.38.0) (2020-06-28)
+
+
+### Bug Fixes
+
+* **Jobs:** Animate Dispatched status icon ([f1f2707](https://github.com/stencila/hub/commit/f1f270740c0f2e251b4b3d5450aebb38fe444a36))
+* **Jobs:** Refine Job list styles and fix Job ID causing breaking layout ([9c146ca](https://github.com/stencila/hub/commit/9c146caa3f02122868bd047b9ea79bfde8802290))
+* **Projects:** Standardize sub-page layouts, icons ([4f50e34](https://github.com/stencila/hub/commit/4f50e346d953811a3f9c8abd02754b8539bda62f))
+* **Projects:** Use different icons for Files & Sources ([acf2bdd](https://github.com/stencila/hub/commit/acf2bdd52952ae0afe9e57080a542bb8c8dc98c0))
+
+
+### Features
+
+* **Projects:** Add empty state views to Files/Sources, extract partials ([464bc29](https://github.com/stencila/hub/commit/464bc2930a88a2f882b184539236359bd674e153))
+* **Projects:** Move Snapshot button to be closer to files ([6f7a00a](https://github.com/stencila/hub/commit/6f7a00aac8e7ad60eef7e72ad815cce6902ee54f))
+* **Projects:** Use Files list as default view for Projects ([d2389e4](https://github.com/stencila/hub/commit/d2389e40d82d0890ed58bf0b7134db3e02718fa1))
+* **Sources:** Add header and info to Sources list ([e8038f2](https://github.com/stencila/hub/commit/e8038f2ff383de54d8738b2a2c26924b62951455))
+
 # [2.37.0](https://github.com/stencila/hub/compare/v2.36.1...v2.37.0) (2020-06-26)
 
 
