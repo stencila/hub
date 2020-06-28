@@ -17,8 +17,8 @@
         <div class="control has-icons-left has-icons-right is-expanded">
           <input id="file-filter" class="input is-small-mobile" type="text" name="search"
                  placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
-                 {# TODO: Repalce with file search API #} hx-get="{% url 'api-projects-sources-list' project.id %}"
-                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#source-list">
+                 hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True"
+                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#file-list">
           <span class="icon is-small is-left">
             <i class="ri-filter-line"></i>
           </span>
@@ -56,24 +56,6 @@
 {% with dir=dirs|last %}
 {{ dir.0 }}
 {% endwith %}
-
-<form class="field">
-  <label class="is-sr-only" for="file-filter">
-    {% trans "File filter" %}
-  </label>
-  <div class="control has-icons-left has-icons-right">
-    <input id="file-filter" class="input is-small-mobile" type="text" name="search"
-           placeholder="{% trans "Search for files by name…" %}" hx-trigger="keyup changed delay:500ms"
-           hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True"
-           hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#file-list">
-    <span class="icon is-small is-left">
-      <i class="ri-filter-line"></i>
-    </span>
-    <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
-      <i class="ri-loader-line"></i>
-    </span>
-  </div>
-</form>
 
 <div id="file-list">
   {% include './_list.html' %}
