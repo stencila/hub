@@ -1,6 +1,4 @@
 import datetime
-import mimetypes
-import os
 import re
 from typing import List, Optional, Type, Union
 
@@ -288,33 +286,6 @@ class Source(PolymorphicModel):
         """
         return None
 
-    @staticmethod
-    def mimetype_from_path(path: str, default: str = "unknown") -> str:
-        """
-        Get the mimetype of a file from its path.
-
-        Returns custom mimetype for a directory if the path
-        does not have an extension.
-        Returns the `default` if the mimetype can not be guessed.
-        """
-        extension = os.path.splitext(path)[1]
-        if not extension:
-            return "application/x-directory"
-        else:
-            mimetype, encoding = mimetypes.guess_type(path, False)
-            return mimetype or default
-
-    @property
-    def mimetype(self) -> str:
-        """
-        Get the mimetype of the source.
-
-        Derived classes should override this if an attribute of the source
-        other than the local `path` should be used to determine the mimetype
-        e.g. if it is always a Google Doc.
-        """
-        return Source.mimetype_from_path(self.path)
-
     def pull(self, user: User) -> Job:
         """
         Pull the source to the filesystem.
@@ -442,11 +413,6 @@ class ElifeSource(Source):
         """Get the URL of the article on the eLife website."""
         return "https://elifesciences.org/articles/{0}".format(self.article)
 
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an eLife article."""
-        return "text/xml+jats"
-
 
 class GithubSource(Source):
     """A project hosted on Github."""
@@ -479,11 +445,6 @@ class GithubSource(Source):
         if self.subpath:
             url += "/blob/master/{}".format(self.subpath)
         return url
-
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of a GitHub source."""
-        return Source.mimetype_from_path(self.subpath) if self.subpath else "unknown"
 
     @classmethod
     def parse_address(
@@ -536,11 +497,6 @@ class GoogleDocsSource(Source):
     def url(self) -> str:
         """Get the URL of a Google Doc."""
         return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
-
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an Google Doc."""
-        return "application/vnd.google-apps.document"
 
     @classmethod
     def parse_address(
@@ -601,11 +557,6 @@ class PlosSource(Source):
 
     article = models.TextField(help_text="The article DOI.")
 
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an PLOS article."""
-        return "text/xml+jats"
-
 
 def upload_source_path(instance, filename):
     """
@@ -645,11 +596,6 @@ class UrlSource(Source):
 
     def __str__(self) -> str:
         return self.url
-
-    @property
-    def mimetype_(self) -> str:
-        """Get the mimetype of a URL source."""
-        return Source.mimetype_from_path(self.url)
 
     @classmethod
     def parse_address(
