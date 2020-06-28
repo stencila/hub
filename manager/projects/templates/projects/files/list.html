@@ -4,5 +4,50 @@
 {% block title %}Files : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
+{% include '../_project_hero.html' %}
+<hr />
+
+<div class="level">
+  <div class="level-left">
+    <div class="level-item">
+      <form class="field width-full">
+        <label class="is-sr-only" for="file-filter">
+          {% trans "File filter" %}
+        </label>
+        <div class="control has-icons-left has-icons-right is-expanded">
+          <input id="file-filter" class="input is-small-mobile" type="text" name="search"
+                 placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
+                 {# TODO: Repalce with file search API #} hx-get="{% url 'api-projects-sources-list' project.id %}"
+                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#source-list">
+          <span class="icon is-small is-left">
+            <i class="ri-filter-line"></i>
+          </span>
+          <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
+            <i class="ri-loader-line"></i>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+    <a class="button is-small-mobile is-expanded-mobile" hx-post="{% url 'api-projects-snapshots-list' project.id %}"
+       hx-swap="none" hx-redirect="CREATED:Location">
+      <span class="icon">
+        <i class="ri-camera-line"></i>
+      </span>
+      <span>
+        {% trans "Snapshot" %}
+      </span>
+    </a>
+    {% endif %}
+
+    <div class=" is-expanded-mobile">
+      {% include '../_new_asset_menu.html' with classes="width-full" %}
+    </div>
+  </div>
+</div>
+
 {% include './_list.html' %}
 {% endblock %}

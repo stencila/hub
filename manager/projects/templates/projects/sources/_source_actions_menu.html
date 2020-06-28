@@ -20,12 +20,14 @@
       {% endif %}
 
       {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+      {% if source.url %}
       <hr class="dropdown-divider">
+      {% endif %}
 
       <a class="dropdown-item" hx-post="{% url 'api-projects-sources-pull' project.id source.id %}" hx-swap="none"
          hx-redirect="CREATED:Location">
         <span class="icon">
-          <i class="ri-download-2-line"></i>
+          <i class="ri-download-cloud-2-line"></i>
         </span>
         <span>{% trans "Pull" %}</span>
       </a>

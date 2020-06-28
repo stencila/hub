@@ -352,6 +352,10 @@ body {
   flex-shrink: 1;
 }
 
+.level-left {
+  max-width: 100%;
+}
+
 .navbar-link:not(.is-arrowless)::after {
   border-color: $grey;
 }
@@ -431,6 +435,10 @@ body {
 // Reusable elements & Utility classes
 // =============================================================================
 
+.align-items-flex-start {
+  align-items: flex-start;
+}
+
 .expand-link {
   position: static;
 
@@ -445,8 +453,16 @@ body {
   }
 }
 
+.is-underlined {
+  text-decoration: underline;
+}
+
 .leading-loose {
   line-height: 2
+}
+
+.width-full {
+  width: 100%;
 }
 
 input[type="checkbox"].toggle {

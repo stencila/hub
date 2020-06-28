@@ -49,8 +49,23 @@
 .job-list--item {
   @extend .transition-colors;
   border-bottom: 1px solid $grey-lightest;
-  padding: ($gap / 2) 0;
+  padding: 2rem 0;
   position: relative;
+
+  @media screen and (max-width: $tablet){
+    .column {
+      padding-bottom: $gap / 4;
+      padding-top: $gap / 4;
+
+      &:first-child {
+        padding-top: $gap / 2;
+      }
+
+      &:last-child {
+        padding-bottom: $gap / 2;
+      }
+    }
+  }
 
   a {
     position: relative;
@@ -68,10 +83,20 @@ a.job-list--id {
   color: $grey;
   font-size: 0.825rem;
   letter-spacing: 1px;
-  text-transform: uppercase;
 }
 
 .job-list--meta {
+  display: flex;
+  flex-wrap: wrap;
   font-size: 0.75rem;
   text-transform: uppercase;
+
+  & > span {
+    &:not(:last-child):after {
+      content: '·';
+      display: inline-block;
+      padding: 0 0.25rem;
+      vertical-align: middle;
+    }
+  }
 }

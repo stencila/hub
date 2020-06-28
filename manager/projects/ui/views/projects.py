@@ -47,7 +47,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_object()
-    return redir("ui-projects-sources-list", project.account.name, project.name)
+    return redir("ui-projects-files-list", project.account.name, project.name)
 
 
 @login_required

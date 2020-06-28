@@ -1,0 +1,17 @@
+{% load i18n static %}
+
+<div class="has-text-centered">
+  <h3 class="title is-4 has-text-grey">
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+    {% blocktrans with asset_type=asset_type %}
+    Start working on this project by adding a new {{ asset_type }}.
+    {% endblocktrans %}
+    {% else %}
+    {% blocktrans with asset_type=asset_type %}
+    This project does not have any {{ asset_type }}s yet.
+    {% endblocktrans %}
+    {% endif %}
+  </h3>
+
+  <img class="illustration-backdrop" src="{% static 'img/illustrations/project.svg' %}" role="presentation" />
+</div>
