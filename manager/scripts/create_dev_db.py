@@ -1,10 +1,13 @@
+import mimetypes
 import random
 
 from django.conf import settings
 from django.db.utils import IntegrityError
+from django.utils import timezone
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
 from jobs.models import Queue, Worker, Zone
+from projects.models.files import File
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import (
     ElifeSource,
@@ -222,18 +225,24 @@ def run(*args):
     # Each project has at least one of each type of source
 
     for project in Project.objects.all():
-        ElifeSource.objects.create(
+        elife = ElifeSource.objects.create(
             project=project,
             creator=random_project_user(project),
             path="elife-article-5000",
             article=5000,
         )
-        GithubSource.objects.create(
+        create_files_for_source(
+            elife, ["elife5000.xml", "elife5000.xml.media/fig1.jpeg"]
+        )
+
+        github = GithubSource.objects.create(
             project=project,
             creator=random_project_user(project),
             path="stencila-test-repo",
             repo="stencila/test",
         )
+        create_files_for_source(github, ["README.md", "sub/README.md"])
+
         GithubSource.objects.create(
             project=project,
             creator=random_project_user(project),
@@ -241,24 +250,30 @@ def run(*args):
             repo="evelinag/StarWars-social-network",
             subpath="data",
         )
-        GoogleDocsSource.objects.create(
+
+        gdoc = GoogleDocsSource.objects.create(
             project=project,
             creator=random_project_user(project),
             path="google-docs-source",
             doc_id="gdoc-{}".format(project.name),
         )
-        UrlSource.objects.create(
+        create_files_for_source(gdoc, ["google-docs-source.gdoc"])
+
+        url = UrlSource.objects.create(
             project=project,
             creator=random_project_user(project),
             path="example-dot-org",
             url="https://example.org",
         )
-        UrlSource.objects.create(
+        create_files_for_source(url, ["example-dot-org.html"])
+
+        url = UrlSource.objects.create(
             creator=random_project_user(project),
             project=project,
-            path="subdir/mtcars.csv",
+            path="sub/subsub/mtcars.csv",
             url="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
         )
+        create_files_for_source(url, ["sub/subsub/mtcars.csv"])
 
     #################################################################
     # Jobs, queues, workers, zones
@@ -308,3 +323,18 @@ def random_project_user(project):
         .first()
         .user
     )
+
+
+def create_files_for_source(source, paths):
+    """Create files for a project source (i.e. simulate a pull)."""
+    for path in paths:
+        mimetype, encoding = mimetypes.guess_type(path)
+        File.objects.create(
+            project=source.project,
+            source=source,
+            path=path,
+            size=random.lognormvariate(10, 2),
+            mimetype=mimetype,
+            encoding=encoding,
+            modified=timezone.now(),
+        )

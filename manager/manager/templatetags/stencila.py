@@ -65,7 +65,7 @@ def uuid():
 
 
 @register.filter
-def formatbytes(num, suffix="B"):
+def format_bytes(num, suffix="B"):
     """
     Format bytes as a human readable string.
 
@@ -76,6 +76,20 @@ def formatbytes(num, suffix="B"):
             return "%3.1f%s%s" % (num, unit, suffix)
         num /= 1024.0
     return "%.1f%s%s" % (num, "Yi", suffix)
+
+
+@register.filter
+def remove_prefix(text, prefix):
+    """
+    Remove a prefix from a string.
+
+    If the string does not start with the prefix then
+    nothing is removed.
+    """
+    if prefix:
+        return text[text.startswith(prefix) and len(prefix) :]
+    else:
+        return text
 
 
 # fmt: off

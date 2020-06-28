@@ -49,7 +49,10 @@ class File(models.Model):
     )
 
     path = models.TextField(
-        null=False, blank=False, help_text="The path of the file within the project.",
+        null=False,
+        blank=False,
+        db_index=True,
+        help_text="The path of the file within the project.",
     )
 
     created = models.DateTimeField(
@@ -78,6 +81,13 @@ class File(models.Model):
         blank=True,
         help_text="The encoding of the file e.g. gzip",
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "path"], name="%(class)s_unique_project_path"
+            )
+        ]
 
     @staticmethod
     def create(

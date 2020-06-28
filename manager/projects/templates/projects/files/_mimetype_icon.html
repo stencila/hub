@@ -7,10 +7,10 @@ Renders the icon class name to use for a source based on its mimetype.
   <i class="ri-google-line"></i>
   {% elif mimetype == 'text/xml+jats' %}
   <i class="ri-file-code-line"></i>
-  {% elif mimetype == 'application/x-directory' %}
-  <i class="ri-folder-line"></i>
+  {% elif mimetype|slice:":6" == 'image/' %}
+  <i class="ri-image-line"></i>
   {% else %}
-  <i class="ri-file-unknow-line"></i>
+  <i class="ri-file-line"></i>
   {% endif %}
   {% endspaceless %}
 </span>
