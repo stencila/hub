@@ -25,16 +25,35 @@
   </thead>
   <tbody id="file-list">
     {% for file in files %}
+    {% with account=file.project.account project=file.project %}
     <tr>
       <td class="source-table--file-type pr-0 is-vcentered">
+        {% if file.is_directory %}
+        <span class="has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="Directory">
+          <i class="ri-folder-line"></i>
+        </span>
+        {% else %}
         {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
+        {% endif %}
       </td>
       <td class="is-vcentered">
-        {{ file.path|remove_prefix:prefix }}
+        {% if file.is_directory %}
+        <a href="{% url 'ui-projects-files-list' account.name project.name file.path %}">
+          {{ file.name }}
+        </a>
+        {% else %}
+        {{ file.name }}
+        {% endif %}
       </td>
       <td class="is-vcentered">
-        {% if file.source %}
-        <a href="{% url 'ui-projects-sources-retrieve' file.project.account.name file.project.name file.source.id %}">
+        {% if file.is_directory %}
+        {% for source in file.source %}
+        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}">
+          {% include '../sources/_sourcetype_icon.html' with sourcetype=source.type_name %}
+        </a>
+        {% endfor %}
+        {% else %}
+        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}">
           {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name %}
         </a>
         {% endif %}
@@ -44,8 +63,12 @@
       </td>
       <td class="is-vcentered">
         {{ file.size|format_bytes }}
+        {% if file.is_directory %}
+        <span class="tag is-light">{{ file.count }}</span>
+        {% endif %}
       </td>
     </tr>
+    {% endwith %}
     {% endfor %}
   </tbody>
 </table>

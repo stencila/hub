@@ -25,6 +25,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
     request.GET = request.GET.copy()
     request.GET["prefix"] = prefix
+    request.GET["aggregate"] = True
 
     viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()

@@ -50,9 +50,12 @@
 </div>
 
 
-{% for dir in dirs %}
+{% for dir in dirs|slice:":-1" %}
 <a href="{% url 'ui-projects-files-list' project.account.name project.name dir.1 %}">{{ dir.0 }}</a> /
 {% endfor %}
+{% with dir=dirs|last %}
+{{ dir.0 }}
+{% endwith %}
 
 <form class="field">
   <label class="is-sr-only" for="file-filter">
@@ -61,7 +64,7 @@
   <div class="control has-icons-left has-icons-right">
     <input id="file-filter" class="input is-small-mobile" type="text" name="search"
            placeholder="{% trans "Search for files by name…" %}" hx-trigger="keyup changed delay:500ms"
-           hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}"
+           hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True"
            hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#file-list">
     <span class="icon is-small is-left">
       <i class="ri-filter-line"></i>
