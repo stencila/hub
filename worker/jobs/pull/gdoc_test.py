@@ -26,7 +26,6 @@ def test_missing_token(tempdir):
 def test_ok(tempdir):
     doc_id = "14z9ScjW4gVjPBRw5XfIdA5LxrApUJx3-S7cXgdNvElc"
     doc_json = "{}.json".format(doc_id)
-    pull_gdoc(
-        dict(doc_id=doc_id, token=GOOGLE_TOKEN,), tempdir.path, doc_json,
-    )
+    files = pull_gdoc(dict(doc_id=doc_id, token=GOOGLE_TOKEN,), tempdir.path, doc_json,)
     assert os.path.exists(os.path.join(tempdir.path, doc_json))
+    assert files[doc_json]["mimetype"] == "application/vnd.google-apps.document"

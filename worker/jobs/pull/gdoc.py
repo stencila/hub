@@ -10,7 +10,7 @@ from .helpers import begin_pull, end_pull, Files
 
 def pull_gdoc(source: dict, working_dir: str, path: str) -> Files:
     """
-    Pull google doc using given user token
+    Pull google doc using given user token.
     """
     assert source.get("doc_id"), "A document id is required"
     assert source.get("token"), "A Google authentication token is required"
@@ -24,4 +24,6 @@ def pull_gdoc(source: dict, working_dir: str, path: str) -> Files:
     temporary_dir = begin_pull(working_dir)
     with open(os.path.join(temporary_dir, path), "wb") as file:
         file.write(json.dumps(document).encode("utf-8"))
-    return end_pull(working_dir, path, temporary_dir)
+    files = end_pull(working_dir, path, temporary_dir)
+    files[path]["mimetype"] = "application/vnd.google-apps.document"
+    return files
