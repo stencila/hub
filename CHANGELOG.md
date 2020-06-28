@@ -1,3 +1,17 @@
+# [2.39.0](https://github.com/stencila/hub/compare/v2.38.0...v2.39.0) (2020-06-28)
+
+
+### Bug Fixes
+
+* **Files:** Merge two file filters from different branches ([1effa36](https://github.com/stencila/hub/commit/1effa369a6cd4e550585d80c83cfd93738be5b93))
+
+
+### Features
+
+* **Files:** Add aggregation to directory ([b9090de](https://github.com/stencila/hub/commit/b9090de573d4e6ab82602a1fc408b4c5f70c2079))
+* **Files:** Add breadcrumbs and remove prefix ([b09f171](https://github.com/stencila/hub/commit/b09f171c5b8705f904559e96e59db4cdf6465555))
+* **FIles:** Add filtering by name and prefix ([1137c8a](https://github.com/stencila/hub/commit/1137c8a12dd58811fb4da385e87b413432fecd86))
+
 # [2.38.0](https://github.com/stencila/hub/compare/v2.37.0...v2.38.0) (2020-06-28)
 
 
