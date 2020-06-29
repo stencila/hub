@@ -11,21 +11,60 @@ in case the enclosing page want to use that data to trigger further events
 {% endcomment %}
 
 {% load i18n humanize stencila %}
+{% with job=snapshot.job %}
 
 <div {% if snapshot.is_active %} hx-trigger="every 2s"
      hx-get="{% url 'api-projects-snapshots-detail' snapshot.project.id snapshot.id %}"
      hx-template="projects/snapshots/_retrieve.html" hx-swap="outerHTML" {% endif %}>
 
+  <h1 class="title">
+    Snapshot {{ snapshot.id }}
+    <span class="tag mr-2">
+      <a href="{% url 'ui-projects-jobs-retrieve' snapshot.project.account.name snapshot.project.name job.id %}">
+        {% include "../sources/_status_type_icon.html" with status=job.status %}
+        <span>
+          {{ job.status }}
+        </span>
+      </a>
+    </span>
+  </h1>
+
   {# Jobs associated with snapshot. Included here because status etc will change when the snapshot is_active #}
   <div class="level">
     <div class="level-left">
-      {% with job=snapshot.job %}
       {% if job %}
-      {% trans "Status:" %}&nbsp;
-      <a href="{% url 'ui-projects-jobs-retrieve' snapshot.project.account.name snapshot.project.name job.id %}">
-        {{ job.status }}
-        {{ job.created|naturaltime }}
-      </a>
+      <div class="job-list--meta mb-2">
+        <span>
+          <span class="icon is-small is-vcentered pr-1">
+            <img src="{{ snapshot.creator.personal_account.image.small }}" role="presentation"></img>
+          </span>
+          <span class="is-vcentered">
+            {{ snapshot.creator.username }}
+          </span>
+        </span>
+
+        <span alt="{{ job.created }}">
+          <span class="icon is-vcentered">
+            <i class="ri-calendar-line"></i>
+          </span>
+          <span class="is-vcentered">
+            {{ snapshot.created|naturaltime }}
+          </span>
+        </span>
+
+        <span alt="Job ID">
+          <a href="{% url 'ui-projects-jobs-retrieve' snapshot.project.account.name snapshot.project.name job.id %}"
+             class="has-text-grey-dark has-text-link-hover">
+            <span class="icon is-vcentered">
+              <i class="ri-hashtag"></i>
+            </span>
+            <span class="is-vcentered">
+              {{ job.id }}
+            </span>
+          </a>
+        </span>
+      </div>
+
       {% endif %}
       {% endwith %}
     </div>
@@ -35,9 +74,12 @@ in case the enclosing page want to use that data to trigger further events
   {% with files=snapshot.files.all %}
   {% if files %}
   {% include "../files/_list.html" %}
+  {% elif snapshot.job.status in "DISPATCHED, RUNNING" %}
+  <p class="is-size-5 has-text-grey-dark">
+    {% trans 'Creating snapshot, please wait…' %}
+  </p>
   {% else %}
-
-  <p class="is-4 has-text-grey">
+  <p class="is-size-5 has-text-grey-dark">
     {% trans 'No Jobs yet' %}
   </p>
   {% endif %}
