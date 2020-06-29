@@ -299,6 +299,14 @@ body {
 // =============================================================================
 // Customize Bulma
 // =============================================================================
+// Use custom spinner animation in place of Bulma animations
+.button.is-loading::after,
+.loader,
+.select.is-loading::after,
+.control.is-loading::after {
+  animation-name: spin;
+}
+
 .dropdown.is-expanded {
   &,
   .dropdown-trigger,
