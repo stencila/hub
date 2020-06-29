@@ -49,13 +49,24 @@
   </div>
 </div>
 
-
-{% for dir in dirs|slice:":-1" %}
-<a href="{% url 'ui-projects-files-list' project.account.name project.name dir.1 %}">{{ dir.0 }}</a> /
-{% endfor %}
-{% with dir=dirs|last %}
-{{ dir.0 }}
-{% endwith %}
+{% if dirs|length > 1 %}
+<nav class="breadcrumb mb-2" aria-label="breadcrumbs">
+  <ul>
+    {% for dir in dirs %}
+    <li class="{% if forloop.last %}is-active{% endif %}">
+      <a href="{% url 'ui-projects-files-list' project.account.name project.name dir.1 %}"
+         {% if forloop.last %}aria-current="page" {% endif %}>
+        {% if forloop.first %}
+        {{ project.name }}
+        {% else %}
+        {{ dir.0 }}
+        {% endif %}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
 
 <div id="file-list">
   {% include './_list.html' %}
