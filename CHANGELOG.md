@@ -1,3 +1,29 @@
+# [2.40.0](https://github.com/stencila/hub/compare/v2.39.0...v2.40.0) (2020-06-29)
+
+
+### Bug Fixes
+
+* **CSS:** Don't delay spinning animation start ([470ef78](https://github.com/stencila/hub/commit/470ef788b72e40ea1d8b1c75c9f9ba1237871f2a))
+* **Jobs:** Update status of parallel jobs ([e5f3af5](https://github.com/stencila/hub/commit/e5f3af52add448d89916f1bb903a0f486c67440d))
+* **Projects:** Don't show link to File Source when listing Sources files ([2f181db](https://github.com/stencila/hub/commit/2f181dbd809dcb92bf97ebfee476c1d4b95b8202))
+* **Projects:** Standardize elements across views ([da06261](https://github.com/stencila/hub/commit/da06261c15bca88b44d27551718e3c4dbb8d553a))
+* **Projects:** Use Breadcrumbs component for file list view ([c24ac4b](https://github.com/stencila/hub/commit/c24ac4b035eab172c0c4f5bdcd628cafd3dc78dc))
+* **Snapshots:** Add copy sub-job; improve updating of compound jobs ([cc29e23](https://github.com/stencila/hub/commit/cc29e23d269586a6abd3bb00ba942e3fc9e42a2d))
+* **Snapshots:** Partially style Snapshot listing page ([d1935fe](https://github.com/stencila/hub/commit/d1935fe069ba568f7cdb88efcc94a7fafe855842))
+* **Worker:** Set GDoc mimetype on pull ([79e86d0](https://github.com/stencila/hub/commit/79e86d0bcc685745d6f45dbe4491641bd18e5a67))
+* **Worker:** Set JATS mimetype on pull ([10f6c5b](https://github.com/stencila/hub/commit/10f6c5b37332b9e225505801a50796a877a8cb2b))
+
+
+### Features
+
+* **Projects:** Hide project hero section when listing sub-directories ([0fe09a2](https://github.com/stencila/hub/commit/0fe09a21a5a2c5f9e8c5ad688da5b769cc3a0990))
+* **Projects:** Move directory content count to name field ([9f4e6b6](https://github.com/stencila/hub/commit/9f4e6b638251320a35528fe552424a195bac3f91))
+* **Snapshots:** Record files for each snapshot ([fe289cc](https://github.com/stencila/hub/commit/fe289ccaa29433da3e2a40e6d3606e76450e9313))
+* **Sources:** Add pull all project sources action ([49c8eaa](https://github.com/stencila/hub/commit/49c8eaa264b3cef1a3ef98cfd3378c8ab4b0daa3))
+* **Sources:** Improve source views and pull on creation ([a774595](https://github.com/stencila/hub/commit/a77459595e885f4363e90dd4fb780fed2baf2298))
+* **UX:** Show spinner when buttons perform async operations ([2ee55d5](https://github.com/stencila/hub/commit/2ee55d531096db6a46981a4515a6436ac0910ac5))
+* **Worker:** Add copy job for use with snapshots ([4a87367](https://github.com/stencila/hub/commit/4a873675598469d83ebbc75434d3e3e381dda79a))
+
 # [2.39.0](https://github.com/stencila/hub/compare/v2.38.0...v2.39.0) (2020-06-28)
 
 
