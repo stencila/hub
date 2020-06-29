@@ -7,6 +7,7 @@ from jobs.models import Job
 from projects.models.projects import Project
 from projects.models.sources import Source
 
+
 class File(models.Model):
     """
     A file associated with a project.

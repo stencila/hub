@@ -344,6 +344,7 @@ class Source(PolymorphicModel):
 
         # Add a new file
         from projects.models.files import File
+
         for path, info in result.items():
             File.create(self.project, path, info, job=job, source=self)
 
