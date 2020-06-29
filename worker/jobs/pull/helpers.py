@@ -10,7 +10,7 @@ import shutil
 from socket import gethostbyname
 from urllib.parse import urlparse
 
-Files = Dict[str, Dict[str, Any]]
+from util.files import Files, list_files
 
 
 def begin_pull(working_dir: str) -> str:
@@ -37,18 +37,7 @@ def end_pull(working_dir: str, path: str, temporary_dir: str) -> Files:
     path: The path inside the working directory to pull the source to
     temporary: The temporary directory used for the pull
     """
-    files = {}
-    for (dirpath, dirnames, filenames) in os.walk(temporary_dir):
-        for filename in filenames:
-            absolute_path = os.path.join(dirpath, filename)
-            relative_path = os.path.relpath(absolute_path, temporary_dir)
-            mimetype, encoding = mimetypes.guess_type(relative_path)
-            files[relative_path] = {
-                "size": os.path.getsize(absolute_path),
-                "mimetype": mimetype,
-                "encoding": encoding,
-                "modified": os.path.getmtime(absolute_path),
-            }
+    files = list_files(temporary_dir)
 
     # TODO: Remove existing files at the path from a previous pull
     # Not done at present pending what those paths might be e.g. `.`, `file.txt`, `dir`

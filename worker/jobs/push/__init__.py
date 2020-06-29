@@ -41,6 +41,6 @@ class Push(Job):
         push_func = PUSH_FUNCS[typ]
 
         # Resolve the project directory based on the project id
-        project_dir = config.get_project_dir(project)
+        project_dir = config.get_project_working_dir(project)
 
         return push_func(paths, project_dir, source)

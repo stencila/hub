@@ -62,6 +62,6 @@ class Pull(Job):
         pull_func = PULL_FUNCS[typ]
 
         # Resolve the project directory based on the project id
-        project_dir = config.get_project_dir(project)
+        project_dir = config.get_project_working_dir(project)
 
         return pull_func(source, project_dir, path)

@@ -3,14 +3,25 @@
 import os
 
 
-def get_project_dir(project_id: int):
+def get_project_working_dir(project_id: int):
     """
-    Get the path to a project's directory from its id.
+    Get the path to a project's working directory.
 
     Most jobs are done within the context of a project's
-    directory. This method translates a project integer id
+    working directory. This method translates a project integer id
     into a local filesystem path on the worker. This allows
     for workers to customize where the projects are stored.
     """
-    projects_dir = os.environ.get("PROJECTS_DIR", "projects")
-    return os.path.join(projects_dir, str(project_id))
+    return os.path.join(os.environ.get("WORKING_DIR", "working"), str(project_id))
+
+
+def get_project_snapshot_dir(project_id: int, snapshot_id: int):
+    """
+    Get the path to a project snapshot directory.
+
+    Snapshots may be on a different filesystem from the project
+    working directories.
+    """
+    return os.path.join(
+        os.environ.get("SNAPSHOT_DIR", "snapshots"), str(project_id), str(snapshot_id)
+    )
