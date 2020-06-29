@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime
 from enum import unique
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import inflect
 import shortuuid
@@ -408,6 +408,40 @@ class JobStatus(EnumChoice):
                 cls.TERMINATED,
             )
         ]
+
+    @classmethod
+    def rank(cls, status: str) -> int:
+        """
+        Get the rank of a status.
+
+        Ranks broadly reflect the order in which statuses will
+        change on a job.
+        """
+        return {
+            "DISPATCHED": 0,
+            "PENDING": 1,
+            "RECEIVED": 2,
+            "STARTED": 3,
+            "RUNNING": 4,
+            # Failure is high rank than success because
+            # compound jobs should have FAILURE if any
+            # children are failed.
+            "SUCCESS": 5,
+            "FAILURE": 6,
+            "CANCELLED": 7,
+            "REVOKED": 8,
+            "TERMINATED": 9,
+        }.get(status, 0)
+
+    @classmethod
+    def highest(cls, statuses: List[str]) -> str:
+        """
+        Get the status which has the highest rank.
+        """
+        ranks = [JobStatus.rank(status) for status in statuses]
+        max_rank = max(ranks)
+        max_index = ranks.index(max_rank)
+        return statuses[max_index]
 
     @classmethod
     def icon(cls, status: str) -> str:

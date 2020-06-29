@@ -125,12 +125,17 @@ def update_job(job: Job, force=False) -> Job:
 
     # For compound jobs, update each child
     if job.method == JobMethod.parallel.value:
+        status = job.status
         is_active = False
         for child in job.children.all():
             update_job(child)
+            # If the child is active then the parallel job is active
             if child.is_active:
                 is_active = True
+            # If the child has a 'higher' status then update the parallel job
+            status = JobStatus.highest([status, child.status])
         job.is_active = is_active
+        job.status = status
 
     # For atomic jobs, get an async result from the backend if the job
     # is not recorded as ready.
