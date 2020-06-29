@@ -214,6 +214,7 @@ class ProjectsViewSet(
         """
         project = self.get_object()
         job = project.pull(request.user)
+        job.dispatch()
         return redirect_to_job(job, accepts_html=self.accepts_html())
 
 

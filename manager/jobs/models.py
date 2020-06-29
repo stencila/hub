@@ -344,6 +344,7 @@ class JobMethod(EnumChoice):
 
     pull = "pull"
     push = "push"
+    copy = "copy"
 
     decode = "decode"
     encode = "encode"
@@ -357,6 +358,13 @@ class JobMethod(EnumChoice):
 
     sleep = "sleep"
 
+    @classmethod
+    def is_compound(cls, method: str) -> bool:
+        """Is this a compound job method."""
+        return method in [
+            member.value for member in (cls.parallel, cls.series, cls.chain)
+        ]
+
 
 @unique
 class JobStatus(EnumChoice):
@@ -366,6 +374,9 @@ class JobStatus(EnumChoice):
     These match Celery's "states" with some additions (marked as "custom").
     See https://docs.celeryproject.org/en/stable/reference/celery.states.html
     """
+
+    # Job is awaiting another job
+    WAITING = "WAITING"
 
     # Job was sent to a queue (custom).
     DISPATCHED = "DISPATCHED"
@@ -418,19 +429,20 @@ class JobStatus(EnumChoice):
         change on a job.
         """
         return {
-            "DISPATCHED": 0,
-            "PENDING": 1,
-            "RECEIVED": 2,
-            "STARTED": 3,
-            "RUNNING": 4,
+            "WAITING": 0,
+            "DISPATCHED": 1,
+            "PENDING": 2,
+            "RECEIVED": 3,
+            "STARTED": 4,
+            "RUNNING": 5,
             # Failure is high rank than success because
             # compound jobs should have FAILURE if any
             # children are failed.
-            "SUCCESS": 5,
-            "FAILURE": 6,
-            "CANCELLED": 7,
-            "REVOKED": 8,
-            "TERMINATED": 9,
+            "SUCCESS": 6,
+            "FAILURE": 7,
+            "CANCELLED": 8,
+            "REVOKED": 9,
+            "TERMINATED": 10,
         }.get(status, 0)
 
     @classmethod

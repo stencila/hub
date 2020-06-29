@@ -465,19 +465,34 @@ class SourceSerializer(serializers.ModelSerializer):
                 )
         return value
 
-    def validate(self, data):
+    def skip_validate(self, data):
         """
-        Validate that the path does not yet exist for the project.
+        Validate that the source does not yet exist for the project.
         """
         project = data.get("project", self.instance.project if self.instance else None)
-        path = data.get("path", self.instance.path if self.instance else None)
+        address = Source(**data).make_address()
         id = self.instance.id if self.instance else None
 
-        if Source.objects.filter(project=project, path=path).exclude(id=id).count():
+        if (
+            Source.objects.filter(project=project, address=address)
+            .exclude(id=id)
+            .count()
+        ):
             raise exceptions.ValidationError(
-                dict(path="A source with this path already exists in the project.")
+                # For now, we need to associate this error with path, because
+                # it is always in the form.
+                dict(path="This source is already linked into this project.")
             )
         return data
+
+    def create(self, *args, **kwargs):
+        """
+        Override to pull the source after it has been created.
+        """
+        source = super().create(*args, **kwargs)
+        job = source.pull()
+        job.dispatch()
+        return source
 
 
 class ElifeSourceSerializer(SourceSerializer):

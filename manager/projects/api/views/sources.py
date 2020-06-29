@@ -155,4 +155,5 @@ class ProjectsSourcesViewSet(
         """
         source = self.get_object()
         job = source.pull(request.user)
+        job.dispatch()
         return redirect_to_job(job, accepts_html=self.accepts_html())

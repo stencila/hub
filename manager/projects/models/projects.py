@@ -85,7 +85,6 @@ class Project(models.Model):
             method=JobMethod.parallel.name,
         )
         job.children.set([source.pull(user) for source in self.sources.all()])
-        job.dispatch()
         return job
 
 

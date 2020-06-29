@@ -10,7 +10,7 @@ from django.utils import timezone
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
-from jobs.models import Job
+from jobs.models import Job, JobMethod
 from manager.media import private_storage
 from projects.models.files import File
 from projects.models.projects import Project
@@ -304,23 +304,23 @@ class Source(PolymorphicModel):
         """
         raise NotImplementedError
 
-    def pull(self, user: User) -> Job:
+    def pull(self, user: Optional[User] = None) -> Job:
         """
         Pull the source to the filesystem.
 
-        Creates a job, dispatches it and add it to the sources `jobs` list.
+        Creates a job, and adds it to the source's `jobs` list.
         """
         source = self.to_address()
         source["token"] = self.authorization_token(user)
 
         job = Job.objects.create(
             project=self.project,
-            creator=user,
-            method="pull",
+            creator=user or self.creator,
+            description="Pull {0}".format(self.address),
+            method=JobMethod.pull.value,
             params=dict(source=source, project=self.project.id, path=self.path),
             **Job.create_callback(Source, self.id, "pull_callback"),
         )
-        job.dispatch()
         self.jobs.add(job)
         return job
 
@@ -429,23 +429,14 @@ class Source(PolymorphicModel):
         """
         Save the source.
 
-        An override to ensure fields are set and to trigger
-        a pull after the job is created.
+        An override to ensure necessary fields are set.
         """
-        created = self.id is None
-
-        # Ensure that address and URL are set
         if not self.address:
             self.address = self.make_address()
         if not self.url:
             self.url = self.make_url()
 
-        # Do actual save to get id
-        super().save(*args, **kwargs)
-
-        # Create the pull job
-        if created:
-            self.pull(user=self.creator)
+        return super().save(*args, **kwargs)
 
 
 # Source classes in alphabetical order
