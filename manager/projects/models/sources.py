@@ -63,6 +63,18 @@ class Source(PolymorphicModel):
         related_name="sources",
     )
 
+    address = models.TextField(
+        null=False,
+        blank=False,
+        help_text="The address of the source. e.g. github://org/repo/subpath",
+    )
+
+    url = models.URLField(
+        null=False,
+        blank=False,
+        help_text="The URL of the source. Provided for users to be able to navigate to the external source.",
+    )
+
     path = models.TextField(
         null=False,
         blank=False,
@@ -102,8 +114,11 @@ class Source(PolymorphicModel):
 
     class Meta:
         constraints = [
+            # Constraint to ensure that sources are not duplicated within a
+            # project. Note that sources can share the same `path` e.g.
+            # two sources both targetting a `data` folder.
             models.UniqueConstraint(
-                fields=["project", "path"], name="%(class)s_unique_project_path"
+                fields=["project", "address"], name="%(class)s_unique_project_address"
             )
         ]
 
@@ -132,21 +147,6 @@ class Source(PolymorphicModel):
         """
         return self.type_class[:-6]
 
-    def __str__(self) -> str:
-        """
-        Get a human readable string representation of the source instance.
-
-        These are intended to be URL-like human-readable and -writable shorthand
-        representations of sources (e.g. `github://org/repo/sub/path`; `gdoc://378yfh2yg362...`).
-        They are used in admin lists and in API endpoints to allowing quick
-        specification of a source (e.g. for filtering).
-        Should be parsable by the `parse_address` method of each subclass.
-
-        In addition, subclasses should implement a `url` property
-        that returns a valid URL that is a "backlink" to the source.
-        """
-        return "{}://{}".format(self.type_name.lower(), self.id)
-
     @property
     def provider_name(self) -> str:
         """
@@ -167,6 +167,18 @@ class Source(PolymorphicModel):
                 return cls
 
         raise ValueError('Unable to find class matching "{}"'.format(type_name))
+
+    def make_address(self):
+        """
+        Create a human readable string representation of the source instance.
+
+        These are intended to be URL-like human-readable and -writable shorthand
+        representations of sources (e.g. `github://org/repo/sub/path`; `gdoc://378yfh2yg362...`).
+        They are used in admin lists and in API endpoints to allowing quick
+        specification of a source (e.g. for filtering).
+        Should be parsable by the `parse_address` method of each subclass.
+        """
+        return "{}://{}".format(self.type_name.lower(), self.id)
 
     @staticmethod
     def coerce_address(address: Union[SourceAddress, str]) -> SourceAddress:
@@ -286,6 +298,12 @@ class Source(PolymorphicModel):
         """
         return None
 
+    def make_url(self):
+        """
+        Create a URL for users to visit the source on the external site.
+        """
+        raise NotImplementedError
+
     def pull(self, user: User) -> Job:
         """
         Pull the source to the filesystem.
@@ -393,6 +411,42 @@ class Source(PolymorphicModel):
             job.update()
         return jobs
 
+    @property
+    def last_pull(self, n=10) -> List[Job]:
+        """
+        Get the last pull job for the source.
+        """
+        try:
+            return (
+                self.jobs.filter(method="pull")
+                .order_by("-created")
+                .select_related("creator")[0]
+            )
+        except IndexError:
+            return None
+
+    def save(self, *args, **kwargs):
+        """
+        Save the source.
+
+        An override to ensure fields are set and to trigger
+        a pull after the job is created.
+        """
+        created = self.id is None
+
+        # Ensure that address and URL are set
+        if not self.address:
+            self.address = self.make_address()
+        if not self.url:
+            self.url = self.make_url()
+
+        # Do actual save to get id
+        super().save(*args, **kwargs)
+
+        # Create the pull job
+        if created:
+            self.pull(user=self.creator)
+
 
 # Source classes in alphabetical order
 
@@ -408,10 +462,15 @@ class ElifeSource(Source):
         help_text="The article version. If blank, defaults to the latest.",
     )
 
-    @property
-    def url(self):
-        """Get the URL of the article on the eLife website."""
-        return "https://elifesciences.org/articles/{0}".format(self.article)
+    def make_address(self) -> str:
+        """Make the address string of an eLife source."""
+        return "elife://{article}".format(article=self.article)
+
+    def make_url(self) -> str:
+        """Make the URL of the article on the eLife website."""
+        return "https://elifesciences.org/articles/{article}".format(
+            article=self.article
+        )
 
 
 class GithubSource(Source):
@@ -431,20 +490,13 @@ class GithubSource(Source):
         help_text="Path to file or folder within the repository",
     )
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of a GitHub source."""
         return (
             "github://"
             + self.repo
             + ("/{}".format(self.subpath) if self.subpath else "")
         )
-
-    @property
-    def url(self):
-        """Get the URL of a GitHub source."""
-        url = "https://github.com/{}".format(self.repo)
-        if self.subpath:
-            url += "/blob/master/{}".format(self.subpath)
-        return url
 
     @classmethod
     def parse_address(
@@ -472,6 +524,13 @@ class GithubSource(Source):
 
         return None
 
+    def make_url(self) -> str:
+        """Get the URL of a GitHub source."""
+        url = "https://github.com/{}".format(self.repo)
+        if self.subpath:
+            url += "/blob/master/{}".format(self.subpath)
+        return url
+
     def authorization_token(self, user: User) -> str:
         """Get the Github authorization token for the user."""
         return get_user_github_token(user)
@@ -490,13 +549,9 @@ class GoogleDocsSource(Source):
         """Get the provider name for a Google Doc."""
         return "Google"
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of a Google Doc source."""
         return "gdoc://{}".format(self.doc_id)
-
-    @property
-    def url(self) -> str:
-        """Get the URL of a Google Doc."""
-        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
 
     @classmethod
     def parse_address(
@@ -532,6 +587,10 @@ class GoogleDocsSource(Source):
 
         return None
 
+    def make_url(self) -> str:
+        """Make the URL of a Google Doc."""
+        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
+
     def authorization_token(self, user: User) -> str:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
@@ -547,6 +606,12 @@ class GoogleDriveSource(Source):
         """Get the provider name for a Google Drive source."""
         return "Google"
 
+    def make_url(self) -> str:
+        """Make the URL of a Google Drive folder."""
+        return "https://drive.google.com/folders/{folder_id}".format(
+            folder_id=self.folder_id
+        )
+
     def authorization_token(self, user: User) -> str:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
@@ -556,6 +621,15 @@ class PlosSource(Source):
     """An article from https://journals.plos.org."""
 
     article = models.TextField(help_text="The article DOI.")
+
+    def make_address(self) -> str:
+        """Make the address string of a PLOS source."""
+        return "plos://{article}".format(article=self.article)
+
+    def make_url(self) -> str:
+        """Make the URL of a PLOS article."""
+        # TODO: Implement fully (see how worker pull_plos.py resolves an article URL)
+        return "https://plos.org"
 
 
 def upload_source_path(instance, filename):
@@ -585,16 +659,25 @@ class UploadSource(Source):
         help_text="The uploaded file.",
     )
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of an upload source."""
         return "upload://{}".format(self.path)
+
+    def make_url(self) -> str:
+        """Make the URL of a PLOS article."""
+        # TODO: Point to externally hosted raw file e.g bucket url
+        return "/"
 
 
 class UrlSource(Source):
     """A source that is downloaded from a URL on demand."""
 
-    url = models.URLField(help_text="The URL of the remote file.")
+    def make_address(self) -> str:
+        """Get the address of a URL source."""
+        return self.url
 
-    def __str__(self) -> str:
+    def make_url(self) -> str:
+        """Make the URL of a URL source."""
         return self.url
 
     @classmethod
@@ -615,3 +698,7 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
+
+    def to_address(self):
+        """Override base method which (intentionally) excludes `url`."""
+        return dict(**super().to_address(), url=self.url)

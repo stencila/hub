@@ -1,7 +1,7 @@
 {% extends '../base.html' %}
 {% load i18n humanize stencila %}
 
-{% block title %}{{ source.path }} : {{ project.name }} {% endblock %}
+{% block title %}{{ source.address }} : {{ project.name }} {% endblock %}
 
 {% block projects_content %}
 
@@ -12,7 +12,7 @@
         <nav class="breadcrumb" aria-label="breadcrumbs">
           <ul>
             <li><a href="{% url 'ui-projects-retrieve' project.account.name project.name %}">{{ project.name }}</a></li>
-            <li class="is-active"><a href="#" aria-current="page">{{ source.path }}</a></li>
+            <li class="is-active"><a href="#" aria-current="page">Sources</a></li>
           </ul>
         </nav>
       </div>
@@ -20,7 +20,6 @@
   </div>
 
   <div class="level-right buttons has-flex-justify-content-end-mobile">
-
     {# Create a pull job and then redirect to this page (which will now have an active source #}
     {% if source.type_name != "Upload" %}
     <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
@@ -44,44 +43,33 @@
   </div>
 </div>
 
-<div class="notification px-3 py-2 mt-2">
-  <h1 class="title is-5 mb-0">
-    {{source.path}}
-    {% if source.type != "Upload" %}
-    <span class="icon is-vcentered has-text-grey-light" data-tooltip="{% trans "This is a remote source" %}">
-      <i class="ri-global-line"></i>
-    </span>
-    {% endif %}
-  </h1>
-  <div class="level">
-    <div class="level-left">
-      {% if source.creator %}
-      <span class="pr-1">
-        {% blocktrans with update_time=source.updated|naturaltime %}
-        Updated {{ update_time }} by
-        {% endblocktrans %}
-        <span class="icon is-small is-vcentered pr-1">
-          <img src="{{ source.creator.personal_account.image.small }}" role="presentation"></img>
+<div class="level">
+  <div class="level-left">
+    <h1 class="title is-5 mb-0">
+      {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
+      {{ source.address }}
+      {% if source.url %}
+      <a href="{{ source.url }}" target="_blank" rel="noopener">
+        <span class="icon">
+          <i class="ri-external-link-line"></i>
         </span>
-        <span class="is-vcentered">
-          {{ source.creator.username }}
-        </span>
-        {% endif %}
-    </div>
-    <div class="level-right">
-      {% if source.latest_jobs %}
-      {% for job in source.latest_jobs %}
-      {% if forloop.first %}
-      {% trans "Latest job:" %}&nbsp;
-      <a href="{% url 'ui-projects-jobs-retrieve' source.project.account.name source.project.name job.id %}">
-        {{ source.created|naturaltime }}
-
-        {% include "./_status_type_icon.html" with status=job.status %}
       </a>
       {% endif %}
-      {% endfor %}
+    </h1>
+  </div>
+  <div class="level-left">
+    {% if source.creator %}
+    <span class="pr-1">
+      {% blocktrans with update_time=source.updated|naturaltime %}
+      Updated {{ update_time }} by
+      {% endblocktrans %}
+      <span class="icon is-small is-vcentered pr-1">
+        <img src="{{ source.creator.personal_account.image.small }}" role="presentation"></img>
+      </span>
+      <span class="is-vcentered">
+        {{ source.creator.username }}
+      </span>
       {% endif %}
-    </div>
   </div>
 </div>
 

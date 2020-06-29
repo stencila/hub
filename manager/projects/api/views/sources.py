@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.db.models import Q
+from django.shortcuts import reverse
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -51,13 +52,15 @@ class ProjectsSourcesViewSet(
         """
         Get the project and check that the user has permission for the current action.
         """
-        return get_project(
-            self.kwargs,
-            self.request.user,
-            [ProjectRole.AUTHOR, ProjectRole.MANAGER, ProjectRole.OWNER]
-            if self.action in ["create", "partial_update", "destroy"]
-            else None,
-        )
+        if not hasattr(self, "project"):
+            self.project = get_project(
+                self.kwargs,
+                self.request.user,
+                [ProjectRole.AUTHOR, ProjectRole.MANAGER, ProjectRole.OWNER]
+                if self.action in ["create", "partial_update", "destroy"]
+                else None,
+            )
+        return self.project
 
     def get_queryset(self, project: Optional[Project] = None):
         """
@@ -116,6 +119,32 @@ class ProjectsSourcesViewSet(
             return None
         else:
             return SourcePolymorphicSerializer
+
+    def get_response_context(self, *args, **kwargs):
+        """
+        Add project to the response context for templates.
+
+        Done because some templates need to use `project.role`
+        for source actions (`role` is not available via `source.project`).
+        """
+        context = super().get_response_context(*args, **kwargs)
+        context["project"] = self.get_project()
+        return context
+
+    def get_success_url(self, serializer):
+        """
+        Get the URL to use in the Location header when an action is successful.
+
+        For `create`, redirects to the new source.
+        """
+        if self.action in ["create"]:
+            project = self.get_project()
+            return reverse(
+                "ui-projects-sources-retrieve",
+                args=[project.account.name, project.name, serializer.instance.id],
+            )
+        else:
+            return None
 
     @action(detail=True, methods=["POST"])
     def pull(self, request: Request, *args, **kwargs) -> Response:

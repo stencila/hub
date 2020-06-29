@@ -432,7 +432,14 @@ class SourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
         exclude = ["polymorphic_ctype", "jobs"]
-        read_only_fields = ["creator", "created", "updated", "project", "jobs"]
+        read_only_fields = [
+            "project",
+            "address",
+            "creator",
+            "created",
+            "updated",
+            "jobs",
+        ]
 
     def get_type(self, source: Source):
         """

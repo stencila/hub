@@ -32,12 +32,20 @@
         <span>{% trans "Pull" %}</span>
       </a>
 
-      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-preview' project.id source.id %}" hx-swap="none"
-         hx-redirect="CREATED:Location">
+      <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-rename' project.account.name project.name source.id %}">
         <span class="icon">
-          <i class="ri-eye-line"></i>
+          <i class="ri-edit-line"></i>
         </span>
-        <span>{% trans "Preview" %}</span>
+        <span>{% trans "Rename" %}</span>
+      </a>
+
+      <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
+        <span class="icon">
+          <i class="ri-delete-bin-line"></i>
+        </span>
+        <span>{% trans "Remove" %}</span>
       </a>
 
       {% comment %}
@@ -73,24 +81,6 @@
         </div>
       </div>
       {% endcomment %}
-
-      <hr class="dropdown-divider">
-
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-rename' project.account.name project.name source.id %}">
-        <span class="icon">
-          <i class="ri-edit-line"></i>
-        </span>
-        <span>{% trans "Rename" %}</span>
-      </a>
-
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">
-        <span class="icon">
-          <i class="ri-delete-bin-line"></i>
-        </span>
-        <span>{% trans "Delete" %}</span>
-      </a>
       {% endif %}
     </div>
   </div>

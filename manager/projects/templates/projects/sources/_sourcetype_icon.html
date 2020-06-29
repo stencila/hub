@@ -1,7 +1,7 @@
 {% comment %}
 Renders the icon class name to use for a source.
 {% endcomment %}
-<span class="has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="Source type {{ sourcetype }}">
+<span class="has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="{{ tooltip|default:sourcetype }}">
   {% spaceless %}
   {% if sourcetype == 'GoogleDocs' %}
   <i class="ri-google-line"></i>

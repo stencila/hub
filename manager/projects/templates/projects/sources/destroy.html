@@ -1,17 +1,19 @@
 {% extends 'base_centered.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Delete project source" %}{% endblock %}
+{% block title %}{% trans "Remove project source" %}{% endblock %}
 
 {% block layout_content %}
 <form hx-delete="{% url 'api-projects-sources-detail' project.id source.id %}"
-      hx-redirect="DESTROYED:{% url 'ui-projects-retrieve' account.name project.name %}">
+      hx-redirect="DESTROYED:{% url 'ui-projects-sources-list' account.name project.name %}">
 
-  <h1 class="title is-3">{% trans "Delete project source" %}</h1>
+  <h1 class="title is-3">{% trans "Remove project source" %}</h1>
 
-  {% with file_name=source.path %}
-  <p>{% blocktrans %}Are you sure you want to delete <code>{{ file_name }}</code>?{% endblocktrans %}</p>
-  {% endwith %}
+  <p>
+    {% blocktrans with source.address as address %}
+    Are you sure you want to remove <strong>{{ address }}</strong> as a project source?
+    {% endblocktrans %}
+  </p>
 
   <br>
 
@@ -20,9 +22,10 @@
       <span class="icon">
         <i class="ri-delete-bin-fill"></i>
       </span>
-      <span>{% trans "Delete" %}</span>
+      <span>{% trans "Remove" %}</span>
     </button>
-    <a class="button is-outlined is-fullwidth-mobile" href="{% url 'ui-projects-retrieve' account.name project.name %}">
+    <a class="button is-outlined is-fullwidth-mobile"
+       href="{% url 'ui-projects-sources-list' account.name project.name %}">
       <span class="icon">
         <i class="ri-arrow-go-back-line"></i>
       </span>
