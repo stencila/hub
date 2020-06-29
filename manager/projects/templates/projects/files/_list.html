@@ -46,18 +46,15 @@
         {% endif %}
       </td>
       <td class="is-vcentered">
+        {% if is_root_files_list %}
         {% if file.source %}
         {% if file.is_directory %}
-        {% for source in file.source %}
-        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}">
-          {% include '../sources/_sourcetype_icon.html' with sourcetype=source.type_name tooltip=source.address %}
-        </a>
-        {% endfor %}
         {% else %}
         <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}"
            class="has-text-black has-text-link-hover">
           {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name tooltip=file.source.address %}
         </a>
+        {% endif %}
         {% endif %}
         {% endif %}
       </td>
