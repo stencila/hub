@@ -38,7 +38,7 @@ class ProjectsFilesViewSet(
         """
         project = project or self.get_project()
         queryset = (
-            File.objects.filter(project=project)
+            File.objects.filter(project=project, snapshot__isnull=True)
             .order_by("path")
             .select_related("project", "project__account", "job", "source")
         )

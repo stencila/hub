@@ -4,7 +4,11 @@ from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
+from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -200,6 +204,18 @@ class ProjectsViewSet(
             )
         else:
             return None
+
+    @action(detail=True, methods=["POST"])
+    def pull(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Pull the project.
+
+        Creates a pull job and redirects to it.
+        """
+        project = self.get_object()
+        job = project.pull(request.user)
+        job.dispatch()
+        return redirect_to_job(job, accepts_html=self.accepts_html())
 
 
 class ProjectsAgentsViewSet(

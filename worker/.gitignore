@@ -1,4 +1,5 @@
 node_modules
-projects
+snapshots
+working
 venv
 __pycache__

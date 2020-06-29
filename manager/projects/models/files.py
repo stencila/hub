@@ -5,6 +5,7 @@ from django.db import models
 
 from jobs.models import Job
 from projects.models.projects import Project
+from projects.models.sources import Source
 
 
 class File(models.Model):
@@ -33,13 +34,23 @@ class File(models.Model):
     )
 
     source = models.ForeignKey(
-        "Source",
+        Source,
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="files",
         help_text="The source from which the file came (if any). "
         "If the source is removed from the project, so will the files.",
+    )
+
+    snapshot = models.ForeignKey(
+        "Snapshot",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="files",
+        help_text="The snapshot that the file belongs. "
+        "If the snapshot is deleted so will the files.",
     )
 
     dependencies = models.ManyToManyField(
@@ -85,13 +96,14 @@ class File(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["project", "path"], name="%(class)s_unique_project_path"
+                fields=["project", "path", "snapshot"],
+                name="%(class)s_unique_project_path_snapshot",
             )
         ]
 
     @staticmethod
     def create(
-        project: Project, path: str, info: Dict, job=None, source=None,
+        project: Project, path: str, info: Dict, job=None, source=None, snapshot=None
     ):
         """
         Create a file from info dictionary.
@@ -101,6 +113,7 @@ class File(models.Model):
             project=project,
             job=job,
             source=source,
+            snapshot=snapshot,
             path=path,
             modified=datetime.fromtimestamp(modified) if modified else None,
             size=info.get("size"),

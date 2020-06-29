@@ -4,16 +4,24 @@
   <td class="source-table--file-type pr-0 is-vcentered">
     {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
   </td>
-  <td class="has-text-weight-bold pl-2 is-vcentered">
-    {% if source.type == "uploadsource" %}
-    {{ source.path }}
-    {% else %}
-    <a class="table-icon-label has-text-black has-text-link-hover"
-       href="{% url 'ui-projects-sources-retrieve' source.project.account.name source.project.name source.id %}">{{ source.path }}</a>
-    {% endif %}
+  <td class="pl-2 is-vcentered">
+    <a class="table-icon-label has-text-black has-text-link-hover has-text-weight-bold"
+       href="{% url 'ui-projects-sources-retrieve' source.project.account.name source.project.name source.id %}">
+      {{ source.address|truncatechars:40 }}
+    </a>
   </td>
-  <td class="is-sr-only-mobile has-text-grey is-vcentered">{{ source.updated|naturaltime }}</td>
+  <td class="is-sr-only-mobile has-text-grey is-vcentered">
+    <span class="icon is-vcentered">
+      <i class="ri-arrow-right-line"></i>
+    </span>
+    {{ source.path|truncatechars:30 }}
+  </td>
+  <td class="is-sr-only-mobile has-text-grey is-vcentered">
+    {{ source.updated|naturaltime }}
+  </td>
   <td class="has-text-right is-vcentered" style="weight: 1em;">
+    {% if project.role %}
     {% include "./_source_actions_menu.html" %}
+    {% endif %}
   </td>
 </tr>

@@ -5,8 +5,7 @@
 
 {% block layout_content %}
 <form hx-post="{% url 'api-projects-sources-list' project.id %}" hx-template="{{ fields_template }}"
-      hx-target="#source-create-fields"
-      hx-redirect="CREATED:{% url 'ui-projects-retrieve' project.account.id project.id %}">
+      hx-target="#source-create-fields" hx-redirect="CREATED:Location">
 
   <h1 class="title is-3">{% trans "New project source" %}</h1>
 

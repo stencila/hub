@@ -1,6 +1,4 @@
 import datetime
-import mimetypes
-import os
 import re
 from typing import List, Optional, Type, Union
 
@@ -12,9 +10,8 @@ from django.utils import timezone
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
-from jobs.models import Job
+from jobs.models import Job, JobMethod
 from manager.media import private_storage
-from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import get_user_github_token, get_user_google_token
@@ -65,6 +62,18 @@ class Source(PolymorphicModel):
         related_name="sources",
     )
 
+    address = models.TextField(
+        null=False,
+        blank=False,
+        help_text="The address of the source. e.g. github://org/repo/subpath",
+    )
+
+    url = models.URLField(
+        null=False,
+        blank=False,
+        help_text="The URL of the source. Provided for users to be able to navigate to the external source.",
+    )
+
     path = models.TextField(
         null=False,
         blank=False,
@@ -104,8 +113,11 @@ class Source(PolymorphicModel):
 
     class Meta:
         constraints = [
+            # Constraint to ensure that sources are not duplicated within a
+            # project. Note that sources can share the same `path` e.g.
+            # two sources both targetting a `data` folder.
             models.UniqueConstraint(
-                fields=["project", "path"], name="%(class)s_unique_project_path"
+                fields=["project", "address"], name="%(class)s_unique_project_address"
             )
         ]
 
@@ -134,21 +146,6 @@ class Source(PolymorphicModel):
         """
         return self.type_class[:-6]
 
-    def __str__(self) -> str:
-        """
-        Get a human readable string representation of the source instance.
-
-        These are intended to be URL-like human-readable and -writable shorthand
-        representations of sources (e.g. `github://org/repo/sub/path`; `gdoc://378yfh2yg362...`).
-        They are used in admin lists and in API endpoints to allowing quick
-        specification of a source (e.g. for filtering).
-        Should be parsable by the `parse_address` method of each subclass.
-
-        In addition, subclasses should implement a `url` property
-        that returns a valid URL that is a "backlink" to the source.
-        """
-        return "{}://{}".format(self.type_name.lower(), self.id)
-
     @property
     def provider_name(self) -> str:
         """
@@ -169,6 +166,18 @@ class Source(PolymorphicModel):
                 return cls
 
         raise ValueError('Unable to find class matching "{}"'.format(type_name))
+
+    def make_address(self):
+        """
+        Create a human readable string representation of the source instance.
+
+        These are intended to be URL-like human-readable and -writable shorthand
+        representations of sources (e.g. `github://org/repo/sub/path`; `gdoc://378yfh2yg362...`).
+        They are used in admin lists and in API endpoints to allowing quick
+        specification of a source (e.g. for filtering).
+        Should be parsable by the `parse_address` method of each subclass.
+        """
+        return "{}://{}".format(self.type_name.lower(), self.id)
 
     @staticmethod
     def coerce_address(address: Union[SourceAddress, str]) -> SourceAddress:
@@ -288,50 +297,29 @@ class Source(PolymorphicModel):
         """
         return None
 
-    @staticmethod
-    def mimetype_from_path(path: str, default: str = "unknown") -> str:
+    def make_url(self):
         """
-        Get the mimetype of a file from its path.
-
-        Returns custom mimetype for a directory if the path
-        does not have an extension.
-        Returns the `default` if the mimetype can not be guessed.
+        Create a URL for users to visit the source on the external site.
         """
-        extension = os.path.splitext(path)[1]
-        if not extension:
-            return "application/x-directory"
-        else:
-            mimetype, encoding = mimetypes.guess_type(path, False)
-            return mimetype or default
+        raise NotImplementedError
 
-    @property
-    def mimetype(self) -> str:
-        """
-        Get the mimetype of the source.
-
-        Derived classes should override this if an attribute of the source
-        other than the local `path` should be used to determine the mimetype
-        e.g. if it is always a Google Doc.
-        """
-        return Source.mimetype_from_path(self.path)
-
-    def pull(self, user: User) -> Job:
+    def pull(self, user: Optional[User] = None) -> Job:
         """
         Pull the source to the filesystem.
 
-        Creates a job, dispatches it and add it to the sources `jobs` list.
+        Creates a job, and adds it to the source's `jobs` list.
         """
         source = self.to_address()
         source["token"] = self.authorization_token(user)
 
         job = Job.objects.create(
             project=self.project,
-            creator=user,
-            method="pull",
+            creator=user or self.creator,
+            description="Pull {0}".format(self.address),
+            method=JobMethod.pull.value,
             params=dict(source=source, project=self.project.id, path=self.path),
-            **Job.create_callback(Source, self.id, "pull_callback"),
+            **Job.create_callback(self, "pull_callback"),
         )
-        job.dispatch()
         self.jobs.add(job)
         return job
 
@@ -355,6 +343,8 @@ class Source(PolymorphicModel):
                 file.delete()
 
         # Add a new file
+        from projects.models.files import File
+
         for path, info in result.items():
             File.create(self.project, path, info, job=job, source=self)
 
@@ -422,6 +412,33 @@ class Source(PolymorphicModel):
             job.update()
         return jobs
 
+    @property
+    def last_pull(self, n=10) -> List[Job]:
+        """
+        Get the last pull job for the source.
+        """
+        try:
+            return (
+                self.jobs.filter(method="pull")
+                .order_by("-created")
+                .select_related("creator")[0]
+            )
+        except IndexError:
+            return None
+
+    def save(self, *args, **kwargs):
+        """
+        Save the source.
+
+        An override to ensure necessary fields are set.
+        """
+        if not self.address:
+            self.address = self.make_address()
+        if not self.url:
+            self.url = self.make_url()
+
+        return super().save(*args, **kwargs)
+
 
 # Source classes in alphabetical order
 
@@ -437,15 +454,15 @@ class ElifeSource(Source):
         help_text="The article version. If blank, defaults to the latest.",
     )
 
-    @property
-    def url(self):
-        """Get the URL of the article on the eLife website."""
-        return "https://elifesciences.org/articles/{0}".format(self.article)
+    def make_address(self) -> str:
+        """Make the address string of an eLife source."""
+        return "elife://{article}".format(article=self.article)
 
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an eLife article."""
-        return "text/xml+jats"
+    def make_url(self) -> str:
+        """Make the URL of the article on the eLife website."""
+        return "https://elifesciences.org/articles/{article}".format(
+            article=self.article
+        )
 
 
 class GithubSource(Source):
@@ -465,25 +482,13 @@ class GithubSource(Source):
         help_text="Path to file or folder within the repository",
     )
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of a GitHub source."""
         return (
             "github://"
             + self.repo
             + ("/{}".format(self.subpath) if self.subpath else "")
         )
-
-    @property
-    def url(self):
-        """Get the URL of a GitHub source."""
-        url = "https://github.com/{}".format(self.repo)
-        if self.subpath:
-            url += "/blob/master/{}".format(self.subpath)
-        return url
-
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of a GitHub source."""
-        return Source.mimetype_from_path(self.subpath) if self.subpath else "unknown"
 
     @classmethod
     def parse_address(
@@ -511,6 +516,13 @@ class GithubSource(Source):
 
         return None
 
+    def make_url(self) -> str:
+        """Get the URL of a GitHub source."""
+        url = "https://github.com/{}".format(self.repo)
+        if self.subpath:
+            url += "/blob/master/{}".format(self.subpath)
+        return url
+
     def authorization_token(self, user: User) -> str:
         """Get the Github authorization token for the user."""
         return get_user_github_token(user)
@@ -529,18 +541,9 @@ class GoogleDocsSource(Source):
         """Get the provider name for a Google Doc."""
         return "Google"
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of a Google Doc source."""
         return "gdoc://{}".format(self.doc_id)
-
-    @property
-    def url(self) -> str:
-        """Get the URL of a Google Doc."""
-        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
-
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an Google Doc."""
-        return "application/vnd.google-apps.document"
 
     @classmethod
     def parse_address(
@@ -576,6 +579,10 @@ class GoogleDocsSource(Source):
 
         return None
 
+    def make_url(self) -> str:
+        """Make the URL of a Google Doc."""
+        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
+
     def authorization_token(self, user: User) -> str:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
@@ -591,6 +598,12 @@ class GoogleDriveSource(Source):
         """Get the provider name for a Google Drive source."""
         return "Google"
 
+    def make_url(self) -> str:
+        """Make the URL of a Google Drive folder."""
+        return "https://drive.google.com/folders/{folder_id}".format(
+            folder_id=self.folder_id
+        )
+
     def authorization_token(self, user: User) -> str:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
@@ -601,10 +614,14 @@ class PlosSource(Source):
 
     article = models.TextField(help_text="The article DOI.")
 
-    @property
-    def mimetype(self) -> str:
-        """Get the mimetype of an PLOS article."""
-        return "text/xml+jats"
+    def make_address(self) -> str:
+        """Make the address string of a PLOS source."""
+        return "plos://{article}".format(article=self.article)
+
+    def make_url(self) -> str:
+        """Make the URL of a PLOS article."""
+        # TODO: Implement fully (see how worker pull_plos.py resolves an article URL)
+        return "https://plos.org"
 
 
 def upload_source_path(instance, filename):
@@ -634,22 +651,26 @@ class UploadSource(Source):
         help_text="The uploaded file.",
     )
 
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Make the address string of an upload source."""
         return "upload://{}".format(self.path)
+
+    def make_url(self) -> str:
+        """Make the URL of a PLOS article."""
+        # TODO: Point to externally hosted raw file e.g bucket url
+        return "/"
 
 
 class UrlSource(Source):
     """A source that is downloaded from a URL on demand."""
 
-    url = models.URLField(help_text="The URL of the remote file.")
-
-    def __str__(self) -> str:
+    def make_address(self) -> str:
+        """Get the address of a URL source."""
         return self.url
 
-    @property
-    def mimetype_(self) -> str:
-        """Get the mimetype of a URL source."""
-        return Source.mimetype_from_path(self.url)
+    def make_url(self) -> str:
+        """Make the URL of a URL source."""
+        return self.url
 
     @classmethod
     def parse_address(
@@ -669,3 +690,7 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
+
+    def to_address(self):
+        """Override base method which (intentionally) excludes `url`."""
+        return dict(**super().to_address(), url=self.url)

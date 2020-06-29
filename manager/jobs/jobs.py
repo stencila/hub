@@ -53,16 +53,23 @@ def dispatch_job(job: Job) -> Job:
     if not JobMethod.is_member(job.method):
         raise ValueError("Unknown job method '{}'".format(job.method))
 
-    if job.method in [JobMethod.series.value, JobMethod.chain.value]:
-        # Dispatch the first child; subsequent children
-        # will get dispatched via the when the parent is checked
-        if job.children:
-            dispatch_job(job.children.first())
-    elif job.method == JobMethod.parallel.value:
-        # Dispatch all child jobs simultaneously
-        # for child in job.children.all():
-        #    if not child.is_active:
-        #        dispatch_job(child)
+    if JobMethod.is_compound(job.method):
+        if job.method == JobMethod.parallel.value:
+            # Dispatch all child jobs simultaneously
+            for child in job.children.all():
+                dispatch_job(child)
+        else:
+            # Dispatch the first child; subsequent children
+            # will be status WAITING and will get dispatched later
+            # on update of the parent.
+            for index, child in enumerate(job.children.all()):
+                if index == 0:
+                    dispatch_job(child)
+                else:
+                    child.is_active = True
+                    child.status = JobStatus.WAITING.value
+                    child.save()
+
         job.is_active = True
         job.status = JobStatus.DISPATCHED.value
     else:
@@ -108,7 +115,7 @@ def dispatch_job(job: Job) -> Job:
     return job
 
 
-def update_job(job: Job, force=False) -> Job:
+def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job:
     """
     Update a job based on it's result.
 
@@ -123,14 +130,34 @@ def update_job(job: Job, force=False) -> Job:
     if not job.is_active and not force:
         return job
 
-    # For compound jobs, update each child
-    if job.method == JobMethod.parallel.value:
+    was_active = job.is_active
+
+    # Update the status of compound jobs based on children
+    if JobMethod.is_compound(job.method):
+        status = job.status
         is_active = False
+        previous_succeeded = True
         for child in job.children.all():
-            update_job(child)
+            update_job(child, update_parent=False)
+
+            # If the child is active then the compound job is active
             if child.is_active:
                 is_active = True
+
+            # If the child has a 'higher' status then update the
+            # status of the compound job
+            status = JobStatus.highest([status, child.status])
+
+            # If previous children have all succeeded and this child
+            # is still waiting then dispatch it.
+            if previous_succeeded and child.status == JobStatus.WAITING.value:
+                dispatch_job(child)
+
+            if child.status != JobStatus.SUCCESS.value:
+                previous_succeeded = False
+
         job.is_active = is_active
+        job.status = JobStatus.RUNNING.value if is_active else status
 
     # For atomic jobs, get an async result from the backend if the job
     # is not recorded as ready.
@@ -161,27 +188,19 @@ def update_job(job: Job, force=False) -> Job:
         if job.result is not None and job.error is None:
             job.status = JobStatus.SUCCESS.value
 
-        # If the job has just ended then mark it as inactive and run it's callback
-        if job.is_active and JobStatus.has_ended(job.status):
+        # If the job has just ended then mark it as inactive
+        if JobStatus.has_ended(job.status):
             job.is_active = False
-            job.run_callback()
+
+    # If the job is no longer active run it's callback
+    if was_active and not job.is_active:
+        job.run_callback()
+
+    # If the job has a parent then check it
+    if update_parent and job.parent:
+        update_job(job.parent)
 
     job.save()
-    return job
-
-
-def check_job(job: Job) -> Job:
-    """
-    Check a parent job to see if it is finished or if children jobs need to be dispatched.
-
-    TODO: Update the status of the job based on children e.g. if one or more child has failed
-    then mark it as failed.
-    TODO: if a `series` or `chain` job, then update the next child when the previous
-    child has succeeded.
-    """
-    for child in job.children.all():
-        print(child.status)
-
     return job
 
 

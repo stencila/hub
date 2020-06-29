@@ -5,7 +5,7 @@ from .plos import pull_plos
 
 @pytest.mark.vcr
 def test_ok(tempdir):
-    pull_plos(
+    files = pull_plos(
         {"article": "10.1371/journal.pcbi.1007273"},
         tempdir.path,
         "pcbi.1007273.jats.xml",
@@ -32,5 +32,8 @@ def test_ok(tempdir):
             "t002.png",
         ]
     ]
+
+    assert files["pcbi.1007273.jats.xml"]["mimetype"] == "application/jats+xml"
+    assert files["pcbi.1007273.jats.xml.media/e001.png"]["mimetype"] == "image/png"
 
     tempdir.compare(expected)

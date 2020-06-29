@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime
 from enum import unique
-from typing import Optional, Union
+from typing import List, Optional
 
 import inflect
 import shortuuid
@@ -344,6 +344,7 @@ class JobMethod(EnumChoice):
 
     pull = "pull"
     push = "push"
+    copy = "copy"
 
     decode = "decode"
     encode = "encode"
@@ -357,6 +358,13 @@ class JobMethod(EnumChoice):
 
     sleep = "sleep"
 
+    @classmethod
+    def is_compound(cls, method: str) -> bool:
+        """Is this a compound job method."""
+        return method in [
+            member.value for member in (cls.parallel, cls.series, cls.chain)
+        ]
+
 
 @unique
 class JobStatus(EnumChoice):
@@ -366,6 +374,9 @@ class JobStatus(EnumChoice):
     These match Celery's "states" with some additions (marked as "custom").
     See https://docs.celeryproject.org/en/stable/reference/celery.states.html
     """
+
+    # Job is awaiting another job
+    WAITING = "WAITING"
 
     # Job was sent to a queue (custom).
     DISPATCHED = "DISPATCHED"
@@ -408,6 +419,41 @@ class JobStatus(EnumChoice):
                 cls.TERMINATED,
             )
         ]
+
+    @classmethod
+    def rank(cls, status: str) -> int:
+        """
+        Get the rank of a status.
+
+        Ranks broadly reflect the order in which statuses will
+        change on a job.
+        """
+        return {
+            "WAITING": 0,
+            "DISPATCHED": 1,
+            "PENDING": 2,
+            "RECEIVED": 3,
+            "STARTED": 4,
+            "RUNNING": 5,
+            # Failure is high rank than success because
+            # compound jobs should have FAILURE if any
+            # children are failed.
+            "SUCCESS": 6,
+            "FAILURE": 7,
+            "CANCELLED": 8,
+            "REVOKED": 9,
+            "TERMINATED": 10,
+        }.get(status, 0)
+
+    @classmethod
+    def highest(cls, statuses: List[str]) -> str:
+        """
+        Get the status which has the highest rank.
+        """
+        ranks = [JobStatus.rank(status) for status in statuses]
+        max_rank = max(ranks)
+        max_index = ranks.index(max_rank)
+        return statuses[max_index]
 
     @classmethod
     def icon(cls, status: str) -> str:
@@ -745,7 +791,7 @@ class Job(models.Model):
     # Methods for registering and running callbacks
 
     @staticmethod
-    def create_callback(model: models.Model, id: Union[int, str], method: str):
+    def create_callback(model: models.Model, method: str):
         """
         Create a dictionary of callback fields.
 
@@ -753,7 +799,7 @@ class Job(models.Model):
         """
         return dict(
             callback_type=ContentType.objects.get_for_model(model),
-            callback_id=id,
+            callback_id=model.id,
             callback_method=method,
         )
 

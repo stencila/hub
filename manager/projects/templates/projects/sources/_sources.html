@@ -28,8 +28,9 @@
 
   <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
     {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
-    {# TODO: Add ability to pull sources in aggregate #}
-    <a class="button is-small-mobile is-expanded-mobile" disabled>
+    <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
+       data-tooltip="{% trans 'Pull all sources for the project' %}" hx-post="{% url 'api-projects-pull' project.id %}"
+       hx-swap="none" hx-redirect="CREATED:Location">
       <span class="icon">
         <i class="ri-download-cloud-2-line"></i>
       </span>
@@ -57,7 +58,10 @@
         {% trans "Source Type" %}
       </th>
       <th>
-        {% trans "Source Name" %}
+        {% trans "Source Address" %}
+      </th>
+      <th>
+        {% trans "Source Path" %}
       </th>
       <th>
         {% trans "Date Updated" %}
