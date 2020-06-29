@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime
 from enum import unique
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import inflect
 import shortuuid
@@ -791,7 +791,7 @@ class Job(models.Model):
     # Methods for registering and running callbacks
 
     @staticmethod
-    def create_callback(model: models.Model, id: Union[int, str], method: str):
+    def create_callback(model: models.Model, method: str):
         """
         Create a dictionary of callback fields.
 
@@ -799,7 +799,7 @@ class Job(models.Model):
         """
         return dict(
             callback_type=ContentType.objects.get_for_model(model),
-            callback_id=id,
+            callback_id=model.id,
             callback_method=method,
         )
 

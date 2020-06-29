@@ -130,6 +130,8 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
     if not job.is_active and not force:
         return job
 
+    was_active = job.is_active
+
     # Update the status of compound jobs based on children
     if JobMethod.is_compound(job.method):
         status = job.status
@@ -186,14 +188,17 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
         if job.result is not None and job.error is None:
             job.status = JobStatus.SUCCESS.value
 
-        # If the job has just ended then mark it as inactive and run it's callback
-        if job.is_active and JobStatus.has_ended(job.status):
+        # If the job has just ended then mark it as inactive
+        if JobStatus.has_ended(job.status):
             job.is_active = False
-            job.run_callback()
 
-        # If the job has a parent then check it
-        if update_parent and job.parent:
-            update_job(job.parent)
+    # If the job is no longer active run it's callback
+    if was_active and not job.is_active:
+        job.run_callback()
+
+    # If the job has a parent then check it
+    if update_parent and job.parent:
+        update_job(job.parent)
 
     job.save()
     return job

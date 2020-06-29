@@ -4,5 +4,13 @@
 {% block title %}{% trans "Project snapshot" %}{% endblock %}
 
 {% block projects_content %}
+
+<h1 class="title is-5 mb-0">
+  <span class="icon">
+    <i class="ri-camera-line"></i>
+  </span>
+  Snapshot {{ snapshot.id }}
+</h1>
+
 {% include './_retrieve.html' %}
 {% endblock %}

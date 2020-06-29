@@ -12,7 +12,6 @@ from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job, JobMethod
 from manager.media import private_storage
-from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import get_user_github_token, get_user_google_token
@@ -319,7 +318,7 @@ class Source(PolymorphicModel):
             description="Pull {0}".format(self.address),
             method=JobMethod.pull.value,
             params=dict(source=source, project=self.project.id, path=self.path),
-            **Job.create_callback(Source, self.id, "pull_callback"),
+            **Job.create_callback(self, "pull_callback"),
         )
         self.jobs.add(job)
         return job
@@ -344,6 +343,7 @@ class Source(PolymorphicModel):
                 file.delete()
 
         # Add a new file
+        from projects.models.files import File
         for path, info in result.items():
             File.create(self.project, path, info, job=job, source=self)
 

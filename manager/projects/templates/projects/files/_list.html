@@ -46,6 +46,7 @@
         {% endif %}
       </td>
       <td class="is-vcentered">
+        {% if file.source %}
         {% if file.is_directory %}
         {% for source in file.source %}
         <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}">
@@ -56,6 +57,7 @@
         <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}">
           {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name tooltip=file.source.address %}
         </a>
+        {% endif %}
         {% endif %}
       </td>
       <td class="is-vcentered">

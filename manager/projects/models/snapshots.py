@@ -1,6 +1,7 @@
 from django.db import models
 
 from jobs.models import Job, JobMethod
+from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 
@@ -64,6 +65,7 @@ class Snapshot(models.Model):
                     description="Copy project '{0}'".format(project.name),
                     project=project,
                     creator=user,
+                    **Job.create_callback(snapshot, "copy_callback")
                 ),
             ]
         )
@@ -73,3 +75,23 @@ class Snapshot(models.Model):
         snapshot.save()
 
         return snapshot
+
+    def copy_callback(self, job: Job):
+        """
+        Update the files associated with this snapshot.
+
+        Called when the snapshot's job final `copy` sub-job is complete.
+        """
+        result = job.result
+        if not result:
+            return
+
+        for path, info in result.items():
+            File.create(self.project, path, info, job=job, snapshot=self)
+
+    @property
+    def is_active(self) -> bool:
+        """
+        Is the snapshot currently active.
+        """
+        return self.job and self.job.is_active
