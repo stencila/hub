@@ -645,7 +645,7 @@ input[type="checkbox"].toggle {
   }
 
   .animate-spin {
-    animation: 3s linear 1s infinite running spin;
+    animation: spin 1.5s linear 0s infinite;
   }
 }
 
