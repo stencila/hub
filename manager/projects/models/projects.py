@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 
 from accounts.models import Account, AccountTeam
+from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
 from users.models import User
 
@@ -69,6 +70,23 @@ class Project(models.Model):
                 fields=["account", "name"], name="%(class)s_unique_account_name"
             )
         ]
+
+    def pull(self, user: User) -> Job:
+        """
+        Pull all sources in the project.
+
+        Creates a `parallel` job having children jobs that `pull`
+        each source into the project's working directory.
+        """
+        job = Job.objects.create(
+            description="Pull project '{0}'".format(self.name),
+            project=self,
+            creator=user,
+            method=JobMethod.parallel.name,
+        )
+        job.children.set([source.pull(user) for source in self.sources.all()])
+        job.dispatch()
+        return job
 
 
 def make_project_creator_an_owner(

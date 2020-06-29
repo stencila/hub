@@ -151,19 +151,8 @@ class ProjectsSourcesViewSet(
         """
         Pull the source.
 
-        Creates a pull job and redirects to the job.
+        Creates a pull job and redirects to it.
         """
         source = self.get_object()
         job = source.pull(request.user)
-        return redirect_to_job(job, accepts_html=self.accepts_html())
-
-    @action(detail=True, methods=["POST"])
-    def preview(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Preview the source.
-
-        Creates a preview job and redirects to the job.
-        """
-        source = self.get_object()
-        job = source.preview(request.user)
         return redirect_to_job(job, accepts_html=self.accepts_html())

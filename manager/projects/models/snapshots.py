@@ -1,6 +1,6 @@
 from django.db import models
 
-from jobs.models import Job, JobMethod
+from jobs.models import Job
 from projects.models.projects import Project
 from users.models import User
 
@@ -44,16 +44,9 @@ class Snapshot(models.Model):
         """
         Snapshot the project.
 
-        Creates a `parallel` job having children jobs that `pull`
-        each source.
+        Pulls the project and creates a copy of its working
+        directory.
         """
-        job = Job.objects.create(
-            description="Snapshot project '{0}'".format(project.name),
-            project=project,
-            creator=user,
-            method=JobMethod.parallel.name,
-        )
-        job.children.set([source.pull(user) for source in project.sources.all()])
-        job.dispatch()
-
+        job = project.pull(user)
+        # TODO: Create a copy of the project's working directory
         return Snapshot.objects.create(project=project, creator=user, job=job)
