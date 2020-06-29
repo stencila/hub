@@ -36,7 +36,10 @@ in case the enclosing page want to use that data to trigger further events
   {% if files %}
   {% include "../files/_list.html" %}
   {% else %}
-  <p>No files in this snapshot yet.</p>
+
+  <p class="is-4 has-text-grey">
+    {% trans 'No Jobs yet' %}
+  </p>
   {% endif %}
   {% endwith %}
 </div>

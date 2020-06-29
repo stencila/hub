@@ -1,7 +1,8 @@
 {% comment %}
 Renders the icon class name to use for a source based on its mimetype.
 {% endcomment %}
-<span class="has-tooltip-top has-tooltip-text-centered image-tooltip" data-tooltip="File type {{ mimetype }}">
+<span class="has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom has-text-weight-bold"
+      data-tooltip="File type {{ mimetype }}">
   {% spaceless %}
   {% if mimetype == 'application/vnd.google-apps.document' %}
   <i class="ri-google-line"></i>
@@ -10,7 +11,7 @@ Renders the icon class name to use for a source based on its mimetype.
   {% elif mimetype|slice:":6" == 'image/' %}
   <i class="ri-image-line"></i>
   {% else %}
-  <i class="ri-file-line"></i>
+  <i class="ri-file-3-line"></i>
   {% endif %}
   {% endspaceless %}
 </span>

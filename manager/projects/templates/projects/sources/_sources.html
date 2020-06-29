@@ -28,7 +28,7 @@
 
   <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
     {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
-    <a class="button is-small-mobile is-expanded-mobile has-tooltip-top has-tooltip-text-centered"
+    <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
        data-tooltip="{% trans 'Pull all sources for the project' %}" hx-post="{% url 'api-projects-pull' project.id %}"
        hx-swap="none" hx-redirect="CREATED:Location">
       <span class="icon">

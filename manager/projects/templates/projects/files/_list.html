@@ -54,7 +54,8 @@
         </a>
         {% endfor %}
         {% else %}
-        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}">
+        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}"
+           class="has-text-black has-text-link-hover">
           {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name tooltip=file.source.address %}
         </a>
         {% endif %}
