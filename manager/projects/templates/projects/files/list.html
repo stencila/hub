@@ -5,7 +5,7 @@
 
 {% block projects_content %}
 
-{% if dirs|length == 1 %}
+{% if breadcrumbs|length == 1 %}
 {% include '../_project_hero.html' %}
 <hr />
 {% endif %}
@@ -52,17 +52,17 @@
   </div>
 </div>
 
-{% if dirs|length > 1 %}
+{% if breadcrumbs|length > 1 %}
 <nav class="breadcrumb mb-2" aria-label="breadcrumbs">
   <ul>
-    {% for dir in dirs %}
+    {% for breadcrumb in breadcrumbs %}
     <li class="{% if forloop.last %}is-active{% endif %}">
-      <a href="{% url 'ui-projects-files-list' project.account.name project.name dir.1 %}"
+      <a href="{% url 'ui-projects-files-list' project.account.name project.name breadcrumb.1 %}"
          {% if forloop.last %}aria-current="page" {% endif %}>
         {% if forloop.first %}
         {{ project.name }}
         {% else %}
-        {{ dir.0 }}
+        {{ breadcrumb.0 }}
         {% endif %}
       </a>
     </li>
