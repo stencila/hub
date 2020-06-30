@@ -1,7 +1,13 @@
-{% extends '_page_action_bar.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Jobs" %}{% endblock %}
-
-{% block action_bar_end %}
-{% endblock %}
+<div class="level is-sr-only-mobile">
+  <div class="level-left">
+    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
+      <div class="level-left">
+        <h1 class="title level-item mb-0">
+          {% trans "Jobs" %}
+        </h1>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,15 +7,16 @@
 
 <div class="level is-mobile">
   <div class="level-left">
-    <div class="level-item">
+    <div class="level-item is-sr-only-mobile">
       <h1 class="title">{% trans "Teams" %}</h1>
     </div>
   </div>
 
-  <div class="level-right">
+  <div class="level-right width-full-mobile">
     <p class="level-item">
       {% if role in "MANAGER,OWNER" %}
-      <a class="button is-primary is-small-mobile" href="{% url 'ui-accounts-teams-create' account.name %}">
+      <a class="button is-primary is-small-mobile is-fullwidth-mobile"
+         href="{% url 'ui-accounts-teams-create' account.name %}">
         <span class="icon">
           <i class="ri-add-fill"></i>
         </span>

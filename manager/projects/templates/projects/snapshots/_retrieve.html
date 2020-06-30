@@ -33,22 +33,22 @@ in case the enclosing page want to use that data to trigger further events
       </h1>
     </div>
     <div class="level-right buttons has-flex-justify-content-end-mobile">
-      <a class="button is-primary is-small-mobile is-expanded-mobile"
-         href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.id %}">
-        <span class="icon">
-          <i class="ri-eye-line"></i>
-        </span>
-        <span>
-          View
-        </span>
-      </a>
       <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
          href="{% url 'api-projects-snapshots-archive' project.id snapshot.id %}">
         <span class="icon">
           <i class="ri-download-line"></i>
         </span>
         <span>
-          Download
+          {% trans "Download" %}
+        </span>
+      </a>
+      <a class="button is-primary is-small-mobile is-expanded-mobile"
+         href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.id %}">
+        <span class="icon">
+          <i class="ri-eye-line"></i>
+        </span>
+        <span>
+          {% trans "View" %}
         </span>
       </a>
     </div>
@@ -99,7 +99,7 @@ in case the enclosing page want to use that data to trigger further events
   <p class="is-size-5 has-text-grey-dark">
     {# TODO Render the job here, so that users have something more interesting to look at and don't have to click away if there is a failure #}
     {% if job.status in "DISPATCHED, RUNNING" %}
-    {% trans 'Creating snapshot, please wait…' %}
+    {% trans 'Creating Snapshot, please wait…' %}
     {% else %}
     The snapshot failed, please see the <a href="{{ job_url }}">job</a> for more details.
     {% endif %}

@@ -1,16 +1,25 @@
-{% extends '_page_action_bar.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Snapshots" %}{% endblock %}
+<div class="level">
+  <div class="level-left">
+    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
+      <div class="level-left">
+        <h1 class="title level-item mb-0 is-hidden-mobile">
+          {% trans "Snapshots" %}
+        </h1>
+      </div>
+    </div>
+  </div>
 
-{% block action_bar_end %}
-<a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
-   hx-post="{% url 'api-projects-snapshots-list' project.id %}" hx-swap="none" hx-redirect="CREATED:Location">
-  <span class="icon">
-    <i class="ri-camera-line"></i>
-  </span>
-  <span>
-    {% trans "New Snapshot" %}
-  </span>
-</a>
-{% endblock %}
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
+       hx-post="{% url 'api-projects-snapshots-list' project.id %}" hx-swap="none" hx-redirect="CREATED:Location">
+      <span class="icon">
+        <i class="ri-camera-line"></i>
+      </span>
+      <span>
+        {% trans "New Snapshot" %}
+      </span>
+    </a>
+  </div>
+</div>

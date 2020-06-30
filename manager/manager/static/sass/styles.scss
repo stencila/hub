@@ -235,6 +235,10 @@ body {
     width: 0.01em !important;
   }
 
+  .width-full-mobile {
+    width: 100%;
+  }
+
   // Standardize horizontal alignment between elements in header and body
   .section {
     padding-left: $gap / 2;
@@ -250,6 +254,21 @@ body {
     margin-top: $gap / 2;
   }
 
+  .level-reverse-mobile {
+    display: flex;
+    flex-wrap: wrap;
+
+    .level-left,
+    .level-right {
+      flex-basis: 100%;
+    }
+
+    .level-left {
+      order: 2;
+      margin-top: $gap / 2;
+    }
+  }
+
   .has-flex-justify-content-space-between-mobile {
     justify-content: space-between;
   }
@@ -262,14 +281,27 @@ body {
   // Custom elements: mobile breakpoint
   // ===========================================================================
   .sidebar__start {
-    background-color: $white-bis;
+    margin-top: -2.75rem;
+    padding: ($gap / 4) 0 0;
+  }
+
+  .sidebar__header {
+    padding: 0 ($gap * 0.75);
+    margin-bottom: $gap / 2;
+
+    h1.is-size-3 {
+      font-size: $size-5 !important;
+    }
+
+    hr {
+      display: none;
+    }
+  }
+
+  .sidebar__start .menu {
     border-bottom: 1px solid $white-ter;
-    margin-top: -4rem;
     overflow-x: auto;
     overflow-y: hidden;
-    padding-bottom: $gap / 8;
-    padding-left: 0;
-    padding-right: 0;
   }
 
   .sidebar__item {

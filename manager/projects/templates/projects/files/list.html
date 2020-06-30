@@ -10,7 +10,7 @@
 <hr />
 {% endif %}
 
-<div class="level">
+<div class="level level-reverse-mobile">
   <div class="level-left">
     <div class="level-item">
       <form class="field width-full">
@@ -60,7 +60,7 @@
       <a href="{% url 'ui-projects-files-list' project.account.name project.name breadcrumb.1 %}"
          {% if forloop.last %}aria-current="page" {% endif %}>
         {% if forloop.first %}
-        {{ project.name }}
+        {{ project.title|default:project.name }}
         {% else %}
         {{ breadcrumb.0 }}
         {% endif %}

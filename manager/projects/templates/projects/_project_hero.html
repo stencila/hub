@@ -10,7 +10,8 @@
         </p>
         {% elif project.role in 'MANAGER, OWNER' %}
         <p>
-          <a class="button is-white is-light is-small" href="{% url 'ui-projects-update' project.account.name project.name %}">
+          <a class="button is-white is-light is-small"
+             href="{% url 'ui-projects-update' project.account.name project.name %}">
             <span class="icon">
               <i class="ri-add-line"></i>
             </span>
@@ -25,8 +26,8 @@
   </div>
 
   <div class="level-right buttons has-flex-justify-content-end-mobile">
-    <a class="button is-success is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered" disabled
-       data-tooltip="This feature is coming soon!">
+    <a class="button is-success is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
+       disabled data-tooltip="This feature is coming soon!">
       <span class="icon">
         <i class="ri-play-line"></i>
       </span>
