@@ -1,0 +1,12 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Project snapshot" %}{% endblock %}
+
+{% block projects_content %}
+
+<iframe id="frame" src="{% url 'api-projects-snapshots-files' project.id snapshot.id 'index.html' %}" width="700px"
+        height="1000px" frameborder="0">
+</iframe>
+
+{% endblock %}

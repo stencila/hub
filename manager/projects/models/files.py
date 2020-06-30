@@ -93,14 +93,6 @@ class File(models.Model):
         help_text="The encoding of the file e.g. gzip",
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["project", "path", "snapshot"],
-                name="%(class)s_unique_project_path_snapshot",
-            )
-        ]
-
     @staticmethod
     def create(
         project: Project, path: str, info: Dict, job=None, source=None, snapshot=None

@@ -382,6 +382,8 @@ class Prod(Configuration):
     #   bucket: Google Cloud Storage bucket
     STORAGE_MODE = "bucket"
 
+    SNAPSHOT_DIR = None
+
     @classmethod
     def post_setup(cls):
         """Do additional configuration after initial setup."""
@@ -475,6 +477,8 @@ class Dev(Prod):
 
     # Use local file storage
     STORAGE_MODE = "local"
+
+    SNAPSHOT_DIR = os.path.join(Prod.BASE_DIR, "..", "worker", "snapshots")
 
 
 class Test(Prod):
