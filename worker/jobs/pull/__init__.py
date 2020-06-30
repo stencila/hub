@@ -8,6 +8,7 @@ from .gdoc import pull_gdoc
 from .gdrive import pull_gdrive
 from .github import pull_github
 from .http import pull_http
+from .local import pull_local
 from .plos import pull_plos
 from .helpers import Files
 
@@ -18,6 +19,7 @@ PULL_FUNCS: Dict[str, Callable[[dict, str, str], Files]] = {
     "googledocs": pull_gdoc,
     "googledrive": pull_gdrive,
     "http": pull_http,
+    "local": pull_local,
     "plos": pull_plos,
     "url": pull_http,  # URL is used as an alias for HTTP e.g `UrlSource`
 }
