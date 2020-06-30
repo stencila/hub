@@ -106,3 +106,15 @@ a.job-list--id {
     }
   }
 }
+
+// =============================================================================
+// Snapshots
+// =============================================================================
+
+.snapshot--preview {
+  border-radius: 4px;
+  border: 1px solid $grey-lightest;
+  box-shadow: 0 0 8px rgba(0,0,0,.035),0 0 40px rgba(0,0,0,.07);
+  height: calc(100vh - 6rem);
+  width: 100%;
+}
