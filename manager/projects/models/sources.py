@@ -2,6 +2,7 @@ import datetime
 import re
 from typing import List, Optional, Type, Union
 
+from django.core.files.storage import FileSystemStorage
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -69,8 +70,8 @@ class Source(PolymorphicModel):
     )
 
     url = models.URLField(
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
         help_text="The URL of the source. Provided for users to be able to navigate to the external source.",
     )
 
@@ -643,6 +644,10 @@ class UploadSource(Source):
     This allows us to keep track of files that have been explicitly
     uploaded to the project folder, rather than being derived from
     pulling other sources, or being derived from jobs.
+
+    During development, uploaded files are stored on the local
+    filesystem. In production, they are stored in cloud storage
+    e.g. Google Could Storage or S3. 
     """
 
     file = models.FileField(
@@ -656,9 +661,33 @@ class UploadSource(Source):
         return "upload://{}".format(self.path)
 
     def make_url(self) -> str:
-        """Make the URL of a PLOS article."""
-        # TODO: Point to externally hosted raw file e.g bucket url
-        return "/"
+        """
+        Make the URL of an upload article.
+        
+        During development, points to the local file. In production,
+        points to the remote location e.g. bucket URL. This should be
+        on a different domain, to avoid serving of malicious content
+        with XSS from the hub.
+        """
+        try:
+            return self.file.url
+        except ValueError:
+            # If "The 'file' attribute has no file associated with it." yet
+            # then just return None, so that the URL gets updated when in does.
+            return None
+
+    def to_address(self):
+        """
+        Override base method to return address for storage being used.
+
+        Returns the appropriate address ("local" or cloud storage)
+        to pull the uploaded file into the project's working
+        directory.
+        """
+        if isinstance(self.file.storage, FileSystemStorage):
+            return dict(type="local", path=self.file.path)
+        else:
+            return dict(type="gcs")
 
 
 class UrlSource(Source):

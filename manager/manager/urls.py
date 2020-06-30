@@ -54,8 +54,15 @@ if settings.DEBUG:
     urlpatterns = (
         [path("debug/", include(debug_toolbar.urls))]
         + urlpatterns
+        # Public media files e.g. account images.
         + static(
             settings.MEDIA_URL,
             document_root=os.path.join(settings.MEDIA_ROOT, "public"),
+        )
+        # Project uploaded files, which in production, will require
+        # an access token.
+        + static(
+            settings.MEDIA_URL,
+            document_root=os.path.join(settings.MEDIA_ROOT, "private"),
         )
     )
