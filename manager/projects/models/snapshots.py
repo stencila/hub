@@ -67,7 +67,7 @@ class Snapshot(models.Model):
                 project=project.id,
                 input=main,
                 output="index.html",
-                options=dict(theme=theme) if theme else None,
+                options=dict(theme=theme) if theme else {},
             ),
             description="Create index.html",
             project=project,

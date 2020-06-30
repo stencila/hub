@@ -101,7 +101,9 @@ class File(models.Model):
         Create a file from info dictionary.
         """
         modified = info.get("modified")
-        return File.objects.create(
+        # Use get_or_create create to avoid duplicate entries e.g. if a
+        # callback is accidentally called twice
+        return File.objects.get_or_create(
             project=project,
             job=job,
             source=source,
