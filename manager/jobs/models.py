@@ -435,14 +435,14 @@ class JobStatus(EnumChoice):
             "RECEIVED": 3,
             "STARTED": 4,
             "RUNNING": 5,
-            # Failure is high rank than success because
+            "SUCCESS": 6,
+            "CANCELLED": 7,
+            "REVOKED": 8,
+            "TERMINATED": 9,
+            # Failure is highest rank because
             # compound jobs should have FAILURE if any
             # children are failed.
-            "SUCCESS": 6,
-            "FAILURE": 7,
-            "CANCELLED": 8,
-            "REVOKED": 9,
-            "TERMINATED": 10,
+            "FAILURE": 10
         }.get(status, 0)
 
     @classmethod

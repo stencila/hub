@@ -136,7 +136,8 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
     if JobMethod.is_compound(job.method):
         status = job.status
         is_active = False
-        previous_succeeded = True
+        all_previous_succeeded = True
+        any_previous_failed = False
         for child in job.children.all():
             update_job(child, update_parent=False)
 
@@ -148,13 +149,19 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
             # status of the compound job
             status = JobStatus.highest([status, child.status])
 
-            # If previous children have all succeeded and this child
-            # is still waiting then dispatch it.
-            if previous_succeeded and child.status == JobStatus.WAITING.value:
-                dispatch_job(child)
+            # If this job is still waiting then...
+            if child.status == JobStatus.WAITING.value:
+                # If all previous have succeeded, dispatch it
+                if all_previous_succeeded:
+                    dispatch_job(child)
+                # If all previous have succeeded, cancel it
+                elif any_previous_failed:
+                    cancel_job(child)
 
             if child.status != JobStatus.SUCCESS.value:
-                previous_succeeded = False
+                all_previous_succeeded = False
+            if child.status == JobStatus.FAILURE.value:
+                any_previous_failed = True
 
         job.is_active = is_active
         job.status = JobStatus.RUNNING.value if is_active else status
