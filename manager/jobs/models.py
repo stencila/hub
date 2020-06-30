@@ -442,7 +442,7 @@ class JobStatus(EnumChoice):
             # Failure is highest rank because
             # compound jobs should have FAILURE if any
             # children are failed.
-            "FAILURE": 10
+            "FAILURE": 10,
         }.get(status, 0)
 
     @classmethod

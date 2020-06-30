@@ -83,7 +83,7 @@ class Project(models.Model):
     def get_main(self) -> str:
         """
         Get the main file for the project.
-        
+
         The main file can be designated by the user,
         but if not them defaults to main.* or README.*
         if those are present.

@@ -40,6 +40,7 @@ def view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     View a snapshot of a project.
 
-    Currently, this just renders an iframe with the 
+    Currently, this just renders an iframe with index.html
+    inside it.
     """
     return retrieve(request, *args, **kwargs, template="projects/snapshots/view.html")

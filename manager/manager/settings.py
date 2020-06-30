@@ -478,7 +478,9 @@ class Dev(Prod):
     # Use local file storage
     STORAGE_MODE = "local"
 
-    SNAPSHOT_DIR = os.path.join(Prod.BASE_DIR, "..", "worker", "snapshots")
+    SNAPSHOT_DIR = os.path.join(  # type:ignore
+        Prod.BASE_DIR, "..", "worker", "snapshots"
+    )
 
 
 class Test(Prod):

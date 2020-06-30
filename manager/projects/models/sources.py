@@ -2,9 +2,9 @@ import datetime
 import re
 from typing import List, Optional, Type, Union
 
-from django.core.files.storage import FileSystemStorage
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 from django.core.validators import URLValidator
 from django.db import models, transaction
 from django.utils import timezone
@@ -647,7 +647,7 @@ class UploadSource(Source):
 
     During development, uploaded files are stored on the local
     filesystem. In production, they are stored in cloud storage
-    e.g. Google Could Storage or S3. 
+    e.g. Google Could Storage or S3.
     """
 
     file = models.FileField(
@@ -663,7 +663,7 @@ class UploadSource(Source):
     def make_url(self) -> str:
         """
         Make the URL of an upload article.
-        
+
         During development, points to the local file. In production,
         points to the remote location e.g. bucket URL. This should be
         on a different domain, to avoid serving of malicious content

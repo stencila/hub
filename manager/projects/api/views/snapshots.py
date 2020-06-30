@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404, reverse
+from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
