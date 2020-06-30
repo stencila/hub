@@ -1,3 +1,23 @@
+# [2.41.0](https://github.com/stencila/hub/compare/v2.40.0...v2.41.0) (2020-06-30)
+
+
+### Bug Fixes
+
+* Standardize view header/action bar layouts ([97cb263](https://github.com/stencila/hub/commit/97cb263f87745ad39b8358eb02333b293ddf096e))
+* **Files:** Use get_or_create and ensure options is a dict. ([16dd90b](https://github.com/stencila/hub/commit/16dd90bd3ceee7e86dcaae1287e057d588037f36))
+* **Jobs:** Cancel waiting jobs if a predecessor fails ([37a81ba](https://github.com/stencila/hub/commit/37a81bae07ddd5f44e3403681d9f98da4a93e557))
+* **Projects:** Make Source filter full-width on mobile view ([0190613](https://github.com/stencila/hub/commit/019061375ba836a4fb635e4089e009bb7ddad06b))
+* **Snapshots:** Style snapshot preview page ([b85f72b](https://github.com/stencila/hub/commit/b85f72b5f73d30e43669edd13356b0fd066f1df1))
+* **Upload sources:** Make URL and address based on storage type ([73b5504](https://github.com/stencila/hub/commit/73b550488de1c79c8eb4e9b778ef6f273e6f7a51))
+
+
+### Features
+
+* **Files and snapshots:** Allow specifying main file for a project; snapshot viewing and download ([d59db75](https://github.com/stencila/hub/commit/d59db75d4c652660bab870d4ed1ae35eab0d1fba))
+* **Projects:** Hide time & file size on mobile views for improved UI ([ce6efb6](https://github.com/stencila/hub/commit/ce6efb64b640d0af9b9f9bcb1372f1ef7280632c))
+* **Projects:** Match project sidebar layout/header to Org view ([0a76915](https://github.com/stencila/hub/commit/0a769157eea61ba7c3f869037b0e6b719a3e1562))
+* **Worker:** Add pull job for local files ([c329ce7](https://github.com/stencila/hub/commit/c329ce72a9373509afc70e3f440673044c3c2a74))
+
 # [2.40.0](https://github.com/stencila/hub/compare/v2.39.0...v2.40.0) (2020-06-29)
 
 
