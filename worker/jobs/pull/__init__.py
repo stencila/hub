@@ -1,4 +1,5 @@
 from typing import Callable, Dict, List
+import os
 
 import config
 from jobs.base.job import Job
@@ -37,7 +38,7 @@ class Pull(Job):
 
     name = "pull"
 
-    def do(self, source: dict, project: int, path: str):  # type: ignore
+    def do(self, source: dict, path: str, **kwargs):  # type: ignore
         """
         Pull `source` to `path` within `project`.
 
@@ -51,9 +52,6 @@ class Pull(Job):
         assert isinstance(source, dict), "source must be a dictionary"
         assert "type" in source, "source must have a type"
         assert (
-            isinstance(project, int) and project > 0
-        ), "project must be a positive integer"
-        assert (
             isinstance(path, str) and len(path) > 0
         ), "path must be a non-empty string"
 
@@ -63,7 +61,4 @@ class Pull(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         pull_func = PULL_FUNCS[typ]
 
-        # Resolve the project directory based on the project id
-        project_dir = config.get_project_working_dir(project)
-
-        return pull_func(source, project_dir, path)
+        return pull_func(source, os.getcwd(), path)

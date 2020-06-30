@@ -14,9 +14,9 @@ class Copy(Job):
     name = "copy"
 
     def do(  # type: ignore
-        self, project: int, snapshot: int
+        self, project: int, snapshot: int, **kwargs
     ) -> Files:
-        source = config.get_project_working_dir(project)
         dest = config.get_project_snapshot_dir(project, snapshot)
-        shutil.copytree(source, dest)
+        shutil.copytree(".", dest)
+        shutil.make_archive(dest, "zip", ".")
         return list_files(dest)

@@ -14,7 +14,7 @@ class Encode(Convert):
 
     name = "encode"
 
-    def do(self, input: Any, output: str, options: Dict[str, Union[str, bool]] = {}):  # type: ignore
+    def do(self, input: Any, output: str, options: Dict[str, Union[str, bool]] = {}, **kwargs):  # type: ignore
         """
         Do the encoding.
 

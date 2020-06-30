@@ -1,10 +1,14 @@
 from datetime import datetime
 from typing import Any, Optional
+import os
 import traceback
+from pathlib import Path
 
 import celery
 from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
+
+import config
 
 # Log levels
 # These are the same as used in https://github.com/stencila/logga
@@ -110,15 +114,34 @@ class Job(celery.Task):
         that actually gets called by Celery each time a task
         in processed. It is wraps `self.do()` to handle
         logging, exceptions, termination etc.
+
+        Most jobs need to operate within a project's working directory
+        and project `File` paths are always relative to those.
+        To avoid code repetition and potential errors with making paths absolute,
+        this method changes into the working directory of the project.
+        In the future, the project job argument may be mandatory.
         """
+        current_dir = os.getcwd()
+
+        project = kwargs.get("project")
+        if project:
+            working_dir = config.get_project_working_dir(project)
+            Path(working_dir).mkdir(parents=True, exist_ok=True)
+        else:
+            working_dir = current_dir
+
         self.begin()
         try:
+            if working_dir != current_dir:
+                os.chdir(working_dir)
             result = self.do(*args, **kwargs)
             return self.success(result)
         except SoftTimeLimitExceeded:
             return self.terminated()
         except Exception as exc:
             raise self.failure(exc)
+        finally:
+            os.chdir(current_dir)
 
     def do(self, *args, **kwargs):
         """

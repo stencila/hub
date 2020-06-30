@@ -14,7 +14,7 @@ class Decode(Convert):
 
     name = "decode"
 
-    def do(self, input: Union[str, bytes], options: Dict[str, Union[str, bool]] = {}):  # type: ignore
+    def do(self, input: Union[str, bytes], options: Dict[str, Union[str, bool]] = {}, **kwargs):  # type: ignore
         """
         Do the decoding.
 
