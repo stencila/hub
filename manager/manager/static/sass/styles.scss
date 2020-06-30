@@ -355,6 +355,7 @@ body {
   width: 0.5em;
 }
 
+.level .level-left,
 .level.is-mobile .level-left,
 .level.is-mobile .level-right {
   flex-shrink: 1;
@@ -362,6 +363,10 @@ body {
 
 .level-left {
   max-width: 100%;
+
+  .level-item:only-child {
+    flex-shrink: 1;
+  }
 }
 
 .navbar-link:not(.is-arrowless)::after {

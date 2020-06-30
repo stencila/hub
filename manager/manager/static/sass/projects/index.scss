@@ -1,5 +1,11 @@
 @import "./sources/index.scss";
 
+@media screen and (min-width: $tablet){
+  .project-description {
+    padding-right: $gap;
+  }
+}
+
 .project-list--item {
   border-bottom: 1px solid $grey-lightest;
   margin-left: -$gap / 4;

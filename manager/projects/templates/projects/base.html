@@ -3,6 +3,14 @@
 {% load stencila %}
 
 {% block sidebar_start %}
+<div class="is-hidden-mobile">
+<h1 class="is-size-3 has-text-weight-bold">
+  {{ project.title|default:project.name }}
+</h1>
+
+<hr />
+</div>
+
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
     <li class="sidebar__item" id="menu-item-files">
