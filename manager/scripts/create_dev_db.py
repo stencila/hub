@@ -1,3 +1,4 @@
+import io
 import mimetypes
 import random
 
@@ -7,12 +8,14 @@ from django.utils import timezone
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
 from jobs.models import Queue, Worker, Zone
+from manager.themes import Themes
 from projects.models.files import File
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    UploadSource,
     UrlSource,
 )
 from users.models import User
@@ -196,6 +199,7 @@ def run(*args):
             creator=random_account_user(account),
             public=True,
             description="A public project for account {0}.".format(account.name),
+            theme=random_theme(),
         )
 
         private = Project.objects.create(
@@ -205,6 +209,7 @@ def run(*args):
             creator=random_account_user(account),
             public=False,
             description="A private project for account {0}.".format(account.name),
+            theme=None,  # For private projects, will fallback to account theme
         )
 
         for project in [public, private]:
@@ -222,9 +227,15 @@ def run(*args):
     # Sources
     #################################################################
 
-    # Each project has at least one of each type of source
-
     for project in Project.objects.all():
+
+        # Each project has an uploaded main.md file with some actual
+        # content so we can test conversions and themeing etc on it
+
+        create_main_file_for_project(project)
+
+        # Each project has at least one of each type of source
+
         elife = ElifeSource.objects.create(
             project=project,
             creator=random_project_user(project),
@@ -323,6 +334,37 @@ def random_project_user(project):
         .first()
         .user
     )
+
+
+def random_theme():
+    """Get a randome theme name."""
+    return random.choice([enum.value for enum in Themes])
+
+
+with open("scripts/data/main.md") as file:
+    main_markdown = file.read()
+
+
+def create_main_file_for_project(project):
+    """Create a main.md file for the project."""
+    content = main_markdown.format(title=project.title, description=project.description)
+
+    upload = UploadSource.objects.create(
+        project=project, creator=project.creator, path="main.md"
+    )
+    upload.file.save(upload.path, io.StringIO(content))
+
+    file = File.objects.create(
+        project=project,
+        source=upload,
+        path="main.md",
+        size=len(content),
+        mimetype="text/markdown",
+        modified=timezone.now(),
+    )
+
+    project.main = file
+    project.save()
 
 
 def create_files_for_source(source, paths):

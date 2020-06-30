@@ -1,4 +1,5 @@
 from typing import Callable, Dict, List
+import os
 
 import config
 from jobs.base.job import Job
@@ -8,6 +9,7 @@ from .gdoc import pull_gdoc
 from .gdrive import pull_gdrive
 from .github import pull_github
 from .http import pull_http
+from .local import pull_local
 from .plos import pull_plos
 from .helpers import Files
 
@@ -18,6 +20,7 @@ PULL_FUNCS: Dict[str, Callable[[dict, str, str], Files]] = {
     "googledocs": pull_gdoc,
     "googledrive": pull_gdrive,
     "http": pull_http,
+    "local": pull_local,
     "plos": pull_plos,
     "url": pull_http,  # URL is used as an alias for HTTP e.g `UrlSource`
 }
@@ -35,7 +38,7 @@ class Pull(Job):
 
     name = "pull"
 
-    def do(self, source: dict, project: int, path: str):  # type: ignore
+    def do(self, source: dict, path: str, **kwargs):  # type: ignore
         """
         Pull `source` to `path` within `project`.
 
@@ -49,9 +52,6 @@ class Pull(Job):
         assert isinstance(source, dict), "source must be a dictionary"
         assert "type" in source, "source must have a type"
         assert (
-            isinstance(project, int) and project > 0
-        ), "project must be a positive integer"
-        assert (
             isinstance(path, str) and len(path) > 0
         ), "path must be a non-empty string"
 
@@ -61,7 +61,4 @@ class Pull(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         pull_func = PULL_FUNCS[typ]
 
-        # Resolve the project directory based on the project id
-        project_dir = config.get_project_working_dir(project)
-
-        return pull_func(source, project_dir, path)
+        return pull_func(source, os.getcwd(), path)

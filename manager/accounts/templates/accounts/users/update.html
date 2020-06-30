@@ -4,7 +4,7 @@
 {% block title %}{{ account.name }} {% trans "Users" %}{% endblock %}
 
 {% block accounts_content %}
-<h1 class="title">{% trans "Users" %}</h1>
+<h1 class="title is-sr-only-mobile">{% trans "Users" %}</h1>
 
 {% if role in "MANAGER,OWNER" %}
 <form class="field has-addons-tablet">

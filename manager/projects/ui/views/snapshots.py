@@ -22,7 +22,9 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
-def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+def retrieve(
+    request: HttpRequest, *args, template="projects/snapshots/retrieve.html", **kwargs
+) -> HttpResponse:
     """
     Retrieve a snapshot of a project.
     """
@@ -30,8 +32,15 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     snapshot = viewset.get_object(project)
 
-    return render(
-        request,
-        "projects/snapshots/retrieve.html",
-        dict(project=project, snapshot=snapshot),
-    )
+    return render(request, template, dict(project=project, snapshot=snapshot),)
+
+
+@login_required
+def view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    View a snapshot of a project.
+
+    Currently, this just renders an iframe with index.html
+    inside it.
+    """
+    return retrieve(request, *args, **kwargs, template="projects/snapshots/view.html")

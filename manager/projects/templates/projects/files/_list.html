@@ -47,6 +47,9 @@
         {% else %}
         {{ file.name|default:file.path }}
         {% endif %}
+        {% if file.id == project.main.id %}
+        <span class="tag is-primary is-light">{% trans 'Main' %}</span>
+        {% endif %}
       </td>
       <td class="is-vcentered">
         {% if is_root_files_list %}
@@ -61,10 +64,10 @@
         {% endif %}
         {% endif %}
       </td>
-      <td class="is-vcentered">
+      <td class="is-vcentered is-sr-only-mobile">
         {{ file.modified|naturaltime }}
       </td>
-      <td class="is-vcentered">
+      <td class="is-vcentered is-sr-only-mobile">
         {{ file.size|format_bytes }}
       </td>
     </tr>

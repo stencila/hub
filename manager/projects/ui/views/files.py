@@ -19,28 +19,14 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
       /api/projects/<project>/files?prefix=sub&search=foo
     """
-    prefix = kwargs.get("prefix")
-    if prefix and not prefix.endswith("/"):
-        prefix += "/"
-
     request.GET = request.GET.copy()
-    request.GET["prefix"] = prefix
-    request.GET["aggregate"] = True
+    request.GET["prefix"] = kwargs.get("prefix")
 
     viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
     files = viewset.get_queryset(project)
-
-    # List of tuples for directory breadcrumbs
-    dirs = [("root", "")]
-    path = ""
-    for name in prefix.split("/"):
-        if name:
-            path += name + "/"
-            dirs.append((name, path))
+    context = viewset.get_response_context(queryset=files)
 
     return render(
-        request,
-        "projects/files/list.html",
-        dict(prefix=prefix, dirs=dirs, files=files, project=project,),
+        request, "projects/files/list.html", dict(project=project, **context),
     )

@@ -1,3 +1,7 @@
+import os
+from typing import Optional
+
+from django.conf import settings
 from django.db import models
 
 from jobs.models import Job, JobMethod
@@ -50,25 +54,43 @@ class Snapshot(models.Model):
         """
         snapshot = Snapshot.objects.create(project=project, creator=user)
 
+        # Job to pull the project
+        pull_subjob = project.pull(user)
+
+        # Job to create an index.html
+        main = project.get_main()
+        theme = project.get_theme()
+        # TODO: If no main file then generate a file listing index.
+        index_subjob = Job.objects.create(
+            method=JobMethod.convert.name,
+            params=dict(
+                project=project.id,
+                input=main,
+                output="index.html",
+                options=dict(theme=theme) if theme else {},
+            ),
+            description="Create index.html",
+            project=project,
+            creator=user,
+        )
+
+        # Job to copy working directory to snapshot directory
+        copy_subjob = Job.objects.create(
+            method=JobMethod.copy.name,
+            params=dict(project=project.id, snapshot=snapshot.id),
+            description="Copy project '{0}'".format(project.name),
+            project=project,
+            creator=user,
+            **Job.create_callback(snapshot, "copy_callback")
+        )
+
         job = Job.objects.create(
             method=JobMethod.series.name,
             description="Snapshot project '{0}'".format(project.name),
             project=project,
             creator=user,
         )
-        job.children.set(
-            [
-                project.pull(user),
-                Job.objects.create(
-                    method=JobMethod.copy.name,
-                    params=dict(project=project.id, snapshot=snapshot.id),
-                    description="Copy project '{0}'".format(project.name),
-                    project=project,
-                    creator=user,
-                    **Job.create_callback(snapshot, "copy_callback")
-                ),
-            ]
-        )
+        job.children.set([pull_subjob, index_subjob, copy_subjob])
         job.dispatch()
 
         snapshot.job = job
@@ -95,3 +117,25 @@ class Snapshot(models.Model):
         Is the snapshot currently active.
         """
         return self.job and self.job.is_active
+
+    def get_file_path(self, path: str) -> Optional[str]:
+        """
+        Get the absolute path for a file within the snapshot.
+        """
+        if not settings.SNAPSHOT_DIR:
+            return None
+        return os.path.join(
+            settings.SNAPSHOT_DIR, str(self.project.id), str(self.id), path
+        )
+
+    def get_archive_path(self, format: str = "zip") -> Optional[str]:
+        """
+        Get the absolute path to a snapshot archive.
+        """
+        if not settings.SNAPSHOT_DIR:
+            return None
+        return (
+            os.path.join(settings.SNAPSHOT_DIR, str(self.project.id), str(self.id))
+            + "."
+            + format
+        )

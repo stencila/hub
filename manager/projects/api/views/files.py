@@ -28,29 +28,51 @@ class ProjectsFilesViewSet(
         """
         return get_project(self.kwargs, self.request.user)
 
-    def get_queryset(self, project: Optional[Project] = None, aggregate: bool = False):
+    def get_prefix(self) -> str:
+        """
+        Get the prefix for the current request.
+
+        Ensures that it has a trailing slash.
+        """
+        prefix = self.request.GET.get("prefix", "").strip()
+        if prefix and not prefix.endswith("/"):
+            prefix += "/"
+        return prefix
+
+    def get_queryset(self, project: Optional[Project] = None):
         """
         Get project files.
 
         Allows for filtering:
           - using a search string
           - using path prefix (e.g for subdirectory listing)
+
+        Allows for aggregation (the default) by directory.
         """
         project = project or self.get_project()
+
         queryset = (
-            File.objects.filter(project=project, snapshot__isnull=True)
+            File.objects.filter(project=project)
             .order_by("path")
             .select_related("project", "project__account", "job", "source")
         )
+
+        source = self.request.GET.get("source")
+        if source:
+            queryset = queryset.filter(source=source)
+
+        snapshot = self.request.GET.get("snapshot")
+        if snapshot:
+            queryset = queryset.filter(snapshot=snapshot)
+        else:
+            queryset = queryset.filter(snapshot__isnull=True)
 
         search = self.request.GET.get("search", "").strip()
         if search:
             queryset = queryset.filter(path__icontains=search)
 
-        prefix = self.request.GET.get("prefix", "").strip()
+        prefix = self.get_prefix()
         if prefix:
-            if not prefix.endswith("/"):
-                prefix += "/"
             queryset = queryset.filter(path__startswith=prefix)
 
         queryset = queryset.annotate(
@@ -68,39 +90,39 @@ class ProjectsFilesViewSet(
             )
         )
 
-        aggregate = aggregate or self.request.GET.get("aggregate")
-        if aggregate is not None:
-            groups = {}
-            for file in queryset.all():
-                if "/" in file.path[len(prefix) + 1 :]:
-                    name = file.name
-                    info = groups.get(name)
-                    if not info:
-                        groups[name] = dict(
-                            project=file.project,
-                            path=prefix + name,
-                            name=file.name,
-                            is_directory=True,
-                            count=1,
-                            source=[file.source],
-                            size=file.size,
-                            modified=file.modified,
-                        )
-                    else:
-                        info["count"] += 1
-                        info["size"] += file.size
-                        info["source"] += [file.source]
-                        info["modified"] = (
-                            file.modified
-                            if file.modified > info["modified"]
-                            else info["modified"]
-                        )
-                else:
-                    file.is_directory = False
-                    groups[file.path] = file
-            return list(groups.values())
+        expand = self.request.GET.get("expand")
+        if expand is not None:
+            return queryset
 
-        return queryset
+        groups = {}
+        for file in queryset.all():
+            if "/" in file.path[len(prefix) + 1 :]:
+                name = file.name
+                info = groups.get(name)
+                if not info:
+                    groups[name] = dict(
+                        project=file.project,
+                        path=prefix + name,
+                        name=file.name,
+                        is_directory=True,
+                        count=1,
+                        source=[file.source],
+                        size=file.size,
+                        modified=file.modified,
+                    )
+                else:
+                    info["count"] += 1
+                    info["size"] += file.size
+                    info["source"] += [file.source]
+                    info["modified"] = (
+                        file.modified
+                        if file.modified > info["modified"]
+                        else info["modified"]
+                    )
+            else:
+                file.is_directory = False
+                groups[file.path] = file
+        return list(groups.values())
 
     def get_object(self, project: Optional[Project] = None):
         """
@@ -116,3 +138,19 @@ class ProjectsFilesViewSet(
         Get the serializer class for the current action.
         """
         return FileSerializer
+
+    def get_response_context(self, *args, **kwargs):
+        """
+        Add breadcrumbs to template rendering context.
+        """
+        context = super().get_response_context(*args, **kwargs)
+
+        breadcrumbs = [("root", "")]
+        path = ""
+        for name in self.get_prefix().split("/"):
+            if name:
+                path += name + "/"
+                breadcrumbs.append((name, path))
+        context["breadcrumbs"] = breadcrumbs
+
+        return context

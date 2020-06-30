@@ -1,45 +1,49 @@
-{% extends '_page_action_bar.html' %}
 {% load i18n %}
 
-{% block title %}{{ project.title|default:project.name }}{% endblock %}
+<div class="level align-items-flex-start">
+  <div class="level-left">
+    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
+      <div class="level-left project-description">
+        {% if project.description %}
+        <p>
+          {{ project.description }}
+        </p>
+        {% elif project.role in 'MANAGER, OWNER' %}
+        <p>
+          <a class="button is-white is-light is-small"
+             href="{% url 'ui-projects-update' project.account.name project.name %}">
+            <span class="icon">
+              <i class="ri-add-line"></i>
+            </span>
+            <span>
+              {% trans "Add project description" %}
+            </span>
+          </a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 
-{% block action_bar_end %}
-<a class="button is-success is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered" disabled
-   data-tooltip="This feature is coming soon!">
-  <span class="icon">
-    <i class="ri-play-line"></i>
-  </span>
-  <span>
-    {% trans "Run" %}
-  </span>
-</a>
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <a class="button is-success is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
+       disabled data-tooltip="This feature is coming soon!">
+      <span class="icon">
+        <i class="ri-play-line"></i>
+      </span>
+      <span>
+        {% trans "Run" %}
+      </span>
+    </a>
 
-<a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered" disabled
-   data-tooltip="This feature is coming soon!">
-  <span class="icon">
-    <i class="ri-git-branch-line"></i>
-  </span>
-  <span>
-    {% trans "Fork" %}
-  </span>
-</a>
-{% endblock %}
-
-{% block action_bar_after %}
-{% if project.description %}
-<p>
-  {{ project.description }}
-</p>
-{% elif project.role in 'MANAGER, OWNER' %}
-<p>
-  <a class="button is-white is-light is-small" href="{% url 'ui-projects-update' project.account.name project.name %}">
-    <span class="icon">
-      <i class="ri-add-line"></i>
-    </span>
-    <span>
-      {% trans "Add project description" %}
-    </span>
-  </a>
-</p>
-{% endif %}
-{% endblock %}
+    <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered" disabled
+       data-tooltip="This feature is coming soon!">
+      <span class="icon">
+        <i class="ri-git-branch-line"></i>
+      </span>
+      <span>
+        {% trans "Fork" %}
+      </span>
+    </a>
+  </div>
+</div>

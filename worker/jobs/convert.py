@@ -18,6 +18,7 @@ class Convert(SubprocessJob):
         input: Union[str, bytes],
         output: Union[str, List[str]],
         options: Dict[str, Union[str, bool]] = {},
+        **kwargs,
     ):
         """
         Do the conversion.
@@ -50,4 +51,8 @@ class Convert(SubprocessJob):
                 value = "true"
             args.append("--{}={}".format(name, value))
 
+        import os
+
+        print(os.getcwd())
+        print(args)
         return super().do(args, input=input if isinstance(input, bytes) else None)

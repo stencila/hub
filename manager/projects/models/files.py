@@ -93,14 +93,6 @@ class File(models.Model):
         help_text="The encoding of the file e.g. gzip",
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["project", "path", "snapshot"],
-                name="%(class)s_unique_project_path_snapshot",
-            )
-        ]
-
     @staticmethod
     def create(
         project: Project, path: str, info: Dict, job=None, source=None, snapshot=None
@@ -109,7 +101,9 @@ class File(models.Model):
         Create a file from info dictionary.
         """
         modified = info.get("modified")
-        return File.objects.create(
+        # Use get_or_create create to avoid duplicate entries e.g. if a
+        # callback is accidentally called twice
+        return File.objects.get_or_create(
             project=project,
             job=job,
             source=source,

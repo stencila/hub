@@ -10,6 +10,10 @@ Renders the icon class name to use for a source based on its status.
 <span class="icon is-vcentered has-text-danger {{classes}}">
   <i class="ri-close-line"></i>
 </span>
+{% elif status in 'CANCELLED,REVOKED,TERMINATED' %}
+<span class="icon is-vcentered has-text-warning {{classes}}">
+  <i class="ri-close-line"></i>
+</span>
 {% else %}
 <span class="icon is-vcentered has-text-info animate-spin {{classes}}">
   <i class="ri-loader-2-line"></i>

@@ -1,0 +1,16 @@
+<div class="field">
+  <div class="control has-icons-left has-icons-right is-expanded">
+    <input id="projects-search-input" class="input is-small-mobile" type="text" name="search"
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
+           hx-get="{% url 'api-projects-list' %}" hx-include="input[name=account]"
+           hx-template="projects/_project_list.html" hx-target="#projects-search-result"
+           hx-indicator="#projects-search-indicator">
+    <span class="icon is-small is-left">
+      <i class="ri-search-line"></i>
+    </span>
+    <span class="icon is-right htmx-indicator" id="projects-search-indicator">
+      <i class="ri-loader-line animate-spin"></i>
+    </span>
+  </div>
+  <input type="hidden" name="account" value="{{account.id}}">
+</div>

@@ -3,7 +3,9 @@
   <div class="field mb-0 has-text-right-tablet">
     <input id="public-toggle" type="checkbox" class="toggle is-small is-inline toggle__label-before"
            {% if project.public %}checked{% endif %}>
-    <label for="public-toggle">Public</label>
+    <label for="public-toggle">
+      <span class="is-sr-only-mobile">Public</span>
+    </label>
   </div>
   <div id="public-target">
   </div>

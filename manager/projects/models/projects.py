@@ -64,12 +64,39 @@ class Project(models.Model):
         # See note for the `Account.theme` field for why this is a TextField.
     )
 
+    main = models.ForeignKey(
+        "File",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="project_main",
+        help_text="Main file of the project.",
+    )
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["account", "name"], name="%(class)s_unique_account_name"
             )
         ]
+
+    def get_main(self) -> str:
+        """
+        Get the main file for the project.
+
+        The main file can be designated by the user,
+        but if not them defaults to main.* or README.*
+        if those are present.
+        """
+        if self.main:
+            return self.main.path
+        else:
+            # TODO
+            return None
+
+    def get_theme(self) -> str:
+        """Get the theme for the project."""
+        return self.theme or self.account.theme
 
     def pull(self, user: User) -> Job:
         """

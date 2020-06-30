@@ -1,4 +1,5 @@
 from typing import Callable, Dict, List
+import os
 
 import config
 from jobs.base.job import Job
@@ -40,7 +41,4 @@ class Push(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         push_func = PUSH_FUNCS[typ]
 
-        # Resolve the project directory based on the project id
-        project_dir = config.get_project_working_dir(project)
-
-        return push_func(paths, project_dir, source)
+        return push_func(paths, os.getcwd(), source)

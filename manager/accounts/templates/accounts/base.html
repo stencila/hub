@@ -52,15 +52,8 @@
 
   <hr />
 </div>
-{% include './_sidebar_start.html' %}
-{% endblock %}
 
-{% block hide_sidebar_end %}
-{% endblock %}
-
-
-{% block layout_content %}
-<div class="is-hidden-tablet">
+<div class="is-hidden-tablet sidebar__header">
   <div class="media is-mobile">
     <div class="media-left">
       {% if account.image %}
@@ -101,6 +94,15 @@
 
   <hr />
 </div>
+
+{% include './_sidebar_start.html' %}
+{% endblock %}
+
+{% block hide_sidebar_end %}
+{% endblock %}
+
+
+{% block layout_content %}
 
 {% block accounts_content %}{% endblock %}
 
