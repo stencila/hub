@@ -1,0 +1,4 @@
+{% load i18n %}
+{% autoescape off %}
+{% trans "Invalid invitation was used" %}
+{% endautoescape %}

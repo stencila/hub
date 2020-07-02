@@ -1,0 +1,17 @@
+{% for invite in invites %}
+<a class="button is-danger" hx-delete="{% url 'api-invites-detail' invite.id %}" hx-target="#invite-list"
+   hx-template="invitations/_list.html" hx-extra-context="queryset">Delete</a>
+<pre>
+Email: {{ invite.email }}
+Created: {{ invite.created }}
+Sent: {{ invite.sent }}
+Accepted: {{ invite.accepted }}
+Completed: {{ invite.completed }}
+Action: {{ invite.action }}
+Arguments: {{ invite.arguments }}
+Message: {{ invite.message }}
+  </pre>
+<hr />
+{% empty %}
+No invites
+{% endfor %}

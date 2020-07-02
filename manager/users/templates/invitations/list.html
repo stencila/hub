@@ -1,0 +1,11 @@
+{% extends "base_centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Invites" %}{% endblock %}
+
+{% block layout_content %}
+<h1 class="title is-3">{% trans "Invites" %}</h1>
+<div id="invite-list">
+  {% include 'invitations/_list.html' %}
+</div>
+{% endblock %}
