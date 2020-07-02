@@ -80,7 +80,7 @@ def get_project(
     Get a project for the user, optionally requiring one or more roles.
 
     Like GitHub, raises a Http404 if the user does not have permission
-    to avoid leaking the existence of a private project. 
+    to avoid leaking the existence of a private project.
     """
     filter = filter_from_ident(identifiers["project"])
 
