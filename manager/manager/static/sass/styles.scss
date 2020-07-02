@@ -116,8 +116,7 @@ $modal-background-background-color: transparentize(darken($blue, 30%), 0.3);
 @import "../../../node_modules/@creativebulma/bulma-tooltip/src/sass/index.sass";
 
 // Custom styles
-@import "./accounts/teams/index.scss";
-@import "./accounts/users/email.scss";
+@import "./accounts/index.scss";
 @import "./projects/index.scss";
 
 // =============================================================================

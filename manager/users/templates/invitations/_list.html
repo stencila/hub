@@ -1,17 +1,48 @@
-{% for invite in invites %}
-<a class="button is-danger" hx-delete="{% url 'api-invites-detail' invite.id %}" hx-target="#invite-list"
-   hx-template="invitations/_list.html" hx-extra-context="queryset">Delete</a>
-<pre>
-Email: {{ invite.email }}
-Created: {{ invite.created }}
-Sent: {{ invite.sent }}
-Accepted: {{ invite.accepted }}
-Completed: {{ invite.completed }}
-Action: {{ invite.action }}
-Arguments: {{ invite.arguments }}
-Message: {{ invite.message }}
-  </pre>
-<hr />
-{% empty %}
-No invites
-{% endfor %}
+{% load i18n humanize %}
+
+<ul>
+  {% for invite in invites %}
+  <li class="invite-list-item">
+    <div class="level">
+      <div class="level-left" title="{% trans "Invited" %} {{ invite.sent|naturaltime }}">
+        {{ invite.email }}
+      </div>
+      <div class="level-right">
+        {% if invite.accepted == False %}
+        <span class="tag mr-2 image-tooltip has-tooltip-bottom"
+              data-tooltip="{% trans "The invitation hasn’t been accepted yet." %}">
+          <span class="icon">
+            <i class="ri-mail-unread-line"></i>
+          </span>
+          <span>
+            {% trans "Pending" %}
+          </span>
+        </span>
+
+        <a class="button is-danger is-outlined is-small" hx-delete="{% url 'api-invites-detail' invite.id %}"
+           hx-target="#invite-list" hx-template="invitations/_list.html" hx-extra-context="queryset">
+          <span class="icon">
+            <i class="ri-close-line"></i>
+          </span>
+          <span>
+            {% trans "Cancel" %}
+          </span>
+        </a>
+        {% else %}
+        <span class="tag is-success is-light">
+          <span class="icon">
+            <i class="ri-check-line"></i>
+          </span>
+          <span>
+            {% trans "Accepted" %}
+          </span>
+        </span>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+  <li>
+    {% trans "You haven’t invited anyone yet." %}
+  <li>
+    {% endfor %}
+</ul>

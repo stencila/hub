@@ -4,7 +4,30 @@
 {% block title %}{% trans "Invites" %}{% endblock %}
 
 {% block layout_content %}
-<h1 class="title is-3">{% trans "Invites" %}</h1>
+
+<div class="level is-mobile">
+  <div class="level-left">
+    <div class="level-item">
+      <h1 class="title">{% trans "Invites" %}</h1>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <div class="level-right">
+    <p class="level-item">
+      <a class="button is-primary is-small-mobile" href="{% url 'ui-users-invites-create' %}">
+        <span class="icon">
+          <i class="ri-mail-add-line"></i>
+        </span>
+        <span>
+          {% trans "Send Invite" %}
+        </span>
+      </a>
+    </p>
+  </div>
+  {% endif %}
+</div>
+
 <div id="invite-list">
   {% include 'invitations/_list.html' %}
 </div>
