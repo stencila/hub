@@ -27,10 +27,17 @@ class InvitesViewSet(
     """
 
     model = Invite
-    serializer_class = InviteSerializer
+    queryset_name = "invites"
+    object_name = "invite"
 
     def get_queryset(self) -> QuerySet:
         """
         Get all invites sent by the current user.
         """
         return Invite.objects.filter(inviter=self.request.user)
+
+    def get_serializer_class(self):
+        """
+        Get the serializer class for the current action.
+        """
+        return None if self.action == "destroy" else InviteSerializer

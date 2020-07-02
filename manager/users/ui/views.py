@@ -5,11 +5,11 @@ from allauth.account.views import LoginView, LogoutView, SignupView
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
-from django.shortcuts import reverse
+from django.shortcuts import render, reverse
 
+from users.api.views.invites import InvitesViewSet
 from users.models import Invite
-
-from .forms import SignupForm
+from users.ui.forms import SignupForm
 
 logger = logging.getLogger(__name__)
 
@@ -46,16 +46,68 @@ class SignoutView(LogoutView):
     template_name = "users/signout.html"
 
 
+@login_required
+def invites_create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Create a new invite.
+
+    Will be linked to with action and arguments e.g
+
+       /me/invites/send?email=user@example.com&action=join_account&account=3&next=/3
+    """
+    viewset = InvitesViewSet.init("create", request, args, kwargs)
+    serializer = viewset.get_serializer()
+
+    email = request.GET.get("email", "")
+    message = request.GET.get("message", "")
+    action = request.GET.get("action")
+    next = request.GET.get("next", reverse("ui-users-invites-list"))
+    arguments = dict(
+        [
+            (key, value)
+            for key, value in request.GET.items()
+            if key not in ["email", "message", "action", "next"]
+        ]
+    )
+
+    return render(
+        request,
+        "invitations/create.html",
+        dict(
+            serializer=serializer,
+            email=email,
+            message=message,
+            action=action,
+            arguments=arguments,
+            next=next,
+        ),
+    )
+
+
+@login_required
+def invites_list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Get a list of invites.
+
+    Mainly intended for users to be able to check to see what invites
+    they have sent.
+    """
+    viewset = InvitesViewSet.init("list", request, args, kwargs)
+    invites = viewset.get_queryset()
+    return render(request, "invitations/list.html", dict(invites=invites))
+
+
 class AcceptInviteView(invitations.views.AcceptInvite):
     """Override to allow for invite actions."""
 
     def get_object(self, *args, **kwargs):
         """
-        Override to cache the invite instead of querying database twice.
+        Override to allow case sensitive matching of keys.
         """
-        if not hasattr(self, "invite"):
-            self.invite = super().get_object(*args, **kwargs)
-        return self.invite
+        try:
+            return Invite.objects.get(key=self.kwargs["key"])
+        except Invite.DoesNotExist:
+            return None
 
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """
@@ -65,7 +117,7 @@ class AcceptInviteView(invitations.views.AcceptInvite):
         # it's `accepted` etc fields get updated
         super().post(request, *args, **kwargs)
 
-        invite = self.get_object()
+        invite = self.object
         if request.user.is_authenticated:
             # Perform the action now and redirect to it's URL
             invite.perform_action(request)

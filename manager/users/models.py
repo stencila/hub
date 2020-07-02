@@ -8,44 +8,92 @@ This module only serves to provide some consistency across the
 to do the following.
 """
 
-import invitations
+import shortuuid
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.http import HttpRequest
 from django.shortcuts import reverse
+from django.utils import timezone
+from invitations.adapters import get_invitations_adapter
+from invitations.models import Invitation
 from jsonfallback.fields import FallbackJSONField
+from rest_framework.exceptions import ValidationError
 
 User = get_user_model()
 
 
-class Invite(invitations.models.AbstractBaseInvitation):
+def generate_invite_key():
+    """
+    Generate a unique invite key.
+
+    The is separate function to avoid new AlterField migrations
+    being created as happens when `default=shortuuid.uuid`.
+    """
+    return shortuuid.ShortUUID().random(length=32)
+
+
+class Invite(models.Model):
     """
     An extension of the default invitation model.
 
     Allows for different types of invitations, with actions
     after success.
 
-    Overrides the `email` field to remove the unique constraint
-    (because of actions, a single email address could be invited
-    more than once).
+    Re-implements the interface of `invitations.Invitation`
+    instead of extending it so that some fields can be redefined
+    e.g shorter case sensitive `key`; e.g. avoid the unique constraint
+    on `email` (because of actions, a single email address could
+    be invited more than once).
 
     The methods for each action should use API view sets
     with synthetic requests having the `inviter` as the
     request user. This reduces code and provides consistency
     in permissions checking, thereby reducing errors.
+
+    Adds `subject_object` `GenericForeignKey` to allow
+    querying from other models
     """
+
+    key = models.CharField(
+        max_length=64,
+        unique=True,
+        default=generate_invite_key,
+        help_text="The key for the invite.",
+    )
+
+    inviter = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="invites",
+        help_text="The user who created the invite.",
+    )
 
     email = models.EmailField(
         max_length=2048, help_text="The email address of the invitee."
+    )
+
+    message = models.TextField(
+        null=True, blank=True, help_text="An optional message to send to the invitee."
     )
 
     created = models.DateTimeField(
         auto_now_add=True, help_text="When the invite was created."
     )
 
-    created = models.BooleanField(
-        default=False,
-        help_text="Whether or not the invitation action have been completed",
+    sent = models.DateTimeField(
+        null=True, blank=True, help_text="When the invite was sent."
+    )
+
+    accepted = models.BooleanField(
+        default=False, help_text="Whether the invite has been accepted or not."
+    )
+
+    completed = models.DateTimeField(
+        null=True, blank=True, help_text="When the invite action was completed",
     )
 
     action = models.CharField(
@@ -61,20 +109,49 @@ class Invite(invitations.models.AbstractBaseInvitation):
         help_text="The action to perform when the invitee signs up.",
     )
 
+    subject_type = models.ForeignKey(
+        ContentType,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        help_text="The type of the target of the action. e.g Team, Account",
+    )
+
+    subject_id = models.IntegerField(
+        null=True, blank=True, help_text="The id of the target of the action.",
+    )
+
+    subject_object = GenericForeignKey("subject_type", "subject_id")
+
     arguments = FallbackJSONField(
-        null=True, blank=True, help_text="Arguments to pass to the action."
+        null=True,
+        blank=True,
+        help_text="Any additional arguments to pass to the action.",
     )
 
-    message = models.TextField(
-        null=True, blank=True, help_text="An optional message to send to the invitee."
-    )
+    # These methods need to be implemented for the `invitations` API
 
-    # These methods need to be implemented
-    key_expired = invitations.models.Invitation.key_expired
-    send_invitation = invitations.models.Invitation.send_invitation
+    key_expired = Invitation.key_expired
+
+    def send_invitation(self, request):
+        """Extend method to add the invite object to the template context."""
+        context = dict(
+            inviter=self.inviter,
+            invite_message=self.message or "Collaborate with me on Stencila.",
+            invite_url=request.build_absolute_uri(
+                reverse("ui-users-invites-accept", args=[self.key])
+            ),
+        )
+        get_invitations_adapter().send_mail(
+            "invitations/email/email_invite", self.email, context
+        )
+        self.sent = timezone.now()
+        self.save()
 
     def __str__(self):
         return "Invite {0} {1}".format(self.action, self.email)
+
+    # These methods implement invitation actions
 
     def redirect_url(self) -> str:
         """
@@ -119,25 +196,44 @@ class Invite(invitations.models.AbstractBaseInvitation):
 
         method(user or request.user)
 
-        self.completed = True
+        self.completed = timezone.now()
         self.save()
 
     def join_account(self, invitee):
         """
         Add invitee to account with a particular role.
         """
-        assert "account" in self.arguments
-        self.arguments["id"] = invitee.id
-        if "role" not in self.arguments:
-            self.arguments["role"] = "MEMBER"
-
         from accounts.api.views import AccountsUsersViewSet
+
+        self.arguments["id"] = invitee.id
 
         request = self.create_request(data=self.arguments)
         viewset = AccountsUsersViewSet.init(
             "create", request, args=[], kwargs=self.arguments
         )
         viewset.create(request, **self.arguments)
+
+    def join_project(self, invitee):
+        """
+        Add invitee to project with a particular role.
+
+        If the user already has a project role, then the
+        invite is ignored.
+        """
+        from projects.api.views.projects import ProjectsAgentsViewSet
+
+        self.arguments["type"] = "user"
+        self.arguments["agent"] = invitee.id
+
+        request = self.create_request(data=self.arguments)
+        viewset = ProjectsAgentsViewSet.init(
+            "create", request, args=[], kwargs=self.arguments
+        )
+        try:
+            viewset.create(request, **self.arguments)
+        except ValidationError as exc:
+            if "Already has a project role" not in str(exc):
+                raise exc
 
     def take_tour(self, invitee):
         """

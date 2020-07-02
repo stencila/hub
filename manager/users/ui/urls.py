@@ -5,6 +5,8 @@ from users.ui.views import (
     SigninView,
     SignoutView,
     SignupView,
+    invites_create,
+    invites_list,
     redirect,
 )
 
@@ -13,9 +15,18 @@ urlpatterns = [
     path("signin/", SigninView.as_view(), name="ui-users-signin"),
     path("signout/", SignoutView.as_view(), name="ui-users-signout"),
     path(
-        "invites/accept/<str:key>",
-        AcceptInviteView.as_view(),
-        name="ui-users-invites-accept",
+        "invites/",
+        include(
+            [
+                path("", invites_list, name="ui-users-invites-list",),
+                path("send", invites_create, name="ui-users-invites-create",),
+                path(
+                    "accept/<str:key>",
+                    AcceptInviteView.as_view(),
+                    name="ui-users-invites-accept",
+                ),
+            ]
+        ),
     ),
     path("", include("allauth.urls")),
     # Redirect to the user's personal account
