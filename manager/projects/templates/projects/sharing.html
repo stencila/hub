@@ -52,6 +52,13 @@
     </button>
   </div>
 </form>
+<p class="help">
+  Can't find who you are looking for?
+  <a
+     href="{% url 'ui-users-invites-create' %}?action=join_project&account={{ project.account.id }}&project={{ project.id }}&next={% url 'ui-projects-sharing' project.account project.name %}&message=Hi! You're invited to join '{{ project.title|default:project.name }}' on Stencila.">
+    Invite them.
+  </a>
+</p>
 {% endif %}
 
 {% include "./_agents_list.html" with agents=project.agents.all %}

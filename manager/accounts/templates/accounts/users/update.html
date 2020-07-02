@@ -30,6 +30,13 @@
     </button>
   </div>
 </form>
+<p class="help">
+  Can't find who you are looking for?
+  <a
+     href="{% url 'ui-users-invites-create' %}?action=join_account&account={{ account.id }}&next={% url 'ui-accounts-users' account.name %}&message=Hi! You're invited to join {{ account.display_name|default:account.name }} on Stencila.">
+    Invite them.
+  </a>
+</p>
 {% endif %}
 
 {% include "./_list.html" %}
