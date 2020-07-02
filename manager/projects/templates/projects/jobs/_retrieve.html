@@ -32,11 +32,11 @@ in case the enclosing page want to use that data to trigger further events
   {% if job.children.all %}
   <hr />
 
-  <h2 class="title is-4">Sub-Jobs</h2>
+  <h2 class="title is-4">{% trans "Sub-Jobs" %}</h2>
   <ol class="job-list">
     {% for child in job.children.all %}
     <li>
-      {% include "./_job_item.html" with job=child is_list_item=True %}
+      {% include "./_job_item.html" with job=child is_list_item=True show_sub_jobs=True %}
     </li>
     {% endfor %}
   </ol>

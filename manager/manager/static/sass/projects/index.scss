@@ -46,7 +46,7 @@
       background-color: $white-bis;
     }
 
-    &:hover .job-list--item {
+    .job-list--item:hover {
       background-color: $white-ter;
     }
   }
@@ -81,6 +81,73 @@
   code {
     color: $text;
   }
+
+  .notification {
+    font-size: $size-7;
+  }
+}
+
+.job-list__sub-jobs {
+  border-left: 2px solid $grey-lighter;
+  position: relative;
+
+  &::before {
+    background-color: $white-ter;
+    border-radius: 9999px;
+    border: 2px solid $grey-lighter;
+    color: $text;
+    content: "\EF90";
+    font-family: remixicon!important;
+    font-size: 14px;
+    height: 28px;
+    left: -14px;
+    position: absolute;
+    text-align: center;
+    top: -14px;
+    width: 28px;
+    line-height: 24px;
+    z-index: 10;
+  }
+
+  &::after {
+    background-color: $white;
+    color: $text;
+    content: "Sub-Jobs";
+    font-size: $size-7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 4px;
+    left: 20px;
+    position: absolute;
+    top: -6px;
+    font-weight: bold;
+    line-height: 1;
+    z-index: 10;
+  }
+
+  .job-list--item {
+    margin-left: 0;
+    position: relative;
+
+    &::before {
+      background-color: $white-ter;
+      border-radius: 9999px;
+      border: 2px solid $grey-lighter;
+      color: $text;
+      content: "";
+      font-family: remixicon!important;
+      font-size: 14px;
+      height: 8px;
+      left: -1px;
+      line-height: 4px;
+      position: absolute;
+      text-align: center;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      width: 8px;
+      z-index: 10;
+    }
+  }
 }
 
 .job-list--id,
@@ -95,9 +162,12 @@ a.job-list--id {
   display: flex;
   flex-wrap: wrap;
   font-size: 0.75rem;
-  text-transform: uppercase;
 
   & > span {
+    &:first-child:not(.job-list__creator) {
+      margin-left: -8px;
+    }
+
     &:not(:last-child):after {
       content: '·';
       display: inline-block;
