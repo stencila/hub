@@ -73,7 +73,11 @@ class ProjectsSnapshotsViewSet(
             Snapshot.objects.filter(project=project)
             .order_by("-created")
             .select_related(
-                "creator", "creator__personal_account", "project", "project__account"
+                "creator",
+                "creator__personal_account",
+                "project",
+                "project__account",
+                "job",
             )
         )
         return queryset
