@@ -1,33 +1,67 @@
 {% load i18n %}
 
-<form hx-post="{% url 'api-invites-list' %}" hx-template="invitations/_create.html" hx-redirect="CREATED:{{ next }}">
+<form hx-post="{% url 'api-invites-list' %}" hx-template="invitations/_create.html" hx-target="#fields"
+      hx-select="#fields" hx-redirect="CREATED:{{ next }}">
+  <div id="fields">
+    {% include 'serializers/_field.html' with field=serializer.email icon='ri-mail-line' %}
 
-  <div class="field">
-    <label class="label" for="email">Email</label>
-    <div class="control has-icons-left">
-      <input class="input" name="email" id="email" type="email" autofocus="" value="{{ email }}">
-      <span class="icon is-left">
-        <i class="ri-mail-line"></i>
-      </span>
+    {% if serializer.action.value %}
+    {% with action=serializer.action.value arguments=serializer.arguments.value %}
+    <div class="field">
+      <input type="hidden" name="action" value="{{ serializer.action.value }}">
+      {% if action == 'join_account' %}
+      <input type="hidden" name="account" value="{{ arguments.account }}">
+      <label class="label" for="role">Invite to account as</label>
+      <div class="control has-icons-left">
+        <div class="select">
+          <select id="role" name="role">
+            {% for name,value in account_roles %}
+            <option value="{{ name }}" {% if name == arguments.role %}selected{% endif %}>{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <span class="icon is-left">
+          <i class="ri-user-star-line"></i>
+        </span>
+        <span class="help">The account role to give to the person you are inviting.</span>
+      </div>
+      {% elif action == 'join_project' %}
+      <input type="hidden" name="account" value="{{ arguments.account }}">
+      <input type="hidden" name="project" value="{{ arguments.project }}">
+      <label class="label" for="role">Invite to project as</label>
+      <div class="control has-icons-left">
+        <div class="select">
+          <select id="role" name="role">
+            {% for name,value in project_roles %}
+            <option value="{{ name }}" {% if name == arguments.role %}selected{% endif %}>{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <span class="icon is-left">
+          <i class="ri-user-star-line"></i>
+        </span>
+        <span class="help">The project role to give to the person you are inviting.</span>
+      </div>
+      {% else %}
+      {% for name,value in arguments.items %}
+      <input type="hidden" name="{{ name }}" value="{{ value }}">
+      {% endfor %}
+      {% endif %}
     </div>
-    <span class="help">The email address of person you are inviting.</span>
+    {% endwith %}
+    {% endif %}
+
+    <div class="field">
+      <label class="label" for="message">Message</label>
+      <div class="control has-icons-left">
+        <textarea id="message" class="textarea" name="message">{{ serializer.message.value }}</textarea>
+      </div>
+      <span class="help">A brief note about what you are inviting them to.</span>
+    </div>
+
   </div>
 
-  <div class="field">
-    <label class="label" for="message">Message</label>
-    <div class="control has-icons-left">
-      <textarea id="message" class="textarea" name="message">{{ message }}</textarea>
-    </div>
-    <span class="help">A brief note about what you are inviting them too.</span>
-  </div>
-
-  {# Hidden inputs for invite action #}
-  {% if action %}
-  <input type="hidden" name="action" value="{{ action }}">
-  {% for name,value in arguments.items %}
-  <input type="hidden" name="{{ name }}" value="{{ value }}">
-  {% endfor %}
-  {% endif %}
+  <hr />
 
   <button class="button is-primary is-fullwidth-mobile" type="submit">
     <span class="icon">

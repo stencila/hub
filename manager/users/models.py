@@ -73,7 +73,7 @@ class Invite(models.Model):
     )
 
     email = models.EmailField(
-        max_length=2048, help_text="The email address of the invitee."
+        max_length=2048, help_text="The email address of the person you are inviting."
     )
 
     message = models.TextField(

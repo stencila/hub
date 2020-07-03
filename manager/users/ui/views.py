@@ -7,6 +7,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
 from django.shortcuts import render, reverse
 
+from users.api.serializers import InviteSerializer
 from users.api.views.invites import InvitesViewSet
 from users.models import Invite
 from users.ui.forms import SignupForm
@@ -56,12 +57,10 @@ def invites_create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
        /me/invites/send?email=user@example.com&action=join_account&account=3&next=/3
     """
     viewset = InvitesViewSet.init("create", request, args, kwargs)
-    serializer = viewset.get_serializer()
+    context = viewset.get_response_context()
 
-    email = request.GET.get("email", "")
     message = request.GET.get("message", "")
     action = request.GET.get("action")
-    next = request.GET.get("next", reverse("ui-users-invites-list"))
     arguments = dict(
         [
             (key, value)
@@ -69,18 +68,17 @@ def invites_create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             if key not in ["email", "message", "action", "next"]
         ]
     )
+    serializer = InviteSerializer(
+        data=dict(message=message, action=action, arguments=arguments)
+    )
+    serializer.is_valid()
+
+    next = request.GET.get("next", reverse("ui-users-invites-list"))
 
     return render(
         request,
         "invitations/create.html",
-        dict(
-            serializer=serializer,
-            email=email,
-            message=message,
-            action=action,
-            arguments=arguments,
-            next=next,
-        ),
+        dict(**context, serializer=serializer, next=next),
     )
 
 

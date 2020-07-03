@@ -1,11 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.urls import reverse
 from knox.models import AuthToken
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 
-from accounts.models import Account, AccountTeam
-from projects.models.projects import Project
 from users.models import Invite, User
 
 
@@ -105,58 +102,6 @@ class InviteSerializer(serializers.ModelSerializer):
     def create(self, data):
         """Create and send the invite."""
         request = self.context["request"]
-        action = data.get("action")
-        arguments = dict(
-            [
-                (key, value)
-                for key, value in request.data.items()
-                if key not in ["email", "message", "action"]
-            ]
-        )
-
-        if action == "join_account":
-            if "account" not in arguments:
-                raise exceptions.ValidationError(
-                    dict(account="Account id is required.")
-                )
-            if "role" not in arguments:
-                arguments.update(role="MEMBER")
-
-            subject_type = ContentType.objects.get_for_model(Account)
-            subject_id = arguments["account"]
-        elif action == "join_team":
-            if "team" not in arguments:
-                raise exceptions.ValidationError(dict(team="Team id is required."))
-
-            subject_type = ContentType.objects.get_for_model(AccountTeam)
-            subject_id = arguments["team"]
-        elif action == "join_project":
-            if "account" not in arguments:
-                raise exceptions.ValidationError(
-                    dict(account="Account id is required.")
-                )
-            if "project" not in arguments:
-                raise exceptions.ValidationError(
-                    dict(project="Project id is required.")
-                )
-            if "role" not in arguments:
-                arguments.update(role="AUTHOR")
-
-            subject_type = ContentType.objects.get_for_model(Project)
-            subject_id = arguments["project"]
-        else:
-            subject_type = None
-            subject_id = None
-
-        invite = Invite.objects.create(
-            inviter=request.user,
-            email=data["email"],
-            message=data.get("message"),
-            action=data.get("action"),
-            arguments=arguments,
-            subject_type=subject_type,
-            subject_id=subject_id,
-        )
+        invite = Invite.objects.create(**data, inviter=request.user)
         invite.send_invitation(request)
-
         return invite
