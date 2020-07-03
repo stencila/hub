@@ -1,0 +1,6 @@
+{# A partial that can be useful during development to dump non-field related errors #}
+<ul>
+{% for name, error in serializer.errors.items %}
+<li>{{ name }}: {{ error }}</li>
+{% endfor %}
+</ul>
