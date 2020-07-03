@@ -18,6 +18,25 @@ def basic_auth(get_response):
     return middleware
 
 
+def session_storage(get_response):
+    """
+    Middleware that stores commonly accessed data in the session.
+    
+    This reduces the number of database queries that need to
+    be made on each request e.g. for the URL of the user's image
+    """
+
+    def middleware(request):
+        if "user" not in request.session:
+            if request.user.is_authenticated:
+                request.session["user"] = {
+                    "image": request.user.personal_account.image.medium,
+                }
+        return get_response(request)
+
+    return middleware
+
+
 def method_override(get_response):
     """
     Override the request method with the `X-HTTP-Method-Override` header.

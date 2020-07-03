@@ -123,6 +123,7 @@ class Prod(Configuration):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
         "django_prometheus.middleware.PrometheusAfterMiddleware",
         "manager.middleware.method_override",
+        "manager.middleware.session_storage",
         # Must be last one to capture the exception
         "manager.middleware.CustomExceptionsMiddleware",
     ]
@@ -169,6 +170,9 @@ class Prod(Configuration):
 
     # Default email address to use for various automated correspondence from the site manager(s)
     DEFAULT_FROM_EMAIL = values.Value("hello@stenci.la")
+
+    # Store session data in signed cookies (alternatives include DB or cache)
+    SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
     # Authentication
     # https://docs.djangoproject.com/en/3.0/ref/settings/#auth

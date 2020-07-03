@@ -175,9 +175,9 @@
             <div class="navbar-item has-dropdown">
               <a class="navbar-link" href="{% url 'ui-accounts-retrieve' user.username %}"
                  alt="{% trans "Your user profile" %}">
-                {% if user.personal_account.image %}
+                {% if request.session.user.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
-                  <img class="is-rounded" src="{{ user.personal_account.image.medium }}" alt="Your profile image">
+                  <img class="is-rounded" src="{{ request.session.user.image }}" alt="Your profile image">
                 </figure>
 
                 <span class="is-hidden-desktop pl-1">
