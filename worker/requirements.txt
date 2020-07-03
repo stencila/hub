@@ -1,5 +1,5 @@
 amqp==2.6.0
-celery==4.4.5
+celery==4.4.6
 kubernetes==11.0.0
 lxml==4.5.1
 PyGithub==1.51
