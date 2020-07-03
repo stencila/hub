@@ -24,7 +24,7 @@ drf-yasg==1.17.1
 google-api-python-client==1.9.3
 google-cloud-storage==1.19.1
 inflect==4.1.0
-Pillow==7.1.2
+Pillow==7.2.0
 psycopg2-binary==2.8.5
 pyjwt==1.7.1
 sentry-sdk==0.15.1
