@@ -115,12 +115,17 @@ class AcceptInviteView(invitations.views.AcceptInvite):
         """
         # Do the usual processing of the invite so that
         # it's `accepted` etc fields get updated
-        super().post(request, *args, **kwargs)
-
+        response = super().post(request, *args, **kwargs)
         invite = self.object
+
+        if not invite:
+            # No invite so just return response
+            return response
+
         if request.user.is_authenticated:
-            # Perform the action now and redirect to it's URL
-            invite.perform_action(request)
+            # Perform the action (if necessary) and redirect to it's URL
+            if not invite.completed:
+                invite.perform_action(request)
             return redir(invite.redirect_url())
         else:
             # Redirect to sign up page with invite URL
@@ -136,7 +141,7 @@ class AcceptInviteView(invitations.views.AcceptInvite):
 
 def accept_invite_after_signup(sender, request, user, **kwargs):
     """
-    Check for invite cookie and perform action if present.
+    After a user has signed up check for invite cookie and perform action if present.
     """
     key = request.COOKIES.get("invite")
     if not key:
@@ -148,7 +153,8 @@ def accept_invite_after_signup(sender, request, user, **kwargs):
         logger.warn("Could not find invite with key")
         return
 
-    invite.perform_action(request, user)
+    if not invite.completed:
+        invite.perform_action(request, user)
 
 
 signed_up_signal = (

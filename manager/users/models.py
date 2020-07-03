@@ -89,7 +89,9 @@ class Invite(models.Model):
     )
 
     accepted = models.BooleanField(
-        default=False, help_text="Whether the invite has been accepted or not."
+        default=False,
+        help_text="Whether the invite has been accepted. "
+        "Will only be true if the user has clicked on the invitation AND authenticated.",
     )
 
     completed = models.DateTimeField(
@@ -137,7 +139,7 @@ class Invite(models.Model):
         """Extend method to add the invite object to the template context."""
         context = dict(
             inviter=self.inviter,
-            invite_message=self.message or "Collaborate with me on Stencila.",
+            invite_message=self.message,
             invite_url=request.build_absolute_uri(
                 reverse("ui-users-invites-accept", args=[self.key])
             ),
@@ -187,14 +189,16 @@ class Invite(models.Model):
         """
         Perform the action (if any) registered for this invitation.
         """
-        if not self.action:
-            return
+        # Accept and save in case the action fails below
+        self.accepted = True
+        self.save()
 
-        method = getattr(self, self.action)
-        if not method:
-            raise RuntimeError("No such action {0}".format(self.action))
+        if self.action:
+            method = getattr(self, self.action)
+            if not method:
+                raise RuntimeError("No such action {0}".format(self.action))
 
-        method(user or request.user)
+            method(user or request.user)
 
         self.completed = timezone.now()
         self.save()
