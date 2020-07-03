@@ -25,8 +25,11 @@ export const enrichHTMXButtons = () => {
 
   // Remove `loading` state from buttons after a request has been completed.
   htmx.on("afterRequest.htmx", (e) => {
-    if (e.target instanceof HTMLElement) {
+    if (e.target instanceof HTMLButtonElement) {
       e.target.classList.remove("is-loading");
+    } else if (e.target instanceof HTMLFormElement) {
+      const button = document.querySelector("button.is-loading")
+      if (button) button.classList.remove("is-loading");
     }
   });
 };

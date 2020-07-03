@@ -94,6 +94,7 @@ class Prod(Configuration):
         "django_prometheus",
         "drf_yasg",
         "imagefield",
+        "invitations",
         "knox",
         "polymorphic",
         "rest_framework",
@@ -248,6 +249,8 @@ class Prod(Configuration):
 
     ACCOUNT_EMAIL_REQUIRED = True
 
+    ACCOUNT_ADAPTER = "invitations.models.InvitationsAdapter"
+
     SOCIALACCOUNT_PROVIDERS = {
         "google": {
             "SCOPE": [
@@ -262,6 +265,19 @@ class Prod(Configuration):
     }
 
     SOCIALACCOUNT_ADAPTER = "users.socialaccount.adapter.SocialAccountAdapter"
+
+    # django-invitations settings
+    # See https://github.com/bee-keeper/django-invitations#additional-configuration
+
+    INVITATIONS_INVITATION_EXPIRY = 14
+    INVITATIONS_GONE_ON_ACCEPT_ERROR = False
+    INVITATIONS_SIGNUP_REDIRECT = "ui-users-signup"
+    INVITATIONS_LOGIN_REDIRECT = "ui-users-signin"
+    INVITATIONS_ACCEPT_INVITE_AFTER_SIGNUP = True
+    INVITATIONS_ADAPTER = ACCOUNT_ADAPTER
+    INVITATIONS_EMAIL_MAX_LENGTH = 1024
+    INVITATIONS_EMAIL_SUBJECT_PREFIX = "Invitation to Stencila"
+    INVITATIONS_INVITATION_MODEL = "users.Invite"
 
     # django-rest-framework settings
 

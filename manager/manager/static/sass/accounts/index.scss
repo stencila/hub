@@ -1,0 +1,25 @@
+@import "./teams/index.scss";
+@import "./users/email.scss";
+
+// =============================================================================
+// Invitations
+// =============================================================================
+.invite-list-item {
+  padding: ($gap / 2) ($gap / 4);
+  border-bottom: 1px solid $grey-lightest;
+
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @media screen and (max-width: $tablet) {
+    .level-left + .level-right {
+      margin-top: $gap / 4;
+    }
+  }
+
+  .tag {
+    height: 2.5em;
+  }
+}

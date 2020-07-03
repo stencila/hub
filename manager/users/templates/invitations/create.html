@@ -1,0 +1,9 @@
+{% extends "base_centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Send an invite" %}{% endblock %}
+
+{% block layout_content %}
+<h1 class="title is-3">{% trans "Send an invite" %}</h1>
+{% include 'invitations/_create.html' %}
+{% endblock %}

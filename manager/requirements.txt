@@ -10,6 +10,7 @@ django-configurations==2.2
 django-extensions==2.2.9
 django-imagefield==0.11.3
 django-intercom==0.1.3
+django-invitations==1.9.3
 django-jsonfallback==2.1.2
 django-polymorphic==2.1.2
 django-prometheus==2.0.0

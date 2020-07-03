@@ -10,16 +10,15 @@ from django.urls import re_path
 import accounts.api.urls
 import jobs.api.urls
 import projects.api.urls
+import users.api.urls
 from manager.api.views.docs import schema_view, swagger_view
 from manager.api.views.status import StatusView
-from users.api.urls import tokens, users
 
 urlpatterns = (
     accounts.api.urls.urlpatterns
     + projects.api.urls.urlpatterns
     + jobs.api.urls.urlpatterns
-    + tokens.urls
-    + users.urls
+    + users.api.urls.urlpatterns
     + [
         re_path(r"status/?", StatusView.as_view(), name="api-status"),
         re_path(r"schema/?", schema_view, name="api-schema"),

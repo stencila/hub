@@ -1,8 +1,9 @@
 from django.db.models import Q
+from django.urls import reverse
 from knox.models import AuthToken
 from rest_framework import serializers
 
-from users.models import User
+from users.models import Invite, User
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -77,3 +78,30 @@ class TokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuthToken
         fields = ["user", "id", "created", "expiry"]
+
+
+class InviteSerializer(serializers.ModelSerializer):
+    """
+    A serializer for invites.
+    """
+
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Invite
+        fields = "__all__"
+        read_only_fields = ["key"]
+
+    def get_url(self, obj) -> str:
+        """Get the absolute URL for the invite."""
+        request = self.context["request"]
+        return request.build_absolute_uri(
+            reverse("ui-users-invites-accept", args=[obj.key])
+        )
+
+    def create(self, data):
+        """Create and send the invite."""
+        request = self.context["request"]
+        invite = Invite.objects.create(**data, inviter=request.user)
+        invite.send_invitation(request)
+        return invite

@@ -76,13 +76,7 @@ class ProjectAgentCreateSerializer(ProjectAgentSerializer):
 
     agent = serializers.IntegerField(write_only=True)
 
-    role = serializers.ChoiceField(
-        choices=[
-            ProjectRole.AUTHOR.name,
-            ProjectRole.MANAGER.name,
-            ProjectRole.OWNER.name,
-        ]
-    )
+    role = serializers.ChoiceField(choices=[role.name for role in ProjectRole])
 
     def validate(self, data):
         """

@@ -1,0 +1,17 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans with inviter_name=inviter.get_full_name|default:inviter.username %}
+
+Hello,
+
+{{ inviter_name }} has sent you an invitation.
+{% endblocktrans %}
+
+"{{ invite_message }}"
+
+{% blocktrans %}
+Go to {{ invite_url }} to accept this invitation.
+
+Thanks!
+{% endblocktrans %}
+{% endautoescape %}
