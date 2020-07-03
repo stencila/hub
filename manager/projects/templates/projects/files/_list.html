@@ -21,6 +21,9 @@
       <th>
         {% trans "Size" %}
       </th>
+      <th>
+        {% trans "Actions" %}
+      </th>
     </tr>
   </thead>
   <tbody id="file-list">
@@ -47,7 +50,7 @@
         {% else %}
         {{ file.name|default:file.path }}
         {% endif %}
-        {% if file.id == project.main.id %}
+        {% if file.id == project.main_id %}
         <span class="tag is-primary is-light">{% trans 'Main' %}</span>
         {% endif %}
       </td>
@@ -69,6 +72,11 @@
       </td>
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.size|format_bytes }}
+      </td>
+      <td class="has-text-right is-vcentered" style="weight: 1em;">
+        {% if not file.is_directory %}
+        {% include "./_actions_menu.html" %}
+        {% endif %}
       </td>
     </tr>
     {% endwith %}

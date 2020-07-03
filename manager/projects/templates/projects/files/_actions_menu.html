@@ -1,0 +1,28 @@
+{% load i18n %}
+
+<div class="dropdown">
+  <div class="dropdown-trigger">
+    <button class="button is-small has-text-weight-bold" aria-haspopup="true" aria-controls="dropdown-menu">
+      <span>
+        <i class="ri-more-2-line"></i>
+      </span>
+    </button>
+  </div>
+  <div class="dropdown-menu has-text-left" role="menu">
+    <div class="dropdown-content">
+      {% if file.id != project.main_id %}
+      <a class="dropdown-item"
+         hx-patch="{% url 'api-projects-detail' project.id %}"
+         include-vals="main: {{file.id}}"
+         hx-swap="none"
+         hx-redirect="UPDATED:{% url 'ui-projects-files-list' project.account.name project.name %}"
+      >
+        <span class="icon">
+          <i class="ri-honour-line"></i>
+        </span>
+        <span>{% trans "Main file" %}</span>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>

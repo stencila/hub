@@ -80,7 +80,7 @@ class Project(models.Model):
             )
         ]
 
-    def get_main(self) -> str:
+    def get_main(self):
         """
         Get the main file for the project.
 
@@ -89,7 +89,7 @@ class Project(models.Model):
         if those are present.
         """
         if self.main:
-            return self.main.path
+            return self.main
         else:
             # TODO
             return None

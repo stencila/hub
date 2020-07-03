@@ -58,16 +58,24 @@ class Snapshot(models.Model):
         pull_subjob = project.pull(user)
 
         # Job to create an index.html
+        options = {}
+
         main = project.get_main()
+        if main.mimetype:
+            options["from"] = main.mimetype
+
         theme = project.get_theme()
+        if theme:
+            options["theme"] = theme
+
         # TODO: If no main file then generate a file listing index.
         index_subjob = Job.objects.create(
             method=JobMethod.convert.name,
             params=dict(
                 project=project.id,
-                input=main,
+                input=main.path,
                 output="index.html",
-                options=dict(theme=theme) if theme else {},
+                options=options,
             ),
             description="Create index.html",
             project=project,
