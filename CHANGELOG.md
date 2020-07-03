@@ -1,3 +1,35 @@
+# [2.42.0](https://github.com/stencila/hub/compare/v2.41.0...v2.42.0) (2020-07-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.4.3 ([72a4d4c](https://github.com/stencila/hub/commit/72a4d4c795682d49029ce157add6606d3a31cf49))
+* **deps:** update dependency @stencila/encoda to v0.97.0 ([e2a8af2](https://github.com/stencila/hub/commit/e2a8af2a7a8f1057a7121b802440e6bebedc8f70))
+* **deps:** update dependency @stencila/thema to v2.10.4 ([50bddc1](https://github.com/stencila/hub/commit/50bddc1b4eaae000dddc5ebcc76bc2b8735bd05d))
+* **deps:** update dependency celery to v4.4.6 ([2b12744](https://github.com/stencila/hub/commit/2b12744b162224a64878282c8f63c53e50732b98))
+* **deps:** update dependency django to v2.2.14 ([3c17f3a](https://github.com/stencila/hub/commit/3c17f3ad3f9fb1d2b27d5a17e1f3dea51d460068))
+* **deps:** update dependency django-extensions to v3 ([f6f6dff](https://github.com/stencila/hub/commit/f6f6dff7313b29d5839f1dd426fb3874d553e792))
+* **deps:** update dependency google-cloud-storage to v1.29.0 ([41593c5](https://github.com/stencila/hub/commit/41593c5a60642b645a5330910088f664f46e2226))
+* **deps:** update dependency htmx.org to v0.0.7 ([bd6bce9](https://github.com/stencila/hub/commit/bd6bce98cc8d5d4cff256902b317531aa131de2f))
+* **deps:** update dependency pillow to v7.2.0 ([f48ebf5](https://github.com/stencila/hub/commit/f48ebf5511f46c6ac42da409a9360fca8bedf662))
+* **HTMX Buttons:** Remove loading for buttons in forms ([b8d7ffc](https://github.com/stencila/hub/commit/b8d7ffc867b030f59da195ad438e9a6f67c51bfa))
+* **Invites:** Mark accepted after signup. ([3665b5c](https://github.com/stencila/hub/commit/3665b5c185546ec0536fd99abcdcd22a65c8690e))
+* **Lint:** Fix linting error ([17d575f](https://github.com/stencila/hub/commit/17d575fdab9274ce0eee391bd8dca21caebbe74c))
+* **Project:** Raise a 404, not permission denied ([bd3bb0a](https://github.com/stencila/hub/commit/bd3bb0a6aee9fa8fd90bcf8073aa8f6f5df7d40f))
+* **Projects:** Allow for all roles ([936b124](https://github.com/stencila/hub/commit/936b124d9da9f1ff087482839e6cc9ce0d02154f))
+
+
+### Features
+
+* **Invitations:** Add invite model and views ([9637cc2](https://github.com/stencila/hub/commit/9637cc24059f213a102f8babb21675d5020c49ff))
+* **Invites:** Add links to invites pages ([5172f84](https://github.com/stencila/hub/commit/5172f841e2efea8cf2d082dd116ea52a7f90d352))
+* **Invites:** Add more info to invites listing; change order ([27af173](https://github.com/stencila/hub/commit/27af173ef54d04fa315c21ddb184e66d51977df3))
+* **Invites:** Add views for creating and listing invites ([fe0bd4f](https://github.com/stencila/hub/commit/fe0bd4f8a0b4cac2fb71a4b430d2de585c49d6b8))
+* **Invites:** Allow inviters to select the project / account role ([ee1f189](https://github.com/stencila/hub/commit/ee1f189d1af764da7bbd4c5d23ee7ffb7b4186b8))
+* **Invites:** Custom templates for emails, messages and creating ([b8111d0](https://github.com/stencila/hub/commit/b8111d073f234470b449e9f402a2999ffc8fb689))
+* **Invites:** Style list of invites ([816cd6e](https://github.com/stencila/hub/commit/816cd6e262fc2bf741fc8b62a757a17f242cb570))
+* **Jobs:** Expose sub-jobs in line with parent Job ([b5916dc](https://github.com/stencila/hub/commit/b5916dce0ea953c8de55e51d17d354cca796dcdf))
+
 # [2.41.0](https://github.com/stencila/hub/compare/v2.40.0...v2.41.0) (2020-06-30)
 
 
