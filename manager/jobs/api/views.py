@@ -422,7 +422,9 @@ class ProjectsJobsViewSet(
         return (
             Job.objects.filter(project=project)
             .order_by("-created")
-            .select_related("project", "project__account")
+            .select_related(
+                "project", "project__account", "creator", "creator__personal_account"
+            )
         )
 
     def get_object(self, project: Optional[Project] = None):
