@@ -1,0 +1,13 @@
+<ul class="job-list">
+  {% for job in jobs %}
+  {% if job.parent == None %}
+  <li>
+    {% include "./_job_item.html" with is_list_item=True %}
+  </li>
+  {% elif show_sub_jobs == True %}
+  <li>
+    {% include "./_job_item.html" with is_list_item=True is_sub_job=True %}
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>

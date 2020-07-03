@@ -7,15 +7,7 @@ A partial for displaying a list of jobs.
 {% include "./_action_bar.html" %}
 
 {% if jobs %}
-<ul class="job-list">
-  {% for job in jobs %}
-  {% if job.parent == None %}
-  <li>
-    {% include "./_job_item.html" with is_list_item=True %}
-  </li>
-  {% endif %}
-  {% endfor %}
-</ul>
+{% include "./_job_list.html" %}
 {% else %}
 
 <div class="has-text-centered">
