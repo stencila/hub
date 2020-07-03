@@ -5,20 +5,20 @@ A Celery app for monitoring jobs and workers. It has three main
 functions:
 
 - in the main thread, it captures the job and worker events emitted
-by Celery and translates them into data that is posted to the `manager`'s API.
-See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
+  by Celery and translates them into data that is posted to the `manager`'s API.
+  See http://docs.celeryproject.org/en/stable/userguide/monitoring.html#events.
 
 - in another thread, it periodically queries the Celery API to collect information on
-the length of queues and the number of workers listening to each queue
+  the length of queues and the number of workers listening to each queue
 
-- it serves Prometheus metrics that are scraped by `monitor` (which are in turn
-  can be used by Kubernetes for scaling) workers
+- it serves Prometheus metrics that are scraped by `monitor` (which can in turn
+  be used by Kubernetes for scaling) workers
 
 Workers must be run with the `--events` option to emit events
 for the `overseer` to handle.
 
 Note: This ignores the `result` of `task_succeeded` events and
-the `exception` and `traceback` of `task_failed` events.
+the `exception` and `traceback` arguments of `task_failed` events.
 This is partly to avoid duplicating logic for handling those (see `update_job`
 function in `manager`) and because the events are not intended
 for this purpose (the results should be used for that, which is what
@@ -62,12 +62,25 @@ queue_length_worker_ratio = Gauge(
     ["queue"],
 )
 
-# Setup API client
-api = httpx.Client(
+# Manager API
+
+client = httpx.Client(
     base_url=os.path.join(os.environ["MANAGER_URL"], "api/"),
     headers={"content-type": "application/json", "accept": "application/json"},
     timeout=30,
 )
+
+
+def request(method: str, url: str, **kwargs):
+    """Send a request to the `manager`."""
+    try:
+        request = client.build_request(method=method, url=url, **kwargs)
+        response = client.send(request)
+        if response.status_code != 200:
+            logging.error(response.text)
+    except Exception as exc:
+        logging.error(str(exc))
+
 
 Event = Dict[str, Union[str, int, float]]
 
@@ -87,9 +100,7 @@ def update_job(id, data: dict):
     Sends a PATCH request to the `manager` to update the
     state of the job. Reused below for individual task event handlers.
     """
-    response = api.patch("jobs/{}".format(id), json=data)
-    if response.status_code != 200:
-        logging.error(response.text)
+    request("PATCH", "jobs/{}".format(id), json=data)
 
 
 def task_sent(event: Event):
@@ -246,11 +257,11 @@ def worker_online(event: Event):
     hostname = str(event.get("hostname"))
     queues, stats = add_worker(hostname)
 
-    response = api.post(
-        "workers/online", json=dict(details=dict(queues=queues, stats=stats), **event)
+    request(
+        "POST",
+        "workers/online",
+        json=dict(details=dict(queues=queues, stats=stats), **event),
     )
-    if response.status_code != 200:
-        logging.error(response.text)
 
 
 def worker_heartbeat(event: Event):
@@ -266,9 +277,7 @@ def worker_heartbeat(event: Event):
     if hostname not in WORKERS:
         add_worker(hostname)
 
-    response = api.post("workers/heartbeat", json=event)
-    if response.status_code != 200:
-        logging.error(response.text)
+    request("POST", "workers/heartbeat", json=event)
 
 
 def worker_offline(event: Event):
@@ -282,9 +291,7 @@ def worker_offline(event: Event):
     if hostname in WORKERS:
         remove_worker(hostname)
 
-    response = api.post("workers/offline", json=event)
-    if response.status_code != 200:
-        logging.error(response.text)
+    request("POST", "workers/offline", json=event)
 
 
 class Receiver(EventReceiver):
