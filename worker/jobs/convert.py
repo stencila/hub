@@ -42,6 +42,16 @@ class Convert(SubprocessJob):
         ), "output must be a string or list of strings"
         assert isinstance(options, dict), "options must be a dictionary"
 
+        # Encoda currently does not allow for mimetypes in the `from` option.
+        # This replaces some mimetypes with codec names for formats that are
+        # not easily identifiable from there extension. This means that for other
+        # files, the file extension will be used to determine the format (which
+        # works in most cases).
+        if "from" in options:
+            options["from"] = {
+                "application/jats+xml": "jats"
+            }.get(options["from"], None)
+
         args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input]
         args += output if isinstance(output, list) else [output]
         for name, value in options.items():
@@ -51,8 +61,4 @@ class Convert(SubprocessJob):
                 value = "true"
             args.append("--{}={}".format(name, value))
 
-        import os
-
-        print(os.getcwd())
-        print(args)
         return super().do(args, input=input if isinstance(input, bytes) else None)
