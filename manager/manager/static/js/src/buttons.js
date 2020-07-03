@@ -24,7 +24,7 @@ export const enrichHTMXButtons = () => {
   findHTMXButtons().forEach(attachClickHandler);
 
   // Remove `loading` state from buttons after a request has been completed.
-  htmx.on("afterRequest.htmx", (e) => {
+  htmx.on("htmx:afterRequest", (e) => {
     if (e.target instanceof HTMLButtonElement) {
       e.target.classList.remove("is-loading");
     } else if (e.target instanceof HTMLFormElement) {

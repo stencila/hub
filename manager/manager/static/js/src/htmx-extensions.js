@@ -3,7 +3,7 @@
  */
 htmx.defineExtension('stencila', {
   onEvent : function(name, evt) {
-    if (name === 'configRequest.htmx') {
+    if (name === 'htmx:configRequest') {
       /**
        * This event is triggered after htmx has collected parameters for inclusion in the request.
        * It can be used to include or update the parameters that htmx will send.
@@ -54,7 +54,7 @@ htmx.defineExtension('stencila', {
         headers['X-HX-Extra-Context'] = extraContentNames;
       }  
     }
-    else if (name == 'beforeOnLoad.htmx') {
+    else if (name == 'htmx:beforeOnLoad') {
       // This event is triggered before any new content has been swapped
       // into the DOM.
       var xhr = evt.detail.xhr;

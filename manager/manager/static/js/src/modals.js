@@ -31,7 +31,7 @@ export const handleModalClose = () => {
 export const initModals = () => {
   handleModalClose();
 
-  htmx.on("afterSwap.htmx", (e) => {
+  htmx.on("htmx:afterSwap", (e) => {
     // Activate the modal container when inserteing elements into it
     if (e.detail.target.id.includes("modal-target")) {
       openModal();

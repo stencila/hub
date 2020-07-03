@@ -42,6 +42,6 @@ onReady(attachAllEventHandlers);
 // =============================================================================
 
 // Ensure that dynamically added DOM elements have dropdown event handlers
-htmx.on("load.htmx", () => {
+htmx.on("htmx:load", () => {
   attachAllEventHandlers();
 });

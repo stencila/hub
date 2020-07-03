@@ -31,7 +31,7 @@ Inspired by Github's user search field (amongst others).
   <script>
     var $search = document.querySelector('#user-search')
     // Add query parameters to search
-    $search.querySelector('input[name=search]').addEventListener('configRequest.htmx', function(event) {
+    $search.querySelector('input[name=search]').addEventListener('htmx:configRequest', function(event) {
       event.detail.parameters['limit'] = '30';
     });
     // Update the `input[name=user]` when a dropdown item is selected
