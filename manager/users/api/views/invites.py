@@ -34,7 +34,7 @@ class InvitesViewSet(
         """
         Get all invites sent by the current user.
         """
-        return Invite.objects.filter(inviter=self.request.user)
+        return Invite.objects.filter(inviter=self.request.user).order_by("-created")
 
     def get_serializer_class(self):
         """

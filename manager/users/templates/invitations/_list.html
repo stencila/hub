@@ -4,45 +4,77 @@
   {% for invite in invites %}
   <li class="invite-list-item">
     <div class="level">
-      <div class="level-left" title="{% trans "Invited" %} {{ invite.sent|naturaltime }}">
+      <div class="level-left">
         {{ invite.email }}
       </div>
       <div class="level-right">
-        {% if invite.accepted == False %}
-        <span class="tag mr-2 image-tooltip has-tooltip-bottom"
-              data-tooltip="{% trans "The invitation hasn’t been accepted yet." %}">
-          <span class="icon">
-            <i class="ri-mail-unread-line"></i>
+        <div class="tags">
+          {% if invite.action == 'join_account' %}
+          <span class="tag mr-2 image-tooltip has-tooltip-multiline has-tooltip-bottom"
+                data-tooltip="{% trans "Invited to join account" %} {{ invite.subject_object }} {% trans "as" %} {{ invite.arguments.role }}.">
+            <span class="icon">
+              <i class="ri-building-4-line"></i>
+            </span>
+            <span>
+              {% trans "Join" %} {{ invite.subject_object }}
+            </span>
           </span>
-          <span>
-            {% trans "Pending" %}
+          {% endif %}
+          {% if invite.action == 'join_project' %}
+          <span class="tag mr-2 image-tooltip has-tooltip-multiline has-tooltip-bottom"
+                data-tooltip="{% trans "Invited to join project" %} {{ invite.subject_object.name }} {% trans "as" %} {{ invite.arguments.role }}.">
+            <span class="icon">
+              <i class="ri-book-2-line"></i>
+            </span>
+            <span>
+              {% trans "Join" %} {{ invite.subject_object.name }}
+            </span>
           </span>
-        </span>
-
-        <a class="button is-danger is-outlined is-small" hx-delete="{% url 'api-invites-detail' invite.id %}"
-           hx-target="#invite-list" hx-template="invitations/_list.html" hx-extra-context="queryset">
-          <span class="icon">
-            <i class="ri-close-line"></i>
+          {% endif %}
+          {% if invite.accepted == False %}
+          <span class="tag mr-2 image-tooltip has-tooltip-bottom"
+                data-tooltip="{% trans "The invitation hasn’t been accepted yet." %}">
+            <span class="icon">
+              <i class="ri-mail-unread-line"></i>
+            </span>
+            <span>
+              {% trans "Sent" %} {{ invite.sent|naturaltime }}
+            </span>
           </span>
-          <span>
-            {% trans "Cancel" %}
+          <a class="button is-danger is-outlined is-small mb-2" hx-delete="{% url 'api-invites-detail' invite.id %}"
+             hx-target="#invite-list" hx-template="invitations/_list.html" hx-extra-context="queryset">
+            <span class="icon">
+              <i class="ri-close-line"></i>
+            </span>
+            <span>
+              {% trans "Cancel" %}
+            </span>
+          </a>
+          {% elif invite.completed %}
+          <span class="tag is-success is-light">
+            <span class="icon">
+              <i class="ri-check-line"></i>
+            </span>
+            <span>
+              {% trans "Accepted" %} {{ invite.completed|naturaltime }}
+            </span>
           </span>
-        </a>
-        {% else %}
-        <span class="tag is-success is-light">
-          <span class="icon">
-            <i class="ri-check-line"></i>
+          {% else %}
+          <span class="tag is-warning is-light image-tooltip has-tooltip-multiline has-tooltip-bottom"
+                data-tooltip="{% trans "The invitation was accepted, but could not be fulfilled." %}">
+            <span class="icon">
+              <i class="ri-close-line"></i>
+            </span>
+            <span>
+              {% trans "Accepted but errored" %}
+            </span>
           </span>
-          <span>
-            {% trans "Accepted" %}
-          </span>
-        </span>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
     </div>
     {% empty %}
-  <li>
     {% trans "You haven’t invited anyone yet." %}
-  <li>
-    {% endfor %}
+  </li>
+  {% endfor %}
 </ul>
