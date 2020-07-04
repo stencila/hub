@@ -113,7 +113,7 @@ cover: venv static
 	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
 
 # Create page snapshots
-snaps: venv static
+snaps: venv
 	$(DJ) runscript create_page_snaps
 .PHONY: snaps
 

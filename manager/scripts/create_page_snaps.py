@@ -273,6 +273,19 @@ async def main():
             url = "http://localhost:8000/{}".format(path)
             response = await page.goto(url)
 
+            # Grab data from the debug toolbar
+            data = await page.evaluate(
+                """() => {
+                const cpu_time = document.querySelector('#djDebug .TimerPanel small ')
+                                         .innerText
+                                         .match(/[0-9.]+/)[0]
+                const db_queries = document.querySelector('#djDebug .SQLPanel small')
+                                           .innerText
+                                           .match(/[0-9]+/)[0]
+                return { cpu_time, db_queries }
+            }"""
+            )
+
             # Hide debug toolbar unless there was an error
             if response.status == 200:
                 print(" {0}✔️{1}".format(colors.OK, colors.RESET))
@@ -377,7 +390,7 @@ async def main():
                         print(" {0}❌{1}".format(colors.ERROR, colors.RESET))
                         errors += 1
 
-            results.append([path, url, response.status, snaps, snips])
+            results.append([path, url, response.status, data, snaps, snips])
 
     await browser.close()
 
@@ -465,13 +478,33 @@ def report(results):
                 0 10px 33.4px rgba(0, 0, 0, 0.05),
                 0 24px 80px rgba(0, 0, 0, 0.07);
         }
+        .tag {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+        }
     </style>
     <table>"""
-    for (path, url, status, snaps, snips) in results:
+    for (path, url, status, data, snaps, snips) in results:
+        cpu = float(data.get("cpu_time", ""))
+        db = float(data.get("db_queries", ""))
+
         report += """
             <tr>
                 <td><a href="{url}" target="_blank">{path}</a></td>
-                <td>{status}</td>
+                <td>
+                    <span class="tag" style="background-color: {status_color}">
+                        {status}
+                    </span>
+                    <span class="tag" style="background-color: hsl(0, 80%, 50%, {cpu_alpha})">
+                        {cpu} ms
+                    </span>
+                    <span class="tag" style="background-color: hsl(0, 80%, 50%, {db_alpha})">
+                        {db} queries
+                    </span>
+                </td>
                 {snaps}
                 <td>{snips}</td>
             </tr>
@@ -479,6 +512,11 @@ def report(results):
             url=url,
             path=html.escape(showPath(path)),
             status=status,
+            status_color="#d9ffb0" if status == 200 else "#ffb4b0",
+            cpu=cpu,
+            cpu_alpha=min(max((cpu - 100) / 1000, 0), 1),
+            db=db,
+            db_alpha=min(max(db / 10, 0), 1),
             snaps="".join(
                 [
                     '<td><a href="{0}" target="_blank"><img src="{0}" loading="lazy"></td>'.format(
