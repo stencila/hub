@@ -11,6 +11,7 @@
     </div>
   </div>
 
+  {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
   <div class="level-right buttons has-flex-justify-content-end-mobile">
     <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
        hx-post="{% url 'api-projects-snapshots-list' project.id %}" hx-swap="none" hx-redirect="CREATED:Location">
@@ -22,4 +23,5 @@
       </span>
     </a>
   </div>
+  {% endif %}
 </div>

@@ -32,6 +32,7 @@ in case the enclosing page want to use that data to trigger further events
         </span>
       </h1>
     </div>
+    {% if job.status == "SUCCESS" %}
     <div class="level-right buttons has-flex-justify-content-end-mobile">
       <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
          href="{% url 'api-projects-snapshots-archive' project.id snapshot.id %}">
@@ -52,6 +53,7 @@ in case the enclosing page want to use that data to trigger further events
         </span>
       </a>
     </div>
+    {% endif %}
   </div>
 
   <div class="level">

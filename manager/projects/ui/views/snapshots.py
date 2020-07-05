@@ -1,11 +1,9 @@
-from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from projects.api.views.snapshots import ProjectsSnapshotsViewSet
 
 
-@login_required
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     List snapshots for a project.
@@ -21,7 +19,6 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     )
 
 
-@login_required
 def retrieve(
     request: HttpRequest, *args, template="projects/snapshots/retrieve.html", **kwargs
 ) -> HttpResponse:
@@ -35,7 +32,6 @@ def retrieve(
     return render(request, template, dict(project=project, snapshot=snapshot),)
 
 
-@login_required
 def view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     View a snapshot of a project.

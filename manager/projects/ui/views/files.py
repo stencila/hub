@@ -1,11 +1,9 @@
-from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from projects.api.views.files import ProjectsFilesViewSet
 
 
-@login_required
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Get a list of project files.

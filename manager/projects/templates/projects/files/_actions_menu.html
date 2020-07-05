@@ -10,6 +10,22 @@
   </div>
   <div class="dropdown-menu has-text-left" role="menu">
     <div class="dropdown-content">
+      {% if file.url %}
+      <a href="{{ file.url }}" target="_blank" rel="noopener" class="dropdown-item">
+        <span class="icon">
+          <i class="ri-external-link-line"></i>
+        </span>
+        <span>{% trans "Open" %}</span>
+      </a>
+      {% endif %}
+      <a href="#" class="dropdown-item" disabled data-tooltip="This feature is coming soon!">
+        <span class="icon">
+          <i class="ri-download-line"></i>
+        </span>
+        <span>{% trans "Download" %}</span>
+      </a>
+      {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+      <hr class="dropdown-divider">
       {% if file.id != project.main_id %}
       <a class="dropdown-item" hx-patch="{% url 'api-projects-detail' project.id %}" include-vals="main: {{file.id}}"
          hx-swap="none" hx-redirect="UPDATED:{% url 'ui-projects-files-list' project.account.name project.name %}">
@@ -18,6 +34,7 @@
         </span>
         <span>{% trans "Main file" %}</span>
       </a>
+      {% endif %}
       {% endif %}
     </div>
   </div>

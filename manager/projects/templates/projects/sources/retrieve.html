@@ -19,6 +19,7 @@
     </div>
   </div>
 
+  {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
   <div class="level-right buttons has-flex-justify-content-end-mobile">
     {# Create a pull job and then redirect to this page (which will now have an active source #}
     {% if source.type_name != "Upload" %}
@@ -41,6 +42,7 @@
       <span>{% trans "Delete" %}</span>
     </a>
   </div>
+  {% endif %}
 </div>
 
 <div class="level">
