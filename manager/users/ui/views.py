@@ -10,22 +10,12 @@ from django.shortcuts import render, reverse
 from users.api.serializers import InviteSerializer
 from users.api.views.invites import InvitesViewSet
 from users.models import Invite
-from users.ui.forms import SignupForm
 
 logger = logging.getLogger(__name__)
 
 
-class SignupView(SignupView):
-    """Override allauth SignupView to custom URL and template name."""
-
-    template_name = "users/signup.html"
-    form_class = SignupForm
-
-
-class SigninView(LoginView):
-    """Override allauth LoginView to custom URL and template name."""
-
-    template_name = "users/signin.html"
+class AuthenticationMixin:
+    """Mixin to provide additional template context."""
 
     def get_context_data(self, *args, **kwargs):
         """Add extra context to template."""
@@ -39,6 +29,18 @@ class SigninView(LoginView):
         if "auth_provider" in self.request.COOKIES:
             data["auth_provider"] = self.request.COOKIES["auth_provider"]
         return data
+
+
+class SignupView(AuthenticationMixin, SignupView):
+    """Override allauth SignupView to custom URL and template name."""
+
+    template_name = "users/signup.html"
+
+
+class SigninView(AuthenticationMixin, LoginView):
+    """Override allauth LoginView to custom URL and template name."""
+
+    template_name = "users/signin.html"
 
 
 class SignoutView(LogoutView):
