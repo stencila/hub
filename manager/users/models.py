@@ -20,8 +20,22 @@ from invitations.adapters import get_invitations_adapter
 from invitations.models import Invitation
 from jsonfallback.fields import FallbackJSONField
 from rest_framework.exceptions import ValidationError
+from waffle.models import AbstractUserFlag
 
 User = get_user_model()
+
+
+class Flag(AbstractUserFlag):
+    """
+    Custom feature flag model.
+
+    It is only possible to set this custom model once. In the future, fields may be
+    added to allow flags to be set based on the account (in addition to, or instead
+    of only the user).
+    See https://waffle.readthedocs.io/en/stable/types/flag.html#custom-flag-models
+    """
+
+    pass
 
 
 def generate_invite_key():
