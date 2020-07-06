@@ -3,6 +3,7 @@ from typing import List, Optional
 from django.db.models import Prefetch, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
+from rest_framework.decorators import action
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -19,8 +20,8 @@ from accounts.api.serializers import (
     AccountUserCreateSerializer,
     AccountUserSerializer,
 )
-from accounts.models.account import Account, AccountRole, AccountTeam, AccountUser
-from accounts.models.quota import AccountQuotas
+from accounts.models import Account, AccountRole, AccountTeam, AccountUser
+from accounts.quotas import AccountQuotas
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxListMixin,
@@ -131,8 +132,8 @@ class AccountsViewSet(
 
         For `retrieve`, prefetches related data.
 
-        For `partial-update` and `update`, also checks that the user
-        is an account MANAGER or OWNER.
+        For `partial_update` checks that the useris an account MANAGER or OWNER.
+        Only OWNER is permitted to `update_plan` or `destroy`.
         """
         ident = self.kwargs["account"]
         queryset = self.get_queryset().filter(**filter_from_ident(ident))
@@ -157,8 +158,6 @@ class AccountsViewSet(
                     ),
                 ),
             )
-        else:
-            raise RuntimeError("Unexpected action {}".format(self.action))
 
         try:
             # Using [0] adds LIMIT 1 to query so is more efficient than `.get(**filter)`
@@ -169,7 +168,10 @@ class AccountsViewSet(
         if (
             self.action == "partial_update"
             and instance.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
-        ) or (self.action == "destroy" and instance.role != AccountRole.OWNER.name):
+        ) or (
+            self.action in ("update_plan", "destroy")
+            and instance.role != AccountRole.OWNER.name
+        ):
             raise exceptions.PermissionDenied
 
         return instance
@@ -206,6 +208,10 @@ class AccountsViewSet(
             return reverse("ui-accounts-retrieve", args=[serializer.instance.name])
         else:
             return None
+
+    @action(detail=True, methods=["PATCH"])
+    def update_plan(self):
+        raise NotImplementedError()
 
 
 class AccountsUsersViewSet(

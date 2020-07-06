@@ -13,7 +13,7 @@ def initial_models(apps, *args):
 
     # Need a Stencila account to own the default job queue etc
     Account = apps.get_model("accounts", "Account")
-    stencila = Account.objects.create(name="stencila", display_name="Stencila", tier=three)
+    stencila = Account.objects.create(name="stencila", display_name="Stencila")
 
     # A staff user is needed for use by internal services
     # e.g. for the `overseer` service to authenticate to post job and worker updates

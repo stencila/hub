@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
 from rest_framework import exceptions, viewsets
 
-from accounts.models.account import Account, AccountRole, AccountTeam
+from accounts.models import Account, AccountRole, AccountTeam
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,

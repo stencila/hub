@@ -1,4 +1,5 @@
 import secrets
+from typing import Dict
 
 import customidenticon
 from django.core.files.base import ContentFile
@@ -18,6 +19,13 @@ class Account(models.Model):
 
     A personal account has a `user`, an organizational account does not.
     """
+
+    tier = models.ForeignKey(
+        "AccountTier",
+        default=1,
+        on_delete=models.DO_NOTHING,
+        help_text="The tier of the account. Determines its quota limits.",
+    )
 
     creator = models.ForeignKey(
         User,
@@ -181,6 +189,71 @@ def create_personal_account_for_user(
 
 
 post_save.connect(create_personal_account_for_user, sender=User)
+
+
+class AccountTier(models.Model):
+    """
+    An account tier.
+
+    All accounts belong to a tier.
+    The tier determines the quotas for the account.
+
+    Some of the limits are primarily an anti-spamming
+    measure e.g.`orgs-created`.
+    """
+
+    orgs_created = models.IntegerField(
+        verbose_name="Organizations created",
+        default=10,
+        help_text="The maximum number organizations that a user can create."
+    )
+
+    account_users = models.IntegerField(
+        verbose_name="Users",
+        default=100,
+        help_text="The maximum number of users that can be added to the account.",
+    )
+
+    account_teams = models.IntegerField(
+        verbose_name="Teams",
+        default=5,
+        help_text="The maximum number of teams that can be added to the account.",
+    )
+
+    projects_total = models.IntegerField(
+        verbose_name="Projects",
+        default=100,
+        help_text="The maximum number of projects that an account can have.",
+    )
+
+    projects_private = models.IntegerField(
+        verbose_name="Private projects",
+        default=10,
+        help_text="The maximum number of private projects that an account can have.",
+    )
+
+    storage_working = models.IntegerField(
+        verbose_name="Working storage",
+        default=1,
+        help_text="The maximum number of gigbytes of storage in project working directories.",
+    )
+
+    storage_snapshots = models.IntegerField(
+        verbose_name="Snapshot storage",
+        default=5,
+        help_text="The maximum number of gigbytes of storage in project snapshots.",
+    )
+
+    @staticmethod
+    def fields() -> Dict[str, models.Field]:
+        """
+        Get a dictionary of fields of an AccountTier.
+        """
+        return dict(
+            (field.name, field)
+            for field in AccountTier._meta.get_fields()
+            if field.name not in ["id"]
+        )
 
 
 class AccountRole(EnumChoice):

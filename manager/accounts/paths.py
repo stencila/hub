@@ -14,6 +14,7 @@ class AccountPaths(enum.Enum):
     settings = "settings"
     teams = "teams"
     users = "users"
+    plan = "plan"
 
     @classmethod
     def has(cls, value: str):

@@ -102,17 +102,6 @@ def run(*args):
     # Accounts
     #################################################################
 
-    # A stencila account is needed as the default for running jobs etc
-
-    stencila = Account.objects.create(name="stencila")
-
-    AccountUser.objects.create(
-        account=stencila, user=admin, role=AccountRole.OWNER.name
-    )
-    AccountUser.objects.create(
-        account=stencila, user=staff, role=AccountRole.MANAGER.name
-    )
-
     # Generic and example organizations
 
     for name in ["an-org", "biotech-corp", "hapuku-university", "pewsey-publishing"]:
@@ -311,7 +300,8 @@ def random_users(num=None):
 
 def random_account_user(account):
     """Get a random user for an account."""
-    return AccountUser.objects.filter(account=account).order_by("?").first().user
+    account_user = AccountUser.objects.filter(account=account).order_by("?").first()
+    return account_user.user if account_user else None
 
 
 def random_account_role():

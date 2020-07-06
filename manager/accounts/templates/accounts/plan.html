@@ -1,0 +1,68 @@
+{% extends './base.html' %}
+{% load i18n %}
+
+{% block title %}{{ account.name }} {% trans "Plan" %}{% endblock %}
+
+{% block accounts_content %}
+
+<h2 class="title">Usage</h2>
+
+<div>
+    <span class="icon">
+        <i class="ri-book-2-line"></i>
+    </span>
+    <span>
+        {{ fields.projects_total.verbose_name }}
+    </span>
+    <span>
+        {{ fields.projects_total.help_text }}
+    </span>
+    <span>
+        {{ usage.projects_total.amount }} of {{ usage.projects_total.limit }}
+    </span>
+    <div style="background-color: #ddd; width:300px">
+      <div style="background-color: #444; height: 10px; width: {{ usage.projects_total.percent }}%"></div>
+    </div>
+</div>
+
+<div>
+    <span class="icon">
+        <i class="ri-database-2-line"></i>
+    </span>
+    <span>
+        {{ fields.storage_working.verbose_name }}
+    </span>
+    <span>
+        {{ fields.storage_working.help_text }}
+    </span>
+    <span>
+        {{ usage.storage_working.amount }} of {{ usage.storage_working.limit }}
+    </span>
+    <div style="background-color: #ddd; width:300px">
+      <div style="background-color: #444; height: 10px; width: {{ usage.storage_working.percent }}%"></div>
+    </div>
+</div>
+
+<hr/>
+
+<h2 class="title">Plans<h2>
+
+<p>
+A message to let users know that there is only one "introductory" plan and
+that it has restrictive limits while still in development.
+Higher limits and more plans coming soon!
+</p>
+
+{% for tier in tiers %}
+    {% if tier.id == account.tier_id %}
+        <span class="tag">Your plan</span>
+    {% endif %}
+    <p>
+        {{ tier.account_users }}
+    </p>
+    <p>
+        {{ tier.storage_working }}
+    </p>
+{% endfor %}
+
+{% endblock %}

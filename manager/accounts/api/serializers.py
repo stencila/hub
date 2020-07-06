@@ -1,12 +1,7 @@
 from rest_framework import exceptions, serializers
 
-from accounts.models import (
-    Account,
-    AccountQuotas,
-    AccountRole,
-    AccountTeam,
-    AccountUser,
-)
+from accounts.models import Account, AccountRole, AccountTeam, AccountUser
+from accounts.quotas import AccountQuotas
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify

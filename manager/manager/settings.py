@@ -228,6 +228,11 @@ class Prod(Configuration):
 
     MEDIA_URL = "/media/"
 
+    # Caching
+    # See https://docs.djangoproject.com/en/3.0/topics/cache
+
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+
     # Logging
     # See https://docs.djangoproject.com/en/3.0/topics/logging/
 
@@ -285,7 +290,7 @@ class Prod(Configuration):
     INVITATIONS_EMAIL_SUBJECT_PREFIX = "Invitation to Stencila"
     INVITATIONS_INVITATION_MODEL = "users.Invite"
 
-    # djago-waffle settings
+    # django-waffle settings
     # See https://waffle.readthedocs.io/en/stable/starting/configuring.html
 
     WAFFLE_FLAG_MODEL = "users.Flag"
