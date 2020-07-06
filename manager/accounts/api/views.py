@@ -211,6 +211,9 @@ class AccountsViewSet(
 
     @action(detail=True, methods=["PATCH"])
     def update_plan(self):
+        """
+        Update the plan / tier for an account.
+        """
         raise NotImplementedError()
 
 
