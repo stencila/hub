@@ -1,5 +1,5 @@
 {% extends './base.html' %}
-{% load i18n %}
+{% load i18n stencila  %}
 
 {% block title %}{{ account.name }} {% trans "Plan" %}{% endblock %}
 
@@ -7,62 +7,154 @@
 
 <h2 class="title">Usage</h2>
 
-<div>
-    <span class="icon">
-        <i class="ri-book-2-line"></i>
-    </span>
-    <span>
-        {{ fields.projects_total.verbose_name }}
-    </span>
-    <span>
-        {{ fields.projects_total.help_text }}
-    </span>
-    <span>
-        {{ usage.projects_total.amount }} of {{ usage.projects_total.limit }}
-    </span>
-    <div style="background-color: #ddd; width:300px">
-      <div style="background-color: #444; height: 10px; width: {{ usage.projects_total.percent }}%"></div>
+<div class="columns">
+  <div class="column">
+    <div>
+      <h3 class="title is-4">
+        <span class="icon">
+          <i class="ri-book-2-line"></i>
+        </span>
+        <span>
+          {{ fields.projects_total.verbose_name }}
+        </span>
+      </h3>
+
+      <p class="subtitle mb-2">
+        <span class="has-text-weight-normal">
+          {{ usage.projects_total.amount }} of {{ usage.projects_total.limit }}
+        </span>
+
+        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+              data-tooltip="{{ fields.projects_total.help_text }}">
+          <i class="ri-question-line"></i>
+        </span>
+      </p>
+
+      <div>
+        <progress class="progress is-vcentered is-primary" value="{{ usage.projects_total.amount }}"
+                  max="{{ usage.projects_total.limit }}">
+          {{ usage.projects_total.percent }}%
+        </progress>
+      </div>
     </div>
+  </div>
+
+  <div class="column">
+    <div>
+      <h3 class="title is-4">
+        <span class="icon">
+          <i class="ri-database-2-line"></i>
+        </span>
+        <span>
+          {{ fields.storage_working.verbose_name }}
+        </span>
+      </h3>
+
+      <p class="subtitle mb-2">
+        <span class="has-text-weight-normal">
+          {{ usage.storage_working.amount|filesizeformat }} of {{ usage.storage_working.limit|filesizeformat }}
+        </span>
+
+        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+              data-tooltip="{{ fields.storage_working.help_text }}">
+          <i class="ri-question-line"></i>
+        </span>
+      </p>
+
+      <div>
+        <progress class="progress is-vcentered is-primary" value="{{ usage.storage_working.amount }}"
+                  max="{{ usage.storage_working.limit }}">
+          {{ usage.storage_working.percent }}%
+        </progress>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div>
-    <span class="icon">
-        <i class="ri-database-2-line"></i>
-    </span>
-    <span>
-        {{ fields.storage_working.verbose_name }}
-    </span>
-    <span>
-        {{ fields.storage_working.help_text }}
-    </span>
-    <span>
-        {{ usage.storage_working.amount }} of {{ usage.storage_working.limit }}
-    </span>
-    <div style="background-color: #ddd; width:300px">
-      <div style="background-color: #444; height: 10px; width: {{ usage.storage_working.percent }}%"></div>
-    </div>
-</div>
-
-<hr/>
+<hr />
 
 <h2 class="title">Plans<h2>
 
-<p>
-A message to let users know that there is only one "introductory" plan and
-that it has restrictive limits while still in development.
-Higher limits and more plans coming soon!
-</p>
+    <div class="notification">
+      <p>
+        A message to let users know that there is only one "introductory" plan and that it has restrictive limits while
+        still in development.
+      </p>
+      <p>
+        Higher limits and more plans coming soon!
+      </p>
+    </div>
 
-{% for tier in tiers %}
-    {% if tier.id == account.tier_id %}
-        <span class="tag">Your plan</span>
-    {% endif %}
-    <p>
-        {{ tier.account_users }}
-    </p>
-    <p>
-        {{ tier.storage_working }}
-    </p>
-{% endfor %}
+    <ul class="columns pricing-table mt-4">
+      {% for tier in tiers %}
+      {% with tier.projects_private|stringformat:"i" as private_project_str %}
+      {% with "-"|add:private_project_str as negative_private_projects %}
+      <li class="column pricing-table__item is-one-third">
+        <figure class="is-size-5">
+          <h2 class="is-size-6 has-text-centered">{{ tier.name|default:"Tier Name" }}</h2>
+          <h3 class="title is-2 has-text-centered">Free</h3>
 
-{% endblock %}
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+            <span>
+              {{ tier.projects_private }} {% trans "Private projects" %}
+            </span>
+          </p>
+
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-global-line"></i></span>
+            <span>
+              {{ tier.projects_total|add:negative_private_projects }} {% trans "Public projects" %}
+            </span>
+          </p>
+
+          {% if account.is_organization %}
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-user-line"></i></span>
+            <span>
+              {{ tier.account_users }} {% trans "Users" %}
+            </span>
+          </p>
+
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
+            <span>
+              {{ tier.account_teams }} {% trans "Teams" %}
+            </span>
+          </p>
+          {% endif %}
+
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-database-2-line"></i></span>
+            <span>
+              {{ tier.storage_working|filesizeformat }} {% trans "Project storage" %}
+            </span>
+          </p>
+
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-archive-line"></i></span>
+            <span>
+              {{ tier.storage_working|filesizeformat }} {% trans "Snapshot storage" %}
+            </span>
+            <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
+                  data-tooltip="{% trans "Snapshots are versioned archives of a project" %}">
+              <i class="ri-question-line"></i>
+            </span>
+
+          </p>
+
+          <button class="button is-fullwidth mt-4" {% if tier.id == account.tier.id %}disabled{% endif %}>
+            {% if tier.id == account.tier_id %}
+            Your current plan
+            {% else %}
+            Switch to {{ tier.name }}
+            {% endif %}
+          </button>
+        </figure>
+      </li>
+      {% endwith %}
+      {% endwith %}
+      {% endfor %}
+    </ul>
+
+    {% endblock %}

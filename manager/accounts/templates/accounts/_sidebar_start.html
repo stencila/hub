@@ -68,7 +68,8 @@
 
     {% if role == 'OWNER' %}
     <li class="sidebar__item" id="menu-item-plan">
-      <a href="{% url 'ui-accounts-plan' account.name %}" class="panel-block transition-colors {% is_active 'ui-accounts-plan' %}">
+      <a href="{% url 'ui-accounts-plan' account.name %}"
+         class="panel-block transition-colors {% is_active 'ui-accounts-plan' %}">
         <span class="icon">
           <i class="ri-bank-card-line"></i>
         </span>

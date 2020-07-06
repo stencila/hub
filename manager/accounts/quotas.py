@@ -6,8 +6,8 @@ from django.db.models import Sum
 
 from accounts.models import Account, AccountTeam, AccountTier, AccountUser
 from manager.api.exceptions import AccountQuotaExceeded
-from projects.models.projects import Project
 from projects.models.files import File
+from projects.models.projects import Project
 
 
 class AccountQuota(NamedTuple):

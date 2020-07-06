@@ -205,7 +205,7 @@ class AccountTier(models.Model):
     orgs_created = models.IntegerField(
         verbose_name="Organizations created",
         default=10,
-        help_text="The maximum number organizations that a user can create."
+        help_text="The maximum number organizations that a user can create.",
     )
 
     account_users = models.IntegerField(

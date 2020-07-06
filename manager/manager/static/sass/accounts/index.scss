@@ -2,6 +2,27 @@
 @import "./users/email.scss";
 
 // =============================================================================
+// Pricing Table
+// =============================================================================
+.pricing-table {
+  margin: 0;
+}
+
+.pricing-table__item {
+  border: 1px solid $grey-lightest;
+  border-radius: 4px;
+  padding: $gap / 2;
+
+  p {
+    margin-bottom: $gap / 4;
+
+    * {
+      vertical-align: middle;
+    }
+  }
+}
+
+// =============================================================================
 // Invitations
 // =============================================================================
 .invite-list-item {

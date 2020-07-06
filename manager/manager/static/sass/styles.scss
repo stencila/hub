@@ -2,7 +2,7 @@
 
 // Import fonts
 
-@import url("https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:600&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i|Montserrat:400,600&display=swap");
 @import url("https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css");
 
 // Bulma variable overrides
@@ -78,7 +78,7 @@ $modal-background-background-color: transparentize(darken($blue, 30%), 0.3);
 @import "../../../node_modules/bulma/sass/elements/icon.sass";
 @import "../../../node_modules/bulma/sass/elements/image.sass";
 @import "../../../node_modules/bulma/sass/elements/notification.sass";
-// @import "../../../node_modules/bulma/sass/elements/progress.sass";
+@import "../../../node_modules/bulma/sass/elements/progress.sass";
 @import "../../../node_modules/bulma/sass/elements/table.sass";
 @import "../../../node_modules/bulma/sass/elements/tag.sass";
 @import "../../../node_modules/bulma/sass/elements/title.sass";
