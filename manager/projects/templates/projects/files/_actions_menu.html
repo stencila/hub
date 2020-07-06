@@ -11,12 +11,8 @@
   <div class="dropdown-menu has-text-left" role="menu">
     <div class="dropdown-content">
       {% if file.id != project.main_id %}
-      <a class="dropdown-item"
-         hx-patch="{% url 'api-projects-detail' project.id %}"
-         include-vals="main: {{file.id}}"
-         hx-swap="none"
-         hx-redirect="UPDATED:{% url 'ui-projects-files-list' project.account.name project.name %}"
-      >
+      <a class="dropdown-item" hx-patch="{% url 'api-projects-detail' project.id %}" include-vals="main: {{file.id}}"
+         hx-swap="none" hx-redirect="UPDATED:{% url 'ui-projects-files-list' project.account.name project.name %}">
         <span class="icon">
           <i class="ri-honour-line"></i>
         </span>

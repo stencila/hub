@@ -21,7 +21,7 @@ def basic_auth(get_response):
 def session_storage(get_response):
     """
     Middleware that stores commonly accessed data in the session.
-    
+
     This reduces the number of database queries that need to
     be made on each request e.g. for the URL of the user's image
     """

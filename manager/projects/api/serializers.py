@@ -179,7 +179,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "account", "name", "title", "description", "public", "main", "theme"]
+        fields = [
+            "id",
+            "account",
+            "name",
+            "title",
+            "description",
+            "public",
+            "main",
+            "theme",
+        ]
 
     def validate(self, data):
         """
