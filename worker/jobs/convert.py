@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import cast, List, Union, Dict
 
 from jobs.base.subprocess_job import SubprocessJob
 
@@ -47,10 +47,12 @@ class Convert(SubprocessJob):
         # not easily identifiable from there extension. This means that for other
         # files, the file extension will be used to determine the format (which
         # works in most cases).
-        if "from" in options:
-            options["from"] = {
-                "application/jats+xml": "jats"
-            }.get(options["from"], None)
+        if "from" in options and isinstance(options["from"], str):
+            format = {"application/jats+xml": "jats"}.get(options["from"], None)
+            if format:
+                options["from"] = format
+            else:
+                del options["from"]
 
         args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input]
         args += output if isinstance(output, list) else [output]
