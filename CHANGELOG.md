@@ -1,3 +1,24 @@
+# [2.43.0](https://github.com/stencila/hub/compare/v2.42.0...v2.43.0) (2020-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.4.4 ([c257112](https://github.com/stencila/hub/commit/c2571121224cb1c1b49da7edf9ee4c0ce70f1cde))
+* **deps:** update dependency sentry-sdk to v0.16.0 ([e07ee93](https://github.com/stencila/hub/commit/e07ee9332ea0d71b1eb332bdf56b719bf1b9eee8))
+* **Jobs:** Select related creator and their account ([4d78575](https://github.com/stencila/hub/commit/4d78575f234ba85630115194e492e3c7efeeaeb8))
+* **Manager:** Correct for change in HTMX event names ([c1c16a5](https://github.com/stencila/hub/commit/c1c16a58a6463e73a57ef7d6d9cc100de7b0e9d9))
+* **Manager:** Upgrade dependencies ([8417e56](https://github.com/stencila/hub/commit/8417e563bc8028dbabb00bb110f1e7788e46c191))
+* **Manager sessions:** Use session storage to reduce db queries ([123bf5c](https://github.com/stencila/hub/commit/123bf5c3ba3d089e954779329417b4ec0ec3989d))
+* **Overseer:** Make robust to manager being down ([986d9e6](https://github.com/stencila/hub/commit/986d9e6cae557d1e0203a673a2c5cf7f2dc7b3fa))
+* **Snapshots:** Prefetch job ([b78f71c](https://github.com/stencila/hub/commit/b78f71c883baef4ce418aac1a269540cd20c0382))
+* **Worker:** Fix typings ([6c23163](https://github.com/stencila/hub/commit/6c231633cf365ddc1827848cf62f9e15870005e0))
+* **Worker convert:** Set format from mimetype ([ffa24b2](https://github.com/stencila/hub/commit/ffa24b23828ca2aa5c08086bff6f8aa9ef2ac836))
+
+
+### Features
+
+* **Files:** Add action menu for files and setting of main ([17d9cef](https://github.com/stencila/hub/commit/17d9cefd4b5f494abf6ea4326a3262c71e985f74))
+
 # [2.42.0](https://github.com/stencila/hub/compare/v2.41.0...v2.42.0) (2020-07-03)
 
 
