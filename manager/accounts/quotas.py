@@ -50,7 +50,7 @@ class AccountQuota(NamedTuple):
     def check(self, account: Account):
         """Check whether a quota has been exceed for an account."""
         usage = self.usage(account)
-        if usage.amount >= usage.limit:
+        if usage["amount"] >= usage["limit"]:
             raise AccountQuotaExceeded({self.name: self.message})
 
 
