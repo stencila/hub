@@ -1,3 +1,19 @@
+# [2.44.0](https://github.com/stencila/hub/compare/v2.43.0...v2.44.0) (2020-07-07)
+
+
+### Bug Fixes
+
+* **Projects:** Allow read access by anon users to project files, sources and snapshots ([7dc09b5](https://github.com/stencila/hub/commit/7dc09b5b49c31b71d0c8020dea5d9d2ff03086ad))
+* **Quotas:** Use correct property access for dict ([00f7707](https://github.com/stencila/hub/commit/00f7707ea39670c1a7a9e7201b7770fb7de36319))
+
+
+### Features
+
+* **Account tiers:** Add job runtime limits ([450828d](https://github.com/stencila/hub/commit/450828db2206724ea4c3bb9a5cf49cf3dc00d114))
+* **Manager:** Feature flags ([e8ff7d2](https://github.com/stencila/hub/commit/e8ff7d25827f39465cb8cb7ee6e890eedce04b8d))
+* **Plans:** Add Plan page for accounts ([3498a60](https://github.com/stencila/hub/commit/3498a60a39cefa1c94b567f2ddc1f4dbc5178ec9))
+* **User signin:** Add social account buttons to signup page ([0b2cd5f](https://github.com/stencila/hub/commit/0b2cd5f08abeb558e0bd14430c69d52a3d42e108))
+
 # [2.43.0](https://github.com/stencila/hub/compare/v2.42.0...v2.43.0) (2020-07-06)
 
 
