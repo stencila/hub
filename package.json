@@ -3,27 +3,9 @@
   "version": "2.44.0",
   "author": "Stencila Hub Contributors (https://github.com/stencila/hub/graphs/contributors)",
   "license": "Apache-2.0",
-  "files": [
-    "director/static"
-  ],
-  "scripts": {
-    "prepare": "node prepare.js",
-    "build": "gulp build",
-    "start": "gulp"
-  },
-  "dependencies": {
-    "@stencila/thema": "2.10.4",
-    "bulma": "0.7.5",
-    "hamburgers": "1.1.3"
-  },
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "1.4.49",
-    "gulp": "4.0.2",
-    "gulp-autoprefixer": "7.0.1",
-    "gulp-sass": "4.1.0",
-    "node-sass": "4.14.1",
-    "sass-module-importer": "1.4.0"
+    "@stencila/dev-config": "^1.4.55"
   },
   "renovate": {
     "extends": [
@@ -90,18 +72,16 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "sed -i -e 's!__version__ = .*!__version__ = \"${nextRelease.version}\"!g' director/version.py"
+          "prepareCmd": "sed -i -e 's!__version__ = .*!__version__ = \"${nextRelease.version}\"!g' manager/manager/version.py"
         }
       ],
-      "@semantic-release/npm",
       [
         "@semantic-release/git",
         {
           "assets": [
             "package.json",
             "CHANGELOG.md",
-            "director/version.py",
-            "director/assets/thema.py"
+            "manager/manager/version.py"
           ]
         }
       ],

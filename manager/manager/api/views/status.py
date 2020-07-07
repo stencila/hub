@@ -9,7 +9,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from sentry_sdk import capture_message
 
-from version import __version__
+from manager.version import __version__
 
 
 class StatusResponse(serializers.Serializer):
