@@ -282,7 +282,7 @@ class AccountCreateSerializer(AccountSerializer):
         of accounts that they can create. This is primarily an anti-spamming
         check.
         """
-        AccountQuotas.ORGS.check(data["creator"].personal_account)
+        AccountQuotas.ORGS_CREATED.check(data["creator"].personal_account)
         return data
 
 

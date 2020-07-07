@@ -225,12 +225,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             ):
                 raise exceptions.PermissionDenied
 
-            AccountQuotas.PROJECTS_TOTAL.check(account)
-
         # If creating or changing `public` then check quota for
         # the number of private projects.
-        if data.get("public") and public is False:
-            AccountQuotas.PROJECTS_PRIVATE.check(account)
+        if data.get("public"):
+            if public is False:
+                AccountQuotas.PROJECTS_PRIVATE.check(account)
+            else:
+                AccountQuotas.PROJECTS_PUBLIC.check(account)
 
         # Check the name is valid for this account
         name = data.get("name")
