@@ -15,25 +15,25 @@
           <i class="ri-book-2-line"></i>
         </span>
         <span>
-          {{ fields.projects_total.verbose_name }}
+          {{ fields.projects_private.verbose_name }}
         </span>
       </h3>
 
       <p class="subtitle mb-2">
         <span class="has-text-weight-normal">
-          {{ usage.projects_total.amount }} of {{ usage.projects_total.limit }}
+          {{ usage.projects_private.amount }} of {{ usage.projects_private.limit }}
         </span>
 
         <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
-              data-tooltip="{{ fields.projects_total.help_text }}">
+              data-tooltip="{{ fields.projects_private.help_text }}">
           <i class="ri-question-line"></i>
         </span>
       </p>
 
       <div>
-        <progress class="progress is-vcentered is-primary" value="{{ usage.projects_total.amount }}"
-                  max="{{ usage.projects_total.limit }}">
-          {{ usage.projects_total.percent }}%
+        <progress class="progress is-vcentered is-primary" value="{{ usage.projects_private.amount }}"
+                  max="{{ usage.projects_private.limit }}">
+          {{ usage.projects_private.percent }}%
         </progress>
       </div>
     </div>
@@ -69,30 +69,59 @@
       </div>
     </div>
   </div>
+
+  <div class="column">
+    <div>
+      <h3 class="title is-4">
+        <span class="icon">
+          <i class="ri-timer-2-line"></i>
+        </span>
+        <span>
+          {{ fields.job_runtime_month.verbose_name }}
+        </span>
+      </h3>
+
+      <p class="subtitle mb-2">
+        <span class="has-text-weight-normal">
+          {{ usage.job_runtime_month.amount }}mins of {{ usage.job_runtime_month.limit }}mins
+        </span>
+
+        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+              data-tooltip="{{ fields.job_runtime_month.help_text }}">
+          <i class="ri-question-line"></i>
+        </span>
+      </p>
+
+      <div>
+        <progress class="progress is-vcentered is-primary" value="{{ usage.job_runtime_month.amount }}"
+                  max="{{ usage.job_runtime_month.limit }}">
+          {{ usage.job_runtime_month.percent }}%
+        </progress>
+      </div>
+    </div>
+  </div>
 </div>
 
 <hr />
 
 <h2 class="title">Plans<h2>
 
-    <div class="notification">
-      <p>
-        A message to let users know that there is only one "introductory" plan and that it has restrictive limits while
-        still in development.
+    <div class="message is-info">
+      <p class="message-header">
+        <span class="icon"><i class="ri-broadcast-line"></i></span>
+        <span>Higher limits and more plans soon!</span>
       </p>
-      <p>
-        Higher limits and more plans coming soon!
+      <p class="message-body">
+        While we are still in development, there is only one "introductory" plan with quite restrictive limits.
+        Stay tuned for more plans and higher limits soon.
       </p>
     </div>
 
     <ul class="columns pricing-table mt-4">
       {% for tier in tiers %}
-      {% with tier.projects_private|stringformat:"i" as private_project_str %}
-      {% with "-"|add:private_project_str as negative_private_projects %}
       <li class="column pricing-table__item is-one-third">
         <figure class="is-size-5">
-          <h2 class="is-size-6 has-text-centered">{{ tier.name|default:"Tier Name" }}</h2>
-          <h3 class="title is-2 has-text-centered">Free</h3>
+          <h2 class="is-size-6 has-text-centered">{{ tier.name }}</h2>
 
           <p>
             <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
@@ -104,7 +133,7 @@
           <p>
             <span class="icon has-text-grey-light"><i class="ri-global-line"></i></span>
             <span>
-              {{ tier.projects_total|add:negative_private_projects }} {% trans "Public projects" %}
+              {{ tier.projects_public }} {% trans "Public projects" %}
             </span>
           </p>
 
@@ -140,7 +169,17 @@
                   data-tooltip="{% trans "Snapshots are versioned archives of a project" %}">
               <i class="ri-question-line"></i>
             </span>
+          </p>
 
+          <p>
+            <span class="icon has-text-grey-light"><i class="ri-timer-2-line"></i></span>
+            <span>
+              {{ tier.job_runtime_month }} {% trans "Job minutes" %}
+            </span>
+            <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
+                  data-tooltip="{% trans fields.job_runtime_month.help_text %}">
+              <i class="ri-question-line"></i>
+            </span>
           </p>
 
           <button class="button is-fullwidth mt-4" {% if tier.id == account.tier.id %}disabled{% endif %}>
@@ -152,8 +191,6 @@
           </button>
         </figure>
       </li>
-      {% endwith %}
-      {% endwith %}
       {% endfor %}
     </ul>
 

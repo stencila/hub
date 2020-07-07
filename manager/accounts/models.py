@@ -202,6 +202,10 @@ class AccountTier(models.Model):
     measure e.g.`orgs-created`.
     """
 
+    name = models.CharField(
+        null=False, blank=False, max_length=64, help_text="The name of the tier."
+    )
+
     orgs_created = models.IntegerField(
         verbose_name="Organizations created",
         default=10,
@@ -220,10 +224,10 @@ class AccountTier(models.Model):
         help_text="The maximum number of teams that can be added to the account.",
     )
 
-    projects_total = models.IntegerField(
-        verbose_name="Projects",
+    projects_public = models.IntegerField(
+        verbose_name="Public projects",
         default=100,
-        help_text="The maximum number of projects that an account can have.",
+        help_text="The maximum number of public projects that an account can have.",
     )
 
     projects_private = models.IntegerField(
@@ -234,14 +238,20 @@ class AccountTier(models.Model):
 
     storage_working = models.IntegerField(
         verbose_name="Working storage",
-        default=1,
-        help_text="The maximum number of gigbytes of storage in project working directories.",
+        default=1e9,
+        help_text="The maximum storage in project working directories.",
     )
 
     storage_snapshots = models.IntegerField(
         verbose_name="Snapshot storage",
-        default=5,
-        help_text="The maximum number of gigbytes of storage in project snapshots.",
+        default=5e9,
+        help_text="The maximum storage in project snapshots.",
+    )
+
+    job_runtime_month = models.IntegerField(
+        verbose_name="Job minutes",
+        default=1000,
+        help_text="The maximum number of job minutes per month.",
     )
 
     @staticmethod

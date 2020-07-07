@@ -43,8 +43,9 @@ class AccountTierAdmin(admin.ModelAdmin):
 
     list_display = [
         "id",
+        "name",
         "account_users",
         "account_teams",
-        "projects_total",
+        "projects_public",
         "projects_private",
     ]

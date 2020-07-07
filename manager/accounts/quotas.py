@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.db.models import Sum
 
 from accounts.models import Account, AccountTeam, AccountTier, AccountUser
+from jobs.models import Job
 from manager.api.exceptions import AccountQuotaExceeded
 from projects.models.files import File
 from projects.models.projects import Project
@@ -78,10 +79,10 @@ class AccountQuotas(Enum):
         "Please upgrade the plan for this account.",
     )
 
-    PROJECTS_TOTAL = AccountQuota(
-        "projects_total",
-        lambda account: Project.objects.filter(account=account).count(),
-        "Maximum number of projects for the account has been reached. "
+    PROJECTS_PUBLIC = AccountQuota(
+        "projects_public",
+        lambda account: Project.objects.filter(account=account, public=True).count(),
+        "Maximum number of public projects for the account has been reached. "
         "Please upgrade the plan for this account, or use a different account.",
     )
 
@@ -99,8 +100,7 @@ class AccountQuotas(Enum):
                 project__account=account, snapshot__isnull=True
             ).aggregate(storage=Sum("size"))["storage"]
             or 0
-        )
-        / 1e9,
+        ),
         "Storage limit for project working directories has been reached."
         "Please upgrade the plan for the account.",
     )
@@ -112,10 +112,21 @@ class AccountQuotas(Enum):
                 project__account=account, snapshot__isnull=False
             ).aggregate(storage=Sum("size"))["storage"]
             or 0
-        )
-        / 1e9,
+        ),
         "Snapshot storage limit has been reached."
         "Please upgrade the plan for the account.",
+    )
+
+    JOB_RUNTIME_MONTH = AccountQuota(
+        "job_runtime_month",
+        lambda account: (
+            Job.objects.filter(project__account=account).aggregate(
+                runtime=Sum("runtime")
+            )["runtime"]
+            or 0
+        )
+        / 60000,
+        "Job minutes has been exceeded." "Please upgrade the plan for the account.",
     )
 
     @staticmethod
