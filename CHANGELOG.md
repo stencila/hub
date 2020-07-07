@@ -1,3 +1,13 @@
+## [2.44.1](https://github.com/stencila/hub/compare/v2.44.0...v2.44.1) (2020-07-07)
+
+
+### Bug Fixes
+
+* **Manager:** Fix Docker image build; add run-docker recipe ([2dc115c](https://github.com/stencila/hub/commit/2dc115c8d81ab0adf4e16c6f962a8913e0a53702))
+* **Manager:** More fixes to imports ([9bbf104](https://github.com/stencila/hub/commit/9bbf1047777df0f94d626e51e6a5ec1d2ad76438))
+* **Manager:** Update location of version file ([b18978f](https://github.com/stencila/hub/commit/b18978f546347f0f628bc2bb6da03866efa54ed2))
+* **Router:** Revert to proxying to director ([f7ecf4a](https://github.com/stencila/hub/commit/f7ecf4a787e90fc685928e76f7f5999b297ddad3))
+
 # [2.44.0](https://github.com/stencila/hub/compare/v2.43.0...v2.44.0) (2020-07-07)
 
 
