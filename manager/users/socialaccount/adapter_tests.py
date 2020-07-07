@@ -49,6 +49,10 @@ def mocked_requests_get(*args, **kwargs):
 class SocialAccountAdapterTests(TestCase):
     def setUp(self):
         super(SocialAccountAdapterTests, self).setUp()
+
+        # Remove any existing users in db before running these tests
+        User.objects.all().delete()
+
         site = Site.objects.get_current()
         for provider in providers.registry.get_list():
             app = SocialApp.objects.create(

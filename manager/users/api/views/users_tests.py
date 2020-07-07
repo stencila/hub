@@ -1,6 +1,7 @@
 from rest_framework import status
 
 from manager.testing import DatabaseTestCase
+from users.models import User
 
 
 class UserAPIViewsTests(DatabaseTestCase):
@@ -35,7 +36,7 @@ class UserAPIViewsTests(DatabaseTestCase):
     def test_retrieve_user(self):
         response = self.retrieve_user(None, 2)
         assert response.status_code == status.HTTP_200_OK
-        assert response.data["username"] == "bob"
+        assert response.data["username"] == User.objects.get(id=2).username
 
     def test_retrieve_me(self):
         response = self.retrieve_me(None)
