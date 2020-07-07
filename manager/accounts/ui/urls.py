@@ -49,6 +49,11 @@ urlpatterns = [
                     ),
                 ),
                 path(
+                    AccountPaths.plan.value + "/",
+                    account_views.plan,
+                    name="ui-accounts-plan",
+                ),
+                path(
                     AccountPaths.users.value + "/",
                     user_views.update,
                     name="ui-accounts-users",

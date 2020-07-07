@@ -98,6 +98,7 @@ class Prod(Configuration):
         "knox",
         "polymorphic",
         "rest_framework",
+        "waffle",
         # Add this for our template tags
         "manager",
         # Our apps
@@ -121,6 +122,7 @@ class Prod(Configuration):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "waffle.middleware.WaffleMiddleware",
         "django_prometheus.middleware.PrometheusAfterMiddleware",
         "manager.middleware.method_override",
         "manager.middleware.session_storage",
@@ -226,6 +228,11 @@ class Prod(Configuration):
 
     MEDIA_URL = "/media/"
 
+    # Caching
+    # See https://docs.djangoproject.com/en/3.0/topics/cache
+
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+
     # Logging
     # See https://docs.djangoproject.com/en/3.0/topics/logging/
 
@@ -282,6 +289,11 @@ class Prod(Configuration):
     INVITATIONS_EMAIL_MAX_LENGTH = 1024
     INVITATIONS_EMAIL_SUBJECT_PREFIX = "Invitation to Stencila"
     INVITATIONS_INVITATION_MODEL = "users.Invite"
+
+    # django-waffle settings
+    # See https://waffle.readthedocs.io/en/stable/starting/configuring.html
+
+    WAFFLE_FLAG_MODEL = "users.Flag"
 
     # django-rest-framework settings
 

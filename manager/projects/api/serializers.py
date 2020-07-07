@@ -5,8 +5,9 @@ from rest_framework import exceptions, serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
 from accounts.api.serializers import AccountListSerializer
-from accounts.models import Account, AccountQuotas, AccountTeam
+from accounts.models import Account, AccountTeam
 from accounts.paths import AccountPaths
+from accounts.quotas import AccountQuotas
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify

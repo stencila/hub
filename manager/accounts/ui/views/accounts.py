@@ -4,6 +4,8 @@ from django.shortcuts import redirect as redir
 from django.shortcuts import render
 
 from accounts.api.views import AccountsViewSet
+from accounts.models import AccountTier
+from accounts.quotas import AccountQuotas
 from accounts.ui.forms import AccountImageForm
 from projects.api.views.projects import ProjectsViewSet
 
@@ -97,3 +99,27 @@ def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         raise RuntimeError("Error attempting to save the account image.")
     else:
         raise Http404
+
+
+@login_required
+def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Get the account usage relative to current and other plans.
+    """
+    viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
+    account = viewset.get_object()
+    usage = AccountQuotas.usage(account)
+    tiers = AccountTier.objects.all()
+    fields = AccountTier.fields()
+    return render(
+        request,
+        "accounts/plan.html",
+        dict(
+            account=account,
+            role=account.role,
+            usage=usage,
+            tier=account.tier,
+            tiers=tiers,
+            fields=fields,
+        ),
+    )

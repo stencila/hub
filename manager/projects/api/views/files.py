@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat, StrIndex, Substr
-from rest_framework import exceptions, viewsets
+from rest_framework import exceptions, permissions, viewsets
 
 from manager.api.helpers import HtmxListMixin, HtmxMixin
 from projects.api.serializers import FileSerializer
@@ -19,6 +19,17 @@ class ProjectsFilesViewSet(
     lookup_url_kwarg = "file"
     object_name = "file"
     queryset_name = "files"
+
+    def get_permissions(self):
+        """
+        Get the permissions that the current action requires.
+
+        Actions `list` and `retreive` do not require authentication
+        for public projects (i.e. anon users can view sources).
+        """
+        if self.action in ["list", "retrieve"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get_project(self) -> Project:
         """

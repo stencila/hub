@@ -6,17 +6,32 @@
 {% block content %}
 <div class="columns is-centered">
   <div class="column is-half-tablet">
-    <h1 class="title is-3">Sign up</h1>
+    <h1 class="title is-3">Sign up using...</h1>
+
+    {% include "socialaccount/_provider_buttons.html" %}
+
+    <hr />
+    <h3 class="title is-6">Or, with a new username and password</h3>
+
     <form class="form" method="post" action="{% url 'ui-users-signup' %}">
       {% csrf_token %}
       {% if redirect_field_value %}
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
       {% endif %}
       {% include "forms/form.html" with form=form %}
-      <button class="button is-primary is-fullwidth-mobile" type="submit">
-        Sign up
+      <button class="button is-primary {% if auth_provider %}is-outlined{% endif %} is-fullwidth-mobile" type="submit">
+        <span class="icon"><i class="ri-login-box-line"></i></span>
+        <span>
+          Sign up
+          <span>
       </button>
     </form>
+
+    <hr />
+    <p class="help">
+      By clicking on any of the buttons on this page to sign up you agree to the <a
+         href="https://policies.stenci.la/terms">terms and conditions</a>.
+    </p>
   </div>
 </div>
 {% endblock %}

@@ -1,0 +1,12 @@
+{% load socialaccount %}
+
+<div class="buttons">
+  {% for p in providers %}
+  <a class="button is-primary {% if auth_provider != p.name %}is-outlined{% endif %}" title="{{ p.title}}"
+     href="{% provider_login_url p.name process='login' %}">
+    <span class="icon"><i
+         class="{% if p.icon %}ri-{{ p.icon }}-line{% else %}ri-shield-user-line{% endif %}"></i></span>
+    <span>{{ p.title }}</span>
+  </a>
+  {% endfor %}
+</div>

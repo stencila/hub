@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Account
+from accounts.models import Account, AccountTeam, AccountTier, AccountUser
 
 
 @admin.register(Account)
@@ -21,3 +21,31 @@ class AccountAdmin(admin.ModelAdmin):
         "is_personal",
     ]
     list_select_related = ["creator"]
+
+
+@admin.register(AccountUser)
+class AccountUserAdmin(admin.ModelAdmin):
+    """Admin interface for account users."""
+
+    list_display = ["account", "user", "role"]
+
+
+@admin.register(AccountTeam)
+class AccountTeamAdmin(admin.ModelAdmin):
+    """Admin interface for account teams."""
+
+    list_display = ["account", "name"]
+
+
+@admin.register(AccountTier)
+class AccountTierAdmin(admin.ModelAdmin):
+    """Admin interface for account tiers."""
+
+    list_display = [
+        "id",
+        "name",
+        "account_users",
+        "account_teams",
+        "projects_public",
+        "projects_private",
+    ]

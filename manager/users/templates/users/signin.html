@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n socialaccount %}
+{% load i18n %}
 
 {% block title %}{% trans "Sign in" %}{% endblock %}
 
@@ -8,24 +8,16 @@
 <div class="columns is-centered">
   <div class="column is-half-tablet">
     <h1 class="title is-3">Sign in using…</h1>
-    <div class="buttons">
-      {% for p in providers %}
-      <a class="button is-primary {% if auth_provider != p.name %}is-outlined{% endif %}" title="{{ p.title}}"
-         href="{% provider_login_url p.name process='login' %}">
-        <span class="icon"><i
-             class="{% if p.icon %}ri-{{ p.icon }}-line{% else %}ri-shield-user-line{% endif %}"></i></span>
-        <span>{{ p.title }}</span>
-      </a>
-      {% endfor %}
-    </div>
+
+    {% include "socialaccount/_provider_buttons.html" %}
     <p class="help">
       If you have signed in with one of these services before please use it again to avoid
       creating duplicate user accounts.
     </p>
 
     <hr />
-
     <h3 class="title is-6">Or, an existing account...</h3>
+
     <form class="form" method="post" action="{% url 'ui-users-signin' %}">
       {% csrf_token %}
       {% if redirect_field_value %}

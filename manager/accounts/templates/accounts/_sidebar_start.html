@@ -67,18 +67,17 @@
     {% endif %}
 
     {% if role == 'OWNER' %}
-    {% comment %}
-    <li class="sidebar__item" id="menu-item-billing">
-      <a href="#" class="panel-block transition-colors">
+    <li class="sidebar__item" id="menu-item-plan">
+      <a href="{% url 'ui-accounts-plan' account.name %}"
+         class="panel-block transition-colors {% is_active 'ui-accounts-plan' %}">
         <span class="icon">
           <i class="ri-bank-card-line"></i>
         </span>
         <span>
-          {% trans 'Billing' %}
+          {% trans 'Plan' %}
         </span>
       </a>
     </li>
-    {% endcomment %}
     {% endif %}
   </ul>
 </div>
