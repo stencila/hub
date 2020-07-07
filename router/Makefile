@@ -5,6 +5,6 @@ build:
 # Run Docker image
 run: build
 	docker run --rm --network=host \
-		-e MANAGER_HOST=localhost:8000 \
+		-e DIRECTOR_HOST=localhost:8000 \
 		-e MONITOR_URL=http://localhost:9090 \
 		stencila/hub-router

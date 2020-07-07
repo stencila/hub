@@ -6,9 +6,9 @@
 
 set -eu
 
-: "${MANAGER_HOST:?Env var MANAGER_HOST must be set and non-empty}"
+: "${DIRECTOR_HOST:?Env var DIRECTOR_HOST must be set and non-empty}"
 : "${MONITOR_URL:?Env var MONITOR_URL must be set and non-empty}"
 
-envsubst '${MANAGER_HOST} ${MONITOR_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
+envsubst '${DIRECTOR_HOST} ${MONITOR_URL}' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
 exec "$@"
