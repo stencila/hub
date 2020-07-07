@@ -11,7 +11,7 @@ import os
 
 from configurations import Configuration, values
 
-from version import __version__
+from manager.version import __version__
 
 
 class Prod(Configuration):
