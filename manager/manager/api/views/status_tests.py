@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from version import __version__
+from manager.version import __version__
 
 
 class StatusAPIViewTests(APITestCase):

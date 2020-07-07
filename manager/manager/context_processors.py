@@ -12,7 +12,7 @@ import typing
 from django import conf
 from django.http import HttpRequest
 
-from version import __version__
+from manager.version import __version__
 
 
 def versions(request: HttpRequest) -> typing.Dict[str, str]:
