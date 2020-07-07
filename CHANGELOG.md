@@ -1,3 +1,10 @@
+## [2.44.2](https://github.com/stencila/hub/compare/v2.44.1...v2.44.2) (2020-07-07)
+
+
+### Bug Fixes
+
+* **Manager:** Rename account quotas ([dc25312](https://github.com/stencila/hub/commit/dc2531266729e4414bb66aca8a89d55091a29fb8))
+
 ## [2.44.1](https://github.com/stencila/hub/compare/v2.44.0...v2.44.1) (2020-07-07)
 
 
