@@ -118,8 +118,25 @@ snaps: venv
 .PHONY: snaps
 
 # Build Docker image
-build: Dockerfile
+build: Dockerfile static
 	docker build --tag stencila/hub-manager .
+
+# Run Docker image
+# Necessary environment variables required for `Prod` settings need to
+# be passed using the `--env` option.
+# Add `-e DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
+# Uses development database.
+# Uses `DJANGO_SECURE_SSL_REDIRECT=false` to avoid being redirected
+# to HTTPS (which is the default for prod)
+run-docker: build
+	$(EV) \
+	docker run \
+		--env DJANGO_SECRET_KEY \
+		--env DJANGO_SENDGRID_API_KEY \
+		--env DJANGO_SECURE_SSL_REDIRECT=false \
+		--env BROKER_URL \
+		-v $$PWD/dev.sqlite3:/home/manager/dev.sqlite3:rw \
+		-p 8000:8000 -it --rm stencila/hub-manager
 
 clean:
 	rm -rf venv coverage static

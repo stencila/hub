@@ -7,6 +7,8 @@
 !/version.py
 
 !/accounts
+!/jobs
 !/manager
+!/projects
 !/static
 !/users

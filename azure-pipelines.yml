@@ -80,6 +80,14 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
+
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.7'
+        displayName: Install Python
+
+      - script: make -C manager static
+        displayName: Build manager static assets
     
       - task: DockerCompose@0
         displayName: Build images

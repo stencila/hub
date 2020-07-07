@@ -5,10 +5,8 @@ ENV DEBIAN_FRONTEND noninteractive
 # System dependencies
 RUN apt-get update \
  && apt-get install -y \
-      curl \
       python3 \
-      python3-pip \
-      wget
+      python3-pip
 
 # Install Gunicorn as production WSGI server
 RUN pip3 install gunicorn
