@@ -2,7 +2,9 @@
 
 import os
 
-HERE = os.path.dirname(__file__)
+STORAGE_ROOT = os.environ.get(
+    "STORAGE_ROOT", os.path.join(os.path.dirname(__file__), "..", "storage", "data")
+)
 
 
 def get_project_working_dir(project_id: int):
@@ -15,7 +17,8 @@ def get_project_working_dir(project_id: int):
     for workers to customize where the projects are stored.
     """
     return os.path.join(
-        os.environ.get("WORKING_DIR", os.path.join(HERE, "working")), str(project_id)
+        os.environ.get("WORKING_DIR", os.path.join(STORAGE_ROOT, "working")),
+        str(project_id),
     )
 
 
@@ -27,7 +30,7 @@ def get_project_snapshot_dir(project_id: int, snapshot_id: int):
     working directories.
     """
     return os.path.join(
-        os.environ.get("SNAPSHOT_DIR", os.path.join(HERE, "snapshots")),
+        os.environ.get("SNAPSHOT_DIR", os.path.join(STORAGE_ROOT, "snapshots")),
         str(project_id),
         str(snapshot_id),
     )
