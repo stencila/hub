@@ -1,11 +1,16 @@
+import os
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 
 from django.db import models
 
 from jobs.models import Job
+from manager.storage import snapshots_storage, working_storage
 from projects.models.projects import Project
 from projects.models.sources import Source
+
+SNAPSHOTS_STORAGE = snapshots_storage()
+WORKING_STORAGE = working_storage()
 
 
 class File(models.Model):
@@ -127,3 +132,29 @@ class File(models.Model):
         self.job = job
         self.source = source
         self.save()
+
+    def open_url(self) -> Optional[str]:
+        """
+        Get a URL to open the file at the source.
+
+        Currently, simply returns the URL for the `source` (if any).
+        In the future, each source type should provide a URL to edit a
+        particular file from a multi-file source (e.g. a file within a Github repo).
+
+        Intentionally returns `None` for files in a snapshot (they do not have a `source`).
+        """
+        return self.source.url if self.source else None
+
+    def download_url(self) -> str:
+        """
+        Get a URL to download the file.
+
+        The link will vary depending upon if the file is in the project's
+        working directory, or if it is in a project snapshot.
+        """
+        if self.snapshot:
+            return SNAPSHOTS_STORAGE.url(
+                os.path.join(str(self.project.id), str(self.snapshot.id), self.path)
+            )
+        else:
+            return WORKING_STORAGE.url(os.path.join(str(self.project.id), self.path))

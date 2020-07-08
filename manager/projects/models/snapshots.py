@@ -1,13 +1,14 @@
 import os
-from typing import Optional
 
-from django.conf import settings
 from django.db import models
 
 from jobs.models import Job, JobMethod
+from manager.storage import snapshots_storage
 from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
+
+storage = snapshots_storage()
 
 
 class Snapshot(models.Model):
@@ -126,24 +127,10 @@ class Snapshot(models.Model):
         """
         return self.job and self.job.is_active
 
-    def get_file_path(self, path: str) -> Optional[str]:
+    def archive_url(self, format: str = "zip") -> str:
         """
-        Get the absolute path for a file within the snapshot.
+        Get the URL for a snapshot archive.
         """
-        if not settings.SNAPSHOT_DIR:
-            return None
-        return os.path.join(
-            settings.SNAPSHOT_DIR, str(self.project.id), str(self.id), path
-        )
-
-    def get_archive_path(self, format: str = "zip") -> Optional[str]:
-        """
-        Get the absolute path to a snapshot archive.
-        """
-        if not settings.SNAPSHOT_DIR:
-            return None
-        return (
-            os.path.join(settings.SNAPSHOT_DIR, str(self.project.id), str(self.id))
-            + "."
-            + format
+        return storage.url(
+            os.path.join(str(self.project.id), str(self.id) + "." + format)
         )

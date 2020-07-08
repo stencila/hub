@@ -12,7 +12,7 @@ from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job, JobMethod
-from manager.media import private_storage
+from manager.storage import uploads_storage
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import get_user_github_token, get_user_google_token
@@ -651,7 +651,7 @@ class UploadSource(Source):
     """
 
     file = models.FileField(
-        storage=private_storage(),
+        storage=uploads_storage(),
         upload_to=upload_source_path,
         help_text="The uploaded file.",
     )

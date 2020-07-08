@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.http import FileResponse
-from django.shortcuts import reverse
+from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -158,9 +158,10 @@ class ProjectsSnapshotsViewSet(
     def archive(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve an archive for a project snapshot.
+
+        The user should have read access to the project.
+        Returns a redirect to the URL of the archive.
         """
         snapshot = self.get_object()
-
-        absolute_path = snapshot.get_archive_path()
-
-        return FileResponse(open(absolute_path, "rb"), as_attachment=True,)
+        url = snapshot.archive_url()
+        return redirect(url)

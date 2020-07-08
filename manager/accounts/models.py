@@ -9,7 +9,7 @@ from django.shortcuts import reverse
 from imagefield.fields import ImageField
 
 from manager.helpers import EnumChoice, unique_slugify
-from manager.media import public_storage
+from manager.storage import media_storage
 from users.models import User
 
 
@@ -64,7 +64,7 @@ class Account(models.Model):
     image = ImageField(
         null=True,
         blank=True,
-        storage=public_storage(),
+        storage=media_storage(),
         upload_to="accounts/images",
         formats={
             "small": ["default", ("crop", (20, 20))],

@@ -10,20 +10,28 @@
   </div>
   <div class="dropdown-menu has-text-left" role="menu">
     <div class="dropdown-content">
-      {% if file.url %}
-      <a href="{{ file.url }}" target="_blank" rel="noopener" class="dropdown-item">
+      {% with open_url=file.open_url %}
+      {% if open_url %}
+      <a href="{{ open_url }}" target="_blank" rel="noopener" class="dropdown-item">
         <span class="icon">
           <i class="ri-external-link-line"></i>
         </span>
         <span>{% trans "Open" %}</span>
       </a>
       {% endif %}
-      <a href="#" class="dropdown-item" disabled data-tooltip="This feature is coming soon!">
+      {% endwith %}
+
+      {% with download_url=file.download_url %}
+      {% if download_url %}
+      <a href="{{ download_url }}" class="dropdown-item">
         <span class="icon">
           <i class="ri-download-line"></i>
         </span>
         <span>{% trans "Download" %}</span>
       </a>
+      {% endif %}
+      {% endwith %}
+
       {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <hr class="dropdown-divider">
       {% if file.id != project.main_id %}

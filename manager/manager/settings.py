@@ -13,6 +13,13 @@ from configurations import Configuration, values
 
 from manager.version import __version__
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Directory fro file storage e.g. `uploads`, `snapshots`
+# This should only be used in development and testing. In production
+# storage is provided by other, possibly external, services e.g. S3, NFS
+STORAGE_ROOT = os.path.join(BASE_DIR, "..", "storage", "data")
+
 
 class Prod(Configuration):
     """
@@ -22,8 +29,6 @@ class Prod(Configuration):
     To keep `Dev` and `Test` settings as close as possible to those
     in production we use `Prod` as a base and only override as needed.
     """
-
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     ###########################################################################
     # Core Django settings
@@ -221,13 +226,6 @@ class Prod(Configuration):
 
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-    # Media files (uploaded by users)
-    # https://docs.djangoproject.com/en/3.0/topics/files/
-
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-    MEDIA_URL = "/media/"
-
     # Caching
     # See https://docs.djangoproject.com/en/3.0/topics/cache
 
@@ -389,6 +387,10 @@ class Prod(Configuration):
     # URL of the `broker` service
     BROKER_URL = values.SecretValue(environ_prefix=None)
 
+    # In production only use other services for storage,
+    # not local filesystem.
+    STORAGE_DIR = None
+
     ###########################################################################
     # Settings used internally in the `manager`'s own code
     #
@@ -408,13 +410,6 @@ class Prod(Configuration):
     # This is usually disallowed in production but is permitted
     # during development for ease of testing.
     UI_BASIC_AUTH = values.BooleanValue(False)
-
-    # The mode for file storage:
-    #   local: local filesystem
-    #   bucket: Google Cloud Storage bucket
-    STORAGE_MODE = "bucket"
-
-    SNAPSHOT_DIR = None
 
     @classmethod
     def post_setup(cls):
@@ -508,11 +503,7 @@ class Dev(Prod):
     UI_BASIC_AUTH = True
 
     # Use local file storage
-    STORAGE_MODE = "local"
-
-    SNAPSHOT_DIR = os.path.join(  # type:ignore
-        Prod.BASE_DIR, "..", "worker", "snapshots"
-    )
+    STORAGE_ROOT = STORAGE_ROOT
 
 
 class Test(Prod):
@@ -537,4 +528,4 @@ class Test(Prod):
 
     # During testing, use local file storage because do not have Google bucket
     # credentials.
-    STORAGE_MODE = "local"
+    STORAGE_ROOT = STORAGE_ROOT

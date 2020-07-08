@@ -47,22 +47,12 @@ handler404 = handle404
 handler500 = handle500
 
 if settings.DEBUG:
-    import os
     import debug_toolbar
-    from django.conf.urls.static import static
 
-    urlpatterns = (
-        [path("debug/", include(debug_toolbar.urls))]
-        + urlpatterns
-        # Public media files e.g. account images.
-        + static(
-            settings.MEDIA_URL,
-            document_root=os.path.join(settings.MEDIA_ROOT, "public"),
-        )
-        # Project uploaded files, which in production, will require
-        # an access token.
-        + static(
-            settings.MEDIA_URL,
-            document_root=os.path.join(settings.MEDIA_ROOT, "private"),
-        )
-    )
+    urlpatterns += [path("debug/", include(debug_toolbar.urls))]
+
+if settings.STORAGE_ROOT:
+    from manager.storage import serve_local
+
+    for pattern in serve_local():
+        urlpatterns = urlpatterns + pattern
