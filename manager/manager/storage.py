@@ -5,7 +5,7 @@ The following functions return different types and configurations of
 Django `Storage` classes depending on the use and the deployment context.
 See https://docs.djangoproject.com/en/3.0/ref/files/storage/
 
-For security reasons, even public files, should be served raw
+For security reasons, even public files should be served raw
 from a different domain (ala googleusercontent.com and githubusercontent.com).
 """
 
@@ -22,7 +22,7 @@ def media_storage() -> Storage:
     Get the storage backend for public media files e.g. profile images.
 
     We use "media" as this is the name given to these sorts of files
-    See https://docs.djangoproject.com/en/3.0/topics/files/.
+    in Django. See https://docs.djangoproject.com/en/3.0/topics/files/.
     """
     return (
         FileSystemStorage(
