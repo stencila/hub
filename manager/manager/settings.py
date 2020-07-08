@@ -8,6 +8,7 @@ See https://github.com/jazzband/django-configurations.
 
 import datetime
 import os
+from typing import Optional
 
 from configurations import Configuration, values
 
@@ -389,7 +390,7 @@ class Prod(Configuration):
 
     # In production only use other services for storage,
     # not local filesystem.
-    STORAGE_ROOT = None
+    STORAGE_ROOT: Optional[str] = None
 
     ###########################################################################
     # Settings used internally in the `manager`'s own code
