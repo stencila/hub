@@ -389,7 +389,7 @@ class Prod(Configuration):
 
     # In production only use other services for storage,
     # not local filesystem.
-    STORAGE_DIR = None
+    STORAGE_ROOT = None
 
     ###########################################################################
     # Settings used internally in the `manager`'s own code
