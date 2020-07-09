@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/stencila/hub/compare/v3.0.0...v3.0.1) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Manager:** Include manage.py in image; update version ([b82dae7](https://github.com/stencila/hub/commit/b82dae7bbc81a4a9950035abc328ae429eed61aa))
+
 ## [2.44.2](https://github.com/stencila/hub/compare/v2.44.1...v2.44.2) (2020-07-07)
 
 
