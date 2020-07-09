@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/stencila/hub/compare/v3.0.2...v3.0.3) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Account tiers:** Use gigabytes for limits instead of bytes ([a44be10](https://github.com/stencila/hub/commit/a44be10ea19df98a43dcef352dd085faa73480fc))
+
 ## [3.0.2](https://github.com/stencila/hub/compare/v3.0.1...v3.0.2) (2020-07-09)
 
 
