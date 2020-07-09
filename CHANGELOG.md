@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/stencila/hub/compare/v3.0.3...v3.0.4) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Manager:** Modify CASE statements for Postgres compatability ([9efeb71](https://github.com/stencila/hub/commit/9efeb71f54651e990c388c07edfe221d8a56f22e))
+
 ## [3.0.3](https://github.com/stencila/hub/compare/v3.0.2...v3.0.3) (2020-07-09)
 
 
