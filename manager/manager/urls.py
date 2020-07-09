@@ -36,15 +36,7 @@ urlpatterns = [
             ]
         ),
     ),
-    path("", include(projects.ui.urls.before_account_urls)),
-    path("", include("accounts.ui.urls")),
-    path("", include(projects.ui.urls.after_account_urls)),
-    path("", home, name="home"),
 ]
-
-handler403 = handle403
-handler404 = handle404
-handler500 = handle500
 
 if settings.DEBUG:
     import debug_toolbar
@@ -56,3 +48,17 @@ if settings.STORAGE_ROOT:
 
     for pattern in serve_local():
         urlpatterns = urlpatterns + pattern
+
+# Account and project URL which match other arbitrary URL
+# (e.g. /possible-org/potential-project) should come last
+# so that they do not 404 for other views.
+urlpatterns += [
+    path("", include(projects.ui.urls.before_account_urls)),
+    path("", include("accounts.ui.urls")),
+    path("", include(projects.ui.urls.after_account_urls)),
+    path("", home, name="home"),
+]
+
+handler403 = handle403
+handler404 = handle404
+handler500 = handle500
