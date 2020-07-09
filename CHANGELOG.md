@@ -1,3 +1,10 @@
+## [3.0.5](https://github.com/stencila/hub/compare/v3.0.4...v3.0.5) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Manager:** Use single quotes for string constants in Postgres ([1dc5dc5](https://github.com/stencila/hub/commit/1dc5dc50adff3d5ea8cd28622d375e56ebf476a3))
+
 ## [3.0.4](https://github.com/stencila/hub/compare/v3.0.3...v3.0.4) (2020-07-09)
 
 
