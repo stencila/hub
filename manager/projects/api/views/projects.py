@@ -50,12 +50,12 @@ def get_projects(user: User):
             role=RawSQL(
                 """
 SELECT
-CASE account_role.role
-WHEN "OWNER" THEN "OWNER"
-WHEN "MANAGER" THEN
-    CASE project_role.role
-    WHEN "OWNER" THEN "OWNER"
-    ELSE "MANAGER" END
+CASE
+WHEN account_role.role = "OWNER" THEN "OWNER"
+WHEN account_role.role = "MANAGER" THEN
+    CASE
+    WHEN account_role.role = "OWNER" THEN "OWNER"
+    ELSE account_role.role = "MANAGER" END
 ELSE project_role.role END AS role
 FROM projects_project AS project
 LEFT JOIN
