@@ -50,14 +50,11 @@ const attachDropdownHandlers = (dropdown) => {
     }, 100);
   };
 
-  const showEvents = ["mouseenter", "focus"];
+  const showEvents = ["click", "mouseenter", "focus"];
   const hideEvents = ["mouseleave", "blur"];
 
   showEvents.forEach((event) => {
     trigger.addEventListener(event, show);
-  });
-
-  showEvents.forEach((event) => {
     targetEl.addEventListener(event, cancelDestruction);
     dropdown.setAttribute("data-dropdown-hydrated", "true");
   });
