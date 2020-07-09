@@ -87,5 +87,8 @@
       ],
       "@semantic-release/github"
     ]
+  },
+  "dependencies": {
+    "@types/k6": "^0.26.1"
   }
 }
