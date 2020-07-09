@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/stencila/hub/compare/v3.0.1...v3.0.2) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Manager:** Remove stencibot from migration ([bda8930](https://github.com/stencila/hub/commit/bda8930dfca8f4eef4ffd82758c33bf26ea99a13))
+
 ## [3.0.1](https://github.com/stencila/hub/compare/v3.0.0...v3.0.1) (2020-07-09)
 
 
