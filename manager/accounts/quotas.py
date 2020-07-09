@@ -55,6 +55,11 @@ class AccountQuota(NamedTuple):
             raise AccountQuotaExceeded({self.name: self.message})
 
 
+def bytes_to_gigabytes(value: float) -> float:
+    """Convert bytes to gigabytes."""
+    return value / 1073741824.0
+
+
 class AccountQuotas(Enum):
     """List of account quotas."""
 
@@ -95,7 +100,7 @@ class AccountQuotas(Enum):
 
     STORAGE_WORKING = AccountQuota(
         "storage_working",
-        lambda account: (
+        lambda account: bytes_to_gigabytes(
             File.objects.filter(
                 project__account=account, snapshot__isnull=True
             ).aggregate(storage=Sum("size"))["storage"]
@@ -107,7 +112,7 @@ class AccountQuotas(Enum):
 
     STORAGE_SNAPSHOTS = AccountQuota(
         "storage_snapshots",
-        lambda account: (
+        lambda account: bytes_to_gigabytes(
             File.objects.filter(
                 project__account=account, snapshot__isnull=False
             ).aggregate(storage=Sum("size"))["storage"]

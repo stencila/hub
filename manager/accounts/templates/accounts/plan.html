@@ -52,7 +52,7 @@
 
       <p class="subtitle mb-2">
         <span class="has-text-weight-normal">
-          {{ usage.storage_working.amount|filesizeformat }} of {{ usage.storage_working.limit|filesizeformat }}
+          {{ usage.storage_working.amount|floatformat }}GB of {{ usage.storage_working.limit }}GB
         </span>
 
         <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
@@ -83,7 +83,7 @@
 
       <p class="subtitle mb-2">
         <span class="has-text-weight-normal">
-          {{ usage.job_runtime_month.amount }}mins of {{ usage.job_runtime_month.limit }}mins
+          {{ usage.job_runtime_month.amount|floatformat }}mins of {{ usage.job_runtime_month.limit }}mins
         </span>
 
         <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
@@ -156,14 +156,14 @@
           <p>
             <span class="icon has-text-grey-light"><i class="ri-database-2-line"></i></span>
             <span>
-              {{ tier.storage_working|filesizeformat }} {% trans "Project storage" %}
+              {{ tier.storage_working }}GB {% trans "Project storage" %}
             </span>
           </p>
 
           <p>
             <span class="icon has-text-grey-light"><i class="ri-archive-line"></i></span>
             <span>
-              {{ tier.storage_working|filesizeformat }} {% trans "Snapshot storage" %}
+              {{ tier.storage_snapshots }}GB {% trans "Snapshot storage" %}
             </span>
             <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
                   data-tooltip="{% trans "Snapshots are versioned archives of a project" %}">

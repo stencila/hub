@@ -236,19 +236,19 @@ class AccountTier(models.Model):
         help_text="The maximum number of private projects that an account can have.",
     )
 
-    storage_working = models.IntegerField(
+    storage_working = models.FloatField(
         verbose_name="Working storage",
-        default=1e9,
-        help_text="The maximum storage in project working directories.",
+        default=1,
+        help_text="The maximum storage in project working directories (GB).",
     )
 
-    storage_snapshots = models.IntegerField(
+    storage_snapshots = models.FloatField(
         verbose_name="Snapshot storage",
-        default=5e9,
-        help_text="The maximum storage in project snapshots.",
+        default=5,
+        help_text="The maximum storage in project snapshots (GB).",
     )
 
-    job_runtime_month = models.IntegerField(
+    job_runtime_month = models.FloatField(
         verbose_name="Job minutes",
         default=1000,
         help_text="The maximum number of job minutes per month.",
