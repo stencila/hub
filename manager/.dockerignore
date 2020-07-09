@@ -4,7 +4,7 @@
 *
 
 !/requirements.txt
-!/version.py
+!/manage.py
 
 !/accounts
 !/jobs
