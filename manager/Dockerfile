@@ -28,4 +28,12 @@ RUN pip3 install -r requirements.txt
 ADD --chown=manager:manager . .
 
 # Run `wsgi.py` using Gunicorn
-CMD gunicorn manager.wsgi --bind 0.0.0.0:8000
+# See https://pythonspeed.com/articles/gunicorn-in-docker/ for rationale
+# for choice of options.
+CMD gunicorn manager.wsgi \
+      --worker-tmp-dir /dev/shm \
+      --workers=2 \
+      --threads=4 \
+      --worker-class=gthread \
+      --log-file=- \
+      --bind 0.0.0.0:8000
