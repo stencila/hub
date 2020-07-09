@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from jobs.models import Job, Pipeline, PipelineSchedule, Zone
+from jobs.models import (
+    Job,
+    Pipeline,
+    PipelineSchedule,
+    Queue,
+    Worker,
+    WorkerHeartbeat,
+    Zone,
+)
 
 
 @admin.register(Job)
@@ -43,6 +51,46 @@ class PipelineScheduleAdmin(admin.ModelAdmin):
         "routing_key",
         "priority",
         "headers",
+    ]
+
+
+@admin.register(Queue)
+class QueueAdmin(admin.ModelAdmin):
+    """Admin interface for zones."""
+
+    list_display = [
+        "name",
+        "zone",
+        "priority",
+        "untrusted",
+        "interrupt",
+    ]
+
+
+@admin.register(Worker)
+class WorkerAdmin(admin.ModelAdmin):
+    """Admin interface for workers."""
+
+    list_display = [
+        "id",
+        "hostname",
+        "created",
+        "started",
+        "updated",
+        "active",
+    ]
+
+
+@admin.register(WorkerHeartbeat)
+class WorkerHeartbeatAdmin(admin.ModelAdmin):
+    """Admin interface for worker heartbeats."""
+
+    list_display = [
+        "worker_id",
+        "time",
+        "active",
+        "processed",
+        "load",
     ]
 
 
