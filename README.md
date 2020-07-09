@@ -159,6 +159,10 @@ make run-in-minikube
 
 > 💁 Tip: The `minikube dashboard` is really useful for debugging. And don't forget to `minikube stop` when you're done!
 
+### Performance testing
+
+See the [`perf.ts`](perf) script. More details to come.
+
 ### Committing
 
 Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is important (but not required) because commit messages are used to determine the semantic version of releases (and thus deployments) and to generate the project's [CHANGELOG.md](CHANGELOG.md). If appropriate, use the sentence case service name as the scope (to help make both `git log` and the change log more readable). Some examples,

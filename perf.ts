@@ -1,7 +1,7 @@
 // To run:
 // 1. install k6 (https://k6.io/docs/getting-started/installation)
 // 2. Run a local instance of the Hub
-// 3. run in terminal `k6 run -e USERNAME=username -e PASSWORD=password perf/index.ts`
+// 3. run in terminal `k6 run -e USERNAME=username -e PASSWORD=password other/perf/index.ts`
 
 import { check, sleep } from "k6";
 import http from "k6/http";

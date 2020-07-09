@@ -1,7 +1,7 @@
 {
   "extends": "@stencila/dev-config/tsconfig.json",
   "compilerOptions": {
-    "outDir": "perf/dist"
+    "outDir": "dist"
   },
-  "include": ["perf/**/*.ts"]
+  "include": ["*.ts"]
 }
