@@ -1,3 +1,17 @@
+# [3.1.0](https://github.com/stencila/hub/compare/v3.0.6...v3.1.0) (2020-07-09)
+
+
+### Features
+
+* **Admin interface:** Add additional model admins ([71fa01c](https://github.com/stencila/hub/commit/71fa01c75ecd3f5130048fe3ce950425c1dfcdd7))
+* **JS:** Open dropdowns on click. Needed for Product Tours ([d47e277](https://github.com/stencila/hub/commit/d47e2775dc340240265291601c6dbbe5c1847445))
+* **Manager:** Allow setting STORAGE_ROOT using env var in Prod ([6371bc6](https://github.com/stencila/hub/commit/6371bc637f83c78a05a70af151db02c53192f0d0))
+
+
+### Performance Improvements
+
+* **Manager:** Improve Dockerfile gunicorn settings ([7c32275](https://github.com/stencila/hub/commit/7c32275778bc05c62dd42049089f65ceea00530a))
+
 ## [3.0.6](https://github.com/stencila/hub/compare/v3.0.5...v3.0.6) (2020-07-09)
 
 
