@@ -50,6 +50,13 @@ create-devdb-sqlite: venv
 	$(DJ) migrate
 	$(DJ) runscript create_dev_db
 
+# Create a development PostgeSQL database on localhost
+create-devdb-postgres: venv
+	export DATABASE_URL="postgres://stencila:password@localhost:5432/hub"; \
+	$(VE)/python3 manage.py reset_db; \
+	$(VE)/python3 manage.py migrate; \
+	$(VE)/python3 manage.py runscript create_dev_db
+
 # Migrate the development database
 migrate-devdb: venv
 	$(DJ) migrate
@@ -61,6 +68,12 @@ show-serializers:
 # Run development server
 run: venv
 	$(DJ) runserver
+
+# Run development server with PostgreSQL database
+run-postgres: venv
+	$(EV) \
+	export DATABASE_URL="postgres://stencila:password@localhost:5432/hub"; \
+	$(VE)/python3 manage.py runserver
 
 # Run static asset compilation and live-reload server
 run-watch:
