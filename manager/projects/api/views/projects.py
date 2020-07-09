@@ -51,12 +51,12 @@ def get_projects(user: User):
                 """
 SELECT
 CASE
-WHEN account_role.role = "OWNER" THEN "OWNER"
-WHEN account_role.role = "MANAGER" THEN
+WHEN account_role.role = 'OWNER' THEN 'OWNER'
+WHEN account_role.role = 'MANAGER' THEN
     CASE
-    WHEN account_role.role = "OWNER" THEN "OWNER"
-    ELSE account_role.role = "MANAGER" END
-ELSE project_role.role END AS role
+    WHEN account_role.role = 'OWNER' THEN 'OWNER'
+    ELSE account_role.role = 'MANAGER' END
+ELSE project_role.role END AS "role"
 FROM projects_project AS project
 LEFT JOIN
     (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
