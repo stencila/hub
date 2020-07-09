@@ -390,7 +390,7 @@ class Prod(Configuration):
 
     # In production only use other services for storage,
     # not local filesystem.
-    STORAGE_ROOT: Optional[str] = None
+    STORAGE_ROOT: Optional[str] = values.Value(None)
 
     ###########################################################################
     # Settings used internally in the `manager`'s own code
