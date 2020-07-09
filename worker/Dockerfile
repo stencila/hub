@@ -51,5 +51,11 @@ COPY . ./
 ENV PYTHONUNBUFFERED=1
 
 # Run Celery worker as `worker` user
+# By using $(hostname) we give the worker a unique identifier
+# based on the unique hostname of the Docker container.
 USER worker
-CMD celery worker --app worker --queues default --events --hostname worker@stencila
+CMD celery worker --app worker \
+                  --hostname worker@$(hostname) \
+                  --queues default \
+                  --events \
+                  --heartbeat-interval=60
