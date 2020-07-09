@@ -1,3 +1,12 @@
+## [3.0.6](https://github.com/stencila/hub/compare/v3.0.5...v3.0.6) (2020-07-09)
+
+
+### Bug Fixes
+
+* **Manager:** Use simple CASE syntax and remove extra condition. ([831be6b](https://github.com/stencila/hub/commit/831be6ba5608c724382f52ef54b8b1f94d0cb4e6))
+* **Manager URLs:** Improve ordering of URLs to avoid 404s for debug etc ([1625534](https://github.com/stencila/hub/commit/16255342e34dfa9370819ff67a0bdf85fa1bc419))
+* **Worker:** Unique hostname and increase heartbeat interval ([0e8505f](https://github.com/stencila/hub/commit/0e8505ffd4bd4021d0f2312f6b9821bad2b51ff9))
+
 ## [3.0.5](https://github.com/stencila/hub/compare/v3.0.4...v3.0.5) (2020-07-09)
 
 
