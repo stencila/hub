@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Callable, Dict, NamedTuple
 
 from django.core.cache import cache
@@ -60,7 +59,7 @@ def bytes_to_gigabytes(value: float) -> float:
     return value / 1073741824.0
 
 
-class AccountQuotas(Enum):
+class AccountQuotas:
     """List of account quotas."""
 
     ORGS_CREATED = AccountQuota(
@@ -135,13 +134,14 @@ class AccountQuotas(Enum):
     )
 
     @staticmethod
-    def usage(account: Account) -> Dict[str, float]:
+    def usage(account: Account) -> Dict[str, Dict[str, float]]:
         """
         Get a dictionary of usage of each account quota.
         """
         return dict(
             [
                 (quota.name, quota.usage(account))
-                for quota in [item.value for item in AccountQuotas]
+                for quota in vars(AccountQuotas).values()
+                if isinstance(quota, AccountQuota)
             ]
         )
