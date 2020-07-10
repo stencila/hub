@@ -22,7 +22,7 @@ class MediaStorage(GoogleCloudStorage):
     """
     Custom storage for public media files.
 
-    Overrides the `url()` method to avoids a call to GCS to get a signed URL. 
+    Overrides the `url()` method to avoids a call to GCS to get a signed URL.
     Other ways may exist to do this (e.g. set `GS_DEFAULT_ACL` to `publicRead`).
     But this approach seems to be the most direct, and has less potential to conflict
     with other GCS-based storages, or the permissions policy on the bucket.
