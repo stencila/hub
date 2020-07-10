@@ -10,11 +10,33 @@ from a different domain (ala googleusercontent.com and githubusercontent.com).
 """
 
 import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.conf.urls.static import static
 from django.core.files.storage import FileSystemStorage, Storage
 from storages.backends.gcloud import GoogleCloudStorage
+
+
+class MediaStorage(GoogleCloudStorage):
+    """
+    Custom storage for public media files.
+
+    Overrides the `url()` method to avoids a call to GCS to get a signed URL. 
+    Other ways may exist to do this (e.g. set `GS_DEFAULT_ACL` to `publicRead`).
+    But this approach seems to be the most direct, and has less potential to conflict
+    with other GCS-based storages, or the permissions policy on the bucket.
+    See:
+      - https://stackoverflow.com/questions/34247702/configure-django-and-google-cloud-storage
+      - https://github.com/jschneier/django-storages/issues/692
+    """
+
+    def __init__(self):
+        super().__init__(bucket_name="stencila-hub-media")
+
+    def url(self, name: str) -> str:
+        """Get the URL of the file."""
+        return urljoin("https://storage.googleapis.com/" + self.bucket_name + "/", name)
 
 
 def media_storage() -> Storage:
@@ -30,7 +52,7 @@ def media_storage() -> Storage:
             base_url="/local/media",
         )
         if settings.STORAGE_ROOT
-        else GoogleCloudStorage(bucket_name="stencila-hub-media")
+        else MediaStorage()
     )
 
 
@@ -112,4 +134,5 @@ def serve_local():
             working_storage(),
             snapshots_storage(),
         ]
+        if isinstance(storage, FileSystemStorage)
     ]
