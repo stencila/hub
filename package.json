@@ -5,8 +5,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "^1.4.55",
-    "@types/k6": "^0.26.1"
+    "@stencila/dev-config": "1.4.55",
+    "@types/k6": "0.26.1"
   },
   "renovate": {
     "extends": [
