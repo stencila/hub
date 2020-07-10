@@ -1,3 +1,11 @@
+## [3.1.2](https://github.com/stencila/hub/compare/v3.1.1...v3.1.2) (2020-07-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency lxml to v4.5.2 ([94923ee](https://github.com/stencila/hub/commit/94923ee434012a3774471e7e2d51304ecf466af6))
+* **Quotas:** Do not use enum ([5925ab2](https://github.com/stencila/hub/commit/5925ab22ea11e535a0d0a5901fb24d5ce862e013))
+
 ## [3.1.1](https://github.com/stencila/hub/compare/v3.1.0...v3.1.1) (2020-07-10)
 
 
