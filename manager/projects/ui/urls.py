@@ -1,12 +1,12 @@
 from django.urls import include, path, re_path
 
-import projects.ui.views.files as files_views
-import projects.ui.views.jobs as jobs_views
-import projects.ui.views.projects as project_views
-import projects.ui.views.snapshots as snapshots_views
-import projects.ui.views.sources as sources_views
 from manager.paths import RootPaths
 from projects.paths import ProjectPaths
+from projects.ui.views import files as files_views
+from projects.ui.views import jobs as jobs_views
+from projects.ui.views import projects as project_views
+from projects.ui.views import snapshots as snapshots_views
+from projects.ui.views import sources as sources_views
 
 # URLs that must go before `accounts.ui.urls`
 before_account_urls = [

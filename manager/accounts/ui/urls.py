@@ -1,9 +1,9 @@
 from django.urls import include, path, re_path
 
-import accounts.ui.views.accounts as account_views
-import accounts.ui.views.teams as team_views
-import accounts.ui.views.users as user_views
 from accounts.paths import AccountPaths
+from accounts.ui.views import accounts as account_views
+from accounts.ui.views import teams as team_views
+from accounts.ui.views import users as user_views
 from manager.paths import RootPaths
 
 urlpatterns = [
