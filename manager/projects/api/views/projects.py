@@ -2,7 +2,6 @@ from typing import Dict, List, Optional
 
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
-from django.http import Http404
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
@@ -79,7 +78,7 @@ def get_project(
     """
     Get a project for the user, optionally requiring one or more roles.
 
-    Like GitHub, raises a Http404 if the user does not have permission
+    Like GitHub, raises a `NotFound` exception if the user does not have permission
     to avoid leaking the existence of a private project.
     """
     filter = filter_from_ident(identifiers["project"])
@@ -95,7 +94,7 @@ def get_project(
             **filter, **(dict(role__in=[role.name for role in roles]) if roles else {}),
         )
     except Project.DoesNotExist:
-        raise Http404
+        raise exceptions.NotFound
 
 
 class ProjectsViewSet(

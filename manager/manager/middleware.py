@@ -1,3 +1,4 @@
+import rest_framework
 from django.shortcuts import render
 from rest_framework.authentication import BasicAuthentication
 
@@ -60,13 +61,15 @@ class CustomExceptionsMiddleware:
     Handle custom exceptions.
 
     Renders pages for custom exceptions e.g. `AccountQuotaExceeded`
+    and `rest_framework` exceptions (which are not otherwise handled
+    if raised from a `ui-*` view).
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        """Obligitory method."""
+        """Obligatory method."""
         return self.get_response(request)
 
     def process_exception(self, request, exception):
@@ -85,3 +88,7 @@ class CustomExceptionsMiddleware:
             except (TypeError, IndexError):
                 message = None
             return render(request, "users/token_missing.html", dict(message=message))
+        elif isinstance(exception, rest_framework.exceptions.NotFound):
+            return render(request, "404.html")
+        elif isinstance(exception, rest_framework.exceptions.PermissionDenied):
+            return render(request, "403.html")
