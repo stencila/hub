@@ -1,4 +1,5 @@
 import datetime
+import os
 import re
 from typing import List, Optional, Type, Union
 
@@ -67,12 +68,6 @@ class Source(PolymorphicModel):
         null=False,
         blank=False,
         help_text="The address of the source. e.g. github://org/repo/subpath",
-    )
-
-    url = models.URLField(
-        null=True,
-        blank=True,
-        help_text="The URL of the source. Provided for users to be able to navigate to the external source.",
     )
 
     path = models.TextField(
@@ -298,9 +293,12 @@ class Source(PolymorphicModel):
         """
         return None
 
-    def make_url(self):
+    def get_url(self, path: Optional[str] = None):
         """
         Create a URL for users to visit the source on the external site.
+
+        path: An optional path to a file within the source (for multi-file
+              sources such as GitHub repos).
         """
         raise NotImplementedError
 
@@ -435,8 +433,6 @@ class Source(PolymorphicModel):
         """
         if not self.address:
             self.address = self.make_address()
-        if not self.url:
-            self.url = self.make_url()
 
         return super().save(*args, **kwargs)
 
@@ -459,7 +455,7 @@ class ElifeSource(Source):
         """Make the address string of an eLife source."""
         return "elife://{article}".format(article=self.article)
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of the article on the eLife website."""
         return "https://elifesciences.org/articles/{article}".format(
             article=self.article
@@ -517,11 +513,11 @@ class GithubSource(Source):
 
         return None
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Get the URL of a GitHub source."""
         url = "https://github.com/{}".format(self.repo)
-        if self.subpath:
-            url += "/blob/master/{}".format(self.subpath)
+        if self.subpath or path:
+            url += os.path.join("/blob/master", self.subpath or "", path or "")
         return url
 
     def authorization_token(self, user: User) -> str:
@@ -580,7 +576,7 @@ class GoogleDocsSource(Source):
 
         return None
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a Google Doc."""
         return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
 
@@ -599,7 +595,7 @@ class GoogleDriveSource(Source):
         """Get the provider name for a Google Drive source."""
         return "Google"
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a Google Drive folder."""
         return "https://drive.google.com/folders/{folder_id}".format(
             folder_id=self.folder_id
@@ -619,7 +615,7 @@ class PlosSource(Source):
         """Make the address string of a PLOS source."""
         return "plos://{article}".format(article=self.article)
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a PLOS article."""
         # TODO: Implement fully (see how worker pull_plos.py resolves an article URL)
         return "https://plos.org"
@@ -660,7 +656,7 @@ class UploadSource(Source):
         """Make the address string of an upload source."""
         return "upload://{}".format(self.path)
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """
         Make the URL of an upload article.
 
@@ -691,15 +687,22 @@ class UploadSource(Source):
 
 
 class UrlSource(Source):
-    """A source that is downloaded from a URL on demand."""
+    """
+    A source that is downloaded from a URL on demand.
+    
+    Because we "moved" this the `url` field from `Source`, to avoid
+    a clash during migrations, it needed to be renamed as `uri`.
+    """
+
+    uri = models.URLField(null=False, blank=False, help_text="The URL of the source.",)
 
     def make_address(self) -> str:
         """Get the address of a URL source."""
-        return self.url
+        return self.uri
 
-    def make_url(self) -> str:
+    def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a URL source."""
-        return self.url
+        return self.uri
 
     @classmethod
     def parse_address(
@@ -722,4 +725,4 @@ class UrlSource(Source):
 
     def to_address(self):
         """Override base method which (intentionally) excludes `url`."""
-        return dict(**super().to_address(), url=self.url)
+        return dict(**super().to_address(), url=self.uri)

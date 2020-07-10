@@ -1,7 +1,7 @@
 from typing import Optional
 
 from django.db.models import Q
-from django.shortcuts import reverse
+from django.shortcuts import redirect, reverse
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -44,7 +44,7 @@ class ProjectsSourcesViewSet(
         Actions `list` and `retreive` do not require authentication
         for public projects (i.e. anon users can view sources).
         """
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["list", "retrieve", "open"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
@@ -145,6 +145,16 @@ class ProjectsSourcesViewSet(
             )
         else:
             return None
+
+    @action(detail=True, methods=["GET"], url_path="open/?(?P<path>.+)?")
+    def open(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Open the source, or a file within the source.
+
+        Returns a redirect response to an external URL.
+        """
+        source = self.get_object()
+        return redirect(source.get_url(path=self.kwargs.get("path")))
 
     @action(detail=True, methods=["POST"])
     def pull(self, request: Request, *args, **kwargs) -> Response:

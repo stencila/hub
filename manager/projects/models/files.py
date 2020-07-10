@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Optional
 
 from django.db import models
+from django.shortcuts import reverse
 
 from jobs.models import Job
 from manager.storage import snapshots_storage, working_storage
@@ -137,13 +138,24 @@ class File(models.Model):
         """
         Get a URL to open the file at the source.
 
-        Currently, simply returns the URL for the `source` (if any).
+        Currently, simply returns the URL to "open" the `source` (if any).
         In the future, each source type should provide a URL to edit a
         particular file from a multi-file source (e.g. a file within a Github repo).
 
+        Does not provide the URL of the source directly because that would
+        require additional queries to the table for each source type (instead provides URL
+        to API endpoint which will redirect to the URL).
+
         Intentionally returns `None` for files in a snapshot (they do not have a `source`).
         """
-        return self.source.url if self.source else None
+        return (
+            reverse(
+                "api-projects-sources-open",
+                kwargs=dict(project=self.project_id, source=self.source_id),
+            )
+            if self.source_id
+            else None
+        )
 
     def download_url(self) -> str:
         """

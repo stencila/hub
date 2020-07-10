@@ -50,13 +50,11 @@
     <h1 class="title is-5 mb-0">
       {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
       {{ source.address }}
-      {% if source.url %}
-      <a href="{{ source.url }}" target="_blank" rel="noopener">
+      <a href="{% url 'api-projects-sources-open' project.id source.id %}" target="_blank" rel="noopener">
         <span class="icon">
           <i class="ri-external-link-line"></i>
         </span>
       </a>
-      {% endif %}
     </h1>
   </div>
   <div class="level-left">
