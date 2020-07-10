@@ -1,5 +1,5 @@
 {% extends './base.html' %}
-{% load i18n stencila  %}
+{% load i18n stencila humanize %}
 
 {% block title %}{{ account.name }} {% trans "Plan" %}{% endblock %}
 
@@ -117,11 +117,11 @@
       </p>
     </div>
 
-    <ul class="columns pricing-table mt-4">
-      {% for tier in tiers %}
-      <li class="column pricing-table__item is-one-third">
-        <figure class="is-size-5">
-          <h2 class="is-size-6 has-text-centered">{{ tier.name }}</h2>
+    <ul class="columns is-multiline is-variable is-2 pricing-table mt-4">
+      {% for tier in tiers|dictsort:"job_runtime_month" %}
+      <li class="column is-one-third">
+        <figure class="is-size-5 pricing-table__item">
+          <h2 class="has-text-centered title is-4">{% trans tier.name %}</h2>
 
           <p>
             <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
@@ -172,9 +172,9 @@
           </p>
 
           <p>
-            <span class="icon has-text-grey-light"><i class="ri-timer-2-line"></i></span>
+            <span class="icon has-text-grey-light"><i class="ri-timer-line"></i></span>
             <span>
-              {{ tier.job_runtime_month }} {% trans "Job minutes" %}
+              {{ tier.job_runtime_month|intcomma }} {% trans "Job minutes" %}
             </span>
             <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
                   data-tooltip="{% trans fields.job_runtime_month.help_text %}">
