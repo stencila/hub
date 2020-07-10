@@ -689,7 +689,7 @@ class UploadSource(Source):
 class UrlSource(Source):
     """
     A source that is downloaded from a URL on demand.
-    
+
     Because we "moved" this the `url` field from `Source`, to avoid
     a clash during migrations, it needed to be renamed as `uri`.
     """
