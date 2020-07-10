@@ -1,3 +1,20 @@
+## [3.1.1](https://github.com/stencila/hub/compare/v3.1.0...v3.1.1) (2020-07-10)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency @stencila/encoda to 0.97.1 ([d33a853](https://github.com/stencila/hub/commit/d33a853aff8137ce63e43ea3c3775a679281a727))
+* **deps:** update dependency @stencila/thema to v2.12.0 ([8956d86](https://github.com/stencila/hub/commit/8956d862d64e101a2d8fbc6cd97ee363b80c0d5c))
+* **deps:** update dependency htmx.org to v0.0.8 ([4c7492c](https://github.com/stencila/hub/commit/4c7492cc579458f00e23816cb219880a08d9a5f1))
+* **Exception handling:** Handle DRF exceptions in UI views ([52c6fa6](https://github.com/stencila/hub/commit/52c6fa600a1b9ea3a037660825a1d0f0d4885512)), closes [#538](https://github.com/stencila/hub/issues/538)
+* **Sources:** Remove Source.url field, add /open API endpoint instead ([16a0d80](https://github.com/stencila/hub/commit/16a0d80b345fe3706abdd1fa36dfabc6a81872ed)), closes [#539](https://github.com/stencila/hub/issues/539)
+* **Worker:** Upgrade Encoda ([5320a5d](https://github.com/stencila/hub/commit/5320a5d841717df69ad9f5fb6217b1066a53ab2f))
+
+
+### Performance Improvements
+
+* **Manager:** Override url method for public media files ([9a39738](https://github.com/stencila/hub/commit/9a3973891067085565435dbc2dbe00de073a370a))
+
 # [3.1.0](https://github.com/stencila/hub/compare/v3.0.6...v3.1.0) (2020-07-09)
 
 
