@@ -3,23 +3,14 @@ from django.db.models import QuerySet
 from rest_framework import exceptions, viewsets
 
 from accounts.models import Account, AccountRole, AccountTeam
-from manager.api.helpers import (
-    HtmxCreateMixin,
-    HtmxDestroyMixin,
-    HtmxListMixin,
-    HtmxMixin,
-)
+from manager.api.helpers import HtmxCreateMixin, HtmxDestroyMixin, HtmxListMixin
 from projects.models.projects import Project, ProjectRole
 from users.api.serializers import InviteSerializer
 from users.models import Invite
 
 
 class InvitesViewSet(
-    HtmxMixin,
-    HtmxListMixin,
-    HtmxCreateMixin,
-    HtmxDestroyMixin,
-    viewsets.GenericViewSet,
+    HtmxListMixin, HtmxCreateMixin, HtmxDestroyMixin, viewsets.GenericViewSet,
 ):
     """
     A view set for invites.

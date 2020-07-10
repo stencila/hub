@@ -51,7 +51,6 @@ def get_account(
 
 
 class AccountsViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,

@@ -27,7 +27,6 @@ from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
     HtmxListMixin,
-    HtmxMixin,
     HtmxRetrieveMixin,
     HtmxUpdateMixin,
     filter_from_ident,
@@ -75,7 +74,6 @@ class AccountsBrokerView(views.APIView):
 
 
 class AccountsZonesViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,
@@ -136,7 +134,7 @@ class AccountsZonesViewSet(
 
 
 class AccountsQueuesViewSet(
-    HtmxMixin, HtmxListMixin, HtmxRetrieveMixin, viewsets.GenericViewSet,
+    HtmxListMixin, HtmxRetrieveMixin, viewsets.GenericViewSet,
 ):
     """
     A view set for queues.
@@ -178,7 +176,7 @@ class AccountsQueuesViewSet(
 
 
 class AccountsWorkersViewSet(
-    HtmxMixin, HtmxListMixin, HtmxRetrieveMixin, viewsets.GenericViewSet,
+    HtmxListMixin, HtmxRetrieveMixin, viewsets.GenericViewSet,
 ):
     """
     A view set for workers.
@@ -220,9 +218,7 @@ class AccountsWorkersViewSet(
         return queryset.get(id=self.kwargs["worker"])
 
 
-class AccountsWorkersHeartbeatsViewSet(
-    HtmxMixin, HtmxListMixin, viewsets.GenericViewSet
-):
+class AccountsWorkersHeartbeatsViewSet(HtmxListMixin, viewsets.GenericViewSet):
     """
     A view set for worker heartbeats.
 
@@ -376,7 +372,6 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
 
 class ProjectsJobsViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,
@@ -519,7 +514,7 @@ class ProjectsJobsViewSet(
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, methods=["PATCH"])
-    def cancel(self, request: Request, project: int, job: int) -> Response:
+    def cancel(self, request: Request, *args, **kwargs) -> Response:
         """
         Cancel a job.
 

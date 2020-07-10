@@ -6,12 +6,13 @@ from typing import Dict, Optional, Type, Union
 from django.shortcuts import get_object_or_404
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 from rest_framework import viewsets
+from rest_framework.generics import GenericAPIView
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 
-class HtmxMixin:  # noqa: D101
+class HtmxMixin(GenericAPIView):  # noqa: D101
 
     renderer_classes = [CamelCaseJSONRenderer, TemplateHTMLRenderer]
 
@@ -93,7 +94,7 @@ class HtmxMixin:  # noqa: D101
         return headers
 
 
-class HtmxListMixin:  # noqa: D101
+class HtmxListMixin(HtmxMixin):  # noqa: D101
     def list(self, request: Request, *args, **kwargs) -> Response:
         """
         List objects.
@@ -119,7 +120,7 @@ class HtmxListMixin:  # noqa: D101
             return self.get_paginated_response(serializer.data)
 
 
-class HtmxCreateMixin:  # noqa: D101
+class HtmxCreateMixin(HtmxMixin):  # noqa: D101
     def create(self, request: Request, *args, **kwargs) -> Response:
         """
         Create an object.
@@ -150,7 +151,7 @@ class HtmxCreateMixin:  # noqa: D101
             return Response(serializer.data, status=201)
 
 
-class HtmxRetrieveMixin:  # noqa: D101
+class HtmxRetrieveMixin(HtmxMixin):  # noqa: D101
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve an object.
@@ -169,7 +170,7 @@ class HtmxRetrieveMixin:  # noqa: D101
             return Response(serializer.data)
 
 
-class HtmxUpdateMixin:  # noqa: D101
+class HtmxUpdateMixin(HtmxMixin):  # noqa: D101
     def partial_update(self, request: Request, *args, **kwargs) -> Response:
         """
         Update an object.
@@ -199,7 +200,7 @@ class HtmxUpdateMixin:  # noqa: D101
             return Response(serializer.data)
 
 
-class HtmxDestroyMixin:  # noqa: D101
+class HtmxDestroyMixin(HtmxMixin):  # noqa: D101
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         """
         Destroy an object.
@@ -236,7 +237,7 @@ class HtmxDestroyMixin:  # noqa: D101
 
 
 def filter_from_ident(
-    value: str, prefix: Optional[str] = None, int_key="id", str_key="name"
+    value: Union[str, int], prefix: Optional[str] = None, int_key="id", str_key="name"
 ) -> Dict[str, Union[str, int]]:
     """
     Get a filter dictionary from an identifier.
@@ -244,7 +245,7 @@ def filter_from_ident(
     If the identifier looks like an integer, then
     the filter has key `id`, otherwise `name`.
     """
-    if re.match(r"\d+", value):
+    if isinstance(value, str) and re.match(r"\d+", value):
         key = int_key
         value = int(value)
     else:

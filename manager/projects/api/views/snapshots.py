@@ -11,7 +11,6 @@ from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
     HtmxListMixin,
-    HtmxMixin,
     HtmxRetrieveMixin,
 )
 from projects.api.serializers import SnapshotSerializer
@@ -22,7 +21,6 @@ from projects.models.snapshots import Snapshot
 
 
 class ProjectsSnapshotsViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,

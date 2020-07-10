@@ -39,4 +39,5 @@ def view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     Currently, this just renders an iframe with index.html
     inside it.
     """
-    return retrieve(request, *args, **kwargs, template="projects/snapshots/view.html")
+    kwargs.update({"template": "projects/snapshots/view.html"})
+    return retrieve(request, *args, **kwargs)

@@ -13,7 +13,6 @@ from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
     HtmxListMixin,
-    HtmxMixin,
     HtmxRetrieveMixin,
     HtmxUpdateMixin,
     filter_from_ident,
@@ -98,7 +97,6 @@ def get_project(
 
 
 class ProjectsViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,
@@ -222,7 +220,6 @@ class ProjectsViewSet(
 
 
 class ProjectsAgentsViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,

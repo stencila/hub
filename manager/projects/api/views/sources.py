@@ -12,7 +12,6 @@ from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
     HtmxListMixin,
-    HtmxMixin,
     HtmxRetrieveMixin,
     HtmxUpdateMixin,
 )
@@ -23,7 +22,6 @@ from projects.models.sources import Source
 
 
 class ProjectsSourcesViewSet(
-    HtmxMixin,
     HtmxListMixin,
     HtmxCreateMixin,
     HtmxRetrieveMixin,

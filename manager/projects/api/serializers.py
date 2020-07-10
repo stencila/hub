@@ -367,15 +367,15 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_name(self, obj) -> str:
         """Get the name of the file / dir."""
-        return obj.get("name") if isinstance(obj, dict) else obj.name
+        return str(obj.get("name")) if isinstance(obj, dict) else obj.name
 
     def get_is_directory(self, obj) -> bool:
         """Is the entry a directory."""
-        return obj.get("is_directory") if isinstance(obj, dict) else False
+        return bool(obj.get("is_directory")) if isinstance(obj, dict) else False
 
     def get_count(self, obj) -> int:
         """Get the number of files in a dir."""
-        return obj.get("count") if isinstance(obj, dict) else 1
+        return int(str(obj.get("count"))) if isinstance(obj, dict) else 1
 
     def get_source(self, obj):
         """Get the list of sources. Always just a single source for a file."""
@@ -507,7 +507,7 @@ class ElifeSourceSerializer(SourceSerializer):
 
     class Meta:
         model = ElifeSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -528,7 +528,7 @@ class GithubSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GithubSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate(self, data):
@@ -571,7 +571,7 @@ class GoogleDocsSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleDocsSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate_doc_id(self, value):
@@ -588,7 +588,7 @@ class GoogleDriveSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleDriveSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -599,7 +599,7 @@ class PlosSourceSerializer(SourceSerializer):
 
     class Meta:
         model = PlosSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -610,7 +610,7 @@ class UploadSourceSerializer(SourceSerializer):
 
     class Meta:
         model = UploadSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -621,7 +621,7 @@ class UrlSourceSerializer(SourceSerializer):
 
     class Meta:
         model = UrlSource
-        exclude = []
+        fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 

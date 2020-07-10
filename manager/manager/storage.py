@@ -87,7 +87,7 @@ class WorkingStorage(Storage):
     The files are actually served by the `router` service.
     """
 
-    def url(path: str):
+    def url(self, path: str) -> str:
         """Get the URL for a file."""
         return os.path.join("https://stencila.io/", path)
 

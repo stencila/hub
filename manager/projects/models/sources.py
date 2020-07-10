@@ -129,6 +129,7 @@ class Source(PolymorphicModel):
         for cls in Source.__subclasses__():
             if cls.__name__.lower() == all_lower:
                 return cls.__name__
+        return ""
 
     @property
     def type_name(self) -> str:
@@ -284,7 +285,7 @@ class Source(PolymorphicModel):
             ),
         )
 
-    def authorization_token(self, user: User) -> str:
+    def authorization_token(self, user: User) -> Optional[str]:
         """
         Get an authorization token for user to pull or push the source.
 
@@ -383,7 +384,7 @@ class Source(PolymorphicModel):
     # or the time of the last push
 
     @property
-    def is_active(self, since=datetime.timedelta(minutes=15)) -> bool:
+    def is_active(self) -> bool:
         """
         Is the source currently active.
 
@@ -391,6 +392,7 @@ class Source(PolymorphicModel):
         The `since` parameter is included to ignore old, orphaned jobs
         which may have not have had their status updated.
         """
+        since = datetime.timedelta(minutes=15)
         return (
             self.jobs.filter(
                 is_active=True, created__gte=timezone.now() - since
@@ -398,7 +400,6 @@ class Source(PolymorphicModel):
             > 0
         )
 
-    @property
     def latest_jobs(self, n=10) -> List[Job]:
         """
         Get the latest jobs for the source.
@@ -412,7 +413,7 @@ class Source(PolymorphicModel):
         return jobs
 
     @property
-    def last_pull(self, n=10) -> List[Job]:
+    def last_pull(self) -> Optional[Job]:
         """
         Get the last pull job for the source.
         """
@@ -520,7 +521,7 @@ class GithubSource(Source):
             url += os.path.join("/blob/master", self.subpath or "", path or "")
         return url
 
-    def authorization_token(self, user: User) -> str:
+    def authorization_token(self, user: User) -> Optional[str]:
         """Get the Github authorization token for the user."""
         return get_user_github_token(user)
 
@@ -580,7 +581,7 @@ class GoogleDocsSource(Source):
         """Make the URL of a Google Doc."""
         return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
 
-    def authorization_token(self, user: User) -> str:
+    def authorization_token(self, user: User) -> Optional[str]:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
 
@@ -601,7 +602,7 @@ class GoogleDriveSource(Source):
             folder_id=self.folder_id
         )
 
-    def authorization_token(self, user: User) -> str:
+    def authorization_token(self, user: User) -> Optional[str]:
         """Get the Google authorization token for the user."""
         return get_user_google_token(user)
 
@@ -656,7 +657,7 @@ class UploadSource(Source):
         """Make the address string of an upload source."""
         return "upload://{}".format(self.path)
 
-    def get_url(self, path: Optional[str] = None) -> str:
+    def get_url(self, path: Optional[str] = None) -> Optional[str]:
         """
         Make the URL of an upload article.
 

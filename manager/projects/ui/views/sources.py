@@ -38,6 +38,7 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
 
     source_type = kwargs.get("type")
+    assert isinstance(source_type, str)
     source_class = Source.class_from_type_name(source_type).__name__
 
     template = select_template(

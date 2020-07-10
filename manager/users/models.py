@@ -8,6 +8,7 @@ This module only serves to provide some consistency across the
 to do the following.
 """
 
+import django.contrib.auth.models
 import shortuuid
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -22,7 +23,7 @@ from jsonfallback.fields import FallbackJSONField
 from rest_framework.exceptions import ValidationError
 from waffle.models import AbstractUserFlag
 
-User = get_user_model()
+User: django.contrib.auth.models.User = get_user_model()
 
 
 class Flag(AbstractUserFlag):

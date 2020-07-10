@@ -1,10 +1,10 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat, StrIndex, Substr
 from rest_framework import exceptions, permissions, viewsets
 
-from manager.api.helpers import HtmxListMixin, HtmxMixin
+from manager.api.helpers import HtmxListMixin
 from projects.api.serializers import FileSerializer
 from projects.api.views.projects import get_project
 from projects.models.files import File
@@ -12,7 +12,7 @@ from projects.models.projects import Project
 
 
 class ProjectsFilesViewSet(
-    HtmxMixin, HtmxListMixin, viewsets.GenericViewSet,
+    HtmxListMixin, viewsets.GenericViewSet,
 ):
     """A view set for project files."""
 
@@ -105,7 +105,7 @@ class ProjectsFilesViewSet(
         if expand is not None:
             return queryset
 
-        groups = {}
+        groups: Dict[str, Dict[str, Any]] = {}
         for file in queryset.all():
             if "/" in file.path[len(prefix) + 1 :]:
                 name = file.name
