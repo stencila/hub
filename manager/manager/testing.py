@@ -9,6 +9,7 @@ from knox.settings import knox_settings
 from rest_framework import test
 from rest_framework.response import Response
 
+from projects.models.projects import Project
 from users.models import User
 
 
@@ -45,6 +46,19 @@ class DatabaseTestCase(test.APITestCase):
 
             instance, token = AuthToken.objects.create(user=user)
             setattr(cls, "{}_token".format(username), token)
+
+            public, _ = Project.objects.get_or_create(
+                account=user.personal_account, creator=user, public=True, name="public",
+            )
+            setattr(cls, "{}_public".format(username), public)
+
+            private, _ = Project.objects.get_or_create(
+                account=user.personal_account,
+                creator=user,
+                public=False,
+                name="private",
+            )
+            setattr(cls, "{}_private".format(username), private)
 
     def authenticate(self, user: Optional[User]) -> None:
         """

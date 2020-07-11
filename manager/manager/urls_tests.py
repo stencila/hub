@@ -103,6 +103,61 @@ checks = [
         anon=title("Oops!"),
         ada=title("Oops!")
     ),
+    # Project URLs
+    Check(
+        "/ada/private/files",
+        anon=404,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/sources",
+        anon=404,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/sources/new/elife",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/sources/new/url",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/sources/upload",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/snapshots",
+        anon=404,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/jobs",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/sharing",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
+    Check(
+        "/ada/private/settings",
+        anon=signin,
+        ada=200,
+        bob=404
+    ),
     # API documentation endpoints
     Check(
         "/api",
