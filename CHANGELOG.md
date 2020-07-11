@@ -1,3 +1,14 @@
+## [3.1.3](https://github.com/stencila/hub/compare/v3.1.2...v3.1.3) (2020-07-11)
+
+
+### Bug Fixes
+
+* **Accounts:** Fix Plan Tier listing layout overflow ([c171d00](https://github.com/stencila/hub/commit/c171d003be4f50deb8bfd7d168737be32d28eb9d))
+* **JS:** Reset spinner buttons if Form contains an error ([631ec3b](https://github.com/stencila/hub/commit/631ec3b272a85f9790a3fa130b8df0f72c1516e5))
+* **Manager eLife source:** Correct reference to static image ([afb6242](https://github.com/stencila/hub/commit/afb62421346949cd4d53f8ac158b4fcf6c9e5c3e))
+* **Manager middleware:** Add status codes ([e74900d](https://github.com/stencila/hub/commit/e74900da5f676e2cf01f36a8f7c75dc399a514f5))
+* **Manager URL source:** Fix field name ([90aaf5f](https://github.com/stencila/hub/commit/90aaf5fe18d26773146c4855e6740d1e549045d1))
+
 ## [3.1.2](https://github.com/stencila/hub/compare/v3.1.1...v3.1.2) (2020-07-10)
 
 
