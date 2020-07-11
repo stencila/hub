@@ -89,6 +89,6 @@ class CustomExceptionsMiddleware:
                 message = None
             return render(request, "users/token_missing.html", dict(message=message))
         elif isinstance(exception, rest_framework.exceptions.NotFound):
-            return render(request, "404.html")
+            return render(request, "404.html", status=404)
         elif isinstance(exception, rest_framework.exceptions.PermissionDenied):
-            return render(request, "403.html")
+            return render(request, "403.html", status=403)
