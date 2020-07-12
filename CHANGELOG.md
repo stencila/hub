@@ -1,3 +1,18 @@
+# [3.2.0](https://github.com/stencila/hub/compare/v3.1.3...v3.2.0) (2020-07-12)
+
+
+### Bug Fixes
+
+* **Manager:** Revert to name url for field ([60ced3f](https://github.com/stencila/hub/commit/60ced3f325b2327ed5131a0aae873ef5e60b22a4))
+* **Manager:** Use a URL address to fetch uploaded files ([40ab80f](https://github.com/stencila/hub/commit/40ab80f4a2a11e01ae8b588b80972fb746c892d0))
+* **Manager jobs:** Use seconds, rather than minutes ([1c3c424](https://github.com/stencila/hub/commit/1c3c424f880a75f990fcc3bdf563e6a1aef2d40d))
+* **Manager sources:** Autofocus remove button ([adeed41](https://github.com/stencila/hub/commit/adeed41e97546a09e3891c0ad701f16c576e8007))
+
+
+### Features
+
+* **Worker:** Report job exceptions to Sentry ([3350255](https://github.com/stencila/hub/commit/3350255fb71d0dd1693a4e1602a0b5a4f0e49c5a))
+
 ## [3.1.3](https://github.com/stencila/hub/compare/v3.1.2...v3.1.3) (2020-07-11)
 
 
