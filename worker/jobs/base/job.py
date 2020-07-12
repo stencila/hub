@@ -7,6 +7,7 @@ from pathlib import Path
 import celery
 from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
+import sentry_sdk
 
 import config
 
@@ -16,6 +17,12 @@ ERROR = 0
 WARN = 1
 INFO = 2
 DEBUG = 3
+
+# Initialize Sentry. This reuses the environment variable already set
+# for the `manager` service (which is why it is prefixed by `DJANGO_`).
+DJANGO_SENTRY_DSN = os.environ.get("DJANGO_SENTRY_DSN")
+if DJANGO_SENTRY_DSN:
+    sentry_sdk.init(dsn=DJANGO_SENTRY_DSN)
 
 
 class Job(celery.Task):
@@ -102,8 +109,11 @@ class Job(celery.Task):
         """
         Job has failed due to an exception.
 
-        TODO: Report to Sentry.
+        This method re-raises the exception so that it can be handled
+        by Celery (e.g. the job marked with `FAILURE`). However, before
+        doing so it reports the error to Sentry.
         """
+        sentry_sdk.capture_exception(exc)
         raise exc
 
     def run(self, *args, **kwargs):
@@ -112,14 +122,14 @@ class Job(celery.Task):
 
         This is an override of `Task.run` which is the method
         that actually gets called by Celery each time a task
-        in processed. It is wraps `self.do()` to handle
+        in processed. It wraps `self.do()` to handle
         logging, exceptions, termination etc.
 
         Most jobs need to operate within a project's working directory
         and project `File` paths are always relative to those.
         To avoid code repetition and potential errors with making paths absolute,
         this method changes into the working directory of the project.
-        In the future, the project job argument may be mandatory.
+        In the future, the project argument may be mandatory.
         """
         current_dir = os.getcwd()
 
