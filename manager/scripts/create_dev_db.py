@@ -263,7 +263,7 @@ def run(*args):
             project=project,
             creator=random_project_user(project),
             path="example-dot-org",
-            uri="https://example.org",
+            url="https://example.org",
         )
         create_files_for_source(url, ["example-dot-org.html"])
 
@@ -271,7 +271,7 @@ def run(*args):
             creator=random_project_user(project),
             project=project,
             path="sub/subsub/mtcars.csv",
-            uri="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
+            url="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
         )
         create_files_for_source(url, ["sub/subsub/mtcars.csv"])
 

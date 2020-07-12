@@ -690,20 +690,17 @@ class UploadSource(Source):
 class UrlSource(Source):
     """
     A source that is downloaded from a URL on demand.
-
-    Because we "moved" this the `url` field from `Source`, to avoid
-    a clash during migrations, it needed to be renamed as `uri`.
     """
 
-    uri = models.URLField(null=False, blank=False, help_text="The URL of the source.",)
+    url = models.URLField(null=False, blank=False, help_text="The URL of the source.",)
 
     def make_address(self) -> str:
         """Get the address of a URL source."""
-        return self.uri
+        return self.url
 
     def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a URL source."""
-        return self.uri
+        return self.url
 
     @classmethod
     def parse_address(
@@ -726,4 +723,4 @@ class UrlSource(Source):
 
     def to_address(self):
         """Override base method which (intentionally) excludes `url`."""
-        return dict(**super().to_address(), url=self.uri)
+        return dict(**super().to_address(), url=self.url)
