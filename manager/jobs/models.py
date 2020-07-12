@@ -290,9 +290,9 @@ class Worker(models.Model):
         if self.finished:
             return False
         if self.updated:
-            return (
-                timezone.now() - self.updated
-            ).minutes < self.freq * Worker.FLATLINE_HEARTBEATS
+            return (timezone.now() - self.updated).seconds < (
+                self.freq * Worker.FLATLINE_HEARTBEATS
+            )
         return True
 
 
