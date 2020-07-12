@@ -684,7 +684,7 @@ class UploadSource(Source):
         if isinstance(self.file.storage, FileSystemStorage):
             return dict(type="local", path=self.file.path)
         else:
-            return dict(type="gcs")
+            return dict(type="url", url=self.file.url)
 
 
 class UrlSource(Source):
