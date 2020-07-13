@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/stencila/hub/compare/v3.2.0...v3.2.1) (2020-07-13)
+
+
+### Bug Fixes
+
+* **Projects:** Default to public project ([7f07444](https://github.com/stencila/hub/commit/7f0744491e4308cf6be7a09d75256bfa2a33c125))
+
 # [3.2.0](https://github.com/stencila/hub/compare/v3.1.3...v3.2.0) (2020-07-12)
 
 
