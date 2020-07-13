@@ -14,6 +14,7 @@ class RootPaths(enum.Enum):
     api = "api"
     favicon = "favicon.ico"
     me = "me"
+    open = "open"
     orgs = "orgs"
     projects = "projects"
     users = "users"

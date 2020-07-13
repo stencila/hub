@@ -10,10 +10,13 @@ class ProjectAdmin(admin.ModelAdmin):
 
     list_display = [
         "name",
+        "account",
         "creator",
         "created",
+        "temporary",
+        "public",
     ]
-    list_select_related = ["creator"]
+    list_select_related = ["account", "creator"]
 
 
 @admin.register(Snapshot)

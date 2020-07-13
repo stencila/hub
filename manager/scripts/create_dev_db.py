@@ -180,7 +180,7 @@ def run(*args):
     # the generic `member`, `manager` etc accounts all have access to
     # at the corresponding levels
 
-    for account in Account.objects.all():
+    for account in Account.objects.all().exclude(name__in=("stencila", "temp")):
         public = Project.objects.create(
             name="first-project",
             title="First project",

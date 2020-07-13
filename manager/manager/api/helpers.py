@@ -245,7 +245,7 @@ def filter_from_ident(
     If the identifier looks like an integer, then
     the filter has key `id`, otherwise `name`.
     """
-    if isinstance(value, str) and re.match(r"\d+", value):
+    if isinstance(value, str) and re.match(r"^\d+$", value):
         key = int_key
         value = int(value)
     else:
@@ -256,5 +256,10 @@ def filter_from_ident(
 
 
 def get_object_from_ident(cls, value: str):
-    """Get an object from an indentifier."""
+    """Get an object from an identifier."""
     return get_object_or_404(cls, **filter_from_ident(value))
+
+
+def get_help_text(cls, field: str) -> str:
+    """Get a model field help text."""
+    return cls._meta.get_field(field).help_text

@@ -35,8 +35,10 @@ def get_projects(user: User):
     """
     Get a queryset of projects for the user.
 
-    Each project is annotated with the role of the user
-    for the project.
+    For authenticated users, each project is annotated with the
+    role of the user for the project.
+
+
     """
     if user.is_authenticated:
         # Annotate the queryset with the role of the user
@@ -85,8 +87,8 @@ def get_project(
     account = identifiers.get("account")
     if account:
         filter.update(**filter_from_ident(account, prefix="account"))
-    elif "id" not in filter:
-        raise RuntimeError("Must provide project id if not providing account")
+    else:
+        filter.update({"account__name": "temp"})
 
     try:
         return get_projects(user).get(
@@ -118,16 +120,18 @@ class ProjectsViewSet(
         """
         Get the permissions that the current action requires.
 
-        Override defaults so that `list` and `retrive` do not require
-        authentication (although the data returned is restricted based on role).
+        Override defaults so that, `create`, `list` and `retrive` do not require
+        authentication (although other restrictions do apply for anon users).
         """
-        if self.action in ["list", "retrieve"]:
+        if self.action in ["create", "list", "retrieve"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
         """
         Get the set of projects that the user has access to and which meet filter criteria.
+
+        Does not return temporary projects.
 
         TODO: Currently this ignores an authenticated user's access to
               projects inherited from membership of a team.
@@ -159,17 +163,28 @@ class ProjectsViewSet(
                 | Q(description__icontains=search)
             )
 
-        # TODO: Find a better way to order role
-        return queryset.order_by("-role")
+        return queryset.filter(temporary=False).order_by("-role")
 
     def get_object(self):
         """
         Get the project.
 
-        For `partial-update` and `destroy`, further checks that the user
-        is a project MANAGER or OWNER.
+        Read access control is done in the `get_project` function.
+        For `partial-update` and `destroy` does an additional
+        check that the user is a project MANAGER and/or OWNER.
+
+        For temporary projects, ensure that the project was accessed
+        by it's name, not it's id (this prevent access to a
+        temporary project by guessing it's integer id).
+        Because temporary objects do not have any users with roles,
+        anyone with their name can modify or delete them.
         """
         project = get_project(self.kwargs, self.request.user)
+
+        if project.temporary:
+            if "name" not in filter_from_ident(self.kwargs["project"]):
+                raise exceptions.NotFound
+            return project
 
         if (
             self.action == "partial_update"
@@ -198,7 +213,7 @@ class ProjectsViewSet(
 
         For `create`, redirects to the "main" page for the project.
         """
-        if self.action in ["create"]:
+        if self.action in ["create", "partial_update"]:
             project = serializer.instance
             return reverse(
                 "ui-projects-retrieve", args=[project.account.name, project.name]

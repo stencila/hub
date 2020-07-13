@@ -1,0 +1,22 @@
+{% extends './base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Claim project" %} {{ project.name }}{% endblock %}
+
+{% block projects_content %}
+<h1 class="title is-sr-only-mobile">{% trans "Claim project" %}</h1>
+
+{% if user.is_anonymous %}
+{% url 'ui-users-signin' as signin_url %}
+{% url 'ui-users-signup' as signup_url %}
+{% blocktrans with current_url=request.path %}
+<p>Please <a href="{{ signin_url }}?next={{ current_url }}">sign in</a> with an existing account,
+  or <a href="{{ signup_url }}?next={{ current_url }}">sign up</a> for a new account, to claim this project.</p>
+{% endblocktrans %}
+{% else %}
+<p>Please choose a new name and account for the project</p>
+{% include "./_claim_form.html" %}
+{% endif %}
+
+
+{% endblock %}

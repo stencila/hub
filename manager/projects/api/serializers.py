@@ -1,5 +1,6 @@
 import re
 
+import shortuuid
 from django.db.models import Q
 from rest_framework import exceptions, serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
@@ -8,7 +9,7 @@ from accounts.api.serializers import AccountListSerializer
 from accounts.models import Account, AccountTeam
 from accounts.paths import AccountPaths
 from accounts.quotas import AccountQuotas
-from manager.api.helpers import get_object_from_ident
+from manager.api.helpers import get_help_text, get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
@@ -161,21 +162,23 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    """Base serializer for projects."""
+    """
+    Base serializer for projects.
 
-    account = ProjectAccountField(help_text="The account that the project is owned by.")
+    Uses `ProjectAccountField` to limit the accounts that are listed
+    or can own the project. Uses a `ChoiceField` for theme to limit the theme
+    name to those currently provided by Thema.
+    """
 
-    public = serializers.BooleanField(
-        default=True, help_text="Should the project be publicly visible?"
+    account = ProjectAccountField(
+        default=None, help_text=get_help_text(Project, "account")
     )
-
-    name = serializers.CharField(help_text=Project._meta.get_field("name").help_text)
 
     theme = serializers.ChoiceField(
         choices=Themes.as_choices(),
         allow_blank=True,
         required=False,
-        help_text="The default theme for the project.",
+        help_text=get_help_text(Project, "theme"),
     )
 
     class Meta:
@@ -183,9 +186,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "account",
+            "creator",
+            "created",
             "name",
             "title",
             "description",
+            "temporary",
             "public",
             "main",
             "theme",
@@ -195,20 +201,20 @@ class ProjectSerializer(serializers.ModelSerializer):
         """
         Validate the project fields.
 
-        TODO: Check that the user is a member of the account
-
         Also checks that the account has sufficient quotas to
         create the project. This function is written to be able to used
         when either creating (self.instance is None) or updating
         (self.instance is not None) a project.
+
+        TODO: Move into create and update serializers
         """
         account = data.get("account")
-        if account is None:
+        if account is None and self.instance:
             account = self.instance.account
         assert account is not None
 
         public = data.get("public")
-        if public is None:
+        if public is None and self.instance:
             public = self.instance.public
         assert public is not None
 
@@ -216,8 +222,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         assert request is not None
 
         # If creating, then check that user is an account
-        # member and check the quota for the total
-        # number of projects
+        # member.
         if not self.instance:
             if (
                 Account.objects.filter(name=account, users__user=request.user).count()
@@ -305,19 +310,76 @@ class ProjectCreateSerializer(ProjectSerializer):
     """
     Serializer for creating a project.
 
-    Set's the request user as the project creator.
+    Set's the request user as the project `creator`.
+    Allows for the `name` field to be empty for temporary projects.
     """
 
     creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
+    name = serializers.CharField(default=None, help_text=get_help_text(Project, "name"))
+
     class Meta:
         model = Project
-        fields = ProjectSerializer.Meta.fields + ["creator"]
+        fields = ProjectSerializer.Meta.fields
+
+    def validate(self, data):
+        """
+        Validate the project creation fields.
+
+        If the user is unauthenticated, creates a temporary project.
+
+        If the user is authenticated. Checks that the user is a member of
+        the specified account and that the account has sufficient quotas to
+        create the project.
+        """
+        request = self.context.get("request")
+
+        # Set the creator to null if the user is anon
+        if request.user.is_anonymous:
+            data["creator"] = None
+
+        # Ensure that if the user is anonymous, or the account is
+        # not specified that the project is marked as temporary and public
+        # and has a random, very difficult to guess name that won't clash with
+        # an existing temp project.
+        # No need for any more validation so just return the data after that.
+        if request.user.is_anonymous or data.get("account") is None:
+            data["account"] = Account.get_temp_account()
+            data["temporary"] = True
+            data["public"] = True
+            data["name"] = shortuuid.uuid()
+            return data
+
+        return data
 
 
 ProjectRetrieveSerializer = ProjectSerializer
 
-ProjectUpdateSerializer = ProjectSerializer
+
+class ProjectUpdateSerializer(ProjectSerializer):
+    """
+    Serializer for updating a project.
+    """
+
+    class Meta:
+        model = Project
+        fields = ProjectSerializer.Meta.fields
+
+    def validate(self, data):
+        """
+        Validate the project's fields.
+        """
+        request = self.context.get("request")
+        project = self.instance
+
+        # If the project is being made non-temporary we need
+        # to ensure that the current user is made the owner
+        if project.temporary and data.get("temporary") is False:
+            ProjectAgent.objects.create(
+                project=project, user=request.user, role=ProjectRole.OWNER.name
+            )
+
+        return data
 
 
 class ProjectDestroySerializer(serializers.Serializer):

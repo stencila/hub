@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<form hx-patch="{% url "api-projects-detail" project.name %}"
+      include-vals="public: document.querySelector('form [name=public]').checked, temporary: false"
+      hx-template="projects/_claim_form.html" hx-redirect="UPDATED:Location">
+
+  {% include "serializers/_field.html" with field=serializer.account icon="ri-at-line" %}
+  {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.public icon="ri-globe-line" element="checkbox" %}
+
+  <button class="button is-primary is-fullwidth-mobile" type="submit">
+    <span class="icon">
+      <i class="ri-handbag-fill"></i>
+    </span>
+    <span>{% trans "Claim Project" %}</span>
+  </button>
+
+</form>
