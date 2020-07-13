@@ -230,9 +230,9 @@
     {% for message in messages %}
     <script>
       manager.Toast({
-        message: "{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}",
+        message: `{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}`,
         type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
-        duration: 5000,
+        duration: {% if 'stay' in message.tags %}1e8{% else %}5000{% endif %},
         position: "bottom-left",
         closeOnClick: true,
         pauseOnHover: true,
