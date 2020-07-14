@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
-from rest_framework import exceptions, permissions, viewsets
+from rest_framework import exceptions, permissions, throttling, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -98,6 +98,14 @@ def get_project(
         raise exceptions.NotFound
 
 
+class ProjectsCreateAnonThrottle(throttling.AnonRateThrottle):
+    """
+    Throttle for temporary project creation by anonymous users.
+    """
+
+    rate = "10/day"
+
+
 class ProjectsViewSet(
     HtmxListMixin,
     HtmxCreateMixin,
@@ -126,6 +134,14 @@ class ProjectsViewSet(
         if self.action in ["create", "list", "retrieve"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+
+    def get_throttles(self):
+        """
+        Get the throttles to apply to the current request.
+        """
+        if self.action == "create" and self.request.user.is_anonymous:
+            return [ProjectsCreateAnonThrottle()]
+        return super().get_throttles()
 
     def get_queryset(self):
         """
