@@ -7,9 +7,7 @@
 <div class="level is-mobile">
   <div class="level-left">
     <div class="level-item">
-      <h1 class="title">
-        <h1 class="title">{% trans "Projects" %}</h1>
-      </h1>
+      <h1 class="title">{% trans "Projects" %}</h1>
     </div>
   </div>
 
@@ -30,6 +28,7 @@
 </div>
 
 <div class="field">
+  <label for="projects-search-input" class="label is-sr-only">{% trans "Search Projects" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
     <input id="projects-search-input" class="input" type="text" name="search"
            placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"

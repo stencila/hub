@@ -1,6 +1,5 @@
 {% extends './base.html' %}
-{% load i18n %}
-{% load static %}
+{% load i18n static %}
 
 {% block title %}{{ account.name }}{% endblock %}
 
@@ -13,8 +12,8 @@
       <h2 class="title is-3">{% trans "Projects" %}</h2>
     </div>
 
-    <div class="is-hidden-desktop pr-2">
-      {% include "./_project_search.html" %}
+    <div class="is-hidden-tablet pr-2">
+      {% include "./_project_search.html" with field_id="projects-search-mobile" %}
     </div>
   </div>
 

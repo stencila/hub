@@ -11,7 +11,7 @@
     {% include "socialaccount/_provider_buttons.html" %}
 
     <hr />
-    <h3 class="title is-6">Or, with a new username and password</h3>
+    <h2 class="title is-6">Or, with a new username and password</h2>
 
     <form class="form" method="post" action="{% url 'ui-users-signup' %}">
       {% csrf_token %}

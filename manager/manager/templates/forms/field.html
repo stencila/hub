@@ -1,18 +1,22 @@
-{# TODO: add "for" attributes to label tags #}
+{% load stencila %}
+
+{% with field_id=field.name %}
+
 {% if field.is_hidden %}
 {{ field }}
 {% else %}
 <div class="field">
   {% if field.field.widget.input_type == "checkbox" %}
-  <label class="checkbox">
-    <input type="checkbox" name="{{ field.name }}">
+  <label class="checkbox" for={{ field_id }}>
+    <input type="checkbox" name="{{ field_id }}">
     {{ field.label|safe }}
   </label>
   {% else %}
-  <label class="label">{{ field.label }}</label>
+  <label class="label" for={{ field_id }}>{{ field.label }}</label>
   <div class="control">
-    <input class="input" type="{{ field.field.widget.input_type }}" name="{{ field.name }}" {% if field.value != None %}
-           value="{{ field.value }}" {% endif %} {% if autofocus == True %}autofocus{% endif %}>
+    <input id={{ field_id }} class="input" type="{{ field.field.widget.input_type }}" name="{{ field.name }}"
+           {% if field.value != None %} value="{{ field.value }}" {% endif %}
+           {% if autofocus == True %}autofocus{% endif %}>
   </div>
   {% if field.field.help_text %}
   <p class="help">{{ field.field.help_text|safe }}</p>
@@ -23,3 +27,5 @@
   {% endif %}
 </div>
 {% endif %}
+
+{% endwith %}
