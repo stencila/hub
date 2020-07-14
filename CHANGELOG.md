@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/stencila/hub/compare/v3.3.0...v3.3.1) (2020-07-14)
+
+
+### Bug Fixes
+
+* **Manager:** Allow un-throttled anon access to status ([27a05da](https://github.com/stencila/hub/commit/27a05da62c1d7a1da5aa9dddec320780676362f2))
+
 # [3.3.0](https://github.com/stencila/hub/compare/v3.2.2...v3.3.0) (2020-07-14)
 
 
