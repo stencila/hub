@@ -249,7 +249,7 @@ class AccountsUsersViewSet(
             raise exceptions.PermissionDenied
 
         if self.action == "create":
-            AccountQuotas.USERS.check(account)
+            AccountQuotas.ACCOUNT_USERS.check(account)
 
         return account
 
@@ -388,7 +388,7 @@ class AccountsTeamsViewSet(
             except Account.DoesNotExist:
                 raise exceptions.PermissionDenied
 
-            AccountQuotas.TEAMS.check(account)
+            AccountQuotas.ACCOUNT_TEAMS.check(account)
 
         try:
             return {
