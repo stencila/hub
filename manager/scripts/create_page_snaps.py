@@ -239,8 +239,8 @@ async def main():
                 break
         if exclude:
             print(
-                "{0}/{1} {3}Skipping{4}: {2}".format(
-                    idx, len(paths), showPath(path), colors.WARNING, colors.RESET
+                "{0}/{1} {3}Skipping: {2}{4}".format(
+                    idx, len(paths), showPath(path), colors.DEBUG, colors.RESET
                 )
             )
             continue
@@ -598,6 +598,7 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
 
 
 class colors:
+    DEBUG = "\033[90m"
     OK = "\033[92m"
     INFO = "\033[94m"
     WARNING = "\033[93m"
