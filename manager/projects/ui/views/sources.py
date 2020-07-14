@@ -7,6 +7,7 @@ from projects.api.views.sources import ProjectsSourcesViewSet
 from projects.models.sources import Source, UploadSource
 from projects.ui.views.messages import all_messages
 
+
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Get a list of project sources."""
     viewset = ProjectsSourcesViewSet.init("list", request, args, kwargs)

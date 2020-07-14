@@ -1,7 +1,7 @@
 import datetime
 import os
 import re
-from typing import List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -252,15 +252,18 @@ class Source(PolymorphicModel):
         return models.Q(**kwargs)
 
     @staticmethod
-    def from_address(address_or_string: Union[SourceAddress, str]) -> "Source":
+    def from_address(
+        address_or_string: Union[SourceAddress, str], other: Dict[str, Any] = {}
+    ) -> "Source":
         """
         Create a source instance from a source address.
 
         Given a source address, creates a new source instance of the
-        specified `type` with fields set from the address.
+        specified `type` with fields set from the address. The `other`
+        parameter can be used to set additional fields on the created source.
         """
         address = Source.coerce_address(address_or_string)
-        return address.type.objects.create(**address)
+        return address.type.objects.create(**address, **other)
 
     def to_address(self) -> SourceAddress:
         """
@@ -720,7 +723,3 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
-
-    def to_address(self):
-        """Override base method which (intentionally) excludes `url`."""
-        return dict(**super().to_address(), url=self.url)

@@ -147,7 +147,7 @@ def should_send_message(
     request: HttpRequest, key: str, within=datetime.timedelta(minutes=60)
 ) -> bool:
     """
-    Should a message be sent to the user.
+    Determine if a message should be sent to the user.
 
     Checks the session to see whether a message with the same `key`
     was sent `within` the period.

@@ -90,6 +90,9 @@ class Project(models.Model):
 
     TEMPORARY_PROJECT_LIFESPAN = datetime.timedelta(days=1)
 
+    def __str__(self):
+        return self.name
+
     @property
     def scheduled_deletion_time(self) -> Optional[datetime.datetime]:
         """

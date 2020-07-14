@@ -373,9 +373,9 @@ class ProjectUpdateSerializer(ProjectSerializer):
         project = self.instance
 
         # If the project is being made non-temporary we need
-        # to ensure that the current user is made the owner
+        # to ensure that the current user is made a owner (if they are not already)
         if project.temporary and data.get("temporary") is False:
-            ProjectAgent.objects.create(
+            ProjectAgent.objects.get_or_create(
                 project=project, user=request.user, role=ProjectRole.OWNER.name
             )
 
