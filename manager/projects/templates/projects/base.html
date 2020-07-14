@@ -8,6 +8,19 @@
     {{ project.title|default:project.name }}
   </h1>
 
+  {% if project.temporary %}
+  <a href="{% url 'ui-projects-claim' project.account.name project.name %}">
+    <span class="tag is-warning is-light">
+      <span class="icon">
+        <i class="ri-recycle-line"></i>
+      </span>
+      <span>
+        {% trans "Temporary" %}
+      </span>
+    </span>
+  </a>
+  {% endif %}
+
   <hr />
 </div>
 
@@ -37,6 +50,19 @@
       </a>
     </li>
 
+    {% if project.temporary %}
+    <li class="sidebar__item" id="menu-item-snapshots">
+      <a href="{% url 'ui-projects-claim' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-claim' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
+        <span class="icon">
+          <i class="ri-handbag-line"></i>
+        </span>
+        <span>
+          {% trans 'Claim' %}
+        </span>
+      </a>
+    </li>
+    {% else %}
     <li class="sidebar__item" id="menu-item-snapshots">
       <a href="{% url 'ui-projects-snapshots-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-snapshots' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
@@ -87,6 +113,7 @@
         </span>
       </a>
     </li>
+    {% endif %}
     {% endif %}
   </ul>
 </div>

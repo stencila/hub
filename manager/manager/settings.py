@@ -314,6 +314,22 @@ class Prod(Configuration):
             "knox.auth.TokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ],
+        "DEFAULT_THROTTLE_CLASSES": [
+            "rest_framework.throttling.AnonRateThrottle",
+            "rest_framework.throttling.UserRateThrottle",
+        ],
+        "DEFAULT_THROTTLE_RATES": {
+            # These rates only apply to `/api` endpoints. They
+            # do not include "pseudo-requests" made via view sets
+            # in UI views, but will include HTMX-initiated async API
+            # requests made in response to user actions (including search).
+            # Thus they can be set quite low for anonymous
+            # users without affecting anon user page views.
+            # A `429 Too Many Requests` response is returned when rate
+            # limits are exceeded.
+            "anon": "100/hour",
+            "user": "5000/hour",
+        },
         "EXCEPTION_HANDLER": "manager.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
         "PAGE_SIZE": 50,

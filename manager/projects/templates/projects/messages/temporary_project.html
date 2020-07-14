@@ -1,0 +1,6 @@
+{% spaceless %}
+{% load i18n humanize %}
+{% url 'ui-projects-claim' project.account.name project.name as claim_url %}
+{% blocktrans with in_time=deletion_time|naturaltime %}This project will be deleted {{ in_time }}. Or you can <a
+   href="{{ claim_url }}">claim it</a>.{% endblocktrans %}
+{% endspaceless %}

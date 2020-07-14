@@ -11,6 +11,7 @@ class ProjectPaths(enum.Enum):
     disallowed file paths within a project, up to date.
     """
 
+    claim = "claim"
     files = "files"
     jobs = "jobs"
     sharing = "sharing"

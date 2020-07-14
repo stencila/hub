@@ -1,0 +1,62 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% comment %}
+This is very much a work in progress.
+See comments at https://github.com/stencila/hub/pull/552
+{% endcomment %}
+
+{% block title %}{% trans "Open" %}{% endblock %}
+
+{% block layout_content %}
+
+<form method="POST">
+  {% csrf_token %}
+
+  <label class="label" for="url">URL</label>
+  <div class="control has-icons-left">
+    <input class="input" name="url" id="url" type="url" autofocus="" value="">
+    <span class="icon is-left">
+      <i class="ri-links-line"></i>
+    </span>
+  </div>
+  <div class="control">
+    <button class="button is-primary is-fullwidth-mobile" type="submit">
+      Submit
+    </button>
+  </div>
+</form>
+
+<hr />
+
+<form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="field has-addons-tablet">
+    <div class="control">
+      <div class="file has-name" data-bulma-attached="attached">
+        <label class="file-label">
+          <input class="file-input" type="file" name="file">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="ri-file-upload-line"></i>
+            </span>
+            <span class="file-label">
+              Choose a file…
+            </span>
+          </span>
+          <span class="file-name">
+            No file chosen
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="control">
+      <button class="button is-primary is-fullwidth-mobile" type="submit">
+        Upload
+      </button>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

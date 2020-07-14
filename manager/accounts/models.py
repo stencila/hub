@@ -158,6 +158,32 @@ class Account(models.Model):
 
         return super().save(*args, **kwargs)
 
+    # Methods to get "built-in" accounts
+    # Optimized for frequent access by use of caching.
+
+    @classmethod
+    def get_stencila_account(cls) -> "Account":
+        """
+        Get the Stencila account object.
+        """
+        if not hasattr(cls, "_stencila_account"):
+            cls._stencila_account = Account.objects.get(name="stencila")
+        return cls._stencila_account
+
+    @classmethod
+    def get_temp_account(cls) -> "Account":
+        """
+        Get the 'temp' account object.
+
+        This account owns all temporary projects.
+        For compatability with templates and URL resolution
+        it is easier and safer to use this temporary account
+        than it is to allow `project.account` to be null.
+        """
+        if not hasattr(cls, "_temp_account"):
+            cls._temp_account = Account.objects.get(name="temp")
+        return cls._temp_account
+
 
 def make_account_creator_an_owner(
     sender, instance: Account, created: bool, *args, **kwargs

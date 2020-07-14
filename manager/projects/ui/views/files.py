@@ -2,6 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from projects.api.views.files import ProjectsFilesViewSet
+from projects.ui.views.messages import all_messages
 
 
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -24,6 +25,8 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     files = viewset.get_queryset(project)
     context = viewset.get_response_context(queryset=files)
+
+    all_messages(request, project)
 
     return render(
         request, "projects/files/list.html", dict(project=project, **context),

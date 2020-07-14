@@ -1,3 +1,6 @@
+import datetime
+from typing import Optional
+
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -24,8 +27,9 @@ class Project(models.Model):
     )
 
     creator = models.ForeignKey(
-        "auth.User",
+        User,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         related_name="projects_created",
         help_text="The user who created the project.",
@@ -49,8 +53,12 @@ class Project(models.Model):
         help_text="Title of the project to display in its profile.",
     )
 
+    temporary = models.BooleanField(
+        default=False, help_text="Is the project temporary?"
+    )
+
     public = models.BooleanField(
-        default=True, help_text="Should the project be publicly visible?"
+        default=True, help_text="Is the project publicly visible?"
     )
 
     description = models.TextField(
@@ -79,6 +87,22 @@ class Project(models.Model):
                 fields=["account", "name"], name="%(class)s_unique_account_name"
             )
         ]
+
+    TEMPORARY_PROJECT_LIFESPAN = datetime.timedelta(days=1)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def scheduled_deletion_time(self) -> Optional[datetime.datetime]:
+        """
+        Get the scheduled deletion time of a temporary project.
+        """
+        return (
+            (self.created + Project.TEMPORARY_PROJECT_LIFESPAN)
+            if self.temporary
+            else None
+        )
 
     def get_main(self):
         """

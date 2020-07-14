@@ -1,8 +1,11 @@
+import datetime
 import enum
 import re
+import time
 from typing import List, Optional, Tuple
 
 from django.db.models import Model, QuerySet
+from django.http import HttpRequest
 from django.template.defaultfilters import slugify
 
 
@@ -138,3 +141,26 @@ def unique_slugify(
         next += 1
 
     return slug
+
+
+def should_send_message(
+    request: HttpRequest, key: str, within=datetime.timedelta(minutes=60)
+) -> bool:
+    """
+    Determine if a message should be sent to the user.
+
+    Checks the session to see whether a message with the same `key`
+    was sent `within` the period.
+    """
+    messages = request.session.get("messages")
+    if not messages:
+        request.session["messages"] = {key: time.time()}
+        return True
+
+    last = messages.get(key, 0)
+    if (time.time() - last) > within.total_seconds():
+        request.session["messages"][key] = time.time()
+        request.session.modified = True
+        return True
+
+    return False

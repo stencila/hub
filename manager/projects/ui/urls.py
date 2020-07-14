@@ -16,8 +16,9 @@ before_account_urls = [
         project_views.create,
         name="ui-projects-create",
     ),
+    path("open/", project_views.open, name="ui-projects-open",),
     re_path(
-        r"^(?P<account>[^/]+)/(?P<project>\d+)(?P<rest>.*)",
+        r"^(?P<account>[^/]+)/(?P<project>\d+)/(?P<rest>.*)",
         project_views.redirect,
         name="ui-projects-redirect",
     ),
@@ -30,6 +31,11 @@ after_account_urls = [
         include(
             [
                 path("", project_views.retrieve, name="ui-projects-retrieve",),
+                path(
+                    ProjectPaths.claim.value + "/",
+                    project_views.claim,
+                    name="ui-projects-claim",
+                ),
                 path(
                     ProjectPaths.sharing.value + "/",
                     project_views.sharing,

@@ -1,4 +1,4 @@
-{% load static intercom %}
+{% load static intercom waffle_tags %}
 {% load i18n %}
 
 <!DOCTYPE html>
@@ -79,6 +79,16 @@
         </div>
         <div id="navbar-menu" class="navbar-menu">
           <div class="navbar-start">
+            {% flag 'ui-projects-open' %}
+            <div class="navbar-item px-0">
+              <a class="navbar-link is-arrowless" href="{% url 'ui-projects-open' %}">
+                <span class="icon">
+                  <i class="ri-book-open-line" aria-hidden="true"></i>
+                </span>
+                <span>{% trans "Open" %}</span>
+              </a>
+            </div>
+            {% endflag %}
             <div class="navbar-item px-0 {% if user.is_authenticated %}has-dropdown{% endif%}">
               <a class="navbar-link {% if user.is_anonymous %}is-arrowless{% endif%}"
                  href="{% url 'ui-projects-list' %}">
@@ -230,9 +240,9 @@
     {% for message in messages %}
     <script>
       manager.Toast({
-        message: "{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}",
+        message: `{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}`,
         type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
-        duration: 5000,
+        duration: {% if 'stay' in message.tags %}1e8{% else %}5000{% endif %},
         position: "bottom-left",
         closeOnClick: true,
         pauseOnHover: true,

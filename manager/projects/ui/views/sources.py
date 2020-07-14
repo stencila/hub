@@ -5,6 +5,7 @@ from django.template.loader import select_template
 
 from projects.api.views.sources import ProjectsSourcesViewSet
 from projects.models.sources import Source, UploadSource
+from projects.ui.views.messages import all_messages
 
 
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -12,6 +13,9 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsSourcesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
     sources = viewset.get_queryset(project)
+
+    all_messages(request, project)
+
     return render(
         request, "projects/sources.html", dict(sources=sources, project=project)
     )
