@@ -7,42 +7,7 @@
 [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
 [![License](https://img.shields.io/badge/License-Apache%202.0-3262eb.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Stencila is an open source platform for authoring, collaborating on, and sharing executable documents. This is the 
-repository for the [Stencila Hub](https://hub.stenci.la).
-
-
-## ✨ Features
-
-A brief overview of features implemented by the Stencila Hub. These are current features, more are planned as we are 
-under active development (specific features are labelled with the Future Feature Unicorn 🦄).
-
-We also welcome your suggestions or code contributions for feature you'd like to see.
-
-### Authentication
-
-- Store user credentials securely inside the Hub database, or
-- Authenticate with third party services such as Github, Google, Twitter and Orcid
-
-### Projects
-
-- Create projects
-    - Upload, manage and edit files and data in the browser
-- Link remote sources (Github, Google Drive 🦄 and Dropbox 🦄)
-    - Seamlessly integrate all code and data no matter the source
-- Allow Projects to be publicly accessible (or added to the Project Gallery 🦄)
-
-### User Management
-
-- Build Teams of Users
-- Assign access to Projects at a User or Team level
-- Fine-grained permissions to limit reading, writing, creation, etc per User or Team
-
-### Sessions
-
-- Start execution Sessions on Stencila Cloud
-- Apply resource limits to execution contexts on a per Project basis
-- Allow public or controlled access to execution sessions with a Token or Key
-- Limit the number of concurrent Sessions or the total number of Sessions that have been spawned
+Stencila is an platform of open source tools for authoring, collaborating on, and sharing executable documents. This is the repository for the [Stencila Hub](https://hub.stenci.la) which deploys these tools as a service and integrates them with other tools and services (e.g. Google Docs, GitHub).
 
 ## ⚙️ Services
 
@@ -56,6 +21,16 @@ Stencila Hub consists of several services, each with it's own sub-folder. The `R
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the manager.
 * [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
+
+## Documentation
+
+* User focussed documentation is available in the [Hub collection](http://help.stenci.la/en/collections/2413959-stencila-hub) of our help site.
+
+* As mentioned above, most of the individual services have a `README.md` files.
+
+* The code generally has lots of documentation string and comments, so "Use the source, Luke".
+
+* To get an overview of the functionality provided check out the automatically generated [page screenshots](https://stencila.github.io/hub/manager/snaps/) (see [`manager/README.md`](manager/README.md) for more details on how and why these are generated).
 
 ## 🛠️ Develop
 
@@ -98,7 +73,7 @@ make -C manager run
 
 ### Linting and formatting
 
-Some of services define code linting and formatting recipes. Often they get run together e.g.
+Most of the services define code linting and formatting recipes. It is often useful to run them sequentially in one command i.e.
 
 ```sh
 make format lint
@@ -106,7 +81,7 @@ make format lint
 
 ### Unit testing
 
-Some of services define unit tests. Run them using,
+Some services define unit tests. Run them all using,
 
 ```sh
 make test
@@ -173,8 +148,7 @@ Commit messages should follow the [conventional commits](https://www.conventiona
 
 ### Dependency updates
 
-We use Renovate to keep track of updates to packages this repo depends upon. For more details, see 
-the list of currently open and scheduled [Renovate PRs](https://github.com/stencila/hub/issues/302) and the `renovate` configuration in [`package.json`](package.json).
+We use Renovate to keep track of updates to packages this repo depends upon. For more details see  the list of currently open and scheduled [Renovate PRs](https://github.com/stencila/hub/issues/302) and the `renovate` configuration in [`package.json`](package.json).
 
 ## 🚀 Continuous integration and deployment
 

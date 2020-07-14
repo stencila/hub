@@ -2,7 +2,7 @@
 
 ### Local Development
 
-Run the Django server using
+Run the Django server using,
 
 ``` sh
 make run
@@ -20,19 +20,27 @@ Some user interactions (e.g pulling and converting project sources) require `Job
 2. `make -C ../overseer run` to update the manager with data on workers and jobs
 3. `make -C ../worker run` to actually perform the jobs
 
-### Page screenshots
+### End-to-end test and page screenshots
 
-There is a script that takes screenshots of all (well, almost all) of the pages at various viewport sizes. This can be useful for quickly scanning for broken pages and visual consistency. 
+The script [`create_page_snaps.py`](scripts/create_page_snaps.py) will, for all of the `manager`'s pages  (well, almost all; it excludes admin pages etc),
 
-To generate the screenshots, make sure you have the dev server running locally,
+- Records the response status code, response time and number be database queries (useful as an end-to-end and performance test)
+
+- Takes screenshots of the entire screen at laptop and mobile viewport sizes (useful for quickly scanning for broken pages and visual consistency)
+
+- Takes screenshots of specified page elements for use in user guides e.g. http://help.stenci.la/en/articles/4170083-create-an-organization (useful so that these stay up-to-date without having to be manually recreated)
+
+To run this script, make sure you have the dev server running locally,
 
 ```sh
 make run
 ```
 
-Then in another terminal,
+Then in another terminal, run the script and open up the generated report.
 
 ```sh
 make snaps
 open snaps/index.html
 ```
+
+This script is run as part of continuous integrations and the report published on GitHub Pages at https://stencila.github.io/hub/manager/snaps/.
