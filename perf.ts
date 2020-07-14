@@ -72,7 +72,7 @@ export default function () {
 
   const tokenBody = tokenResponse.json('user');
 
-  check(tokenResponse, { "verified token": (user) => typeof user !== 'number' });
+  check(tokenBody, { "verified token": (user) => typeof user === 'number' });
 
   sleep(1);
 }

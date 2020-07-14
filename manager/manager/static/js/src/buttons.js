@@ -9,6 +9,8 @@ const findHTMXButtons = () =>
 `);
 
 const attachClickHandler = (button) => {
+  if (!button) return;
+
   button.addEventListener("click", () => {
     button.classList.add("is-loading");
   });
@@ -27,6 +29,8 @@ const findForms = () =>
 `);
 
 const attachFormHandlers = (formEl) => {
+  if (!formEl) return;
+
   const submitButton = formEl.querySelector('button[type="submit"]');
   formEl.querySelectorAll("input").forEach((input) => {
     input.oninvalid = () => {

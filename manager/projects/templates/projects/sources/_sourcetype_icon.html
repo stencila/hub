@@ -13,3 +13,16 @@ Renders the icon class name to use for a source.
   {% endif %}
   {% endspaceless %}
 </span>
+<span class="is-sr-only">
+  {% if sourcetype == 'GoogleDocs' %}
+  Google Docs
+  {% elif sourcetype == 'Github' %}
+  GitHub
+  {% elif sourcetype == 'Upload' %}
+  Uploaded file
+  {% elif sourcetype == 'Url' %}
+  Remote file
+  {% else %}
+  {{sourcetype}} file
+  {% endif %}
+</span>

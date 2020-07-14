@@ -6,20 +6,34 @@ import { terser } from "rollup-plugin-terser";
 // Plugins to only include during production builds
 const prodPlugins = [terser()];
 
-export default {
-  input: "manager/static/js/src/index.js",
-  output: {
-    file: "manager/static/js/index.js",
-    sourcemap: true,
-    name: "manager",
-    format: "iife",
+const plugins = [
+  resolve(),
+  replace({
+    "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+  }),
+  babel({ babelHelpers: "bundled", presets: ["@babel/preset-env"] }),
+  ...(process.env.NODE_ENV === "production" ? prodPlugins : []),
+];
+
+export default [
+  {
+    input: "manager/static/js/src/index.js",
+    output: {
+      file: "manager/static/js/index.js",
+      sourcemap: true,
+      name: "manager",
+      format: "iife",
+    },
+    plugins,
   },
-  plugins: [
-    resolve(),
-    replace({
-      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
-    }),
-    babel({ babelHelpers: "bundled", presets: ["@babel/preset-env"] }),
-    ...(process.env.NODE_ENV === "production" ? prodPlugins : []),
-  ],
-};
+  {
+    input: "manager/static/js/src/libs.js",
+    output: {
+      file: "manager/static/js/libs.js",
+      sourcemap: true,
+      name: "managerLibs",
+      format: "iife",
+    },
+    plugins,
+  },
+];

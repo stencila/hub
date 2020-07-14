@@ -29,6 +29,7 @@
 </div>
 
 <div class="field has-addons">
+  <label for="orgs-search-input" class="label is-sr-only">{% trans "Search Organizations" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
     <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
            hx-trigger="keyup changed delay:500ms, role-changed" hx-get="/api/accounts"
@@ -44,6 +45,7 @@
   {% if user.is_authenticated %}
   <div class="control">
     <div class="select">
+      <label for="orgs-search-role" class="label is-sr-only">{% trans "Role in Organization" %}</label>
       <select id="orgs-search-role" name="role">
         <option value="">All</option>
         <option value="member">Member</option>

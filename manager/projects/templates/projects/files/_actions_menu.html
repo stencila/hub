@@ -2,13 +2,17 @@
 
 <div class="dropdown">
   <div class="dropdown-trigger">
-    <button class="button is-small has-text-weight-bold" aria-haspopup="true" aria-controls="dropdown-menu">
+    <button class="button is-small has-text-weight-bold" aria-haspopup="true"
+            aria-controls="file-{{ file.id }}-action-menu">
       <span>
         <i class="ri-more-2-line"></i>
       </span>
+      <span class="is-sr-only">
+        File Actions…
+      </span>
     </button>
   </div>
-  <div class="dropdown-menu has-text-left" role="menu">
+  <div class="dropdown-menu has-text-left" role="menu" id="file-{{ file.id }}-action-menu">
     <div class="dropdown-content">
       {% with open_url=file.open_url %}
       {% if open_url %}
