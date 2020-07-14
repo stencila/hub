@@ -1,3 +1,22 @@
+## [3.3.2](https://github.com/stencila/hub/compare/v3.3.1...v3.3.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* **a11y:** Add lable to role selector in Org search view ([4c483f6](https://github.com/stencila/hub/commit/4c483f6f4f42a67651efe79f2cfc20ed4dc39791))
+* **a11y:** Address accessibility issues found by Axe ([5a78d83](https://github.com/stencila/hub/commit/5a78d8314bc104d975442b3c772066b621b792bc))
+* **a11y:** Fix more accessibility issues ([a1939cf](https://github.com/stencila/hub/commit/a1939cf7463e024522396cf2ddf66b26549c2696))
+* **JS:** Don't attach event-handlers if element doesn't exist ([41d297e](https://github.com/stencila/hub/commit/41d297ed4e6e36ce146a8ea9a5e2298098b3e3c9))
+* **SEO:** Add description meta tag ([48c01e2](https://github.com/stencila/hub/commit/48c01e213330bc25e40759c305fb6d56bdc4ad7d))
+
+
+### Performance Improvements
+
+* **CSS:** Optimize generated CSS ([f667417](https://github.com/stencila/hub/commit/f6674172b67902dfaa1f19d98ba51445c773f0fa))
+* **JS:** Split JS into internal and 3rd party files ([c51b204](https://github.com/stencila/hub/commit/c51b2047631b0d320123a9cf36eac5e672de78a6))
+* **JS:** Update Posthog snippet to be non-blocking ([98bf742](https://github.com/stencila/hub/commit/98bf7420e268f48775b66008513f5d1318c311bb))
+* **Manager:** Fix auth API test ([ab5ebbb](https://github.com/stencila/hub/commit/ab5ebbba962e7d9a7cce3a4b530147dbf44c5c33))
+
 ## [3.3.1](https://github.com/stencila/hub/compare/v3.3.0...v3.3.1) (2020-07-14)
 
 
