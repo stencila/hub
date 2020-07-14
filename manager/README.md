@@ -1,6 +1,6 @@
 ## Develop
 
-### Local Development
+### Getting started
 
 Run the Django server using,
 
@@ -20,9 +20,23 @@ Some user interactions (e.g pulling and converting project sources) require `Job
 2. `make -C ../overseer run` to update the manager with data on workers and jobs
 3. `make -C ../worker run` to actually perform the jobs
 
+### Linting
+
+Four forms of code quality analysis are currently done: 
+
+- `make lint-format` runs [`black`](https://pypi.org/project/black/) for code formatting checking.
+
+- `make lint-code` runs [`flake8`](http://flake8.pycqa.org) for code style checking.
+
+- `make lint-types` runs [`mypy`](http://mypy-lang.org/) for static type checking.
+
+- `make lint-docs` runs [`pydocstyle`](http://www.pydocstyle.org) for checks on docstrings.
+
+Running `make lint` will perform all three checks.
+
 ### End-to-end test and page screenshots
 
-The script [`create_page_snaps.py`](scripts/create_page_snaps.py) will, for all of the `manager`'s pages  (well, almost all; it excludes admin pages etc),
+The script [`create_page_snaps.py`](scripts/create_page_snaps.py) will, for all of the `manager`'s pages  (well, almost all; it includes pages that are behind feature flags but excludes admin and some other pages),
 
 - Records the response status code, response time and number be database queries (useful as an end-to-end and performance test)
 
