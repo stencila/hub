@@ -30,9 +30,12 @@ class StatusView(generics.GenericAPIView):
     Primarily intended as an endpoint for load balancers and other network infrastructure
     to check the status of the instance. Returns a 50X status code if the instance is
     not healthy. Will create a Sentry message if there are database migrations pending.
+
+    Allows for un-throttled, anonymous access.
     """
 
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = []
     pagination_class = None
 
     @swagger_auto_schema(responses={200: StatusResponse})
