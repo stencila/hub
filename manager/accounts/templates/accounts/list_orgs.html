@@ -45,6 +45,7 @@
   {% if user.is_authenticated %}
   <div class="control">
     <div class="select">
+      <label for="orgs-search-role" class="label is-sr-only">{% trans "Role in Organization" %}</label>
       <select id="orgs-search-role" name="role">
         <option value="">All</option>
         <option value="member">Member</option>
