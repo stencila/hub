@@ -34,7 +34,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Create a project."""
     viewset = ProjectsViewSet.init("create", request, args, kwargs)
-    serializer = viewset.get_serializer(dict(name=None, public=True))
+    serializer = viewset.get_serializer()
     return render(request, "projects/create.html", dict(serializer=serializer))
 
 
