@@ -1,3 +1,21 @@
+# [3.3.0](https://github.com/stencila/hub/compare/v3.2.2...v3.3.0) (2020-07-14)
+
+
+### Bug Fixes
+
+* **Messages:** Allow for permanant messages; safer JS strings ([ef9898b](https://github.com/stencila/hub/commit/ef9898b732c0f53566cb44887bbb447aaad61c9f))
+
+
+### Features
+
+* **Open:** Add /open page for creation of temporary projects; various other related improvements ([6034801](https://github.com/stencila/hub/commit/60348016f75ee750aa5a7a22f24189e37c6c6880))
+* **Temporary projects:** Adds temporary projects and project claims ([006fb19](https://github.com/stencila/hub/commit/006fb1983431f5d77d2ef81ccd7fc8e3c05c0175))
+
+
+### Performance Improvements
+
+* **Manager:** Add API throttling ([e016dc2](https://github.com/stencila/hub/commit/e016dc2fa773616879153ce22be70e8d9805d51c))
+
 ## [3.2.2](https://github.com/stencila/hub/compare/v3.2.1...v3.2.2) (2020-07-14)
 
 
