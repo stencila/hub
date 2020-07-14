@@ -8,6 +8,8 @@
   <title>{% block title %}Home{% endblock %} : Stencila</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An open source platform for reproducible research.">
+
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
 
   <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
@@ -20,7 +22,6 @@
   {% if debug %}
   <script>
     htmx.logAll();
-
   </script>
   {% endif %}
 
