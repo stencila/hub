@@ -22,32 +22,29 @@ jobs:
         inputs:
           versionSpec: '3.7'
         displayName: Install Python
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 12.x
+        displayName: Install Node.js
   
       - script: make lint
-        displayName: Lint
+        displayName: Run linting
 
       - script: make cover
-        displayName: Test
+        displayName: Run unit tests
 
       - script: bash <(curl -s https://codecov.io/bash)
         condition: succeeded()
         displayName: Upload coverage
 
-  - job: release
-    dependsOn: test
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 12.x
-        displayName: Install Node.js
-        
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '3.7'
-        displayName: Install Python
+      - script: |
+          set -e
+          make -C manager create-devdb-sqlite static
+          make -C manager run &
+          make -C manager snaps
+          kill %1
+        displayName: Run end-to-end tests
 
       - script: |
           npm ci
@@ -61,10 +58,6 @@ jobs:
         displayName: Tag and release
     
       - script: |
-          make -C manager create-devdb-sqlite static
-          make -C manager run &
-          make -C manager snaps
-          kill %1
           mkdir -p pages/manager/snaps
           mv manager/snaps/* pages/manager/snaps
           npx gh-pages --repo https://$(GITHUB_TOKEN)@github.com/stencila/hub.git -f -d pages
