@@ -1,3 +1,11 @@
+## [3.2.2](https://github.com/stencila/hub/compare/v3.2.1...v3.2.2) (2020-07-14)
+
+
+### Bug Fixes
+
+* **Accounts:** Update name of quota ([01c889d](https://github.com/stencila/hub/commit/01c889db9f6d3f77bbf222fffa9e3092cb4832b3))
+* **Projects:** Do not sets defaults ([754998f](https://github.com/stencila/hub/commit/754998ff93948510e2bd77e939a7e699ed7c8786))
+
 ## [3.2.1](https://github.com/stencila/hub/compare/v3.2.0...v3.2.1) (2020-07-13)
 
 
