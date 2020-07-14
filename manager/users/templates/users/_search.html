@@ -1,3 +1,5 @@
+{% load i18n %}
+
 {% comment %}
 A search field for users.
 
@@ -7,13 +9,14 @@ e.g. adding another user to a team, or a project.
 
 Inspired by Github's user search field (amongst others).
 {% endcomment %}
+<label for="user-search-input" class="label is-sr-only">{% trans "Search users" %}</label>
 <div id="user-search" class="dropdown is-expanded">
   <div class="dropdown-trigger">
     <div class="control has-icons-left has-icons-right">
-      <input class="input" type="text" name="search" placeholder="Search by username, full name, or email"
-             autocomplete="off" hx-trigger="keyup changed delay:500ms" hx-get="/api/users"
-             hx-template="users/_search_results.html" hx-indicator="#user-search .htmx-indicator"
-             hx-target="#user-search .dropdown-menu">
+      <input id="user-search-input" class="input" type="text" name="search"
+             placeholder="{% trans "Search by username, full name, or email" %}" autocomplete="off"
+             hx-trigger="keyup changed delay:500ms" hx-get="/api/users" hx-template="users/_search_results.html"
+             hx-indicator="#user-search .htmx-indicator" hx-target="#user-search .dropdown-menu">
       <span class="icon is-small is-left">
         <i class="ri-search-line"></i>
       </span>

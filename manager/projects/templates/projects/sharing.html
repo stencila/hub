@@ -1,6 +1,5 @@
 {% extends './base.html' %}
-{% load i18n %}
-{% load stencila %}
+{% load i18n stencila %}
 
 {% block title %}{{ project.name }}{% endblock %}
 
@@ -34,6 +33,7 @@
     {% include "users/_search.html" with id_name="agent" %}
   </div>
   <div class="control is-expanded-mobile">
+    <label class="label is-sr-only" for="projects-agents-add-role">{% trans "User role" %}</label>
     <div class="select">
       <select id="projects-agents-add-role" name="role">
         <option value="AUTHOR">Author</option>
