@@ -1,5 +1,4 @@
-{% load static intercom waffle_tags %}
-{% load i18n %}
+{% load i18n static intercom waffle_tags %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -14,7 +13,8 @@
   <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
   {% block styles %}{% endblock %}
 
-  <script src="{% static 'js/index.js' %}"></script>
+  <script src="{% static 'js/libs.js' %}"></script>
+  <script src="{% static 'js/index.js' %}" async></script>
   {% block scripts %}{% endblock %}
 
   {% if debug %}
