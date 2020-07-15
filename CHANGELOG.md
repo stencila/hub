@@ -1,3 +1,10 @@
+## [3.3.4](https://github.com/stencila/hub/compare/v3.3.3...v3.3.4) (2020-07-15)
+
+
+### Bug Fixes
+
+* **JS:** Fix JS usage after splitting into multiple files ([f75a8b1](https://github.com/stencila/hub/commit/f75a8b16d1e74b234e7991d061e9a8462b93ebe0))
+
 ## [3.3.3](https://github.com/stencila/hub/compare/v3.3.2...v3.3.3) (2020-07-15)
 
 
