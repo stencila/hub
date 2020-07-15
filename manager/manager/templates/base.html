@@ -245,7 +245,7 @@
   <div id="messages">
     {% for message in messages %}
     <script>
-      manager.Toast({
+      managerLibs.Toast({
         message: `{% if 'safe' in message.tags %}{{ message|safe }}{% else %}{{ message }}{% endif %}`,
         type: "{% if message.level_tag == "error" %}is-danger{% else %}is-{{ message.level_tag }}{% endif %}",
         duration: {% if 'stay' in message.tags %}1e8{% else %}5000{% endif %},

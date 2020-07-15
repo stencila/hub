@@ -30,7 +30,8 @@
       <form class="form" method="post" action="{% url 'ui-users-signout' %}">
         {% csrf_token %}
         <div class="buttons">
-          <button class="button is-primary is-fullwidth-mobile" type="submit" onclick="posthog.reset()">
+          <button class="button is-primary is-fullwidth-mobile" type="submit"
+                  {% if POSTHOG_KEY %}onclick="posthog.reset()" {% endif %}>
             <span class="icon">
               <i class="ri-logout-box-line"></i>
             </span>
