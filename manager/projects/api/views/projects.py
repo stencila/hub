@@ -87,7 +87,7 @@ def get_project(
     account = identifiers.get("account")
     if account:
         filter.update(**filter_from_ident(account, prefix="account"))
-    else:
+    elif "id" not in filter:
         filter.update({"account__name": "temp"})
 
     try:
@@ -197,7 +197,7 @@ class ProjectsViewSet(
         """
         project = get_project(self.kwargs, self.request.user)
 
-        if project.temporary:
+        if project.temporary is True:
             if "name" not in filter_from_ident(self.kwargs["project"]):
                 raise exceptions.NotFound
             return project

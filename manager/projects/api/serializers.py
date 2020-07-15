@@ -6,9 +6,10 @@ from rest_framework import exceptions, serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
 from accounts.api.serializers import AccountListSerializer
-from accounts.models import Account, AccountTeam
+from accounts.models import Account, AccountTeam, AccountUser
 from accounts.paths import AccountPaths
 from accounts.quotas import AccountQuotas
+from manager.api.exceptions import AccountQuotaExceeded
 from manager.api.helpers import get_help_text, get_object_from_ident
 from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
@@ -141,22 +142,25 @@ class ProjectAccountField(serializers.PrimaryKeyRelatedField):
     """
     Field for a project account.
 
-    Sets the default to the name in the query.
-
     Limits the set of valid accounts for a project to those that
-    the user is a member of.
+    the user is a member of.  Sets the default to the name in the query (if any).
+    Will raise a validation error e.g. "Invalid pk "42" - object does not exist."
+    if the user is not a member of the account.
     """
 
-    def get_queryset(self):  # noqa: D102
+    def get_queryset(self):
+        """
+        Get the list of accounts the user is a member of.
+        """
         request = self.context.get("request", None)
         if request is None:
             return Account.objects.none()
 
         queryset = Account.objects.filter(users__user=request.user)
 
-        account = request.GET.get("account")
-        if account:
-            queryset = queryset.filter(name=account)
+        name = request.GET.get("account")
+        if name:
+            queryset = queryset.filter(name=name)
 
         return queryset
 
@@ -197,95 +201,71 @@ class ProjectSerializer(serializers.ModelSerializer):
             "theme",
         ]
 
-    def validate(self, data):
+    def validate_ownership_by_account(self, public: bool, account: Account):
         """
-        Validate the project fields.
-
-        Also checks that the account has sufficient quotas to
-        create the project. This function is written to be able to used
-        when either creating (self.instance is None) or updating
-        (self.instance is not None) a project.
-
-        TODO: Move into create and update serializers
+        Validate that a project can be be owned by an account by checking quotas are not exceeded.
         """
-        account = data.get("account")
-        if account is None and self.instance:
-            account = self.instance.account
-        assert account is not None
-
-        public = data.get("public")
-        if public is None and self.instance:
-            public = self.instance.public
-        assert public is not None
-
-        request = self.context.get("request")
-        assert request is not None
-
-        # If creating, then check that user is an account
-        # member.
-        if not self.instance:
-            if (
-                Account.objects.filter(name=account, users__user=request.user).count()
-                == 0
-            ):
-                raise exceptions.PermissionDenied
-
-        # If creating or changing `public` then check quota for
-        # the number of private projects.
-        if data.get("public"):
-            if public is False:
-                AccountQuotas.PROJECTS_PRIVATE.check(account)
-            else:
+        try:
+            if public:
                 AccountQuotas.PROJECTS_PUBLIC.check(account)
-
-        # Check the name is valid for this account
-        name = data.get("name")
-        if name:
-            if AccountPaths.has(name):
-                raise exceptions.ValidationError(
-                    dict(name="Project name '{0}' is unavailable.".format(name))
-                )
-
-            if (
-                Project.objects.filter(account=account, name=name)
-                .exclude(id=self.instance.id if self.instance else None)
-                .count()
-            ):
-                raise exceptions.ValidationError(
-                    dict(
-                        name="Project name '{0}' is already in use for this account.".format(
-                            name
-                        )
-                    )
-                )
-
-            data["name"] = name = unique_slugify(
-                name,
-                instance=self.instance,
-                queryset=Project.objects.filter(account=account),
+            else:
+                AccountQuotas.PROJECTS_PRIVATE.check(account)
+        except AccountQuotaExceeded as exc:
+            raise exceptions.ValidationError(
+                dict(public=list(exc.detail.values()).pop() or "Account quota exceeded")
             )
 
-            MIN_LENGTH = 3
-            if len(name) < MIN_LENGTH:
-                raise exceptions.ValidationError(
-                    dict(
-                        name="Project name must have at least {0} valid characters.".format(
-                            MIN_LENGTH
-                        )
+    def validate_name_for_account(self, name: str, account: Account):
+        """
+        Validate that the name if valid for the account.
+
+        Used below by `ProjectCreateSerializer` and `ProjectUpdateSerializer`.
+        """
+        if AccountPaths.has(name):
+            raise exceptions.ValidationError(
+                dict(name="Project name '{0}' is unavailable.".format(name))
+            )
+
+        if (
+            Project.objects.filter(account=account, name=name)
+            .exclude(id=self.instance.id if self.instance else None)
+            .count()
+        ):
+            raise exceptions.ValidationError(
+                dict(
+                    name="Project name '{0}' is already in use for this account.".format(
+                        name
                     )
                 )
+            )
 
-            MAX_LENGTH = 64
-            if len(name) > MAX_LENGTH:
-                raise exceptions.ValidationError(
-                    dict(
-                        name="Project name must be less than {0} characters long.".format(
-                            MAX_LENGTH
-                        )
+        name = unique_slugify(
+            name,
+            instance=self.instance,
+            queryset=Project.objects.filter(account=account),
+        )
+
+        MIN_LENGTH = 3
+        if len(name) < MIN_LENGTH:
+            raise exceptions.ValidationError(
+                dict(
+                    name="Project name must have at least {0} valid characters.".format(
+                        MIN_LENGTH
                     )
                 )
+            )
 
-        return data
+        MAX_LENGTH = 64
+        if len(name) > MAX_LENGTH:
+            raise exceptions.ValidationError(
+                dict(
+                    name="Project name must be less than {0} characters long.".format(
+                        MAX_LENGTH
+                    )
+                )
+            )
+
+        return name
 
 
 class ProjectListSerializer(ProjectSerializer):
@@ -333,6 +313,7 @@ class ProjectCreateSerializer(ProjectSerializer):
         create the project.
         """
         request = self.context.get("request")
+        account = data.get("account")
 
         # Set the creator to null if the user is anon
         if request.user.is_anonymous:
@@ -343,12 +324,27 @@ class ProjectCreateSerializer(ProjectSerializer):
         # and has a random, very difficult to guess name that won't clash with
         # an existing temp project.
         # No need for any more validation so just return the data after that.
-        if request.user.is_anonymous or data.get("account") is None:
+        if request.user.is_anonymous or account is None:
             data["account"] = Account.get_temp_account()
             data["temporary"] = True
             data["public"] = True
             data["name"] = shortuuid.uuid()
             return data
+
+        # Check that user is an account member.
+        # This should already done by `ProjectAccountField.get_queryset` but
+        # this is a further check
+        if AccountUser.objects.filter(account=account, user=request.user).count() == 0:
+            raise exceptions.ValidationError(
+                dict(account="You are not a member of this account")
+            )
+
+        # Default to public project and check against account quotas
+        data["public"] = public = data.get("public", True)
+        self.validate_ownership_by_account(public, account)
+
+        # Check that name is valid
+        data["name"] = self.validate_name_for_account(data.get("name", ""), account)
 
         return data
 
@@ -372,12 +368,51 @@ class ProjectUpdateSerializer(ProjectSerializer):
         request = self.context.get("request")
         project = self.instance
 
-        # If the project is being made non-temporary we need
+        # If changing from temporary to non-temporary we need
         # to ensure that the current user is made a owner (if they are not already)
         if project.temporary and data.get("temporary") is False:
             ProjectAgent.objects.get_or_create(
                 project=project, user=request.user, role=ProjectRole.OWNER.name
             )
+
+        # Otherwise if changing the account...
+        elif data.get("account") is not None:
+            # Check that the user is a project owner
+            try:
+                ProjectAgent.objects.get(
+                    project=project, user=request.user, role=ProjectRole.OWNER.name
+                )
+            except ProjectAgent.DoesNotExist:
+                raise exceptions.ValidationError(
+                    dict("Only a project owner can change it's account.")
+                )
+
+            account = data.get("account")
+
+            # Check that user is an account member.
+            # This should already done by `ProjectAccountField.get_queryset` but
+            # this is a further check
+            if (
+                AccountUser.objects.filter(account=account, user=request.user).count()
+                == 0
+            ):
+                raise exceptions.ValidationError(
+                    dict(account="You are not a member of this account")
+                )
+
+            # Check that the new account has enough quota to own account
+            self.validate_ownership_by_account(data.get("public", True), account)
+
+        # Otherwise, if changing from public to private then check against the account quota.
+        # Note that this allows an existing project to be made public even if that
+        # will exceed the quota
+        elif project.public and data.get("public") is False:
+            self.validate_ownership_by_account(False, project.account)
+
+        # Check the new name is valid for this account
+        name = data.get("name")
+        if name is not None:
+            data["name"] = self.validate_name_for_account(name, project.account)
 
         return data
 
