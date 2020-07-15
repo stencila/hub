@@ -45,13 +45,18 @@ class AccountQuota(NamedTuple):
         """Calculate the usage for this quota for an account."""
         amount = self.calc(account)
         limit = self.limit(account)
-        return dict(amount=amount, limit=limit, percent=amount / limit * 100)
+        return dict(
+            amount=amount,
+            limit=limit,
+            percent=amount / limit * 100 if limit > 0 else 100,
+        )
 
     def check(self, account: Account):
         """Check whether a quota has been exceed for an account."""
         usage = self.usage(account)
-        if usage["amount"] >= usage["limit"]:
-            raise AccountQuotaExceeded({self.name: self.message})
+        limit = usage["limit"]
+        if usage["amount"] >= limit:
+            raise AccountQuotaExceeded({self.name: self.message.format(limit=limit)})
 
 
 def bytes_to_gigabytes(value: float) -> float:
@@ -65,35 +70,35 @@ class AccountQuotas:
     ORGS_CREATED = AccountQuota(
         "orgs_created",
         lambda account: Account.objects.filter(creator=account.user).count(),
-        "Maximum number of organizations you can create has been reached. "
+        "Maximum number of organizations ({limit}) you can create has been reached. "
         "Please contact us.",
     )
 
     ACCOUNT_USERS = AccountQuota(
         "account_users",
         lambda account: AccountUser.objects.filter(account=account).count(),
-        "Maximum number of users for the account has been reached. "
+        "Maximum number of users ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account.",
     )
 
     ACCOUNT_TEAMS = AccountQuota(
         "account_teams",
         lambda account: AccountTeam.objects.filter(account=account).count(),
-        "Maximum number of teams for the account has been reached. "
+        "Maximum number of teams ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account.",
     )
 
     PROJECTS_PUBLIC = AccountQuota(
         "projects_public",
         lambda account: Project.objects.filter(account=account, public=True).count(),
-        "Maximum number of public projects for the account has been reached. "
+        "Maximum number of public projects ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account, or use a different account.",
     )
 
     PROJECTS_PRIVATE = AccountQuota(
         "projects_private",
         lambda account: Project.objects.filter(account=account, public=False).count(),
-        "Maximum number of private projects for the account has been reached. "
+        "Maximum number of private projects ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account, or use a different account.",
     )
 
