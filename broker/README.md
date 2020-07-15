@@ -6,12 +6,14 @@ The `broker` is the mediator between task producers, such as the `manager`, and 
 
 ## Solution
 
-We use RabbitMQ because it allows for [multi-tenancy via virtual hosts](https://www.rabbitmq.com/vhosts.html). This allows accounts to provide their own    workers by connecting to their own `vhost` on the broker.
+We use RabbitMQ because it allows for [multi-tenancy via virtual hosts](https://www.rabbitmq.com/vhosts.html). This allows accounts to provide their own workers by connecting to their own `vhost` on the broker.
 
-The `stencila/hub-broker` Docker image is currently just a simple `FROM rabbitmq:3.8-management` image. We use the management image, so that we can access the [Management HTTP API](https://www.rabbitmq.com/management.html#http-api) to add new users and vhosts for accounts.
+The `stencila/hub-broker` Docker image is currently just a simple `FROM rabbitmq:3.8-management` image. We use the management image, so that we can access the [Management HTTP API](https://www.rabbitmq.com/management.html#http-api) to add new users and vhosts for accounts. This is available at `:15672/api`.
 
-Instead of self hosting `stencila/hub-broker` a RabbitMQ-as-a-service service, such as https://www.cloudamqp.com/ could be used.
+The image also includes the `rabbitmq_prometheus` plugin to enable monitoring metrics. These are available at `:15692/metrics`.
 
 ## Alternatives
+
+Instead of self hosting `stencila/hub-broker` a RabbitMQ-as-a-service service, such as https://www.cloudamqp.com/ could be used.
 
 Celery [supports several brokers](https://docs.celeryproject.org/en/latest/getting-started/brokers/index.html). Initially we used [Redis](https://redis.io/) because of it's ease of setup.
