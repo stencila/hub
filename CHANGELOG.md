@@ -1,3 +1,13 @@
+## [3.3.3](https://github.com/stencila/hub/compare/v3.3.2...v3.3.3) (2020-07-15)
+
+
+### Bug Fixes
+
+* **Account quotas:** Add limit to messages; avoid divide by zero ([56cc42e](https://github.com/stencila/hub/commit/56cc42e26212552d1f1fa5cfada2013ef4f2d615))
+* **Broker:** Expose management API ([10ccd83](https://github.com/stencila/hub/commit/10ccd83e708938bc5367f602ca6a939dd373546d))
+* **Projects:** Improve validation of create and update projects ([a3fe00f](https://github.com/stencila/hub/commit/a3fe00fb35343988cb2b9855daa7585bca651a69))
+* **Router:** Capture as error, instead of info message ([0016227](https://github.com/stencila/hub/commit/0016227e7e2765a684d7c3952a74523f88c83c26))
+
 ## [3.3.2](https://github.com/stencila/hub/compare/v3.3.1...v3.3.2) (2020-07-14)
 
 
