@@ -4,9 +4,10 @@
 
 <div class="field">
   {% if element == "checkbox" %}
-  <input id="{{ field_id }}" type="checkbox" name="{{ field.name }}" class="toggle"
-         {% if field.value is True %}checked{% endif %}>
+
+  {% include "./_field_control.html" with field_id=field_id %}
   <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+
   {% else %}
 
   <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
@@ -17,15 +18,16 @@
   {% include "./_field_control.html" with element=field|field_element field_id=field_id %}
   {% endif %}
 
+  {% endif %}
+
   {% if field.errors %}
   {% for error in field.errors %}
   <span class="help is-danger">{{ error }}</span>
   {% endfor %}
   {% endif %}
 
-  {% if field.help_text %}
-  <span class="help">{{ field.help_text|safe }}</span>
-  {% endif %}
+  {% if help_text or field.help_text %}
+  <span class="help">{% if help_text %}{{ help_text }}{% else %}{{ field.help_text|safe }}{% endif %}</span>
   {% endif %}
 </div>
 

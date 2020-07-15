@@ -1,5 +1,12 @@
 {% load stencila %}
 
+{% if element == "checkbox" %}
+
+<input id="{{ field_id }}" type="checkbox" name="{{ field.name }}" class="toggle"
+       {% if field.value is True %}checked{% endif %}>
+
+{% else %}
+
 <div class="control {% if icon %}has-icons-left{% endif %}">
   {% if element == "select" %}
   <div class="select">
@@ -38,3 +45,5 @@
   {% endif %}
   {% endif %}
 </div>
+
+{% endif %}
