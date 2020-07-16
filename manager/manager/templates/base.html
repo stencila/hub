@@ -218,13 +218,20 @@
 
 
                 {% if user.is_staff or user.is_superuser %}
-                <a class="navbar-item has-text-weight-bold" href="{% url 'admin:index' %}">
+                <a class="navbar-item has-text-weight-bold" href="{% url 'admin:index' %}" target="_blank" rel="noopener">
                   <span class="icon">
                     <i class="ri-alert-line" aria-hidden="true"></i>
                   </span>
                   <span>{% trans "Admin" %}</span>
                 </a>
                 {% endif %}
+
+                <a class="navbar-item has-text-weight-bold" href="http://help.stenci.la/" target="_blank" rel="noopener">
+                  <span class="icon">
+                    <i class="ri-lifebuoy-line" aria-hidden="true"></i>
+                  </span>
+                  <span>{% trans "Help" %}</span>
+                </a>
 
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-users-signout' %}">
                   <span class="icon">
@@ -280,10 +287,11 @@
     <div class="container">
       <div class="columns">
         <div class="column is-full has-text-centered">
-          <a href="{% url 'api-docs' %}">API</a>
-          <a href="https://status.stenci.la">Status</a>
-          <a href="https://policies.stenci.la/privacy">Privacy</a>
-          <a href="https://policies.stenci.la/terms">Terms</a>
+          <a href="http://help.stenci.la/en" target="_blank" rel="noopener">{% trans "Docs" %}</a>
+          <a href="{% url 'api-docs' %}" target="_blank" rel="noopener">API</a>
+          <a href="https://status.stenci.la" target="_blank" rel="noopener">{% trans "Status" %}</a>
+          <a href="https://policies.stenci.la/privacy" target="_blank" rel="noopener">{% trans "Privacy" %}</a>
+          <a href="https://policies.stenci.la/terms" target="_blank" rel="noopener">{% trans "Terms" %}</a>
         </div>
       </div>
       <div class="level" style="font-size: 80%">
@@ -293,10 +301,10 @@
             <i class="ri-heart-fill"></i>
           </span>
           in&nbsp;
-          <a href="https://www.kaikoura.co.nz/">Kaikoura</a>,&nbsp;
-          <a href="https://montreal.ca/">Montreal</a>,&nbsp;
-          <a href="https://www.aucklandnz.com/">Auckland</a>, and&nbsp;
-          <a href="https://www.wellingtonnz.com/">Wellington</a>.
+          <a href="https://www.kaikoura.co.nz/" target="_blank" rel="noopener">Kaikoura</a>,&nbsp;
+          <a href="https://montreal.ca/" target="_blank" rel="noopener">Montreal</a>,&nbsp;
+          <a href="https://www.aucklandnz.com/" target="_blank" rel="noopener">Auckland</a>, and&nbsp;
+          <a href="https://www.wellingtonnz.com/" target="_blank" rel="noopener">Wellington</a>.
         </p>
         <p class="level-right has-text-centered">
           © {% now 'Y' %} Stencila Ltd.
