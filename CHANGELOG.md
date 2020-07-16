@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/stencila/hub/compare/v3.4.0...v3.4.1) (2020-07-16)
+
+
+### Bug Fixes
+
+* **Manager:** Increase workers to 3 ([56c4d0d](https://github.com/stencila/hub/commit/56c4d0db4f367b22b34ed83992621399334bfc09))
+
 # [3.4.0](https://github.com/stencila/hub/compare/v3.3.4...v3.4.0) (2020-07-16)
 
 
