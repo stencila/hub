@@ -53,6 +53,17 @@ def favicon(request: HttpRequest) -> HttpResponse:
     )
 
 
+def robots(request: HttpRequest) -> HttpResponse:
+    """
+    Return a robots.txt response.
+
+    Allows access to all public (unauthenticated) pages.
+    In addition SEO benefits, having this avoids losts of
+    404 log entries for missing `robots.txt`.
+    """
+    return HttpResponse("User-Agent: *\nDisallow:\n", content_type="text/plain")
+
+
 def render_template(request: HttpRequest) -> HttpResponse:
     """
     Render an arbitrary template.

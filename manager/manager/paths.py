@@ -17,6 +17,7 @@ class RootPaths(enum.Enum):
     open = "open"
     orgs = "orgs"
     projects = "projects"
+    robots = "robots.txt"
     users = "users"
 
     @classmethod

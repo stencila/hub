@@ -11,6 +11,7 @@ from manager.ui.views import (
     handle500,
     home,
     render_template,
+    robots,
     test403,
     test404,
     test500,
@@ -19,8 +20,9 @@ from manager.ui.views import (
 )
 
 urlpatterns = [
-    path(RootPaths.api.value + "/", include("manager.api.urls")),
     path(RootPaths.favicon.value, favicon),
+    path(RootPaths.robots.value, robots),
+    path(RootPaths.api.value + "/", include("manager.api.urls")),
     path(RootPaths.me.value + "/", include("users.ui.urls")),
     path(
         "stencila/",
