@@ -56,12 +56,16 @@
   </div>
   {% endif %}
   <input id="orgs-search-is-org" type="hidden" name="is" value="org">
+
+  {% if user.is_authenticated %}
+  {# Only authenticated users see a "role" dropdown #}
   <script>
     document.querySelector('#orgs-search-role').addEventListener('change', function(event) {
       document.querySelector('#orgs-search-input').dispatchEvent(new Event('role-changed'));
     });
 
   </script>
+  {% endif %}
 </div>
 
 <br>
