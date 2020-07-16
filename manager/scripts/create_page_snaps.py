@@ -38,7 +38,9 @@ REPLACE = [
 EXCLUDE = [
     r"^api/.+",
     r"^debug",
+    # Non-HTML responses
     r"^favicon.ico",
+    r"^robots.txt",
     r"^stencila/admin",
     # Anything which still has a URL parameter
     # in it after REPLACE is applied
