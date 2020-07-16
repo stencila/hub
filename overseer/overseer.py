@@ -352,7 +352,7 @@ class Collector(threading.Thread):
                 workers = self.app.control.ping(
                     timeout=self.workers_ping_timeout_seconds
                 )
-                logging.info("Workers pinged: {}.".format(len(workers)))
+                logging.debug("Workers pinged: {}.".format(len(workers)))
             except Exception as exc:
                 workers = []
                 logging.error("Error pinging workers: {}".format(str(exc)))
