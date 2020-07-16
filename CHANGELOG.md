@@ -1,3 +1,15 @@
+# [3.4.0](https://github.com/stencila/hub/compare/v3.3.4...v3.4.0) (2020-07-16)
+
+
+### Bug Fixes
+
+* **Orgs:** Don't attach event handler if role dropdown doesn't exist ([3a6368a](https://github.com/stencila/hub/commit/3a6368a3d41df6eeabda61daaa5a729c466b7553)), closes [#560](https://github.com/stencila/hub/issues/560)
+
+
+### Features
+
+* **UI:** Add links to Help docs & open links in new tabs ([2999f20](https://github.com/stencila/hub/commit/2999f20a038d62969f6849abc41d5b3e08adf686))
+
 ## [3.3.4](https://github.com/stencila/hub/compare/v3.3.3...v3.3.4) (2020-07-15)
 
 
