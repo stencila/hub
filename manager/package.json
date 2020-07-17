@@ -21,7 +21,7 @@
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "2.4.4",
-    "@stencila/thema": "2.12.0",
+    "@stencila/thema": "2.13.0",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.9.0",
     "bulma-toast": "2.0.1",
