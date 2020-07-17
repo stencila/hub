@@ -29,6 +29,6 @@ inflect==4.1.0
 Pillow==7.2.0
 psycopg2-binary==2.8.5
 pyjwt==1.7.1
-sentry-sdk==0.16.0
+sentry-sdk==0.16.1
 shortuuid==1.0.1
 whitenoise==5.1.0
