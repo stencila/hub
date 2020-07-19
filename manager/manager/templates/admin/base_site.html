@@ -6,22 +6,28 @@
 
 {% block extrastyle %}
 <style type="text/css">
-#header {
+  #header {
     background: #FFF;
     color: #444;
-}
-#branding h1, #branding h1 a:link, #branding h1 a:visited {
+  }
+
+  #branding h1,
+  #branding h1 a:link,
+  #branding h1 a:visited {
     color: #000000;
-}
-#header a:link, #header a:visited {
+  }
+
+  #header a:link,
+  #header a:visited {
     color: #165ed4;
-}
+  }
+
 </style>
 {% endblock %}
 
 {% block branding %}
 <h1 id="site-name">
-    <a href="{% url 'admin:index' %}"><img class="brand_img" src="{% static 'img/stencilaLogo.svg'%}" height="40px" alt="Stencila"> Admin</a>
+  <a href="{% url 'admin:index' %}"><img class="brand_img" src="{% static 'img/stencilaLogo.svg'%}" height="40px"
+         alt="Stencila"> Admin</a>
 </h1>
 {% endblock %}
-
