@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/stencila/hub/compare/v3.5.0...v3.5.1) (2020-07-19)
+
+
+### Bug Fixes
+
+* **Manager:** Enable Intercom for unauthenticated users ([f8d213c](https://github.com/stencila/hub/commit/f8d213c5e515fbf94cc9458af00513a46ebcd8c8))
+
 # [3.5.0](https://github.com/stencila/hub/compare/v3.4.1...v3.5.0) (2020-07-19)
 
 
