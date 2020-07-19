@@ -21,6 +21,7 @@ class AccountAdmin(admin.ModelAdmin):
         "is_personal",
     ]
     list_select_related = ["creator"]
+    search_fields = ["name"]
 
 
 @admin.register(AccountUser)
@@ -28,6 +29,8 @@ class AccountUserAdmin(admin.ModelAdmin):
     """Admin interface for account users."""
 
     list_display = ["account", "user", "role"]
+    list_filter = ["account", "user", "role"]
+    search_fields = ["account__name", "user__username"]
 
 
 @admin.register(AccountTeam)
@@ -35,6 +38,8 @@ class AccountTeamAdmin(admin.ModelAdmin):
     """Admin interface for account teams."""
 
     list_display = ["account", "name"]
+    list_filter = ["account"]
+    search_fields = ["account__name", "name"]
 
 
 @admin.register(AccountTier)
