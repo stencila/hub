@@ -1,3 +1,19 @@
+# [3.5.0](https://github.com/stencila/hub/compare/v3.4.1...v3.5.0) (2020-07-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.13.0 ([babcde8](https://github.com/stencila/hub/commit/babcde8b99976fcc5da7ddd75cf0b9ad9c6d4409))
+* **deps:** update dependency django-extensions to v3.0.3 ([4246c0d](https://github.com/stencila/hub/commit/4246c0dd3cf741303688e649ccc253fc2beb4d9b))
+* **deps:** update dependency google-api-python-client to v1.10.0 ([7c3b4a1](https://github.com/stencila/hub/commit/7c3b4a1b5cb72c130cf85fa0a79f00e8b2a9ce29))
+* **deps:** update dependency sentry-sdk to v0.16.1 ([10629bc](https://github.com/stencila/hub/commit/10629bc460f3801b57db0f840c287d2d26b11e6e))
+
+
+### Features
+
+* **Manager admin:** Add filters and search for account related models ([45862f9](https://github.com/stencila/hub/commit/45862f9523689e79e9a2d049c1ed403fbde8e105))
+* **Manager admin:** Customize admin interface ([c26e8d9](https://github.com/stencila/hub/commit/c26e8d9ab6bca9d08236360486dd0d1a6ca9cb58))
+
 ## [3.4.1](https://github.com/stencila/hub/compare/v3.4.0...v3.4.1) (2020-07-16)
 
 
