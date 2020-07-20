@@ -1,3 +1,12 @@
+## [3.6.1](https://github.com/stencila/hub/compare/v3.6.0...v3.6.1) (2020-07-20)
+
+
+### Bug Fixes
+
+* **Account images:** Update the session store for user account images ([8ebfc94](https://github.com/stencila/hub/commit/8ebfc94f984698cded6e42d2c8fab816427add06))
+* **Accounts:** Make it clearer that account email only used in profile ([9a83cb3](https://github.com/stencila/hub/commit/9a83cb3a5cd8b567ff19a5fe47092d208c6d92a9))
+* **Merge users:** When merging ensure only one primary email ([caea5f9](https://github.com/stencila/hub/commit/caea5f9c40c23c29508fdb875eecdb5721363269)), closes [#570](https://github.com/stencila/hub/issues/570)
+
 # [3.6.0](https://github.com/stencila/hub/compare/v3.5.1...v3.6.0) (2020-07-20)
 
 
