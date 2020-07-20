@@ -1,3 +1,15 @@
+# [3.6.0](https://github.com/stencila/hub/compare/v3.5.1...v3.6.0) (2020-07-20)
+
+
+### Bug Fixes
+
+* **Projects:** Alter to on_delete actions ([c7389fc](https://github.com/stencila/hub/commit/c7389fc43da13f8946201f85a03b8c1f6d3892d3))
+
+
+### Features
+
+* **Manager:** Add management command for merging users ([9f3e466](https://github.com/stencila/hub/commit/9f3e46623c355190268a5af1c77990f502bd6e5b))
+
 ## [3.5.1](https://github.com/stencila/hub/compare/v3.5.0...v3.5.1) (2020-07-19)
 
 
