@@ -103,7 +103,9 @@ def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
             if account.is_personal:
                 if request.session and "user" in request.session:
-                    request.session["user"]["image"] = request.user.personal_account.image.medium
+                    request.session["user"][
+                        "image"
+                    ] = request.user.personal_account.image.medium
                     request.session.modified = True
 
             return redir("ui-accounts-update", account.name)
