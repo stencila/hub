@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 from django.db import models
 from django.shortcuts import reverse
+from django.utils import timezone
 
 from jobs.models import Job
 from manager.storage import snapshots_storage, working_storage
@@ -105,17 +106,21 @@ class File(models.Model):
     ):
         """
         Create a file from info dictionary.
+
+        Jobs return a dictionary of file information for each
+        file that has been updated. This creates a `File` instance based
+        on that informaton.
+        
+        Uses `get_or_create` to avoid duplicate entries e.g. if a
+        job callback is accidentally called twice.
         """
-        modified = info.get("modified")
-        # Use get_or_create create to avoid duplicate entries e.g. if a
-        # callback is accidentally called twice
         return File.objects.get_or_create(
             project=project,
             job=job,
             source=source,
             snapshot=snapshot,
             path=path,
-            modified=datetime.fromtimestamp(modified) if modified else None,
+            modified=get_modified(info),
             size=info.get("size"),
             mimetype=info.get("mimetype"),
             encoding=info.get("encoding"),
@@ -126,7 +131,7 @@ class File(models.Model):
         Update the file with info dictionary.
         """
         modified = info.get("modified")
-        self.modified = datetime.fromtimestamp(modified) if modified else None
+        self.modified = get_modified(info)
         self.size = info.get("size")
         self.mimetype = info.get("mimetype")
         self.encoding = info.get("encoding")
@@ -170,3 +175,11 @@ class File(models.Model):
             )
         else:
             return WORKING_STORAGE.url(os.path.join(str(self.project.id), self.path))
+
+
+def get_modified(info: Dict) -> Optional[datetime]:
+    """
+    Get the modified data as a timezone aware datetime object.
+    """
+    timestamp = info.get("modified")
+    return datetime.fromtimestamp(timestamp, tz=timezone.utc) if timestamp else None
