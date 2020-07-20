@@ -88,13 +88,24 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 @login_required
 def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Update an account's image."""
+    """
+    Update an account's image.
+    
+    Also updates the cached URL of the user's image in the session storage.
+    See the `session_storage` middleware for how this is set initially.
+    """
     if request.method == "POST":
         viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
         account = viewset.get_object()
         form = AccountImageForm(request.POST, request.FILES, instance=account)
         if form.is_valid():
             form.save()
+
+            if account.is_personal:
+                if request.session and "user" in request.session:
+                    request.session["user"]["image"] = request.user.personal_account.image.medium
+                    request.session.modified = True
+
             return redir("ui-accounts-update", account.name)
         raise RuntimeError("Error attempting to save the account image.")
     else:
