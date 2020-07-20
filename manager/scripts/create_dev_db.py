@@ -2,6 +2,7 @@ import io
 import mimetypes
 import random
 
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
@@ -77,26 +78,48 @@ def run(*args):
 
     # Add varying amounts of profile data for these example users
 
-    amitabh = User.objects.get(username="amitabh").personal_account
-    amitabh.location = "Sydney, Australia"
-    amitabh.image.save("amitabh.png", open("scripts/data/amitabh.png", "rb"))
+    amitabh = User.objects.get(username="amitabh")
+    amitabh.personal_account.location = "Sydney, Australia"
+    amitabh.personal_account.image.save(
+        "amitabh.png", open("scripts/data/amitabh.png", "rb")
+    )
+    EmailAddress.objects.create(
+        user=amitabh, email="amitabh@example.org", verified=False, primary=True
+    )
 
-    anna = User.objects.get(username="anna").personal_account
-    anna.display_name = "Dr Anna Andersson"
-    anna.location = "Stockholm, Sweden"
-    anna.website = "https://anna.example.edu/profile.html"
-    anna.email = "anna@example.edu"
-    anna.image.save("anna.png", open("scripts/data/anna.png", "rb"))
+    anna = User.objects.get(username="anna")
+    anna.personal_account.display_name = "Dr Anna Andersson"
+    anna.personal_account.location = "Stockholm, Sweden"
+    anna.personal_account.website = "https://anna.example.edu/profile.html"
+    anna.personal_account.email = "anna@example.edu"
+    anna.personal_account.image.save("anna.png", open("scripts/data/anna.png", "rb"))
+    EmailAddress.objects.create(
+        user=anna, email="anna@example.edu", verified=True, primary=True
+    )
+    EmailAddress.objects.create(
+        user=anna, email="anna.andersson@example.com", verified=False, primary=False
+    )
 
-    daniel = User.objects.get(username="daniel").personal_account
-    daniel.location = "Dublin"
-    daniel.email = "daniel@example.edu"
-    daniel.image.save("daniel.png", open("scripts/data/daniel.png", "rb"))
+    daniel = User.objects.get(username="daniel")
+    daniel.personal_account.location = "Dublin"
+    daniel.personal_account.email = "daniel@example.edu"
+    daniel.personal_account.image.save(
+        "daniel.png", open("scripts/data/daniel.png", "rb")
+    )
 
-    zahra = User.objects.get(username="zahra").personal_account
-    zahra.location = "Nairobi, Kenya, East Africa"
-    zahra.website = "https://example.com"
-    zahra.image.save("zahra.png", open("scripts/data/zahra.png", "rb"))
+    zahra = User.objects.get(username="zahra")
+    zahra.personal_account.location = "Nairobi, Kenya, East Africa"
+    zahra.personal_account.website = "https://example.com"
+    zahra.personal_account.image.save("zahra.png", open("scripts/data/zahra.png", "rb"))
+    EmailAddress.objects.create(
+        user=zahra, email="zahra@example.edu", verified=True, primary=True
+    )
+    EmailAddress.objects.create(
+        user=zahra, email="zahra.temitope@example.com", verified=True, primary=False
+    )
+    EmailAddress.objects.create(
+        user=zahra, email="zahrat@example.org", verified=False, primary=False
+    )
 
     #################################################################
     # Accounts

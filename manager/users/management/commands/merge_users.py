@@ -1,4 +1,5 @@
 import shortuuid
+from allauth.account.models import EmailAddress
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django_super_deduper.merge import MergedModelInstance
@@ -82,6 +83,12 @@ class Command(BaseCommand):
         )
         MergedModelInstance.create(
             primary_account, secondary_accounts, keep_old=False,
+        )
+
+        # To avoid a user having more than one primary email, set all emails
+        # for secondary users to primary=False
+        EmailAddress.objects.filter(user__username__in=secondary_usernames).update(
+            primary=False
         )
 
         # Merge the users
