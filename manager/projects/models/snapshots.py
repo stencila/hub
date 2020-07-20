@@ -39,7 +39,7 @@ class Snapshot(models.Model):
 
     job = models.ForeignKey(
         Job,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text="The job that created the snapshot",

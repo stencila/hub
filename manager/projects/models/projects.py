@@ -19,7 +19,7 @@ class Project(models.Model):
 
     account = models.ForeignKey(
         Account,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="projects",
         null=False,
         blank=False,
