@@ -94,7 +94,9 @@ class Account(models.Model):
     )
 
     email = models.EmailField(
-        null=True, blank=True, help_text="Email to display in account profile."
+        null=True,
+        blank=True,
+        help_text="An email to display in account profile. Will not be used by Stencila to contact you.",
     )
 
     theme = models.TextField(
