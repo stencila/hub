@@ -90,7 +90,7 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Update an account's image.
-    
+
     Also updates the cached URL of the user's image in the session storage.
     See the `session_storage` middleware for how this is set initially.
     """
