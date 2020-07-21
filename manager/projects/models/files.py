@@ -110,7 +110,7 @@ class File(models.Model):
         Jobs return a dictionary of file information for each
         file that has been updated. This creates a `File` instance based
         on that informaton.
-        
+
         Uses `get_or_create` to avoid duplicate entries e.g. if a
         job callback is accidentally called twice.
         """
@@ -130,7 +130,6 @@ class File(models.Model):
         """
         Update the file with info dictionary.
         """
-        modified = info.get("modified")
         self.modified = get_modified(info)
         self.size = info.get("size")
         self.mimetype = info.get("mimetype")
