@@ -1,3 +1,11 @@
+## [3.7.1](https://github.com/stencila/hub/compare/v3.7.0...v3.7.1) (2020-07-21)
+
+
+### Bug Fixes
+
+* **Password Reset:** Style password reset form views ([1541b93](https://github.com/stencila/hub/commit/1541b9341477e6355fc7900b88fd99c8c3260756))
+* **Passwrod reset:** Consistent titles and layout across views. ([dec7b7e](https://github.com/stencila/hub/commit/dec7b7ea6b5d711d7edd9495aa7c435ce1ced4cf))
+
 # [3.7.0](https://github.com/stencila/hub/compare/v3.6.1...v3.7.0) (2020-07-21)
 
 
