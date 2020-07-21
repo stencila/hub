@@ -7,11 +7,15 @@ for displaying user search results.
 <div class="dropdown-content">
   {% for user in queryset %}
   <div class="dropdown-item" data-id="{{ user.id }}" data-username="{{ user.username }}">
+    {% with account=user.personal_account %}
     <figure class="image is-24x24" style="width:24px">
-      <img src="{{ user.personal_account.image.small }}" alt="{{ user.get_full_name|default:user.username }}"></img>
+      <img src="{{ account.image.small }}" alt="{{ user.get_full_name|default:user.username }}"></img>
     </figure>
     <strong>{{ user.username }}</strong>&nbsp;&nbsp;
-    <span>{{ user.first_name }} {{ user.last_name }}<span>
+    <span>{{ user.first_name }} {{ user.last_name }}</span>
+    {% if account.email %}<span>{{ account.email }}</span>{% endif %}
+    {% if account.location %}<span>{{ account.location }}</span>{% endif %}
+    {% endwith %}
   </div>
   {% empty %}
   <div class="dropdown-item">
