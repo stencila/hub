@@ -1,3 +1,15 @@
+# [3.7.0](https://github.com/stencila/hub/compare/v3.6.1...v3.7.0) (2020-07-21)
+
+
+### Bug Fixes
+
+* **Accounts:** Exclude temp org from list ([171eac9](https://github.com/stencila/hub/commit/171eac9a0af3696263198203324f323c6f3add95)), closes [#553](https://github.com/stencila/hub/issues/553)
+
+
+### Features
+
+* **Account tiers:** Allow plans to be designated inactive; add admin filtering by tier ([76a0b49](https://github.com/stencila/hub/commit/76a0b4934c6baa95c951b072e4c5a5566f6c778e))
+
 ## [3.6.1](https://github.com/stencila/hub/compare/v3.6.0...v3.6.1) (2020-07-20)
 
 
