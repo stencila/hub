@@ -112,13 +112,17 @@
         <span>Higher limits and more plans soon!</span>
       </p>
       <p class="message-body">
-        While we are still in development, there is only one "introductory" plan with quite restrictive limits.
-        Stay tuned for more plans and higher limits soon.
+        While we are still in development, there are only two plans:
+        a "Waiting List" plan (which does not let you do much) and a "Team" plan
+        (for our beta-testers to test things out with).
+        Stay tuned for more plans and higher limits soon. We'll be moving
+        you off the waiting list when things are more stable.
       </p>
     </div>
 
     <ul class="columns is-multiline is-variable is-2 pricing-table mt-4">
-      {% for tier in tiers|dictsort:"job_runtime_month" %}
+      {% for tier in tiers %}
+      {% if tier.active %}
       <li class="column is-one-third">
         <figure class="is-size-5 pricing-table__item">
           <h2 class="has-text-centered title is-4">{% trans tier.name %}</h2>
@@ -182,7 +186,9 @@
             </span>
           </p>
 
-          <button class="button is-fullwidth mt-4" {% if tier.id == account.tier.id %}disabled{% endif %}>
+          <button class="button is-fullwidth is-primary mt-4" has-tooltip-bottom has-tooltip-text-centered image-tooltip
+                  data-tooltip="{% trans 'Coming soon!' %}" disabled
+                  {% if tier.id == account.tier.id %}disabled{% endif %}>
             {% if tier.id == account.tier_id %}
             Your current plan
             {% else %}
@@ -191,6 +197,7 @@
           </button>
         </figure>
       </li>
+      {% endif %}
       {% endfor %}
     </ul>
 

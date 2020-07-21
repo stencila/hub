@@ -14,13 +14,9 @@ class AccountAdmin(admin.ModelAdmin):
     is_personal.boolean = True  # type: ignore
     is_personal.short_description = u"Personal"  # type: ignore
 
-    list_display = [
-        "name",
-        "creator",
-        "created",
-        "is_personal",
-    ]
+    list_display = ["name", "creator", "created", "is_personal", "tier"]
     list_select_related = ["creator"]
+    list_filter = ["tier"]
     search_fields = ["name"]
 
 

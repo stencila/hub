@@ -231,7 +231,15 @@ class AccountTier(models.Model):
     """
 
     name = models.CharField(
-        null=False, blank=False, max_length=64, help_text="The name of the tier."
+        null=False,
+        blank=False,
+        max_length=64,
+        unique=True,
+        help_text="The name of the tier.",
+    )
+
+    active = models.BooleanField(
+        default=True, help_text="Is the tier active i.e. should be displayed to users."
     )
 
     orgs_created = models.IntegerField(
@@ -281,6 +289,9 @@ class AccountTier(models.Model):
         default=1000,
         help_text="The maximum number of job minutes per month.",
     )
+
+    def __str__(self) -> str:
+        return "Tier {0}".format(self.id)
 
     @staticmethod
     def fields() -> Dict[str, models.Field]:

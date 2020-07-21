@@ -7,7 +7,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
-from accounts.models import Account, AccountRole, AccountTeam, AccountUser
+from accounts.models import Account, AccountRole, AccountTeam, AccountTier, AccountUser
 from jobs.models import Queue, Worker, Zone
 from manager.themes import Themes
 from projects.models.files import File
@@ -125,10 +125,17 @@ def run(*args):
     # Accounts
     #################################################################
 
+    # Account tiers
+
+    AccountTier.objects.create(name="Tier 2")
+    AccountTier.objects.create(name="Tier 3")
+    AccountTier.objects.create(name="Tier 4")
+    AccountTier.objects.create(name="Tier 5", active=False)
+
     # Generic and example organizations
 
     for name in ["an-org", "biotech-corp", "hapuku-university", "pewsey-publishing"]:
-        account = Account.objects.create(name=name)
+        account = Account.objects.create(name=name, tier=random_account_tier())
 
         # Add their image
         account.image.save(
@@ -319,6 +326,11 @@ def random_users(num=None):
     if num is None:
         num = random.randint(1, len(all))
     return all[:num]
+
+
+def random_account_tier():
+    """Get a random account tier."""
+    return AccountTier.objects.filter(active=True).order_by("?").first()
 
 
 def random_account_user(account):
