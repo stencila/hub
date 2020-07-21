@@ -85,7 +85,7 @@ class AccountsViewSet(
         For `list`, returns **all** accounts (i.e. the
         list of accounts is treated as public).
         """
-        queryset = Account.objects.all()
+        queryset = Account.objects.all().exclude(name="temp")
 
         if self.request.user.is_authenticated:
             queryset = queryset.annotate(
