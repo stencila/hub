@@ -28,6 +28,4 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
     all_messages(request, project)
 
-    return render(
-        request, "projects/files/list.html", dict(project=project, **context),
-    )
+    return render(request, "projects/files/list.html", context)

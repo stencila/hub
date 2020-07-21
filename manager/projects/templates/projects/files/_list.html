@@ -28,7 +28,7 @@
   </thead>
   <tbody>
     {% for file in files %}
-    {% with account=file.project.account project=file.project %}
+    {% with account=project.account %}
     <tr>
       <td class="source-table--file-type pr-0 is-vcentered">
         {% if file.is_directory %}
