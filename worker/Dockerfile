@@ -29,6 +29,15 @@ RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# Install https://github.com/GoogleCloudPlatform/gcsfuse for mounting Google buckets for snapshots
+RUN echo "deb http://packages.cloud.google.com/apt gcsfuse-focal main" | tee /etc/apt/sources.list.d/gcsfuse.list \ 
+ && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \ 
+ && apt-get update \
+ && apt-get install -y gcsfuse \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 # Create non-root `worker` user and use it's home dir
 # to copy files into
 RUN useradd -m worker
@@ -50,10 +59,15 @@ COPY . ./
 # See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
 ENV PYTHONUNBUFFERED=1
 
-# Run Celery worker as `worker` user
+# Run as `worker` using two local directories for storage.
+# These are normally mounted to external volumes when running this image.
+USER worker
+ENV STORAGE_ROOT=/home/worker
+RUN mkdir -p working snapshots
+
 # By using $(hostname) we give the worker a unique identifier
 # based on the unique hostname of the Docker container.
-USER worker
+ENTRYPOINT ["/home/worker/entrypoint.sh"]
 CMD celery worker --app worker \
                   --hostname worker@$(hostname) \
                   --queues default \

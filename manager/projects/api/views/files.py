@@ -37,7 +37,9 @@ class ProjectsFilesViewSet(
 
         Requires that user has read access to the project.
         """
-        return get_project(self.kwargs, self.request.user)
+        if not hasattr(self, "project"):
+            self.project = get_project(self.kwargs, self.request.user)
+        return self.project
 
     def get_prefix(self) -> str:
         """
@@ -155,6 +157,8 @@ class ProjectsFilesViewSet(
         Add breadcrumbs to template rendering context.
         """
         context = super().get_response_context(*args, **kwargs)
+
+        context["project"] = self.get_project()
 
         breadcrumbs = [("root", "")]
         path = ""

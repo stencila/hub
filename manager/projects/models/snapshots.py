@@ -1,5 +1,6 @@
 import os
 
+import shortuuid
 from django.db import models
 
 from jobs.models import Job, JobMethod
@@ -8,13 +9,29 @@ from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 
-storage = snapshots_storage()
+
+def generate_snapshot_id():
+    """
+    Generate a unique snapshot id.
+
+    The is separate function to avoid new AlterField migrations
+    being created as happens when `default=shortuuid.uuid`.
+    """
+    return shortuuid.uuid()
 
 
 class Snapshot(models.Model):
     """
     A project snapshot.
     """
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=32,
+        editable=False,
+        default=generate_snapshot_id,
+        help_text="The unique id of the snapshot.",
+    )
 
     project = models.ForeignKey(
         Project,
@@ -23,6 +40,10 @@ class Snapshot(models.Model):
         null=False,
         blank=False,
         help_text="The project that the snapshot is for.",
+    )
+
+    number = models.IntegerField(
+        db_index=True, help_text="The number of the snapshot within the project.",
     )
 
     creator = models.ForeignKey(
@@ -44,6 +65,26 @@ class Snapshot(models.Model):
         blank=True,
         help_text="The job that created the snapshot",
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "number"], name="%(class)s_unique_project_number"
+            )
+        ]
+
+    STORAGE = snapshots_storage()
+
+    def save(self, *args, **kwargs):
+        """
+        Override to ensure that snapshot number is not null and monotonically increases.
+        """
+        if self.number is None:
+            result = Snapshot.objects.filter(project=self.project).aggregate(
+                models.Max("number")
+            )
+            self.number = (result["number__max"] or 0) + 1
+        return super().save(*args, **kwargs)
 
     @staticmethod
     def create(project: Project, user: User) -> Job:
@@ -84,13 +125,13 @@ class Snapshot(models.Model):
         )
 
         # Job to copy working directory to snapshot directory
-        copy_subjob = Job.objects.create(
-            method=JobMethod.copy.name,
+        archive_subjob = Job.objects.create(
+            method=JobMethod.archive.name,
             params=dict(project=project.id, snapshot=snapshot.id),
-            description="Copy project '{0}'".format(project.name),
+            description="Archive project '{0}'".format(project.name),
             project=project,
             creator=user,
-            **Job.create_callback(snapshot, "copy_callback")
+            **Job.create_callback(snapshot, "archive_callback")
         )
 
         job = Job.objects.create(
@@ -99,7 +140,7 @@ class Snapshot(models.Model):
             project=project,
             creator=user,
         )
-        job.children.set([pull_subjob, index_subjob, copy_subjob])
+        job.children.set([pull_subjob, index_subjob, archive_subjob])
         job.dispatch()
 
         snapshot.job = job
@@ -107,7 +148,7 @@ class Snapshot(models.Model):
 
         return snapshot
 
-    def copy_callback(self, job: Job):
+    def archive_callback(self, job: Job):
         """
         Update the files associated with this snapshot.
 
@@ -127,10 +168,22 @@ class Snapshot(models.Model):
         """
         return self.job and self.job.is_active
 
+    def file_location(self, file: str) -> str:
+        """
+        Get the location to the file *within* the storage.
+        """
+        return os.path.join(str(self.project.id), str(self.id), file)
+
+    def file_url(self, file: str) -> str:
+        """
+        Get the URL for a file within the snapshot.
+        """
+        return Snapshot.STORAGE.url(self.file_location(file))
+
     def archive_url(self, format: str = "zip") -> str:
         """
         Get the URL for a snapshot archive.
         """
-        return storage.url(
+        return Snapshot.STORAGE.url(
             os.path.join(str(self.project.id), str(self.id) + "." + format)
         )

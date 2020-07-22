@@ -15,13 +15,13 @@ in case the enclosing page want to use that data to trigger further events
 {% url 'ui-projects-jobs-retrieve' project.account.name project.name job.id  as job_url %}
 
 <div {% if snapshot.is_active %} hx-trigger="every 2s"
-     hx-get="{% url 'api-projects-snapshots-detail' project.id snapshot.id %}"
+     hx-get="{% url 'api-projects-snapshots-detail' project.id snapshot.number %}"
      hx-template="projects/snapshots/_retrieve.html" hx-swap="outerHTML" {% endif %}>
 
   <div class="level">
     <div class="level-left">
       <h1 class="title">
-        Snapshot {{ snapshot.id }}
+        Snapshot #{{ snapshot.number }}
         <span class="tag mr-2">
           <a href="{{ job_url }}">
             {% include "../sources/_status_type_icon.html" with status=job.status %}
@@ -35,7 +35,7 @@ in case the enclosing page want to use that data to trigger further events
     {% if job.status == "SUCCESS" %}
     <div class="level-right buttons has-flex-justify-content-end-mobile">
       <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
-         href="{% url 'api-projects-snapshots-archive' project.id snapshot.id %}">
+         href="{% url 'api-projects-snapshots-archive' project.id snapshot.number %}">
         <span class="icon">
           <i class="ri-download-line"></i>
         </span>
@@ -44,7 +44,7 @@ in case the enclosing page want to use that data to trigger further events
         </span>
       </a>
       <a class="button is-primary is-small-mobile is-expanded-mobile"
-         href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.id %}">
+         href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.number %}">
         <span class="icon">
           <i class="ri-eye-line"></i>
         </span>

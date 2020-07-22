@@ -344,7 +344,7 @@ class JobMethod(EnumChoice):
 
     pull = "pull"
     push = "push"
-    copy = "copy"
+    archive = "archive"
 
     decode = "decode"
     encode = "encode"

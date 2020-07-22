@@ -11,7 +11,7 @@ A partial for displaying a list of snapshots.
     <thead>
       <tr class="table-header has-text-left">
         <th>
-          {% trans "ID" %}
+          {% trans "Number" %}
         </th>
         <th class="is-hidden-mobile">
           {% trans "Created" %}
@@ -30,16 +30,15 @@ A partial for displaying a list of snapshots.
     <tbody id="source-list">
       {% for snapshot in snapshots %}
       {% with project=snapshot.project %}
+      {% url 'ui-projects-snapshots-retrieve' project.account.name project.name snapshot.number as retrieve_url %}
       <tr class="is-relative">
         <td class="source-table--file-type pr-0 is-vcentered">
-          <a href="{% url 'ui-projects-snapshots-retrieve' project.account.name project.name snapshot.id %}"
-             class="has-text-black has-text-link-hover">
-            {% trans "Snapshot" %} - {{ snapshot.id }}
+          <a href="{{ retrieve_url }}" class="has-text-black has-text-link-hover">
+            {{ snapshot.number }}
           </a>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered is-hidden-mobile">
-          <a href="{% url 'ui-projects-snapshots-retrieve' project.account.name project.name snapshot.id %}"
-             class="has-text-black has-text-link-hover">
+          <a href="{{ retrieve_url }}" class="has-text-black has-text-link-hover">
             {{ snapshot.created }}
           </a>
         </td>
@@ -52,14 +51,13 @@ A partial for displaying a list of snapshots.
           </span>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered">
-          <a href="{% url 'ui-projects-snapshots-retrieve' project.account.name project.name snapshot.id %}"
-             class="button is-outlined is-small is-fullwidth">
+          <a href="{{ retrieve_url }}" class="button is-outlined is-small is-fullwidth">
             {% trans "Details" %}
           </a>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered is-hidden-mobile">
           {% if snapshot.job and snapshot.job.status == 'SUCCESS' %}
-          <a href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.id %}"
+          <a href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.number %}"
              class="button is-outlined is-small is-fullwidth">
             <span class="icon">
               <i class="ri-eye-line"></i>

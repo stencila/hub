@@ -6,13 +6,13 @@
 {% block projects_content %}
 
 <h1 class="title">
-  {% blocktrans with id=snapshot.id %}
-  Snapshot {{ id }} - Preview
+  {% blocktrans with number=snapshot.number %}
+  Snapshot #{{ number }}
   {% endblocktrans %}
 </h1>
 
 <iframe id="frame" class="snapshot--preview"
-        src="{% url 'api-projects-snapshots-files' project.id snapshot.id 'index.html' %}">
+        src="{% url 'api-projects-snapshots-serve' project.id snapshot.number 'index.html' %}">
 </iframe>
 
 {% endblock %}
