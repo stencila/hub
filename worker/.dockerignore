@@ -3,6 +3,7 @@
 
 *
 
+!/entrypoint.sh
 !/requirements.txt
 !/package*.json
 

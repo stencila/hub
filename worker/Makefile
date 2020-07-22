@@ -56,7 +56,7 @@ build:
 
 # Run Docker image
 run-docker: build
-	docker run --rm --network=host \
+	docker run --rm -it --network=host \
 		--env BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 		stencila/hub-worker
 
