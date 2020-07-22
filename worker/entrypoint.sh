@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Docker ENTRYPOINT script to prepare the `worker` countainer
 
