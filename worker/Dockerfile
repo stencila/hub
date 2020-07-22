@@ -29,6 +29,15 @@ RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+# Install https://github.com/GoogleCloudPlatform/gcsfuse for mounting Google buckets for snapshots
+RUN echo "deb http://packages.cloud.google.com/apt gcsfuse-focal main" | tee /etc/apt/sources.list.d/gcsfuse.list \ 
+ && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \ 
+ && apt-get update \
+ && apt-get install -y gcsfuse \
+ && apt-get autoremove -y \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 # Create non-root `worker` user and use it's home dir
 # to copy files into
 RUN useradd -m worker
