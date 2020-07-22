@@ -125,13 +125,13 @@ class Snapshot(models.Model):
         )
 
         # Job to copy working directory to snapshot directory
-        copy_subjob = Job.objects.create(
-            method=JobMethod.copy.name,
+        archive_subjob = Job.objects.create(
+            method=JobMethod.archive.name,
             params=dict(project=project.id, snapshot=snapshot.id),
-            description="Copy project '{0}'".format(project.name),
+            description="Archive project '{0}'".format(project.name),
             project=project,
             creator=user,
-            **Job.create_callback(snapshot, "copy_callback")
+            **Job.create_callback(snapshot, "archive_callback")
         )
 
         job = Job.objects.create(
@@ -140,7 +140,7 @@ class Snapshot(models.Model):
             project=project,
             creator=user,
         )
-        job.children.set([pull_subjob, index_subjob, copy_subjob])
+        job.children.set([pull_subjob, index_subjob, archive_subjob])
         job.dispatch()
 
         snapshot.job = job
@@ -148,7 +148,7 @@ class Snapshot(models.Model):
 
         return snapshot
 
-    def copy_callback(self, job: Job):
+    def archive_callback(self, job: Job):
         """
         Update the files associated with this snapshot.
 

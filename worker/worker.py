@@ -8,8 +8,8 @@ import os
 
 from celery import Celery
 
+from jobs.archive import Archive
 from jobs.convert import Convert
-from jobs.copy import Copy
 from jobs.decode import Decode
 from jobs.encode import Encode
 from jobs.pull import Pull
@@ -32,8 +32,8 @@ app.conf.update(
 )
 
 # Register the jobs
+app.register_task(Archive())
 app.register_task(Convert())
-app.register_task(Copy())
 app.register_task(Decode())
 app.register_task(Encode())
 app.register_task(Pull())

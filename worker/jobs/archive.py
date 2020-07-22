@@ -6,12 +6,12 @@ from jobs.base.job import Job
 from util.files import Files, list_files
 
 
-class Copy(Job):
+class Archive(Job):
     """
-    A job that copies files from a project's working directory to a snapshots directory.
+    A job that archive files from a project's working directory to a snapshots directory.
     """
 
-    name = "copy"
+    name = "archive"
 
     def do(  # type: ignore
         self, project: int, snapshot: str, **kwargs
