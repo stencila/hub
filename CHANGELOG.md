@@ -1,3 +1,11 @@
+## [3.8.1](https://github.com/stencila/hub/compare/v3.8.0...v3.8.1) (2020-07-22)
+
+
+### Bug Fixes
+
+* **Worker:** Make entrypoint executable in container too ([3529488](https://github.com/stencila/hub/commit/3529488b49ca1b8ddd7c88e2d4b67002366a58c8))
+* **Worker:** Specify bash shebang ([b57afbc](https://github.com/stencila/hub/commit/b57afbc40e1273ce81f1375e10b1229c461d4b52))
+
 # [3.8.0](https://github.com/stencila/hub/compare/v3.7.1...v3.8.0) (2020-07-22)
 
 
