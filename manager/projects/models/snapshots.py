@@ -178,7 +178,7 @@ class Snapshot(models.Model):
         """
         Get the URL for a file within the snapshot.
         """
-        return Snapshot.STORAGE.url(self.file_path(file))
+        return Snapshot.STORAGE.url(self.file_location(file))
 
     def archive_url(self, format: str = "zip") -> str:
         """

@@ -1,7 +1,8 @@
 from typing import Optional
 
+import httpx
 from django.core.files.storage import FileSystemStorage
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
@@ -19,6 +20,8 @@ from projects.api.views.projects import get_project
 from projects.models.files import File
 from projects.models.projects import Project, ProjectRole
 from projects.models.snapshots import Snapshot
+
+storage_client = httpx.Client()
 
 
 class ProjectsSnapshotsViewSet(
@@ -155,7 +158,12 @@ class ProjectsSnapshotsViewSet(
         else:
             # Fetch the file from storage and send it on to the client
             url = snapshot.file_url(path)
-            raise NotImplementedError("Reverse proxy the response")
+            proxy_response = storage_client.get(url)
+            response = HttpResponse(
+                proxy_response.content or b"",
+                status=proxy_response.status_code,
+                content_type=proxy_response.headers.get("Content-Type"),
+            )
 
         # Add headers if the account has `hosts` set
         hosts = snapshot.project.account.hosts
