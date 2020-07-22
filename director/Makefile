@@ -28,10 +28,10 @@ npm-build:
 	(cd $$(pwd)/../ && npm i && npm run build)
 
 # Setup virtual environment
-venv: requirements.txt  requirements-dev.txt package.json
+venv: requirements.ignore.txt  requirements-dev.ignore.txt package.json
 	$(PYTHON) -m venv venv
-	$(VE)/pip3 install -r requirements.txt
-	$(VE)/pip3 install -r requirements-dev.txt
+	$(VE)/pip3 install -r requirements.ignore.txt
+	$(VE)/pip3 install -r requirements-dev.ignore.txt
 	touch venv
 	npm install
 
@@ -139,6 +139,19 @@ run-docker: build
 		--env BROKER_URL \
 		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
 		-p 8000:8000 -it --rm stencila/hub-director
+
+# Run's the Docker image at v2.32.1, the last version in production 
+run-docker-v2: create-devdb-sqlite
+	mkdir -p storage
+	docker run \
+		--env DJANGO_JWT_SECRET=none \
+		--env DJANGO_SECRET_KEY=none \
+		--env DJANGO_SECURE_SSL_REDIRECT=false \
+		--env DJANGO_SENDGRID_API_KEY=none \
+		--env BROKER_URL=none \
+		-v $$PWD/dev.sqlite3:/home/director/dev.sqlite3:rw \
+		-v $$PWD/storage:/home/storage:rw \
+		-p 8000:8000 -it --rm stencila/hub-director:v2.32.1
 
 clean:
 	rm -rf venv coverage static
