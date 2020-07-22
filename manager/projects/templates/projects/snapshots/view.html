@@ -12,7 +12,7 @@
 </h1>
 
 <iframe id="frame" class="snapshot--preview"
-        src="{% url 'api-projects-snapshots-files' project.id snapshot.id 'index.html' %}">
+        src="{% url 'api-projects-snapshots-serve' project.id snapshot.id 'index.html' %}">
 </iframe>
 
 {% endblock %}

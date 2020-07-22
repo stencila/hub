@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
 from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, permissions, viewsets
@@ -41,7 +42,7 @@ class ProjectsSnapshotsViewSet(
         authentication (although they may raise permission denied
         if not a public project).
         """
-        if self.action in ["list", "retrieve", "files"]:
+        if self.action in ["list", "retrieve", "files", "serve"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
@@ -80,11 +81,11 @@ class ProjectsSnapshotsViewSet(
         )
         return queryset
 
-    def get_object(self, project: Optional[Project] = None):
+    def get_object(self, project: Optional[Project] = None) -> Snapshot:
         """Get a project snapshot."""
         try:
-            return self.get_queryset(project).filter(id=self.kwargs["snapshot"])[0]
-        except IndexError:
+            return self.get_queryset(project).get(id=self.kwargs["snapshot"])
+        except Snapshot.DoesNotExist:
             raise exceptions.NotFound
 
     def get_serializer_class(self):
@@ -106,35 +107,55 @@ class ProjectsSnapshotsViewSet(
                 args=[account.name, project.name, snapshot.id],
             )
 
-    @action(detail=True, methods=["get"], url_path="(?P<path>.+)")
+    @action(detail=True, methods=["GET"], url_path="files/(?P<path>.+)")
     def files(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve a file within a snapshot of the project.
 
-        Returns the content of the file, as is. Use the `download` parameter to
-        force `Content-Disposition: attachment`.
+        Redirects to the URL for the file (which may be in a
+        remote storage bucket for example).
         """
         snapshot = self.get_object()
         path = self.kwargs.get("path")
 
-        # Get the files from the snapshot or 404
+        try:
+            File.objects.get(snapshot=snapshot, path=path)
+        except File.DoesNotExist:
+            raise exceptions.NotFound
+
+        url = snapshot.file_url(path)
+        return redirect(url, permanent=True)
+
+    @action(detail=True, methods=["GET"], url_path="browse/(?P<path>.*)")
+    def serve(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Serve a file from within a snapshot.
+
+        This differs from the `files` action in that it:
+          * is optimized for access via a browser (e.g. cache headers, compression etc)
+          * returns a response with the content of the file (by reverse proxing, not a redirect)
+          * sets CSP headers as specified by the account
+        """
+
+        snapshot = self.get_object()
+        path = self.kwargs.get("path") or "index.html"
+
         try:
             file = File.objects.get(snapshot=snapshot, path=path)
         except File.DoesNotExist:
             raise exceptions.NotFound
 
-        # Get the absolute path to the file.
-        absolute_path = snapshot.get_file_path(path)
-
-        # Return "binary" files as attachments with mimetype is determined automatically from
-        # the files extension.
-        as_attachment = "download" in request.query_params
-
-        response = FileResponse(
-            open(absolute_path, "rb"),
-            content_type=file.mimetype,
-            as_attachment=as_attachment,
-        )
+        if isinstance(snapshot.STORAGE, FileSystemStorage):
+            # Serve the file from the filesystem.
+            # Normally this will only be used during development!
+            location = snapshot.file_location(path)
+            response = FileResponse(
+                snapshot.STORAGE.open(location), content_type=file.mimetype
+            )
+        else:
+            # Fetch the file from storage and send it on to the client
+            url = snapshot.file_url(path)
+            raise NotImplementedError("Reverse proxy the response")
 
         # Add headers if the account has `hosts` set
         hosts = snapshot.project.account.hosts

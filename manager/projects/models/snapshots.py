@@ -8,8 +8,6 @@ from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
 
-storage = snapshots_storage()
-
 
 class Snapshot(models.Model):
     """
@@ -44,6 +42,8 @@ class Snapshot(models.Model):
         blank=True,
         help_text="The job that created the snapshot",
     )
+
+    STORAGE = snapshots_storage()
 
     @staticmethod
     def create(project: Project, user: User) -> Job:
@@ -127,10 +127,22 @@ class Snapshot(models.Model):
         """
         return self.job and self.job.is_active
 
+    def file_location(self, file: str) -> str:
+        """
+        Get the location to the file *within* the storage.
+        """
+        return os.path.join(str(self.project.id), str(self.id), file)
+
+    def file_url(self, file: str) -> str:
+        """
+        Get the URL for a file within the snapshot.
+        """
+        return Snapshot.STORAGE.url(self.file_path(file))
+
     def archive_url(self, format: str = "zip") -> str:
         """
         Get the URL for a snapshot archive.
         """
-        return storage.url(
+        return Snapshot.STORAGE.url(
             os.path.join(str(self.project.id), str(self.id) + "." + format)
         )
