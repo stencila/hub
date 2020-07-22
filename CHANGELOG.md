@@ -1,3 +1,20 @@
+# [3.8.0](https://github.com/stencila/hub/compare/v3.7.1...v3.8.0) (2020-07-22)
+
+
+### Bug Fixes
+
+* **Files:** Cache the project attribute and pass to the template context. ([c19e1f8](https://github.com/stencila/hub/commit/c19e1f8a7be53ca05515b23207737c385f16133a))
+* **FIles:** Make modified time timezone aware ([b5d662b](https://github.com/stencila/hub/commit/b5d662b2f954f6e1c3b71e8b975ded680fed75ae))
+* **Worker:** Add entrypoint script to mount bucket ([5adb355](https://github.com/stencila/hub/commit/5adb3554466a5c827dcfa6f15de3b15e8acf5582))
+
+
+### Features
+
+* **Snapshots:** Add a separate snapshot serve API endpoint ([4818ade](https://github.com/stencila/hub/commit/4818adebc2d9ff98c5c678064b3e4be356682a0f))
+* **Snapshots:** Make snapshot id a UUID and add number within project ([ef5e76e](https://github.com/stencila/hub/commit/ef5e76ed9f4cbd416bd16a3615135dce3253fa74))
+* **Snapshots:** Reverse proxy content from buckets ([5e27742](https://github.com/stencila/hub/commit/5e277425a141287107fd273dc8e6b0b7dc3953db))
+* **Worker:** Add gcsfuse to allow mounting of buckets for storage ([e31636c](https://github.com/stencila/hub/commit/e31636ccb9e87942e47b5a6a236dba68800ce39a))
+
 ## [3.7.1](https://github.com/stencila/hub/compare/v3.7.0...v3.7.1) (2020-07-21)
 
 
