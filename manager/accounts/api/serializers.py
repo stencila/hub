@@ -321,14 +321,56 @@ class AccountRetrieveSerializer(AccountListSerializer):
         fields = AccountListSerializer.Meta.fields + ["users", "teams"]
 
 
+def get_user_field(field_name: str):
+    """Get a field from the user (if any) of the account."""
+
+    def getter(context):
+        account = context["view"].get_object()
+        if account and account.user:
+            return getattr(account.user, field_name) or ""
+        return ""
+
+    return getter
+
+
 class AccountUpdateSerializer(AccountSerializer):
     """
     A serializer for updating accounts.
 
-    Makes some fields read only.
+    Makes some fields read only. For personal accounts, allows the user's
+    first and last names (which are stored on the `User` model) to be
+    updated via this serializer.
     """
+
+    first_name = serializers.CharField(
+        default=FromContextDefault(get_user_field("first_name")),
+        help_text="Your first names (given names).",
+    )
+
+    last_name = serializers.CharField(
+        default=FromContextDefault(get_user_field("last_name")),
+        help_text="Your last names (family names, surnames).",
+    )
 
     class Meta:
         model = Account
-        fields = AccountSerializer.Meta.fields
+        fields = AccountSerializer.Meta.fields + ["first_name", "last_name"]
         read_only_fields = ["creator", "created"]
+
+    def save(self):
+        """
+        If this is a personal account, then set user first and last names.
+
+        Update the account's display name to be a concatenation of the first and last names.
+        """
+        user = self.instance.user
+        if user:
+            if "first_name" in self.validated_data:
+                user.first_name = self.validated_data["first_name"]
+            if "last_name" in self.validated_data:
+                user.last_name = self.validated_data["last_name"]
+            user.save()
+            self.validated_data["display_name"] = (
+                (user.first_name or "") + " " + (user.last_name or "")
+            ).strip()
+        return super().save()
