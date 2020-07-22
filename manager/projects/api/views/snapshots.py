@@ -84,7 +84,7 @@ class ProjectsSnapshotsViewSet(
     def get_object(self, project: Optional[Project] = None) -> Snapshot:
         """Get a project snapshot."""
         try:
-            return self.get_queryset(project).get(id=self.kwargs["snapshot"])
+            return self.get_queryset(project).get(number=self.kwargs["snapshot"])
         except Snapshot.DoesNotExist:
             raise exceptions.NotFound
 
@@ -104,7 +104,7 @@ class ProjectsSnapshotsViewSet(
             account = project.account
             return reverse(
                 "ui-projects-snapshots-retrieve",
-                args=[account.name, project.name, snapshot.id],
+                args=[account.name, project.name, snapshot.number],
             )
 
     @action(detail=True, methods=["GET"], url_path="files/(?P<path>.+)")

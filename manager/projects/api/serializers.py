@@ -498,7 +498,7 @@ class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snapshot
         fields = "__all__"
-        read_only_fields = ["id", "project", "creator", "created", "job"]
+        read_only_fields = ["id", "project", "number", "creator", "created", "job"]
 
     def create(self, validated_data):
         """

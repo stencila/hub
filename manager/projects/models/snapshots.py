@@ -1,5 +1,6 @@
 import os
 
+import shortuuid
 from django.db import models
 
 from jobs.models import Job, JobMethod
@@ -9,10 +10,28 @@ from projects.models.projects import Project
 from users.models import User
 
 
+def generate_snapshot_id():
+    """
+    Generate a unique snapshot id.
+
+    The is separate function to avoid new AlterField migrations
+    being created as happens when `default=shortuuid.uuid`.
+    """
+    return shortuuid.uuid()
+
+
 class Snapshot(models.Model):
     """
     A project snapshot.
     """
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=32,
+        editable=False,
+        default=generate_snapshot_id,
+        help_text="The unique id of the snapshot.",
+    )
 
     project = models.ForeignKey(
         Project,
@@ -21,6 +40,10 @@ class Snapshot(models.Model):
         null=False,
         blank=False,
         help_text="The project that the snapshot is for.",
+    )
+
+    number = models.IntegerField(
+        db_index=True, help_text="The number of the snapshot within the project.",
     )
 
     creator = models.ForeignKey(
@@ -43,7 +66,25 @@ class Snapshot(models.Model):
         help_text="The job that created the snapshot",
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "number"], name="%(class)s_unique_project_number"
+            )
+        ]
+
     STORAGE = snapshots_storage()
+
+    def save(self, *args, **kwargs):
+        """
+        Override to ensure that snapshot number is not null and monotonically increases.
+        """
+        if self.number is None:
+            result = Snapshot.objects.filter(project=self.project).aggregate(
+                models.Max("number")
+            )
+            self.number = (result["number__max"] or 0) + 1
+        return super().save(*args, **kwargs)
 
     @staticmethod
     def create(project: Project, user: User) -> Job:
