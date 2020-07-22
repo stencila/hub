@@ -139,7 +139,6 @@ class ProjectsSnapshotsViewSet(
           * returns a response with the content of the file (by reverse proxing, not a redirect)
           * sets CSP headers as specified by the account
         """
-
         snapshot = self.get_object()
         path = self.kwargs.get("path") or "index.html"
 
