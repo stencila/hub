@@ -45,7 +45,7 @@ class ProjectsSnapshotsViewSet(
         authentication (although they may raise permission denied
         if not a public project).
         """
-        if self.action in ["list", "retrieve", "files", "serve"]:
+        if self.action in ["list", "retrieve", "files", "archive"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
