@@ -134,6 +134,9 @@ class AccountsViewSet(
         For `partial_update` checks that the useris an account MANAGER or OWNER.
         Only OWNER is permitted to `update_plan` or `destroy`.
         """
+        if hasattr(self, "account"):
+            return self.account
+
         ident = self.kwargs["account"]
         queryset = self.get_queryset().filter(**filter_from_ident(ident))
 
@@ -160,20 +163,20 @@ class AccountsViewSet(
 
         try:
             # Using [0] adds LIMIT 1 to query so is more efficient than `.get(**filter)`
-            instance = queryset[0]
+            self.account = account = queryset[0]
         except IndexError:
             raise exceptions.NotFound
 
         if (
             self.action == "partial_update"
-            and instance.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
+            and account.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
         ) or (
             self.action in ("update_plan", "destroy")
-            and instance.role != AccountRole.OWNER.name
+            and account.role != AccountRole.OWNER.name
         ):
             raise exceptions.PermissionDenied
 
-        return instance
+        return account
 
     def get_serializer_class(self):
         """

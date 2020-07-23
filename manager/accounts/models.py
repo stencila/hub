@@ -213,7 +213,14 @@ def create_personal_account_for_user(
     Makes sure each user has a personal `Account`.
     """
     if sender is User and created:
-        Account.objects.create(name=instance.username, creator=instance, user=instance)
+        Account.objects.create(
+            name=instance.username,
+            display_name=(
+                (instance.first_name or "") + " " + (instance.last_name or "")
+            ).strip(),
+            creator=instance,
+            user=instance,
+        )
 
 
 post_save.connect(create_personal_account_for_user, sender=User)
