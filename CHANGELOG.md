@@ -1,3 +1,10 @@
+## [3.9.2](https://github.com/stencila/hub/compare/v3.9.1...v3.9.2) (2020-07-23)
+
+
+### Bug Fixes
+
+* **Snapshots:** Allow anon access to snapshot archives ([2216001](https://github.com/stencila/hub/commit/22160014b4b36b568055590cda8a7b48549e0a3c))
+
 ## [3.9.1](https://github.com/stencila/hub/compare/v3.9.0...v3.9.1) (2020-07-23)
 
 
