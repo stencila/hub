@@ -159,9 +159,8 @@ class Invite(models.Model):
             invite_url=request.build_absolute_uri(
                 reverse("ui-users-invites-accept", args=[self.key])
             ),
-            reson_for_seding="""This email was sent by user "{0}" to invite you to collaborate with them on Stencila Hub""".format(
-                self.inviter.username
-            ),
+            reason_for_sending="This email was sent by user '{0}' to invite you to "
+            "collaborate with them on Stencila Hub.".format(self.inviter.username),
         )
         get_invitations_adapter().send_mail(
             "invitations/email/email_invite", self.email, context
