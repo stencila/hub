@@ -122,6 +122,22 @@ class Project(models.Model):
         """Get the theme for the project."""
         return self.theme or self.account.theme
 
+    def clean(self, user: User) -> Job:
+        """
+        Clean the project's working directory.
+
+        Removes all files from the working directory.
+        In the future, this may be smarter and only remove
+        those files that are orphaned (i.e. not registered as part of the pipeline)
+        """
+        return Job.objects.create(
+            description="Clean project '{0}'".format(self.name),
+            project=self,
+            creator=user,
+            method=JobMethod.clean.name,
+            params=dict(project=self.id),
+        )
+
     def pull(self, user: User) -> Job:
         """
         Pull all sources in the project.

@@ -130,6 +130,9 @@ class Snapshot(models.Model):
 
         subjobs = []
 
+        # Job to clean the project working directory
+        subjobs.append(project.clean(user))
+
         # Job to pull the project
         subjobs.append(project.pull(user))
 

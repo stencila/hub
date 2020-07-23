@@ -54,15 +54,16 @@ def dispatch_job(job: Job) -> Job:
         raise ValueError("Unknown job method '{}'".format(job.method))
 
     if JobMethod.is_compound(job.method):
+        children = job.children.all().order_by("id")
         if job.method == JobMethod.parallel.value:
             # Dispatch all child jobs simultaneously
-            for child in job.children.all():
+            for child in children:
                 dispatch_job(child)
         else:
             # Dispatch the first child; subsequent children
             # will be status WAITING and will get dispatched later
             # on update of the parent.
-            for index, child in enumerate(job.children.all()):
+            for index, child in enumerate(children):
                 if index == 0:
                     dispatch_job(child)
                 else:
@@ -138,7 +139,8 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
         is_active = False
         all_previous_succeeded = True
         any_previous_failed = False
-        for child in job.children.all():
+        children = job.children.all().order_by("id")
+        for child in children:
             update_job(child, update_parent=False)
 
             # If the child is active then the compound job is active

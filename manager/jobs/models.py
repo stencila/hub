@@ -342,9 +342,11 @@ class JobMethod(EnumChoice):
     series = "series"
     chain = "chain"
 
+    clean = "clean"
+    archive = "archive"
+
     pull = "pull"
     push = "push"
-    archive = "archive"
 
     decode = "decode"
     encode = "encode"
@@ -503,6 +505,9 @@ def generate_job_id():
 
     The is separate function to avoid new AlterField migrations
     being created as happens when `default=shortuuid.uuid`.
+
+    Not currently used, but retained so that migrations continue
+    to work.
     """
     return shortuuid.uuid()
 
@@ -530,12 +535,9 @@ class Job(models.Model):
     information on where and how the job was executed.
     """
 
-    id = models.CharField(
+    id = models.BigAutoField(
         primary_key=True,
-        max_length=32,
-        editable=False,
-        default=generate_job_id,
-        help_text="The unique id of the job.",
+        help_text="An autoincrementing integer to allow selecting jobs in the order they were created.",
     )
 
     description = models.TextField(
