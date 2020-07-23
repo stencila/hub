@@ -154,9 +154,13 @@ class Invite(models.Model):
         """Extend method to add the invite object to the template context."""
         context = dict(
             inviter=self.inviter,
+            inviter_name=self.inviter.get_full_name() or self.inviter.username,
             invite_message=self.message,
             invite_url=request.build_absolute_uri(
                 reverse("ui-users-invites-accept", args=[self.key])
+            ),
+            reson_for_seding="""This email was sent by user "{0}" to invite you to collaborate with them on Stencila Hub""".format(
+                self.inviter.username
             ),
         )
         get_invitations_adapter().send_mail(

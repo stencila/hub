@@ -9,12 +9,15 @@ const fs = require("fs");
 const path = require("path");
 
 thema();
+emailTemplates();
 
 /**
  * Generate `manager/themes.py` with the version of
  * Thema to use and the names of themes available.
  */
 function thema() {
+  console.log("Generating manager/themes.py");
+
   const json = fs.readFileSync(
     path.join(
       require.resolve("@stencila/thema"),
@@ -24,10 +27,10 @@ function thema() {
       "package.json"
     ),
     "utf8"
-  )
-  const version = JSON.parse(json).version
+  );
+  const version = JSON.parse(json).version;
 
-  const themes = require("@stencila/thema").themes
+  const themes = require("@stencila/thema").themes;
 
   fs.writeFileSync(
     path.join(__dirname, "manager", "themes.py"),
@@ -44,7 +47,62 @@ version = "${version}"
 class Themes(EnumChoice):
     """The list of Thema themes."""
 
-${Object.keys(themes).map(theme => `    ${theme} = "${theme}"`).join('\n')}
+${Object.keys(themes)
+  .map(theme => `    ${theme} = "${theme}"`)
+  .join("\n")}
 `
-  )
+  );
+}
+
+/**
+ * Copy email templates from `@stencila/email-templates` to
+ * the Django template directory.
+ */
+function emailTemplates() {
+  console.log("Copying templates to users/templates/account/email");
+
+  const src = path.join(
+    "node_modules",
+    "@stencila",
+    "email-templates",
+    "dist",
+    "transactional"
+  );
+
+  // Email verification on signup (requires some context variable renaming)
+  const emailVerificationOnSignup = fs
+    .readFileSync(path.join(src, "account-confirmation.html"), "utf8")
+    .replace("{{ recipient_username }}", "{{ user.username }}")
+    .replace("{{ confirmation_url }}", "{{ activate_url }}")
+    .replace(
+      "{{ reason_for_sending }}",
+      `This email was sent because someone, most likely you, used this address to signup to Stencila Hub.
+       If it was not you, please ignore this email.`
+    );
+  fs.writeFileSync(
+    "users/templates/account/email/email_confirmation_message.html",
+    emailVerificationOnSignup
+  );
+
+  // Email verification at some other time `me/email/` settings page
+  // Currently, just using the same one sent on signup, need another one
+
+  // Password reset email
+  const passwordReset = fs
+    .readFileSync(path.join(src, "password-reset.html"), "utf8")
+    .replace(
+      "{{ reason_for_sending }}",
+      `This email was sent because you used this address to reset their password on Stencila Hub.
+       If it was not you, please ignore this email.`
+    );
+  fs.writeFileSync(
+    "users/templates/account/email/password_reset_key_message.html",
+    passwordReset
+  );
+
+  // Invitation email
+  fs.copyFileSync(
+    path.join(src, "user-invitation.html"),
+    "users/templates/account/email/email_invite_message.html"
+  );
 }
