@@ -96,9 +96,9 @@ class Snapshot(models.Model):
     def save(self, *args, **kwargs):
         """
         Override to ensure certain fields are populated.
-        
+
         Ensures that:
-        
+
         - `number` is not null and monotonically increases
         - `path` and `zip_name` are set
         """
@@ -128,46 +128,52 @@ class Snapshot(models.Model):
         """
         snapshot = Snapshot.objects.create(project=project, creator=user)
 
+        subjobs = []
+
         # Job to pull the project
-        pull_subjob = project.pull(user)
+        subjobs.append(project.pull(user))
 
-        # Job to create an index.html
-        options = {}
-
+        # Job to create an index.html if a "main" file is defined
         main = project.get_main()
-        if main.mimetype:
-            options["from"] = main.mimetype
+        if main:
+            options = {}
 
-        theme = project.get_theme()
-        if theme:
-            options["theme"] = theme
+            if main.mimetype:
+                options["from"] = main.mimetype
 
-        # TODO: If no main file then generate a file listing index.
-        index_subjob = Job.objects.create(
-            method=JobMethod.convert.name,
-            params=dict(
-                project=project.id,
-                input=main.path,
-                output="index.html",
-                options=options,
-            ),
-            description="Create index.html",
-            project=project,
-            creator=user,
-        )
+            theme = project.get_theme()
+            if theme:
+                options["theme"] = theme
 
-        # Job to copy working directory to snapshot directory
-        archive_subjob = Job.objects.create(
-            method=JobMethod.archive.name,
-            params=dict(
-                project=project.id,
-                snapshot_path=snapshot.path,
-                zip_name=snapshot.zip_name,
-            ),
-            description="Archive project '{0}'".format(project.name),
-            project=project,
-            creator=user,
-            **Job.create_callback(snapshot, "archive_callback")
+            subjobs.append(
+                Job.objects.create(
+                    method=JobMethod.convert.name,
+                    params=dict(
+                        project=project.id,
+                        input=main.path,
+                        output="index.html",
+                        options=options,
+                    ),
+                    description="Create index.html",
+                    project=project,
+                    creator=user,
+                )
+            )
+
+        # Job to archive the working directory to the snapshot directory
+        subjobs.append(
+            Job.objects.create(
+                method=JobMethod.archive.name,
+                params=dict(
+                    project=project.id,
+                    snapshot_path=snapshot.path,
+                    zip_name=snapshot.zip_name,
+                ),
+                description="Archive project '{0}'".format(project.name),
+                project=project,
+                creator=user,
+                **Job.create_callback(snapshot, "archive_callback")
+            )
         )
 
         job = Job.objects.create(
@@ -176,7 +182,7 @@ class Snapshot(models.Model):
             project=project,
             creator=user,
         )
-        job.children.set([pull_subjob, index_subjob, archive_subjob])
+        job.children.set(subjobs)
         job.dispatch()
 
         snapshot.job = job
@@ -220,7 +226,7 @@ class Snapshot(models.Model):
         """
         Get the URL for a snapshot archive.
 
-        In the future, more archive formats may be supported. 
+        In the future, more archive formats may be supported.
         """
         if format == "zip":
             file = self.zip_name
