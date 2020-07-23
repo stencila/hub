@@ -381,6 +381,10 @@ class Prod(Configuration):
     # https://developers.intercom.com/building-apps/docs/authentication-types#section-access-tokens
     INTERCOM_ACCESS_TOKEN = values.Value()
 
+    # UserFlow settings
+
+    USERFLOW_KEY = values.Value()
+
     # PostHog settings
 
     POSTHOG_KEY = values.Value()
