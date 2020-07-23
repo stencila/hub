@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/stencila/hub/compare/v3.9.2...v3.10.0) (2020-07-23)
+
+
+### Features
+
+* **Manager:** Use email templates ([db75622](https://github.com/stencila/hub/commit/db75622f80fc01910aac81ed9ee587d5d289cd29))
+
 ## [3.9.2](https://github.com/stencila/hub/compare/v3.9.1...v3.9.2) (2020-07-23)
 
 
