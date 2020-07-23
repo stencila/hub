@@ -3,6 +3,7 @@
   "repository": "https://github.com/stencila/hub",
   "license": "Apache-2.0",
   "scripts": {
+    "prepare": "node generate.js",
     "build:css": "NODE_ENV=production postcss manager/static/sass/styles.scss -o manager/static/css/styles.css -m",
     "watch:css": "postcss manager/static/sass/styles.scss -o manager/static/css/styles.css -m --watch",
     "build:js": "NODE_ENV=production rollup --config",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "2.4.4",
+    "@stencila/email-templates": "^0.1.0",
     "@stencila/thema": "2.13.0",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.9.0",
