@@ -1,3 +1,18 @@
+# [3.9.0](https://github.com/stencila/hub/compare/v3.8.1...v3.9.0) (2020-07-23)
+
+
+### Bug Fixes
+
+* **Snapshots:** Add clean job; use BigAuto for job id ([7ebb1d1](https://github.com/stencila/hub/commit/7ebb1d1c18eaf131b0b675f05a93f056bac86737))
+* **Snapshots:** Add path and zip_name fields ([8f2f8aa](https://github.com/stencila/hub/commit/8f2f8aa10c725b0d1d9f71ab89edf0d4672b4f68))
+* **Snapshots:** Do not create an index.html if there is not main file ([7b4b50a](https://github.com/stencila/hub/commit/7b4b50ab3550823e94ea52b603d776d5e59564be))
+* **User profiles:** Allow setting of first and last names; sync to display name. ([cbba699](https://github.com/stencila/hub/commit/cbba6991295331f3a04f2606e2c941d8e8f30381))
+
+
+### Features
+
+* **JS:** Add User Flow js for creating product tours ([501e62f](https://github.com/stencila/hub/commit/501e62f189fa052495b03c0c9a46092e6479e948))
+
 ## [3.8.1](https://github.com/stencila/hub/compare/v3.8.0...v3.8.1) (2020-07-22)
 
 
