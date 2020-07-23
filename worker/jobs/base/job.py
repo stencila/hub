@@ -9,7 +9,7 @@ from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
 import sentry_sdk
 
-import config
+from config import get_working_dir
 
 # Log levels
 # These are the same as used in https://github.com/stencila/logga
@@ -135,7 +135,7 @@ class Job(celery.Task):
 
         project = kwargs.get("project")
         if project:
-            working_dir = config.get_project_working_dir(project)
+            working_dir = get_working_dir(project)
             Path(working_dir).mkdir(parents=True, exist_ok=True)
         else:
             working_dir = current_dir

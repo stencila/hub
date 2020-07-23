@@ -1,7 +1,8 @@
-from typing import List, Union, Dict
+from typing import Optional, List, Union, Dict
+import os
 import shutil
 
-import config
+from config import get_snapshot_dir
 from jobs.base.job import Job
 from util.files import Files, list_files
 
@@ -14,9 +15,13 @@ class Archive(Job):
     name = "archive"
 
     def do(  # type: ignore
-        self, project: int, snapshot: str, **kwargs
+        self, project: int, snapshot_path: str, zip_name: Optional[str], **kwargs
     ) -> Files:
-        dest = config.get_project_snapshot_dir(project, snapshot)
+        files = list_files(".")
+        dest = get_snapshot_dir(snapshot_path)
         shutil.copytree(".", dest)
-        shutil.make_archive(dest, "zip", ".")
-        return list_files(dest)
+        if zip_name:
+            shutil.make_archive(
+                os.path.join(dest, os.path.splitext(zip_name)[0]), "zip", "."
+            )
+        return files

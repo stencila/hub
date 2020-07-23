@@ -23,6 +23,12 @@ def generate_snapshot_id():
 class Snapshot(models.Model):
     """
     A project snapshot.
+
+    The `path` field is stored on the model to improve durability (if
+    the convention for creating paths changes, the existing paths will not change).
+
+    The `zip_name` field provides a way of providing a more useful filename
+    when downloading the archive (it is populated with the project name and snapshot number).
     """
 
     id = models.CharField(
@@ -58,6 +64,18 @@ class Snapshot(models.Model):
         auto_now_add=True, help_text="The time the snapshot was created."
     )
 
+    path = models.CharField(
+        max_length=1024,
+        null=True,
+        help_text="The path of the snapshot's directory within the snapshot storage volume.",
+    )
+
+    zip_name = models.CharField(
+        max_length=1024,
+        null=True,
+        help_text="The name of snapshot's Zip file (within the snapshot directory).",
+    )
+
     job = models.ForeignKey(
         Job,
         on_delete=models.SET_NULL,
@@ -77,13 +95,27 @@ class Snapshot(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Override to ensure that snapshot number is not null and monotonically increases.
+        Override to ensure certain fields are populated.
+        
+        Ensures that:
+        
+        - `number` is not null and monotonically increases
+        - `path` and `zip_name` are set
         """
         if self.number is None:
             result = Snapshot.objects.filter(project=self.project).aggregate(
                 models.Max("number")
             )
             self.number = (result["number__max"] or 0) + 1
+
+        if not self.path:
+            self.path = os.path.join(str(self.project.id), str(self.id))
+
+        if not self.zip_name:
+            self.zip_name = "{project}-snapshot-{number}.zip".format(
+                project=self.project.name, number=self.number
+            )
+
         return super().save(*args, **kwargs)
 
     @staticmethod
@@ -127,7 +159,11 @@ class Snapshot(models.Model):
         # Job to copy working directory to snapshot directory
         archive_subjob = Job.objects.create(
             method=JobMethod.archive.name,
-            params=dict(project=project.id, snapshot=snapshot.id),
+            params=dict(
+                project=project.id,
+                snapshot_path=snapshot.path,
+                zip_name=snapshot.zip_name,
+            ),
             description="Archive project '{0}'".format(project.name),
             project=project,
             creator=user,
@@ -152,7 +188,7 @@ class Snapshot(models.Model):
         """
         Update the files associated with this snapshot.
 
-        Called when the snapshot's job final `copy` sub-job is complete.
+        Called when the snapshot's job final `archive` sub-job is complete.
         """
         result = job.result
         if not result:
@@ -170,20 +206,24 @@ class Snapshot(models.Model):
 
     def file_location(self, file: str) -> str:
         """
-        Get the location to the file *within* the storage.
+        Get the location of a file in the snapshot relative to the root of the storage volume.
         """
-        return os.path.join(str(self.project.id), str(self.id), file)
+        return os.path.join(self.path, file)
 
     def file_url(self, file: str) -> str:
         """
-        Get the URL for a file within the snapshot.
+        Get the URL for a file within the snapshot directory.
         """
         return Snapshot.STORAGE.url(self.file_location(file))
 
     def archive_url(self, format: str = "zip") -> str:
         """
         Get the URL for a snapshot archive.
+
+        In the future, more archive formats may be supported. 
         """
-        return Snapshot.STORAGE.url(
-            os.path.join(str(self.project.id), str(self.id) + "." + format)
-        )
+        if format == "zip":
+            file = self.zip_name
+        else:
+            raise ValueError("Unsupported archive format {0}".format(format))
+        return self.file_url(file)

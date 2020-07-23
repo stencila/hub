@@ -31,8 +31,5 @@ class ProjectAgentAdmin(admin.ModelAdmin):
 class SnapshotAdmin(admin.ModelAdmin):
     """Admin interface for project snapshots."""
 
-    list_display = [
-        "creator",
-        "created",
-    ]
-    list_select_related = ["creator"]
+    list_display = ["id", "project", "number", "creator", "created"]
+    list_select_related = ["project", "creator", "job"]

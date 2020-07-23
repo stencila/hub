@@ -7,7 +7,7 @@ STORAGE_ROOT = os.environ.get(
 )
 
 
-def get_project_working_dir(project_id: int):
+def get_working_dir(project_id: int):
     """
     Get the path to a project's working directory.
 
@@ -22,17 +22,14 @@ def get_project_working_dir(project_id: int):
     )
 
 
-def get_project_snapshot_dir(project_id: int, snapshot_id: str) -> str:
+def get_snapshot_dir(snapshot_path: str) -> str:
     """
     Get the path to a project snapshot directory.
 
     Snapshots may be on a different filesystem from the project
-    working directories. Currently, we use the project id in the
-    directory path so as to be able to more easily correlate snapshots
-    with projects.
+    working directories.
     """
     return os.path.join(
         os.environ.get("SNAPSHOT_DIR", os.path.join(STORAGE_ROOT, "snapshots")),
-        str(project_id),
-        str(snapshot_id),
+        snapshot_path,
     )
