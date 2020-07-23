@@ -317,6 +317,16 @@
 
   {% intercom_tag %}
 
+  {% if USERFLOW_KEY %}
+  <script>
+    managerLibs.userflow.init('{{ USERFLOW_KEY }}')
+    managerLibs.userflow.identify('{{ user.id }}', {
+      username: '{{ user.username }}',
+      email: '{{ user.email }}'
+    })
+  </script>
+  {% endif %}
+
   <div class="modal" id="modal-target">
     <div class="modal-background cursor-close"></div>
   </div>
