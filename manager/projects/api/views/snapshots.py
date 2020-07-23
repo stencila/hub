@@ -110,34 +110,15 @@ class ProjectsSnapshotsViewSet(
                 args=[account.name, project.name, snapshot.number],
             )
 
-    @action(detail=True, methods=["GET"], url_path="files/(?P<path>.+)")
+    @action(detail=True, methods=["GET"], url_path="files/(?P<path>.*)")
     def files(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve a file within a snapshot of the project.
 
-        Redirects to the URL for the file (which may be in a
+        For `index.html` will add necessary headers and if necessary
+        inject content required to connect to a session. For other files
+        redirects to the URL for the file (which may be in a
         remote storage bucket for example).
-        """
-        snapshot = self.get_object()
-        path = self.kwargs.get("path")
-
-        try:
-            File.objects.get(snapshot=snapshot, path=path)
-        except File.DoesNotExist:
-            raise exceptions.NotFound
-
-        url = snapshot.file_url(path)
-        return redirect(url, permanent=True)
-
-    @action(detail=True, methods=["GET"], url_path="browse/(?P<path>.*)")
-    def serve(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Serve a file from within a snapshot.
-
-        This differs from the `files` action in that it:
-          * is optimized for access via a browser (e.g. cache headers, compression etc)
-          * returns a response with the content of the file (by reverse proxing, not a redirect)
-          * sets CSP headers as specified by the account
         """
         snapshot = self.get_object()
         path = self.kwargs.get("path") or "index.html"
@@ -146,6 +127,10 @@ class ProjectsSnapshotsViewSet(
             file = File.objects.get(snapshot=snapshot, path=path)
         except File.DoesNotExist:
             raise exceptions.NotFound
+
+        if path != "index.html":
+            url = snapshot.file_url(path)
+            return redirect(url, permanent=True)
 
         if isinstance(snapshot.STORAGE, FileSystemStorage):
             # Serve the file from the filesystem.
