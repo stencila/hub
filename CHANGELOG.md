@@ -1,3 +1,11 @@
+## [3.9.1](https://github.com/stencila/hub/compare/v3.9.0...v3.9.1) (2020-07-23)
+
+
+### Bug Fixes
+
+* **Jobs:** Only update the job from the partial_update view ([96e1e38](https://github.com/stencila/hub/commit/96e1e38965124cf604e76a57311c4f6477613cef))
+* **Snapshots:** Merge snapshots files and serve views ([e4c2dd3](https://github.com/stencila/hub/commit/e4c2dd35f8d8a3f65a850c138567d84379dcd44e))
+
 # [3.9.0](https://github.com/stencila/hub/compare/v3.8.1...v3.9.0) (2020-07-23)
 
 
