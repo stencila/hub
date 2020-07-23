@@ -411,8 +411,6 @@ class Source(PolymorphicModel):
         the status of each job in the database (if it has changed).
         """
         jobs = self.jobs.order_by("-created").select_related("creator")[:n]
-        for job in jobs:
-            job.update()
         return jobs
 
     @property

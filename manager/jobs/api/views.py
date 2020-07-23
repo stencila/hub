@@ -425,15 +425,12 @@ class ProjectsJobsViewSet(
     def get_object(self, project: Optional[Project] = None):
         """
         Get the object for the current action.
-
-        Will update details of the job, regardless of the option.
         """
         queryset = self.get_queryset(project)
         try:
             job = queryset.get(id=self.kwargs["job"])
         except Job.DoesNotExist:
             raise exceptions.NotFound
-        job.update()
         return job
 
     def get_serializer_class(self):
