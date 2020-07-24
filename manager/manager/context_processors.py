@@ -25,4 +25,5 @@ def settings(request: HttpRequest) -> typing.Dict[str, str]:
     return {
         "SENTRY_DSN": getattr(conf.settings, "SENTRY_DSN", None),
         "POSTHOG_KEY": getattr(conf.settings, "POSTHOG_KEY", None),
+        "USERFLOW_KEY": getattr(conf.settings, "USERFLOW_KEY", None),
     }
