@@ -72,10 +72,10 @@ function emailTemplates() {
   // Email verification on signup (requires some context variable renaming)
   const emailVerificationOnSignup = fs
     .readFileSync(path.join(src, "account-confirmation.html"), "utf8")
-    .replace("{{ recipient_username }}", "{{ user.username }}")
-    .replace("{{ confirmation_url }}", "{{ activate_url }}")
+    .replace(/{{ recipient_username }}/g, "{{ user.username }}")
+    .replace(/{{ confirmation_url }}/g, "{{ activate_url }}")
     .replace(
-      "{{ reason_for_sending }}",
+      "{{ reason_for_contacting }}",
       `This email was sent because someone, most likely you, used this address to signup to Stencila Hub.
        If it was not you, please ignore this email.`
     );
@@ -84,14 +84,14 @@ function emailTemplates() {
     emailVerificationOnSignup
   );
 
-  // Email verification at some other time `me/email/` settings page
+  // Email verification at some other time using `me/email/` settings page
   // Currently, just using the same one sent on signup, need another one
 
   // Password reset email
   const passwordReset = fs
     .readFileSync(path.join(src, "password-reset.html"), "utf8")
     .replace(
-      "{{ reason_for_sending }}",
+      "{{ reason_for_contacting }}",
       `This email was sent because you used this address to reset their password on Stencila Hub.
        If it was not you, please ignore this email.`
     );
