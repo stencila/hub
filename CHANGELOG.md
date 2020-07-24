@@ -1,3 +1,12 @@
+## [3.10.1](https://github.com/stencila/hub/compare/v3.10.0...v3.10.1) (2020-07-24)
+
+
+### Bug Fixes
+
+* **Email confirmation:** Improve page ([9c96e25](https://github.com/stencila/hub/commit/9c96e25d254eeb121d7b337cb5e4bb49e6c53988))
+* **Emails:** Fix templating, consistent subject lines ([19e79e7](https://github.com/stencila/hub/commit/19e79e706a75a61d2a6656c720a80e26c27b2935))
+* **Password reset:** Small fixes to templates ([5a5d94c](https://github.com/stencila/hub/commit/5a5d94c0c6f79696bf8011ea983cb44eede7a1d1))
+
 # [3.10.0](https://github.com/stencila/hub/compare/v3.9.2...v3.10.0) (2020-07-23)
 
 
