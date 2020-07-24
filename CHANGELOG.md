@@ -1,3 +1,12 @@
+## [3.10.3](https://github.com/stencila/hub/compare/v3.10.2...v3.10.3) (2020-07-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.13.1 ([1d5b918](https://github.com/stencila/hub/commit/1d5b918cd6ddab2ca32a31faabab0d42e8c18044))
+* **deps:** update dependency django-imagefield to v0.12.0 ([4c65706](https://github.com/stencila/hub/commit/4c65706c03beb931b14916fe285bc0c468e22b32))
+* **deps:** update dependency sentry-sdk to v0.16.2 ([9157c18](https://github.com/stencila/hub/commit/9157c18b8d34b2cadb4aa726a858f753dc8e78e9))
+
 ## [3.10.2](https://github.com/stencila/hub/compare/v3.10.1...v3.10.2) (2020-07-24)
 
 
