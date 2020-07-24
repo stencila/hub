@@ -1,3 +1,10 @@
+## [3.10.2](https://github.com/stencila/hub/compare/v3.10.1...v3.10.2) (2020-07-24)
+
+
+### Bug Fixes
+
+* **Template context:** Add USERFLOW_KEY ([fafc732](https://github.com/stencila/hub/commit/fafc73279e9d432155176e8c27b1ced3a1cd28fa))
+
 ## [3.10.1](https://github.com/stencila/hub/compare/v3.10.0...v3.10.1) (2020-07-24)
 
 
