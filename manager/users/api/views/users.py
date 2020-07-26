@@ -32,7 +32,7 @@ class UsersViewSet(
     def get_queryset(self) -> QuerySet:
         """
         Get all users, or only those matching the search query (if provided).
-        
+
         Often, fields from the user's personal account (e.g. image) will be wanted
         so that is `select_related`ed.
         """
