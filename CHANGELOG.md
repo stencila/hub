@@ -1,3 +1,11 @@
+# [3.11.0](https://github.com/stencila/hub/compare/v3.10.3...v3.11.0) (2020-07-27)
+
+
+### Features
+
+* **User search:** Add images to user search results ([e51463e](https://github.com/stencila/hub/commit/e51463e26ddbf1b07ab11cdcc022e72890cb7323)), closes [#280](https://github.com/stencila/hub/issues/280)
+* **User search:** Add public email and location to search results ([979885b](https://github.com/stencila/hub/commit/979885b4778f0dc40db9f0c7566734ad6eee9c8c))
+
 ## [3.10.3](https://github.com/stencila/hub/compare/v3.10.2...v3.10.3) (2020-07-24)
 
 
