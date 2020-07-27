@@ -1,6 +1,6 @@
 @import "./sources/index.scss";
 
-@media screen and (min-width: $tablet){
+@media screen and (min-width: $tablet) {
   .project-description {
     padding-right: $gap;
   }
@@ -58,7 +58,7 @@
   padding: 2rem 0;
   position: relative;
 
-  @media screen and (max-width: $tablet){
+  @media screen and (max-width: $tablet) {
     .column {
       padding-bottom: $gap / 4;
       padding-top: $gap / 4;
@@ -97,7 +97,7 @@
     border: 2px solid $grey-lighter;
     color: $text;
     content: "\EF90";
-    font-family: remixicon!important;
+    font-family: remixicon !important;
     font-size: 14px;
     height: 28px;
     left: -14px;
@@ -135,7 +135,7 @@
       border: 2px solid $grey-lighter;
       color: $text;
       content: "";
-      font-family: remixicon!important;
+      font-family: remixicon !important;
       font-size: 14px;
       height: 8px;
       left: -1px;
@@ -169,7 +169,7 @@ a.job-list--id {
     }
 
     &:not(:last-child):after {
-      content: '·';
+      content: "·";
       display: inline-block;
       padding: 0 0.25rem;
       vertical-align: middle;
@@ -184,7 +184,7 @@ a.job-list--id {
 .snapshot--preview {
   border-radius: 4px;
   border: 1px solid $grey-lightest;
-  box-shadow: 0 0 8px rgba(0,0,0,.035),0 0 40px rgba(0,0,0,.07);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
   height: calc(100vh - 6rem);
   width: 100%;
 }

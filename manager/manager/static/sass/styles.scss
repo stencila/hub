@@ -460,7 +460,6 @@ body {
   }
 }
 
-
 .field.has-addons-tablet .control {
   &:not(:last-of-type) {
     .file.has-name .file-name {
@@ -506,7 +505,7 @@ body {
 }
 
 .leading-loose {
-  line-height: 2
+  line-height: 2;
 }
 
 .width-full {
