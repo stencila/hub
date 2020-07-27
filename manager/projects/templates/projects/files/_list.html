@@ -1,4 +1,4 @@
-{% load i18n humanize stencila %}
+{% load i18n humanize stencila waffle_tags %}
 
 {% is_active 'ui-projects-files' as is_root_files_list %}
 
@@ -12,9 +12,11 @@
       <th>
         {% trans "Path" %}
       </th>
+      {% flag 'ui-pipelines' %}
       <th>
         {% trans "Upstream" %}
       </th>
+      {% endflag %}
       <th>
         {% trans "Last modified" %}
       </th>
@@ -56,6 +58,7 @@
         {% endif %}
         {% endif %}
       </td>
+      {% flag 'ui-pipelines' %}
       <td class="is-vcentered">
         {% if is_root_files_list and not file.is_directory %}
         {% if source %}
@@ -75,6 +78,7 @@
         </span>
         {% endif %}
       </td>
+      {% endflag %}
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.modified|naturaltime }}
       </td>

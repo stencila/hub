@@ -1,5 +1,5 @@
 {% extends '../base.html' %}
-{% load i18n humanize stencila %}
+{% load i18n humanize stencila waffle_tags %}
 
 {% block title %}File details{% endblock %}
 
@@ -15,14 +15,6 @@
 
   <div class="level-right buttons">
 
-    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
-       href="{% url 'ui-projects-files-upload' account.name project.name file.path %}">
-      <span class="icon">
-        <i class="ri-upload-cloud-line"></i>
-      </span>
-      <span>Upload</span>
-    </a>
-
     {% with download_url=file.download_url %}
     {% if download_url %}
     <a class="level-item button is-outlined is-small-mobile is-expanded-mobile" href="{{ download_url }}">
@@ -33,6 +25,16 @@
     </a>
     {% endif %}
     {% endwith %}
+
+    {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+
+    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
+       href="{% url 'ui-projects-files-upload' account.name project.name file.path %}">
+      <span class="icon">
+        <i class="ri-upload-cloud-line"></i>
+      </span>
+      <span>Upload</span>
+    </a>
 
     <div class="level-item dropdown">
       <div class="dropdown-trigger">
@@ -60,10 +62,11 @@
       <span>Delete</span>
     </a>
 
+    {% endif %}
   </div>
 </div>
 
-
+{% flag 'ui-pipelines' %}
 <h1 class="title is-5">Pipeline</h1>
 
 <ol>
@@ -102,6 +105,7 @@
 </ol>
 
 <hr>
+{% endflag %}
 
 <h1 class="title is-5">History</h1>
 
@@ -121,6 +125,7 @@
           {% trans "Job" %}
         </span>
       </th>
+      {% flag 'ui-pipelines' %}
       <th>
         <span class="icon">
           <i class="ri-guide-line"></i>
@@ -129,6 +134,7 @@
           {% trans "Upstreams" %}
         </span>
       </th>
+      {% endflag %}
       <th>
         {% trans "Type" %}
       </th>
@@ -182,6 +188,7 @@
         </a>
         {% endif %}
       </td>
+      {% flag 'ui-pipelines' %}
       <td class="is-vcentered">
         {% if source %}
         <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}"
@@ -199,6 +206,7 @@
         </span>
         {% endif %}
       </td>
+      {% endflag %}
       <td class="is-vcentered is-sr-only-mobile">
         {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
       </td>
