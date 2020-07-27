@@ -1,4 +1,5 @@
 from django.urls import include, path
+from rest_framework.routers import Route
 
 from manager.api.routers import OptionalSlashRouter
 from projects.api.views.files import ProjectsFilesViewSet
@@ -12,7 +13,47 @@ projects.register("projects", ProjectsViewSet, "api-projects")
 projects_agents = OptionalSlashRouter()
 projects_agents.register("agents", ProjectsAgentsViewSet, "api-projects-agents")
 
-projects_files = OptionalSlashRouter()
+
+class ProjectsFilesRouter(OptionalSlashRouter):
+    """
+    A custom router for handling file paths.
+
+    This is necessary because paths contain slashes etc.
+    """
+
+    routes = [
+        Route(
+            url=r"^{prefix}/(?P<file>.+?)!history$",
+            name="{basename}-history",
+            detail=True,
+            mapping={"get": "history"},
+            initkwargs={},
+        ),
+        Route(
+            url=r"^{prefix}/(?P<file>.+?)!convert$",
+            name="{basename}-convert",
+            detail=True,
+            mapping={"post": "convert"},
+            initkwargs={},
+        ),
+        Route(
+            url=r"^{prefix}/(?P<file>.+)$",
+            name="{basename}-detail",
+            detail=True,
+            mapping={"get": "retrieve", "delete": "destroy"},
+            initkwargs={},
+        ),
+        Route(
+            url=r"^{prefix}/?$",
+            name="{basename}-list",
+            detail=False,
+            mapping={"get": "list"},
+            initkwargs={},
+        ),
+    ]
+
+
+projects_files = ProjectsFilesRouter()
 projects_files.register("files", ProjectsFilesViewSet, "api-projects-files")
 
 projects_snapshots = OptionalSlashRouter()

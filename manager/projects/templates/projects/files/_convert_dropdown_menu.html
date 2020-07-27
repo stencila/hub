@@ -1,0 +1,12 @@
+<div class="dropdown-menu has-text-left" role="menu" {% if id %}id="{{ id }}" {% endif %}>
+  <div class="dropdown-content">
+    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=html"
+       class="dropdown-item indent">HTML</a>
+    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=md"
+       class="dropdown-item indent">Markdown</a>
+    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=docx"
+       class="dropdown-item indent">Microsoft Word</a>
+    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}"
+       class="dropdown-item indent">Other</a>
+  </div>
+</div>

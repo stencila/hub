@@ -51,10 +51,30 @@ after_account_urls = [
                     include(
                         [
                             re_path(
+                                r"(?P<file>.+?)!upload",
+                                files_views.upload,
+                                name="ui-projects-files-upload",
+                            ),
+                            re_path(
+                                r"(?P<file>.+?)!convert",
+                                files_views.convert,
+                                name="ui-projects-files-convert",
+                            ),
+                            re_path(
+                                r"(?P<file>.+?)!delete",
+                                files_views.destroy,
+                                name="ui-projects-files-destroy",
+                            ),
+                            re_path(
+                                r"(?P<file>.+?)!details",
+                                files_views.retrieve,
+                                name="ui-projects-files-retrieve",
+                            ),
+                            re_path(
                                 r"(?P<prefix>.*)?",
                                 files_views.list,
                                 name="ui-projects-files-list",
-                            )
+                            ),
                         ]
                     ),
                 ),

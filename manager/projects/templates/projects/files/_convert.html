@@ -1,0 +1,54 @@
+{% load i18n %}
+
+{% comment %}
+
+1. User enters the new file path, confirms the format and submits
+2a. If form is invalid then this template is rerendered with errors
+2b. If form is valid, then a `job` is passed to this template and it's progress is displayed
+3. When the job ends (success or failure), this page redirects to the files list view
+which (if successful) has the new file in it.
+
+{% endcomment %}
+
+<form {% if not job %} hx-post="{% url 'api-projects-files-convert' project.id file.id %}" {% elif job.is_active %}
+      hx-trigger="every 2s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}" {% endif %}
+      hx-template="projects/files/_convert.html" hx-swap="outerHTML">
+  <h1 class="title is-3">{% trans "Convert to..." %}</h1>
+
+  {% url 'ui-projects-files-list' project.account.name project.name as next_url %}
+
+  <div class="field">
+    <label class="label" for="path">Path</label>
+    <div class="control has-icons-left">
+      <input class="input" name="path" id="path" type="text" autofocus="">
+      <span class="icon is-left">
+        <i class="ri-at-line"></i>
+      </span>
+    </div>
+    <span class="help">Path of the new file.</span>
+  </div>
+
+  {% if job %}
+  {{ job.status }}
+  {% if job.error %}
+  <p class="notification is-danger">{{ job.error.message }}</p>
+  {% endif %}
+  {% endif %}
+
+  <div class="buttons">
+    <button class="button is-primary is-fullwidth-mobile" type="submit"
+            {% if job.is_active or job.status == "SUCCESS" %}disabled{% endif %}>
+      <span class="icon">
+        <i class="ri-file-3-line"></i>
+      </span>
+      <span>{% trans "Convert" %}</span>
+    </button>
+    <a class="button is-outlined is-fullwidth-mobile" href="{{ next_url }}" {% if job.is_active %}disabled{% endif %}>
+      <span class="icon">
+        <i class="ri-arrow-go-back-line"></i>
+      </span>
+      <span>{% trans "Cancel" %}</span>
+    </a>
+  </div>
+
+</form>

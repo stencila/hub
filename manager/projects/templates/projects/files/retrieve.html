@@ -1,0 +1,223 @@
+{% extends '../base.html' %}
+{% load i18n humanize stencila %}
+
+{% block title %}File details{% endblock %}
+
+{% block projects_content %}
+
+<div class="level">
+  <div class="level-left">
+    <h1 class="title is-3">
+      {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
+      {{ file.path }}
+    </h1>
+  </div>
+
+  <div class="level-right buttons">
+
+    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
+       href="{% url 'ui-projects-files-upload' account.name project.name file.path %}">
+      <span class="icon">
+        <i class="ri-upload-cloud-line"></i>
+      </span>
+      <span>Upload</span>
+    </a>
+
+    {% with download_url=file.download_url %}
+    {% if download_url %}
+    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile" href="{{ download_url }}">
+      <span class="icon">
+        <i class="ri-download-line"></i>
+      </span>
+      <span class="is-sr-only-mobile">Download</span>
+    </a>
+    {% endif %}
+    {% endwith %}
+
+    <div class="level-item dropdown">
+      <div class="dropdown-trigger">
+        <button class="button is-outlined is-small-mobile is-expanded-mobile" aria-haspopup="true"
+                aria-controls="dropdown-menu">
+          <span class="icon">
+            <i class="ri-file-transfer-line"></i>
+          </span>
+          <span>
+            Convert
+          </span>
+          <span class="icon">
+            <i class="ri-arrow-down-s-line"></i>
+          </span>
+        </button>
+      </div>
+      {% include './_convert_dropdown_menu.html' with id="dropdown-menu" %}
+    </div>
+
+    <a class="level-item button is-danger is-outlined is-small-mobile"
+       href="{% url 'ui-projects-files-destroy' account.name project.name file.path %}">
+      <span class="icon">
+        <i class="ri-delete-bin-line"></i>
+      </span>
+      <span>Delete</span>
+    </a>
+
+  </div>
+</div>
+
+
+<h1 class="title is-5">Pipeline</h1>
+
+<ol>
+  {% for upstream in upstreams reversed %}
+  <li>
+    {% if upstream.type_name %}
+    <a href="{% url 'ui-projects-sources-retrieve' account.name project.name upstream.id %}"
+       class="has-text-black has-text-link-hover">
+      {% include '../sources/_sourcetype_icon.html' with sourcetype=upstream.type_name tooltip=upstream.address %}
+      <span>{{ upstream.address }}</span>
+    </a>
+    {% else %}
+    <a href="{% url 'ui-projects-files-retrieve' account.name project.name upstream.path %}"
+       class="has-text-black has-text-link-hover">
+      {% include '../files/_mimetype_icon.html' with mimetype=upstream.mimetype tooltip=upstream.path %}
+      <span>{{ upstream.path }}</span>
+    </a>
+    {% endif %}
+  </li>
+  {% endfor %}
+  <li>
+    {% include '../files/_mimetype_icon.html' with mimetype=file.mimetype %}
+    <span>{{ file.path }}</span>
+  </li>
+  {% for downstream in downstreams %}
+  <li>
+    <a href="{% url 'ui-projects-files-retrieve' account.name project.name downstream.path %}"
+       class="has-text-black has-text-link-hover">
+      {% include '../files/_mimetype_icon.html' with mimetype=downstream.mimetype tooltip=downstream.path %}
+      <span>{{ downstream.path }}</span>
+    </a>
+  </li>
+  {% endfor %}
+</ol>
+
+<hr>
+
+<h1 class="title is-5">History</h1>
+
+<table class="table is-fullwidth is-striped is-hoverable">
+  <thead>
+    <tr class="table-header">
+      <th>
+        <span class="is-sr-only">
+          {% trans "Time" %}
+        </span>
+      </th>
+      <th>
+        <span class="icon">
+          <i class="ri-cpu-line"></i>
+        </span>
+        <span>
+          {% trans "Job" %}
+        </span>
+      </th>
+      <th>
+        <span class="icon">
+          <i class="ri-guide-line"></i>
+        </span>
+        <span>
+          {% trans "Upstreams" %}
+        </span>
+      </th>
+      <th>
+        {% trans "Type" %}
+      </th>
+      <th>
+        <span class="icon">
+          <i class="ri-database-2-line"></i>
+        </span>
+        <span>
+          {% trans "Size" %}
+        </span>
+      </th>
+      <th class="is-vcentered">
+        <span class="icon">
+          <i class="ri-fingerprint-line"></i>
+        </span>
+        <span>
+          {% trans "Fingerprint" %}
+        </span>
+      </th>
+      <th class="is-vcentered">
+        <span class="icon">
+          <i class="ri-archive-line"></i>
+        </span>
+        <span>
+          {% trans "Snapshot" %}
+        </span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for file in history %}
+    {% with job=file.job creator=file.job.creator upstreams=file.upstreams.all source=file.source snapshot=file.snapshot %}
+    <tr>
+      <td class="is-vcentered">
+        {{ file.created|naturaltime }}
+      </td>
+      <td class="is-vcentered">
+        {% if creator %}
+        <a href="{% url 'ui-accounts-retrieve' creator.username %}">
+          <span class="icon is-round has-tooltip-top has-tooltip-text-centered image-tooltip"
+                data-tooltip="{{ creator.get_full_name|default:creator.username }}">
+            <img src="{{ creator.personal_account.image.small }}"
+                 alt="{{ creator.get_full_name|default:creator.username }}"></img>
+          </span>
+        </a>
+        {% endif %}
+        {% if job %}
+        <a href="{% url 'ui-projects-jobs-retrieve' account.name project.name job.id %}"
+           class="has-text-black has-text-link-hover">
+          {{ job.description }}
+        </a>
+        {% endif %}
+      </td>
+      <td class="is-vcentered">
+        {% if source %}
+        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}"
+           class="has-text-black has-text-link-hover">
+          {% include '../sources/_sourcetype_icon.html' with sourcetype=source.type_name tooltip=source.address %}
+        </a>
+        {% elif upstreams %}
+        <span>
+          {% for upstream in upstreams %}
+          <a href="{% url 'ui-projects-files-retrieve' account.name project.name upstream.path %}"
+             class="has-text-black has-text-link-hover">
+            {% include '../files/_mimetype_icon.html' with mimetype=upstream.mimetype tooltip=upstream.path %}
+          </a>
+          {% endfor %}
+        </span>
+        {% endif %}
+      </td>
+      <td class="is-vcentered is-sr-only-mobile">
+        {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
+      </td>
+      <td class="is-vcentered is-sr-only-mobile">
+        {{ file.size|format_bytes }}
+      </td>
+      <td>
+        {{ file.fingerprint|truncatechars:12 }}
+      </td>
+      <td>
+        {% if snapshot %}
+        <a href="{% url 'ui-projects-snapshots-retrieve' account.name project.name file.snapshot.number %}"
+           class="has-text-black has-text-link-hover">
+          # {{file.snapshot.number}}
+        </a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endwith %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

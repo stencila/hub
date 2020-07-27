@@ -388,7 +388,7 @@ def create_main_file_for_project(project):
         modified=timezone.now(),
     )
 
-    project.main = file
+    project.main = file.path
     project.save()
 
 

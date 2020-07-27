@@ -1,18 +1,22 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
-from django.db.models import TextField, Value
+from django.db.models import QuerySet, TextField, Value
 from django.db.models.functions import Concat, StrIndex, Substr
-from rest_framework import exceptions, permissions, viewsets
+from django.http import Http404
+from rest_framework import permissions, viewsets
+from rest_framework.request import Request
+from rest_framework.response import Response
 
-from manager.api.helpers import HtmxListMixin
-from projects.api.serializers import FileSerializer
+from manager.api.helpers import HtmxDestroyMixin, HtmxListMixin, HtmxRetrieveMixin
+from projects.api.serializers import FileListSerializer, FileSerializer
 from projects.api.views.projects import get_project
 from projects.models.files import File
 from projects.models.projects import Project
+from projects.models.sources import Source
 
 
 class ProjectsFilesViewSet(
-    HtmxListMixin, viewsets.GenericViewSet,
+    HtmxListMixin, HtmxRetrieveMixin, HtmxDestroyMixin, viewsets.GenericViewSet,
 ):
     """A view set for project files."""
 
@@ -65,9 +69,10 @@ class ProjectsFilesViewSet(
         project = project or self.get_project()
 
         queryset = (
-            File.objects.filter(project=project)
+            File.objects.filter(project=project, current=True)
             .order_by("path")
             .select_related("project", "project__account", "job", "source")
+            .prefetch_related("upstreams")
         )
 
         source = self.request.GET.get("source")
@@ -135,21 +140,92 @@ class ProjectsFilesViewSet(
             else:
                 file.is_directory = False
                 groups[file.path] = file
-        return list(groups.values())
 
-    def get_object(self, project: Optional[Project] = None):
+        # Return items sorted by path again
+        return [value for key, value in sorted(groups.items(), reverse=True)]
+
+    def get_object(self, project: Optional[Project] = None) -> File:
         """
-        Get a project file.
+        Get a current file.
         """
+        project = project or self.get_project()
+
+        id_or_path = self.kwargs["file"]
         try:
-            return self.get_queryset(project).filter(id=self.kwargs["file"])[0]
-        except IndexError:
-            raise exceptions.NotFound
+            identifier = dict(id=int(id_or_path))
+        except ValueError:
+            identifier = dict(path=id_or_path)
+
+        try:
+            return File.objects.get(project=project, current=True, **identifier)
+        except File.DoesNotExist:
+            raise Http404
+
+    def get_pipeline(
+        self, file: Optional[File] = None, upstream_limit: int = 5, downstream_limit=5
+    ) -> QuerySet:
+        """
+        Get a file's pipeline.
+
+        Returns a queryset of file entries that match the path within the project.
+        The file does not need to be current.
+
+        Currently, this only considers the first upstream and downstream. It does
+        not collect branching upstreams or downstreams (e.g. more than one downstream)
+        """
+        file = file or self.get_object()
+
+        here = file
+        upstreams: List[Union[File, Source]] = []
+        while len(upstreams) < upstream_limit:
+            if here.source:
+                upstreams.append(here.source)
+                break
+            else:
+                ups = here.upstreams.all()
+                if len(ups):
+                    here = ups[0]
+                    upstreams.append(here)
+                else:
+                    break
+
+        here = file
+        downstreams: List[File] = []
+        while len(downstreams) < downstream_limit:
+            downs = here.downstreams.all()
+            if len(downs):
+                here = downs[0]
+                downstreams.append(here)
+            else:
+                break
+
+        return upstreams, downstreams
+
+    def get_history(self, project: Optional[Project] = None) -> QuerySet:
+        """
+        Get a file's history.
+
+        Returns a queryset of file entries that match the path within the project.
+        The file does not need to be current.
+        """
+        project = project or self.get_project()
+        return (
+            File.objects.filter(project=project, path=self.kwargs["file"])
+            .order_by("-created")
+            .select_related(
+                "job", "job__creator", "job__creator__personal_account", "source",
+            )
+            .prefetch_related("upstreams")
+        )
 
     def get_serializer_class(self):
         """
         Get the serializer class for the current action.
         """
+        if self.action == "list":
+            return FileListSerializer
+        if self.action == "destroy":
+            return None
         return FileSerializer
 
     def get_response_context(self, *args, **kwargs):
@@ -169,3 +245,35 @@ class ProjectsFilesViewSet(
         context["breadcrumbs"] = breadcrumbs
 
         return context
+
+    # Additional API actions. These do not use the `@action` decorator
+    # because they are declared as routes on the `ProjectsFilesRouter`
+    # directly
+
+    def history(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Get the a file's history.
+
+        Returns a paginated history of the file
+        """
+        queryset = self.get_history()
+        pages = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(pages, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    def convert(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Convert a file to another format.
+
+        Confirms that the destination path and other options are
+        correct, creates a job and redirects to it.
+        """
+        project = self.get_project()
+        file = self.get_object(project)
+
+        path = self.request.data.get("path")
+
+        job = file.convert(request.user, path)
+        job.dispatch()
+
+        return Response(dict(project=project, file=file, job=job))

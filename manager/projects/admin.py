@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from projects.models.files import File
 from projects.models.projects import Project, ProjectAgent
 from projects.models.snapshots import Snapshot
 
@@ -25,6 +26,24 @@ class ProjectAgentAdmin(admin.ModelAdmin):
 
     list_display = ["id", "project", "user_id", "team_id", "role"]
     list_select_related = ["project"]
+
+
+@admin.register(File)
+class FileAdmin(admin.ModelAdmin):
+    """Admin interface for project files."""
+
+    list_display = [
+        "id",
+        "project",
+        "path",
+        "current",
+        "created",
+        "updated",
+        "mimetype",
+        "size",
+    ]
+    list_select_related = ["project"]
+    list_filter = ["project"]
 
 
 @admin.register(Snapshot)

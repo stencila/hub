@@ -315,10 +315,14 @@ class Source(PolymorphicModel):
         source = self.to_address()
         source["token"] = self.authorization_token(user)
 
+        description = "Pull {0}".format(self.address)
+        if self.type_class == "UploadSource":
+            description = "Upload file"
+
         job = Job.objects.create(
             project=self.project,
             creator=user or self.creator,
-            description="Pull {0}".format(self.address),
+            description=description,
             method=JobMethod.pull.value,
             params=dict(source=source, project=self.project.id, path=self.path),
             **Job.create_callback(self, "pull_callback"),
@@ -335,19 +339,15 @@ class Source(PolymorphicModel):
         if not result:
             return
 
-        for file in self.files.all():
-            info = result.get(file.path)
-            if info:
-                # Update an existing file
-                file.update(info, job=job, source=self)
-                del result[file.path]
-            else:
-                # Delete an existing file
-                file.delete()
-
-        # Add a new file
         from projects.models.files import File
 
+        # Any existing files for the source, not is results, need to be made
+        # non-current
+        File.objects.filter(project=self.project, source=self).exclude(
+            path__in=result.keys()
+        ).update(current=False, updated=timezone.now())
+
+        # Files in in results need to be "created" (i.e. added or have their info updated)
         for path, info in result.items():
             File.create(self.project, path, info, job=job, source=self)
 
