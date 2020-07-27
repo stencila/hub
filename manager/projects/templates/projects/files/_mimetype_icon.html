@@ -1,11 +1,15 @@
 {% comment %}
 Renders the icon class name to use for a source based on its mimetype.
 {% endcomment %}
-<span class="has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom has-text-weight-bold"
-      data-tooltip="File type {{ mimetype }}">
+<span class="has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom"
+      data-tooltip="{{ tooltip|default:mimetype }}">
   {% spaceless %}
   {% if mimetype == 'application/vnd.google-apps.document' %}
   <i class="ri-google-line"></i>
+  {% elif mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' %}
+  <i class="ri-file-word-line"></i>
+  {% elif mimetype == 'text/markdown' %}
+  <i class="ri-markdown-line"></i>
   {% elif mimetype == 'text/xml+jats' %}
   <i class="ri-file-code-line"></i>
   {% elif mimetype|slice:":6" == 'image/' %}
