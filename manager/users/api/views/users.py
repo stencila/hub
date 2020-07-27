@@ -30,17 +30,33 @@ class UsersViewSet(
     permission_classes = ()
 
     def get_queryset(self) -> QuerySet:
-        """Get all users, or only those matching the search query (if provided)."""
-        search = self.request.GET.get("search")
-        if search is None:
-            return User.objects.all()
+        """
+        Get all users, or only those matching the search query (if provided).
 
-        return User.objects.filter(
-            Q(username__icontains=search)
-            | Q(first_name__icontains=search)
-            | Q(last_name__icontains=search)
-            | Q(email__icontains=search)
-        )
+        Often, fields from the user's personal account (e.g. image) will be wanted
+        so that is `select_related`ed.
+        """
+        queryset = User.objects.all().select_related("personal_account")
+
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(username__icontains=search)
+                | Q(first_name__icontains=search)
+                | Q(last_name__icontains=search)
+                | Q(email__icontains=search)
+            )
+
+        limit = self.request.GET.get("limit")
+        if limit:
+            try:
+                limit = int(limit)
+            except ValueError:
+                pass
+            else:
+                queryset = queryset[:limit]
+
+        return queryset
 
     def get_serializer_class(self):
         """

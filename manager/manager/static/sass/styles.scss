@@ -460,7 +460,6 @@ body {
   }
 }
 
-
 .field.has-addons-tablet .control {
   &:not(:last-of-type) {
     .file.has-name .file-name {
@@ -506,7 +505,7 @@ body {
 }
 
 .leading-loose {
-  line-height: 2
+  line-height: 2;
 }
 
 .width-full {
@@ -839,6 +838,21 @@ a .icon + span,
 
   &:hover {
     background-color: $white;
+  }
+}
+
+.user-search-item {
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    background-color: $white-ter;
+  }
+}
+
+.user-search-item--email {
+  &:before {
+    content: " · ";
   }
 }
 

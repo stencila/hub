@@ -10,7 +10,7 @@ e.g. adding another user to a team, or a project.
 Inspired by Github's user search field (amongst others).
 {% endcomment %}
 <label for="user-search-input" class="label is-sr-only">{% trans "Search users" %}</label>
-<div id="user-search" class="dropdown is-expanded">
+<div id="user-search" class="dropdown is-expanded is-active">
   <div class="dropdown-trigger">
     <div class="control has-icons-left has-icons-right">
       <input id="user-search-input" class="input" type="text" name="search"
@@ -31,6 +31,7 @@ Inspired by Github's user search field (amongst others).
     <input id="user-search-result-id" type="hidden" name="{{ id_name|default:'id' }}">
   </div>
   <div class="dropdown-menu"></div>
+
   <script>
     var $search = document.querySelector('#user-search')
     // Add query parameters to search
