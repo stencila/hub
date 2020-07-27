@@ -1,25 +1,31 @@
+{% load i18n %}
+
 {% comment %}
 Display user search results.
 
 Intended to be used with `users/_search.html`
 for displaying user search results.
 {% endcomment %}
-<div class="dropdown-content">
+
+<ul class="dropdown-content">
   {% for user in queryset %}
-  <div class="dropdown-item" data-id="{{ user.id }}" data-username="{{ user.username }}">
+  <li class="dropdown-item user-search-item py-2" data-id="{{ user.id }}" data-username="{{ user.username }}">
     {% with account=user.personal_account %}
-    <figure class="image is-24x24" style="width:24px">
+    <figure class="image is-32x32 is-inline-block mr-2 is-vcentered">
       <img src="{{ account.image.small }}" alt="{{ user.get_full_name|default:user.username }}"></img>
     </figure>
-    <strong>{{ user.username }}</strong>&nbsp;&nbsp;
-    <span>{{ user.first_name }} {{ user.last_name }}</span>
-    {% if account.email %}<span>{{ account.email }}</span>{% endif %}
-    {% if account.location %}<span>{{ account.location }}</span>{% endif %}
+    <div class="is-inline-block is-vcentered">
+      <div class="has-text-weight-bold is-size-6">{{ user.first_name }} {{ user.last_name }}</div>
+      <span class="is-size-6">
+        {{ user.username }}
+        {% if account.email %}<span class="user-search-item--email">{{ account.email }}</span>{% endif %}
+      </span>
+    </div>
     {% endwith %}
-  </div>
+  </li>
   {% empty %}
-  <div class="dropdown-item">
-    Sorry, could not find a matching user.
-  </div>
+  <li class="dropdown-item has-text-weight-bold">
+    {% trans "Sorry, could not find a matching user." %}
+  </li>
   {% endfor %}
-</div>
+</ul>

@@ -842,6 +842,21 @@ a .icon + span,
   }
 }
 
+.user-search-item {
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    background-color: $white-ter;
+  }
+}
+
+.user-search-item--email {
+  &:before {
+    content: " · ";
+  }
+}
+
 #messages {
   // Places messages in the top left
   position: sticky;
