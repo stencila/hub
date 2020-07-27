@@ -1,5 +1,5 @@
 import json
-from typing import List, Union, Dict
+from typing import cast, List, Union, Dict
 
 from .convert import Convert
 
@@ -22,4 +22,4 @@ class Decode(Convert):
         and then parsing that JSON.
         """
         result = super().do(input, "-", dict(**options, to="json"))
-        return json.loads(result)
+        return json.loads(cast(str, result))

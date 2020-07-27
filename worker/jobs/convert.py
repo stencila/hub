@@ -1,6 +1,9 @@
 from typing import cast, List, Union, Dict
+import os
+import tempfile
 
 from jobs.base.subprocess_job import SubprocessJob
+from util.files import Files, list_files, move_files
 
 
 class Convert(SubprocessJob):
@@ -19,7 +22,7 @@ class Convert(SubprocessJob):
         output: Union[str, List[str]],
         options: Dict[str, Union[str, bool]] = {},
         **kwargs,
-    ):
+    ) -> Files:
         """
         Do the conversion.
 
@@ -42,6 +45,15 @@ class Convert(SubprocessJob):
         ), "output must be a string or list of strings"
         assert isinstance(options, dict), "options must be a dictionary"
 
+        # Create temporary directory for output to go into
+        temp_dir = tempfile.mkdtemp()
+
+        # Rewrite output path(s) to the new directory
+        outputs = output if isinstance(output, list) else [output]
+        for index, output in enumerate(outputs):
+            if output != "-":
+                outputs[index] = os.path.join(temp_dir, output)
+
         # Encoda currently does not allow for mimetypes in the `from` option.
         # This replaces some mimetypes with codec names for formats that are
         # not easily identifiable from there extension. This means that for other
@@ -54,13 +66,20 @@ class Convert(SubprocessJob):
             else:
                 del options["from"]
 
-        args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input]
-        args += output if isinstance(output, list) else [output]
+        # Call Encoda
+        args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input] + outputs
         for name, value in options.items():
             if value is False:
                 value = "false"
             if value is True:
                 value = "true"
             args.append("--{}={}".format(name, value))
+        super().do(args, input=input if isinstance(input, bytes) else None)
 
-        return super().do(args, input=input if isinstance(input, bytes) else None)
+        # Get list of created files
+        files = list_files(temp_dir)
+
+        # Move files to
+        move_files(temp_dir)
+
+        return files
