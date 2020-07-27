@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -44,7 +46,8 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
     file = viewset.get_object(project)
-    upstreams, downstreams = viewset.get_pipeline(file)
+    upstreams = file.get_upstreams()
+    downstreams = file.get_downstreams()
     history = viewset.get_history(project)
     context = viewset.get_response_context(
         account=project.account,
@@ -100,8 +103,17 @@ def convert(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsFilesViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
     file = viewset.get_object(project)
-    serializer = viewset.get_serializer(file)
-    context = viewset.get_response_context(serializer=serializer, file=file)
+
+    format = request.GET.get("format")
+    if format:
+        path = Path(file.path).stem + "." + format
+    else:
+        path = None
+    next = request.GET.get("next")
+
+    context = viewset.get_response_context(
+        file=file, path=path, format=format, next=next
+    )
 
     return render(request, "projects/files/convert.html", context)
 

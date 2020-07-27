@@ -174,6 +174,18 @@ class File(models.Model):
         self.updated = timezone.now()
         self.save()
 
+    def get_upstreams(self, current=True):
+        """
+        Get the upstream source or files.
+        """
+        return [self.source] if self.source else self.upstreams.filter(current=current)
+
+    def get_downstreams(self, current=True):
+        """
+        Get the downstream files.
+        """
+        return self.downstreams.filter(current=current)
+
     def open_url(self) -> Optional[str]:
         """
         Get a URL to open the file at the source.
