@@ -34,11 +34,14 @@ def test_begin_end_pull(tempdir):
     # End the pull
     files = end_pull(working, "a", temporary)
 
-    # Check there is a modification time for each file but
-    # remove it for assertion below
+    # Check there is a modification time and fingerprint 
+    # for each file but remove them for assertion below
+    # to be deterministic
     for path in files.keys():
         assert files[path]["modified"]
         del files[path]["modified"]
+        assert files[path]["fingerprint"]
+        del files[path]["fingerprint"]
 
     assert files == {
         "a.txt": {"encoding": None, "mimetype": "text/plain", "size": 1},

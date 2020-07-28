@@ -34,7 +34,6 @@ def test_simple(tempdir):
         tempdir.getpath("output.html"),
         dict(standalone=False),
     )
-    assert result["result"] is None
     assert result["log"] == []
     assert tempdir.read("output.html").startswith(
         b'<article itemscope="" itemtype="http://schema.org/Article" data-itemscope="root">'
