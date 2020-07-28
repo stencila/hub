@@ -67,7 +67,12 @@ class Convert(SubprocessJob):
                 del options["from"]
 
         # Call Encoda
-        args = ["npx", "encoda", "convert", "-" if isinstance(input, bytes) else input] + outputs
+        args = [
+            "npx",
+            "encoda",
+            "convert",
+            "-" if isinstance(input, bytes) else input,
+        ] + outputs
         for name, value in options.items():
             if value is False:
                 value = "false"

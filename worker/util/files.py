@@ -44,26 +44,30 @@ def file_info(path: str) -> FileInfo:
         "mimetype": mimetype,
         "encoding": encoding,
         "modified": os.path.getmtime(path),
-        "fingerprint": file_fingerprint(path)
+        "fingerprint": file_fingerprint(path),
     }
+
 
 def file_fingerprint(path: str) -> str:
     """
     Generate a SHA256 fingerprint of the contents of a file
     """
-    h  = hashlib.sha256()
-    b  = bytearray(128*1024)
+    h = hashlib.sha256()
+    b = bytearray(128 * 1024)
     mv = memoryview(b)
-    with open(path, 'rb', buffering=0) as f:
-        for n in iter(lambda : f.readinto(mv), 0):
+    with open(path, "rb", buffering=0) as f:
+        for n in iter(lambda: f.readinto(mv), 0):  # type: ignore
             h.update(mv[:n])
     return h.hexdigest()
 
 
-def move_files(source: str, dest: str = "."):
-    # Move from source to dest (with overwrite)
+def move_files(source: str, dest: str = ".", cleanup: bool = True):
+    """
+    Move from `source` to `dest` directories (with overwrite).
+    """
+
     for subpath in os.listdir(source):
         shutil.move(os.path.join(source, subpath), os.path.join(dest, subpath))
 
-    # Remove source
-    shutil.rmtree(source, ignore_errors=True)
+    if cleanup:
+        shutil.rmtree(source, ignore_errors=True)
