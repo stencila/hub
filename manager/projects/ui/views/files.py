@@ -78,12 +78,10 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         )
     elif request.method == "POST":
         file = request.FILES.get("file")
-        if file:
-            source, created = UploadSource.objects.get_or_create(
-                project=project, path=path
+        if file and path:
+            source = UploadSource.create_or_update_from_uploaded_file(
+                project, path, file
             )
-            source.file = file
-            source.save()
 
             job = source.pull(request.user)
             job.dispatch()

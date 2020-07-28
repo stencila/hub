@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
+from django.core.files.uploadedfile import UploadedFile
 from django.core.validators import URLValidator
 from django.db import models, transaction
 from django.utils import timezone
@@ -116,6 +117,9 @@ class Source(PolymorphicModel):
                 fields=["project", "address"], name="%(class)s_unique_project_address"
             )
         ]
+
+    def __str__(self) -> str:
+        return self.address
 
     @property
     def type_class(self) -> str:
@@ -362,12 +366,6 @@ class Source(PolymorphicModel):
             "Push is not implemented for class {}".format(self.__class__.__name__)
         )
 
-    def convert(self, user: User, to: str) -> Job:
-        """
-        Convert a source to another format.
-        """
-        return Job.objects.create(project=self.project, creator=user, method="convert")
-
     def preview(self, user: User) -> Job:
         """
         Generate a HTML preview of a source.
@@ -403,29 +401,19 @@ class Source(PolymorphicModel):
             > 0
         )
 
-    def latest_jobs(self, n=10) -> List[Job]:
+    def get_downstreams(self, current=True):
         """
-        Get the latest jobs for the source.
+        Get the downstream files.
 
-        This is a relatively costly property in that it will update
-        the status of each job in the database (if it has changed).
+        The equivalent of `File.get_downstreams()`.
         """
-        jobs = self.jobs.order_by("-created").select_related("creator")[:n]
-        return jobs
+        return self.files.filter(current=current)
 
-    @property
-    def last_pull(self) -> Optional[Job]:
+    def get_jobs(self, n=10) -> List[Job]:
         """
-        Get the last pull job for the source.
+        Get the jobs associated with this source.
         """
-        try:
-            return (
-                self.jobs.filter(method="pull")
-                .order_by("-created")
-                .select_related("creator")[0]
-            )
-        except IndexError:
-            return None
+        return self.jobs.order_by("-created").select_related("creator")[:n]
 
     def save(self, *args, **kwargs):
         """
@@ -646,12 +634,30 @@ class UploadSource(Source):
     During development, uploaded files are stored on the local
     filesystem. In production, they are stored in cloud storage
     e.g. Google Could Storage or S3.
+
+    In addition to the `file` field, we store the other useful attributes
+    on a an `UploadedFile`. e.g. `name`, `size`
+    See https://docs.djangoproject.com/en/3.0/ref/files/uploads/#django.core.files.uploadedfile.UploadedFile
     """
 
     file = models.FileField(
         storage=uploads_storage(),
         upload_to=upload_source_path,
         help_text="The uploaded file.",
+    )
+
+    name = models.TextField(
+        null=True, blank=True, help_text="The name of the uploaded file."
+    )
+
+    size = models.IntegerField(
+        null=True, blank=True, help_text="The size of the uploaded file in bytes."
+    )
+
+    content_type = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The content type (MIME type) of the uploaded file.",
     )
 
     def make_address(self) -> str:
@@ -686,6 +692,26 @@ class UploadSource(Source):
             return dict(type="local", path=self.file.path)
         else:
             return dict(type="url", url=self.file.url)
+
+    @staticmethod
+    def create_or_update_from_uploaded_file(
+        project: Project, path: str, file: UploadedFile
+    ) -> "UploadSource":
+        """
+        Create or update a `UploadSource` from an uploaded file.
+        """
+        try:
+            source = UploadSource.objects.get(project=project, path=path)
+        except UploadSource.DoesNotExist:
+            source = UploadSource(project=project, path=path)
+
+        source.file = file
+        source.name = file.name
+        source.size = file.size
+        source.content_type = file.content_type
+        source.save()
+
+        return source
 
 
 class UrlSource(Source):

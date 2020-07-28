@@ -16,27 +16,25 @@ in case the enclosing page want to use that data to trigger further events
      hx-get="{% url 'api-projects-sources-detail' source.project.id source.id %}"
      hx-template="projects/sources/_retrieve.html" hx-swap="outerHTML" {% endif %}>
 
-  {# Jobs associated with source. Included here because status etc will change when the source is_active #}
-  <div class="level">
-    <div class="level-left">
-      {% with last_pull=source.last_pull %}
-      {% if last_pull %}
-      {% trans "Latest pull:" %}&nbsp;
-      <a href="{% url 'ui-projects-jobs-retrieve' source.project.account.name source.project.name last_pull.id %}">
-        {{ last_pull.created|naturaltime }}
-        {% include "./_status_type_icon.html" with status=last_pull.status %}
-      </a>
-      {% endif %}
-      {% endwith %}
-    </div>
-  </div>
-
-  {# List of files pulled from the source #}
-  {% with files=source.files.all %}
+  <h2 class="title is-5">Files</h2>
+  <p class="subtitle is-6">The files that were last pulled from the source.</p>
+  {% with files=source.get_downstreams %}
   {% if files %}
   {% include "../files/_list.html" %}
   {% else %}
   <p>No files have been pulled yet for this source.</p>
+  {% endif %}
+  {% endwith %}
+
+  <hr />
+
+  <h2 class="title is-5">History</h2>
+  <p class="subtitle is-6">The jobs associated with this source.</p>
+  {% with jobs=source.get_jobs %}
+  {% if jobs %}
+  {% include "../jobs/_job_list.html" %}
+  {% else %}
+  <p>No jobs have been created for this source.</p>
   {% endif %}
   {% endwith %}
 </div>
