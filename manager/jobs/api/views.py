@@ -449,6 +449,14 @@ class ProjectsJobsViewSet(
         else:
             return JobRetrieveSerializer
 
+    def get_response_context(self, *args, **kwargs):
+        """
+        Get the template context for HTML responses.
+        """
+        return super().get_response_context(
+            *args, **kwargs, next=self.request.GET.get("next")
+        )
+
     # Shortcut `create` views
     # These allow for the method and parameters to be in the URL
 
