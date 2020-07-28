@@ -72,11 +72,9 @@ function emailTemplates() {
   // Email verification on signup (requires some context variable renaming)
   const emailVerificationOnSignup = fs
     .readFileSync(path.join(src, "account-confirmation.html"), "utf8")
-    .replace(/{{ recipient_username }}/g, "{{ user.username }}")
-    .replace(/{{ confirmation_url }}/g, "{{ activate_url }}")
     .replace(
       "{{ reason_for_contacting }}",
-      `This email was sent because someone, most likely you, used this address to signup to Stencila Hub.
+      `This email was sent because someone, most likely you, used this address to signup to Stencila Hub.<br />
        If it was not you, please ignore this email.`
     );
   fs.writeFileSync(
@@ -85,14 +83,24 @@ function emailTemplates() {
   );
 
   // Email verification at some other time using `me/email/` settings page
-  // Currently, just using the same one sent on signup, need another one
+  const additionalEmailVerificationOnSignup = fs
+    .readFileSync(path.join(src, "email-confirmation.html"), "utf8")
+    .replace(
+      "{{ reason_for_contacting }}",
+      `This email was sent because someone, most likely you, added this address to their Stencila Hub account.<br />
+       If it was not you, please ignore this email.`
+    );
+  fs.writeFileSync(
+    "users/templates/account/email/email_confirmation_signup_message.html",
+    additionalEmailVerificationOnSignup
+  );
 
   // Password reset email
   const passwordReset = fs
     .readFileSync(path.join(src, "password-reset.html"), "utf8")
     .replace(
       "{{ reason_for_contacting }}",
-      `This email was sent because you used this address to reset their password on Stencila Hub.
+      `This email was sent because someone used this address to reset their password on Stencila Hub.<br />
        If it was not you, please ignore this email.`
     );
   fs.writeFileSync(
@@ -103,6 +111,6 @@ function emailTemplates() {
   // Invitation email
   fs.copyFileSync(
     path.join(src, "user-invitation.html"),
-    "users/templates/account/email/email_invite_message.html"
+    "users/templates/invitations/email/email_invite_message.html"
   );
 }
