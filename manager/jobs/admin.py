@@ -26,6 +26,7 @@ class JobAdmin(admin.ModelAdmin):
         "queue",
         "worker",
     ]
+    list_filter = ["status", "method"]
     show_full_result_count = False
 
 
