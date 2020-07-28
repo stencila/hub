@@ -110,7 +110,7 @@ def convert(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     next = request.GET.get("next")
 
     context = viewset.get_response_context(
-        file=file, path=path, format=format, next=next
+        file=file, path=path, format=format, next=next,
     )
 
     return render(request, "projects/files/convert.html", context)

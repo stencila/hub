@@ -272,8 +272,11 @@ class ProjectsFilesViewSet(
         file = self.get_object(project)
 
         path = self.request.data.get("path")
+        format = self.request.data.get("format")
 
         job = file.convert(request.user, path)
         job.dispatch()
 
-        return Response(dict(project=project, file=file, job=job))
+        return Response(
+            dict(project=project, file=file, path=path, format=format, job=job)
+        )

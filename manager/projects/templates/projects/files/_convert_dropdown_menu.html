@@ -1,12 +1,28 @@
 <div class="dropdown-menu has-text-left" role="menu" {% if id %}id="{{ id }}" {% endif %}>
+  {% url 'ui-projects-files-convert' account.name project.name file.path as convert_url %}
   <div class="dropdown-content">
-    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=html"
-       class="dropdown-item indent">HTML</a>
-    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=md"
-       class="dropdown-item indent">Markdown</a>
-    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}?to=docx"
-       class="dropdown-item indent">Microsoft Word</a>
-    <a href="{% url 'ui-projects-files-convert' account.name project.name file.path %}"
-       class="dropdown-item indent">Other</a>
+    <a href="{{ convert_url }}?next={{ request.path }}&format=ipynb" class="dropdown-item">
+      {% include "./_format_icon.html" with format='ipynb' %}
+      <span>Jupyter Notebook</span>
+    </a>
+    <a href="{{ convert_url }}?next={{ request.path }}&format=md" class="dropdown-item">
+      {% include "./_format_icon.html" with format='md' %}
+      <span>Markdown</span>
+    </a>
+    <a href="{{ convert_url }}?next={{ request.path }}&format=docx" class="dropdown-item">
+      {% include "./_format_icon.html" with format='docx' %}
+      <span>Microsoft Word</span>
+    </a>
+    <a href="{{ convert_url }}?next={{ request.path }}&format=pdf" class="dropdown-item">
+      {% include "./_format_icon.html" with format='pdf' %}
+      <span>PDF</span>
+    </a>
+    <a href="{{ convert_url }}?next={{ request.path }}&format=rmd" class="dropdown-item">
+      {% include "./_format_icon.html" with format='rmd' %}
+      <span>R Markdown</span>
+    </a>
+    <a href="{{ convert_url }}?next={{ request.path }}" class="dropdown-item">
+      <span>Other</span>
+    </a>
   </div>
 </div>

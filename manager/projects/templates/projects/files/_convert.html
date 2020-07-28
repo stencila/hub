@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n stencila %}
 
 {% comment %}
 
@@ -10,45 +10,30 @@ which (if successful) has the new file in it.
 
 {% endcomment %}
 
-<form {% if not job %} hx-post="{% url 'api-projects-files-convert' project.id file.id %}" {% elif job.is_active %}
-      hx-trigger="every 2s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}" {% endif %}
-      hx-template="projects/files/_convert.html" hx-swap="outerHTML">
+<form hx-post="{% url 'api-projects-files-convert' project.id file.id %}" hx-template="projects/files/_convert.html">
+
   <h1 class="title is-3">{% trans "Convert to..." %}</h1>
 
-  {% url 'ui-projects-files-list' project.account.name project.name as next_url %}
-
-  <div class="field">
-    <label class="label" for="path">Path</label>
-    <div class="control has-icons-left">
-      <input class="input" name="path" id="path" type="text" autofocus="">
-      <span class="icon is-left">
-        <i class="ri-at-line"></i>
+  <div class="field has-addons has-addons-centered">
+    <div class="control is-expanded">
+      <input class="input" name="path" id="path" type="text" placeholder="Path for the new file" autofocus=""
+             {% if path %} value="{{ path }}" {% endif %}>
+    </div>
+    <div class="control">
+      <span class="select">
+        <select name="format">
+          {% file_format_convert_to_options as formats %}
+          {% for name, value in formats %}
+          <option value="{{value|lower}}" {% if format == value %} selected{% endif %}>{{name}}</option>
+          {% endfor %}
+        </select>
       </span>
     </div>
-    <span class="help">Path of the new file.</span>
   </div>
 
-  {% if job %}
-  {{ job.status }}
-  {% if job.error %}
-  <p class="notification is-danger">{{ job.error.message }}</p>
+  {% if not next %}
+  {% url 'ui-projects-files-retrieve' project.account.name project.name file.path as next %}
   {% endif %}
-  {% endif %}
-
-  <div class="buttons">
-    <button class="button is-primary is-fullwidth-mobile" type="submit"
-            {% if job.is_active or job.status == "SUCCESS" %}disabled{% endif %}>
-      <span class="icon">
-        <i class="ri-file-3-line"></i>
-      </span>
-      <span>{% trans "Convert" %}</span>
-    </button>
-    <a class="button is-outlined is-fullwidth-mobile" href="{{ next_url }}" {% if job.is_active %}disabled{% endif %}>
-      <span class="icon">
-        <i class="ri-arrow-go-back-line"></i>
-      </span>
-      <span>{% trans "Cancel" %}</span>
-    </a>
-  </div>
+  {% include "projects/jobs/_progress_buttons.html" with begin_icon="ri-file-3-line" begin_text="Convert" runtime_expected=5 %}
 
 </form>

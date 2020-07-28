@@ -1,6 +1,8 @@
+import enum
+import mimetypes
 import os
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from django.db import models, transaction
 from django.shortcuts import reverse
@@ -14,6 +16,161 @@ from users.models import User
 
 SNAPSHOTS_STORAGE = snapshots_storage()
 WORKING_STORAGE = working_storage()
+
+
+class FileFormat(NamedTuple):
+    """
+    Specification of a file format.
+
+    The `format_id` should be a lowercase string and
+    map to a "codec" in Encoda.
+    In the future, these specs may be generated from Encoda
+    codec modules which also define the equivalent of
+    `mimetypes` and `extensions`.
+    """
+
+    format_id: str
+    mimetype: str
+    extensions: List[str]
+    icon_class: str
+
+    @property
+    def default_extension(self) -> str:
+        """Get the default extension for the format."""
+        return self.extensions[0] if self.extensions else self.format_id
+
+    @staticmethod
+    def default_icon_class() -> str:
+        """Get the default icon class."""
+        return "ri-file-3-line"
+
+    @property
+    def is_binary(self) -> bool:
+        """Is the format be considered binary when determining the type of HTTP response."""
+        return self.format_id not in ("html", "json", "jsonld", "md", "rmd", "xml")
+
+
+def file_format(
+    format_id: str,
+    mimetype: Optional[str] = None,
+    extensions: Optional[List[str]] = None,
+    icon_class: Optional[str] = None,
+):
+    """
+    Create a `FileFormat` with fallbacks.
+
+    Necessary because you can't override `__init__` for a
+    named tuple.
+    """
+    if mimetype is None:
+        mimetype, encoding = mimetypes.guess_type("file." + format_id)
+        if mimetype is None:
+            raise RuntimeError(
+                "Can not guess a MIME type for format {0}".format(format_id)
+            )
+
+    if extensions is None:
+        extensions = mimetypes.guess_all_extensions(mimetype)
+
+    if icon_class is None:
+        if mimetype.startswith("image/"):
+            icon_class = "ri-image-line"
+        else:
+            icon_class = FileFormat.default_icon_class()
+
+    return FileFormat(format_id, mimetype, extensions, icon_class)
+
+
+class FileFormats(enum.Enum):
+    """
+    List of file formats.
+
+    When adding `icon_class`es here, not that they may need to be
+    added to the `purgecss` whitelist in `postcss.config.js` to
+    avoid them from being purged.
+    """
+
+    docx = file_format("docx", icon_class="ri-file-word-line")
+    gdoc = file_format(
+        "gdoc", "application/vnd.google-apps.document", icon_class="ri-google-line"
+    )
+    gif = file_format("gif", icon_class="ri-file-gif-line")
+    html = file_format("html")
+    ipynb = file_format("ipynb", "application/x-ipynb+json")
+    jats = file_format("jats", "application/jats+xml", ["jats.xml"])
+    jpg = file_format("jpg")
+    json = file_format("json")
+    jsonld = file_format("jsonld", "application/ld+json")
+    md = file_format("md", "text/markdown", icon_class="ri-markdown-line")
+    pdf = file_format("pdf", icon_class="ri-file-pdf-line")
+    png = file_format("png")
+    rmd = file_format("rmd", "text/r+markdown")
+    rnb = file_format("rnb", "text/rstudio+html", ["nb.html"])
+    xlsx = file_format("xml", icon_class="ri-file-excel-line")
+    xml = file_format("xml")
+
+    @classmethod
+    def from_id(cls, format_id: str) -> "FileFormat":
+        """
+        Get a file format from it's id.
+        """
+        for f in cls:
+            if f.value.format_id == format_id:
+                return f.value
+
+        raise ValueError("No such member with id {}".format(format_id))
+
+    @classmethod
+    def from_mimetype(cls, mimetype: str) -> "FileFormat":
+        """
+        Get a file format from it's MIME type.
+        """
+        for f in cls:
+            if mimetype == f.value.mimetype:
+                return f.value
+
+        raise ValueError("No such member with mimetype {}".format(mimetype))
+
+    @classmethod
+    def from_id_or_mimetype(
+        cls, format_id: Optional[str] = None, mimetype: Optional[str] = None
+    ) -> "FileFormat":
+        """
+        Get a file format from it's id or MIME type.
+        """
+        if format_id:
+            return FileFormats.from_id(format_id)
+        elif mimetype:
+            return FileFormats.from_mimetype(mimetype)
+        else:
+            raise ValueError("Must provide format id or MIME type")
+
+    @classmethod
+    def convert_to_options(
+        cls, format_id: Optional[str] = None, mimetype: Optional[str] = None
+    ) -> List[Tuple[str, str]]:
+        """
+        Get a list of file formats that a user can convert to from the given format.
+
+        Currently this just returns a list of formats regarless of the 'from' format.
+        """
+        return [
+            (f.value.format_id, f.value.format_id)
+            for f in cls
+            if f.value.format_id
+            in [
+                "docx",
+                "html",
+                "ipynb",
+                "jats",
+                "json",
+                "jsonld",
+                "md",
+                "pdf",
+                "rmd",
+                "xml",
+            ]
+        ]
 
 
 class File(models.Model):
