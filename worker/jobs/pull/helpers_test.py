@@ -34,7 +34,7 @@ def test_begin_end_pull(tempdir):
     # End the pull
     files = end_pull(working, "a", temporary)
 
-    # Check there is a modification time and fingerprint 
+    # Check there is a modification time and fingerprint
     # for each file but remove them for assertion below
     # to be deterministic
     for path in files.keys():
