@@ -8,3 +8,9 @@
 /snaps
 /static
 /venv
+
+# Email templates from https://github.com/stencila/email-templates
+users/templates/account/email/email_confirmation_message.html
+users/templates/account/email/email_confirmation_signup_message.html
+users/templates/account/email/password_reset_key_message.html
+users/templates/invitations/email/email_invite_message.html

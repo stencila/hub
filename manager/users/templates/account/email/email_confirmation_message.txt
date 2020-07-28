@@ -1,6 +1,6 @@
 {% load account %}{% load i18n %}{% autoescape off %}{% blocktrans%}Hello from Stencila Hub!
 
-You're receiving this e-mail because user {{ user.username }} has given yours as an e-mail address to connect to their account.
+You're receiving this e-mail because user {{ user.username }} connected this address to their account.
 
 To confirm this is correct, go to {{ activate_url }}
 {% endblocktrans %}{% endautoescape %}
