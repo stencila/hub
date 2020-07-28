@@ -2,7 +2,7 @@ from django.shortcuts import reverse
 from rest_framework import serializers
 
 from accounts.models import Account
-from jobs.models import Job, JobMethod, JobStatus, Queue, Worker, WorkerHeartbeat, Zone
+from jobs.models import Job, JobMethod, Queue, Worker, WorkerHeartbeat, Zone
 from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from projects.models.projects import Project
@@ -24,24 +24,27 @@ class JobListSerializer(serializers.ModelSerializer):
 
     runtime_formatted = serializers.CharField(read_only=True)
 
-    url_global = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = "__all__"
         ref_name = None
 
-    def get_url_global(self, job: Job):
+    def get_url(self, job: Job):
         """
         Get the URL to connect to the job from outside the local network.
 
         Will be `None` if the job does not have an
         internal URL or has ended.
         """
-        if job.url and not job.ended and not JobStatus.has_ended(job.status):
+        if job.url and job.is_active:
             request = self.context.get("request")
             return request.build_absolute_uri(
-                reverse("api-jobs-connect", kwargs={"pk": job.id})
+                reverse(
+                    "api-projects-jobs-connect",
+                    kwargs=dict(project=job.project.id, job=job.id),
+                )
             )
 
 

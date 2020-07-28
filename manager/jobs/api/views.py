@@ -479,7 +479,7 @@ class ProjectsJobsViewSet(
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, url_path="connect/?(?P<path>.+)?", methods=["GET", "POST"])
-    def connect(self, request, pk: int, path: str) -> Response:
+    def connect(self, request, *args, **kwargs) -> Response:
         """
         Connect to a job.
 
@@ -491,7 +491,6 @@ class ProjectsJobsViewSet(
         first checks that the user has permission to edit the
         job.
         """
-        # TODO: Check that user has edit rights for job
         job = self.get_object()
 
         if not job.url:
@@ -509,6 +508,7 @@ class ProjectsJobsViewSet(
         # Nginx does not accept the ws:// prefix, so in those
         # cases replace with http://
         url = job.url.replace("ws://", "http://")
+        path = self.kwargs.get("path")
 
         return Response(
             headers={
