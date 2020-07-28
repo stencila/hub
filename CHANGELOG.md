@@ -1,3 +1,22 @@
+# [3.13.0](https://github.com/stencila/hub/compare/v3.12.0...v3.13.0) (2020-07-28)
+
+
+### Bug Fixes
+
+* **Files:** Add more mime type icons ([c2fb0c8](https://github.com/stencila/hub/commit/c2fb0c82737a5c064e6d0d4f34547a335ad77a94))
+* **Files:** List all upstreams and downstreams ([8e8af7e](https://github.com/stencila/hub/commit/8e8af7e9421ac083263434df5321758b44774dd7))
+* **Jobs:** Save before updating parent ([e4c1be6](https://github.com/stencila/hub/commit/e4c1be6b986d6523dc5de7cacad1f2c6eabf315d))
+* **Sources:** Add icon for upload sources ([21ef3cf](https://github.com/stencila/hub/commit/21ef3cf1c2120583405882ca493b5ef944ed73fc))
+
+
+### Features
+
+* **File formats:** Add types and enums for file formats ([1c3c439](https://github.com/stencila/hub/commit/1c3c43996fdf961e863debe419c044dc72a0a205))
+* **Files:** Add views to retrieve, convert and destroy files ([9037745](https://github.com/stencila/hub/commit/9037745104e2796df156786f97cd2b2335542842))
+* **Jobs:** Add progress bar partial ([eda5efe](https://github.com/stencila/hub/commit/eda5efea14cd7c110d00761a2aef649032d894b7))
+* **Pipelines:** Hide pipelines behind a feature flag ([da1379d](https://github.com/stencila/hub/commit/da1379dcd269efadb6d6ffc624d3804970b99060))
+* **Sources:** Add fields for uploads; improve retrieve view ([d40e5ad](https://github.com/stencila/hub/commit/d40e5ad841425b85c9916a923bc8fe7473d9ac58))
+
 # [3.12.0](https://github.com/stencila/hub/compare/v3.11.0...v3.12.0) (2020-07-28)
 
 
