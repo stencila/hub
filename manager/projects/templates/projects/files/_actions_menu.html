@@ -14,6 +14,13 @@
   </div>
   <div class="dropdown-menu has-text-left" role="menu" id="file-{{ file.id }}-action-menu">
     <div class="dropdown-content">
+      <a href="{% url 'ui-projects-files-retrieve' account.name project.name file.path %}" class="dropdown-item">
+        <span class="icon">
+          <i class="ri-file-history-line"></i>
+        </span>
+        <span>{% trans "Details" %}</span>
+      </a>
+
       {% with open_url=file.open_url %}
       {% if open_url %}
       <a href="{{ open_url }}" target="_blank" rel="noopener" class="dropdown-item">
@@ -38,15 +45,42 @@
 
       {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <hr class="dropdown-divider">
-      {% if file.id != project.main_id %}
-      <a class="dropdown-item" hx-patch="{% url 'api-projects-detail' project.id %}" include-vals="main: {{file.id}}"
-         hx-swap="none" hx-redirect="UPDATED:{% url 'ui-projects-files-list' project.account.name project.name %}">
+
+      {% if file.path != project.main %}
+      <a class="dropdown-item" hx-patch="{% url 'api-projects-detail' project.id %}"
+         include-vals="main: '{{ file.path }}'" hx-swap="none"
+         hx-redirect="UPDATED:{% url 'ui-projects-files-list' account.name project.name %}">
         <span class="icon">
           <i class="ri-honour-line"></i>
         </span>
         <span>{% trans "Main file" %}</span>
       </a>
       {% endif %}
+
+      <div class="dropdown dropdown-item px-0 py-0" data-placement="right-start">
+        <a class="dropdown-trigger dropdown-item px-0 py-0">
+          <div class="level is-mobile dropdown-item">
+            <div class="level-left">
+              <span class="icon">
+                <i class="ri-file-transfer-line"></i>
+              </span>
+              <span>{% trans "Convert to…" %}</span>
+            </div>
+            <div>
+              <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+            </div>
+          </div>
+        </a>
+        {% include './_convert_dropdown_menu.html' %}
+      </div>
+
+      <a class="dropdown-item" href="{% url 'ui-projects-files-destroy' account.name project.name file.path %}">
+        <span class="icon">
+          <i class="ri-delete-bin-line"></i>
+        </span>
+        <span>{% trans "Delete" %}</span>
+      </a>
+
       {% endif %}
     </div>
   </div>

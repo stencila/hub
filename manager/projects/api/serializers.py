@@ -439,7 +439,7 @@ class ProjectDestroySerializer(serializers.Serializer):
 
 class FileSerializer(serializers.ModelSerializer):
     """
-    Serializer for files.
+    Serializer for a file.
     """
 
     project = serializers.HiddenField(
@@ -450,6 +450,16 @@ class FileSerializer(serializers.ModelSerializer):
         )
     )
 
+    class Meta:
+        model = File
+        fields = "__all__"
+
+
+class FileListSerializer(FileSerializer):
+    """
+    Serializer for a file.
+    """
+
     # These fields are calculated in `get_queryset`
     # (e.g. for aggregation by directory)
 
@@ -457,10 +467,6 @@ class FileSerializer(serializers.ModelSerializer):
     is_directory = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
     source = serializers.SerializerMethodField()
-
-    class Meta:
-        model = File
-        exclude = ["dependencies"]
 
     def get_name(self, obj) -> str:
         """Get the name of the file / dir."""
@@ -479,7 +485,7 @@ class FileSerializer(serializers.ModelSerializer):
         if isinstance(obj, dict):
             return [source.id for source in obj["source"]]
         else:
-            return [obj.source.id]
+            return [obj.source and obj.source.id]
 
 
 class SnapshotSerializer(serializers.ModelSerializer):

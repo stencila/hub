@@ -205,11 +205,13 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
     if was_active and not job.is_active:
         job.run_callback()
 
+    # Save before updating parent (and then this again)
+    job.save()
+
     # If the job has a parent then check it
     if update_parent and job.parent:
         update_job(job.parent)
 
-    job.save()
     return job
 
 

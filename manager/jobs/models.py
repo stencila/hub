@@ -1,6 +1,5 @@
 import json
 import re
-from datetime import datetime
 from enum import unique
 from typing import List, Optional
 
@@ -710,6 +709,18 @@ class Job(models.Model):
         )
 
     @property
+    def runtime_seconds(self) -> float:
+        """
+        Get the runtime in seconds.
+        """
+        if self.runtime is not None:
+            return self.runtime
+        elif self.began and self.ended:
+            return (self.ended - self.began).seconds
+        else:
+            return (timezone.now() - self.created).seconds
+
+    @property
     def runtime_formatted(self) -> Optional[str]:
         """
         Format the runtime into a format that can be printed to the screen.
@@ -720,14 +731,7 @@ class Job(models.Model):
         - If job has started & not ended calculate time relative to now.
         - If job has ended, calculate difference.
         """
-        if self.runtime is not None:
-            runtime = self.runtime
-        elif self.began is not None:
-            ended = self.ended if self.ended is not None else datetime.now(timezone.utc)
-            runtime = (ended - self.began).seconds
-        else:
-            return None
-
+        runtime = self.runtime_seconds
         h, rem = divmod(runtime, 3600)
         m, s = divmod(rem, 60)
 

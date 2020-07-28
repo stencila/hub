@@ -1,11 +1,25 @@
 from typing import Dict, Any
+import hashlib
 import os
 import mimetypes
+import shutil
 
-Files = Dict[str, Dict[str, Any]]
+FileInfo = Dict[str, Any]
+Files = Dict[str, FileInfo]
+
+# Add mapping between mimetypes and extensions
+# See https://docs.python.org/3/library/mimetypes.html#mimetypes.add_type
+# "When the extension is already known, the new type will replace the old
+# one. When the type is already known the extension will be added to the
+# list of known extensions."
+mimetypes.add_type("application/vnd.google-apps.document", ".gdoc")
+mimetypes.add_type("application/x-ipynb+json", ".ipynb")
+mimetypes.add_type("application/ld+json", ".jsonld")
+mimetypes.add_type("text/markdown", ".md")
+mimetypes.add_type("text/r+markdown", ".rmd")
 
 
-def list_files(directory: str) -> Files:
+def list_files(directory: str = ".") -> Files:
     """
     List, and provide information on, all files in a directory.
 
@@ -16,11 +30,44 @@ def list_files(directory: str) -> Files:
         for filename in filenames:
             absolute_path = os.path.join(dirpath, filename)
             relative_path = os.path.relpath(absolute_path, directory)
-            mimetype, encoding = mimetypes.guess_type(relative_path)
-            files[relative_path] = {
-                "size": os.path.getsize(absolute_path),
-                "mimetype": mimetype,
-                "encoding": encoding,
-                "modified": os.path.getmtime(absolute_path),
-            }
+            files[relative_path] = file_info(absolute_path)
     return files
+
+
+def file_info(path: str) -> FileInfo:
+    """
+    Get info on a file.
+    """
+    mimetype, encoding = mimetypes.guess_type(path)
+    return {
+        "size": os.path.getsize(path),
+        "mimetype": mimetype,
+        "encoding": encoding,
+        "modified": os.path.getmtime(path),
+        "fingerprint": file_fingerprint(path),
+    }
+
+
+def file_fingerprint(path: str) -> str:
+    """
+    Generate a SHA256 fingerprint of the contents of a file
+    """
+    h = hashlib.sha256()
+    b = bytearray(128 * 1024)
+    mv = memoryview(b)
+    with open(path, "rb", buffering=0) as f:
+        for n in iter(lambda: f.readinto(mv), 0):  # type: ignore
+            h.update(mv[:n])
+    return h.hexdigest()
+
+
+def move_files(source: str, dest: str = ".", cleanup: bool = True):
+    """
+    Move from `source` to `dest` directories (with overwrite).
+    """
+
+    for subpath in os.listdir(source):
+        shutil.move(os.path.join(source, subpath), os.path.join(dest, subpath))
+
+    if cleanup:
+        shutil.rmtree(source, ignore_errors=True)

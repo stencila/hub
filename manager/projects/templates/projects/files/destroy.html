@@ -1,0 +1,37 @@
+{% extends 'base_centered.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Remove file" %}{% endblock %}
+
+{% block layout_content %}
+<form hx-delete="{% url 'api-projects-files-detail' project.id file.id %}"
+      hx-redirect="DESTROYED:{% url 'ui-projects-files-list' project.account.name project.name %}">
+
+  <h1 class="title is-3">{% trans "Remove file" %}</h1>
+
+  <p>
+    {% blocktrans with file.path as path %}
+    Are you sure you want to remove file <strong>{{ path }}</strong>?
+    {% endblocktrans %}
+  </p>
+
+  <br>
+
+  <div class="buttons">
+    <button class="button is-danger is-outlined is-fullwidth-mobile" type="submit" autofocus>
+      <span class="icon">
+        <i class="ri-delete-bin-fill"></i>
+      </span>
+      <span>{% trans "Remove" %}</span>
+    </button>
+    <a class="button is-outlined is-fullwidth-mobile"
+       href="{% url 'ui-projects-files-list' project.account.name project.name %}">
+      <span class="icon">
+        <i class="ri-arrow-go-back-line"></i>
+      </span>
+      <span>{% trans "Cancel" %}</span>
+    </a>
+  </div>
+
+</form>
+{% endblock %}

@@ -1,20 +1,22 @@
-{% load i18n humanize stencila %}
+{% load i18n humanize stencila waffle_tags %}
 
 {% is_active 'ui-projects-files' as is_root_files_list %}
 
 {% if files %}
 <table class="table is-fullwidth is-striped is-hoverable">
   <thead>
-    <tr class="table-header is-sr-only">
+    <tr class="table-header">
       <th>
         {% trans "Type" %}
       </th>
       <th>
         {% trans "Path" %}
       </th>
+      {% flag 'ui-pipelines' %}
       <th>
-        {% trans "Source" %}
+        {% trans "Upstream" %}
       </th>
+      {% endflag %}
       <th>
         {% trans "Last modified" %}
       </th>
@@ -22,13 +24,12 @@
         {% trans "Size" %}
       </th>
       <th>
-        {% trans "Actions" %}
       </th>
     </tr>
   </thead>
   <tbody>
     {% for file in files %}
-    {% with account=project.account %}
+    {% with account=project.account source=file.source upstreams=file.upstreams.all %}
     <tr>
       <td class="source-table--file-type pr-0 is-vcentered">
         {% if file.is_directory %}
@@ -37,7 +38,7 @@
           <i class="ri-folder-line"></i>
         </span>
         {% else %}
-        {% include './_mimetype_icon.html' with mimetype=file.mimetype %}
+        {% include './_format_icon.html' with mimetype=file.mimetype %}
         {% endif %}
       </td>
       <td class="is-vcentered table-icon-label has-text-black has-text-weight-bold">
@@ -48,25 +49,36 @@
           {{ file.name }}
         </a>
         {% else %}
-        {{ file.name|default:file.path }}
-        {% endif %}
-        {% if file.id == project.main_id %}
+        <a href="{% url 'ui-projects-files-retrieve' account.name project.name file.path %}"
+           class="has-text-black has-text-link-hover">
+          {{ file.name|default:file.path }}
+        </a>
+        {% if project.main and project.main == file.path %}
         <span class="tag is-primary is-light">{% trans 'Main' %}</span>
         {% endif %}
+        {% endif %}
       </td>
+      {% flag 'ui-pipelines' %}
       <td class="is-vcentered">
-        {% if is_root_files_list %}
-        {% if file.source %}
-        {% if file.is_directory %}
-        {% else %}
-        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name file.source.id %}"
+        {% if is_root_files_list and not file.is_directory %}
+        {% if source %}
+        <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.id %}"
            class="has-text-black has-text-link-hover">
-          {% include '../sources/_sourcetype_icon.html' with sourcetype=file.source.type_name tooltip=file.source.address %}
+          {% include '../sources/_sourcetype_icon.html' with sourcetype=source.type_name tooltip=source.address %}
         </a>
-        {% endif %}
-        {% endif %}
+        {% elif upstreams %}
+        <span>
+          {% for upstream in upstreams %}
+          <a href="{% url 'ui-projects-files-retrieve' account.name project.name upstream.path %}"
+             class="has-text-black has-text-link-hover">
+            {% include '../files/_format_icon.html' with mimetype=upstream.mimetype tooltip=upstream.path %}
+          </a>
+          {% endfor %}
+          {% endif %}
+        </span>
         {% endif %}
       </td>
+      {% endflag %}
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.modified|naturaltime }}
       </td>

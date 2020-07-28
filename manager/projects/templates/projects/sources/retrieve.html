@@ -7,20 +7,21 @@
 
 <div class="level">
   <div class="level-left">
-    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
-      <div class="level-left">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-          <ul>
-            <li><a href="{% url 'ui-projects-retrieve' project.account.name project.name %}">{{ project.name }}</a></li>
-            <li class="is-active"><a href="#" aria-current="page">Sources</a></li>
-          </ul>
-        </nav>
-      </div>
-    </div>
+    <h1 class="title is-3 mb-0">
+      {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
+      {{ source.address }}
+    </h1>
   </div>
-
   {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
   <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <a class="button is-small-mobile is-expanded-mobile"
+       href="{% url 'api-projects-sources-open' project.id source.id %}" target="_blank" rel="noopener">
+      <span class="icon">
+        <i class="ri-external-link-line"></i>
+      </span>
+      <span>{% trans "Open" %}</span>
+    </a>
+
     {# Create a pull job and then redirect to this page (which will now have an active source #}
     {% if source.type_name != "Upload" %}
     <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
@@ -43,34 +44,6 @@
     </a>
   </div>
   {% endif %}
-</div>
-
-<div class="level">
-  <div class="level-left">
-    <h1 class="title is-5 mb-0">
-      {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
-      {{ source.address }}
-      <a href="{% url 'api-projects-sources-open' project.id source.id %}" target="_blank" rel="noopener">
-        <span class="icon">
-          <i class="ri-external-link-line"></i>
-        </span>
-      </a>
-    </h1>
-  </div>
-  <div class="level-left">
-    {% if source.creator %}
-    <span class="pr-1">
-      {% blocktrans with update_time=source.updated|naturaltime %}
-      Updated {{ update_time }} by
-      {% endblocktrans %}
-      <span class="icon is-small is-vcentered pr-1">
-        <img src="{{ source.creator.personal_account.image.small }}" role="presentation"></img>
-      </span>
-      <span class="is-vcentered">
-        {{ source.creator.username }}
-      </span>
-      {% endif %}
-  </div>
 </div>
 
 {% include 'projects/sources/_retrieve.html' %}

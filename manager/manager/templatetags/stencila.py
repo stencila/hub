@@ -13,6 +13,8 @@ from django.urls import resolve
 from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
 
+from projects.models.files import FileFormat, FileFormats
+
 register = template.Library()
 
 
@@ -90,6 +92,25 @@ def remove_prefix(text, prefix):
         return text[text.startswith(prefix) and len(prefix) :]
     else:
         return text
+
+
+@register.simple_tag
+def file_format_convert_to_options(format_id=None, mimetype=None):
+    """
+    Get the list of file formats that a can be converted to.
+    """
+    return FileFormats.convert_to_options(format_id, mimetype)
+
+
+@register.simple_tag
+def file_format_icon(format_id=None, mimetype=None):
+    """
+    Get the icon class for a file format.
+    """
+    try:
+        return FileFormats.from_id_or_mimetype(format_id, mimetype).icon_class
+    except ValueError:
+        return FileFormat.default_icon_class()
 
 
 # fmt: off

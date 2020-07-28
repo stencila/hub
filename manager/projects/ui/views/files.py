@@ -1,7 +1,12 @@
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from pathlib import Path
+
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 
 from projects.api.views.files import ProjectsFilesViewSet
+from projects.api.views.sources import ProjectsSourcesViewSet
+from projects.models.sources import UploadSource
 from projects.ui.views.messages import all_messages
 
 
@@ -29,3 +34,96 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     all_messages(request, project)
 
     return render(request, "projects/files/list.html", context)
+
+
+def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Get details about a file including it's history.
+
+    Checks that the user has list files and then gets
+    all the `File` records matching its path.
+    """
+    viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
+    project = viewset.get_project()
+    file = viewset.get_object(project)
+    upstreams = file.get_upstreams()
+    downstreams = file.get_downstreams()
+    history = viewset.get_history(project)
+    context = viewset.get_response_context(
+        account=project.account,
+        file=file,
+        upstreams=upstreams,
+        downstreams=downstreams,
+        history=history,
+    )
+
+    return render(request, "projects/files/retrieve.html", context)
+
+
+@login_required
+def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Upload a file to the project.
+
+    This view differs from the `sources.upload` view in that it
+    allows for uploading a single file, with a pretermined file name.
+    """
+    viewset = ProjectsSourcesViewSet.init("create", request, args, kwargs)
+    project = viewset.get_project()
+    path = kwargs.get("file")
+
+    if request.method == "GET":
+        return render(
+            request, "projects/files/upload.html", dict(project=project, path=path)
+        )
+    elif request.method == "POST":
+        file = request.FILES.get("file")
+        if file and path:
+            source = UploadSource.create_or_update_from_uploaded_file(
+                project, path, file
+            )
+
+            job = source.pull(request.user)
+            job.dispatch()
+
+        return redirect(
+            "ui-projects-files-retrieve", project.account.name, project.name, path
+        )
+    else:
+        raise Http404
+
+
+@login_required
+def convert(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Convert a file to another format.
+    """
+    viewset = ProjectsFilesViewSet.init("retrieve", request, args, kwargs)
+    project = viewset.get_project()
+    file = viewset.get_object(project)
+
+    format = request.GET.get("format")
+    if format:
+        path = Path(file.path).stem + "." + format
+    else:
+        path = None
+    next = request.GET.get("next")
+
+    context = viewset.get_response_context(
+        file=file, path=path, format=format, next=next,
+    )
+
+    return render(request, "projects/files/convert.html", context)
+
+
+@login_required
+def destroy(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Destroy a file.
+    """
+    viewset = ProjectsFilesViewSet.init("destroy", request, args, kwargs)
+    project = viewset.get_project()
+    file = viewset.get_object(project)
+    context = viewset.get_response_context(file=file)
+
+    return render(request, "projects/files/destroy.html", context)

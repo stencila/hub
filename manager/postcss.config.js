@@ -9,6 +9,12 @@ const sass = require("postcss-node-sass");
 const prodPlugins = [
   purgecss({
     content: ["./**/templates/**/*.html", "./manager/static/js/src/**/*.js"],
+    whitelistPatterns: [
+      // Icon classes specified in Python code and purged without this whitelisting
+      /^ri-file-/,
+      /^ri-image-line$/,
+      /^ri-markdown-line$/
+    ]
   }),
   cssnano({
     preset: ["default", { discardUnused: true, mergeIdents: true }],

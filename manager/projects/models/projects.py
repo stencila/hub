@@ -1,6 +1,7 @@
 import datetime
 from typing import Optional
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -72,13 +73,8 @@ class Project(models.Model):
         # See note for the `Account.theme` field for why this is a TextField.
     )
 
-    main = models.ForeignKey(
-        "File",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="project_main",
-        help_text="Main file of the project.",
+    main = models.TextField(
+        null=True, blank=True, help_text="Path of the main file of the project",
     )
 
     class Meta:
@@ -113,7 +109,10 @@ class Project(models.Model):
         if those are present.
         """
         if self.main:
-            return self.main
+            try:
+                self.files.get(path=self.main, current=True)
+            except ObjectDoesNotExist:
+                return None
         else:
             # TODO
             return None
