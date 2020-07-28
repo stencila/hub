@@ -1,3 +1,10 @@
+# [3.12.0](https://github.com/stencila/hub/compare/v3.11.0...v3.12.0) (2020-07-28)
+
+
+### Features
+
+* **Email:** Add template for confirming additional email addresses ([4d1470f](https://github.com/stencila/hub/commit/4d1470f5142e12d9550defc7e8bf83dba9e1950b)), closes [#582](https://github.com/stencila/hub/issues/582)
+
 # [3.11.0](https://github.com/stencila/hub/compare/v3.10.3...v3.11.0) (2020-07-27)
 
 
