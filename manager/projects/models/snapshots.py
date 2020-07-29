@@ -206,6 +206,18 @@ class Snapshot(models.Model):
         for path, info in result.items():
             File.create(self.project, path, info, job=job, snapshot=self)
 
+    def session(self, user: User) -> Job:
+        """
+        Create a session job having the snapshot as the working directory.
+        """
+        return Job.objects.create(
+            method=JobMethod.session.name,
+            params=dict(project=self.project.id, snapshot_path=self.path),
+            description="Session for snapshot #{0}".format(self.number),
+            project=self.project,
+            creator=user if user.is_authenticated else None,
+        )
+
     @property
     def is_active(self) -> bool:
         """

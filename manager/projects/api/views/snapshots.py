@@ -2,13 +2,14 @@ from typing import Optional
 
 import httpx
 from django.core.files.storage import FileSystemStorage
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from jobs.api.helpers import redirect_to_job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -41,11 +42,11 @@ class ProjectsSnapshotsViewSet(
         """
         Get the permissions that the current action requires.
 
-        Override defaults so that `list` and `retrieve` do not require
+        Override defaults so that `list`, `retrieve` etc do not require
         authentication (although they may raise permission denied
         if not a public project).
         """
-        if self.action in ["list", "retrieve", "files", "archive"]:
+        if self.action in ["list", "retrieve", "files", "archive", "session"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
@@ -120,7 +121,8 @@ class ProjectsSnapshotsViewSet(
         redirects to the URL for the file (which may be in a
         remote storage bucket for example).
         """
-        snapshot = self.get_object()
+        project = self.get_project()
+        snapshot = self.get_object(project)
         path = self.kwargs.get("path") or "index.html"
 
         try:
@@ -136,18 +138,50 @@ class ProjectsSnapshotsViewSet(
             # Serve the file from the filesystem.
             # Normally this will only be used during development!
             location = snapshot.file_location(path)
-            response = FileResponse(
-                snapshot.STORAGE.open(location), content_type=file.mimetype
-            )
+            with snapshot.STORAGE.open(location) as file:
+                content = file.read()
         else:
             # Fetch the file from storage and send it on to the client
             url = snapshot.file_url(path)
-            proxy_response = storage_client.get(url)
-            response = HttpResponse(
-                proxy_response.content or b"",
-                status=proxy_response.status_code,
-                content_type=proxy_response.headers.get("Content-Type"),
-            )
+            content = storage_client.get(url).content
+
+        if not content:
+            raise RuntimeError("No content")
+
+        html = content
+
+        # Inject additional styles into head
+        # TODO: This may no longer be necessary
+        html = html.replace(
+            b"</head>",
+            b'<link rel="stylesheet" href="https://unpkg.com/@stencila/style-material/dist/index-material.css"></head>',
+        )
+
+        # Inject execution toolbar
+        source_url = reverse(
+            "ui-projects-snapshots-retrieve",
+            kwargs=dict(
+                account=project.account.name,
+                project=project.name,
+                snapshot=snapshot.number,
+            ),
+        )
+        session_provider_url = reverse(
+            "api-projects-snapshots-session",
+            kwargs=dict(project=project.id, snapshot=snapshot.number,),
+        )
+        toolbar = """
+            <stencila-executable-document-toolbar
+               source-url="{source_url}"
+               session-provider-url="{session_provider_url}"
+            >
+            </stencila-executable-document-toolbar>
+        """.format(
+            source_url=source_url, session_provider_url=session_provider_url
+        )
+        html = content.replace(b"<body>", b"<body>" + toolbar.encode())
+
+        response = HttpResponse(html)
 
         # Add headers if the account has `hosts` set
         hosts = snapshot.project.account.hosts
@@ -176,3 +210,13 @@ class ProjectsSnapshotsViewSet(
         snapshot = self.get_object()
         url = snapshot.archive_url()
         return redirect(url)
+
+    @action(detail=True, methods=["post"])
+    def session(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Create a new session with the snapshot as the working directory.
+        """
+        snapshot = self.get_object()
+        job = snapshot.session(request.user)
+        job.dispatch()
+        return redirect_to_job(job)
