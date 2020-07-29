@@ -13,6 +13,19 @@ volant at Caesaris reverentia volucres Tritonidos feror, pependit. Ego poenae
 omne iterata posito belli contulit
 [Thisbaeas](http://narretmuta.io/liquitur.aspx) quae.
 
+## Code chunk
+
+Bis mecum negetur est, **est**, esse orbe quae heros; deus. Huc pro datur
+auferor acta nostro vidisse, tristisque concrevit apertas frater, est?
+
+chunk:
+:::
+```r
+# A code chunk
+ans = 42
+```
+:::
+
 ## Aeneaden animum
 
 Hac caluere venit futuri septem violave, suorum tamen causa turba terrae, tamen.

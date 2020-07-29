@@ -246,64 +246,69 @@ def run(*args):
     # Sources
     #################################################################
 
-    for project in Project.objects.all():
+    for index, project in enumerate(Project.objects.all()):
 
         # Each project has an uploaded main.md file with some actual
         # content so we can test conversions and themeing etc on it
 
         create_main_file_for_project(project)
 
-        # Each project has at least one of each type of source
+        # Projects have varying of the following source
 
-        elife = ElifeSource.objects.create(
-            project=project,
-            creator=random_project_user(project),
-            path="elife-article-5000",
-            article=5000,
-        )
-        create_files_for_source(
-            elife, ["elife5000.xml", "elife5000.xml.media/fig1.jpeg"]
-        )
+        if index % 6 == 1:
+            elife = ElifeSource.objects.create(
+                project=project,
+                creator=random_project_user(project),
+                path="elife-article-5000",
+                article=5000,
+            )
+            create_files_for_source(
+                elife, ["elife5000.xml", "elife5000.xml.media/fig1.jpeg"]
+            )
 
-        github = GithubSource.objects.create(
-            project=project,
-            creator=random_project_user(project),
-            path="stencila-test-repo",
-            repo="stencila/test",
-        )
-        create_files_for_source(github, ["README.md", "sub/README.md"])
+        if index % 6 == 2:
+            github = GithubSource.objects.create(
+                project=project,
+                creator=random_project_user(project),
+                path="stencila-test-repo",
+                repo="stencila/test",
+            )
+            create_files_for_source(github, ["README.md", "sub/README.md"])
 
-        GithubSource.objects.create(
-            project=project,
-            creator=random_project_user(project),
-            path="star-wars-data",
-            repo="evelinag/StarWars-social-network",
-            subpath="data",
-        )
+        if index % 6 == 3:
+            GithubSource.objects.create(
+                project=project,
+                creator=random_project_user(project),
+                path="star-wars-data",
+                repo="evelinag/StarWars-social-network",
+                subpath="data",
+            )
 
-        gdoc = GoogleDocsSource.objects.create(
-            project=project,
-            creator=random_project_user(project),
-            path="google-docs-source",
-            doc_id="gdoc-{}".format(project.name),
-        )
-        create_files_for_source(gdoc, ["google-docs-source.gdoc"])
+        if index % 6 == 4:
+            gdoc = GoogleDocsSource.objects.create(
+                project=project,
+                creator=random_project_user(project),
+                path="google-docs-source",
+                doc_id="gdoc-{}".format(project.name),
+            )
+            create_files_for_source(gdoc, ["google-docs-source.gdoc"])
 
-        url = UrlSource.objects.create(
-            project=project,
-            creator=random_project_user(project),
-            path="example-dot-org",
-            url="https://example.org",
-        )
-        create_files_for_source(url, ["example-dot-org.html"])
+        if index % 6 == 5:
+            url = UrlSource.objects.create(
+                project=project,
+                creator=random_project_user(project),
+                path="example-dot-org",
+                url="https://example.org",
+            )
+            create_files_for_source(url, ["example-dot-org.html"])
 
-        url = UrlSource.objects.create(
-            creator=random_project_user(project),
-            project=project,
-            path="sub/subsub/mtcars.csv",
-            url="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
-        )
-        create_files_for_source(url, ["sub/subsub/mtcars.csv"])
+            url = UrlSource.objects.create(
+                creator=random_project_user(project),
+                project=project,
+                path="sub/subsub/mtcars.csv",
+                url="https://raw.githubusercontent.com/curran/data/gh-pages/Rdatasets/csv/datasets/mtcars.csv",
+            )
+            create_files_for_source(url, ["sub/subsub/mtcars.csv"])
 
     #################################################################
     # Jobs, queues, workers, zones
