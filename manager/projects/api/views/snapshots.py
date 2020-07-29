@@ -156,6 +156,12 @@ class ProjectsSnapshotsViewSet(
             b"</head>",
             b'<link rel="stylesheet" href="https://unpkg.com/@stencila/style-material/dist/index-material.css"></head>',
         )
+        
+        # TODO: Remove this!
+        html = html.replace(
+            b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
+            b'http://localhost:8090/',
+        )
 
         # Inject execution toolbar
         source_url = reverse(
@@ -179,7 +185,7 @@ class ProjectsSnapshotsViewSet(
         """.format(
             source_url=source_url, session_provider_url=session_provider_url
         )
-        html = content.replace(b"<body>", b"<body>" + toolbar.encode())
+        html = html.replace(b"<body>", b"<body>" + toolbar.encode())
 
         response = HttpResponse(html)
 
