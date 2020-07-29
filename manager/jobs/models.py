@@ -606,6 +606,7 @@ class Job(models.Model):
 
     began = models.DateTimeField(null=True, help_text="The time the job began.")
     ended = models.DateTimeField(null=True, help_text="The time the job ended.")
+
     status = models.CharField(
         max_length=32,
         choices=JobStatus.as_choices(),
@@ -688,6 +689,16 @@ class Job(models.Model):
     )
 
     callback_object = GenericForeignKey("callback_type", "callback_id")
+
+    @property
+    def status_message(self) -> str:
+        """
+        Generate a message for users describing the status of the job.
+        """
+        if self.status == JobStatus.DISPATCHED.value:
+            return "Job is queued at position {}".format(self.position)
+        else:
+            return "Job is {}".format(self.status.lower())
 
     @property
     def summary_string(self) -> str:

@@ -20,6 +20,8 @@ class JobListSerializer(serializers.ModelSerializer):
     fields. e.g. `summary_string`
     """
 
+    status_message = serializers.CharField(read_only=True)
+
     summary_string = serializers.CharField(read_only=True)
 
     runtime_formatted = serializers.CharField(read_only=True)
