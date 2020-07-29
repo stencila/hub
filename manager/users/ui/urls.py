@@ -5,6 +5,7 @@ from users.ui.views import (
     SigninView,
     SignoutView,
     SignupView,
+    features,
     invites_create,
     invites_list,
     redirect,
@@ -28,6 +29,7 @@ urlpatterns = [
             ]
         ),
     ),
+    path("features/", features, name="ui-users-features"),
     path("", include("allauth.urls")),
     # Redirect to the user's personal account
     # e.g. /me/settings -> username/settings

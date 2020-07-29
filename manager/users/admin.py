@@ -83,6 +83,16 @@ class AnonUserAdmin(admin.ModelAdmin):
 
 @admin.register(Flag)
 class FlagAdmin(admin.ModelAdmin):
-    """Admin interface for user feature flags."""
+    """Admin interface for feature and privacy flags."""
 
-    pass
+    list_display = [
+        "name",
+        "settable",
+        "default",
+        "everyone",
+        "percent",
+        "staff",
+        "authenticated",
+        "rollout",
+    ]
+    list_filter = ["settable", "everyone", "staff", "authenticated", "rollout"]

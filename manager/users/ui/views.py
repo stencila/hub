@@ -9,7 +9,7 @@ from django.shortcuts import render, reverse
 
 from users.api.serializers import InviteSerializer
 from users.api.views.invites import InvitesViewSet
-from users.models import Invite
+from users.models import Flag, Invite
 
 logger = logging.getLogger(__name__)
 
@@ -161,6 +161,15 @@ signed_up_signal = (
     invitations.views.get_invitations_adapter().get_user_signed_up_signal()
 )
 signed_up_signal.connect(accept_invite_after_signup)
+
+
+@login_required
+def features(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Feature and privacy settings.
+    """
+    flags = Flag.objects.filter(settable=True)
+    return render(request, "users/features.html", dict(flags=flags))
 
 
 @login_required
