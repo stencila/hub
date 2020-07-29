@@ -34,8 +34,7 @@ cover: venv
 
 # Run `celery worker` during development to check configuration.
 # Uses timestamp to generate unique hostnames for workers.
-# Uses concurrency=1 and prefetch-multiplier=1 is closer to what happens in
-# prod: "only reserve one task per worker process at a time". 
+# Uses prefetch-multiplier=1: "only reserve one task per worker process at a time". 
 # See https://docs.celeryproject.org/en/stable/userguide/optimizing.html#prefetch-limits
 QUEUES ?= default
 run: venv
@@ -44,7 +43,7 @@ run: venv
 		--app worker \
 		--hostname worker-$$(date +'%s')@%h \
 		--queues $(QUEUES) \
-		--concurrency=1 \
+		--concurrency=4 \
 		--prefetch-multiplier=1 \
 		--events \
 		--heartbeat-interval=30 \
