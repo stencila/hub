@@ -7,6 +7,7 @@ from pathlib import Path
 import celery
 from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
+from celery.utils.log import get_task_logger
 import sentry_sdk
 
 from config import get_working_dir
@@ -23,6 +24,9 @@ DEBUG = 3
 DJANGO_SENTRY_DSN = os.environ.get("DJANGO_SENTRY_DSN")
 if DJANGO_SENTRY_DSN:
     sentry_sdk.init(dsn=DJANGO_SENTRY_DSN)
+
+# Get the Celery logger
+logger = get_task_logger(__name__)
 
 
 class Job(celery.Task):
@@ -51,11 +55,24 @@ class Job(celery.Task):
         """
         Create a log entry.
 
-        This appends an entry to the log and updates the
-        state with the log as metadata. This makes the
-        log and any extra details available to the `manager`.
-        (see the `update_job` for how these are extracted)
+        This function:
+
+        - Emits to the Python logger, and
+
+        - Appends an entry to the job's log and updates the
+          state with the log as metadata thereby making the
+          log and any extra details available to the `manager`.
+          (see the `update_job` there for how these are extracted)
         """
+        if level == DEBUG:
+            logger.debug(message)
+        elif level == INFO:
+            logger.info(message)
+        elif level == WARN:
+            logger.warn(message)
+        else:
+            logger.error(message)
+
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
         )

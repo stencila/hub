@@ -62,9 +62,9 @@ class SubprocessJob(Job):
                             level=entry.get("level", INFO), message=entry["message"]
                         )
                     else:
-                        self.info(line)
+                        self.info(line.strip())
                 except json.decoder.JSONDecodeError:
-                    self.info(line)
+                    self.info(line.strip())
 
         if input:
             stdout_data, stderr_data = self.process.communicate(input=input)
