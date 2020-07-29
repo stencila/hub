@@ -511,13 +511,22 @@ def generate_job_id():
     return shortuuid.uuid()
 
 
+def generate_job_key():
+    """
+    Generate a unique, and very difficult to guess, job key.
+    """
+    return shortuuid.ShortUUID().random(length=32)
+
+
 class Job(models.Model):
     """
     A job, usually, but not necessarily associated with a project.
 
-    If a job is created here in Django, the `creator` field should be
-    populated with the current user. Jobs created as part of a pipline
-    may not have a creator.
+    The `creator` field should be populated with the current user.
+    Jobs created as part of a pipline, or by an anonymous user, may not have a creator.
+
+    The `key` field provides a way of accessing the job instead of using
+    the easy-to-guess `id`.
 
     The `description` can be used to provide the user with a summary of
     what the job is doing.
@@ -537,6 +546,12 @@ class Job(models.Model):
     id = models.BigAutoField(
         primary_key=True,
         help_text="An autoincrementing integer to allow selecting jobs in the order they were created.",
+    )
+
+    key = models.CharField(
+        default=generate_job_key,
+        max_length=64,
+        help_text="A unique, and very difficult to guess, key to access the job with.",
     )
 
     description = models.TextField(

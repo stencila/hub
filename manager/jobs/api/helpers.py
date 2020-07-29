@@ -23,4 +23,4 @@ def redirect_to_job(job: Job, accepts_html=False) -> Response:
             ),
         )
     else:
-        return redirect("api-projects-jobs-detail", job.project.id, job.id)
+        return redirect("api-projects-jobs-detail", job.project.id, job.key)

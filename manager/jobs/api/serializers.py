@@ -43,7 +43,7 @@ class JobListSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(
                 reverse(
                     "api-projects-jobs-connect",
-                    kwargs=dict(project=job.project.id, job=job.id),
+                    kwargs=dict(project=job.project.id, job=job.key),
                 )
             )
 

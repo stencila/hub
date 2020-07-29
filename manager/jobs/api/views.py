@@ -388,6 +388,14 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
+    def get_permissions(self):
+        """
+        Get the permissions that the current action requires.
+        """
+        if self.action in ["connect", "cancel"]:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
     def get_project(self) -> Project:
         """
         Get the project for the current action and check user has roles.
@@ -397,7 +405,9 @@ class ProjectsJobsViewSet(
         return get_project(
             self.kwargs,
             self.request.user,
-            [
+            []
+            if self.action in ["connect", "cancel"]
+            else [
                 ProjectRole.AUTHOR,
                 ProjectRole.EDITOR,
                 ProjectRole.MANAGER,
@@ -427,8 +437,15 @@ class ProjectsJobsViewSet(
         Get the object for the current action.
         """
         queryset = self.get_queryset(project)
+
+        id_or_key = self.kwargs["job"]
         try:
-            job = queryset.get(id=self.kwargs["job"])
+            identifier = dict(id=int(id_or_key))
+        except ValueError:
+            identifier = dict(key=id_or_key)
+
+        try:
+            job = queryset.get(**identifier)
         except Job.DoesNotExist:
             raise exceptions.NotFound
         return job
@@ -503,7 +520,8 @@ class ProjectsJobsViewSet(
                 {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        job.users.add(request.user)
+        if request.user.is_authenticated:
+            job.users.add(request.user)
 
         # Nginx does not accept the ws:// prefix, so in those
         # cases replace with http://
