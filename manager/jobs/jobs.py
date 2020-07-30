@@ -15,6 +15,7 @@ import logging
 from celery import Celery, signature
 from celery.result import AsyncResult
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.utils import timezone
 
@@ -52,6 +53,9 @@ def dispatch_job(job: Job) -> Job:
     """
     if not JobMethod.is_member(job.method):
         raise ValueError("Unknown job method '{}'".format(job.method))
+
+    if job.method in settings.JOB_METHODS_STAFF_ONLY and not job.creator.is_staff:
+        raise PermissionDenied
 
     if JobMethod.is_compound(job.method):
         children = job.children.all().order_by("id")
