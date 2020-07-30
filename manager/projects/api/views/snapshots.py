@@ -10,6 +10,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from jobs.api.helpers import redirect_to_job
+from manager.api.authentication import (
+    BasicAuthentication,
+    CsrfExemptSessionAuthentication,
+)
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -37,6 +41,8 @@ class ProjectsSnapshotsViewSet(
     lookup_url_kwarg = "snapshot"
     object_name = "snapshot"
     queryset_name = "snapshots"
+
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def get_permissions(self):
         """
@@ -156,11 +162,11 @@ class ProjectsSnapshotsViewSet(
             b"</head>",
             b'<link rel="stylesheet" href="https://unpkg.com/@stencila/style-material/dist/index-material.css"></head>',
         )
-        
+
         # TODO: Remove this!
         html = html.replace(
             b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
-            b'http://localhost:8090/',
+            b"http://localhost:8090/",
         )
 
         # Inject execution toolbar
