@@ -23,7 +23,7 @@ class JobAdmin(admin.ModelAdmin):
         "ended",
         "status",
         "method",
-        "queue",
+        "queue_id",
         "worker",
     ]
     list_filter = ["status", "method"]
