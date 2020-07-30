@@ -74,4 +74,7 @@ class CsrfExemptSessionAuthentication(SessionAuthentication):
     """
 
     def enforce_csrf(self, request):
+        """
+        Do not enforce CSRF.
+        """
         return  # To not perform the csrf check previously happening
