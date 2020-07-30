@@ -127,11 +127,6 @@ after_account_urls = [
                                 snapshots_views.retrieve,
                                 name="ui-projects-snapshots-retrieve",
                             ),
-                            path(
-                                "<int:snapshot>/view",
-                                snapshots_views.view,
-                                name="ui-projects-snapshots-view",
-                            ),
                         ]
                     ),
                 ),

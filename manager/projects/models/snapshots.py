@@ -225,6 +225,17 @@ class Snapshot(models.Model):
         """
         return self.job and self.job.is_active
 
+    @property
+    def has_index(self) -> bool:
+        """
+        Determine if the snapshot has an index.html file, or not.
+        """
+        try:
+            self.files.get(path="index.html")
+            return True
+        except File.DoesNotExist:
+            return False
+
     def file_location(self, file: str) -> str:
         """
         Get the location of a file in the snapshot relative to the root of the storage volume.
