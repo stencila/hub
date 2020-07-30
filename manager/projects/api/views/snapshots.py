@@ -163,12 +163,6 @@ class ProjectsSnapshotsViewSet(
             b'<link rel="stylesheet" href="https://unpkg.com/@stencila/style-material/dist/index-material.css"></head>',
         )
 
-        # TODO: Remove this!
-        html = html.replace(
-            b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
-            b"http://localhost:8090/",
-        )
-
         # Inject execution toolbar
         source_url = reverse(
             "ui-projects-snapshots-retrieve",
