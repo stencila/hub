@@ -71,8 +71,8 @@ class SubprocessJob(Job):
 
             # If failed then send the remainder of the lines as a single
             # log entry
-            self.info(''.join(list(stderr)[index:]))
-
+            if failed:
+                self.info("".join(list(stderr)[index:]))
 
         if input:
             stdout_data, stderr_data = self.process.communicate(input=input)
