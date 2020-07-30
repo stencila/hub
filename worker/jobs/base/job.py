@@ -37,11 +37,7 @@ class Job(celery.Task):
     termination of jobs.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.log_entries = None
-
-    def begin(self):
+    def begin(self, task_id=None):
         """
         Begin the job.
 
@@ -49,6 +45,7 @@ class Job(celery.Task):
         for each task instance, this method performs any
         initialization in advance.
         """
+        self.task_id = task_id
         self.log_entries = []
 
     def log(self, level: int, message: str, **kwargs):
@@ -76,7 +73,13 @@ class Job(celery.Task):
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
         )
-        self.update_state(state="RUNNING", meta=dict(log=self.log_entries, **kwargs))
+
+        # Only send the log event if there is is a task_id to be able
+        # to relate this job to.
+        if self.task_id:
+            self.send_event(
+                "task-logged", task_id=self.task_id, log=self.log_entries, **kwargs
+            )
 
     def error(self, message: str):
         """Log an error message."""
@@ -133,7 +136,7 @@ class Job(celery.Task):
         sentry_sdk.capture_exception(exc)
         raise exc
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, task_id=None, **kwargs):
         """
         Run the job.
 
@@ -157,7 +160,7 @@ class Job(celery.Task):
         else:
             working_dir = current_dir
 
-        self.begin()
+        self.begin(task_id)
         try:
             if working_dir != current_dir:
                 os.chdir(working_dir)
