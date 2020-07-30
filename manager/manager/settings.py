@@ -432,6 +432,13 @@ class Prod(Configuration):
     # during development for ease of testing.
     UI_BASIC_AUTH = values.BooleanValue(False)
 
+    # Use a local URL for jobs
+    # If this is True the URLs of session jobs are local
+    # not global. This is useful during development as
+    # it avoids the need for the `router` service to reverse
+    # proxy Websocket connections.
+    JOB_URL_LOCAL = values.BooleanValue(False)
+
     @classmethod
     def post_setup(cls):
         """Do additional configuration after initial setup."""
@@ -522,6 +529,9 @@ class Dev(Prod):
 
     # For browser screenshotting allow Basic auth
     UI_BASIC_AUTH = True
+
+    # Use local URLs to more easily tests connections to jobs
+    JOB_URL_LOCAL = True
 
     # Use local file storage
     STORAGE_ROOT = STORAGE_ROOT

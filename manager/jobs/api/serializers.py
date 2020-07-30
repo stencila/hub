@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.shortcuts import reverse
 from rest_framework import serializers
 
@@ -41,13 +42,18 @@ class JobListSerializer(serializers.ModelSerializer):
         internal URL or has ended.
         """
         if job.url and job.is_active:
-            request = self.context.get("request")
-            return request.build_absolute_uri(
-                reverse(
-                    "api-projects-jobs-connect",
-                    kwargs=dict(project=job.project.id, job=job.key),
+            if settings.JOB_URL_LOCAL:
+                return job.url
+            else:
+                request = self.context.get("request")
+                return request.build_absolute_uri(
+                    reverse(
+                        "api-projects-jobs-connect",
+                        kwargs=dict(project=job.project.id, job=job.id),
+                    )
+                    + "?key="
+                    + job.key
                 )
-            )
 
 
 class JobRetrieveSerializer(JobListSerializer):

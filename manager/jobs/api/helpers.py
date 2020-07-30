@@ -23,4 +23,11 @@ def redirect_to_job(job: Job, accepts_html=False) -> Response:
             ),
         )
     else:
-        return redirect("api-projects-jobs-detail", job.project.id, job.key)
+        return redirect(
+            reverse(
+                "api-projects-jobs-detail",
+                kwargs=dict(project=job.project.id, job=job.id),
+            )
+            + "?key="
+            + job.key
+        )

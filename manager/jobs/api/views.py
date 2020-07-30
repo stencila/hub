@@ -388,25 +388,27 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
+    # Actions which require the job key for users that
+    # do not have a role on the project
+    actions_key_required = ["retrieve", "connect", "cancel"]
+
     def get_permissions(self):
         """
         Get the permissions that the current action requires.
         """
-        if self.action in ["connect", "cancel"]:
+        if self.action in self.actions_key_required:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
     def get_project(self) -> Project:
         """
         Get the project for the current action and check user has roles.
-
-        All actions require that the user be an AUTHOR or above.
         """
         return get_project(
             self.kwargs,
             self.request.user,
             []
-            if self.action in ["connect", "cancel"]
+            if self.action in self.actions_key_required
             else [
                 ProjectRole.AUTHOR,
                 ProjectRole.EDITOR,
@@ -435,19 +437,27 @@ class ProjectsJobsViewSet(
     def get_object(self, project: Optional[Project] = None):
         """
         Get the object for the current action.
+
+        If the user `role` is `None` because they are not a
+        member of the project (e.g. an anonymous user) then this
+        function checks that they provided the job `key`.
         """
+        project = project or self.get_project()
         queryset = self.get_queryset(project)
 
-        id_or_key = self.kwargs["job"]
         try:
-            identifier = dict(id=int(id_or_key))
-        except ValueError:
-            identifier = dict(key=id_or_key)
-
-        try:
-            job = queryset.get(**identifier)
+            job = queryset.get(id=self.kwargs["job"])
         except Job.DoesNotExist:
             raise exceptions.NotFound
+
+        if project.role is None:
+            if self.action in self.actions_key_required:
+                key = self.request.GET.get("key")
+                if key != job.key:
+                    raise exceptions.PermissionDenied("Missing or invalid job key")
+            else:
+                raise exceptions.PermissionDenied
+
         return job
 
     def get_serializer_class(self):
@@ -544,7 +554,6 @@ class ProjectsJobsViewSet(
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        # TODO: Check that user has edit rights for job
         job = self.get_object()
         job.cancel()
 
