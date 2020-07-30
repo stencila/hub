@@ -1,3 +1,4 @@
+from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
 
 from .network import get_local_ip, get_random_port
@@ -27,8 +28,7 @@ class SubprocessSession(SubprocessJob):
 
         return super().do(
             [
-                "node",
-                "/usr/lib/node_modules/@stencila/executa/dist/cli/cli/index.js",
+                get_node_modules_bin("executa"),
                 "serve",
                 "--debug",
                 "--{}=0.0.0.0:{}".format(protocol, port),

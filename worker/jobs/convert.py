@@ -2,6 +2,7 @@ from typing import cast, List, Union, Dict
 import os
 import tempfile
 
+from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
 from util.files import Files, list_files, move_files
 
@@ -68,8 +69,7 @@ class Convert(SubprocessJob):
 
         # Call Encoda
         args = [
-            "npx",
-            "encoda",
+            get_node_modules_bin("encoda"),
             "convert",
             "-" if isinstance(input, bytes) else input,
         ] + outputs
