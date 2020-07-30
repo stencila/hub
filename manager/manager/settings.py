@@ -442,7 +442,6 @@ class Prod(Configuration):
     # A list of job methods restricted to staff members
     JOB_METHODS_STAFF_ONLY = ["session"]
 
-
     @classmethod
     def post_setup(cls):
         """Do additional configuration after initial setup."""
