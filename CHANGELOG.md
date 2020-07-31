@@ -1,3 +1,10 @@
+## [3.16.1](https://github.com/stencila/hub/compare/v3.16.0...v3.16.1) (2020-07-31)
+
+
+### Bug Fixes
+
+* **Snapshots:** Don't inject CSS variables as they're set by Designa ([4d52fb8](https://github.com/stencila/hub/commit/4d52fb8c6dc5ffd5350d8c54c69210b765988c6b))
+
 # [3.16.0](https://github.com/stencila/hub/compare/v3.15.1...v3.16.0) (2020-07-31)
 
 
