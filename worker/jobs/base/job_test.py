@@ -9,16 +9,17 @@ from .job import Job, DEBUG, INFO, WARN, ERROR
 def test_logging():
     """On each log entry update_state is called with the log."""
     job = Job()
-    job.begin()
+    job.begin(task_id=4321)
 
     current = {}
 
-    def update_state(self, state, meta):
-        current["state"] = state
-        current["meta"] = meta
+    def send_event(self, event, **kwargs):
+        assert event == "task-logged"
+        current["state"] = kwargs.get("state")
+        current["log"] = kwargs.get("log")
 
     with mock.patch(
-        "celery.Task.update_state", new=update_state,
+        "celery.Task.send_event", new=send_event,
     ):
 
         for index, level in enumerate(["error", "warn", "info", "debug"]):
@@ -29,7 +30,7 @@ def test_logging():
             assert log["level"] == index
             assert log["message"] == "{} message".format(level)
             assert current["state"] == "RUNNING"
-            assert current["meta"]["log"] == job.log_entries
+            assert current["log"] == job.log_entries
 
 
 def test_success():
@@ -40,21 +41,11 @@ def test_success():
     assert returns["result"] == 42
     assert returns["log"] == []
 
-
 def test_terminated():
-    """Calls update_state with log and raises Ignore"""
+    """Calls flush"""
     job = Job()
     job.begin()
-
-    def update_state(self, state, meta):
-        assert state == "TERMINATED"
-        assert "log" in meta
-
-    with mock.patch(
-        "celery.Task.update_state", new=update_state,
-    ):
-        with pytest.raises(Ignore):
-            job.terminated()
+    job.terminated()
 
 
 def test_do_unimplemented():
