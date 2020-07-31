@@ -156,13 +156,6 @@ class ProjectsSnapshotsViewSet(
 
         html = content
 
-        # Inject additional styles into head
-        # TODO: This may no longer be necessary
-        html = html.replace(
-            b"</head>",
-            b'<link rel="stylesheet" href="https://unpkg.com/@stencila/style-material/dist/index-material.css"></head>',
-        )
-
         # Inject execution toolbar
         source_url = reverse(
             "ui-projects-snapshots-retrieve",
