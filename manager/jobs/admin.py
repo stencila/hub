@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
 from jobs.models import (
     Job,
@@ -28,6 +30,30 @@ class JobAdmin(admin.ModelAdmin):
     ]
     list_filter = ["status", "method"]
     show_full_result_count = False
+
+    actions = ["cancel"]
+
+    def cancel(self, request, queryset):
+        """
+        Action to cancel the selected jobs.
+
+        Uses a confirmation page to make sure the
+        staff member wants to cancel the jobs.
+        """
+        if "apply" in request.POST:
+            # Cancel the jobs
+            for job in queryset.all():
+                job.cancel()
+
+            # Redirect to admin view with message
+            self.message_user(request, "Cancelled {} jobs".format(queryset.count()))
+            return HttpResponseRedirect(request.get_full_path())
+
+        return render(
+            request, "jobs/admin/jobs_cancel_confirm.html", context={"jobs": queryset}
+        )
+
+    cancel.short_description = "Cancel selected jobs"
 
 
 @admin.register(Pipeline)
