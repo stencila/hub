@@ -1,3 +1,17 @@
+# [3.16.0](https://github.com/stencila/hub/compare/v3.15.1...v3.16.0) (2020-07-31)
+
+
+### Bug Fixes
+
+* **Manager jobs:** Check that callback object exists ([c6223f3](https://github.com/stencila/hub/commit/c6223f393172d358f39a2ec375c563bebf97eed0)), closes [#596](https://github.com/stencila/hub/issues/596)
+
+
+### Features
+
+* **Cache:** Add cache service ([73d1aa8](https://github.com/stencila/hub/commit/73d1aa80d22176dbe5cc155a345493f14cdd1da9))
+* **Manager:** Allow use of cache service as result backend ([ddb8141](https://github.com/stencila/hub/commit/ddb8141b924fb0edbaf176c6b26066535146ce4b))
+* **Worker:** Allow use of cache service as result backend ([f1435c2](https://github.com/stencila/hub/commit/f1435c2a9bd05b95391c505046ab62f0b825db09))
+
 ## [3.15.1](https://github.com/stencila/hub/compare/v3.15.0...v3.15.1) (2020-07-31)
 
 
