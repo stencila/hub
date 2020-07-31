@@ -846,8 +846,9 @@ class Job(models.Model):
         if self.callback_type:
             if self.callback_id and self.callback_method:
                 obj = self.callback_object
-                func = getattr(obj, self.callback_method)
-                func(self)
+                if obj:
+                    func = getattr(obj, self.callback_method)
+                    func(self)
 
 
 class Pipeline(models.Model):
