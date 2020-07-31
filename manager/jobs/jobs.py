@@ -25,9 +25,8 @@ from jobs.models import Job, JobMethod, JobStatus, Queue, Worker
 logger = logging.getLogger(__name__)
 
 # Setup the Celery app
-# This is used to send and cancel jobs
-celery = Celery("manager", broker=settings.BROKER_URL, backend="rpc://")
-celery.conf.update(
+app = Celery("manager", broker=settings.BROKER_URL, backend=settings.CACHE_URL)
+app.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
     # subsequent try (with a maximum of 3 seconds).
@@ -109,7 +108,7 @@ def dispatch_job(job: Job) -> Job:
             kwargs=job.params,
             queue=queue.name,
             task_id=str(job.id),
-            app=celery,
+            app=app,
         )
         task.apply_async()
 
@@ -186,7 +185,7 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
             setattr(job, key, value)
 
         def async_result():
-            return AsyncResult(str(job.id), app=celery)
+            return AsyncResult(str(job.id), app=app)
 
         # If the status is RUNNING then set any of the fields that
         # may have been updated.
@@ -246,7 +245,7 @@ def cancel_job(job: Job) -> Job:
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
     if not JobStatus.has_ended(job.status):
-        celery.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
+        app.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
         job.status = JobStatus.CANCELLED.value
         job.save()
     return job
