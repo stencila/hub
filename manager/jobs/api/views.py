@@ -263,13 +263,7 @@ class JobsViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         from the job queue.
         """
         job = self.get_object()
-
-        serializer = self.get_serializer(job, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        job.update(force=True)
-
+        job.update(data=request.data)
         return Response()
 
 

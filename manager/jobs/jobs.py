@@ -13,6 +13,7 @@ import datetime
 import logging
 
 from celery import Celery, signature
+from celery.exceptions import TimeoutError
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -120,13 +121,13 @@ def dispatch_job(job: Job) -> Job:
     return job
 
 
-def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job:
+def update_job(job: Job, data={}, force: bool = False) -> Job:
     """
-    Update a job based on it's result.
+    Update a job.
 
-    This method is used to update the status of the job by getting it's
-    `AsyncResult`. It is called when (1) the job is retrived (ie. GET) and
-    (2) when it is updated with other information (ie PATCH).
+    This method is triggered FROM a PATCH request from the
+    `overseer` service. It updates the status, and other fields of
+    the job, and if the job has a parent, updates it's status.
 
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.
@@ -137,16 +138,14 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
 
     was_active = job.is_active
 
-    # Update the status of compound jobs based on children
     if JobMethod.is_compound(job.method):
+        # Update the status of compound jobs based on children
         status = job.status
         is_active = False
         all_previous_succeeded = True
         any_previous_failed = False
         children = job.children.all().order_by("id")
         for child in children:
-            update_job(child, update_parent=False)
-
             # If the child is active then the compound job is active
             if child.is_active:
                 is_active = True
@@ -172,37 +171,55 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
         job.is_active = is_active
         job.status = JobStatus.RUNNING.value if is_active else status
 
-    # For atomic jobs, get an async result from the backend if the job
-    # is not recorded as ready.
     else:
-        async_result = AsyncResult(str(job.id), app=celery)
-        status = async_result.status
-        info = async_result.info
+        status = data.get("status")
+        assert status
 
-        if status != JobStatus.PENDING.value:
-            job.status = status
+        # Do not do anything if the new status is lower rank than the
+        # existing status. This can exist for example when a job is
+        # terminated (the SUCCESS state is sent after TERMINATED)
+        if JobStatus.rank(status) < JobStatus.rank(job.status):
+            return job
 
-        if status in [JobStatus.RUNNING.value, JobStatus.SUCCESS.value] and isinstance(
-            async_result.info, dict
-        ):
-            # For RUNNING, `info` is the `meta` kwarg passed to
-            # `Job.update_state()` call in the worker process.
-            # For SUCCESS, `info` is the value returned
-            # by the `Job.success()` method in the worker process.
-            for field in ["result", "log", "url"]:
-                if field in info:
-                    setattr(job, field, info[field])
+        # Update fields sent by `overseer` service, including `status`
+        for key, value in data.items():
+            setattr(job, key, value)
 
-        if status == JobStatus.FAILURE.value:
-            # For FAILURE, `info` is the raised Exception
+        def async_result():
+            return AsyncResult(str(job.id), app=celery)
+
+        # If the status is RUNNING then set any of the fields that
+        # may have been updated.
+        # In these cases, `async_result.info` is the `meta` kwarg passed to
+        # `Job.update_state()` call in the worker process.
+        if status == JobStatus.RUNNING.value:
+            info = async_result().info
+            if isinstance(info, dict):
+                for key, value in info.items():
+                    setattr(job, key, value)
+
+        # If job succeeded then get the result if we haven't already
+        elif status == JobStatus.SUCCESS.value and job.result is None:
+            try:
+                response = async_result().wait(timeout=30)
+                if response:
+                    job.result = response.get("result")
+                    job.log = response.get("log")
+            except TimeoutError:
+                raise TimeoutError(
+                    "Timed out waiting for result of job id: {}, method: {}".format(
+                        job.id, job.method
+                    )
+                )
+
+        # If job failed then get the error
+        # For FAILURE, `info` is the raised Exception
+        elif status == JobStatus.FAILURE.value:
+            info = async_result().info
             job.error = dict(type=type(info).__name__, message=str(info))
 
-        # If the job has a result and no error, then mark it succeeded:
-        if job.result is not None and job.error is None:
-            job.status = JobStatus.SUCCESS.value
-
         # If the job has just ended then mark it as inactive
-        if JobStatus.has_ended(job.status):
+        if JobStatus.has_ended(status):
             job.is_active = False
 
     # If the job is no longer active run it's callback
@@ -212,8 +229,8 @@ def update_job(job: Job, force: bool = False, update_parent: bool = True) -> Job
     # Save before updating parent (and then this again)
     job.save()
 
-    # If the job has a parent then check it
-    if update_parent and job.parent:
+    # If the job has a parent then update it too
+    if job.parent:
         update_job(job.parent)
 
     return job

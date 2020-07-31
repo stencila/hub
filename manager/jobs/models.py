@@ -397,9 +397,9 @@ class JobStatus(EnumChoice):
 
     # Job cancellation message sent (custom).
     CANCELLED = "CANCELLED"
-    # Job was revoked.
+    # Job was revoked (cancelled before it was started).
     REVOKED = "REVOKED"
-    # Job was terminated (custom).
+    # Job was terminated (started and then cancelled, custom).
     TERMINATED = "TERMINATED"
 
     # Job was rejected.
@@ -808,11 +808,11 @@ class Job(models.Model):
 
         return dispatch_job(self)
 
-    def update(self, force=False) -> "Job":
+    def update(self, *args, **kwargs) -> "Job":
         """Update the job."""
         from jobs.jobs import update_job
 
-        return update_job(self, force)
+        return update_job(self, *args, **kwargs)
 
     def cancel(self) -> "Job":
         """Cancel the job."""
