@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/stencila/hub/compare/v3.15.0...v3.15.1) (2020-07-31)
+
+
+### Bug Fixes
+
+* **Manager:** Use extra dict instead on interpolation ([eb9e8db](https://github.com/stencila/hub/commit/eb9e8db61cafc9019ff5e909490cc6713314e384))
+
 # [3.15.0](https://github.com/stencila/hub/compare/v3.14.0...v3.15.0) (2020-07-31)
 
 
