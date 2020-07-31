@@ -19,14 +19,18 @@ in case the enclosing page want to use that data to trigger further events
 
   {% include "./_job_item.html" %}
 
+  {% if job.log %}
+  <hr />
+  <h2 class="title is-5">Log</h2>
+  {% for log in job.log %}
+    Level {{ log.level }}: {{ log.message }}
+  {% endfor %}
+  {% endif %}
+
   {% if job.result %}
   <hr />
-  <h2 class="title is-4">Results</h2>
-  <ul>
-    {% for result in job.result %}
-    <li>{{ result }}</li>
-    {% endfor %}
-  </ul>
+  <h2 class="title is-5">Result</h2>
+  <pre>{{ job.result_prettified }}</pre>
   {% endif %}
 
   {% if job.children.all %}

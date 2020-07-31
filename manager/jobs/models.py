@@ -799,6 +799,10 @@ class Job(models.Model):
         """Check if the status is one of the defined ended statuses."""
         return JobStatus.has_ended(self.status)
 
+    def result_prettified(self):
+        """Prettify the JSON result, if any."""
+        return json.dumps(self.result, indent="  ") if self.result else None
+
     # Shortcuts to the functions for controlling
     # and updating jobs.
 
