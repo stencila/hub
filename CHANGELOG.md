@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/stencila/hub/compare/v3.16.1...v3.17.0) (2020-07-31)
+
+
+### Features
+
+* **Manager jobs:** Allow cancellation of jobs from admin interface ([884a2ca](https://github.com/stencila/hub/commit/884a2cad427340652f777a9a31b6485809a2f217))
+
 ## [3.16.1](https://github.com/stencila/hub/compare/v3.16.0...v3.16.1) (2020-07-31)
 
 
