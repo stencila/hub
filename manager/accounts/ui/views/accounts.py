@@ -58,8 +58,18 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve an account."""
     account_viewset = AccountsViewSet.init("retrieve", request, args, kwargs)
     account = account_viewset.get_object()
+
+    # Show projects that the request user has read access to, and
+    # - for personal accounts, that the account user is a member of
+    # - for organizational accounts, only those owned by the account
+    # ie. will only show private projects if the request user has access to it
     projects_viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
-    projects = projects_viewset.get_queryset().filter(account=account)
+    projects = projects_viewset.get_queryset()
+    if account.is_personal:
+        projects = projects.filter(agents__user=account.user)
+    else:
+        projects = projects.filter(account=account)
+
     return render(
         request,
         "accounts/retrieve.html",
