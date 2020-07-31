@@ -24,7 +24,12 @@ JOBS = [Archive, Clean, Convert, Decode, Encode, Pull, Session, Sleep]
 
 
 # Setup the Celery app
-app = Celery("worker", broker=os.environ["BROKER_URL"], backend="rpc://")
+# If CACHE_URL is not set then falls back to using the RPC backend.
+# RPC backend should only be used during development due to it's limitations
+# when using multiple `manager` processes.
+app = Celery(
+    "worker", broker=os.environ["BROKER_URL"], backend=os.getenv("CACHE_URL", "rpc://")
+)
 app.conf.update(
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
