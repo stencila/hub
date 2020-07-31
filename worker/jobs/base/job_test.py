@@ -41,6 +41,7 @@ def test_success():
     assert returns["result"] == 42
     assert returns["log"] == []
 
+
 def test_terminated():
     """Calls flush"""
     job = Job()
