@@ -89,7 +89,7 @@ Event = Dict[str, Union[str, int, float]]
 
 def get_event_time(event: Event):
     """Get the event timestamp and convert it into ISO format as expected by the Hub."""
-    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat()
+    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat() + 'Z'
 
 
 # Handlers for task events
@@ -160,7 +160,10 @@ def task_logged(event: Event):
     This is a custom event, see `worker.Job` for when
     it is emitted.
     """
-    update_job(event["task_id"], {"log": event.get("log")})
+    update_job(
+        event["task_id"],
+        {"status": event.get("state", "RUNNING"), "log": event.get("log")},
+    )
 
 
 def task_failed(event: Event):
