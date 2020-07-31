@@ -48,7 +48,7 @@ def register(cls: Type[Job]):
 
         app.register_task(Pull())
 
-    However, we found that when we did that, that `self.request.id
+    However, we found that when we did that, that `self.request.id`
     was missing (so although we could send custom events to the
     `overseer` they were useless because they had no task `uuid`).
     See https://github.com/celery/celery/issues/2633 for some
