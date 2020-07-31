@@ -569,6 +569,9 @@ class Test(Prod):
     # During testing, default to using a pseudo, in-memory broker
     BROKER_URL = "memory://"
 
+    # During testing, use RPC result backend
+    CACHE_URL = "rpc://"
+
     # During testing, use local file storage because do not have Google bucket
     # credentials.
     STORAGE_ROOT = STORAGE_ROOT
