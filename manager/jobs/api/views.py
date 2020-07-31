@@ -263,13 +263,7 @@ class JobsViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
         from the job queue.
         """
         job = self.get_object()
-
-        serializer = self.get_serializer(job, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        job.update(force=True)
-
+        job.update(data=request.data)
         return Response()
 
 
@@ -388,16 +382,28 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
+    # Actions which require the job key for users that
+    # do not have a role on the project
+    actions_key_required = ["retrieve", "connect", "cancel"]
+
+    def get_permissions(self):
+        """
+        Get the permissions that the current action requires.
+        """
+        if self.action in self.actions_key_required:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
     def get_project(self) -> Project:
         """
         Get the project for the current action and check user has roles.
-
-        All actions require that the user be an AUTHOR or above.
         """
         return get_project(
             self.kwargs,
             self.request.user,
-            [
+            []
+            if self.action in self.actions_key_required
+            else [
                 ProjectRole.AUTHOR,
                 ProjectRole.EDITOR,
                 ProjectRole.MANAGER,
@@ -425,12 +431,27 @@ class ProjectsJobsViewSet(
     def get_object(self, project: Optional[Project] = None):
         """
         Get the object for the current action.
+
+        If the user `role` is `None` because they are not a
+        member of the project (e.g. an anonymous user) then this
+        function checks that they provided the job `key`.
         """
+        project = project or self.get_project()
         queryset = self.get_queryset(project)
+
         try:
             job = queryset.get(id=self.kwargs["job"])
         except Job.DoesNotExist:
             raise exceptions.NotFound
+
+        if project.role is None:
+            if self.action in self.actions_key_required:
+                key = self.request.GET.get("key")
+                if key != job.key:
+                    raise exceptions.PermissionDenied("Missing or invalid job key")
+            else:
+                raise exceptions.PermissionDenied
+
         return job
 
     def get_serializer_class(self):
@@ -479,7 +500,7 @@ class ProjectsJobsViewSet(
 
     @swagger_auto_schema(request_body=None)
     @action(detail=True, url_path="connect/?(?P<path>.+)?", methods=["GET", "POST"])
-    def connect(self, request, pk: int, path: str) -> Response:
+    def connect(self, request, *args, **kwargs) -> Response:
         """
         Connect to a job.
 
@@ -491,7 +512,6 @@ class ProjectsJobsViewSet(
         first checks that the user has permission to edit the
         job.
         """
-        # TODO: Check that user has edit rights for job
         job = self.get_object()
 
         if not job.url:
@@ -504,11 +524,13 @@ class ProjectsJobsViewSet(
                 {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        job.users.add(request.user)
+        if request.user.is_authenticated:
+            job.users.add(request.user)
 
         # Nginx does not accept the ws:// prefix, so in those
         # cases replace with http://
         url = job.url.replace("ws://", "http://")
+        path = self.kwargs.get("path")
 
         return Response(
             headers={
@@ -526,7 +548,6 @@ class ProjectsJobsViewSet(
         If the job is cancellable, it will be cancelled
         and it's status set to `REVOKED`.
         """
-        # TODO: Check that user has edit rights for job
         job = self.get_object()
         job.cancel()
 

@@ -26,7 +26,7 @@ lint: venv
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	MANAGER_URL=http://staff:staff@localhost:8000 \
-	$(VE)/python3 overseer.py
+	DEBUG=1 $(VE)/python3 overseer.py
 
 # Run `celery flower` during development.
 flower: venv

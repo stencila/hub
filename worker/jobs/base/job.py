@@ -7,6 +7,7 @@ from pathlib import Path
 import celery
 from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
+from celery.utils.log import get_task_logger
 import sentry_sdk
 
 from config import get_working_dir
@@ -24,6 +25,9 @@ DJANGO_SENTRY_DSN = os.environ.get("DJANGO_SENTRY_DSN")
 if DJANGO_SENTRY_DSN:
     sentry_sdk.init(dsn=DJANGO_SENTRY_DSN)
 
+# Get the Celery logger
+logger = get_task_logger(__name__)
+
 
 class Job(celery.Task):
     """
@@ -33,11 +37,7 @@ class Job(celery.Task):
     termination of jobs.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.log_entries = None
-
-    def begin(self):
+    def begin(self, task_id=None):
         """
         Begin the job.
 
@@ -45,21 +45,47 @@ class Job(celery.Task):
         for each task instance, this method performs any
         initialization in advance.
         """
+        self.task_id = task_id
         self.log_entries = []
+
+    def flush(self, **kwargs):
+        # Only send the log event if there is is a task_id to be able
+        # to relate this job to.
+        if self.task_id and len(self.log_entries):
+            self.send_event(
+                "task-logged",
+                task_id=self.task_id,
+                state="RUNNING",
+                log=self.log_entries,
+                **kwargs,
+            )
 
     def log(self, level: int, message: str, **kwargs):
         """
         Create a log entry.
 
-        This appends an entry to the log and updates the
-        state with the log as metadata. This makes the
-        log and any extra details available to the `manager`.
-        (see the `update_job` for how these are extracted)
+        This function:
+
+        - Emits to the Python logger, and
+
+        - Appends an entry to the job's log and updates the
+          state with the log as metadata thereby making the
+          log and any extra details available to the `manager`.
+          (see the `update_job` there for how these are extracted)
         """
+        if level == DEBUG:
+            logger.debug(message)
+        elif level == INFO:
+            logger.info(message)
+        elif level == WARN:
+            logger.warn(message)
+        else:
+            logger.error(message)
+
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
         )
-        self.update_state(state="RUNNING", meta=dict(log=self.log_entries, **kwargs))
+        self.flush(**kwargs)
 
     def error(self, message: str):
         """Log an error message."""
@@ -98,12 +124,9 @@ class Job(celery.Task):
         this is preferable to the `Terminate` signal (which can not
         be caught in the same way and seems to kill the parent worker).
 
-        This method updates the job state to the custom state
-        `TERMINATED` and raises `Ignore` so that state is not overwritten
-        by Celery. See https://www.distributedpython.com/2018/09/28/celery-task-states/.
+        This method just flushes the log.
         """
-        self.update_state(state="TERMINATED", meta=dict(log=self.log_entries))
-        raise Ignore()
+        self.flush()
 
     def failure(self, exc: Exception):
         """
@@ -116,7 +139,7 @@ class Job(celery.Task):
         sentry_sdk.capture_exception(exc)
         raise exc
 
-    def run(self, *args, **kwargs):
+    def run(self, *args, task_id=None, **kwargs):
         """
         Run the job.
 
@@ -140,7 +163,7 @@ class Job(celery.Task):
         else:
             working_dir = current_dir
 
-        self.begin()
+        self.begin(task_id)
         try:
             if working_dir != current_dir:
                 os.chdir(working_dir)

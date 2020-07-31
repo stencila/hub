@@ -22,9 +22,6 @@ A partial for displaying a list of snapshots.
         <th>
           {% trans "Details" %}
         </th>
-        <th class="is-hidden-mobile">
-          {% trans "View" %}
-        </th>
       </tr>
     </thead>
     <tbody id="source-list">
@@ -52,23 +49,10 @@ A partial for displaying a list of snapshots.
         </td>
         <td class="source-table--file-type pr-0 is-vcentered">
           <a href="{{ retrieve_url }}" class="button is-outlined is-small is-fullwidth">
-            {% trans "Details" %}
-          </a>
-        </td>
-        <td class="source-table--file-type pr-0 is-vcentered is-hidden-mobile">
-          {% if snapshot.job and snapshot.job.status == 'SUCCESS' %}
-          <a href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.number %}"
-             class="button is-outlined is-small is-fullwidth">
-            <span class="icon">
-              <i class="ri-eye-line"></i>
-            </span>
             <span>
-              {% trans "View" %}
+              {% trans "Details" %}
             </span>
           </a>
-          {% else %}
-          {{ snapshot.job.status }}
-          {% endif %}
         </td>
       </tr>
       {% endwith %}

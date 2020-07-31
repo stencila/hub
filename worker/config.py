@@ -6,6 +6,10 @@ STORAGE_ROOT = os.environ.get(
     "STORAGE_ROOT", os.path.join(os.path.dirname(__file__), "..", "storage", "data")
 )
 
+NODE_MODULES = os.environ.get(
+    "NODE_MODULES", os.path.join(os.path.dirname(__file__), "node_modules")
+)
+
 
 def get_working_dir(project_id: int):
     """
@@ -33,3 +37,17 @@ def get_snapshot_dir(snapshot_path: str) -> str:
         os.environ.get("SNAPSHOT_DIR", os.path.join(STORAGE_ROOT, "snapshots")),
         snapshot_path,
     )
+
+
+def get_node_modules_bin(name: str) -> str:
+    """
+    Get the path to a "bin" script installed in the configured `node_modules`.
+    """
+    return os.path.join(NODE_MODULES, ".bin", name)
+
+
+def get_node_modules_path(subpath: str) -> str:
+    """
+    Get the path to a file within the configured `node_modules`.
+    """
+    return os.path.join(NODE_MODULES, subpath)

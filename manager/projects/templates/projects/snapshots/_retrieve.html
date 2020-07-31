@@ -22,14 +22,6 @@ in case the enclosing page want to use that data to trigger further events
     <div class="level-left">
       <h1 class="title">
         Snapshot #{{ snapshot.number }}
-        <span class="tag mr-2">
-          <a href="{{ job_url }}">
-            {% include "../sources/_status_type_icon.html" with status=job.status %}
-            <span>
-              {{ job.status }}
-            </span>
-          </a>
-        </span>
       </h1>
     </div>
     {% if job.status == "SUCCESS" %}
@@ -43,15 +35,17 @@ in case the enclosing page want to use that data to trigger further events
           {% trans "Download" %}
         </span>
       </a>
-      <a class="button is-primary is-small-mobile is-expanded-mobile"
-         href="{% url 'ui-projects-snapshots-view' project.account.name project.name snapshot.number %}">
+      {% if snapshot.has_index %}
+      <a class="button is-primary is-small-mobile is-expanded-mobile" target="_blank" rel="noopener"
+         href="{% url 'api-projects-snapshots-files' project.id snapshot.number 'index.html' %}">
         <span class="icon">
-          <i class="ri-eye-line"></i>
+          <i class="ri-external-link-line"></i>
         </span>
         <span>
-          {% trans "View" %}
+          {% trans "Open" %}
         </span>
       </a>
+      {% endif %}
     </div>
     {% endif %}
   </div>
@@ -78,13 +72,11 @@ in case the enclosing page want to use that data to trigger further events
           </span>
         </span>
 
-        <span alt="Job ID">
-          <a href="{{ job_url }}" class="has-text-grey-dark has-text-link-hover">
-            <span class="icon is-vcentered">
-              <i class="ri-hashtag"></i>
-            </span>
-            <span class="is-vcentered">
-              {{ job.id }}
+        <span class="mr-2">
+          <a href="{{ job_url }}">
+            {% include "../sources/_status_type_icon.html" with status=job.status %}
+            <span>
+              {{ job.status }}
             </span>
           </a>
         </span>
@@ -94,18 +86,31 @@ in case the enclosing page want to use that data to trigger further events
     </div>
   </div>
 
-  {# If the snapshot has files, then show them, otherwise show the active job #}
+  {% if snapshot.is_active %}
+  {% trans 'Creating snapshot, please wait…' %}
+  {# TODO: Add a progress bar here #}
+  {% else %}
+  <h2 class="title is-5">Preview</h2>
+  {% if snapshot.has_index %}
+  <iframe id="frame" class="snapshot--preview"
+          src="{% url 'api-projects-snapshots-files' project.id snapshot.number 'index.html' %}">
+  </iframe>
+  {% else %}
+  <p class="is-size-5 has-text-grey-dark">
+    {% trans 'A preview is not available for this snapshot. Is there a main file in the project?' %}
+  </p>
+  {% endif %}
+
+  <hr />
+
+  <h2 class="title is-5">Files</h2>
   {% if files %}
   {% include "../files/_list.html" %}
   {% else %}
   <p class="is-size-5 has-text-grey-dark">
-    {# TODO Render the job here, so that users have something more interesting to look at and don't have to click away if there is a failure #}
-    {% if job.status in "DISPATCHED, RUNNING" %}
-    {% trans 'Creating Snapshot, please wait…' %}
-    {% else %}
-    The snapshot failed, please see the <a href="{{ job_url }}">job</a> for more details.
-    {% endif %}
+    {% trans 'There are no files in this snapshot' %}
   </p>
+  {% endif %}
   {% endif %}
 </div>
 

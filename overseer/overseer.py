@@ -38,8 +38,10 @@ from celery.utils.objects import FallbackContext
 import amqp.exceptions
 import httpx
 
+DEBUG = os.environ.get("DEBUG")
+logging.basicConfig(level="DEBUG" if DEBUG is not None else "INFO")
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 app = Celery("overseer", broker=os.environ["BROKER_URL"])
@@ -77,9 +79,9 @@ def request(method: str, url: str, **kwargs):
         request = client.build_request(method=method, url=url, **kwargs)
         response = client.send(request)
         if response.status_code != 200:
-            logging.error(response.text)
+            logger.error(response.text)
     except Exception as exc:
-        logging.error(str(exc))
+        logger.error(str(exc))
 
 
 Event = Dict[str, Union[str, int, float]]
@@ -87,7 +89,7 @@ Event = Dict[str, Union[str, int, float]]
 
 def get_event_time(event: Event):
     """Get the event timestamp and convert it into ISO format as expected by the Hub."""
-    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat()
+    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat() + 'Z'
 
 
 # Handlers for task events
@@ -151,6 +153,19 @@ def task_succeeded(event: Event):
     )
 
 
+def task_logged(event: Event):
+    """
+    Sent when the task adds a log entry.
+
+    This is a custom event, see `worker.Job` for when
+    it is emitted.
+    """
+    update_job(
+        event["task_id"],
+        {"status": event.get("state", "RUNNING"), "log": event.get("log")},
+    )
+
+
 def task_failed(event: Event):
     """Sent if the execution of the task failed."""
     update_job(
@@ -208,7 +223,7 @@ def add_worker(hostname: str):
     The list of queues may initially be empty so try multiple
     times.
     """
-    logging.info("Adding worker: {}.".format(hostname))
+    logger.info("Adding worker: {}.".format(hostname))
 
     inspect = app.control.inspect([hostname])
     queues = None
@@ -223,7 +238,7 @@ def add_worker(hostname: str):
         time.sleep(0.1)
 
     if queues is None or stats is None:
-        logging.error(
+        logger.error(
             "Unable to fetch queues and/or stats for worker: {}".format(hostname)
         )
 
@@ -238,7 +253,7 @@ def add_worker(hostname: str):
 
 def remove_worker(hostname: str):
     """Remove a worker."""
-    logging.info("Removing worker: {}.".format(hostname))
+    logger.info("Removing worker: {}.".format(hostname))
 
     if hostname in WORKERS:
         del WORKERS[hostname]
@@ -309,6 +324,7 @@ class Receiver(EventReceiver):
                 "task-sent": task_sent,
                 "task-received": task_received,
                 "task-started": task_started,
+                "task-logged": task_logged,
                 "task-succeeded": task_succeeded,
                 "task-failed": task_failed,
                 "task-rejected": task_rejected,
@@ -322,6 +338,7 @@ class Receiver(EventReceiver):
 
     def process(self, type: str, event: Event):
         """Override that increments the event counter."""
+        logger.debug("Event received: {0}".format(type))
         with event_processing.time():
             return super().process(type, event)
 
@@ -352,10 +369,10 @@ class Collector(threading.Thread):
                 workers = self.app.control.ping(
                     timeout=self.workers_ping_timeout_seconds
                 )
-                logging.debug("Workers pinged: {}.".format(len(workers)))
+                logger.debug("Workers pinged: {}.".format(len(workers)))
             except Exception as exc:
                 workers = []
-                logging.error("Error pinging workers: {}".format(str(exc)))
+                logger.error("Error pinging workers: {}".format(str(exc)))
 
             # Update `WORKERS` with list of workers that have been
             # successfully pinged.
@@ -374,7 +391,7 @@ class Collector(threading.Thread):
                         queue=queue, passive=True
                     ).message_count
                 except (amqp.exceptions.ChannelError,) as exc:
-                    logging.warning(
+                    logger.warning(
                         "Queue Not Found: {}. Setting its value to zero. Error: {}".format(
                             queue, str(exc)
                         )

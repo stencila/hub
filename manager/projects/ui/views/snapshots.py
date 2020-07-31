@@ -30,14 +30,3 @@ def retrieve(
     snapshot = viewset.get_object(project)
 
     return render(request, template, dict(project=project, snapshot=snapshot),)
-
-
-def view(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """
-    View a snapshot of a project.
-
-    Currently, this just renders an iframe with index.html
-    inside it.
-    """
-    kwargs.update({"template": "projects/snapshots/view.html"})
-    return retrieve(request, *args, **kwargs)

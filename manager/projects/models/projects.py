@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 
 from accounts.models import Account, AccountTeam
@@ -104,18 +105,26 @@ class Project(models.Model):
         """
         Get the main file for the project.
 
-        The main file can be designated by the user,
-        but if not them defaults to main.* or README.*
+        The main file can be designated by the user
+        (using the `main` field as the path). If no file
+        matches that path (e.g. because it was removed),
+        or if `main` was never set, then this defaults to the
+        most recently modified file with path `main.*` or `README.*`
         if those are present.
         """
         if self.main:
             try:
-                self.files.get(path=self.main, current=True)
+                return self.files.get(path=self.main, current=True)
             except ObjectDoesNotExist:
-                return None
-        else:
-            # TODO
-            return None
+                pass
+
+        candidates = self.files.filter(
+            Q(path__startswith="main.") | Q(path__startswith="README.")
+        ).order_by("-modified")
+        if len(candidates):
+            return candidates[0]
+
+        return None
 
     def get_theme(self) -> str:
         """Get the theme for the project."""

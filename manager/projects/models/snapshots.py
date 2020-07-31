@@ -206,12 +206,35 @@ class Snapshot(models.Model):
         for path, info in result.items():
             File.create(self.project, path, info, job=job, snapshot=self)
 
+    def session(self, user: User) -> Job:
+        """
+        Create a session job having the snapshot as the working directory.
+        """
+        return Job.objects.create(
+            method=JobMethod.session.name,
+            params=dict(project=self.project.id, snapshot_path=self.path),
+            description="Session for snapshot #{0}".format(self.number),
+            project=self.project,
+            creator=user if user.is_authenticated else None,
+        )
+
     @property
     def is_active(self) -> bool:
         """
         Is the snapshot currently active.
         """
         return self.job and self.job.is_active
+
+    @property
+    def has_index(self) -> bool:
+        """
+        Determine if the snapshot has an index.html file, or not.
+        """
+        try:
+            self.files.get(path="index.html")
+            return True
+        except File.DoesNotExist:
+            return False
 
     def file_location(self, file: str) -> str:
         """

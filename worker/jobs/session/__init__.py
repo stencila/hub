@@ -1,13 +1,11 @@
+from typing import Optional, List
+
+from jobs.base.job import Job
+
 from .subprocess_session import SubprocessSession
 from .kubernetes_session import KubernetesSession
 
 
-def create():
-    """
-    Create a new session.
+class Session(SubprocessSession):
 
-    The class of session is determined by the environment,
-    including environment variables.
-    """
-    # return KubernetesSession()
-    return SubprocessSession()
+    name = "session"

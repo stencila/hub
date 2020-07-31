@@ -54,7 +54,9 @@ class SubprocessJob(Job):
         )
 
         def handle_stderr(stderr: Union[List[str], io.TextIOWrapper]):
-            for line in stderr:
+            # Attempt to treat each line as a JSON log entry
+            failed = False
+            for index, line in enumerate(stderr):
                 try:
                     entry = json.loads(line)
                     if isinstance(entry, dict) and "message" in entry:
@@ -62,9 +64,15 @@ class SubprocessJob(Job):
                             level=entry.get("level", INFO), message=entry["message"]
                         )
                     else:
-                        self.info(line)
+                        self.info(line.strip())
                 except json.decoder.JSONDecodeError:
-                    self.info(line)
+                    failed = True
+                    break
+
+            # If failed then send the remainder of the lines as a single
+            # log entry
+            if failed:
+                self.info("".join(list(stderr)[index:]))
 
         if input:
             stdout_data, stderr_data = self.process.communicate(input=input)

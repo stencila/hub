@@ -397,9 +397,9 @@ class JobStatus(EnumChoice):
 
     # Job cancellation message sent (custom).
     CANCELLED = "CANCELLED"
-    # Job was revoked.
+    # Job was revoked (cancelled before it was started).
     REVOKED = "REVOKED"
-    # Job was terminated (custom).
+    # Job was terminated (started and then cancelled, custom).
     TERMINATED = "TERMINATED"
 
     # Job was rejected.
@@ -511,13 +511,22 @@ def generate_job_id():
     return shortuuid.uuid()
 
 
+def generate_job_key():
+    """
+    Generate a unique, and very difficult to guess, job key.
+    """
+    return shortuuid.ShortUUID().random(length=32)
+
+
 class Job(models.Model):
     """
     A job, usually, but not necessarily associated with a project.
 
-    If a job is created here in Django, the `creator` field should be
-    populated with the current user. Jobs created as part of a pipline
-    may not have a creator.
+    The `creator` field should be populated with the current user.
+    Jobs created as part of a pipline, or by an anonymous user, may not have a creator.
+
+    The `key` field provides a way of accessing the job instead of using
+    the easy-to-guess `id`.
 
     The `description` can be used to provide the user with a summary of
     what the job is doing.
@@ -537,6 +546,12 @@ class Job(models.Model):
     id = models.BigAutoField(
         primary_key=True,
         help_text="An autoincrementing integer to allow selecting jobs in the order they were created.",
+    )
+
+    key = models.CharField(
+        default=generate_job_key,
+        max_length=64,
+        help_text="A unique, and very difficult to guess, key to access the job with.",
     )
 
     description = models.TextField(
@@ -591,6 +606,7 @@ class Job(models.Model):
 
     began = models.DateTimeField(null=True, help_text="The time the job began.")
     ended = models.DateTimeField(null=True, help_text="The time the job ended.")
+
     status = models.CharField(
         max_length=32,
         choices=JobStatus.as_choices(),
@@ -673,6 +689,16 @@ class Job(models.Model):
     )
 
     callback_object = GenericForeignKey("callback_type", "callback_id")
+
+    @property
+    def status_message(self) -> str:
+        """
+        Generate a message for users describing the status of the job.
+        """
+        if self.status == JobStatus.DISPATCHED.value:
+            return "Job is queued at position {}".format(self.position)
+        else:
+            return "Job is {}".format(self.status.lower())
 
     @property
     def summary_string(self) -> str:
@@ -782,11 +808,11 @@ class Job(models.Model):
 
         return dispatch_job(self)
 
-    def update(self, force=False) -> "Job":
+    def update(self, *args, **kwargs) -> "Job":
         """Update the job."""
         from jobs.jobs import update_job
 
-        return update_job(self, force)
+        return update_job(self, *args, **kwargs)
 
     def cancel(self) -> "Job":
         """Cancel the job."""

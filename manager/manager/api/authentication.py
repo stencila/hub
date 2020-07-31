@@ -2,7 +2,11 @@ import base64
 import binascii
 
 from knox.auth import TokenAuthentication
-from rest_framework.authentication import HTTP_HEADER_ENCODING, get_authorization_header
+from rest_framework.authentication import (
+    HTTP_HEADER_ENCODING,
+    SessionAuthentication,
+    get_authorization_header,
+)
 from rest_framework.exceptions import AuthenticationFailed
 
 
@@ -56,3 +60,21 @@ class BasicAuthentication(TokenAuthentication):
         # Pass token on to `knox.TokenAuthentication`; ignore any password supplied
         token = auth_parts[0]
         return self.authenticate_credentials(token.encode("utf-8"))
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    """
+    Django Session authentication without CSRF check.
+
+    For some API views it may be necessary to disable the CSRF protection.
+    This enables that, use it by adding this to the view:
+
+       authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication, knox.auth.TokenAuthentication)
+
+    """
+
+    def enforce_csrf(self, request):
+        """
+        Do not enforce CSRF.
+        """
+        return  # To not perform the csrf check previously happening
