@@ -35,7 +35,7 @@ class JobAdmin(admin.ModelAdmin):
 
     def cancel(self, request, queryset):
         """
-        Action to cancel the selected jobs.
+        Cancel the selected jobs.
 
         Uses a confirmation page to make sure the
         staff member wants to cancel the jobs.
