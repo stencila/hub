@@ -37,8 +37,6 @@ def get_projects(user: User):
 
     For authenticated users, each project is annotated with the
     role of the user for the project.
-
-
     """
     if user.is_authenticated:
         # Annotate the queryset with the role of the user
@@ -53,7 +51,7 @@ SELECT
 CASE account_role.role
 WHEN 'OWNER' THEN 'OWNER'
 WHEN 'MANAGER' THEN
-    CASE account_role.role
+    CASE project_role.role
     WHEN 'OWNER' THEN 'OWNER'
     ELSE 'MANAGER' END
 ELSE project_role.role END AS "role"
