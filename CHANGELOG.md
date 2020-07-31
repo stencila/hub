@@ -1,3 +1,17 @@
+# [3.15.0](https://github.com/stencila/hub/compare/v3.14.0...v3.15.0) (2020-07-31)
+
+
+### Bug Fixes
+
+* **Jobs:** Use get (instead of wait) and log (instead of raising) ([8f36030](https://github.com/stencila/hub/commit/8f3603042a72002a6dd87580155443e602976405))
+* **Worker:** Set concurrency and prefetch in image ([19b262e](https://github.com/stencila/hub/commit/19b262e3f8ed4d606cc06f57f33d06031fd61956))
+
+
+### Features
+
+* **File formats:** Specify which formats can be converted to ([048a619](https://github.com/stencila/hub/commit/048a6192c9c51ac7632b0619ee77072f2b4e02ff))
+* **Jobs:** Show job log and result ([60b7749](https://github.com/stencila/hub/commit/60b7749a4e3128816737a682201d27d65f7fe760))
+
 # [3.14.0](https://github.com/stencila/hub/compare/v3.13.0...v3.14.0) (2020-07-31)
 
 
