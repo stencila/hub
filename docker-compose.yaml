@@ -43,6 +43,14 @@ services:
     env_file:
       - .secrets
 
+  cache:
+    build: ./cache
+    image: stencila/hub-cache
+    ports:
+      - "6379:6379"
+    env_file:
+      - .secrets
+
   broker:
     build: ./broker
     image: stencila/hub-broker
