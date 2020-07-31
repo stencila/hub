@@ -89,7 +89,7 @@ Event = Dict[str, Union[str, int, float]]
 
 def get_event_time(event: Event):
     """Get the event timestamp and convert it into ISO format as expected by the Hub."""
-    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat() + 'Z'
+    return datetime.fromtimestamp(float(event.get("timestamp", 0))).isoformat() + "Z"
 
 
 # Handlers for task events

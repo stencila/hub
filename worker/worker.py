@@ -45,7 +45,7 @@ def register(cls: Type[Job]):
 
     The normal way to register a Celery class-based `Task`
     is to use `app.register_task` e.g.
-    
+
         app.register_task(Pull())
 
     However, we found that when we did that, that `self.request.id
