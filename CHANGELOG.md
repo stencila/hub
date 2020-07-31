@@ -1,3 +1,40 @@
+# [3.14.0](https://github.com/stencila/hub/compare/v3.13.0...v3.14.0) (2020-07-31)
+
+
+### Bug Fixes
+
+* **Acount pages:** Show projects that a user is a member of ([31ae01c](https://github.com/stencila/hub/commit/31ae01c0fcdcf290c7b315cde618851b624e1ef6))
+* **deps:** pin dependencies ([df95c00](https://github.com/stencila/hub/commit/df95c0098d004df2420d02382a674685b9e9a7c1))
+* **deps:** update dependency @stencila/thema to v2.14.0 ([3c66683](https://github.com/stencila/hub/commit/3c66683a50056f371066f536097f08dcf5aa8bb4))
+* **deps:** update dependency google-cloud-storage to v1.30.0 ([058d4c8](https://github.com/stencila/hub/commit/058d4c81ca4963c570e832ec2e34d4b613e34a1c))
+* **Jobs:** Only provide a single connection URL ([11da982](https://github.com/stencila/hub/commit/11da982932f69ad94732364be6e73e8aae10acf0))
+* **Jobs:** Use queue_id to reduce querys ([83db585](https://github.com/stencila/hub/commit/83db5853dda17e55fda509d758dacf8eca0d76cc))
+* **Manager:** Improve updating of job status ([9a0b0b4](https://github.com/stencila/hub/commit/9a0b0b443d34d5a510b6cb170e6f123b84fb9291))
+* **Overseer:** Add timezone to times, ensure status field whenever updating a job ([93c21c4](https://github.com/stencila/hub/commit/93c21c4ea26f854d6c60f653c75b82971a70619f))
+* **Overseer:** Handle taks logging events ([e84ab50](https://github.com/stencila/hub/commit/e84ab50026fc9cdb9be674c372e3104076e90424))
+* **Project role:** Use project role when account role is manager ([8a80def](https://github.com/stencila/hub/commit/8a80defa99e7c81de48be44ea6c771594c693771))
+* **Projects:** Fix getting of main file ([5dd0428](https://github.com/stencila/hub/commit/5dd04283b56fa089d9ec7151c5e67e789d09e410))
+* **Snapshots:** Allow for CSRF except API views ([bd8296f](https://github.com/stencila/hub/commit/bd8296fa081a36b556ab5e5e639bef6682eeebaa))
+* **Snapshots:** Fix var name and add temporary script replacement ([fb28470](https://github.com/stencila/hub/commit/fb284702947511ddc0affbbd4a4668264cb59806))
+* **Snapshots:** Integrate snapshot preview into details page and tidyup templates ([48f7205](https://github.com/stencila/hub/commit/48f7205f497730028761d94ff4994fb081df4336))
+* **Subproces session:** Determine port in do method ([296e065](https://github.com/stencila/hub/commit/296e06590d81dabd0e0b15beada16f18a36e9f7c))
+* **Subprocesss job:** Only send remainder if failed ([80ae534](https://github.com/stencila/hub/commit/80ae5349a6c3c97ec245357ec2e1c162d742bc43))
+* **Themes:** Update Thema version ([004e6a6](https://github.com/stencila/hub/commit/004e6a6b3aa84ad1e3d0c8a62988b3abed551f0e))
+* **Worker:** Add Executa as dep and refer to local node_modules/.bin ([918fe48](https://github.com/stencila/hub/commit/918fe483e2710d0cc37471dde6676956251a7a0c))
+* **Worker:** Aggregate log lines that are not JSON ([3ddd8bf](https://github.com/stencila/hub/commit/3ddd8bf6ef340356c86f982d3b868e1d7babf212))
+* **Worker:** Emit all Job log entries to the Python logger ([9205c47](https://github.com/stencila/hub/commit/9205c475eeab62ca2f09561e23ad5bb0cef23ed1))
+* **Worker:** Make SubprocessSession extend SubprocessJob ([857c532](https://github.com/stencila/hub/commit/857c532f494a311b3e3d9d6a8622a769379308a2))
+* **Worker:** Send custom log event with task id ([7f2b96a](https://github.com/stencila/hub/commit/7f2b96a69fabf5fd422306890f1244e985a75c67))
+
+
+### Features
+
+* **Job:** Add job key and use in URLs ([0482620](https://github.com/stencila/hub/commit/0482620dce9355520d81ec05f022cff0688a1214))
+* **Jobs:** Add filters to admin ([65aa197](https://github.com/stencila/hub/commit/65aa1974a0b7bc0da9ced7f24542001c374c2303))
+* **Jobs:** Add status message field ([ed07689](https://github.com/stencila/hub/commit/ed07689ff4a24d55f48b806bd3345272bddfb165))
+* **Manager jobs:** Allow restriction of job methods by staff status ([b3c9db5](https://github.com/stencila/hub/commit/b3c9db528cfc577fa7a582f5409c2738f2f97e21))
+* **Snapshots:** Create session for snapshot and inject toolbar into index.html ([3592fe5](https://github.com/stencila/hub/commit/3592fe56832f923f0d5bd267fe221700aa872651))
+
 # [3.13.0](https://github.com/stencila/hub/compare/v3.12.0...v3.13.0) (2020-07-28)
 
 
