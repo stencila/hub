@@ -207,9 +207,8 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
                     job.log = response.get("log")
             except TimeoutError:
                 logger.error(
-                    "Timed out waiting for result of job id: {}, method: {}".format(
-                        job.id, job.method
-                    )
+                    "Timed out waiting for result of job",
+                    extra=dict(id=job.id, method=job.method),
                 )
 
         # If job failed then get the error
