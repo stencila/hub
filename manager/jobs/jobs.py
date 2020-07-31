@@ -201,12 +201,12 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
         # If job succeeded then get the result if we haven't already
         elif status == JobStatus.SUCCESS.value and job.result is None:
             try:
-                response = async_result().wait(timeout=30)
+                response = async_result().get(timeout=30)
                 if response:
                     job.result = response.get("result")
                     job.log = response.get("log")
             except TimeoutError:
-                raise TimeoutError(
+                logger.error(
                     "Timed out waiting for result of job id: {}, method: {}".format(
                         job.id, job.method
                     )
