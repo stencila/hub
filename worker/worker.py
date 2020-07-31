@@ -5,8 +5,11 @@ A Celery app for running jobs.
 """
 
 import os
+from typing import Type
 
 from celery import Celery
+
+from jobs.base.job import Job
 
 from jobs.archive import Archive
 from jobs.clean import Clean
@@ -16,6 +19,8 @@ from jobs.encode import Encode
 from jobs.pull import Pull
 from jobs.session import Session
 from jobs.sleep import Sleep
+
+JOBS = [Archive, Clean, Convert, Decode, Encode, Pull, Session, Sleep]
 
 
 # Setup the Celery app
@@ -33,24 +38,31 @@ app.conf.update(
     }
 )
 
-# Register the jobs
-app.register_task(Archive())
-app.register_task(Clean())
-app.register_task(Convert())
-app.register_task(Decode())
-app.register_task(Encode())
-app.register_task(Pull())
-app.register_task(Sleep())
+
+def register(cls: Type[Job]):
+    """
+    Register a Job.
+
+    The normal way to register a Celery class-based `Task`
+    is to use `app.register_task` e.g.
+    
+        app.register_task(Pull())
+
+    However, we found that when we did that, that `self.request.id
+    was missing (so although we could send custom events to the
+    `overseer` they were useless because they had no task `uuid`).
+    See https://github.com/celery/celery/issues/2633 for some
+    discussion on this bug (?).
+
+    The following incantations (specifically, using `bind`)
+    allow us to get the `request.id` (ie. the `job.id`) and
+    pass it on to the `Job` instance.
+    """
+
+    @app.task(name=cls.name, base=cls, bind=True)
+    def run(self, *args, **kwargs):
+        return cls.run(self, *args, **kwargs, task_id=self.request.id)
 
 
-# It is necessary to do the following incantations
-# (specifically, `bind`) to get the `task_id` (ie. `job.id`)
-# attached to the task instance.
-# See https://github.com/celery/celery/issues/2633 for some
-# discussion on how `self.request.id` is missing without this.
-
-
-@app.task(name=Session.name, base=Session, bind=True)
-def session(self, *args, **kwargs):
-    """Session task."""
-    Session.run(self, *args, **kwargs, task_id=self.request.id)
+for job in JOBS:
+    register(job)

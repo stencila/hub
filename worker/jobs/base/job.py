@@ -48,6 +48,18 @@ class Job(celery.Task):
         self.task_id = task_id
         self.log_entries = []
 
+    def flush(self, **kwargs):
+        # Only send the log event if there is is a task_id to be able
+        # to relate this job to.
+        if self.task_id and len(self.log_entries):
+            self.send_event(
+                "task-logged",
+                task_id=self.task_id,
+                state="RUNNING",
+                log=self.log_entries,
+                **kwargs,
+            )
+
     def log(self, level: int, message: str, **kwargs):
         """
         Create a log entry.
@@ -73,13 +85,7 @@ class Job(celery.Task):
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
         )
-
-        # Only send the log event if there is is a task_id to be able
-        # to relate this job to.
-        if self.task_id:
-            self.send_event(
-                "task-logged", task_id=self.task_id, log=self.log_entries, **kwargs
-            )
+        self.flush(**kwargs)
 
     def error(self, message: str):
         """Log an error message."""
@@ -118,12 +124,9 @@ class Job(celery.Task):
         this is preferable to the `Terminate` signal (which can not
         be caught in the same way and seems to kill the parent worker).
 
-        This method updates the job state to the custom state
-        `TERMINATED` and raises `Ignore` so that state is not overwritten
-        by Celery. See https://www.distributedpython.com/2018/09/28/celery-task-states/.
+        This method just flushes the log.
         """
-        self.update_state(state="TERMINATED", meta=dict(log=self.log_entries))
-        raise Ignore()
+        self.flush()
 
     def failure(self, exc: Exception):
         """
