@@ -408,6 +408,9 @@ class Prod(Configuration):
     # URL of the `broker` service
     BROKER_URL = values.SecretValue(environ_prefix=None)
 
+    # URL of the `cache` service
+    CACHE_URL = values.SecretValue(environ_prefix=None)
+
     # In production only use other services for storage,
     # not local filesystem.
     STORAGE_ROOT: Optional[str] = values.Value(None)
@@ -529,6 +532,12 @@ class Dev(Prod):
 
     # In standalone development, default to using a pseudo, in-memory broker
     BROKER_URL = values.Value("memory://", environ_prefix=None)
+
+    # Use RPC backend during development to avoid having to
+    # run the `cache` service. Note however it's limitations when
+    # using multiple `manager` processes as in prod.
+    # Comment this out to use the Redis result backend
+    CACHE_URL = "rpc://"
 
     # For browser screenshotting allow Basic auth
     UI_BASIC_AUTH = True

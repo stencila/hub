@@ -33,6 +33,9 @@ cover: venv
 	             --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Run `celery worker` during development to check configuration.
+# Falls back to using RPC result backend, add
+# 	CACHE_URL=redis://stencila:password@localhost:6379/0
+# to use Redis instead
 # Uses timestamp to generate unique hostnames for workers.
 # Uses prefetch-multiplier=1: "only reserve one task per worker process at a time". 
 # See https://docs.celeryproject.org/en/stable/userguide/optimizing.html#prefetch-limits
@@ -57,6 +60,7 @@ build:
 run-docker: build
 	docker run --rm -it --network=host \
 		--env BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
+		--env CACHE_URL=redis://stencila:password@localhost:6379/0 \
 		stencila/hub-worker
 
 # Clean up venv and cached files
