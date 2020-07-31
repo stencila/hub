@@ -1,27 +1,18 @@
+{% load stencila %}
+
 <div class="dropdown-menu has-text-left" role="menu" {% if id %}id="{{ id }}" {% endif %}>
   {% url 'ui-projects-files-convert' account.name project.name file.path as convert_url %}
   <div class="dropdown-content">
-    <a href="{{ convert_url }}?next={{ request.path }}&format=ipynb" class="dropdown-item">
-      {% include "./_format_icon.html" with format='ipynb' %}
-      <span>Jupyter Notebook</span>
+    {% file_format_convert_to_options mimetype=file.mimetype as formats %}
+    {% for format in formats %}
+    <a href="{{ convert_url }}?next={{ request.path }}&format={{ format.format_id }}" class="dropdown-item">
+      <span class="icon"><i class="{{ format.icon_class }}"></i></span>
+      <span>{{ format.label }}</span>
+      <span class="">({{ format.default_extension }})</span>
     </a>
-    <a href="{{ convert_url }}?next={{ request.path }}&format=md" class="dropdown-item">
-      {% include "./_format_icon.html" with format='md' %}
-      <span>Markdown</span>
-    </a>
-    <a href="{{ convert_url }}?next={{ request.path }}&format=docx" class="dropdown-item">
-      {% include "./_format_icon.html" with format='docx' %}
-      <span>Microsoft Word</span>
-    </a>
-    <a href="{{ convert_url }}?next={{ request.path }}&format=pdf" class="dropdown-item">
-      {% include "./_format_icon.html" with format='pdf' %}
-      <span>PDF</span>
-    </a>
-    <a href="{{ convert_url }}?next={{ request.path }}&format=rmd" class="dropdown-item">
-      {% include "./_format_icon.html" with format='rmd' %}
-      <span>R Markdown</span>
-    </a>
+    {% endfor %}
     <a href="{{ convert_url }}?next={{ request.path }}" class="dropdown-item">
+      <span class="icon"><i class="ri-file-3-line"></i></span>
       <span>Other</span>
     </a>
   </div>

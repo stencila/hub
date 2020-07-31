@@ -30,14 +30,17 @@ class FileFormat(NamedTuple):
     """
 
     format_id: str
+    label: str
+    kind: str
     mimetype: str
     extensions: List[str]
     icon_class: str
+    minor: bool = False
 
     @property
     def default_extension(self) -> str:
         """Get the default extension for the format."""
-        return self.extensions[0] if self.extensions else self.format_id
+        return self.extensions[0] if self.extensions else ("." + self.format_id)
 
     @staticmethod
     def default_icon_class() -> str:
@@ -49,12 +52,36 @@ class FileFormat(NamedTuple):
         """Is the format be considered binary when determining the type of HTTP response."""
         return self.format_id not in ("html", "json", "jsonld", "md", "rmd", "xml")
 
+    @property
+    def convert_to_options(self) -> List[Tuple[str, str]]:
+        """
+        Get a list of file formats that a user can convert to from the given format.
+        """
+        if self.kind in ("exchange", "text"):
+            to_kinds = ("exchange", "text")
+        else:
+            return []
+
+        return [
+            f.value
+            for f in FileFormats
+            if f.value.kind in to_kinds and not f.value.minor
+        ]
+
+    @staticmethod
+    def default_convert_to_options() -> List["FileFormat"]:
+        """Get the default options for converting the format to."""
+        return [f.value for f in FileFormats if not f.value.minor]
+
 
 def file_format(
     format_id: str,
+    label: Optional[str] = None,
+    kind: Optional[str] = None,
     mimetype: Optional[str] = None,
     extensions: Optional[List[str]] = None,
     icon_class: Optional[str] = None,
+    minor: bool = False,
 ):
     """
     Create a `FileFormat` with fallbacks.
@@ -62,6 +89,9 @@ def file_format(
     Necessary because you can't override `__init__` for a
     named tuple.
     """
+    if label is None:
+        label = format_id.upper()
+
     if mimetype is None:
         mimetype, encoding = mimetypes.guess_type("file." + format_id)
         if mimetype is None:
@@ -72,42 +102,77 @@ def file_format(
     if extensions is None:
         extensions = mimetypes.guess_all_extensions(mimetype)
 
+    if kind is None:
+        if mimetype.startswith("image/"):
+            kind = "image"
+        else:
+            kind = "text"
+
     if icon_class is None:
         if mimetype.startswith("image/"):
             icon_class = "ri-image-line"
         else:
             icon_class = FileFormat.default_icon_class()
 
-    return FileFormat(format_id, mimetype, extensions, icon_class)
+    return FileFormat(format_id, label, kind, mimetype, extensions, icon_class, minor)
 
 
 class FileFormats(enum.Enum):
     """
     List of file formats.
 
-    When adding `icon_class`es here, not that they may need to be
+    When adding `icon_class`es below, note that they may need to be
     added to the `purgecss` whitelist in `postcss.config.js` to
-    avoid them from being purged.
+    avoid them from being purged (if they are not used in any of the HTNL templates)
     """
 
-    docx = file_format("docx", icon_class="ri-file-word-line")
+    docx = file_format("docx", label="Microsoft Word", icon_class="ri-file-word-line")
     gdoc = file_format(
-        "gdoc", "application/vnd.google-apps.document", icon_class="ri-google-line"
+        "gdoc",
+        label="Google Doc",
+        mimetype="application/vnd.google-apps.document",
+        icon_class="ri-google-line",
     )
     gif = file_format("gif", icon_class="ri-file-gif-line")
     html = file_format("html")
-    ipynb = file_format("ipynb", "application/x-ipynb+json")
-    jats = file_format("jats", "application/jats+xml", ["jats.xml"])
+    ipynb = file_format(
+        "ipynb", label="Jupyter Notebook", mimetype="application/x-ipynb+json"
+    )
+    jats = file_format(
+        "jats",
+        label="JATS XML",
+        mimetype="application/jats+xml",
+        extensions=[".jats.xml"],
+    )
     jpg = file_format("jpg")
-    json = file_format("json")
-    jsonld = file_format("jsonld", "application/ld+json")
-    md = file_format("md", "text/markdown", icon_class="ri-markdown-line")
+    json = file_format("json", kind="exchange", minor=True)
+    json5 = file_format(
+        "json5", mimetype="application/json5", kind="exchange", minor=True
+    )
+    jsonld = file_format(
+        "jsonld", label="JSON-LD", mimetype="application/ld+json", kind="exchange"
+    )
+    md = file_format(
+        "md", label="Markdown", mimetype="text/markdown", icon_class="ri-markdown-line"
+    )
+    odt = file_format("odt")
+    pandoc = file_format(
+        "pandoc",
+        label="Pandoc JSON",
+        mimetype="application/pandoc+json",
+        kind="exchange",
+        minor=True,
+    )
     pdf = file_format("pdf", icon_class="ri-file-pdf-line")
     png = file_format("png")
-    rmd = file_format("rmd", "text/r+markdown")
-    rnb = file_format("rnb", "text/rstudio+html", ["nb.html"])
-    xlsx = file_format("xml", icon_class="ri-file-excel-line")
-    xml = file_format("xml")
+    rmd = file_format("rmd", label="R Markdown", mimetype="text/r+markdown")
+    rnb = file_format(
+        "rnb", mimetype="text/rstudio+html", extensions=[".nb.html"], minor=True
+    )
+    text = file_format("txt", label="Plain text")
+    yaml = file_format("yaml", mimetype="application/x-yaml", kind="exchange")
+    xlsx = file_format("xlsx", kind="spreadsheet", icon_class="ri-file-excel-line")
+    xml = file_format("xml", kind="exchange", minor=True)
 
     @classmethod
     def from_id(cls, format_id: str) -> "FileFormat":
@@ -144,33 +209,6 @@ class FileFormats(enum.Enum):
             return FileFormats.from_mimetype(mimetype)
         else:
             raise ValueError("Must provide format id or MIME type")
-
-    @classmethod
-    def convert_to_options(
-        cls, format_id: Optional[str] = None, mimetype: Optional[str] = None
-    ) -> List[Tuple[str, str]]:
-        """
-        Get a list of file formats that a user can convert to from the given format.
-
-        Currently this just returns a list of formats regarless of the 'from' format.
-        """
-        return [
-            (f.value.format_id, f.value.format_id)
-            for f in cls
-            if f.value.format_id
-            in [
-                "docx",
-                "html",
-                "ipynb",
-                "jats",
-                "json",
-                "jsonld",
-                "md",
-                "pdf",
-                "rmd",
-                "xml",
-            ]
-        ]
 
 
 class File(models.Model):

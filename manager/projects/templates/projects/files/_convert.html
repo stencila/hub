@@ -22,9 +22,11 @@ which (if successful) has the new file in it.
     <div class="control">
       <span class="select">
         <select name="format">
-          {% file_format_convert_to_options as formats %}
-          {% for name, value in formats %}
-          <option value="{{value|lower}}" {% if format == value %} selected{% endif %}>{{name}}</option>
+          {% file_format_convert_to_options mimetype=file.mimetype as formats %}
+          {% for option in formats %}
+          <option value="{{ option.format_id }}" {% if format == option.format_id %} selected{% endif %}>
+            {{ option.label }} ({{ option.default_extension }})
+          </option>
           {% endfor %}
         </select>
       </span>

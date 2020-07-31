@@ -99,7 +99,10 @@ def file_format_convert_to_options(format_id=None, mimetype=None):
     """
     Get the list of file formats that a can be converted to.
     """
-    return FileFormats.convert_to_options(format_id, mimetype)
+    try:
+        return FileFormats.from_id_or_mimetype(format_id, mimetype).convert_to_options
+    except ValueError:
+        return FileFormat.default_convert_to_options()
 
 
 @register.simple_tag
