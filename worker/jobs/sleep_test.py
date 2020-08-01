@@ -15,15 +15,15 @@ def test_sleep():
 
     current = {"index": 0}
 
-    def update_state(state, meta):
-        assert state == "RUNNING"
+    def send_event(event, **kwargs):
+        assert kwargs.get("state") == "RUNNING"
         index = current["index"]
-        assert meta["log"][index]["level"] == INFO
-        assert meta["log"][index]["message"].startswith(
+        assert kwargs["log"][index]["level"] == INFO
+        assert kwargs["log"][index]["message"].startswith(
             "This is repetition {}".format(index + 1)
         )
         current["index"] += 1
 
-    job.update_state = update_state
+    job.send_event = send_event
 
     job.run()

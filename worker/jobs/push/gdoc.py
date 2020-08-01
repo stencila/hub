@@ -22,11 +22,6 @@ def push_gdoc(paths: List[str], project: str, source: dict):
     convert = Convert()
     current = {}
 
-    def update_state(state, meta):
-        current["state"] = state
-        current["meta"] = meta
-
-    convert.update_state = update_state
     json_file = os.path.join(project, paths[0])
 
     convert.run(json_file, docx.name, {"from": "gdoc", "to": "docx"})

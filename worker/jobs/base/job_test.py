@@ -7,14 +7,14 @@ from .job import Job, DEBUG, INFO, WARN, ERROR
 
 
 def test_logging():
-    """On each log entry update_state is called with the log."""
+    """On each log entry send_event is called with the log."""
     job = Job()
     job.begin(task_id=4321)
 
     current = {}
 
     def send_event(self, event, **kwargs):
-        assert event == "task-logged"
+        assert event == "task-updated"
         current["state"] = kwargs.get("state")
         current["log"] = kwargs.get("log")
 

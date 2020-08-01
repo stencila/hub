@@ -54,7 +54,9 @@ def dispatch_job(job: Job) -> Job:
     if not JobMethod.is_member(job.method):
         raise ValueError("Unknown job method '{}'".format(job.method))
 
-    if job.method in settings.JOB_METHODS_STAFF_ONLY and not job.creator.is_staff:
+    if job.method in settings.JOB_METHODS_STAFF_ONLY and (
+        not job.creator or not job.creator.is_staff
+    ):
         raise PermissionDenied
 
     if JobMethod.is_compound(job.method):
@@ -187,18 +189,8 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
         def async_result():
             return AsyncResult(str(job.id), app=app)
 
-        # If the status is RUNNING then set any of the fields that
-        # may have been updated.
-        # In these cases, `async_result.info` is the `meta` kwarg passed to
-        # `Job.update_state()` call in the worker process.
-        if status == JobStatus.RUNNING.value:
-            info = async_result().info
-            if isinstance(info, dict):
-                for key, value in info.items():
-                    setattr(job, key, value)
-
         # If job succeeded then get the result if we haven't already
-        elif status == JobStatus.SUCCESS.value and job.result is None:
+        if status == JobStatus.SUCCESS.value and job.result is None:
             try:
                 response = async_result().get(timeout=30)
                 if response:

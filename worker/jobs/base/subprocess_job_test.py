@@ -30,10 +30,10 @@ def test_failure():
     """If the subprocess returns a non zero exit code then the job fails."""
     job = SubprocessJob()
 
-    def update_state(state, meta):
+    def send_event(event, task_id, state, **kwargs):
         assert state == "RUNNING"
 
-    job.update_state = update_state
+    job.send_event = send_event
 
     with pytest.raises(RuntimeError) as excinfo:
         job.run(["sleep", "foo"])
@@ -44,13 +44,13 @@ def test_logging_json():
     """If a line on stderr looks like a JSON log entry then it is treated as one."""
     job = SubprocessJob()
 
-    def update_state(state, meta):
+    def send_event(event, task_id, state, **kwargs):
         assert state == "RUNNING"
-        entry = meta["log"][-1]
+        entry = kwargs["log"][-1]
         assert entry["level"] == WARN
         assert entry["message"] == "A warning message"
 
-    job.update_state = update_state
+    job.send_event = send_event
 
     job.run(
         ["bash", "-c", """echo '{"level": 1, "message": "A warning message"}' 1>&2"""]
@@ -63,14 +63,14 @@ def test_logging_ongoing():
 
     current = {"index": 0}
 
-    def update_state(state, meta):
+    def send_event(event, task_id, state, **kwargs):
         assert state == "RUNNING"
         index = current["index"]
-        assert meta["log"][index]["level"] == INFO
-        assert meta["log"][index]["message"] == "{}\n".format(index)
+        assert kwargs["log"][index]["level"] == INFO
+        assert kwargs["log"][index]["message"] == str(index)
         current["index"] += 1
 
-    job.update_state = update_state
+    job.send_event = send_event
 
     job.run(
         [
