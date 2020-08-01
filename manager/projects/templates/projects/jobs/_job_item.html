@@ -78,14 +78,29 @@
     </div>
   </div>
 
+  {% if job.creator ==  request.user or project.role in "MANAGER,OWNER" %}
+  {% if job.is_active %}
+  <div class="column is-2">
+    <a hx-patch="{% url 'api-projects-jobs-cancel' job.project.id job.id %}"
+       hx-swap="none"
+       class="button is-danger is-outlined is-fullwidth is-small has-text-weight-bold">
+      <span class="icon"><i class="ri-stop-line"></i></span>
+      <span>{% trans "Cancel" %}</span>
+    </a>
+  </div>
+  {% endif %}
+  {% endif %}
+
   {% if is_list_item %}
   <div class="column is-2">
     <a href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}"
        class="button is-outlined is-fullwidth is-small has-text-weight-bold">
-      {% trans "Details" %}
+      <span class="icon"><i class="ri-eye-line"></i></span>
+      <span>{% trans "Details" %}</span>
     </a>
   </div>
   {% endif %}
+
 </div>
 
 {% if job.children.all and show_sub_jobs == True %}
