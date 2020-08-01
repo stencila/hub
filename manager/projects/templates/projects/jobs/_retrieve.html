@@ -7,43 +7,41 @@ is self-replacing (see below).
 
 If the job is active then will have `hx-trigger="every 2s"` so that it's status,
 results etc get updated. Uses `hx-swap="outerHTML"` so that the trigger
-is removed when the job is inactive. Also includes the job as JSON data
-in case the enclosing page want to use that data to trigger further events
-(e.g. when the job is ended).
+is removed when the job is inactive.
 {% endcomment %}
 
 {% load i18n humanize stencila %}
 
 <div {% if job.is_active %} hx-trigger="every 3s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}"
      hx-template="projects/jobs/_retrieve.html" hx-swap="outerHTML" {% endif %}>
-
   {% include "./_job_item.html" %}
 
   {% if job.log %}
   <hr />
-  <h2 class="title is-5">Log</h2>
+  <h2 class="title is-4">{% trans "Log" %}</h2>
   {% for log in job.log %}
-  Level {{ log.level }}: {{ log.message }}
+  <p>Level {{ log.level }}: {{ log.message }}</p>
   {% endfor %}
   {% endif %}
 
   {% if job.result %}
   <hr />
-  <h2 class="title is-5">Result</h2>
+  <h2 class="title is-4">{% trans "Result" %}</h2>
   <pre>{{ job.result_prettified }}</pre>
   {% endif %}
 
-  {% if job.children.all %}
+  {% with children=job.children.all %}
+  {% if children %}
   <hr />
-
   <h2 class="title is-4">{% trans "Sub-Jobs" %}</h2>
   <ol class="job-list">
-    {% for child in job.children.all %}
+    {% for child in children %}
     <li>
       {% include "./_job_item.html" with job=child is_list_item=True show_sub_jobs=True %}
     </li>
     {% endfor %}
   </ol>
   {% endif %}
-  {{ serializer.data|json_script:"job-data" }}
+  {% endwith %}
+
 </div>
