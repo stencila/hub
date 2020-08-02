@@ -43,6 +43,8 @@ if api_client:
     except kubernetes.client.rest.ApiException:
         # Assume that exception was because namespace already exists
         pass
+else:
+    api_instance = None
 
 
 class KubernetesSession(Job):
