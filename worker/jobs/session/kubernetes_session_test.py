@@ -1,12 +1,10 @@
 import pytest
 from celery.exceptions import SoftTimeLimitExceeded
 
-from .kubernetes_session import KubernetesSession
+from .kubernetes_session import api_instance, KubernetesSession
 
 
-@pytest.mark.skipif(
-    KubernetesSession.api_instance is None, reason="can only run if K8s is available"
-)
+@pytest.mark.skipif(api_instance is None, reason="can only run if K8s is available")
 def test_k8s_session():
     """
     Test starting and stopping session.
@@ -29,5 +27,5 @@ def test_k8s_session():
     session.send_event = send_event
 
     assert session.name is None
-    session.run()
+    session.run(key="some-job-key")
     assert session.name is None

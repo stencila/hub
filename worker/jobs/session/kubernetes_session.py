@@ -9,6 +9,8 @@ import kubernetes
 
 from jobs.base.job import Job
 
+# Kubernetes namespace to put job pods in
+namespace = "jobs"
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,20 @@ else:
     except kubernetes.config.config_exception.ConfigException as exc:
         logger.warning(exc)
 
+if api_client:
+    api_instance = kubernetes.client.CoreV1Api(api_client)
+    try:
+        api_instance.create_namespace(
+            body={
+                "apiVersion": "v1",
+                "kind": "Namespace",
+                "metadata": {"name": namespace},
+            }
+        )
+    except kubernetes.client.rest.ApiException:
+        # Assume that exception was because namespace already exists
+        pass
+
 
 class KubernetesSession(Job):
     """
@@ -38,29 +54,6 @@ class KubernetesSession(Job):
     a new pod inside a cluster, possible the same cluster
     this process is in.
     """
-
-    api_instance = kubernetes.client.CoreV1Api(api_client) if api_client else None
-    namespace = "jobs"
-
-    @classmethod
-    def setup(cls):
-        """
-        Setup the cluster.
-
-        Creates the namespace that sessions will be created in
-        (if if does not yet exist).
-        """
-        try:
-            cls.api_instance.create_namespace(
-                body={
-                    "apiVersion": "v1",
-                    "kind": "Namespace",
-                    "metadata": {"name": cls.namespace},
-                }
-            )
-        except kubernetes.client.rest.ApiException:
-            # Assume that exception was because namespace already exists
-            pass
 
     def do(self, *args, **kwargs):
         """
@@ -90,7 +83,7 @@ class KubernetesSession(Job):
         # Create pod listening on a random port number
         protocol = "ws"
         port = random.randint(10000, 65535)
-        self.api_instance.create_namespaced_pod(
+        api_instance.create_namespaced_pod(
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
@@ -113,14 +106,12 @@ class KubernetesSession(Job):
                     "restartPolicy": "Never",
                 },
             },
-            namespace=self.namespace,
+            namespace=namespace,
         )
 
         # Wait for pod to be ready so that we can get its IP address
         while True:
-            pod = self.api_instance.read_namespaced_pod(
-                name=self.name, namespace=self.namespace
-            )
+            pod = api_instance.read_namespaced_pod(name=self.name, namespace=namespace)
             if pod.status.phase != "Pending":
                 break
             time.sleep(0.25)
@@ -132,9 +123,9 @@ class KubernetesSession(Job):
         # Stream pod's stdout and stderr to here
         try:
             response = kubernetes.stream.stream(
-                self.api_instance.connect_get_namespaced_pod_attach,
+                api_instance.connect_get_namespaced_pod_attach,
                 name=self.name,
-                namespace=self.namespace,
+                namespace=namespace,
                 container="executa",
                 stderr=True,
                 stdout=True,
@@ -153,10 +144,5 @@ class KubernetesSession(Job):
         Stop the session.
         """
         if self.name:
-            self.api_instance.delete_namespaced_pod(
-                name=self.name, namespace=self.namespace
-            )
+            api_instance.delete_namespaced_pod(name=self.name, namespace=namespace)
             self.name = None
-
-
-KubernetesSession.setup()
