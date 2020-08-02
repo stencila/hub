@@ -71,6 +71,10 @@ class KubernetesSession(Job):
         URL of the session before starting the session (which blocks
         until the job is terminated).
         """
+        # Get session parameters
+        key = kwargs["key"]
+        environ = kwargs.get("environ", "stencila/executa")
+
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
         self.notify(state="LAUNCHING")
@@ -85,17 +89,20 @@ class KubernetesSession(Job):
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
-                "metadata": {"name": self.name},
+                "metadata": {
+                    "name": self.name
+                },
                 "spec": {
                     "containers": [
                         {
                             "name": "executa",
-                            "image": "stencila/executa",
+                            "image": environ,
                             "args": [
                                 "executa",
                                 "serve",
                                 "--debug",
                                 "--{}=0.0.0.0:{}".format(protocol, port),
+                                "--key={}".format(key)
                             ],
                         }
                     ],
