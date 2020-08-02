@@ -8,10 +8,10 @@ from jobs.base.job import Job
 if "KUBERNETES_SERVICE_HOST" in os.environ:
     from .kubernetes_session import KubernetesSession
 
-    Session = KubernetesSession
+    Session = KubernetesSession  # type: ignore
 else:
     from .subprocess_session import SubprocessSession
 
-    Session = SubprocessSession
+    Session = SubprocessSession  # type: ignore
 
 Session.name = "session"

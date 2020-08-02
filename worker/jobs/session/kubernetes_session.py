@@ -59,7 +59,7 @@ class KubernetesSession(Job):
                     "metadata": {"name": cls.namespace},
                 }
             )
-        except kubernetes.client.rest.ApiException as exc:
+        except kubernetes.client.rest.ApiException:
             # Assume that exception was because namespace already exists
             pass
 

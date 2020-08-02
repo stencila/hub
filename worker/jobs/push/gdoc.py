@@ -20,7 +20,6 @@ def push_gdoc(paths: List[str], project: str, source: dict):
 
     docx = tempfile.NamedTemporaryFile(delete=False)
     convert = Convert()
-    current = {}
 
     json_file = os.path.join(project, paths[0])
 
