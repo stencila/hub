@@ -1,3 +1,21 @@
+# [3.18.0](https://github.com/stencila/hub/compare/v3.17.0...v3.18.0) (2020-08-02)
+
+
+### Bug Fixes
+
+* **Jobs:** Add job key to task arguments ([03e22d7](https://github.com/stencila/hub/commit/03e22d746fbd7ab32e37a2f854098c008f03b8e8))
+* **Jobs:** Kubernetes session ([6624831](https://github.com/stencila/hub/commit/6624831634b74dfca58cc277365b054a33c74f56))
+* **Kubernetes session:** Avoid error on systems where K8s is not available ([929cf5e](https://github.com/stencila/hub/commit/929cf5e797635f3b63fde18c4eb8f9ceda9196f4))
+* **Kubernetes session:** Use a custom namespace ([ae98376](https://github.com/stencila/hub/commit/ae983766ef5b447f1f3028fe5d797d26d24966ad))
+
+
+### Features
+
+* **Kubernetes session:** Send key as param to job ([99941a3](https://github.com/stencila/hub/commit/99941a3361b3680c4176f19903810f491fa6fb08))
+* **Manage jobs:** Add cancel button and minor template tidyups ([d6c103b](https://github.com/stencila/hub/commit/d6c103b99ea847aa1edab922977ce31f1ee59a56))
+* **Manage jobs:** Add cancel button and minor template tidyups ([a9e9665](https://github.com/stencila/hub/commit/a9e96655a1a7231402684c511744ce6e75ee391d))
+* **Session jobs:** Switch session type based on environ ([13b3ca3](https://github.com/stencila/hub/commit/13b3ca3eb71db987ae4623cd71df60738eae17b5))
+
 # [3.17.0](https://github.com/stencila/hub/compare/v3.16.1...v3.17.0) (2020-07-31)
 
 
