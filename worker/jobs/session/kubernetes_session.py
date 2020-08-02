@@ -41,7 +41,27 @@ class KubernetesSession(Job):
     """
 
     api_instance = kubernetes.client.CoreV1Api(api_client) if api_client else None
-    namespace = "default"
+    namespace = "jobs"
+
+    @classmethod
+    def setup(cls):
+        """
+        Setup the cluster.
+
+        Creates the namespace that sessions will be created in
+        (if if does not yet exist).
+        """
+        try:
+            cls.api_instance.create_namespace(
+                body={
+                    "apiVersion": "v1",
+                    "kind": "Namespace",
+                    "metadata": {"name": cls.namespace},
+                }
+            )
+        except kubernetes.client.rest.ApiException as exc:
+            # Assume that exception was because namespace already exists
+            pass
 
     def do(self, *args, **kwargs):
         """
@@ -126,3 +146,6 @@ class KubernetesSession(Job):
                 name=self.name, namespace=self.namespace
             )
             self.name = None
+
+
+KubernetesSession.setup()
