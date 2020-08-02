@@ -104,13 +104,16 @@ def dispatch_job(job: Job) -> Job:
                 account_name="stencila", queue_name="default"
             )
 
+        # Add the job key to it's kwargs so it can be used by the
+        # job's process (e.g. Executa) to limit access to it.
+        # Doing this here ensures it is done for all jobs
+        # and avoids putting the key in the job's `params` field.
+        kwargs = job.params or {}
+        kwargs["key"] = job.key
+
         # Send the job to the queue
         task = signature(
-            job.method,
-            kwargs=job.params,
-            queue=queue.name,
-            task_id=str(job.id),
-            app=app,
+            job.method, kwargs=kwargs, queue=queue.name, task_id=str(job.id), app=app,
         )
         task.apply_async()
 

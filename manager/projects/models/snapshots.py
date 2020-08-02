@@ -210,16 +210,13 @@ class Snapshot(models.Model):
         """
         Create a session job having the snapshot as the working directory.
         """
-        job = Job(
+        return Job.objects.create(
             method=JobMethod.session.name,
             params=dict(project=self.project.id, snapshot_path=self.path),
             description="Session for snapshot #{0}".format(self.number),
             project=self.project,
             creator=user if user.is_authenticated else None,
         )
-        job.params["key"] = job.key
-        job.save()
-        return job
 
     @property
     def is_active(self) -> bool:

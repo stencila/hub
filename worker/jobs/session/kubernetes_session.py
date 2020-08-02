@@ -12,7 +12,6 @@ from jobs.base.job import Job
 
 logger = logging.getLogger(__name__)
 
-
 api_client = None
 if "KUBERNETES_SERVICE_HOST" in os.environ:
     # Running in a pod on the cluster so load the cluster's config
@@ -71,9 +70,15 @@ class KubernetesSession(Job):
         URL of the session before starting the session (which blocks
         until the job is terminated).
         """
-        # Get session parameters
-        key = kwargs["key"]
-        environ = kwargs.get("environ", "stencila/executa")
+        # Get session parameters, with warning, errors or
+        # exceptions if they are not present
+        key = kwargs.get("key")
+        assert key is not None, "A job key is required for a session"
+
+        environ = kwargs.get("environ")
+        if environ is None:
+            environ = "stencila/executa"
+            logger.warn("Using default environment")
 
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
@@ -89,9 +94,7 @@ class KubernetesSession(Job):
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
-                "metadata": {
-                    "name": self.name
-                },
+                "metadata": {"name": self.name},
                 "spec": {
                     "containers": [
                         {
@@ -102,8 +105,9 @@ class KubernetesSession(Job):
                                 "serve",
                                 "--debug",
                                 "--{}=0.0.0.0:{}".format(protocol, port),
-                                "--key={}".format(key)
+                                "--key={}".format(key),
                             ],
+                            "ports": [{"containerPort": port}],
                         }
                     ],
                     "restartPolicy": "Never",
