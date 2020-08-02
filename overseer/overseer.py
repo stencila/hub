@@ -26,6 +26,7 @@ for this purpose (the results should be used for that, which is what
 """
 from datetime import datetime
 from typing import Dict, List, Set, Union
+import json
 import logging
 import os
 import threading
@@ -153,17 +154,22 @@ def task_succeeded(event: Event):
     )
 
 
-def task_logged(event: Event):
+def task_updated(event: Event):
     """
-    Sent when the task adds a log entry.
+    Sent when the task updates its state or send other data.
 
     This is a custom event, see `worker.Job` for when
     it is emitted.
     """
-    update_job(
-        event["task_id"],
-        {"status": event.get("state", "RUNNING"), "log": event.get("log")},
-    )
+    data = {"status": event.get("state", "RUNNING")}
+
+    # Rather than send all data, only pass on known fields
+    for field in ["log", "url"]:
+        value = event.get(field)
+        if value:
+            data.update({field: value})
+
+    update_job(event["task_id"], data)
 
 
 def task_failed(event: Event):
@@ -324,7 +330,7 @@ class Receiver(EventReceiver):
                 "task-sent": task_sent,
                 "task-received": task_received,
                 "task-started": task_started,
-                "task-logged": task_logged,
+                "task-updated": task_updated,
                 "task-succeeded": task_succeeded,
                 "task-failed": task_failed,
                 "task-rejected": task_rejected,
@@ -338,7 +344,7 @@ class Receiver(EventReceiver):
 
     def process(self, type: str, event: Event):
         """Override that increments the event counter."""
-        logger.debug("Event received: {0}".format(type))
+        logger.debug("Event received: {0}: {1}".format(type, json.dumps(event)[:1000]))
         with event_processing.time():
             return super().process(type, event)
 

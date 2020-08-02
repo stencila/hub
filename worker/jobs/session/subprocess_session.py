@@ -1,7 +1,6 @@
 from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
-
-from .network import get_local_ip, get_random_port
+from util.network import get_local_ip, get_random_port
 
 
 class SubprocessSession(SubprocessJob):
@@ -22,9 +21,8 @@ class SubprocessSession(SubprocessJob):
         protocol = "ws"
         ip = get_local_ip()
         port = get_random_port()
-        url = "{}://{}:{}".format(protocol, ip, port)
 
-        self.update_state(state="RUNNING", meta=dict(url=url))
+        self.notify(state="RUNNING", url="{}://{}:{}".format(protocol, ip, port))
 
         return super().do(
             [

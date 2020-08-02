@@ -23,11 +23,6 @@ def test_simple(tempdir):
     """A simple Markdown to HTML conversion."""
     job = Convert()
 
-    def update_state(state, meta):
-        assert state == "RUNNING"
-
-    job.update_state = update_state
-
     tempdir.write("input.md", b"# Hello\n\nworld!")
     result = job.run(
         tempdir.getpath("input.md"),
@@ -43,11 +38,6 @@ def test_simple(tempdir):
 def test_multiple_outputs(tempdir):
     """Can pass a list of output files."""
     job = Convert()
-
-    def update_state(state, meta):
-        assert state == "RUNNING"
-
-    job.update_state = update_state
 
     job.run(
         "Some markdown",

@@ -48,19 +48,28 @@ class Job(celery.Task):
         self.task_id = task_id
         self.log_entries = []
 
-    def flush(self, **kwargs):
-        # Only send the log event if there is is a task_id to be able
-        # to relate this job to.
-        if self.task_id and len(self.log_entries):
-            self.send_event(
-                "task-logged",
-                task_id=self.task_id,
-                state="RUNNING",
-                log=self.log_entries,
-                **kwargs,
-            )
+    def notify(self, state="RUNNING", **kwargs):
+        """
+        Send a notification to the `overseer` service.
 
-    def log(self, level: int, message: str, **kwargs):
+        Used to update the status, url, log etc of a job.
+        """
+        self.send_event(
+            "task-updated", task_id=self.task_id, state=state, **kwargs,
+        )
+
+    def flush(self):
+        """
+        Flush the log.
+
+        In the future this may be more intelligent and buffer
+        sending of log events to reduce the number
+        of requests.
+        """
+        if len(self.log_entries):
+            self.notify(log=self.log_entries)
+
+    def log(self, level: int, message: str):
         """
         Create a log entry.
 
@@ -85,7 +94,7 @@ class Job(celery.Task):
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
         )
-        self.flush(**kwargs)
+        self.flush()
 
     def error(self, message: str):
         """Log an error message."""

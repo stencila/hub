@@ -1,20 +1,16 @@
-"""
-Module that defines the `KubernetesSession` class.
-"""
-
 import logging
 import os
 import random
 import secrets
+import sys
 import time
 
 import kubernetes
 
-from .session import Session
+from jobs.base.job import Job
 
 
 logger = logging.getLogger(__name__)
-
 
 api_client = None
 if "KUBERNETES_SERVICE_HOST" in os.environ:
@@ -33,7 +29,7 @@ else:
         logger.warning(exc)
 
 
-class KubernetesSession(Session):
+class KubernetesSession(Job):
     """
     Runs a session as a pod in a Kubernetes cluster.
 
@@ -44,14 +40,56 @@ class KubernetesSession(Session):
     """
 
     api_instance = kubernetes.client.CoreV1Api(api_client) if api_client else None
-    namespace = "default"
+    namespace = "jobs"
 
-    def __init__(self):
-        """Create a session."""
-        super().__init__()
-        self.name = "session-" + secrets.token_hex(16)
-        self.port = random.randint(1024, 65535)
+    @classmethod
+    def setup(cls):
+        """
+        Setup the cluster.
 
+        Creates the namespace that sessions will be created in
+        (if if does not yet exist).
+        """
+        try:
+            cls.api_instance.create_namespace(
+                body={
+                    "apiVersion": "v1",
+                    "kind": "Namespace",
+                    "metadata": {"name": cls.namespace},
+                }
+            )
+        except kubernetes.client.rest.ApiException:
+            # Assume that exception was because namespace already exists
+            pass
+
+    def do(self, *args, **kwargs):
+        """
+        Start the session.
+
+        Override of `Job.do` which updates the job state with the
+        URL of the session before starting the session (which blocks
+        until the job is terminated).
+        """
+        # Get session parameters, with warning, errors or
+        # exceptions if they are not present
+        key = kwargs.get("key")
+        assert key is not None, "A job key is required for a session"
+
+        environ = kwargs.get("environ")
+        if environ is None:
+            environ = "stencila/executa"
+            logger.warn("Using default environment")
+
+        # Update the job with a custom state to indicate
+        # that we are waiting for the pod to start.
+        self.notify(state="LAUNCHING")
+
+        # Create a session name which we can use to terminate the pod
+        self.name = "job-" + (self.task_id or secrets.token_hex(16))
+
+        # Create pod listening on a random port number
+        protocol = "ws"
+        port = random.randint(10000, 65535)
         self.api_instance.create_namespaced_pod(
             body={
                 "apiVersion": "v1",
@@ -61,13 +99,15 @@ class KubernetesSession(Session):
                     "containers": [
                         {
                             "name": "executa",
-                            "image": "stencila/executa",
+                            "image": environ,
                             "args": [
                                 "executa",
                                 "serve",
                                 "--debug",
-                                "--{}=0.0.0.0:{}".format(self.protocol, self.port),
+                                "--{}=0.0.0.0:{}".format(protocol, port),
+                                "--key={}".format(key),
                             ],
+                            "ports": [{"containerPort": port}],
                         }
                     ],
                     "restartPolicy": "Never",
@@ -76,40 +116,47 @@ class KubernetesSession(Session):
             namespace=self.namespace,
         )
 
+        # Wait for pod to be ready so that we can get its IP address
         while True:
             pod = self.api_instance.read_namespaced_pod(
                 name=self.name, namespace=self.namespace
             )
             if pod.status.phase != "Pending":
                 break
-            time.sleep(0.1)
+            time.sleep(0.25)
+        ip = pod.status.pod_ip
 
-        self.ip = pod.status.pod_ip
+        # Update the job state with the internal URL of the pod
+        self.notify(state="RUNNING", url="{}://{}:{}".format(protocol, ip, port))
 
-    def start(self):
-        """Start the session."""
-        return
+        # Stream pod's stdout and stderr to here
+        try:
+            response = kubernetes.stream.stream(
+                self.api_instance.connect_get_namespaced_pod_attach,
+                name=self.name,
+                namespace=self.namespace,
+                container="executa",
+                stderr=True,
+                stdout=True,
+                stdin=False,
+                tty=False,
+            )
+            while response.is_open():
+                response.update(timeout=1)
+                stdout = response.readline_stdout(timeout=3)
+                print(stdout)
+        except kubernetes.client.rest.ApiException:
+            self.terminated()
 
-        response = kubernetes.stream.stream(
-            self.api_instance.connect_get_namespaced_pod_attach,
-            name=self.name,
-            namespace=self.namespace,
-            container="executa",
-            stderr=True,
-            stdout=True,
-            stdin=False,
-            tty=False,
-        )
-        while response.is_open():
-            response.update(timeout=1)
-            stdout = response.readline_stdout(timeout=3)
-            print(stdout)
-
-    def stop(self):
-        """Stop the session."""
-        super().stop()
+    def terminated(self):
+        """
+        Stop the session.
+        """
         if self.name:
             self.api_instance.delete_namespaced_pod(
                 name=self.name, namespace=self.namespace
             )
             self.name = None
+
+
+KubernetesSession.setup()
