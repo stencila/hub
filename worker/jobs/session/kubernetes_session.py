@@ -92,9 +92,13 @@ class KubernetesSession(Job):
         # Create a session name which we can use to terminate the pod
         self.name = "job-" + (self.task_id or secrets.token_hex(16))
 
+        # Add pod name to logger's extra contextual info
+        self.logger = logging.LoggerAdapter(logger, {"pod_name": self.name})
+
         # Create pod listening on a random port number
         protocol = "ws"
         port = random.randint(10000, 65535)
+        self.logger.debug("Creating pod")
         api_instance.create_namespaced_pod(
             body={
                 "apiVersion": "v1",
@@ -122,6 +126,7 @@ class KubernetesSession(Job):
         )
 
         # Wait for pod to be ready so that we can get its IP address
+        self.logger.debug("Waiting for pod")
         while True:
             pod = api_instance.read_namespaced_pod(name=self.name, namespace=namespace)
             if pod.status.phase != "Pending":
@@ -131,6 +136,8 @@ class KubernetesSession(Job):
 
         # Update the job state with the internal URL of the pod
         self.notify(state="RUNNING", url="{}://{}:{}".format(protocol, ip, port))
+
+        self.logger.debug("Started pod")
 
         # Stream pod's stdout and stderr to here
         try:
@@ -148,13 +155,21 @@ class KubernetesSession(Job):
                 response.update(timeout=1)
                 stdout = response.readline_stdout(timeout=3)
                 print(stdout)
-        except kubernetes.client.rest.ApiException:
-            self.terminated()
+                stderr = response.readline_stderr(timeout=3)
+                print(stderr)
+        except kubernetes.client.rest.ApiException as exc:
+            if "SoftTimeLimitExceeded" in exc.reason:
+                return self.terminated()
+            else:
+                raise exc
+
+        self.logger.info("Pod finished")
 
     def terminated(self):
         """
         Stop the session.
         """
         if self.name:
+            self.logger.info("Terminating pod")
             api_instance.delete_namespaced_pod(name=self.name, namespace=namespace)
             self.name = None
