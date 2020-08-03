@@ -1,3 +1,11 @@
+## [3.18.1](https://github.com/stencila/hub/compare/v3.18.0...v3.18.1) (2020-08-03)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Need to export api_instance ([b4db8c0](https://github.com/stencila/hub/commit/b4db8c06d629c26e80b53de0d79307d5fb8ff8e9))
+* **Kubernetes sessions:** Fix in cluster config ([3f4c39f](https://github.com/stencila/hub/commit/3f4c39f04284102b3446dfd81848f859f8d4fb56))
+
 # [3.18.0](https://github.com/stencila/hub/compare/v3.17.0...v3.18.0) (2020-08-02)
 
 
