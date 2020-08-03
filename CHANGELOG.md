@@ -1,3 +1,10 @@
+## [3.19.2](https://github.com/stencila/hub/compare/v3.19.1...v3.19.2) (2020-08-03)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Terminate on exception during streaming ([eed6aed](https://github.com/stencila/hub/commit/eed6aed54950314b3490542ea1a8fa3171373bac))
+
 ## [3.19.1](https://github.com/stencila/hub/compare/v3.19.0...v3.19.1) (2020-08-03)
 
 
