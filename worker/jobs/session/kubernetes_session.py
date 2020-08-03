@@ -25,6 +25,7 @@ else:
     # a production cluster accidentally.
     # Do not raise an exception so that devs without Minikube
     # installed can at least import this file. Just warn.
+    api_instance = None
     try:
         api_client = kubernetes.config.new_client_from_config(context="minikube")
         api_instance = kubernetes.client.CoreV1Api(api_client)
