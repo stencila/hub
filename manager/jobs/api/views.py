@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import List, Optional
 
 from django.utils import timezone
@@ -526,13 +527,16 @@ class ProjectsJobsViewSet(
         if request.user.is_authenticated:
             job.users.add(request.user)
 
+        # Nginx will respond with the error:
+        #    invalid URL prefix in "ws://192.168.1.116:39591/" while reading response header from upstream
+        # so we replace ws with http and let the upgrade to Websocket
+        # occur elsewhere.
+        url = re.sub(r"^ws", "http", job.url)
         path = self.kwargs.get("path")
+        url = os.path.join(url, path or "")
 
         return Response(
-            headers={
-                "X-Accel-Redirect": "@jobs-connect",
-                "X-Accel-Redirect-URL": os.path.join(url, path or ""),
-            }
+            headers={"X-Accel-Redirect": "@jobs-connect", "X-Accel-Redirect-URL": url,}
         )
 
     @swagger_auto_schema(request_body=None)
