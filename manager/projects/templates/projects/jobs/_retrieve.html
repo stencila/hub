@@ -16,6 +16,16 @@ is removed when the job is inactive.
      hx-template="projects/jobs/_retrieve.html" hx-swap="outerHTML" {% endif %}>
   {% include "./_job_item.html" %}
 
+  {% if job.error and job.error.message != "None" %}
+  <hr />
+  <h2 class="title is-4">{% trans "Error" %}</h2>
+  <div class="notification is-light is-family-code">
+    {% blocktrans with error=job.error.message %}
+    {{ error }}
+    {% endblocktrans %}
+  </div>
+  {% endif %}
+  
   {% if job.log %}
   <hr />
   <h2 class="title is-4">{% trans "Log" %}</h2>

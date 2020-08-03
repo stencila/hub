@@ -67,14 +67,6 @@
       <span class="has-text-weight-bold">
         {{ job.summary_string }}
       </span>
-
-      {% if job.error.message %}
-      <div class="notification is-light px-2 py-2 is-family-code">
-        {% blocktrans with error=job.error.message %}
-        {{ error }}
-        {% endblocktrans %}
-      </div>
-      {% endif %}
     </div>
   </div>
 
