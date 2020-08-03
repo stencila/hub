@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import secrets
+import subprocess
 import sys
 import time
 
@@ -27,24 +28,33 @@ else:
     # installed can at least import this file. Just warn.
     api_instance = None
     try:
-        api_client = kubernetes.config.new_client_from_config(context="minikube")
-        api_instance = kubernetes.client.CoreV1Api(api_client)
+        status = subprocess.run(["minikube", "status"])
+        if status.returncode == 0:
+            try:
+                api_client = kubernetes.config.new_client_from_config(
+                    context="minikube"
+                )
+                api_instance = kubernetes.client.CoreV1Api(api_client)
 
-        try:
-            # Create the job namespace. In production, this namespace
-            # needs to be created manually.
-            api_instance.create_namespace(
-                body={
-                    "apiVersion": "v1",
-                    "kind": "Namespace",
-                    "metadata": {"name": namespace},
-                }
-            )
-        except kubernetes.client.rest.ApiException:
-            # Assume that exception was because namespace already exists
-            pass
-    except kubernetes.config.config_exception.ConfigException as exc:
-        logger.warning(exc)
+                try:
+                    # Create the job namespace. In production, this namespace
+                    # needs to be created manually.
+                    api_instance.create_namespace(
+                        body={
+                            "apiVersion": "v1",
+                            "kind": "Namespace",
+                            "metadata": {"name": namespace},
+                        }
+                    )
+                except kubernetes.client.rest.ApiException:
+                    # Assume that exception was because namespace already exists
+                    pass
+            except kubernetes.config.config_exception.ConfigException as exc:
+                logger.warning(exc)
+        else:
+            logger.warn("Minikube does not appear to be running. Run: minikube start")
+    except FileNotFoundError:
+        logger.warn("Could not find Minikube. Is it installed?")
 
 
 class KubernetesSession(Job):
