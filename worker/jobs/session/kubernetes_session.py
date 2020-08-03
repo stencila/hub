@@ -18,7 +18,7 @@ api_client = None
 if "KUBERNETES_SERVICE_HOST" in os.environ:
     # Running in a pod on the cluster so load the cluster's config
     kubernetes.config.load_incluster_config()
-    api_client = kubernetes.client.CoreV1Api()
+    api_instance = kubernetes.client.CoreV1Api()
 else:
     # Running outside of a cluster, probably during development
     # so only connect to a Minikube cluster to avoid polluting
@@ -27,24 +27,23 @@ else:
     # installed can at least import this file. Just warn.
     try:
         api_client = kubernetes.config.new_client_from_config(context="minikube")
+        api_instance = kubernetes.client.CoreV1Api(api_client)
+
+        try:
+            # Create the job namespace. In production, this namespace
+            # needs to be created manually.
+            api_instance.create_namespace(
+                body={
+                    "apiVersion": "v1",
+                    "kind": "Namespace",
+                    "metadata": {"name": namespace},
+                }
+            )
+        except kubernetes.client.rest.ApiException:
+            # Assume that exception was because namespace already exists
+            pass
     except kubernetes.config.config_exception.ConfigException as exc:
         logger.warning(exc)
-
-if api_client:
-    api_instance = kubernetes.client.CoreV1Api(api_client)
-    try:
-        api_instance.create_namespace(
-            body={
-                "apiVersion": "v1",
-                "kind": "Namespace",
-                "metadata": {"name": namespace},
-            }
-        )
-    except kubernetes.client.rest.ApiException:
-        # Assume that exception was because namespace already exists
-        pass
-else:
-    api_instance = None
 
 
 class KubernetesSession(Job):
