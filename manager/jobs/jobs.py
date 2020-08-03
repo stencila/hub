@@ -239,8 +239,13 @@ def cancel_job(job: Job) -> Job:
     See `worker/worker.py` for the reasoning for using `SIGUSR1`.
     See https://docs.celeryproject.org/en/stable/userguide/workers.html#revoke-revoking-tasks
     """
-    if not JobStatus.has_ended(job.status):
-        app.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
+    if job.is_active:
+        if JobMethod.is_compound(job.method):
+            for child in job.children.all():
+                cancel_job(child)
+        else:
+            app.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
         job.status = JobStatus.CANCELLED.value
+        job.is_active = False
         job.save()
     return job
