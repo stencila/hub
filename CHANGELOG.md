@@ -1,3 +1,12 @@
+## [3.19.1](https://github.com/stencila/hub/compare/v3.19.0...v3.19.1) (2020-08-03)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Improve logging and termination ([b11d1d7](https://github.com/stencila/hub/commit/b11d1d7d2a11f3758c736723343ba2670d7fa676))
+* **Manager:** FIx type and send extra dict ([0f2bcf1](https://github.com/stencila/hub/commit/0f2bcf1d82c7a436c926d84020d1e88f34f88323))
+* **Worker:** Improve switching between session types ([3706700](https://github.com/stencila/hub/commit/3706700e4725d23752269c2e833adfa736d0ce96))
+
 # [3.19.0](https://github.com/stencila/hub/compare/v3.18.1...v3.19.0) (2020-08-03)
 
 
