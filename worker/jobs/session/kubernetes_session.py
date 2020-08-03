@@ -52,7 +52,9 @@ else:
             except kubernetes.config.config_exception.ConfigException as exc:
                 logger.warning(exc)
         else:
-            logger.warning("Minikube does not appear to be running. Run: minikube start")
+            logger.warning(
+                "Minikube does not appear to be running. Run: minikube start"
+            )
     except FileNotFoundError:
         logger.warning("Could not find Minikube. Is it installed?")
 
@@ -90,10 +92,11 @@ class KubernetesSession(Job):
         self.notify(state="LAUNCHING")
 
         # Create a session name which we can use to terminate the pod
-        self.name = "job-" + (self.task_id or secrets.token_hex(16))
+        # (use `pod_name` to avoid clash with `Job.name`)
+        self.pod_name = "session-" + (self.task_id or secrets.token_hex(16))
 
         # Add pod name to logger's extra contextual info
-        self.logger = logging.LoggerAdapter(logger, {"pod_name": self.name})
+        self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
         # Create pod listening on a random port number
         protocol = "ws"
@@ -103,7 +106,7 @@ class KubernetesSession(Job):
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
-                "metadata": {"name": self.name},
+                "metadata": {"name": self.pod_name, "app": "session"},
                 "spec": {
                     "containers": [
                         {
@@ -128,7 +131,9 @@ class KubernetesSession(Job):
         # Wait for pod to be ready so that we can get its IP address
         self.logger.debug("Waiting for pod")
         while True:
-            pod = api_instance.read_namespaced_pod(name=self.name, namespace=namespace)
+            pod = api_instance.read_namespaced_pod(
+                name=self.pod_name, namespace=namespace
+            )
             if pod.status.phase != "Pending":
                 break
             time.sleep(0.25)
@@ -143,7 +148,7 @@ class KubernetesSession(Job):
         try:
             response = kubernetes.stream.stream(
                 api_instance.connect_get_namespaced_pod_attach,
-                name=self.name,
+                name=self.pod_name,
                 namespace=namespace,
                 container="executa",
                 stderr=True,
@@ -172,7 +177,7 @@ class KubernetesSession(Job):
         """
         Stop the session.
         """
-        if self.name:
+        if self.pod_name:
             self.logger.info("Terminating pod")
-            api_instance.delete_namespaced_pod(name=self.name, namespace=namespace)
-            self.name = None
+            api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
+            self.pod_name = None
