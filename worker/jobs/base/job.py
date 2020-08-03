@@ -9,6 +9,8 @@ from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
 import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 from config import get_working_dir
 
@@ -23,7 +25,9 @@ DEBUG = 3
 # for the `manager` service (which is why it is prefixed by `DJANGO_`).
 DJANGO_SENTRY_DSN = os.environ.get("DJANGO_SENTRY_DSN")
 if DJANGO_SENTRY_DSN:
-    sentry_sdk.init(dsn=DJANGO_SENTRY_DSN)
+    sentry_sdk.init(
+        dsn=DJANGO_SENTRY_DSN, integrations=[CeleryIntegration(), RedisIntegration()]
+    )
 
 # Get the Celery logger
 logger = get_task_logger(__name__)
@@ -82,14 +86,16 @@ class Job(celery.Task):
           log and any extra details available to the `manager`.
           (see the `update_job` there for how these are extracted)
         """
+        log_message = "Job {0}: {1}".format(self.name, message)
+        log_extra = {"task_id": self.task_id, "job_method": self.name}
         if level == DEBUG:
-            logger.debug(message)
+            logger.debug(log_message, extra=log_extra)
         elif level == INFO:
-            logger.info(message)
+            logger.info(log_message, extra=log_extra)
         elif level == WARN:
-            logger.warn(message)
+            logger.warn(log_message, extra=log_extra)
         else:
-            logger.error(message)
+            logger.error(log_message, extra=log_extra)
 
         self.log_entries.append(
             dict(time=datetime.utcnow().isoformat(), level=level, message=message)
