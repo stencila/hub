@@ -52,9 +52,9 @@ else:
             except kubernetes.config.config_exception.ConfigException as exc:
                 logger.warning(exc)
         else:
-            logger.warn("Minikube does not appear to be running. Run: minikube start")
+            logger.warning("Minikube does not appear to be running. Run: minikube start")
     except FileNotFoundError:
-        logger.warn("Could not find Minikube. Is it installed?")
+        logger.warning("Could not find Minikube. Is it installed?")
 
 
 class KubernetesSession(Job):
@@ -83,7 +83,7 @@ class KubernetesSession(Job):
         environ = kwargs.get("environ")
         if environ is None:
             environ = "stencila/executa"
-            logger.warn("Using default environment")
+            logger.warning("Using default environment")
 
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
@@ -158,10 +158,13 @@ class KubernetesSession(Job):
                 stderr = response.readline_stderr(timeout=3)
                 print(stderr)
         except kubernetes.client.rest.ApiException as exc:
-            if "SoftTimeLimitExceeded" in exc.reason:
-                return self.terminated()
-            else:
-                raise exc
+            # Log the exception if it is not an expected
+            # SoftTimeLimitExceeded exception (used for cancelling
+            # / terminating jobs)
+            if "SoftTimeLimitExceeded" not in exc.reason:
+                logger.exception(exc)
+            # Always terminate the pod if there has been an exception
+            return self.terminated()
 
         self.logger.info("Pod finished")
 

@@ -93,7 +93,7 @@ class Job(celery.Task):
         elif level == INFO:
             logger.info(log_message, extra=log_extra)
         elif level == WARN:
-            logger.warn(log_message, extra=log_extra)
+            logger.warning(log_message, extra=log_extra)
         else:
             logger.error(log_message, extra=log_extra)
 
