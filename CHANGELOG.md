@@ -1,3 +1,17 @@
+# [3.19.0](https://github.com/stencila/hub/compare/v3.18.1...v3.19.0) (2020-08-03)
+
+
+### Bug Fixes
+
+* **Jobs:** Show job error message in detailed view ([45956ff](https://github.com/stencila/hub/commit/45956ffd3c22ddbaa61bced96078db03fd39efa9))
+* **Jobs:** When cancelling a compound job cancel subjobs ([bb019bd](https://github.com/stencila/hub/commit/bb019bd6a7a9eaa6b76fba11d0056318dc5021ce))
+* **Kubernetes worker:** More checks of Minikube ([2969cdf](https://github.com/stencila/hub/commit/2969cdf3c608d3087aaa6aa532424001f55c7bd1))
+
+
+### Features
+
+* **Worker:** Add more detail to job logs ([37206bc](https://github.com/stencila/hub/commit/37206bce517c024c1e3ff96814360583496d58ae))
+
 ## [3.18.1](https://github.com/stencila/hub/compare/v3.18.0...v3.18.1) (2020-08-03)
 
 
