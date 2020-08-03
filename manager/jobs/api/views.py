@@ -526,9 +526,6 @@ class ProjectsJobsViewSet(
         if request.user.is_authenticated:
             job.users.add(request.user)
 
-        # Nginx does not accept the ws:// prefix, so in those
-        # cases replace with http://
-        url = job.url.replace("ws://", "http://")
         path = self.kwargs.get("path")
 
         return Response(
