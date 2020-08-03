@@ -1,3 +1,13 @@
+## [3.19.3](https://github.com/stencila/hub/compare/v3.19.2...v3.19.3) (2020-08-03)
+
+
+### Bug Fixes
+
+* **Jobs:** Do not alter the protocol for the redirected URL ([3b73655](https://github.com/stencila/hub/commit/3b7365590d07603b177c9ac2a44564e7e4760602))
+* **Jobs:** Nginx really doesn't like ws:// is header URL ([a7f0a81](https://github.com/stencila/hub/commit/a7f0a814942c8d0a4ae2c420b81c182539010e7f))
+* **Jobs:** Return a Websocket URL is needs be ([a4498d3](https://github.com/stencila/hub/commit/a4498d35e292d14ab1e410ab3af8028b95ed0c1a))
+* **Router:** Add Connection header ([e192995](https://github.com/stencila/hub/commit/e192995f79f8646224dbee8a34f4b9fd8eea8430))
+
 ## [3.19.2](https://github.com/stencila/hub/compare/v3.19.1...v3.19.2) (2020-08-03)
 
 
