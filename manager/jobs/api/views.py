@@ -536,7 +536,7 @@ class ProjectsJobsViewSet(
         url = os.path.join(url, path or "")
 
         return Response(
-            headers={"X-Accel-Redirect": "@jobs-connect", "X-Accel-Redirect-URL": url,}
+            headers={"X-Accel-Redirect": "@jobs-connect", "X-Accel-Redirect-URL": url}
         )
 
     @swagger_auto_schema(request_body=None)
