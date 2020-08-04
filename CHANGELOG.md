@@ -1,3 +1,16 @@
+# [3.20.0](https://github.com/stencila/hub/compare/v3.19.3...v3.20.0) (2020-08-04)
+
+
+### Bug Fixes
+
+* **Snapshots:** Inject Executable Toolbar into Thema article context ([3e9e94e](https://github.com/stencila/hub/commit/3e9e94eea7cea46e87af4a7fc509a3756a3cfbff))
+
+
+### Features
+
+* **Jobs:** Return an existing, running, matching session for a user ([5a0eecc](https://github.com/stencila/hub/commit/5a0eecc4c400dfb550b5510bb43b97da2306c61b))
+* **K8s session:** Add default timeout and timelimit ([cfa1a79](https://github.com/stencila/hub/commit/cfa1a794b210cd094bbec3406ec032a8f4ef3523))
+
 ## [3.19.3](https://github.com/stencila/hub/compare/v3.19.2...v3.19.3) (2020-08-03)
 
 
