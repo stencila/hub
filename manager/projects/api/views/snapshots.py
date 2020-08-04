@@ -180,7 +180,9 @@ class ProjectsSnapshotsViewSet(
         """.format(
             source_url=source_url, session_provider_url=session_provider_url
         )
-        html = html.replace(b'data-itemscope="root">', b'data-itemscope="root">' + toolbar.encode())
+        html = html.replace(
+            b'data-itemscope="root">', b'data-itemscope="root">' + toolbar.encode()
+        )
 
         response = HttpResponse(html)
 
