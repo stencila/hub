@@ -81,8 +81,17 @@ class ProjectsSourcesViewSet(
         return queryset
 
     def get_object(self, project: Optional[Project] = None) -> Source:
-        """Get a source for the project."""
-        return self.get_queryset(project).get(id=self.kwargs["source"])
+        """
+        Get a source for the project.
+
+        The `source` URL kwarg can be an integer id , or address
+        """
+        source = self.kwargs["source"]
+        try:
+            identifier = dict(id=int(source))
+        except ValueError:
+            identifier = dict(address=source)
+        return self.get_queryset(project).get(**identifier)
 
     def get_serializer_class(self, action=None, source_class: str = None):
         """Get the serializer class for the current action."""

@@ -26,7 +26,7 @@
     {% if source.type_name != "Upload" %}
     <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
        hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
-       hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.id %}"
+       hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.address %}"
        hx-swap="none">
       <span class="icon">
         <i class="ri-download-2-line"></i>

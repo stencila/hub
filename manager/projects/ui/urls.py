@@ -95,20 +95,20 @@ after_account_urls = [
                                 sources_views.upload,
                                 name="ui-projects-sources-upload",
                             ),
-                            path(
-                                "<str:source>",
-                                sources_views.retrieve,
-                                name="ui-projects-sources-retrieve",
-                            ),
-                            path(
-                                "rename/<str:source>",
+                            re_path(
+                                r"(?P<source>.+?)!rename",
                                 sources_views.rename,
                                 name="ui-projects-sources-rename",
                             ),
-                            path(
-                                "delete/<str:source>",
+                            re_path(
+                                r"(?P<source>.+?)!delete",
                                 sources_views.destroy,
                                 name="ui-projects-sources-destroy",
+                            ),
+                            re_path(
+                                r"(?P<source>.+)",
+                                sources_views.retrieve,
+                                name="ui-projects-sources-retrieve",
                             ),
                         ]
                     ),
