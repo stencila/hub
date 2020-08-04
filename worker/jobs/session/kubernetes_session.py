@@ -87,6 +87,10 @@ class KubernetesSession(Job):
             environ = "stencila/executa"
             logger.warning("Using default environment")
 
+        # Use short timeout and timelimit defaults
+        timeout = kwargs.get("timeout", 15 * 60)
+        timelimit = kwargs.get("timelimit", 60 * 60)
+
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
         self.notify(state="LAUNCHING")
@@ -118,6 +122,8 @@ class KubernetesSession(Job):
                                 "--debug",
                                 "--{}=0.0.0.0:{}".format(protocol, port),
                                 "--key={}".format(key),
+                                "--timeout={}".format(timeout),
+                                "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
                         }
