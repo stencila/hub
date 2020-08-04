@@ -9,13 +9,14 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
 from django.db import models
+from django.http import HttpRequest
 from django.utils import timezone
 from django_celery_beat.models import PeriodicTask
 from jsonfallback.fields import FallbackJSONField
 
 from accounts.models import Account
 from manager.helpers import EnumChoice
-from users.models import User
+from users.models import AnonUser, User
 
 
 class Zone(models.Model):
@@ -569,6 +570,16 @@ class Job(models.Model):
         help_text="The project this job is associated with.",
     )
 
+    snapshot = models.ForeignKey(
+        "projects.Snapshot",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="jobs",
+        help_text="The snapshot that this job is associated with. "
+        "Usually `session` jobs for the snapshot.",
+    )
+
     creator = models.ForeignKey(
         User,
         null=True,  # Should only be null if the creator is deleted
@@ -653,7 +664,11 @@ class Job(models.Model):
 
     users = models.ManyToManyField(
         User,
-        help_text="The users who have connected to the job; not necessarily currently connected.",
+        help_text="Users who have created or connected to the job; not necessarily currently connected.",
+    )
+
+    anon_users = models.ManyToManyField(
+        AnonUser, help_text="Anonymous users who have created or connected to the job.",
     )
 
     worker = models.CharField(
@@ -662,6 +677,7 @@ class Job(models.Model):
         null=True,
         help_text="The identifier of the worker that ran the job.",
     )
+
     retries = models.IntegerField(
         blank=True, null=True, help_text="The number of retries to fulfil the job.",
     )
@@ -849,6 +865,19 @@ class Job(models.Model):
                 if obj:
                     func = getattr(obj, self.callback_method)
                     func(self)
+
+    def add_user(self, request: HttpRequest):
+        """
+        Add the request user to the job.
+
+        If the user is authenticated, they are added to
+        `users`, otherwise to `anon_users`.
+        """
+        if request.user.is_authenticated:
+            self.users.add(request.user)
+        else:
+            anon_user = AnonUser.get_or_create(request)
+            self.anon_users.add(anon_user)
 
 
 class Pipeline(models.Model):

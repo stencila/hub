@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 
-from users.models import Flag
+from users.models import AnonUser, Flag
 
 # Unregister the default user model admin
 admin.site.unregister(User)
@@ -72,6 +72,13 @@ class CustomUserAdmin(UserAdmin):
         elif not instance.is_staff and instance.groups.filter(name="Staff").count() > 0:
             group = Group.objects.get(name="Staff")
             instance.groups.remove(group)
+
+
+@admin.register(AnonUser)
+class AnonUserAdmin(admin.ModelAdmin):
+    """Admin interface for AnonUser instances."""
+
+    list_display = ["id", "created"]
 
 
 @admin.register(Flag)

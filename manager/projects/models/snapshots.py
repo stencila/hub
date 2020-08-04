@@ -2,6 +2,7 @@ import os
 
 import shortuuid
 from django.db import models
+from django.http import HttpRequest
 
 from jobs.models import Job, JobMethod
 from manager.storage import snapshots_storage
@@ -79,6 +80,7 @@ class Snapshot(models.Model):
     job = models.ForeignKey(
         Job,
         on_delete=models.SET_NULL,
+        related_name="snapshot_created",
         null=True,
         blank=True,
         help_text="The job that created the snapshot",
@@ -206,17 +208,20 @@ class Snapshot(models.Model):
         for path, info in result.items():
             File.create(self.project, path, info, job=job, snapshot=self)
 
-    def session(self, user: User) -> Job:
+    def session(self, request: HttpRequest) -> Job:
         """
         Create a session job having the snapshot as the working directory.
         """
-        return Job.objects.create(
+        job = Job.objects.create(
             method=JobMethod.session.name,
             params=dict(project=self.project.id, snapshot_path=self.path),
             description="Session for snapshot #{0}".format(self.number),
             project=self.project,
-            creator=user if user.is_authenticated else None,
+            snapshot=self,
+            creator=request.user if request.user.is_authenticated else None,
         )
+        job.add_user(request)
+        return job
 
     @property
     def is_active(self) -> bool:

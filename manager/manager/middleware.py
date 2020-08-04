@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework.authentication import BasicAuthentication
 
 from manager.api.exceptions import AccountQuotaExceeded, SocialTokenMissing
+from users.models import generate_anonuser_id
 
 
 def basic_auth(get_response):
@@ -30,9 +31,13 @@ def session_storage(get_response):
     def middleware(request):
         if "user" not in request.session:
             if request.user.is_authenticated:
-                request.session["user"] = {
+                user = {
+                    "anon": False,
                     "image": request.user.personal_account.image.medium,
                 }
+            else:
+                user = {"anon": True, "id": generate_anonuser_id()}
+            request.session["user"] = user
         return get_response(request)
 
     return middleware

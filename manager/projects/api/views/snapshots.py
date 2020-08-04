@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from jobs.api.helpers import redirect_to_job
+from jobs.models import Job
 from manager.api.authentication import (
     BasicAuthentication,
     CsrfExemptSessionAuthentication,
@@ -25,6 +26,7 @@ from projects.api.views.projects import get_project
 from projects.models.files import File
 from projects.models.projects import Project, ProjectRole
 from projects.models.snapshots import Snapshot
+from users.models import AnonUser
 
 storage_client = httpx.Client()
 
@@ -213,9 +215,25 @@ class ProjectsSnapshotsViewSet(
     @action(detail=True, methods=["post"])
     def session(self, request: Request, *args, **kwargs) -> Response:
         """
-        Create a new session with the snapshot as the working directory.
+        Get a session with the snapshot as the working directory.
+
+        If the user has already created or connected to
+        a `session` job for this snapshot, and that job is still running
+        then will return that job. Otherwise, will create a new session.
         """
         snapshot = self.get_object()
-        job = snapshot.session(request.user)
-        job.dispatch()
+        try:
+            job = Job.objects.filter(
+                snapshot=snapshot,
+                is_active=True,
+                **(
+                    {"users": request.user}
+                    if request.user.is_authenticated
+                    else {"anon_users__id": AnonUser.get_id(request)}
+                )
+            ).order_by("-created")[0]
+        except IndexError:
+            job = snapshot.session(request)
+            job.dispatch()
+
         return redirect_to_job(job)

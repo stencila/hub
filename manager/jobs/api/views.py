@@ -524,8 +524,8 @@ class ProjectsJobsViewSet(
                 {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        if request.user.is_authenticated:
-            job.users.add(request.user)
+        # Record the user is connecting to the job
+        job.add_user(request)
 
         # Nginx will respond with the error:
         #    invalid URL prefix in "ws://192.168.1.116:39591/" while reading response header from upstream

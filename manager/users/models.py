@@ -8,6 +8,8 @@ This module only serves to provide some consistency across the
 to do the following.
 """
 
+from typing import Optional
+
 import django.contrib.auth.models
 import shortuuid
 from django.contrib.auth import get_user_model
@@ -24,6 +26,60 @@ from rest_framework.exceptions import ValidationError
 from waffle.models import AbstractUserFlag
 
 User: django.contrib.auth.models.User = get_user_model()
+
+
+def generate_anonuser_id():
+    """
+    Generate a unique id for an anonymous user.
+    """
+    return shortuuid.ShortUUID().random(length=32)
+
+
+class AnonUser(models.Model):
+    """
+    A model to store anonymous users when necessary.
+
+    Used to associate unauthenticated users with objects,
+    for example, so that the same session job can be provided
+    to them on multiple page refreshes.
+    """
+
+    id = models.CharField(
+        primary_key=True,
+        max_length=64,
+        default=generate_anonuser_id,
+        help_text="The unique id of the anonymous user.",
+    )
+
+    created = models.DateTimeField(
+        auto_now_add=True, help_text="The time the anon user was created."
+    )
+
+    @staticmethod
+    def get_id(request: HttpRequest) -> Optional[str]:
+        """
+        Get the id of the anonymous user, if any.
+        """
+        if request.user.is_anonymous:
+            return request.session.get("user", {}).get("id")
+        return None
+
+    @staticmethod
+    def get_or_create(request: HttpRequest) -> "AnonUser":
+        """
+        Create an instance in the database.
+
+        Only use this when necessary. e.g when you need
+        to associated an anonymous user with another object.
+        """
+        id = AnonUser.get_id(request)
+        if id:
+            anon_user, created = AnonUser.objects.get_or_create(id=id)
+            return anon_user
+        else:
+            anon_user = AnonUser.objects.create()
+            request.session["user"] = {"anon": True, "id": anon_user.id}
+            return anon_user
 
 
 class Flag(AbstractUserFlag):
