@@ -32,6 +32,8 @@ REPLACE = [
     (r"<slug:account>", "an-org"),
     (r"<slug:team>", "first-team"),
     (r"<slug:project>", "first-project"),
+    (r"\(\?P<source>\.\+\??\)", "upload://main.md"),
+    (r"\(\?P<file>\.\+\?\)", "main.md"),
 ]
 
 # Regexes of paths to exclude
