@@ -5,7 +5,7 @@ from django.db import models
 from django.http import HttpRequest
 
 from jobs.models import Job, JobMethod
-from manager.storage import snapshots_storage
+from manager.storage import FileSystemStorage, snapshots_storage
 from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
@@ -251,7 +251,13 @@ class Snapshot(models.Model):
         """
         Get the URL for a file within the snapshot directory.
         """
-        return Snapshot.STORAGE.url(self.file_location(file))
+        url = Snapshot.STORAGE.url(self.file_location(file))
+        if isinstance(Snapshot.STORAGE, FileSystemStorage):
+            # Since FileSystemStorage is only used during development,
+            # and returns a relative URL, append localhost
+            return "http://127.0.0.1:8000" + url
+        else:
+            return url
 
     def archive_url(self, format: str = "zip") -> str:
         """
