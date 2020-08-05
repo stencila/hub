@@ -16,6 +16,11 @@ from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
 INCLUDE = [
+    # View of a personal account
+    # In REPLACE below we use `an-org` for <slug:account>
+    # This ensure we snap a page for a personal account too
+    "a-user/",
+] + [
     # Forms for creating new sources
     # These pages are used below in `ELEMS`
     "an-org/first-project/sources/new/%s" % type
@@ -61,10 +66,16 @@ EXCLUDE = [
 
 # Regexes of paths to visit as particular user/s.
 # First matching regex is used.
-# Can be a list of users.
+# Can be a list of users, in which case, any "anon"
+# item must come first.
 USERS = [
     # Do not authenticate for these:
     [r"^me/(signin|signup)/", "anon"],
+    # Visit index as `anon` and `a-user`
+    [r"^/$", ["anon", "a-user"]],
+    # Visit `a-user`'s account page as `anon`, `a-user`, and `member` (who
+    # will be a member of all their projects)
+    [r"^a-user/", ["anon", "a-user", "member"]],
     # Defaults to authenticating as `owner` user
     [r".*", "owner"],
 ]
@@ -394,7 +405,7 @@ async def main():
                         print(" {0}❌{1}".format(colors.ERROR, colors.RESET))
                         errors += 1
 
-            results.append([path, url, response.status, data, snaps, snips])
+            results.append([path, url, user, response.status, data, snaps, snips])
 
     await browser.close()
 
@@ -491,13 +502,16 @@ def report(results):
         }
     </style>
     <table>"""
-    for (path, url, status, data, snaps, snips) in results:
+    for (path, url, user, status, data, snaps, snips) in results:
         cpu = float(data.get("cpu_time", ""))
         db = float(data.get("db_queries", ""))
 
         report += """
             <tr>
-                <td><a href="{url}" target="_blank">{path}</a></td>
+                <td>
+                    <a href="{url}" target="_blank">{path}</a>
+                    as <strong>{user}</strong>
+                </td>
                 <td>
                     <span class="tag" style="background-color: {status_color}">
                         {status}
@@ -515,6 +529,7 @@ def report(results):
         """.format(
             url=url,
             path=html.escape(showPath(path)),
+            user=user,
             status=status,
             status_color="#d9ffb0" if status == 200 else "#ffb4b0",
             cpu=cpu,
