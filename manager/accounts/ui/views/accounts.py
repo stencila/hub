@@ -66,7 +66,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     projects_viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
     projects = projects_viewset.get_queryset()
     if account.is_personal:
-        projects = projects.filter(agents__user=account.user)
+        projects = projects.filter(agents__user=account.user_id)
     else:
         projects = projects.filter(account=account)
 

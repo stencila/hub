@@ -126,12 +126,12 @@ class Account(models.Model):
     @property
     def is_personal(self):
         """Is this a personal account."""
-        return self.user is not None
+        return self.user_id is not None
 
     @property
     def is_organization(self):
         """Is this an organizational account."""
-        return self.user is None
+        return self.user_id is None
 
     def get_url(self):
         """Get the URL for this account."""
