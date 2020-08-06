@@ -53,6 +53,7 @@ EXCLUDE = [
     r"^favicon.ico",
     r"^robots.txt",
     r"^stencila/admin",
+    r"^stencila/\^metrics",
     # Anything which still has a URL parameter
     # in it after REPLACE is applied
     r"\?P<",
