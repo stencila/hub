@@ -1,0 +1,38 @@
+{% extends './base.html' %}
+{% load static stencila %}
+
+{% block title %}Doh!{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="columns">
+    <div class="column is-6 is-offset-4 has-text-centered">
+      <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Doh!" width="112px" height="28px">
+      <h1 class="title has-margin-top">Doh!</h1>
+      <div class="notification">
+        <p>
+          Project <strong>{{ account.name }}/{{ project_name }}</strong> either does not exist, or it is private and you
+          have not supplied
+          it's private key in the URL<sup>*</sup>.
+        </p>
+        <p class="help">
+          <sup>*</sup>To protect the privacy of project owners we're not going to
+          tell which of these two possibilities it is.
+          If the project exists go to it's
+          <a href="{% primary_domain_url 'ui-projects-sharing' account.name project_name %}">sharing page</a>
+          to get a valid URL or request access.
+        </p>
+      </div>
+      <a class="button is-primary is-expanded-mobile"
+         href="{% primary_domain_url 'ui-accounts-retrieve' account.name %}">
+        <span class="icon">
+          <i class="ri-login-box-line"></i>
+        </span>
+        <span>
+          Go to account
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
