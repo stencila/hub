@@ -5,7 +5,7 @@ This needs to be a module separate from `../urls.py` so that it can be referred 
 in `manager/api/views/docs.py` as the module from which the API schema is
 generated.
 """
-from django.urls import re_path
+from django.urls import include, path, re_path
 
 import accounts.api.urls
 import jobs.api.urls
@@ -21,6 +21,7 @@ urlpatterns = (
     + users.api.urls.urlpatterns
     + [
         re_path(r"status/?", StatusView.as_view(), name="api-status"),
+        path("", include("django_prometheus.urls")),
         re_path(r"schema/?", schema_view, name="api-schema"),
         re_path(r"^$|(docs/?)", swagger_view, name="api-docs"),
     ]
