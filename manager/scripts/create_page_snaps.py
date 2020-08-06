@@ -15,22 +15,26 @@ from pyppeteer import launch
 from manager.urls import urlpatterns
 
 # Paths to include (additional to those that are autodiscovered from root urlpatterns)
-INCLUDE = [
-    # View of a personal account
-    # In REPLACE below we use `an-org` for <slug:account>
-    # This ensure we snap a page for a personal account too
-    "a-user/",
-] + [
-    # Forms for creating new sources
-    # These pages are used below in `ELEMS`
-    "an-org/first-project/sources/new/%s" % type
-    for type in ["github", "googledocs", "googledrive", "url", "elife", "plos"]
-] + [
-    # Render these templates instead of testing the pages (and getting non-200 responses)
-    "stencila/render?template=403.html",
-    "stencila/render?template=404.html",
-    "stencila/render?template=500.html",
-]
+INCLUDE = (
+    [
+        # View of a personal account
+        # In REPLACE below we use `an-org` for <slug:account>
+        # This ensure we snap a page for a personal account too
+        "a-user/",
+    ]
+    + [
+        # Forms for creating new sources
+        # These pages are used below in `ELEMS`
+        "an-org/first-project/sources/new/%s" % type
+        for type in ["github", "googledocs", "googledrive", "url", "elife", "plos"]
+    ]
+    + [
+        # Render these templates instead of testing the pages (and getting non-200 responses)
+        "stencila/render?template=403.html",
+        "stencila/render?template=404.html",
+        "stencila/render?template=500.html",
+    ]
+)
 
 # Regex, string pairs for replacing URL parameters
 REPLACE = [
