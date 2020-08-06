@@ -435,6 +435,14 @@ class Prod(Configuration):
     # during development for ease of testing.
     UI_BASIC_AUTH = values.BooleanValue(False)
 
+    # The primary domain from which the Hub is served.
+    # Used to redirect from "account.stencila.io"
+    # (i.e. no project specified) to "hub.stenci.la/account"
+    PRIMARY_DOMAIN = "hub.stenci.la"
+
+    # The domain from which account subdomains are served
+    ACCOUNTS_DOMAIN = "stencila.io"
+
     # Use a local URL for jobs
     # If this is True the URLs of session jobs are local
     # not global. This is useful during development as
@@ -541,6 +549,9 @@ class Dev(Prod):
 
     # For browser screenshotting allow Basic auth
     UI_BASIC_AUTH = True
+
+    # Use localhost as the primary domain
+    PRIMARY_DOMAIN = "127.0.0.1"
 
     # Use local URLs to more easily tests connections to jobs
     JOB_URL_LOCAL = True

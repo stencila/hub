@@ -29,4 +29,4 @@ def retrieve(
     project = viewset.get_project()
     snapshot = viewset.get_object(project)
 
-    return render(request, template, dict(project=project, snapshot=snapshot),)
+    return render(request, template, dict(project=project, snapshot=snapshot))

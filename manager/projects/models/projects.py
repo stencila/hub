@@ -1,15 +1,47 @@
 import datetime
-from typing import Optional
+from typing import Dict, Optional
+from urllib.parse import urlencode
 
+import shortuuid
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
+from django.shortcuts import reverse
 
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
 from users.models import User
+
+
+class ProjectLiveness(EnumChoice):
+    """
+    Where the project content is served from.
+    """
+
+    LIVE = "live"
+    LATEST = "latest"
+    PINNED = "pinned"
+
+    @staticmethod
+    def as_choices():
+        """Return as a list of field choices."""
+        return (
+            # Live is currently disabled as a choice
+            # pending implementation
+            # ("live", "Use working directory"),
+            ("latest", "Use latest snapshot"),
+            ("pinned", "Pinned to snapshot"),
+        )
+
+
+def generate_project_key():
+    """
+    Generate a unique, and very difficult to guess, project key.
+    """
+    return shortuuid.ShortUUID().random(length=32)
 
 
 class Project(models.Model):
@@ -63,6 +95,12 @@ class Project(models.Model):
         default=True, help_text="Is the project publicly visible?"
     )
 
+    key = models.CharField(
+        default=generate_project_key,
+        max_length=64,
+        help_text="A unique, and very difficult to guess, key to access this project if it is not public.",
+    )
+
     description = models.TextField(
         null=True, blank=True, help_text="Brief description of the project."
     )
@@ -76,6 +114,22 @@ class Project(models.Model):
 
     main = models.TextField(
         null=True, blank=True, help_text="Path of the main file of the project",
+    )
+
+    liveness = models.CharField(
+        max_length=16,
+        choices=ProjectLiveness.as_choices(),
+        default=ProjectLiveness.LATEST.value,
+        help_text="Where to serve the content for this project from.",
+    )
+
+    pinned = models.ForeignKey(
+        "Snapshot",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="project_pinned",
+        help_text="If pinned, the snapshot to pin to, when serving content.",
     )
 
     class Meta:
@@ -129,6 +183,39 @@ class Project(models.Model):
     def get_theme(self) -> str:
         """Get the theme for the project."""
         return self.theme or self.account.theme
+
+    def content_url(self, snapshot=None, path=None) -> str:
+        """
+        Get the URL that the content for this project is served on.
+
+        This is the URL, on the account subdomain,
+        that content for the project is served from.
+        """
+        params: Dict = {}
+        if settings.CONFIGURATION.endswith("Dev"):
+            # In development, it's very useful to be able to preview
+            # content, so we return a local URL
+            url = (
+                reverse("ui-accounts-content", kwargs=dict(project_name=self.name))
+                + "/"
+            )
+            params.update(account=self.account.name)
+        else:
+            # In production, return an account subdomain URL
+            url = "https://{account}.{domain}/{project}/".format(
+                account=self.account.name,
+                domain=settings.ACCOUNTS_DOMAIN,
+                project=self.name,
+            )
+        if snapshot:
+            url += "v{0}/".format(snapshot.number)
+        if path:
+            url += path
+        if not self.public:
+            params.update(key=self.key)
+        if params:
+            url += "?" + urlencode(params)
+        return url
 
     def clean(self, user: User) -> Job:
         """

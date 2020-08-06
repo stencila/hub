@@ -15,7 +15,7 @@ from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
 from projects.models.files import File
-from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.projects import Project, ProjectAgent, ProjectLiveness, ProjectRole
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -197,8 +197,11 @@ class ProjectSerializer(serializers.ModelSerializer):
             "description",
             "temporary",
             "public",
+            "key",
             "main",
             "theme",
+            "liveness",
+            "pinned",
         ]
 
     def validate_ownership_by_account(self, public: bool, account: Account):
@@ -301,6 +304,7 @@ class ProjectCreateSerializer(ProjectSerializer):
     class Meta:
         model = Project
         fields = ProjectSerializer.Meta.fields
+        read_only_fields = ["pinned"]
 
     def validate(self, data):
         """
@@ -361,6 +365,14 @@ class ProjectUpdateSerializer(ProjectSerializer):
         model = Project
         fields = ProjectSerializer.Meta.fields
 
+    def __init__(self, instance=None, *args, **kwargs):
+        # Limit the choices of snapshots of snapshots to those
+        # for this project.
+        self.fields["pinned"].queryset = (
+            self.fields["pinned"].queryset.filter(project=instance).order_by("-created")
+        )
+        super().__init__(instance, *args, **kwargs)
+
     def validate(self, data):
         """
         Validate the project's fields.
@@ -384,7 +396,7 @@ class ProjectUpdateSerializer(ProjectSerializer):
                 )
             except ProjectAgent.DoesNotExist:
                 raise exceptions.ValidationError(
-                    dict("Only a project owner can change it's account.")
+                    dict(account="Only a project owner can change it's account.")
                 )
 
             account = data.get("account")
@@ -413,6 +425,15 @@ class ProjectUpdateSerializer(ProjectSerializer):
         name = data.get("name")
         if name is not None:
             data["name"] = self.validate_name_for_account(name, project.account)
+
+        # Check that if liveness is pinned that a snapshot is selected
+        liveness = data.get("liveness") or project.liveness
+        if liveness == ProjectLiveness.PINNED.value:
+            pinned = data.get("pinned") or project.pinned
+            if pinned is None:
+                raise exceptions.ValidationError(
+                    dict(pinned="This field is required if liveness is pinned.")
+                )
 
         return data
 

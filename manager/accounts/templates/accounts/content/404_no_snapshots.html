@@ -1,0 +1,32 @@
+{% extends './base.html' %}
+{% load static stencila %}
+
+{% block title %}Uh oh!{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="columns">
+    <div class="column is-6 is-offset-4 has-text-centered">
+      <img class="error-image" src="{% static 'img/dead-document.svg' %}" alt="Oh no!" width="112px" height="28px">
+      <h1 class="title has-margin-top">Uh oh!</h1>
+      <div class="notification">
+        <p>
+          The bad news: this project doesn't have any snapshots yet.
+        </p>
+        <p>
+          The good news: you can create one (or ask for one)!
+        </p>
+      </div>
+      <a class="button is-primary is-expanded-mobile"
+         href="{% primary_domain_url 'ui-projects-snapshots-list' account.name project.name %}">
+        <span class="icon">
+          <i class="ri-camera-line"></i>
+        </span>
+        <span>
+          New Snapshot
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

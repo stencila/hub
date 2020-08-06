@@ -1,0 +1,52 @@
+{% load i18n static stencila %}
+
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+  <title>{% block title %}Home{% endblock %} : Stencila</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An open source platform for reproducible research.">
+
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+  {% block styles %}{% endblock %}
+
+  <script src="{% static 'js/libs.js' %}"></script>
+  <script src="{% static 'js/index.js' %}" async></script>
+  {% block scripts %}{% endblock %}
+</head>
+
+{% language LANGUAGE_CODE %}
+
+<body class="has-navbar-fixed-top">
+  <header>
+    <nav class="navbar is-fixed-top is-spaced has-shadow">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item navbar-logo" href="{% primary_domain_url 'home' %}">
+            <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
+      <section>
+  </main>
+
+  <footer class="footer">
+  </footer>
+</body>
+{% endlanguage %}
+
+</html>

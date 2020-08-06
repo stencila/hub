@@ -1,5 +1,6 @@
-<form hx-trigger="change" include-vals="public: document.querySelector('#public-toggle').checked"
-      hx-patch="{% url 'api-projects-detail' project.id %}" hx-target="#public-target">
+<form hx-trigger="change" hx-patch="{% url 'api-projects-detail' project.id %}"
+      include-vals="public: document.querySelector('#public-toggle').checked"
+      hx-template="projects/_sharing_public_form.html" hx-swap="outerHTML">
   <div class="field mb-0 has-text-right-tablet">
     <input id="public-toggle" type="checkbox" class="toggle is-small is-inline toggle__label-before"
            {% if project.public %}checked{% endif %}>
@@ -9,19 +10,17 @@
   </div>
   <div id="public-target">
   </div>
-  {% comment %}
-  {# TODO: Think about published project URLs entry points #}
-  {% if project.public %}
   <div>
-    <a href="#" class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+    {% with project_url=project.content_url %}
+    <a href="{{ project_url }}" target="_blank" rel="noopener"
+       class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
       <span class="icon">
         <i class="ri-global-line"></i>
       </span>
       <span>
-        https://public-url-of-the-project.com
+        {{ project_url }}
       </span>
     </a>
+    {% endwith %}
   </div>
-  {% endif %}
-  {% endcomment %}
 </form>

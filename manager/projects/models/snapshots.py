@@ -1,11 +1,12 @@
 import os
+from typing import Optional
 
 import shortuuid
 from django.db import models
 from django.http import HttpRequest
 
 from jobs.models import Job, JobMethod
-from manager.storage import snapshots_storage
+from manager.storage import FileSystemStorage, snapshots_storage
 from projects.models.files import File
 from projects.models.projects import Project
 from users.models import User
@@ -94,6 +95,12 @@ class Snapshot(models.Model):
         ]
 
     STORAGE = snapshots_storage()
+
+    def __str__(self):
+        """
+        Get a string representation to use in select options etc.
+        """
+        return "Snapshot #{0}".format(self.number)
 
     def save(self, *args, **kwargs):
         """
@@ -241,6 +248,12 @@ class Snapshot(models.Model):
         except File.DoesNotExist:
             return False
 
+    def content_url(self, path: Optional[str] = None) -> str:
+        """
+        Get the URL that this snapshot content is served from.
+        """
+        return self.project.content_url(snapshot=self, path=path)
+
     def file_location(self, file: str) -> str:
         """
         Get the location of a file in the snapshot relative to the root of the storage volume.
@@ -251,7 +264,13 @@ class Snapshot(models.Model):
         """
         Get the URL for a file within the snapshot directory.
         """
-        return Snapshot.STORAGE.url(self.file_location(file))
+        url = Snapshot.STORAGE.url(self.file_location(file))
+        if isinstance(Snapshot.STORAGE, FileSystemStorage):
+            # Since FileSystemStorage is only used during development,
+            # and returns a relative URL, append localhost
+            return "http://127.0.0.1:8000" + url
+        else:
+            return url
 
     def archive_url(self, format: str = "zip") -> str:
         """
