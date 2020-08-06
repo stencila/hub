@@ -1,14 +1,12 @@
 from typing import Optional
 
-import httpx
-from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse
 from django.shortcuts import redirect, reverse
 from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from accounts.ui.views.content import snapshot_index_html
 from jobs.api.helpers import redirect_to_job
 from jobs.models import Job
 from manager.api.authentication import (
@@ -27,8 +25,6 @@ from projects.models.files import File
 from projects.models.projects import Project, ProjectRole
 from projects.models.snapshots import Snapshot
 from users.models import AnonUser
-
-storage_client = httpx.Client()
 
 
 class ProjectsSnapshotsViewSet(
@@ -134,73 +130,19 @@ class ProjectsSnapshotsViewSet(
         path = self.kwargs.get("path") or "index.html"
 
         try:
-            file = File.objects.get(snapshot=snapshot, path=path)
+            File.objects.get(snapshot=snapshot, path=path)
         except File.DoesNotExist:
             raise exceptions.NotFound
 
-        if path != "index.html":
+        if path == "index.html":
+            # TODO: Remove this special handling of index.html
+            # and instead just redirect it like all other files
+            return snapshot_index_html(
+                account=project.account, project=project, snapshot=snapshot
+            )
+        else:
             url = snapshot.file_url(path)
             return redirect(url, permanent=True)
-
-        if isinstance(snapshot.STORAGE, FileSystemStorage):
-            # Serve the file from the filesystem.
-            # Normally this will only be used during development!
-            location = snapshot.file_location(path)
-            with snapshot.STORAGE.open(location) as file:
-                content = file.read()
-        else:
-            # Fetch the file from storage and send it on to the client
-            url = snapshot.file_url(path)
-            content = storage_client.get(url).content
-
-        if not content:
-            raise RuntimeError("No content")
-
-        html = content
-
-        # Inject execution toolbar
-        source_url = reverse(
-            "ui-projects-snapshots-retrieve",
-            kwargs=dict(
-                account=project.account.name,
-                project=project.name,
-                snapshot=snapshot.number,
-            ),
-        )
-        session_provider_url = reverse(
-            "api-projects-snapshots-session",
-            kwargs=dict(project=project.id, snapshot=snapshot.number,),
-        )
-        toolbar = """
-            <stencila-executable-document-toolbar
-               source-url="{source_url}"
-               session-provider-url="{session_provider_url}"
-            >
-            </stencila-executable-document-toolbar>
-        """.format(
-            source_url=source_url, session_provider_url=session_provider_url
-        )
-        html = html.replace(
-            b'data-itemscope="root">', b'data-itemscope="root">' + toolbar.encode()
-        )
-
-        response = HttpResponse(html)
-
-        # Add headers if the account has `hosts` set
-        hosts = snapshot.project.account.hosts
-        if hosts:
-            # CSP `frame-ancestors` for modern browers
-            response["Content-Security-Policy"] = "frame-ancestors 'self' {};".format(
-                hosts
-            )
-            # `X-Frame-Options` for older browsers (only allows one value)
-            host = hosts.split()[0]
-            response["X-Frame-Options"] = "allow-from {}".format(host)
-        else:
-            response["Content-Security-Policy"] = "frame-ancestors 'self';"
-            response["X-Frame-Options"] = "sameorigin"
-
-        return response
 
     @action(detail=True, methods=["get"])
     def archive(self, request: Request, *args, **kwargs) -> Response:

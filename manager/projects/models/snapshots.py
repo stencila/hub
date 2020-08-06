@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import shortuuid
 from django.db import models
@@ -94,6 +95,12 @@ class Snapshot(models.Model):
         ]
 
     STORAGE = snapshots_storage()
+
+    def __str__(self):
+        """
+        Get a string representation to use in select options etc.
+        """
+        return "Snapshot #{0}".format(self.number)
 
     def save(self, *args, **kwargs):
         """
@@ -240,6 +247,12 @@ class Snapshot(models.Model):
             return True
         except File.DoesNotExist:
             return False
+
+    def content_url(self, path: Optional[str] = None) -> str:
+        """
+        Get the URL that this snapshot content is served from.
+        """
+        return self.project.content_url(snapshot=self, path=path)
 
     def file_location(self, file: str) -> str:
         """

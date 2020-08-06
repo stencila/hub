@@ -8,7 +8,9 @@ in templates.
 from uuid import uuid4
 
 from django import template
+from django.conf import settings
 from django.db.models import fields
+from django.shortcuts import reverse
 from django.urls import resolve
 from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
@@ -16,6 +18,15 @@ from rest_framework.utils.field_mapping import ClassLookupDict
 from projects.models.files import FileFormat, FileFormats
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def primary_domain_url(context, *args):
+    """
+    Get a URL at the primary domain.
+    """
+    protocol = "https" if context["request"].is_secure() else "http"
+    return protocol + "://" + settings.PRIMARY_DOMAIN + reverse(args[0], args=args[1:])
 
 
 @register.simple_tag(takes_context=True)

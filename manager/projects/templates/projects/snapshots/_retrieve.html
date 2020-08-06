@@ -37,7 +37,7 @@ in case the enclosing page want to use that data to trigger further events
       </a>
       {% if snapshot.has_index %}
       <a class="button is-primary is-small-mobile is-expanded-mobile" target="_blank" rel="noopener"
-         href="{% url 'api-projects-snapshots-files' project.id snapshot.number 'index.html' %}">
+         href="{{ snapshot.content_url }}">
         <span class="icon">
           <i class="ri-external-link-line"></i>
         </span>
@@ -45,6 +45,25 @@ in case the enclosing page want to use that data to trigger further events
           {% trans "Open" %}
         </span>
       </a>
+      <button class="button is-small-mobile is-expanded-mobile" hx-patch="{% url 'api-projects-detail' project.id %}"
+              hx-swap="none" {% if project.liveness == 'pinned' and snapshot.id == project.pinned_id %}
+              include-vals="liveness: 'LATEST'">
+        <span class="icon">
+          <i class="ri-pushpin-fill-line"></i>
+        </span>
+        <span>
+          {% trans "Unpin" %}
+        </span>
+        {% else %}
+        include-vals="liveness: 'pinned', pinned: '{{ snapshot.id }}'">
+        <span class="icon">
+          <i class="ri-pushpin-line"></i>
+        </span>
+        <span>
+          {% trans "Pin" %}
+        </span>
+        {% endif %}
+      </button>
       {% endif %}
     </div>
     {% endif %}
@@ -92,8 +111,7 @@ in case the enclosing page want to use that data to trigger further events
   {% else %}
   <h2 class="title is-5">Preview</h2>
   {% if snapshot.has_index %}
-  <iframe id="frame" class="snapshot--preview"
-          src="{% url 'api-projects-snapshots-files' project.id snapshot.number 'index.html' %}">
+  <iframe id="frame" class="snapshot--preview" src="{{ snapshot.content_url }}">
   </iframe>
   {% else %}
   <p class="is-size-5 has-text-grey-dark">

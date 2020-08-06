@@ -4,9 +4,16 @@ from accounts.paths import AccountPaths
 from accounts.ui.views import accounts as account_views
 from accounts.ui.views import teams as team_views
 from accounts.ui.views import users as user_views
+from accounts.ui.views.content import content
 from manager.paths import RootPaths
 
 urlpatterns = [
+    re_path(
+        RootPaths.content.value
+        + r"/(?P<project_name>[^/]+)?(/(?P<version>latest|v\d+))?(/(?P<file_path>.+))?",
+        content,
+        name="ui-accounts-content",
+    ),
     path(
         RootPaths.users.value + "/",
         account_views.list_users,

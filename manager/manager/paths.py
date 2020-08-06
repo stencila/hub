@@ -12,12 +12,14 @@ class RootPaths(enum.Enum):
     """
 
     api = "api"
+    content = "content"
     favicon = "favicon.ico"
     me = "me"
     open = "open"
     orgs = "orgs"
     projects = "projects"
     robots = "robots.txt"
+    static = "static"
     users = "users"
 
     @classmethod

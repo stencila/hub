@@ -11,10 +11,11 @@ class AccountPaths(enum.Enum):
     disallowed project names up to date.
     """
 
+    plan = "plan"
     settings = "settings"
+    static = "static"  # May be used when serving account subdomains
     teams = "teams"
     users = "users"
-    plan = "plan"
 
     @classmethod
     def has(cls, value: str):
