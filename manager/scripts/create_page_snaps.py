@@ -18,9 +18,15 @@ from manager.urls import urlpatterns
 INCLUDE = (
     [
         # View of a personal account
-        # In REPLACE below we use `an-org` for <slug:account>
-        # This ensure we snap a page for a personal account too
+        # In REPLACE below we use `an-org` for <slug:account>.
+        # This ensures we snap a page for a personal account too
         "a-user/",
+        # Simulation of content and error messages served on
+        # account subdomains
+        "content?account=an-org",  # No project specified -> redirected to account page
+        "content/first-project?account=an-org&should-404",  # Project without a snapshot -> error page
+        "content/first-project/v42?account=an-org&should-404",  # Bad snapshot id -> error page
+        "content/zoo?account=an-org&should-404",  # Non existent project -> error page
     ]
     + [
         # Forms for creating new sources
@@ -82,6 +88,13 @@ USERS = [
     [r"^a-user/", ["anon", "a-user", "member"]],
     # Defaults to authenticating as `owner` user
     [r".*", "owner"],
+]
+
+
+# Expected response status codes other than 200
+STATUS = [
+    # Above we mark some paths with...
+    [r"&should-404", 404]
 ]
 
 
@@ -198,6 +211,8 @@ ELEMS = [
             elem("project-settings-name-field", "label[for=name] + .control"),
             elem("project-settings-title-field", "label[for=title] + .control"),
             elem("project-settings-description-field", "label[for=description] + .control"),
+            elem("project-settings-liveness-field", "label[for=liveness] + .control"),
+            elem("project-settings-pinned-field", "label[for=pinned] + .control"),
             elem("project-settings-theme-field", "label[for=theme] + .control"),
             elem("project-settings-delete-form", "form[hx-delete]"),
         ],
@@ -305,8 +320,15 @@ async def main():
             }"""
             )
 
+            # Get expect response code
+            status = 200
+            for regex, elems in STATUS:
+                if re.search(regex, path):
+                    status = elems
+                    break
+
             # Hide debug toolbar unless there was an error
-            if response.status == 200:
+            if response.status == status:
                 print(" {0}✔️{1}".format(colors.OK, colors.RESET))
                 await page.addStyleTag(
                     {"content": "#djDebug { display: none !important; }"}
