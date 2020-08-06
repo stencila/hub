@@ -1,3 +1,16 @@
+# [3.21.0](https://github.com/stencila/hub/compare/v3.20.0...v3.21.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* **Manager:** User user_id to reduce db queries ([39201cc](https://github.com/stencila/hub/commit/39201ccf913f7cece8feb452bfd4348d648c5d6b))
+* **Users:** Clear user session data on log in and log out ([11aaf04](https://github.com/stencila/hub/commit/11aaf0422e3a62e73bf9d8f51d06280d05b0d77a))
+
+
+### Features
+
+* **Manager sources:** Allow sources to be reffered to using address ([1245e59](https://github.com/stencila/hub/commit/1245e592e75fa29a462452dc48be33ad9b249935))
+
 # [3.20.0](https://github.com/stencila/hub/compare/v3.19.3...v3.20.0) (2020-08-04)
 
 
