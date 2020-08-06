@@ -11,7 +11,7 @@ scrape_configs:
       - targets: ['localhost:9090']
 
   - job_name: manager
-    metrics_path: /internal/metrics
+    metrics_path: /stencila/metrics
     static_configs:
       - targets: ['manager:8000']
 

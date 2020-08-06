@@ -35,6 +35,7 @@ urlpatterns = [
                 path("test/403/", test403),
                 path("test/404/", test404),
                 path("test/500/", test500),
+                path("", include("django_prometheus.urls")),
             ]
         ),
     ),
