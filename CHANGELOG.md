@@ -1,3 +1,10 @@
+## [3.21.1](https://github.com/stencila/hub/compare/v3.21.0...v3.21.1) (2020-08-06)
+
+
+### Bug Fixes
+
+* **Manager:** Serve Prometheus metrics ([e3f5c0e](https://github.com/stencila/hub/commit/e3f5c0e25268f359635c397ec16a08801d3697f4))
+
 # [3.21.0](https://github.com/stencila/hub/compare/v3.20.0...v3.21.0) (2020-08-06)
 
 
