@@ -25,6 +25,9 @@ from jsonfallback.fields import FallbackJSONField
 from rest_framework.exceptions import ValidationError
 from waffle.models import AbstractUserFlag
 
+# Needed to ensure signals are loaded
+import users.signals  # noqa
+
 User: django.contrib.auth.models.User = get_user_model()
 
 
