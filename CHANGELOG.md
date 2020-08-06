@@ -1,3 +1,17 @@
+# [3.22.0](https://github.com/stencila/hub/compare/v3.21.1...v3.22.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* **Snapshots:** Return absolute URL when using FileSystemStorage ([1d10b12](https://github.com/stencila/hub/commit/1d10b12a157354f494b526e51d8a838d4646d17b))
+
+
+### Features
+
+* **Manager:** Add settings for serving project content ([bda8faf](https://github.com/stencila/hub/commit/bda8faf6fd1f26a099fb70e63cbda9dc8df0b510))
+* **Manager:** Serve account content ([c62a4b9](https://github.com/stencila/hub/commit/c62a4b954644026f050dd3f3d4f8c6d46336ad6b))
+* **Router:** Reverse proxy account domains ([14e7d92](https://github.com/stencila/hub/commit/14e7d920707ed98565a4f0a41c5d01cf0485b9b0))
+
 ## [3.21.1](https://github.com/stencila/hub/compare/v3.21.0...v3.21.1) (2020-08-06)
 
 
