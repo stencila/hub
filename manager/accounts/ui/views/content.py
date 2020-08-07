@@ -175,7 +175,9 @@ def content(
 
     # Handle the index.html file specially
     if file_path == "index.html":
-        return snapshot_index_html(account=account, project=project, snapshot=snapshot)
+        return snapshot_index_html(
+            request, account=account, project=project, snapshot=snapshot
+        )
 
     # Redirect to other files
     url = snapshot.file_url(file_path)
@@ -192,7 +194,7 @@ def content(
 
 
 def snapshot_index_html(
-    account: Account, project: Project, snapshot: Snapshot
+    request: HttpRequest, account: Account, project: Project, snapshot: Snapshot
 ) -> HttpResponse:
     """
     Return a snapshot's index.html.
@@ -215,14 +217,16 @@ def snapshot_index_html(
         raise RuntimeError("No content")
 
     # Inject execution toolbar
-    source_url = reverse(
-        "ui-projects-snapshots-retrieve",
+    source_url = primary_domain_url(
+        request,
+        name="ui-projects-snapshots-retrieve",
         kwargs=dict(
             account=account.name, project=project.name, snapshot=snapshot.number,
         ),
     )
-    session_provider_url = reverse(
-        "api-projects-snapshots-session",
+    session_provider_url = primary_domain_url(
+        request,
+        name="api-projects-snapshots-session",
         kwargs=dict(project=project.id, snapshot=snapshot.number),
     )
     toolbar = """
@@ -253,3 +257,13 @@ def snapshot_index_html(
         response["X-Frame-Options"] = "sameorigin"
 
     return response
+
+
+def primary_domain_url(request, name, kwargs):
+    """
+    Get a URL at the primary domain.
+
+    See also the template tag by the same name.
+    """
+    protocol = "https" if request.is_secure() else "http"
+    return protocol + "://" + settings.PRIMARY_DOMAIN + reverse(name, kwargs=kwargs)

@@ -138,7 +138,7 @@ class ProjectsSnapshotsViewSet(
             # TODO: Remove this special handling of index.html
             # and instead just redirect it like all other files
             return snapshot_index_html(
-                account=project.account, project=project, snapshot=snapshot
+                request, account=project.account, project=project, snapshot=snapshot
             )
         else:
             url = snapshot.file_url(path)
