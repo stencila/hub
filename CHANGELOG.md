@@ -1,3 +1,14 @@
+## [3.22.4](https://github.com/stencila/hub/compare/v3.22.3...v3.22.4) (2020-08-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django-extensions to v3.0.4 ([94b38d7](https://github.com/stencila/hub/commit/94b38d79f9add74c2a90c5bea241acb2c96596ef))
+* **deps:** update dependency djangorestframework to v3.11.1 ([0438c7f](https://github.com/stencila/hub/commit/0438c7fdee0a7d2a817c7900870b3a8053cfde64))
+* **deps:** update dependency pygithub to v1.52 ([3f8a316](https://github.com/stencila/hub/commit/3f8a316f3dcf98332a3bcc40ec9dc2eb2cc132bc))
+* **deps:** update dependency sentry-sdk to v0.16.3 ([4b3ceb2](https://github.com/stencila/hub/commit/4b3ceb2cdd700d6cacb5a6ad6ba314ce7ab6f039))
+* **deps:** update dependency whitenoise to v5.2.0 ([cff338d](https://github.com/stencila/hub/commit/cff338daa6d3014d3f0158d9dae2abf4ae14da69))
+
 ## [3.22.3](https://github.com/stencila/hub/compare/v3.22.2...v3.22.3) (2020-08-07)
 
 
