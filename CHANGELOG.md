@@ -1,3 +1,11 @@
+## [3.22.1](https://github.com/stencila/hub/compare/v3.22.0...v3.22.1) (2020-08-07)
+
+
+### Bug Fixes
+
+* **Account content:** Append slash if necessary; always use local 404 page ([62e6a53](https://github.com/stencila/hub/commit/62e6a539ac554731c448cd502e537ae7c71b8330))
+* **Account content:** Use the absolute URL of the primary domain for links ([b4969a9](https://github.com/stencila/hub/commit/b4969a91b19a970778ae682621d7532307ef9cf5))
+
 # [3.22.0](https://github.com/stencila/hub/compare/v3.21.1...v3.22.0) (2020-08-06)
 
 
