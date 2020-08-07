@@ -22,7 +22,7 @@ django-super-deduper==0.1.4
 django-waffle==1.0.0
 Django==3.0.8
 djangorestframework-camel-case==1.2.0
-djangorestframework==3.11.0
+djangorestframework==3.11.1
 drf-yasg==1.17.1
 google-api-python-client==1.10.0
 google-cloud-storage==1.30.0
