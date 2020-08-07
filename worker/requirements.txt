@@ -1,5 +1,5 @@
 amqp==2.6.0
-celery==4.4.6
+celery==4.4.7
 google-api-python-client==1.10.0
 kubernetes==11.0.0
 lxml==4.5.2
