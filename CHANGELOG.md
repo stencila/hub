@@ -1,3 +1,11 @@
+## [3.22.2](https://github.com/stencila/hub/compare/v3.22.1...v3.22.2) (2020-08-07)
+
+
+### Bug Fixes
+
+* **Account content:** Redirection to primary domain ([404dd91](https://github.com/stencila/hub/commit/404dd91fd4ffc00e9acf04cf2bdf7324a34da4e1))
+* **Router:** Proxy external addresses using resolver ([72ea49e](https://github.com/stencila/hub/commit/72ea49ef3d2e64db1c58952c75a572854023d969))
+
 ## [3.22.1](https://github.com/stencila/hub/compare/v3.22.0...v3.22.1) (2020-08-07)
 
 
