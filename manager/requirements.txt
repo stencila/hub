@@ -1,4 +1,4 @@
-amqp==2.5.2
+amqp==2.6.1
 brotli==1.0.7
 celery==4.4.7
 customidenticon==0.1.5
