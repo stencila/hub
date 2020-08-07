@@ -1,3 +1,17 @@
+## [3.22.3](https://github.com/stencila/hub/compare/v3.22.2...v3.22.3) (2020-08-07)
+
+
+### Bug Fixes
+
+* **Account content:** Put project key into path ([edcdce5](https://github.com/stencila/hub/commit/edcdce527c38301e6c6cf31ca1343b3e039b29ad))
+* **deps:** update dependency @stencila/encoda to v0.97.3 ([d0306b9](https://github.com/stencila/hub/commit/d0306b91ae10a5d08eec462f91c4c6c1a57d90f3))
+* **deps:** update dependency @stencila/executa to v1.12.0 ([18d4962](https://github.com/stencila/hub/commit/18d4962d93c5f414c25e8314ac0b69e695112a2e))
+* **deps:** update dependency @stencila/thema to v2.15.3 ([6cee52b](https://github.com/stencila/hub/commit/6cee52b55e16a612dd84d7c263c3beddb89e6dd5))
+* **deps:** update dependency amqp to v2.6.1 ([a6cbe20](https://github.com/stencila/hub/commit/a6cbe20ee3a36f068c074c5cda1b4b443378098c))
+* **deps:** update dependency celery to v4.4.7 ([bfc2b3d](https://github.com/stencila/hub/commit/bfc2b3d351f1602260c2c843e1e48a35366b5026))
+* **deps:** update dependency django to v3.1 ([cd4aa4f](https://github.com/stencila/hub/commit/cd4aa4f955513b132bea79709176adb4f906f1ed))
+* **Router:** Serve robots.txt etc ([e8cfa36](https://github.com/stencila/hub/commit/e8cfa36e4193e8ca0271fe068c4bd49fe0572f85))
+
 ## [3.22.2](https://github.com/stencila/hub/compare/v3.22.1...v3.22.2) (2020-08-07)
 
 
