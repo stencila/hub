@@ -209,10 +209,10 @@ class Project(models.Model):
             )
         if snapshot:
             url += "v{0}/".format(snapshot.number)
+        if not self.public:
+            url += "~{0}/".format(self.key)
         if path:
             url += path
-        if not self.public:
-            params.update(key=self.key)
         if params:
             url += "?" + urlencode(params)
         return url

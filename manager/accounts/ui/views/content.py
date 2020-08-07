@@ -20,6 +20,7 @@ def content(
     request: HttpRequest,
     project_name: Optional[str] = None,
     version: Optional[str] = None,
+    key: Optional[str] = None,
     file_path: Optional[str] = None,
 ) -> HttpResponse:
     """
@@ -124,9 +125,10 @@ def content(
 
     # Authorize the request
     # This is being served on a domain where we do not know the user.
-    # So if the project is not public then a key must be provided in the URL
+    # So if the project is not public then a key must be provided in the URL.
+    # The key is part of the URL, not a query parameter, so that relative links
+    # media files etc do not need to be rewritten.
     if not project.public:
-        key = request.GET.get("key")
         if key != project.key:
             return unavailable_project()
 

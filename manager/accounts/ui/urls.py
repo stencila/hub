@@ -10,7 +10,7 @@ from manager.paths import RootPaths
 urlpatterns = [
     re_path(
         RootPaths.content.value
-        + r"/(?P<project_name>[^/]+)?(/(?P<version>latest|v\d+))?(/(?P<file_path>.+))?/?$",
+        + r"/(?P<project_name>[^/]+)?(/(?P<version>latest|v\d+))?(/~(?P<key>[^/]+))?(/(?P<file_path>.+))?/?$",
         content,
         name="ui-accounts-content",
     ),
