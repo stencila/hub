@@ -1,3 +1,15 @@
+# [3.23.0](https://github.com/stencila/hub/compare/v3.22.4...v3.23.0) (2020-08-07)
+
+
+### Bug Fixes
+
+* **Account content:** Add stenci.la as CSP host ([da8b144](https://github.com/stencila/hub/commit/da8b144775d099d8912a4eb40a95390ac2e61432))
+
+
+### Features
+
+* **Account quotas:** Add quota for file downloads ([49065a7](https://github.com/stencila/hub/commit/49065a7342e2933a25ac6aa34923b74ecc3d15ba))
+
 ## [3.22.4](https://github.com/stencila/hub/compare/v3.22.3...v3.22.4) (2020-08-07)
 
 
