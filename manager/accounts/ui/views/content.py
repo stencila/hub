@@ -271,17 +271,13 @@ def snapshot_index_html(
 
     response = HttpResponse(html)
 
-    # Add headers if the account has `hosts` set
-    hosts = account.hosts
-    if hosts:
-        # CSP `frame-ancestors` for modern browers
-        response["Content-Security-Policy"] = "frame-ancestors 'self' {};".format(hosts)
-        # `X-Frame-Options` for older browsers (only allows one value)
-        host = hosts.split()[0]
-        response["X-Frame-Options"] = "allow-from {}".format(host)
-    else:
-        response["Content-Security-Policy"] = "frame-ancestors 'self';"
-        response["X-Frame-Options"] = "sameorigin"
+    # Add content security headers if the account has `hosts` set
+    hosts = ["*.stenci.la"] + account.hosts
+    # CSP `frame-ancestors` for modern browers
+    response["Content-Security-Policy"] = "frame-ancestors 'self' {};".format(hosts)
+    # `X-Frame-Options` for older browsers (only allows one value, so use first)
+    host = hosts.split()[0]
+    response["X-Frame-Options"] = "allow-from {}".format(host)
 
     return response
 
