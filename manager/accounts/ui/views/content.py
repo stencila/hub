@@ -30,10 +30,12 @@ def content(
     https://<account>.stencila.io/<project>.
     """
     host = request.get_host()
+    prod = True
     if (
         settings.CONFIGURATION.endswith("Dev")
         or settings.CONFIGURATION.endswith("Test")
     ) and (host.startswith("127.0.0.1") or host.startswith("localhost")):
+        prod = False
         # During development and testing get the account name
         # from a URL parameter
         account_name = request.GET.get("account")
@@ -97,12 +99,10 @@ def content(
     # to serve as a "home" project.
     if not project_name:
         return redirect(
-            "{scheme}://{domain}:{port}/{account}".format(
-                scheme="https" if request.is_secure() else "http",
-                domain=settings.PRIMARY_DOMAIN,
-                port=request.get_port(),
-                account=account,
-            )
+            primary_domain_url(
+                request, name="ui-accounts-retrieve", kwargs=dict(account=account_name)
+            ),
+            permanent=False,
         )
 
     # If the request is for a project folder, rather than a specific file,
@@ -110,7 +110,11 @@ def content(
     # relative links work OK.
     # Do this here before progressing with any more DB queries
     if not file_path and not request.path.endswith("/"):
-        return redirect(request.get_full_path(force_append_slash=True))
+        path = request.get_full_path(force_append_slash=True)
+        # In prod need to remove the prefix added by Nginx
+        if prod and path.startswith("/content/"):
+            path = re.sub(r"^/content/", "/", path)
+        return redirect(path)
 
     # Check for project
     try:
@@ -265,5 +269,11 @@ def primary_domain_url(request, name, kwargs):
 
     See also the template tag by the same name.
     """
-    protocol = "https" if request.is_secure() else "http"
-    return protocol + "://" + settings.PRIMARY_DOMAIN + reverse(name, kwargs=kwargs)
+    url = "{scheme}://{domain}".format(
+        scheme="https" if request.is_secure() else "http",
+        domain=settings.PRIMARY_DOMAIN,
+    )
+    port = request.get_port()
+    if port != "80" and port != "443":
+        url += ":{0}".format(port)
+    return url + reverse(name, kwargs=kwargs)
