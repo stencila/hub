@@ -1,12 +1,13 @@
 from typing import Callable, Dict, NamedTuple
 
 from django.core.cache import cache
-from django.db.models import Sum
+from django.db.models import F, Sum
+from django.utils import timezone
 
 from accounts.models import Account, AccountTeam, AccountTier, AccountUser
 from jobs.models import Job
 from manager.api.exceptions import AccountQuotaExceeded
-from projects.models.files import File
+from projects.models.files import File, FileDownloads
 from projects.models.projects import Project
 
 
@@ -51,11 +52,15 @@ class AccountQuota(NamedTuple):
             percent=amount / limit * 100 if limit > 0 else 100,
         )
 
+    def reached(self, account: Account) -> bool:
+        """Check whether an account has reached this quota (met or exceeded)."""
+        return self.calc(account) >= self.limit(account)
+
     def check(self, account: Account):
-        """Check whether a quota has been exceed for an account."""
-        usage = self.usage(account)
-        limit = usage["limit"]
-        if usage["amount"] >= limit:
+        """Raise an exception if an account has reached this quota (met or exceeded)."""
+        amount = self.calc(account)
+        limit = self.limit(account)
+        if amount >= limit:
             raise AccountQuotaExceeded({self.name: self.message.format(limit=limit)})
 
 
@@ -124,6 +129,17 @@ class AccountQuotas:
         ),
         "Snapshot storage limit has been reached."
         "Please upgrade the plan for the account.",
+    )
+
+    FILE_DOWNLOADS_MONTH = AccountQuota(
+        "file_downloads_month",
+        lambda account: bytes_to_gigabytes(
+            FileDownloads.objects.filter(
+                file__project__account=account, month=timezone.now().isoformat()[:7]
+            ).aggregate(downloads=Sum(F("count") * F("file__size")))["downloads"]
+            or 0
+        ),
+        "Download limit has been reached." "Please upgrade the plan for the account.",
     )
 
     JOB_RUNTIME_MONTH = AccountQuota(

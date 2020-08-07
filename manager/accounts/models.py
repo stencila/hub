@@ -291,6 +291,12 @@ class AccountTier(models.Model):
         help_text="The maximum storage in project snapshots (GB).",
     )
 
+    file_downloads_month = models.FloatField(
+        verbose_name="File downloads",
+        default=10,
+        help_text="The maximum total size of downloads of project files per month (GB).",
+    )
+
     job_runtime_month = models.FloatField(
         verbose_name="Job minutes",
         default=1000,

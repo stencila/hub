@@ -448,6 +448,44 @@ class File(models.Model):
             File.create(self.project, path, info, job=job, upstreams=[self])
 
 
+class FileDownloads(models.Model):
+    """
+    Download metrics by day for a file.
+
+    These metrics are principally stored to be able to restrict (i.e. prevent
+    or throttle) file downloads for a project once they reach a monthly limit.
+    For storage and compute efficiency we do not try to use them for user
+    facing analytics which would be inaccurate in any case due to caching headers etc.
+
+    The total number of bytes downloaded for the file in the month can be
+    calculated using this `count` and its `File.size`.
+    """
+
+    file = models.ForeignKey(
+        File,
+        on_delete=models.CASCADE,
+        related_name="downloads",
+        help_text="The file that these download metrics relate to.",
+    )
+
+    month = models.CharField(
+        db_index=True,
+        max_length=7,
+        help_text="The calendar month, in YYYY-MM format, that these download metrics relate to.",
+    )
+
+    count = models.PositiveIntegerField(
+        help_text="The number of downloads for the file for the month."
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["file", "month"], name="%(class)s_unique_file_month"
+            )
+        ]
+
+
 def get_modified(info: Dict) -> Optional[datetime]:
     """
     Get the modified data as a timezone aware datetime object.

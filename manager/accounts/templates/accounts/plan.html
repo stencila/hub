@@ -52,7 +52,7 @@
 
       <p class="subtitle mb-2">
         <span class="has-text-weight-normal">
-          {{ usage.storage_working.amount|floatformat }}GB of {{ usage.storage_working.limit }}GB
+          {{ usage.storage_working.amount|floatformat:3 }}GB of {{ usage.storage_working.limit }}GB
         </span>
 
         <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
@@ -74,6 +74,37 @@
     <div>
       <h3 class="title is-4">
         <span class="icon">
+          <i class="ri-download-cloud-2-line"></i>
+        </span>
+        <span>
+          {{ fields.file_downloads_month.verbose_name }}
+        </span>
+      </h3>
+
+      <p class="subtitle mb-2">
+        <span class="has-text-weight-normal">
+          {{ usage.file_downloads_month.amount|floatformat:3 }}GB of {{ usage.file_downloads_month.limit }}GB
+        </span>
+
+        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+              data-tooltip="{{ fields.file_downloads_month.help_text }}">
+          <i class="ri-question-line"></i>
+        </span>
+      </p>
+
+      <div>
+        <progress class="progress is-vcentered is-primary" value="{{ usage.file_downloads_month.amount }}"
+                  max="{{ usage.file_downloads_month.limit }}">
+          {{ usage.file_downloads_month.percent }}%
+        </progress>
+      </div>
+    </div>
+  </div>
+
+  <div class="column">
+    <div>
+      <h3 class="title is-4">
+        <span class="icon">
           <i class="ri-timer-2-line"></i>
         </span>
         <span>
@@ -83,7 +114,7 @@
 
       <p class="subtitle mb-2">
         <span class="has-text-weight-normal">
-          {{ usage.job_runtime_month.amount|floatformat }}mins of {{ usage.job_runtime_month.limit }}mins
+          {{ usage.job_runtime_month.amount|floatformat:1 }}mins of {{ usage.job_runtime_month.limit }}mins
         </span>
 
         <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"

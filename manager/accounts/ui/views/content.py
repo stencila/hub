@@ -4,12 +4,16 @@ from typing import Optional
 import httpx
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.db import transaction
+from django.db.models import F
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render, reverse
+from django.utils import timezone
 
 from accounts.models import Account
+from accounts.quotas import AccountQuotas
 from jobs.models import JobStatus
-from projects.models.files import File
+from projects.models.files import File, FileDownloads
 from projects.models.projects import Project, ProjectLiveness
 from projects.models.snapshots import Snapshot
 
@@ -173,11 +177,27 @@ def content(
         file_path = "index.html"
 
     # Check that the file exists in the snapshot
-    # Is DB query necessary, or can we simply rely on upstream 404ing ?
     try:
-        File.objects.get(snapshot=snapshot, path=file_path)
+        file = File.objects.get(snapshot=snapshot, path=file_path)
     except File.DoesNotExist:
         return invalid_file()
+
+    # Limit the download rate if the account is over it's download
+    # quota for the current month
+    if AccountQuotas.FILE_DOWNLOADS_MONTH.reached(account):
+        limit_rate = "1000"  # bytes/second
+    else:
+        limit_rate = "off"
+
+    # Update the download metrics
+    month = timezone.now().isoformat()[:7]
+    with transaction.atomic():
+        if FileDownloads.objects.filter(file=file, month=month).count() == 0:
+            FileDownloads.objects.create(file=file, month=month, count=1)
+        else:
+            FileDownloads.objects.filter(file=file, month=month).update(
+                count=F("count") + 1
+            )
 
     # Handle the index.html file specially
     if file_path == "index.html":
@@ -196,6 +216,7 @@ def content(
         response = HttpResponse()
         response["X-Accel-Redirect"] = "@account-content"
         response["X-Accel-Redirect-URL"] = url
+        response["X-Accel-Limit-Rate"] = limit_rate
         return response
 
 

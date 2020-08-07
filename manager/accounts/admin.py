@@ -49,4 +49,6 @@ class AccountTierAdmin(admin.ModelAdmin):
         "account_teams",
         "projects_public",
         "projects_private",
+        "file_downloads_month",
+        "job_runtime_month",
     ]
