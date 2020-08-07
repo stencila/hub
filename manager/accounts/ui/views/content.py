@@ -5,7 +5,7 @@ import httpx
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import redirect, render, reverse
 
 from accounts.models import Account
 from jobs.models import JobStatus
@@ -30,7 +30,6 @@ def content(
     https://<account>.stencila.io/<project>.
     """
     host = request.get_host()
-    print(host)
     if (
         settings.CONFIGURATION.endswith("Dev")
         or settings.CONFIGURATION.endswith("Test")
@@ -50,8 +49,47 @@ def content(
 
         account_name = match.group(1)
 
+    # Functions for returning special error pages for this request
+    #
+    # We need to use custom 404's here because the site wide `404.html`
+    # assumes to be on hub.stenci.la.
+    #
+    # These have a context which uses the supplied account name, project name and file
+    # path strings to avoid inadvertently leaking info (e.g. about existence
+    # of a private project)
+
+    def render_404(template: str):
+        return render(
+            request,
+            template,
+            dict(
+                account_name=account_name,
+                project_name=project_name,
+                file_path=file_path,
+            ),
+            status=404,
+        )
+
+    def invalid_account():
+        return render_404("accounts/content/404_invalid_account.html")
+
+    def unavailable_project():
+        return render_404("accounts/content/404_unavailable_project.html")
+
+    def no_snapshots():
+        return render_404("accounts/content/404_no_snapshots.html")
+
+    def invalid_snapshot():
+        return render_404("accounts/content/404_invalid_snapshot.html")
+
+    def invalid_file():
+        return render_404("accounts/content/404_invalid_file.html")
+
     # Get the account
-    account = get_object_or_404(Account, name=account_name)
+    try:
+        account = Account.objects.get(name=account_name)
+    except Account.DoesNotExist:
+        return invalid_account()
 
     # If no project is specified then redirect to the account's page
     # on the Hub (rather than 404ing).
@@ -67,13 +105,12 @@ def content(
             )
         )
 
-    def unavailable_project():
-        return render(
-            request,
-            "accounts/content/404_unavailable_project.html",
-            dict(account=account, project_name=project_name),
-            status=404,
-        )
+    # If the request is for a project folder, rather than a specific file,
+    # then redirect to slash appended URL is necessary to ensure that
+    # relative links work OK.
+    # Do this here before progressing with any more DB queries
+    if not file_path and not request.path.endswith("/"):
+        return redirect(request.get_full_path(force_append_slash=True))
 
     # Check for project
     try:
@@ -101,12 +138,7 @@ def content(
         if snapshots:
             snapshot = snapshots[0]
         else:
-            return render(
-                request,
-                "accounts/content/404_no_snapshots.html",
-                dict(account=account, project=project),
-                status=404,
-            )
+            return no_snapshots()
     elif version == ProjectLiveness.PINNED.value:
         # Elsewhere there should be checks to ensure the data
         # does not break the following asserts. But these serve as
@@ -121,16 +153,12 @@ def content(
     elif version.startswith("v"):
         match = re.match(r"v(\d+)$", version)
         if match is None:
-            return render(
-                request, "accounts/content/404_invalid_snapshot.html", status=404
-            )
+            return invalid_snapshot()
         number = match.group(1)
         try:
             snapshot = Snapshot.objects.get(project=project, number=number)
         except Snapshot.DoesNotExist:
-            return render(
-                request, "accounts/content/404_invalid_snapshot.html", status=404
-            )
+            return invalid_snapshot()
     else:
         raise ValueError("Invalid version value: " + version)
 
@@ -140,7 +168,10 @@ def content(
 
     # Check that the file exists in the snapshot
     # Is DB query necessary, or can we simply rely on upstream 404ing ?
-    get_object_or_404(File, snapshot=snapshot, path=file_path)
+    try:
+        File.objects.get(snapshot=snapshot, path=file_path)
+    except File.DoesNotExist:
+        return invalid_file()
 
     # Handle the index.html file specially
     if file_path == "index.html":
