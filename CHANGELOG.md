@@ -1,3 +1,16 @@
+# [3.24.0](https://github.com/stencila/hub/compare/v3.23.1...v3.24.0) (2020-08-08)
+
+
+### Bug Fixes
+
+* **Account cotent:** Render error page if file not in working ([9517be6](https://github.com/stencila/hub/commit/9517be6cf6e7f0b4b59a2d29c541c66e4eefcb25))
+
+
+### Features
+
+* **Account content:** Add file path to 404 page ([2be7724](https://github.com/stencila/hub/commit/2be7724634b3b1f1799f93627d0251f22f686e21))
+* **Manager:** Preview contents of project files and live serving. ([0cb9697](https://github.com/stencila/hub/commit/0cb9697c7f65236db2a8e10d4d126a05a50194c5)), closes [#601](https://github.com/stencila/hub/issues/601) [#607](https://github.com/stencila/hub/issues/607)
+
 ## [3.23.1](https://github.com/stencila/hub/compare/v3.23.0...v3.23.1) (2020-08-08)
 
 
