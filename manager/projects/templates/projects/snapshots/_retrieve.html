@@ -45,25 +45,6 @@ in case the enclosing page want to use that data to trigger further events
           {% trans "Open" %}
         </span>
       </a>
-      <button class="button is-small-mobile is-expanded-mobile" hx-patch="{% url 'api-projects-detail' project.id %}"
-              hx-swap="none" {% if project.liveness == 'pinned' and snapshot.id == project.pinned_id %}
-              include-vals="liveness: 'LATEST'">
-        <span class="icon">
-          <i class="ri-pushpin-fill-line"></i>
-        </span>
-        <span>
-          {% trans "Unpin" %}
-        </span>
-        {% else %}
-        include-vals="liveness: 'pinned', pinned: '{{ snapshot.id }}'">
-        <span class="icon">
-          <i class="ri-pushpin-line"></i>
-        </span>
-        <span>
-          {% trans "Pin" %}
-        </span>
-        {% endif %}
-      </button>
       {% endif %}
     </div>
     {% endif %}
