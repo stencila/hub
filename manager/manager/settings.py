@@ -8,18 +8,12 @@ See https://github.com/jazzband/django-configurations.
 
 import datetime
 import os
-from typing import Optional
 
 from configurations import Configuration, values
 
 from manager.version import __version__
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Directory fro file storage e.g. `uploads`, `snapshots`
-# This should only be used in development and testing. In production
-# storage is provided by other, possibly external, services e.g. S3, NFS
-STORAGE_ROOT = os.path.join(BASE_DIR, "..", "storage", "data")
 
 
 class Prod(Configuration):
@@ -411,9 +405,11 @@ class Prod(Configuration):
     # URL of the `cache` service
     CACHE_URL = values.SecretValue(environ_prefix=None)
 
-    # In production only use other services for storage,
-    # not local filesystem.
-    STORAGE_ROOT: Optional[str] = values.Value(None)
+    # Directory for storage e.g. `uploads`, `working`, `snapshots`
+    # In development and testing the local filesystem is used.
+    # In production, storage is provided by other, possibly external,
+    # services e.g. S3, NFS but may be mounted into this location
+    STORAGE_ROOT = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
 
     ###########################################################################
     # Settings used internally in the `manager`'s own code
@@ -556,9 +552,6 @@ class Dev(Prod):
     # Use local URLs to more easily tests connections to jobs
     JOB_URL_LOCAL = True
 
-    # Use local file storage
-    STORAGE_ROOT = STORAGE_ROOT
-
 
 class Test(Prod):
     """
@@ -582,7 +575,3 @@ class Test(Prod):
 
     # During testing, use RPC result backend
     CACHE_URL = "rpc://"
-
-    # During testing, use local file storage because do not have Google bucket
-    # credentials.
-    STORAGE_ROOT = STORAGE_ROOT

@@ -1,6 +1,8 @@
 import io
 import mimetypes
+import os
 import random
+from pathlib import Path
 
 from allauth.account.models import EmailAddress
 from django.conf import settings
@@ -367,7 +369,7 @@ def random_project_user(project):
 
 
 def random_theme():
-    """Get a randome theme name."""
+    """Get a random theme name."""
     return random.choice([enum.value for enum in Themes])
 
 
@@ -379,12 +381,20 @@ def create_main_file_for_project(project):
     """Create a main.md file for the project."""
     content = main_markdown.format(title=project.title, description=project.description)
 
+    # The upload that is the source of the file
     upload = UploadSource.objects.create(
         project=project, creator=project.creator, path="main.md"
     )
     upload.file.save(upload.path, io.StringIO(content))
 
-    file = File.objects.create(
+    # The uploaded file in the working directory
+    path = project.STORAGE.path(project.file_location("main.md"))
+    Path(os.path.dirname(path)).mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        f.write(content)
+
+    # The file object that was created by pulling the file
+    File.objects.create(
         project=project,
         source=upload,
         path="main.md",
@@ -393,7 +403,8 @@ def create_main_file_for_project(project):
         modified=timezone.now(),
     )
 
-    project.main = file.path
+    # Make it the main file
+    project.main = "main.md"
     project.save()
 
 

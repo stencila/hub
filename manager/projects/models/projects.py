@@ -1,4 +1,5 @@
 import datetime
+import os
 from typing import Dict, Optional
 from urllib.parse import urlencode
 
@@ -13,6 +14,7 @@ from django.shortcuts import reverse
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
+from manager.storage import working_storage
 from users.models import User
 
 
@@ -31,7 +33,7 @@ class ProjectLiveness(EnumChoice):
         return (
             # Live is currently disabled as a choice
             # pending implementation
-            # ("live", "Use working directory"),
+            ("live", "Use working directory"),
             ("latest", "Use latest snapshot"),
             ("pinned", "Pinned to snapshot"),
         )
@@ -141,6 +143,8 @@ class Project(models.Model):
 
     TEMPORARY_PROJECT_LIFESPAN = datetime.timedelta(days=1)
 
+    STORAGE = working_storage()
+
     def __str__(self):
         return self.name
 
@@ -184,7 +188,7 @@ class Project(models.Model):
         """Get the theme for the project."""
         return self.theme or self.account.theme
 
-    def content_url(self, snapshot=None, path=None) -> str:
+    def content_url(self, snapshot=None, path=None, live=False) -> str:
         """
         Get the URL that the content for this project is served on.
 
@@ -207,15 +211,28 @@ class Project(models.Model):
                 domain=settings.ACCOUNTS_DOMAIN,
                 project=self.name,
             )
-        if snapshot:
+
+        # Defaults to generating a URL for the latest snapshot
+        # unless specific snapshot, or live is True
+        if live:
+            url += "live/"
+        elif snapshot:
             url += "v{0}/".format(snapshot.number)
+
         if not self.public:
             url += "~{0}/".format(self.key)
         if path:
             url += path
         if params:
             url += "?" + urlencode(params)
+
         return url
+
+    def file_location(self, file: str) -> str:
+        """
+        Get the location of a file in the project relative to the root of the storage volume.
+        """
+        return os.path.join(str(self.id), file)
 
     def clean(self, user: User) -> Job:
         """

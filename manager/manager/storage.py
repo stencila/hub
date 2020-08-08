@@ -70,41 +70,13 @@ def uploads_storage() -> Storage:
     )
 
 
-class WorkingStorage(Storage):
-    """
-    A storage class which returns a link to a file in the working directory of a project.
-
-    This storage class returns a link to a file. The URL:
-
-    - is on another domain to avoid serving potentially malicious content with XSS attacks
-      from the hub.
-
-    - for private files has a token to restrict access.
-
-    The URL is similar to that which GitHub uses for user content:
-       https://raw.githubusercontent.com/org/repo/master/file?token=AAIZKUGCZQQGDQ4BMMUZ6PS7BYUQO
-
-    The files are actually served by the `router` service.
-    """
-
-    def url(self, path: str) -> str:
-        """Get the URL for a file."""
-        return os.path.join("https://stencila.io/", path)
-
-
-def working_storage() -> WorkingStorage:
+def working_storage() -> Storage:
     """
     Get the storage backend for project working directories.
-
-    During development, a
     """
-    return (
-        FileSystemStorage(
-            location=os.path.join(settings.STORAGE_ROOT, "working"),
-            base_url="/local/working",
-        )
-        if settings.STORAGE_ROOT
-        else WorkingStorage()
+    return FileSystemStorage(
+        location=os.path.join(settings.STORAGE_ROOT, "working"),
+        base_url="/local/working",
     )
 
 

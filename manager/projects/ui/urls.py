@@ -71,6 +71,11 @@ after_account_urls = [
                                 name="ui-projects-files-retrieve",
                             ),
                             re_path(
+                                r"(?P<file>.+?)!highlight",
+                                files_views.highlight,
+                                name="ui-projects-files-highlight",
+                            ),
+                            re_path(
                                 r"(?P<prefix>.*)?",
                                 files_views.list,
                                 name="ui-projects-files-list",

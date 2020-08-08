@@ -43,7 +43,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     Checks that the user has list files and then gets
     all the `File` records matching its path.
     """
-    viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
+    viewset = ProjectsFilesViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
     file = viewset.get_object(project)
     upstreams = file.get_upstreams()
@@ -58,6 +58,34 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     )
 
     return render(request, "projects/files/retrieve.html", context)
+
+
+def highlight(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Highlight the content of a file.
+
+    This view is intended to used as the `src` of an `<iframe>`.
+    It returns the base minimum HTML.
+    """
+    viewset = ProjectsFilesViewSet.init("retrieve", request, args, kwargs)
+    project = viewset.get_project()
+    file = viewset.get_object(project)
+    css, html = file.highlight_content()
+
+    response = HttpResponse(
+        """<!DOCTYPE html>
+<html>
+  <head><style>{css}</style></head>
+  <body class="highlight">{html}</body>
+</html>
+""".format(
+            css=css, html=html
+        )
+    )
+
+    response["Content-Security-Policy"] = "frame-ancestors 'self';"
+    response["X-Frame-Options"] = "allow-from hub.stenci.la"
+    return response
 
 
 @login_required
