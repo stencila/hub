@@ -1,3 +1,10 @@
+## [3.23.1](https://github.com/stencila/hub/compare/v3.23.0...v3.23.1) (2020-08-08)
+
+
+### Bug Fixes
+
+* **Account content:** Fix handling of host CSP headers ([e5ac671](https://github.com/stencila/hub/commit/e5ac671738eaa0397e048f1ffaf44b7b707c0c04))
+
 # [3.23.0](https://github.com/stencila/hub/compare/v3.22.4...v3.23.0) (2020-08-07)
 
 
