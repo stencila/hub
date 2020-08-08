@@ -124,21 +124,26 @@ class ProjectsSnapshotsViewSet(
         inject content required to connect to a session. For other files
         redirects to the URL for the file (which may be in a
         remote storage bucket for example).
+
+        For security reasons, this function will be deprecated in
+        favour of getting content from the account subdomain.
         """
         project = self.get_project()
         snapshot = self.get_object(project)
         path = self.kwargs.get("path") or "index.html"
 
         try:
-            File.objects.get(snapshot=snapshot, path=path)
+            file = File.objects.get(snapshot=snapshot, path=path)
         except File.DoesNotExist:
             raise exceptions.NotFound
 
         if path == "index.html":
-            # TODO: Remove this special handling of index.html
-            # and instead just redirect it like all other files
             return snapshot_index_html(
-                request, account=project.account, project=project, snapshot=snapshot
+                html=file.get_content(),
+                request=request,
+                account=project.account,
+                project=project,
+                snapshot=snapshot,
             )
         else:
             url = snapshot.file_url(path)

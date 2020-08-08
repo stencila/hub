@@ -1,20 +1,24 @@
 import enum
 import mimetypes
-import os
 from datetime import datetime
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
+import httpx
+import pygments
+import pygments.lexers
 from django.db import models, transaction
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import reverse
 from django.utils import timezone
 
 from jobs.models import Job, JobMethod
-from manager.storage import snapshots_storage, working_storage
+from manager.storage import FileSystemStorage, snapshots_storage, working_storage
 from projects.models.projects import Project
 from projects.models.sources import Source
 from users.models import User
 
 SNAPSHOTS_STORAGE = snapshots_storage()
+SNAPSHOT_STORAGE_CLIENT = httpx.Client()
 WORKING_STORAGE = working_storage()
 
 
@@ -404,19 +408,115 @@ class File(models.Model):
             else None
         )
 
+    def get_lexer(self):
+        """
+        Get a Pygments lexer for the file.
+
+        Returns `None` if no matching lexer can be found.
+        """
+        try:
+            return pygments.lexers.guess_lexer_for_filename(self.path, "")
+        except pygments.util.ClassNotFound:
+            try:
+                return pygments.lexers.get_lexer_for_mimetype(self.mimetype)
+            except pygments.util.ClassNotFound:
+                return None
+
+    def highlight_content(self) -> Optional[Tuple[str, str]]:
+        """
+        Highlight the content of the file.
+
+        Returns `None` if the content can not be highlighted.
+        """
+        lexer = self.get_lexer()
+        if not lexer:
+            return None
+
+        content = self.get_content()
+        formatter = pygments.formatters.HtmlFormatter(
+            cssclass="source", style="colorful"
+        )
+        css = formatter.get_style_defs(".highlight")
+        html = pygments.highlight(content, lexer, formatter)
+        return css, html
+
+    def highlight_url(self) -> Optional[str]:
+        """
+        Get a URL to view the syntax highlighted content of the file (if possible).
+
+        Returns `None` if the content can not be highlighted.
+        """
+        if self.get_lexer():
+            return reverse(
+                "ui-projects-files-highlight",
+                kwargs=dict(
+                    account=self.project.account.name,
+                    project=self.project.name,
+                    file=self.path,
+                ),
+            )
+        else:
+            return None
+
     def download_url(self) -> str:
         """
         Get a URL to download the file.
+
+        This just returns the project's `content_url`, including necessary
+        snapshot path and keys (for private projects).
+        """
+        if self.snapshot:
+            return self.project.content_url(snapshot=self.snapshot, path=self.path)
+        else:
+            return self.project.content_url(live=True, path=self.path)
+
+    def get_response(self, limit_rate: Optional[str] = "off") -> HttpResponse:
+        """
+        Return a HTTP response to get this file.
+        """
+        if self.snapshot:
+            if isinstance(self.snapshot.STORAGE, FileSystemStorage):
+                # Read the file from the filesystem.
+                # Normally this will only be used during development!
+                location = self.snapshot.file_location(self.path)
+                file = self.snapshot.STORAGE.open(location)
+                return FileResponse(file)
+            else:
+                # In production, send the the `X-Accel-Redirect` and other headers
+                # so that Nginx will reverse proxy
+                url = self.snapshot.file_url(self.path)
+                response = HttpResponse()
+                response["X-Accel-Redirect"] = "@account-content"
+                response["X-Accel-Redirect-URL"] = url
+                response["X-Accel-Limit-Rate"] = limit_rate
+                return response
+        else:
+            location = self.project.file_location(self.path)
+            file = self.project.STORAGE.open(location)
+            return FileResponse(file)
+
+    def get_content(self) -> bytes:
+        """
+        Get the content of this file.
 
         The link will vary depending upon if the file is in the project's
         working directory, or if it is in a project snapshot.
         """
         if self.snapshot:
-            return SNAPSHOTS_STORAGE.url(
-                os.path.join(str(self.project.id), str(self.snapshot.id), self.path)
-            )
+            if isinstance(self.snapshot.STORAGE, FileSystemStorage):
+                # Read the file from the filesystem.
+                # Normally this will only be used during development!
+                location = self.snapshot.file_location(self.path)
+                with self.snapshot.STORAGE.open(location) as file:
+                    return file.read()
+            else:
+                # Fetch the file from storage and send it on to the client
+                url = self.snapshot.file_url(self.path)
+                return SNAPSHOT_STORAGE_CLIENT.get(url).content
         else:
-            return WORKING_STORAGE.url(os.path.join(str(self.project.id), self.path))
+            location = self.project.file_location(self.path)
+            with self.project.STORAGE.open(location) as file:
+                return file.read()
 
     def convert(self, user: User, output: str) -> Job:
         """

@@ -1,9 +1,7 @@
 import re
 from typing import Optional
 
-import httpx
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
 from django.db import transaction
 from django.db.models import F
 from django.http import HttpRequest, HttpResponse
@@ -16,8 +14,6 @@ from jobs.models import JobStatus
 from projects.models.files import File, FileDownloads
 from projects.models.projects import Project, ProjectLiveness
 from projects.models.snapshots import Snapshot
-
-storage_client = httpx.Client()
 
 
 def content(
@@ -140,47 +136,51 @@ def content(
     if version is None:
         version = project.liveness
 
-    # Which snapshot or working directory to serve from?
-    if version == ProjectLiveness.LATEST.value:
-        snapshots = project.snapshots.filter(
-            job__status=JobStatus.SUCCESS.value
-        ).order_by("-created")
-        if snapshots:
-            snapshot = snapshots[0]
-        else:
-            return no_snapshots()
-    elif version == ProjectLiveness.PINNED.value:
-        # Elsewhere there should be checks to ensure the data
-        # does not break the following asserts. But these serve as
-        # a final check.
-        snapshot = project.pinned
-        assert (
-            snapshot is not None
-        ), "Project has liveness `pinned` but is not pinned to a snapshot"
-        assert (
-            snapshot.project_id == project.id
-        ), "Project is pinned to a snapshot for a different project!"
-    elif version.startswith("v"):
-        match = re.match(r"v(\d+)$", version)
-        if match is None:
-            return invalid_snapshot()
-        number = match.group(1)
-        try:
-            snapshot = Snapshot.objects.get(project=project, number=number)
-        except Snapshot.DoesNotExist:
-            return invalid_snapshot()
-    else:
-        raise ValueError("Invalid version value: " + version)
-
     # Default to serving index.html
     if not file_path:
         file_path = "index.html"
 
-    # Check that the file exists in the snapshot
-    try:
-        file = File.objects.get(snapshot=snapshot, path=file_path)
-    except File.DoesNotExist:
-        return invalid_file()
+    # Should the file be served from the working directory or a snapshot?
+    snapshot = None
+    if version == ProjectLiveness.LIVE.value:
+        file = File.objects.get(project=project, path=file_path, current=True)
+    else:
+        if version == ProjectLiveness.LATEST.value:
+            snapshots = project.snapshots.filter(
+                job__status=JobStatus.SUCCESS.value
+            ).order_by("-created")
+            if snapshots:
+                snapshot = snapshots[0]
+            else:
+                return no_snapshots()
+        elif version == ProjectLiveness.PINNED.value:
+            # Elsewhere there should be checks to ensure the data
+            # does not break the following asserts. But these serve as
+            # a final check.
+            snapshot = project.pinned
+            assert (
+                snapshot is not None
+            ), "Project has liveness `pinned` but is not pinned to a snapshot"
+            assert (
+                snapshot.project_id == project.id
+            ), "Project is pinned to a snapshot for a different project!"
+        elif version.startswith("v"):
+            match = re.match(r"v(\d+)$", version)
+            if match is None:
+                return invalid_snapshot()
+            number = match.group(1)
+            try:
+                snapshot = Snapshot.objects.get(project=project, number=number)
+            except Snapshot.DoesNotExist:
+                return invalid_snapshot()
+        else:
+            raise ValueError("Invalid version value: " + version)
+
+        # Check that the file exists in the snapshot
+        try:
+            file = File.objects.get(snapshot=snapshot, path=file_path)
+        except File.DoesNotExist:
+            return invalid_file()
 
     # Limit the download rate if the account is over it's download
     # quota for the current month
@@ -200,62 +200,75 @@ def content(
             )
 
     # Handle the index.html file specially
-    if file_path == "index.html":
-        return snapshot_index_html(
-            request, account=account, project=project, snapshot=snapshot
-        )
-
-    # Redirect to other files
-    url = snapshot.file_url(file_path)
-    if settings.CONFIGURATION.endswith("Dev"):
-        # During development just do a simple redirect
-        return redirect(url)
+    if file.path == "index.html":
+        html = file.get_content()
+        if snapshot:
+            return snapshot_index_html(
+                html, request, account=account, project=project, snapshot=snapshot
+            )
+        else:
+            return working_index_html(html, request, account=account, project=project)
     else:
-        # In production, send the the `X-Accel-Redirect` and other headers
-        # so that Nginx will reverse proxy
-        response = HttpResponse()
-        response["X-Accel-Redirect"] = "@account-content"
-        response["X-Accel-Redirect-URL"] = url
-        response["X-Accel-Limit-Rate"] = limit_rate
-        return response
+        return file.get_response(limit_rate=limit_rate)
+
+
+def working_index_html(
+    html: bytes, request: HttpRequest, account: Account, project: Project
+) -> HttpResponse:
+    """
+    Get an index.html for a project.
+    """
+    return index_html(
+        account,
+        html,
+        source_url=primary_domain_url(
+            request,
+            name="ui-projects-files-list",
+            kwargs=dict(account=account.name, project=project.name),
+        ),
+        session_provider_url=primary_domain_url(
+            request, name="api-projects-session", kwargs=dict(project=project.id),
+        ),
+    )
 
 
 def snapshot_index_html(
-    request: HttpRequest, account: Account, project: Project, snapshot: Snapshot
+    html: bytes,
+    request: HttpRequest,
+    account: Account,
+    project: Project,
+    snapshot: Snapshot,
 ) -> HttpResponse:
     """
-    Return a snapshot's index.html.
+    Get an index.html from a snapshot.
+    """
+    return index_html(
+        account,
+        html,
+        source_url=primary_domain_url(
+            request,
+            name="ui-projects-snapshots-retrieve",
+            kwargs=dict(
+                account=account.name, project=project.name, snapshot=snapshot.number,
+            ),
+        ),
+        session_provider_url=primary_domain_url(
+            request,
+            name="api-projects-snapshots-session",
+            kwargs=dict(project=project.id, snapshot=snapshot.number),
+        ),
+    )
+
+
+def index_html(
+    account: Account, html: bytes, source_url: str, session_provider_url: str
+) -> HttpResponse:
+    """
+    Augment a index.html file.
 
     Adds necessary headers and injects content
     required to connect to a session.
     """
-    if isinstance(snapshot.STORAGE, FileSystemStorage):
-        # Serve the file from the filesystem.
-        # Normally this will only be used during development!
-        location = snapshot.file_location("index.html")
-        with snapshot.STORAGE.open(location) as file:
-            html = file.read()
-    else:
-        # Fetch the file from storage and send it on to the client
-        url = snapshot.file_url("index.html")
-        html = storage_client.get(url).content
-
-    if not html:
-        raise RuntimeError("No content")
-
-    # Inject execution toolbar
-    source_url = primary_domain_url(
-        request,
-        name="ui-projects-snapshots-retrieve",
-        kwargs=dict(
-            account=account.name, project=project.name, snapshot=snapshot.number,
-        ),
-    )
-    session_provider_url = primary_domain_url(
-        request,
-        name="api-projects-snapshots-session",
-        kwargs=dict(project=project.id, snapshot=snapshot.number),
-    )
     toolbar = """
         <stencila-executable-document-toolbar
             source-url="{source_url}"
