@@ -272,12 +272,15 @@ def snapshot_index_html(
     response = HttpResponse(html)
 
     # Add content security headers if the account has `hosts` set
-    hosts = ["*.stenci.la"] + account.hosts
+    hosts = account.hosts or ""
     # CSP `frame-ancestors` for modern browers
-    response["Content-Security-Policy"] = "frame-ancestors 'self' {};".format(hosts)
+    response[
+        "Content-Security-Policy"
+    ] = "frame-ancestors 'self' *.stenci.la {};".format(hosts)
     # `X-Frame-Options` for older browsers (only allows one value, so use first)
-    host = hosts.split()[0]
-    response["X-Frame-Options"] = "allow-from {}".format(host)
+    response["X-Frame-Options"] = "allow-from {}".format(
+        hosts.split()[:1] or "*.stenci.la"
+    )
 
     return response
 
