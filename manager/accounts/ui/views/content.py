@@ -143,7 +143,10 @@ def content(
     # Should the file be served from the working directory or a snapshot?
     snapshot = None
     if version == ProjectLiveness.LIVE.value:
-        file = File.objects.get(project=project, path=file_path, current=True)
+        try:
+            file = File.objects.get(project=project, path=file_path, current=True)
+        except File.DoesNotExist:
+            return invalid_file()
     else:
         if version == ProjectLiveness.LATEST.value:
             snapshots = project.snapshots.filter(
