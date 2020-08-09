@@ -1,3 +1,16 @@
+# [3.25.0](https://github.com/stencila/hub/compare/v3.24.1...v3.25.0) (2020-08-09)
+
+
+### Bug Fixes
+
+* **Account content:** Do not include port in primary domain url ([785e3e2](https://github.com/stencila/hub/commit/785e3e231e5ea35ee991aa116954572b0462b77f))
+
+
+### Features
+
+* **Kubernetes sessions:** Mount snapshot directory into session ([3859672](https://github.com/stencila/hub/commit/3859672f34c31326de4ef9e748d616cb0c8f8b37)), closes [#419](https://github.com/stencila/hub/issues/419)
+* **Worker:** Make it easier to create a new session container ([c49f41d](https://github.com/stencila/hub/commit/c49f41d99aa51a2de910c03b4b4f3a8690f62853))
+
 ## [3.24.1](https://github.com/stencila/hub/compare/v3.24.0...v3.24.1) (2020-08-09)
 
 
