@@ -565,7 +565,7 @@ class Dev(Local):
     UI_BASIC_AUTH = True
 
     # Use localhost as the primary domain
-    PRIMARY_DOMAIN = "127.0.0.1"
+    PRIMARY_DOMAIN = "127.0.0.1:8000"
 
     # Use local URLs to more easily tests connections to jobs
     JOB_URL_LOCAL = True

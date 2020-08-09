@@ -311,7 +311,4 @@ def primary_domain_url(request, name, kwargs):
         scheme="https" if request.is_secure() else "http",
         domain=settings.PRIMARY_DOMAIN,
     )
-    port = request.get_port()
-    if port != "80" and port != "443":
-        url += ":{0}".format(port)
     return url + reverse(name, kwargs=kwargs)
