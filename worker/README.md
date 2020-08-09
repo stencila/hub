@@ -10,6 +10,8 @@ The `worker` is a Celery process. Jobs are defined as Python classes in the [`jo
 
 ## Testing
 
+### Unit tests
+
 Each of the jobs should have at least one `*_test.py` file. You can run all the tests like this,
 
 ```sh
@@ -35,3 +37,23 @@ Some of the jobs, in particular those in [`jobs/pull`](jobs/pull), involve makin
 ```
 
 The generated YAML files in the `casettes` folder should be committed. If needs be, you can run tests again with `rewrite` mode to update the casettes.
+
+### Kubernetes sessions
+
+Some jobs, notably Kubernetes sessions, are most easily developed and tested by trying them out on a cluster. You can create a new session pod at the command line using:
+
+```sh
+./venv/bin/python3 -m jobs.session.kubernetes_session --debug
+```
+
+This will create a cluster in `jobs` namespace of the current `kubectl` context. You can then check the details of that pod e.g.
+
+```sh
+kubectl describe pod -n jobs session-f304ed49bcddc038d49d1be5e9227e86
+```
+
+Or shell into it using `kubectl exec` e.g.
+
+```sh
+kubectl exec -it -n jobs session-f304ed49bcddc038d49d1be5e9227e86 -- bash
+```

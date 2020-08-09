@@ -14,6 +14,7 @@ from jobs.base.job import Job
 namespace = "jobs"
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG if "--debug" in sys.argv else logging.INFO)
 
 api_client = None
 if "KUBERNETES_SERVICE_HOST" in os.environ:
@@ -22,41 +23,46 @@ if "KUBERNETES_SERVICE_HOST" in os.environ:
     api_instance = kubernetes.client.CoreV1Api()
 else:
     # Running outside of a cluster, probably during development
-    # so only connect to a Minikube cluster to avoid polluting
-    # a production cluster accidentally.
-    # Do not raise an exception so that devs without Minikube
-    # installed can at least import this file. Just warn.
-    api_instance = None
-    try:
-        status = subprocess.run(["minikube", "status"])
-        if status.returncode == 0:
-            try:
-                api_client = kubernetes.config.new_client_from_config(
-                    context="minikube"
-                )
-                api_instance = kubernetes.client.CoreV1Api(api_client)
-
+    if __name__ == "__main__":
+        # Explicitly running this script so connect to active cluster
+        api_client = kubernetes.config.new_client_from_config()
+        api_instance = kubernetes.client.CoreV1Api(api_client)
+    else:
+        # Otherwise only connect to a Minikube cluster to avoid polluting
+        # a production cluster accidentally.
+        # Do not raise an exception so that devs without Minikube
+        # installed can at least import this file. Just warn.
+        api_instance = None
+        try:
+            status = subprocess.run(["minikube", "status"])
+            if status.returncode == 0:
                 try:
-                    # Create the job namespace. In production, this namespace
-                    # needs to be created manually.
-                    api_instance.create_namespace(
-                        body={
-                            "apiVersion": "v1",
-                            "kind": "Namespace",
-                            "metadata": {"name": namespace},
-                        }
+                    api_client = kubernetes.config.new_client_from_config(
+                        context="minikube"
                     )
-                except kubernetes.client.rest.ApiException:
-                    # Assume that exception was because namespace already exists
-                    pass
-            except kubernetes.config.config_exception.ConfigException as exc:
-                logger.warning(exc)
-        else:
-            logger.warning(
-                "Minikube does not appear to be running. Run: minikube start"
-            )
-    except FileNotFoundError:
-        logger.warning("Could not find Minikube. Is it installed?")
+                    api_instance = kubernetes.client.CoreV1Api(api_client)
+
+                    try:
+                        # Create the job namespace. In production, this namespace
+                        # needs to be created manually.
+                        api_instance.create_namespace(
+                            body={
+                                "apiVersion": "v1",
+                                "kind": "Namespace",
+                                "metadata": {"name": namespace},
+                            }
+                        )
+                    except kubernetes.client.rest.ApiException:
+                        # Assume that exception was because namespace already exists
+                        pass
+                except kubernetes.config.config_exception.ConfigException as exc:
+                    logger.warning(exc)
+            else:
+                logger.warning(
+                    "Minikube does not appear to be running. Run: minikube start"
+                )
+        except FileNotFoundError:
+            logger.warning("Could not find Minikube. Is it installed?")
 
 
 class KubernetesSession(Job):
@@ -187,3 +193,10 @@ class KubernetesSession(Job):
             self.logger.info("Terminating pod")
             api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
             self.pod_name = None
+
+
+if __name__ == "__main__":
+    import secrets
+
+    session = KubernetesSession()
+    session.run(key=secrets.token_urlsafe(8))

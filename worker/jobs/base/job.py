@@ -58,9 +58,10 @@ class Job(celery.Task):
 
         Used to update the status, url, log etc of a job.
         """
-        self.send_event(
-            "task-updated", task_id=self.task_id, state=state, **kwargs,
-        )
+        if self.task_id:
+            self.send_event(
+                "task-updated", task_id=self.task_id, state=state, **kwargs,
+            )
 
     def flush(self):
         """

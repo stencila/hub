@@ -17,7 +17,7 @@ from jobs.convert import Convert
 from jobs.decode import Decode
 from jobs.encode import Encode
 from jobs.pull import Pull
-from jobs.session import Session
+from jobs.session.session import Session
 from jobs.sleep import Sleep
 
 JOBS = [Archive, Clean, Convert, Decode, Encode, Pull, Session, Sleep]
