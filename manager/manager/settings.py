@@ -89,6 +89,7 @@ class Prod(Configuration):
         "allauth.socialaccount.providers.orcid",
         "allauth.socialaccount.providers.twitter",
         "allauth.socialaccount",
+        "corsheaders",
         "django_celery_beat",
         "django_intercom",
         "django_prometheus",
@@ -112,6 +113,10 @@ class Prod(Configuration):
 
     # A list of middleware to use.
     MIDDLEWARE = [
+        # From https://pypi.org/project/django-cors-headers/: "CorsMiddleware should be placed as high as
+        # possible, especially before any middleware that can generate responses such as Django’s
+        # CommonMiddleware or Whitenoise’s WhiteNoiseMiddleware"
+        "corsheaders.middleware.CorsMiddleware",
         "django.middleware.security.SecurityMiddleware",
         # Whitenoise must be above all other middleware apart from Django’s SecurityMiddleware
         "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -247,6 +252,11 @@ class Prod(Configuration):
     ###########################################################################
     # Settings for third-party application in INSTALLED_APPS
     ###########################################################################
+
+    # django-cors-headers
+    # See https://github.com/adamchainz/django-cors-headers#configuration
+    # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
+    CORS_ORIGIN_REGEX_WHITELIST = []
 
     # django-allauth settings
     # See https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -469,6 +479,11 @@ class Prod(Configuration):
         # Add UI Basic auth if allowed
         if cls.UI_BASIC_AUTH:
             cls.MIDDLEWARE += ("manager.middleware.basic_auth",)
+
+        # Allow requests from any account subdomains
+        cls.CORS_ORIGIN_REGEX_WHITELIST = [
+            "^https://[a-z0-9-]+\\.{0}$".format(cls.ACCOUNTS_DOMAIN.replace(".", "\\."))
+        ]
 
         #  Setup sentry if a DSN is provided
         if cls.SENTRY_DSN:
