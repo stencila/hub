@@ -92,7 +92,9 @@ class KubernetesSession(Job):
             environ = "stencila/executa"
             logger.warning("Using default environment")
 
-        snapshot = kwargs.get("snapshot")
+        # The snapshot directory to use as the working directory
+        # for the session
+        snapshot_dir = kwargs.get("snapshot_dir")
 
         # Use short timeout and timelimit defaults
         timeout = kwargs.get("timeout", 15 * 60)
@@ -109,14 +111,14 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
-        if snapshot:
+        if snapshot_dir:
             init_script = """
 if [ ! -d /snapshots/{id} ]; then
     mkdir -p /snapshots/{id}
     gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
 fi
             """.format(
-                id=snapshot
+                id=snapshot_dir
             )
             init_container = {
                 "name": "init",
@@ -163,14 +165,14 @@ fi
                                     "name": "snapshots",
                                     # Only mount the directory for the specific snapshot so that
                                     # the container does not have access to other snapshots.
-                                    "subPath": snapshot,
+                                    "subPath": snapshot_dir,
                                     "readOnly": True,
                                     # The path that the snapshot directory is mounted *into*
                                     "mountPath": "/snapshots/"
-                                    + os.path.dirname(snapshot),
+                                    + os.path.dirname(snapshot_dir),
                                 }
                             ],
-                            "workingDir": "/snapshots/" + snapshot,
+                            "workingDir": "/snapshots/" + snapshot_dir,
                         }
                     ],
                     "volumes": [
@@ -268,4 +270,4 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     session = KubernetesSession()
-    session.run(key=secrets.token_urlsafe(8), snapshot=args.snapshot)
+    session.run(key=secrets.token_urlsafe(8), snapshot_dir=args.snapshot)
