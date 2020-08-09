@@ -1,3 +1,11 @@
+## [3.24.1](https://github.com/stencila/hub/compare/v3.24.0...v3.24.1) (2020-08-09)
+
+
+### Bug Fixes
+
+* **Manager:** Allow media, uplads, working etc roots to be configed separately ([0f3ee37](https://github.com/stencila/hub/commit/0f3ee3757d1eb2caf35a5d6e61176e08baa99e5d))
+* **Snapshots:** Remove pin/unpin butoon ([b4eac78](https://github.com/stencila/hub/commit/b4eac7884f2860a7908ca632a8fd5926618f04c2))
+
 # [3.24.0](https://github.com/stencila/hub/compare/v3.23.1...v3.24.0) (2020-08-08)
 
 
