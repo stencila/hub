@@ -461,7 +461,7 @@ class Prod(Configuration):
     JOB_URL_LOCAL = values.BooleanValue(False)
 
     # A list of job methods restricted to staff members
-    JOB_METHODS_STAFF_ONLY = ["session"]
+    JOB_METHODS_STAFF_ONLY = []
 
     @classmethod
     def post_setup(cls):
