@@ -14,7 +14,6 @@ from jobs.base.job import Job
 namespace = "jobs"
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG if "--debug" in sys.argv else logging.INFO)
 
 api_client = None
 if "KUBERNETES_SERVICE_HOST" in os.environ:
@@ -93,6 +92,8 @@ class KubernetesSession(Job):
             environ = "stencila/executa"
             logger.warning("Using default environment")
 
+        snapshot = kwargs.get("snapshot")
+
         # Use short timeout and timelimit defaults
         timeout = kwargs.get("timeout", 15 * 60)
         timelimit = kwargs.get("timelimit", 60 * 60)
@@ -108,6 +109,30 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
+        if snapshot:
+            init_script = """
+if [ ! -d /snapshots/{id} ]; then
+    mkdir -p /snapshots/{id}
+    gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
+fi
+            """.format(
+                id=snapshot
+            )
+            init_container = {
+                "name": "init",
+                "image": "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine",
+                "command": ["sh", "-c", init_script],
+                "volumeMounts": [{"name": "snapshots", "mountPath": "/snapshots"}],
+                "env": [
+                    {
+                        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+                        "value": "/secrets/gcloud-service-account-credentials.json",
+                    }
+                ],
+            }
+        else:
+            init_container = None
+
         # Create pod listening on a random port number
         protocol = "ws"
         port = random.randint(10000, 65535)
@@ -118,11 +143,12 @@ class KubernetesSession(Job):
                 "kind": "Pod",
                 "metadata": {"name": self.pod_name, "app": "session"},
                 "spec": {
+                    "initContainers": [init_container],
                     "containers": [
                         {
                             "name": "executa",
                             "image": environ,
-                            "args": [
+                            "command": [
                                 "executa",
                                 "serve",
                                 "--debug",
@@ -132,9 +158,41 @@ class KubernetesSession(Job):
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
+                            "volumeMounts": [
+                                {
+                                    "name": "snapshots",
+                                    # Only mount the directory for the specific snapshot so that
+                                    # the container does not have access to other snapshots.
+                                    "subPath": snapshot,
+                                    "readOnly": True,
+                                    # The path that the snapshot directory is mounted *into*
+                                    "mountPath": "/snapshots/"
+                                    + os.path.dirname(snapshot),
+                                }
+                            ],
+                            "workingDir": "/snapshots/" + snapshot,
                         }
                     ],
+                    "volumes": [
+                        {
+                            # Snapshots stored on the host and obtained by the
+                            # initcontainer
+                            "name": "snapshots",
+                            "hostPath": {
+                                "path": "/var/lib/stencila/snapshots",
+                                "type": "DirectoryOrCreate",
+                            },
+                        },
+                        {
+                            # Secrets needed by the initcontainerto fetch snapshots
+                            "name": "secrets",
+                            "secret": {"secretName": "secrets"},
+                        },
+                    ],
+                    # Do not restart this pod when it stops
                     "restartPolicy": "Never",
+                    # Do not automatically mount a token for K8s API access
+                    "automountServiceAccountToken": False,
                 },
             },
             namespace=namespace,
@@ -196,7 +254,18 @@ class KubernetesSession(Job):
 
 
 if __name__ == "__main__":
-    import secrets
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--debug", default=False, type=bool, help="Output debug log entries"
+    )
+    parser.add_argument(
+        "--snapshot", default=None, type=str, help="Snapshot to use for /work directory"
+    )
+    args = parser.parse_args()
+
+    logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     session = KubernetesSession()
-    session.run(key=secrets.token_urlsafe(8))
+    session.run(key=secrets.token_urlsafe(8), snapshot=args.snapshot)
