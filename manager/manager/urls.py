@@ -45,7 +45,7 @@ if settings.DEBUG:
 
     urlpatterns += [path("debug/", include(debug_toolbar.urls))]
 
-if settings.STORAGE_ROOT:
+if settings.CONFIGURATION.endswith("Dev"):
     from manager.storage import serve_local
 
     for pattern in serve_local():

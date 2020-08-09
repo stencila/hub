@@ -152,7 +152,10 @@ run-docker: build
 		--env DJANGO_SECRET_KEY \
 		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		--env DJANGO_STORAGE_ROOT=/storage \
+		--env DJANGO_MEDIA_ROOT=/storage/media \
+		--env DJANGO_UPLOADS_ROOT=/storage/uploads \
+		--env DJANGO_WORKING_ROOT=/storage/working \
+		--env DJANGO_SNAPSHOTS_ROOT=/storage/snapshots \
 		-v $$PWD/../storage/data:/storage:rw \
 		--env BROKER_URL \
 		--env CACHE_URL \

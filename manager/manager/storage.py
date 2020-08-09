@@ -9,7 +9,6 @@ For security reasons, even public files should be served raw
 from a different domain (ala googleusercontent.com and githubusercontent.com).
 """
 
-import os
 from urllib.parse import urljoin
 
 from django.conf import settings
@@ -47,11 +46,8 @@ def media_storage() -> Storage:
     in Django. See https://docs.djangoproject.com/en/3.0/topics/files/.
     """
     return (
-        FileSystemStorage(
-            location=os.path.join(settings.STORAGE_ROOT, "media"),
-            base_url="/local/media",
-        )
-        if settings.STORAGE_ROOT
+        FileSystemStorage(location=settings.MEDIA_ROOT, base_url="/local/media",)
+        if settings.MEDIA_ROOT
         else MediaStorage()
     )
 
@@ -61,11 +57,8 @@ def uploads_storage() -> Storage:
     Get the storage backend for private, uploaded files.
     """
     return (
-        FileSystemStorage(
-            location=os.path.join(settings.STORAGE_ROOT, "uploads"),
-            base_url="/local/uploads",
-        )
-        if settings.STORAGE_ROOT
+        FileSystemStorage(location=settings.UPLOADS_ROOT, base_url="/local/uploads",)
+        if settings.UPLOADS_ROOT
         else GoogleCloudStorage(bucket_name="stencila-hub-uploads")
     )
 
@@ -74,10 +67,7 @@ def working_storage() -> Storage:
     """
     Get the storage backend for project working directories.
     """
-    return FileSystemStorage(
-        location=os.path.join(settings.STORAGE_ROOT, "working"),
-        base_url="/local/working",
-    )
+    return FileSystemStorage(location=settings.WORKING_ROOT, base_url="/local/working",)
 
 
 def snapshots_storage() -> Storage:
@@ -86,10 +76,9 @@ def snapshots_storage() -> Storage:
     """
     return (
         FileSystemStorage(
-            location=os.path.join(settings.STORAGE_ROOT, "snapshots"),
-            base_url="/local/snapshots",
+            location=settings.SNAPSHOTS_ROOT, base_url="/local/snapshots",
         )
-        if settings.STORAGE_ROOT
+        if settings.SNAPSHOTS_ROOT
         else GoogleCloudStorage(bucket_name="stencila-hub-snapshots")
     )
 

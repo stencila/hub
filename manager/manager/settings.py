@@ -405,12 +405,6 @@ class Prod(Configuration):
     # URL of the `cache` service
     CACHE_URL = values.SecretValue(environ_prefix=None)
 
-    # Directory for storage e.g. `uploads`, `working`, `snapshots`
-    # In development and testing the local filesystem is used.
-    # In production, storage is provided by other, possibly external,
-    # services e.g. S3, NFS but may be mounted into this location
-    STORAGE_ROOT = values.Value(os.path.join(BASE_DIR, "..", "storage", "data"))
-
     ###########################################################################
     # Settings used internally in the `manager`'s own code
     #
@@ -420,6 +414,16 @@ class Prod(Configuration):
     # An environment name e.g. prod, staging, test used for
     # exception reporting / filtering
     DEPLOYMENT_ENVIRONMENT = values.Value(environ_prefix=None)
+
+    # Directories for storage e.g. `uploads`, `working`, `snapshots`
+    # (see `storage.py`).
+    # In development and testing the local filesystem is used.
+    # In production, storage is provided by other, possibly external,
+    # services e.g. S3, or NFS (but may be mounted into these locations)
+    MEDIA_ROOT = values.Value()
+    UPLOADS_ROOT = values.Value()
+    WORKING_ROOT = values.Value()
+    SNAPSHOTS_ROOT = values.Value()
 
     # Allow for username / password API authentication
     # This is usually disallowed in production (in favour of tokens)
@@ -480,7 +484,21 @@ class Prod(Configuration):
             )
 
 
-class Dev(Prod):
+class Local(Prod):
+    """
+    A base configration that uses local storage.
+    """
+
+    STORAGE_ROOT = os.getenv(
+        "DJANGO_STORAGE_ROOT", os.path.join(BASE_DIR, "..", "storage", "data")
+    )
+    MEDIA_ROOT = values.Value(os.path.join(STORAGE_ROOT, "media"))
+    UPLOADS_ROOT = values.Value(os.path.join(STORAGE_ROOT, "uploads"))
+    WORKING_ROOT = values.Value(os.path.join(STORAGE_ROOT, "working"))
+    SNAPSHOTS_ROOT = values.Value(os.path.join(STORAGE_ROOT, "snapshots"))
+
+
+class Dev(Local):
     """
     Configuration settings used during development.
 
@@ -553,7 +571,7 @@ class Dev(Prod):
     JOB_URL_LOCAL = True
 
 
-class Test(Prod):
+class Test(Local):
     """
     Configuration settings used during tests.
 
