@@ -8,6 +8,7 @@ See https://github.com/jazzband/django-configurations.
 
 import datetime
 import os
+from typing import List
 
 from configurations import Configuration, values
 
@@ -256,7 +257,7 @@ class Prod(Configuration):
     # django-cors-headers
     # See https://github.com/adamchainz/django-cors-headers#configuration
     # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
-    CORS_ORIGIN_REGEX_WHITELIST = []
+    CORS_ORIGIN_REGEX_WHITELIST: List[str] = []
 
     # django-allauth settings
     # See https://django-allauth.readthedocs.io/en/latest/configuration.html
@@ -461,7 +462,7 @@ class Prod(Configuration):
     JOB_URL_LOCAL = values.BooleanValue(False)
 
     # A list of job methods restricted to staff members
-    JOB_METHODS_STAFF_ONLY = []
+    JOB_METHODS_STAFF_ONLY: List[str] = []
 
     @classmethod
     def post_setup(cls):
