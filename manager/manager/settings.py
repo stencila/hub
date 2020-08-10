@@ -485,7 +485,9 @@ class Prod(Configuration):
         # Yes, it is important to append to the existing list, rather
         # than replace it, even if it is empty.
         cls.CORS_ORIGIN_REGEX_WHITELIST += [
-            "^https?://[a-z0-9-]+\\.{0}$".format(cls.ACCOUNTS_DOMAIN.replace(".", "\\."))
+            "^https?://[a-z0-9-]+\\.{0}$".format(
+                cls.ACCOUNTS_DOMAIN.replace(".", "\\.")
+            )
         ]
 
         #  Setup sentry if a DSN is provided
