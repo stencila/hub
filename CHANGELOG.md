@@ -1,3 +1,10 @@
+## [3.25.5](https://github.com/stencila/hub/compare/v3.25.4...v3.25.5) (2020-08-10)
+
+
+### Bug Fixes
+
+* **Worker:** Disable prefetching jobs ([a59b1ba](https://github.com/stencila/hub/commit/a59b1bac0162c39e46249363562cd491e2f30485))
+
 ## [3.25.4](https://github.com/stencila/hub/compare/v3.25.3...v3.25.4) (2020-08-10)
 
 
