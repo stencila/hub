@@ -127,6 +127,7 @@ class ZoneAdmin(admin.ModelAdmin):
 
     list_display = [
         "id",
-        "account_id",
+        "account",
         "name",
     ]
+    list_select_related = ["account"]

@@ -58,6 +58,9 @@ class Zone(models.Model):
             models.UniqueConstraint(fields=["account", "name"], name="unique_name")
         ]
 
+    def __str__(self) -> str:
+        return "Zone #{0}:{1}".format(self.id, self.name)
+
 
 class Queue(models.Model):
     """
@@ -115,6 +118,9 @@ class Queue(models.Model):
         help_text="Whether or not the queue should be sent jobs which can not be interupted."
         "False (default): jobs should not be interrupted",
     )
+
+    def __str__(self):
+        return "Queue #{0}:{1}".format(self.id, self.name)
 
     @classmethod
     def get_or_create(cls, account_name, queue_name):

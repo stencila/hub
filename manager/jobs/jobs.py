@@ -82,27 +82,39 @@ def dispatch_job(job: Job) -> Job:
     else:
         # Find queues that have active workers on them
         # order by descending priority
-        queues = Queue.objects.filter(
-            Q(zone__account=job.project.account) | Q(zone__account__name="stencila"),
-            workers__in=Worker.objects.filter(
-                # Has not finished
-                finished__isnull=True,
-                # Has been updated in the last x minutes
-                updated__gte=timezone.now() - datetime.timedelta(minutes=15),
-            ),
-        ).order_by("-priority")
+        queues = list(
+            Queue.objects.filter(
+                Q(zone__account=job.project.account)
+                | Q(zone__account__name="stencila"),
+                workers__in=Worker.objects.filter(
+                    # Has not finished
+                    finished__isnull=True,
+                    # Has been updated in the last x minutes
+                    updated__gte=timezone.now() - datetime.timedelta(minutes=15),
+                ),
+            ).order_by("priority")
+        )
 
         # Fallback to the default Stencila queue
         # Apart from anything else having this fallback is useful in development
         # because if means that the `overseer` service does not need to be running
         # in order keep track of the numbers of workers listening on each queue
         # (during development `worker`s listen to the default queue)
-        if len(queues):
-            queue = queues[0]
-        else:
+        if len(queues) == 0:
+            logger.warning("No queues found with active workers")
             queue, _ = Queue.get_or_create(
                 account_name="stencila", queue_name="default"
             )
+        else:
+            if job.creator is None:
+                # Jobs created by anonymous users go on the lowest
+                # priority queue
+                priority = 1
+            else:
+                # The priority of other jobs is determined by the
+                # account tier of the project
+                priority = job.project.account.tier.id
+            queue = queues[min(len(queues), priority) - 1]
 
         # Add the job key to it's kwargs so it can be used by the
         # job's process (e.g. Executa) to limit access to it.
