@@ -258,6 +258,8 @@ class Prod(Configuration):
     # See https://github.com/adamchainz/django-cors-headers#configuration
     # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
     CORS_ORIGIN_REGEX_WHITELIST: List[str] = []
+    # This allows credentials to be send in cross-origin requests
+    CORS_ALLOW_CREDENTIALS = True
 
     # django-allauth settings
     # See https://django-allauth.readthedocs.io/en/latest/configuration.html
