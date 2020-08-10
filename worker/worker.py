@@ -40,7 +40,17 @@ app.conf.update(
         "interval_start": 0,
         "interval_step": 0.5,
         "interval_max": 3,
-    }
+    },
+    # Disable prefetching
+    # By default Celery will prefetch tasks (ie. reserve) from the queue
+    # In effect, these tasks sit in the worker's own queue and have state RECEIVED. 
+    # This can mean that tasks can be blocked by other long running task, even though
+    # another worker is available to run them. Setting `task_acks_late = True` avoids this.
+    # See:
+    #  - https://docs.celeryproject.org/en/stable/userguide/optimizing.html#reserve-one-task-at-a-time
+    #  - https://stackoverflow.com/a/37699960/4625911
+    task_acks_late = True,
+    worker_prefetch_multiplier = 1
 )
 
 

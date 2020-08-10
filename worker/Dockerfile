@@ -73,6 +73,5 @@ CMD celery worker --app worker \
                   --hostname worker@$(hostname) \
                   --queues default \
                   --concurrency=4 \
-                  --prefetch-multiplier=1 \
                   --events \
                   --heartbeat-interval=60

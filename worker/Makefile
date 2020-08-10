@@ -47,7 +47,6 @@ run: venv
 		--hostname worker-$$(date +'%s')@%h \
 		--queues $(QUEUES) \
 		--concurrency=4 \
-		--prefetch-multiplier=1 \
 		--events \
 		--heartbeat-interval=30 \
 		--loglevel DEBUG
