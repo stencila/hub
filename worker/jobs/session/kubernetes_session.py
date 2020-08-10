@@ -132,8 +132,20 @@ fi
                     }
                 ],
             }
+            volume_mount = {
+                "name": "snapshots",
+                # Only mount the directory for the specific snapshot so that
+                # the container does not have access to other snapshots.
+                "subPath": snapshot_dir,
+                "readOnly": True,
+                # The path that the snapshot directory is mounted *into*
+                "mountPath": "/snapshots/" + os.path.dirname(snapshot_dir),
+            }
+            working_dir = "/snapshots/" + snapshot_dir
         else:
             init_container = None
+            volume_mount = None
+            working_dir = None
 
         # Create pod listening on a random port number
         protocol = "ws"
@@ -160,19 +172,8 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
-                            "volumeMounts": [
-                                {
-                                    "name": "snapshots",
-                                    # Only mount the directory for the specific snapshot so that
-                                    # the container does not have access to other snapshots.
-                                    "subPath": snapshot_dir,
-                                    "readOnly": True,
-                                    # The path that the snapshot directory is mounted *into*
-                                    "mountPath": "/snapshots/"
-                                    + os.path.dirname(snapshot_dir),
-                                }
-                            ],
-                            "workingDir": "/snapshots/" + snapshot_dir,
+                            "volumeMounts": [volume_mount],
+                            "workingDir": working_dir,
                         }
                     ],
                     "volumes": [
@@ -186,7 +187,7 @@ fi
                             },
                         },
                         {
-                            # Secrets needed by the initcontainerto fetch snapshots
+                            # Secrets needed by the initcontainer to fetch snapshots
                             "name": "secrets",
                             "secret": {"secretName": "secrets"},
                         },
