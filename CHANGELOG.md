@@ -1,3 +1,10 @@
+## [3.25.3](https://github.com/stencila/hub/compare/v3.25.2...v3.25.3) (2020-08-10)
+
+
+### Bug Fixes
+
+* **Account subdomains:** Correct config of CORS whitelist ([ec812cf](https://github.com/stencila/hub/commit/ec812cfcf43f9d18b6ec317d4cbb323a5a6799e9))
+
 ## [3.25.2](https://github.com/stencila/hub/compare/v3.25.1...v3.25.2) (2020-08-10)
 
 
