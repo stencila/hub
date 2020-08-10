@@ -1,3 +1,11 @@
+## [3.25.1](https://github.com/stencila/hub/compare/v3.25.0...v3.25.1) (2020-08-10)
+
+
+### Bug Fixes
+
+* **Manager:** Allow requests from account subdomains ([0e4dbbc](https://github.com/stencila/hub/commit/0e4dbbc582852739d156adaa3f3e31f70d2eda5e))
+* **Manager:** Do not retrict sessions to staff ([9692787](https://github.com/stencila/hub/commit/9692787a4d1d57f85b6988100d70c9c4c740d822))
+
 # [3.25.0](https://github.com/stencila/hub/compare/v3.24.1...v3.25.0) (2020-08-09)
 
 
