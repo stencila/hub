@@ -1,3 +1,10 @@
+## [3.25.4](https://github.com/stencila/hub/compare/v3.25.3...v3.25.4) (2020-08-10)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Correct when no snapshot path; make arg name consistent ([5431051](https://github.com/stencila/hub/commit/5431051bf4336cb4a774bb22adc19143f5125d4f))
+
 ## [3.25.3](https://github.com/stencila/hub/compare/v3.25.2...v3.25.3) (2020-08-10)
 
 
