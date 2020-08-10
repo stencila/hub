@@ -482,8 +482,10 @@ class Prod(Configuration):
             cls.MIDDLEWARE += ("manager.middleware.basic_auth",)
 
         # Allow requests from any account subdomains
-        cls.CORS_ORIGIN_REGEX_WHITELIST = [
-            "^https://[a-z0-9-]+\\.{0}$".format(cls.ACCOUNTS_DOMAIN.replace(".", "\\."))
+        # Yes, it is important to append to the existing list, rather
+        # than replace it, even if it is empty.
+        cls.CORS_ORIGIN_REGEX_WHITELIST += [
+            "^https?://[a-z0-9-]+\\.{0}$".format(cls.ACCOUNTS_DOMAIN.replace(".", "\\."))
         ]
 
         #  Setup sentry if a DSN is provided
@@ -582,6 +584,10 @@ class Dev(Local):
 
     # Use localhost as the primary domain
     PRIMARY_DOMAIN = "127.0.0.1:8000"
+
+    # For testing of CORS headers locally add an entry in /etc/hosts for an account
+    # e.g. `127.0.0.1 admin.stencila.io`
+    ACCOUNTS_DOMAIN = "stencila.io:9000"
 
     # Use local URLs to more easily tests connections to jobs
     JOB_URL_LOCAL = True
