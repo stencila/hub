@@ -92,11 +92,13 @@ class KubernetesSession(Job):
             environ = "stencila/executa"
             logger.warning("Using default environment")
 
-        snapshot = kwargs.get("snapshot")
+        # The snapshot directory to use as the working directory
+        # for the session
+        snapshot_dir = kwargs.get("snapshot_dir")
 
         # Use short timeout and timelimit defaults
-        timeout = kwargs.get("timeout", 15 * 60)
-        timelimit = kwargs.get("timelimit", 60 * 60)
+        timeout = kwargs.get("timeout") or (15 * 60)
+        timelimit = kwargs.get("timelimit") or (60 * 60)
 
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
@@ -109,14 +111,14 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
-        if snapshot:
+        if snapshot_dir:
             init_script = """
 if [ ! -d /snapshots/{id} ]; then
     mkdir -p /snapshots/{id}
     gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
 fi
             """.format(
-                id=snapshot
+                id=snapshot_dir
             )
             init_container = {
                 "name": "init",
@@ -130,8 +132,20 @@ fi
                     }
                 ],
             }
+            volume_mount = {
+                "name": "snapshots",
+                # Only mount the directory for the specific snapshot so that
+                # the container does not have access to other snapshots.
+                "subPath": snapshot_dir,
+                "readOnly": True,
+                # The path that the snapshot directory is mounted *into*
+                "mountPath": "/snapshots/" + os.path.dirname(snapshot_dir),
+            }
+            working_dir = "/snapshots/" + snapshot_dir
         else:
             init_container = None
+            volume_mount = None
+            working_dir = None
 
         # Create pod listening on a random port number
         protocol = "ws"
@@ -158,19 +172,8 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
-                            "volumeMounts": [
-                                {
-                                    "name": "snapshots",
-                                    # Only mount the directory for the specific snapshot so that
-                                    # the container does not have access to other snapshots.
-                                    "subPath": snapshot,
-                                    "readOnly": True,
-                                    # The path that the snapshot directory is mounted *into*
-                                    "mountPath": "/snapshots/"
-                                    + os.path.dirname(snapshot),
-                                }
-                            ],
-                            "workingDir": "/snapshots/" + snapshot,
+                            "volumeMounts": [volume_mount],
+                            "workingDir": working_dir,
                         }
                     ],
                     "volumes": [
@@ -184,7 +187,7 @@ fi
                             },
                         },
                         {
-                            # Secrets needed by the initcontainerto fetch snapshots
+                            # Secrets needed by the initcontainer to fetch snapshots
                             "name": "secrets",
                             "secret": {"secretName": "secrets"},
                         },
@@ -226,12 +229,15 @@ fi
                 stdin=False,
                 tty=False,
             )
-            while response.is_open():
-                response.update(timeout=1)
-                stdout = response.readline_stdout(timeout=3)
-                print(stdout)
-                stderr = response.readline_stderr(timeout=3)
-                print(stderr)
+            if hasattr(response, "is_open"):
+                while response.is_open():
+                    response.update(timeout=1)
+                    stdout = response.readline_stdout(timeout=3)
+                    print(stdout)
+                    stderr = response.readline_stderr(timeout=3)
+                    print(stderr)
+            else:
+                print(response)
         except kubernetes.client.rest.ApiException as exc:
             # Log the exception if it is not an expected
             # SoftTimeLimitExceeded exception (used for cancelling
@@ -242,6 +248,7 @@ fi
             return self.terminated()
 
         self.logger.info("Pod finished")
+        return self.completed()
 
     def terminated(self):
         """
@@ -249,6 +256,18 @@ fi
         """
         if self.pod_name:
             self.logger.info("Terminating pod")
+            api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
+            self.pod_name = None
+
+    def completed(self):
+        """
+        Clean up the pod if the pod completed i.e. timeout or timelimit
+
+        If we do not do this clean up then these finished pods just end up
+        polluting the namespace.
+        """
+        if self.pod_name:
+            self.logger.info("Deleting pod")
             api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
             self.pod_name = None
 
@@ -261,6 +280,15 @@ if __name__ == "__main__":
         "--debug", default=False, type=bool, help="Output debug log entries"
     )
     parser.add_argument(
+        "--timeout",
+        default=None,
+        type=int,
+        help="Durations of inactivity until session times out (s)",
+    )
+    parser.add_argument(
+        "--timelimit", default=None, type=int, help="Maximum time limit (s)",
+    )
+    parser.add_argument(
         "--snapshot", default=None, type=str, help="Snapshot to use for /work directory"
     )
     args = parser.parse_args()
@@ -268,4 +296,9 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     session = KubernetesSession()
-    session.run(key=secrets.token_urlsafe(8), snapshot=args.snapshot)
+    session.run(
+        key=secrets.token_urlsafe(8),
+        timeout=args.timeout,
+        timelimit=args.timelimit,
+        snapshot_dir=args.snapshot,
+    )
