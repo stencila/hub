@@ -1,3 +1,12 @@
+## [3.25.2](https://github.com/stencila/hub/compare/v3.25.1...v3.25.2) (2020-08-10)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Clean up completed sessions ([193114d](https://github.com/stencila/hub/commit/193114d9e0bd16848ab89ccfb6d01af0b971fd11))
+* **Kubernetes session:** Handle case where snapshot dir is empty ([248cf7e](https://github.com/stencila/hub/commit/248cf7e4a9655ee57dd5ae3e920dd12706eabf7c))
+* **Kubernetes session:** Use snapshot_dir, which is the name provided by manager ([da444d8](https://github.com/stencila/hub/commit/da444d8147a8e23cf5387288f2b05c4eff13af15))
+
 ## [3.25.1](https://github.com/stencila/hub/compare/v3.25.0...v3.25.1) (2020-08-10)
 
 
