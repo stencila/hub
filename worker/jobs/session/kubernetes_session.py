@@ -97,8 +97,8 @@ class KubernetesSession(Job):
         snapshot_dir = kwargs.get("snapshot_dir")
 
         # Use short timeout and timelimit defaults
-        timeout = kwargs.get("timeout", 15 * 60)
-        timelimit = kwargs.get("timelimit", 60 * 60)
+        timeout = kwargs.get("timeout") or (15 * 60)
+        timelimit = kwargs.get("timelimit") or (60 * 60)
 
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
@@ -228,12 +228,15 @@ fi
                 stdin=False,
                 tty=False,
             )
-            while response.is_open():
-                response.update(timeout=1)
-                stdout = response.readline_stdout(timeout=3)
-                print(stdout)
-                stderr = response.readline_stderr(timeout=3)
-                print(stderr)
+            if hasattr(response, "is_open"):
+                while response.is_open():
+                    response.update(timeout=1)
+                    stdout = response.readline_stdout(timeout=3)
+                    print(stdout)
+                    stderr = response.readline_stderr(timeout=3)
+                    print(stderr)
+            else:
+                print(response)
         except kubernetes.client.rest.ApiException as exc:
             # Log the exception if it is not an expected
             # SoftTimeLimitExceeded exception (used for cancelling
@@ -244,6 +247,7 @@ fi
             return self.terminated()
 
         self.logger.info("Pod finished")
+        return self.completed()
 
     def terminated(self):
         """
@@ -251,6 +255,18 @@ fi
         """
         if self.pod_name:
             self.logger.info("Terminating pod")
+            api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
+            self.pod_name = None
+
+    def completed(self):
+        """
+        Clean up the pod if the pod completed i.e. timeout or timelimit
+
+        If we do not do this clean up then these finished pods just end up
+        polluting the namespace.
+        """
+        if self.pod_name:
+            self.logger.info("Deleting pod")
             api_instance.delete_namespaced_pod(name=self.pod_name, namespace=namespace)
             self.pod_name = None
 
@@ -263,6 +279,15 @@ if __name__ == "__main__":
         "--debug", default=False, type=bool, help="Output debug log entries"
     )
     parser.add_argument(
+        "--timeout",
+        default=None,
+        type=int,
+        help="Durations of inactivity until session times out (s)",
+    )
+    parser.add_argument(
+        "--timelimit", default=None, type=int, help="Maximum time limit (s)",
+    )
+    parser.add_argument(
         "--snapshot", default=None, type=str, help="Snapshot to use for /work directory"
     )
     args = parser.parse_args()
@@ -270,4 +295,9 @@ if __name__ == "__main__":
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     session = KubernetesSession()
-    session.run(key=secrets.token_urlsafe(8), snapshot_dir=args.snapshot)
+    session.run(
+        key=secrets.token_urlsafe(8),
+        timeout=args.timeout,
+        timelimit=args.timelimit,
+        snapshot_dir=args.snapshot,
+    )
