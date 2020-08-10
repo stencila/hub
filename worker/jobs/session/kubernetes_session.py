@@ -94,7 +94,7 @@ class KubernetesSession(Job):
 
         # The snapshot directory to use as the working directory
         # for the session
-        snapshot_dir = kwargs.get("snapshot_dir")
+        snapshot_path = kwargs.get("snapshot_path")
 
         # Use short timeout and timelimit defaults
         timeout = kwargs.get("timeout") or (15 * 60)
@@ -111,40 +111,44 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
-        if snapshot_dir:
+        if snapshot_path:
             init_script = """
 if [ ! -d /snapshots/{id} ]; then
     mkdir -p /snapshots/{id}
     gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
 fi
             """.format(
-                id=snapshot_dir
+                id=snapshot_path
             )
-            init_container = {
-                "name": "init",
-                "image": "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine",
-                "command": ["sh", "-c", init_script],
-                "volumeMounts": [{"name": "snapshots", "mountPath": "/snapshots"}],
-                "env": [
-                    {
-                        "name": "GOOGLE_APPLICATION_CREDENTIALS",
-                        "value": "/secrets/gcloud-service-account-credentials.json",
-                    }
-                ],
-            }
-            volume_mount = {
-                "name": "snapshots",
-                # Only mount the directory for the specific snapshot so that
-                # the container does not have access to other snapshots.
-                "subPath": snapshot_dir,
-                "readOnly": True,
-                # The path that the snapshot directory is mounted *into*
-                "mountPath": "/snapshots/" + os.path.dirname(snapshot_dir),
-            }
-            working_dir = "/snapshots/" + snapshot_dir
+            init_containers = [
+                {
+                    "name": "init",
+                    "image": "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine",
+                    "command": ["sh", "-c", init_script],
+                    "volumeMounts": [{"name": "snapshots", "mountPath": "/snapshots"}],
+                    "env": [
+                        {
+                            "name": "GOOGLE_APPLICATION_CREDENTIALS",
+                            "value": "/secrets/gcloud-service-account-credentials.json",
+                        }
+                    ],
+                }
+            ]
+            volume_mounts = [
+                {
+                    "name": "snapshots",
+                    # Only mount the directory for the specific snapshot so that
+                    # the container does not have access to other snapshots.
+                    "subPath": snapshot_path,
+                    "readOnly": True,
+                    # The path that the snapshot directory is mounted *into*
+                    "mountPath": "/snapshots/" + os.path.dirname(snapshot_path),
+                }
+            ]
+            working_dir = "/snapshots/" + snapshot_path
         else:
-            init_container = None
-            volume_mount = None
+            init_containers = []
+            volume_mounts = []
             working_dir = None
 
         # Create pod listening on a random port number
@@ -157,7 +161,7 @@ fi
                 "kind": "Pod",
                 "metadata": {"name": self.pod_name, "app": "session"},
                 "spec": {
-                    "initContainers": [init_container],
+                    "initContainers": init_containers,
                     "containers": [
                         {
                             "name": "executa",
@@ -172,7 +176,7 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
-                            "volumeMounts": [volume_mount],
+                            "volumeMounts": volume_mounts,
                             "workingDir": working_dir,
                         }
                     ],
@@ -300,5 +304,5 @@ if __name__ == "__main__":
         key=secrets.token_urlsafe(8),
         timeout=args.timeout,
         timelimit=args.timelimit,
-        snapshot_dir=args.snapshot,
+        snapshot_path=args.snapshot,
     )
