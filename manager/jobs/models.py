@@ -736,12 +736,22 @@ class Job(models.Model):
             return message
         elif self.status == JobStatus.RECEIVED.value:
             return "{subject} is starting.".format(subject=subject)
-        elif self.status in [JobStatus.STARTED.value, JobStatus.RUNNING.value]:
+        elif self.status == JobStatus.STARTED.value:
+            if self.method == JobMethod.session.value:
+                # Sessions can take some time between `STARTED` and
+                # `RUNNING`. e.g. to pull images etc. So report these
+                # as "is starting" still.
+                return "Session is starting"
+            else:
+                # Many jobs do not emit a `RUNNING` state so
+                # report these as "has started"
+                return "{subject} has started.".format(subject=subject)
+        elif self.status == JobStatus.RUNNING.value:
             return "{subject} is running.".format(subject=subject)
         elif self.status == JobStatus.SUCCESS.value:
-            return "{subject} finished.".format(subject=subject)
+            return "{subject} has finished.".format(subject=subject)
         elif self.status == JobStatus.FAILURE.value:
-            return "{subject} failed.".format(subject=subject)
+            return "{subject} has failed.".format(subject=subject)
         elif self.status in [
             JobStatus.CANCELLED.value,
             JobStatus.REVOKED.value,
