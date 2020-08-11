@@ -181,9 +181,16 @@ class Prod(Configuration):
 
     # Store session data in signed cookies (alternatives include DB or cache)
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+    # Extend age of cookie from default 2 weeks to avoid users having to
+    # sign in again and potentially use a different authentication method.
+    SESSION_COOKIE_AGE = 31536000  # A year in seconds.
     # Allow session cookies to be sent from other domains.
     # CORS restrictions elsewhere limit this to ACCOUNTS_DOMAIN
+    # TODO: Change this to the string `None` when upgraded to Django 3.1
+    # https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-SESSION_COOKIE_SAMESITE
     SESSION_COOKIE_SAMESITE = None
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = True
 
     # Authentication
     # https://docs.djangoproject.com/en/3.0/ref/settings/#auth
