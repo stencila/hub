@@ -176,6 +176,11 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
+                            "startupProbe": {
+                                "tcpSocket": {"port": port},
+                                "failureThreshold": 30,
+                                "periodSeconds": 1,
+                            },
                             "volumeMounts": volume_mounts,
                             "workingDir": working_dir,
                         }
