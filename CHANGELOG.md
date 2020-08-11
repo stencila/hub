@@ -1,3 +1,12 @@
+## [3.25.6](https://github.com/stencila/hub/compare/v3.25.5...v3.25.6) (2020-08-11)
+
+
+### Bug Fixes
+
+* **Jobs:** Improve session status messages. ([68fff44](https://github.com/stencila/hub/commit/68fff44f60253c6bd9877f18bb4e1559138a0643)), closes [#603](https://github.com/stencila/hub/issues/603)
+* **Manager:** Allow credentials in cross-origin requests ([82af7d4](https://github.com/stencila/hub/commit/82af7d4341c0ee2fd50ba5a4f4f4f4b577155ff5))
+* **Manager:** Allow session cookie from other site ([a7e9187](https://github.com/stencila/hub/commit/a7e9187941e14f759cc4f3c165b15f72c36177e4))
+
 ## [3.25.5](https://github.com/stencila/hub/compare/v3.25.4...v3.25.5) (2020-08-10)
 
 
