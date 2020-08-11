@@ -181,6 +181,9 @@ class Prod(Configuration):
 
     # Store session data in signed cookies (alternatives include DB or cache)
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+    # Allow session cookies to be sent from other domains.
+    # CORS restrictions elsewhere limit this to ACCOUNTS_DOMAIN
+    SESSION_COOKIE_SAMESITE = None
 
     # Authentication
     # https://docs.djangoproject.com/en/3.0/ref/settings/#auth
