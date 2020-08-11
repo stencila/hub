@@ -25,7 +25,13 @@ def set_last_provider(sender, request, response, user, **kwargs):
     to encourage the user to use the same provider again.
     """
     if "sociallogin" in kwargs:
-        response.set_cookie("auth_provider", kwargs["sociallogin"].account.provider)
+        response.set_cookie(
+            "auth_provider",
+            kwargs["sociallogin"].account.provider,
+            max_age=315360000,  # Ten years in seconds.
+            secure=True,
+            httponly=True,
+        )
 
 
 user_logged_in.connect(set_last_provider)
