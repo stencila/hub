@@ -5,7 +5,15 @@ from typing import List, Optional
 
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import exceptions, mixins, permissions, status, views, viewsets
+from rest_framework import (
+    exceptions,
+    mixins,
+    permissions,
+    status,
+    throttling,
+    views,
+    viewsets,
+)
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -365,6 +373,24 @@ class WorkersViewSet(viewsets.GenericViewSet):
         return Response()
 
 
+class ProjectsJobsGetAnonThrottle(throttling.AnonRateThrottle):
+    """
+    Throttle for anonymous users for getting a job.
+
+    This rate is higher than the default to allow for polling of jobs status.
+    """
+
+    rate = "3600/hour"  # Allows for one request per second
+
+
+class ProjectsJobsGetUserThrottle(throttling.UserRateThrottle):
+    """
+    Throttle for authenticated users for getting a job.
+    """
+
+    rate = "10000/hour"
+
+
 class ProjectsJobsViewSet(
     HtmxListMixin,
     HtmxCreateMixin,
@@ -393,6 +419,18 @@ class ProjectsJobsViewSet(
         if self.action in self.actions_key_required:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+
+    def get_throttles(self):
+        """
+        Get the throttles to apply to the current request.
+        """
+        if self.action == "get":
+            return [
+                ProjectsJobsGetAnonThrottle()
+                if self.request.user.is_anonymous
+                else ProjectsJobsGetUserThrottle()
+            ]
+        return super().get_throttles()
 
     def get_project(self) -> Project:
         """
