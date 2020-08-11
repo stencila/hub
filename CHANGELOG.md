@@ -1,3 +1,14 @@
+## [3.25.7](https://github.com/stencila/hub/compare/v3.25.6...v3.25.7) (2020-08-11)
+
+
+### Bug Fixes
+
+* **Jobs:** Increase throlling rates for API requests to GET project jobs ([6a76731](https://github.com/stencila/hub/commit/6a76731fd964cee081ce8ff90b4506aae1b40638))
+* **Jobs:** Tweaks to status message ([d918009](https://github.com/stencila/hub/commit/d9180097b74e893840433455296a044c9bdb6601))
+* **Kubernetes session:** Add a startup probe ([04cb9e0](https://github.com/stencila/hub/commit/04cb9e06e15b09c56264f413d0e4509f0ae454e6))
+* **Manager:** Further updates to session cookie sessions ([52713b6](https://github.com/stencila/hub/commit/52713b6842ff331acd5c4025607608303502fc88))
+* **Users:** Do not expire the auth_provider cookie ([9301848](https://github.com/stencila/hub/commit/93018482b918c78f009e2194c70d82345639bb64))
+
 ## [3.25.6](https://github.com/stencila/hub/compare/v3.25.5...v3.25.6) (2020-08-11)
 
 
