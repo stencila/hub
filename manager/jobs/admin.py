@@ -20,6 +20,7 @@ class JobAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "project_id",
+        "creator",
         "created",
         "began",
         "ended",
@@ -28,6 +29,7 @@ class JobAdmin(admin.ModelAdmin):
         "queue_id",
         "worker",
     ]
+    list_select_related = ["creator"]
     list_filter = ["status", "method"]
     show_full_result_count = False
 

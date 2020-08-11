@@ -11,6 +11,7 @@ from django.core import validators
 from django.db import models
 from django.http import HttpRequest
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django_celery_beat.models import PeriodicTask
 from jsonfallback.fields import FallbackJSONField
 
@@ -712,17 +713,47 @@ class Job(models.Model):
 
     callback_object = GenericForeignKey("callback_type", "callback_id")
 
-    @property
+    @cached_property
     def status_message(self) -> str:
         """
         Generate a message for users describing the status of the job.
         """
+        subject = "Session" if self.method == JobMethod.session.value else self.method
         if self.status == JobStatus.DISPATCHED.value:
-            return "Job is queued at position {}".format(self.position)
-        else:
-            return "Job is {}".format(self.status.lower())
+            queue_priority = self.queue.priority
+            if queue_priority < 1:
+                priority = "low"
+            elif queue_priority >= 2:
+                priority = "high"
+            else:
+                priority = "medium"
 
-    @property
+            message = "{subject} is in position {position} on a {priority} priority queue.".format(
+                subject=subject, position=self.position, priority=priority
+            )
+            if self.creator is None and priority != "high":
+                message += " Sign in for higher priority."
+            return message
+        elif self.status == JobStatus.RECEIVED.value:
+            return "{subject} is starting.".format(subject=subject)
+        elif self.status in [JobStatus.STARTED.value, JobStatus.RUNNING.value]:
+            return "{subject} is running.".format(subject=subject)
+        elif self.status == JobStatus.SUCCESS.value:
+            return "{subject} finished.".format(subject=subject)
+        elif self.status == JobStatus.FAILURE.value:
+            return "{subject} failed.".format(subject=subject)
+        elif self.status in [
+            JobStatus.CANCELLED.value,
+            JobStatus.REVOKED.value,
+            JobStatus.TERMINATED.value,
+        ]:
+            return "{subject} was cancelled.".format(subject=subject)
+        else:
+            return "{subject} is {status}.".format(
+                subject=subject, status=self.status.lower()
+            )
+
+    @cached_property
     def summary_string(self) -> str:
         """
         Get a short textual summary of the job.
@@ -744,7 +775,7 @@ class Job(models.Model):
 
         return summary
 
-    @property
+    @cached_property
     def position(self):
         """
         Position of the job in the queue.
@@ -753,10 +784,15 @@ class Job(models.Model):
         job and that have no `ended` date.
         """
         return (
-            Job.objects.filter(created__lt=self.created, ended__isnull=True).count() + 1
+            Job.objects.filter(
+                queue=self.queue,
+                created__lt=self.created,
+                status=JobStatus.DISPATCHED.value,
+            ).count()
+            + 1
         )
 
-    @property
+    @cached_property
     def runtime_seconds(self) -> float:
         """
         Get the runtime in seconds.
@@ -768,7 +804,7 @@ class Job(models.Model):
         else:
             return (timezone.now() - self.created).seconds
 
-    @property
+    @cached_property
     def runtime_formatted(self) -> Optional[str]:
         """
         Format the runtime into a format that can be printed to the screen.
