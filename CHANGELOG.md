@@ -1,3 +1,10 @@
+## [3.25.10](https://github.com/stencila/hub/compare/v3.25.9...v3.25.10) (2020-08-12)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Check for container statuses ([506b8fc](https://github.com/stencila/hub/commit/506b8fc57c424540fb2908a9da75c9d7a234a639))
+
 ## [3.25.9](https://github.com/stencila/hub/compare/v3.25.8...v3.25.9) (2020-08-12)
 
 
