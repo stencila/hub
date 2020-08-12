@@ -160,7 +160,7 @@ fi
                 "apiVersion": "v1",
                 "kind": "Pod",
                 "metadata": {
-                    "name": self.pod_name, 
+                    "name": self.pod_name,
                     "labels": {
                         "method": "session",
                         # Currently not applying this label because network
