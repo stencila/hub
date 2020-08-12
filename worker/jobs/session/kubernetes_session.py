@@ -97,7 +97,7 @@ class KubernetesSession(Job):
         snapshot_path = kwargs.get("snapshot_path")
 
         # Use short timeout and timelimit defaults
-        timeout = kwargs.get("timeout") or (15 * 60)
+        timeout = kwargs.get("timeout") or (10 * 60)
         timelimit = kwargs.get("timelimit") or (60 * 60)
 
         # Update the job with a custom state to indicate
@@ -159,7 +159,17 @@ fi
             body={
                 "apiVersion": "v1",
                 "kind": "Pod",
-                "metadata": {"name": self.pod_name, "app": "session"},
+                "metadata": {
+                    "name": self.pod_name, 
+                    "labels": {
+                        "method": "session",
+                        # Currently not applying this label because network
+                        # egress is necessary for the init container
+                        # This may become a separate service which is allowed in the
+                        # network policy.
+                        # "networkPolicy": "egress-denied"
+                    },
+                },
                 "spec": {
                     "initContainers": init_containers,
                     "containers": [
@@ -178,7 +188,7 @@ fi
                             "ports": [{"containerPort": port}],
                             "startupProbe": {
                                 "tcpSocket": {"port": port},
-                                "failureThreshold": 30,
+                                "failureThreshold": 60,
                                 "periodSeconds": 1,
                             },
                             "volumeMounts": volume_mounts,
