@@ -231,7 +231,12 @@ fi
             # The Python API `V1ContainerStatus` does not expose `started`
             # so we use `ready` and a `readinessProbe` (above).
             phase = pod.status.phase
-            ready = pod.status.container_statuses[0].ready
+            ready = (
+                pod.status.container_statuses
+                and len(pod.status.container_statuses)
+                and pod.status.container_statuses[0].ready
+                or False
+            )
             if phase == "Running" and ready:
                 break
             time.sleep(0.25)
