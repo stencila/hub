@@ -89,7 +89,7 @@ class KubernetesSession(Job):
 
         environ = kwargs.get("environ")
         if environ is None:
-            environ = "stencila/executa"
+            environ = "stencila/executa-midi"
             logger.warning("Using default environment")
 
         # The snapshot directory to use as the working directory
