@@ -1,3 +1,10 @@
+## [3.25.9](https://github.com/stencila/hub/compare/v3.25.8...v3.25.9) (2020-08-12)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Keep track of readiness probe ([aed5069](https://github.com/stencila/hub/commit/aed5069c1bd5dec2406e4dad981b9693242f3418))
+
 ## [3.25.8](https://github.com/stencila/hub/compare/v3.25.7...v3.25.8) (2020-08-12)
 
 
