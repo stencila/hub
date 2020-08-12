@@ -1,3 +1,12 @@
+## [3.25.8](https://github.com/stencila/hub/compare/v3.25.7...v3.25.8) (2020-08-12)
+
+
+### Bug Fixes
+
+* **Nginx:** Increase job connection timeouts ([855a11a](https://github.com/stencila/hub/commit/855a11ad242e8cc93e5cff99207cf81de1cb9277))
+* **Worker:** Fix labels and alter some timeout defaults ([edea9b2](https://github.com/stencila/hub/commit/edea9b21cb3024fa247a560c3596e63c191060dd))
+* **Worker:** Use executa-midi as default image ([aca32b7](https://github.com/stencila/hub/commit/aca32b7438fd6113833b50b61dc68fdc0e84eb56))
+
 ## [3.25.7](https://github.com/stencila/hub/compare/v3.25.6...v3.25.7) (2020-08-11)
 
 
