@@ -1,3 +1,10 @@
+# [3.26.0](https://github.com/stencila/hub/compare/v3.25.10...v3.26.0) (2020-08-12)
+
+
+### Features
+
+* **Worker:** Allow queues to be configured as an environment variable ([e2e99f0](https://github.com/stencila/hub/commit/e2e99f0d1dc542d8be7659be22cd969fcdb7450a))
+
 ## [3.25.10](https://github.com/stencila/hub/compare/v3.25.9...v3.25.10) (2020-08-12)
 
 
