@@ -186,10 +186,11 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
-                            "startupProbe": {
+                            "readinessProbe": {
                                 "tcpSocket": {"port": port},
-                                "failureThreshold": 60,
+                                "initialDelaySeconds": 0,
                                 "periodSeconds": 1,
+                                "failureThreshold": 60,
                             },
                             "volumeMounts": volume_mounts,
                             "workingDir": working_dir,
@@ -226,7 +227,12 @@ fi
             pod = api_instance.read_namespaced_pod(
                 name=self.pod_name, namespace=namespace
             )
-            if pod.status.phase != "Pending":
+            # Check readiness of the container
+            # The Python API `V1ContainerStatus` does not expose `started`
+            # so we use `ready` and a `readinessProbe` (above).
+            phase = pod.status.phase
+            ready = pod.status.container_statuses[0].ready
+            if phase == "Running" and ready:
                 break
             time.sleep(0.25)
         ip = pod.status.pod_ip
