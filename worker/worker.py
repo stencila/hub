@@ -8,6 +8,7 @@ import os
 from typing import Type
 
 from celery import Celery
+from kombu import Queue
 
 from jobs.base.job import Job
 
@@ -22,15 +23,19 @@ from jobs.sleep import Sleep
 
 JOBS = [Archive, Clean, Convert, Decode, Encode, Pull, Session, Sleep]
 
-
 # Setup the Celery app
 # If CACHE_URL is not set then falls back to using the RPC backend.
 # RPC backend should only be used during development due to it's limitations
 # when using multiple `manager` processes.
 app = Celery(
-    "worker", broker=os.environ["BROKER_URL"], backend=os.getenv("CACHE_URL", "rpc://")
+    "worker", broker=os.environ["BROKER_URL"], backend=os.getenv("CACHE_URL", "rpc://"),
 )
 app.conf.update(
+    # List of queues to subscribe to
+    task_queues=[
+        Queue(queue, exchange=queue, routing_key=queue)
+        for queue in os.getenv("WORKER_QUEUES", "default").split(",")
+    ],
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
     # subsequent try (with a maximum of 3 seconds).
