@@ -150,7 +150,7 @@ def accept_invite_after_signup(sender, request, user, **kwargs):
     try:
         invite = Invite.objects.get(key=key)
     except Invite.DoesNotExist:
-        logger.warn("Could not find invite with key")
+        logger.warning("Could not find invite with key")
         return
 
     if not invite.completed:

@@ -318,7 +318,7 @@ class WorkersViewSet(viewsets.GenericViewSet):
                 )
                 worker.queues.add(queue)
         else:
-            logger.warn(
+            logger.warning(
                 "Worker does not appear to not be listening to any queues",
                 extra=dict(worker=worker.signature),
             )
