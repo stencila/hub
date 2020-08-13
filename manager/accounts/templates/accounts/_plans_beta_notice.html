@@ -1,0 +1,52 @@
+{% load i18n %}
+
+{% if account.tier.id == 1 %}
+<div class="message is-warning mb-0">
+  <p class="message-header has-text-weight-bold">
+    <span>
+      <span class="icon"><i class="ri-seedling-line"></i></span>
+      <span>{% trans "You are on the Waiting List" %}</span>
+    </span>
+  </p>
+  <div class="message-body">
+    <p>
+      We are periodically granting users full access to the platform, and will be reaching
+      out to you by email as soon as we are ready to have you on board.
+    </p>
+  </div>
+</div>
+
+{% elif user.is_anonymous %}
+
+<div class="message is-warning">
+  <div class="message-body">
+    <p class="has-text-weight-bold">
+      <span>
+        <span class="icon"><i class="ri-broadcast-line"></i></span>
+        <span>Stencila is in active beta</span>
+      </span>
+    </p>
+    <p>
+      While we are still in refining the platform, new accounts will be placed on a limited Waiting list plan.
+    </p>
+    <p class="is-italic">
+      Accounts under the Waiting List plan cannot create projects.
+    </p>
+
+    <p class="mt-3">
+      We are actively working on expanding features, and will periodically promote users to the Free plan.
+    </p>
+
+    {% if user.is_anonymous %}
+    <p>
+      Sign up to collaborate with existing projects, and we’ll invite you to create projects of your own as soon as
+      we’re ready.
+    </p>
+    {% endif %}
+
+    <p class="mt-3">
+      If you have a project you think would be a good fit for early access, <a href="#">please reach out</a>.
+    </p>
+  </div>
+</div>
+{% endif %}

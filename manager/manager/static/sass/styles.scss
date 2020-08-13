@@ -152,6 +152,11 @@ body {
   // Customize Bulma: below tablet breakpoint
   // =============================================================================
   // Typography customization
+  .is-size-1,
+  .title.is-1 {
+    font-size: 2rem !important;
+  }
+
   .title,
   .is-size-3,
   .title.is-3 {
@@ -543,6 +548,14 @@ body {
 
 .align-items-flex-start {
   align-items: flex-start;
+}
+
+.justify-content-flex-start {
+  justify-content: flex-start;
+}
+
+.flex-grow {
+  flex-grow: 1;
 }
 
 .expand-link {

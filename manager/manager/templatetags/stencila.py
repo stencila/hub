@@ -133,10 +133,35 @@ def split_text(text, length=280):
     Given a string, split it into two at the given length.
     """
     return [text[:length], text[length:]]
-    # if (tail == ""):
-    #     return 'nope'
-    # else:
-    #     return head + '<span class="more">' + tail + "</span>"
+
+
+@register.filter
+def tier_count(count):
+    """
+    If a tier quota is 9999, treat it as unlimited.
+    """
+    if count == 9999:
+        return "Unlimited"
+    else:
+        return count
+
+
+@register.simple_tag
+def pricing_dict(plan_id):
+    """
+    Provide a dictionary, keyed by Account Tier ID, of plan prices and summary text.
+
+    Used in `_plans_table.html`
+    """
+    plans = {
+        2: {"summary": "Explore the capabilities of Stencila", "price": 0},
+        3: {"summary": "The complete reproducible research toolkit", "price": 39},
+        4: {
+            "summary": "Work on heavy computational projects with colleagues",
+            "price": 399,
+        },
+    }
+    return plans.get(plan_id)
 
 
 # fmt: off

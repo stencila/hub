@@ -17,6 +17,7 @@ class RootPaths(enum.Enum):
     me = "me"
     open = "open"
     orgs = "orgs"
+    pricing = "pricing"
     projects = "projects"
     robots = "robots.txt"
     static = "static"

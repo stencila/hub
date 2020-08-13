@@ -1,4 +1,4 @@
-{% load i18n static intercom waffle_tags %}
+{% load i18n static stencila intercom waffle_tags %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -160,6 +160,12 @@
               </div>
               {% endif %}
             </div>
+
+            {% if user.is_anonymous %}
+            <a class="navbar-item {% is_active 'pricing' %}" href="{% url 'pricing' %}">
+              <span>{% trans "Pricing" %}</span>
+            </a>
+            {% endif %}
           </div>
           <div class="navbar-end">
 

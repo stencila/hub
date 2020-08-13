@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.views.defaults import page_not_found, permission_denied
 from sentry_sdk import last_event_id
 
+from accounts.models import AccountTier
 from manager.api.exceptions import AccountQuotaExceeded
 
 
@@ -39,6 +40,16 @@ def home(request: HttpRequest) -> HttpResponse:
 
     # Unauthenticated users get redirected to the project listing page
     return redirect("ui-projects-list")
+
+
+def pricing(request: HttpRequest) -> HttpResponse:
+    """
+    Pricing page view.
+
+    Served at /pricing/
+    """
+    tiers = AccountTier.objects.all()
+    return render(request, "accounts/plans.html", dict(tiers=tiers))
 
 
 def favicon(request: HttpRequest) -> HttpResponse:

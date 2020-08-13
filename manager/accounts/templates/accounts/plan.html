@@ -127,101 +127,10 @@
 
 <hr />
 
-<h2 class="title">Plans<h2>
+<h2 class="title mb-0 mt-5">Plans</h2>
 
-    <div class="message is-info">
-      <p class="message-header">
-        <span class="icon"><i class="ri-broadcast-line"></i></span>
-        <span>Higher limits and more plans soon!</span>
-      </p>
-      <p class="message-body">
-        While we are still in development, there are only two plans:
-        a "Waiting List" plan (which does not let you do much) and a "Team" plan
-        (for our beta-testers to test things out with).
-        Stay tuned for more plans and higher limits soon. We'll be moving
-        you off the waiting list when things are more stable.
-      </p>
-    </div>
+{% include './_plans_beta_notice.html' %}
 
-    <ul class="columns is-multiline is-variable is-2 pricing-table mt-4">
-      {% for tier in tiers %}
-      {% if tier.active %}
-      <li class="column is-one-third pb-0">
-        <figure class="is-size-5 pricing-table__item">
-          <h2 class="has-text-centered title is-4">{% trans tier.name %}</h2>
+{% include './_plans_table.html' %}
 
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
-            <span>
-              {{ tier.projects_private }} {% trans "Private projects" %}
-            </span>
-          </p>
-
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-global-line"></i></span>
-            <span>
-              {{ tier.projects_public }} {% trans "Public projects" %}
-            </span>
-          </p>
-
-          {% if account.is_organization %}
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-user-line"></i></span>
-            <span>
-              {{ tier.account_users }} {% trans "Users" %}
-            </span>
-          </p>
-
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
-            <span>
-              {{ tier.account_teams }} {% trans "Teams" %}
-            </span>
-          </p>
-          {% endif %}
-
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-database-2-line"></i></span>
-            <span>
-              {{ tier.storage_working }}GB {% trans "Project storage" %}
-            </span>
-          </p>
-
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-archive-line"></i></span>
-            <span>
-              {{ tier.storage_snapshots }}GB {% trans "Snapshot storage" %}
-            </span>
-            <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
-                  data-tooltip="{% trans "Snapshots are versioned archives of a project" %}">
-              <i class="ri-question-line"></i>
-            </span>
-          </p>
-
-          <p>
-            <span class="icon has-text-grey-light"><i class="ri-timer-line"></i></span>
-            <span>
-              {{ tier.job_runtime_month|intcomma }} {% trans "Job minutes" %}
-            </span>
-            <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
-                  data-tooltip="{% trans fields.job_runtime_month.help_text %}">
-              <i class="ri-question-line"></i>
-            </span>
-          </p>
-
-          <button class="button is-fullwidth is-primary mt-4" has-tooltip-bottom has-tooltip-text-centered image-tooltip
-                  data-tooltip="{% trans 'Coming soon!' %}" disabled
-                  {% if tier.id == account.tier.id %}disabled{% endif %}>
-            {% if tier.id == account.tier_id %}
-            Your current plan
-            {% else %}
-            Switch to {{ tier.name }}
-            {% endif %}
-          </button>
-        </figure>
-      </li>
-      {% endif %}
-      {% endfor %}
-    </ul>
-
-    {% endblock %}
+{% endblock %}
