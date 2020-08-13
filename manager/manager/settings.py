@@ -548,6 +548,9 @@ class Dev(Local):
     # Additional apps only used in development
     INSTALLED_APPS = Prod.INSTALLED_APPS + ["debug_toolbar", "django_extensions"]
 
+    # Allow session cookie to be sent over HTTP
+    SESSION_COOKIE_SECURE = False
+
     # Required for debug_toolbar
     INTERNAL_IPS = "127.0.0.1"
 
