@@ -126,6 +126,7 @@ def file_format_icon(format_id=None, mimetype=None):
     except ValueError:
         return FileFormat.default_icon_class()
 
+
 @register.filter
 def split_text(text, length=280):
     """
@@ -136,6 +137,7 @@ def split_text(text, length=280):
     #     return 'nope'
     # else:
     #     return head + '<span class="more">' + tail + "</span>"
+
 
 # fmt: off
 
