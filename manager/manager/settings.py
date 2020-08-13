@@ -504,13 +504,21 @@ class Prod(Configuration):
 
         #  Setup sentry if a DSN is provided
         if cls.SENTRY_DSN:
+            import logging
             import sentry_sdk
             from sentry_sdk.integrations.django import DjangoIntegration
+            from sentry_sdk.integrations.logging import LoggingIntegration
 
             sentry_sdk.init(
                 dsn=cls.SENTRY_DSN,
                 release="hub@{}".format(__version__),
-                integrations=[DjangoIntegration()],
+                integrations=[
+                    DjangoIntegration(),
+                    LoggingIntegration(
+                        level=logging.INFO,        # Capture info and above as breadcrumbs
+                        event_level=logging.WARNING  # Send warnings and errors as events
+                    ),
+                ],
                 send_default_pii=True,
                 environment=cls.DEPLOYMENT_ENVIRONMENT,
             )
