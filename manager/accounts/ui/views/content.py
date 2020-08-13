@@ -11,6 +11,8 @@ from django.utils import timezone
 from accounts.models import Account
 from accounts.quotas import AccountQuotas
 from jobs.models import JobStatus
+from manager import themes
+from manager.version import __version__
 from projects.models.files import File, FileDownloads
 from projects.models.projects import Project, ProjectLiveness
 from projects.models.snapshots import Snapshot
@@ -269,20 +271,42 @@ def index_html(
     """
     Augment a index.html file.
 
-    Adds necessary headers and injects content
-    required to connect to a session.
+    Adds necessary headers and injects content required to
+    connect to a session, and monitor errors.
     """
-    toolbar = """
+    # Pin the version of Thema to avoid redirects to NPM which can slow
+    # page load times down substantially
+    html = html.replace(
+        b"https://unpkg.com/@stencila/thema@2/dist/themes/",
+        "https://unpkg.com/@stencila/thema@{version}/dist/themes/".format(
+            version=themes.version
+        ).encode(),
+    )
+
+    # Add Sentry for error monitoring
+    if settings.SENTRY_DSN:
+        html = html.replace(
+            b"</head>",
+            """  <script
+        src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js"
+        integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo"
+        crossorigin="anonymous"></script>
+    <script>Sentry.init({{ dsn: '{dsn}', release: 'hub@{version}' }});</script>
+  </head>""".format(
+                dsn=settings.SENTRY_DSN, version=__version__
+            ).encode(),
+        )
+
+    # Add a <stencila-executable-document-toolbar> element
+    html = html.replace(
+        b'data-itemscope="root">',
+        """data-itemscope="root">
         <stencila-executable-document-toolbar
             source-url="{source_url}"
             session-provider-url="{session_provider_url}"
-        >
-        </stencila-executable-document-toolbar>
-    """.format(
-        source_url=source_url, session_provider_url=session_provider_url
-    )
-    html = html.replace(
-        b'data-itemscope="root">', b'data-itemscope="root">' + toolbar.encode()
+        ></stencila-executable-document-toolbar>""".format(
+            source_url=source_url, session_provider_url=session_provider_url
+        ).encode(),
     )
 
     response = HttpResponse(html)
