@@ -188,3 +188,28 @@ a.job-list--id {
   height: calc(100vh - 6rem);
   width: 100%;
 }
+
+// =============================================================================
+// Sharing                                                                      
+// =============================================================================
+
+.project-sharing-menu {
+  flex-wrap: wrap;
+
+  .level-left,
+  .level-right {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  input[type="checkbox"].toggle.is-inline + label {
+    height: 1.5em;
+  }
+
+  // Public URL link div
+  .level-right + div {
+    text-align: right;
+    overflow: auto;
+    width: 100%;
+  }
+}

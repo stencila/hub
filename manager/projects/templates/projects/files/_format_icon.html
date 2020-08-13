@@ -2,7 +2,7 @@
 {% comment %}
 Renders the icon class name to use for a source based on its mimetype.
 {% endcomment %}
-<span class="has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom"
+<span class="icon has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom"
       {% if tooltip %}data-tooltip="{{ tooltip }}" {% endif %}>
   <i class="{% file_format_icon format mimetype %}"></i>
 </span>

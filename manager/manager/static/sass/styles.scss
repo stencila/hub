@@ -126,6 +126,27 @@ body {
   overflow-x: hidden;
 }
 
+.layout-header:empty {
+  display: none !important;
+
+  & + .columns {
+    margin-top: $block-spacing * -1;
+  }
+}
+
+.level-item:empty {
+  outline: 1px solid red;
+}
+
+.level-left {
+  &.is-hidden,
+  &.is-hidden-mobile {
+    & + .level-right {
+      margin-top: 0;
+    }
+  }
+}
+
 @media screen and (max-width: $tablet) {
   // =============================================================================
   // Customize Bulma: below tablet breakpoint
@@ -137,6 +158,16 @@ body {
     font-size: 1.125rem;
   }
 
+  .is-4,
+  .is-size-4,
+  .title.is-4 {
+    font-size: 1rem;
+
+    & + .subtitle {
+      font-size: 1rem;
+    }
+  }
+
   // Add full-width buttons only at mobile breakpoints
   .buttons .button.is-fullwidth-mobile {
     margin-right: 0 !important;
@@ -146,14 +177,14 @@ body {
   .select.is-small-mobile,
   .button.is-small-mobile {
     border-radius: 2px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .control.has-icons-left .input.is-small-mobile ~ .icon,
   .control.has-icons-left .select.is-small-mobile ~ .icon,
   .control.has-icons-right .input.is-small-mobile ~ .icon,
   .control.has-icons-right .select.is-small-mobile ~ .icon {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .button.is-fullwidth-mobile {
@@ -270,6 +301,17 @@ body {
       order: 2;
       margin-top: $gap / 2;
     }
+
+    .level-right {
+      margin-top: 0;
+    }
+  }
+
+  .level-left.buttons,
+  .level-right.buttons {
+    .button {
+      margin-bottom: 0;
+    }
   }
 
   .has-flex-justify-content-space-between-mobile {
@@ -283,9 +325,22 @@ body {
   // ===========================================================================
   // Custom elements: mobile breakpoint
   // ===========================================================================
-  .sidebar__start {
+
+  .layout-header {
+    margin: -2.75rem ($gap / 2 * -1) 0 ($gap / 2 * -1);
+    border-bottom: 1px solid $white-ter;
+
+    & + .columns {
+      margin-top: 0;
+    }
+  }
+
+  .container > .columns:first > .sidebar__start {
     margin-top: -2.75rem;
-    padding: ($gap / 4) 0 0;
+  }
+
+  .sidebar__start {
+    padding: 0;
   }
 
   .sidebar__header {
@@ -388,6 +443,10 @@ body {
   height: 0.5em;
   margin-top: -0.35em;
   width: 0.5em;
+}
+
+.level .buttons {
+  align-items: flex-start;
 }
 
 .level .level-left,
@@ -502,6 +561,15 @@ body {
 
 .is-underlined {
   text-decoration: underline;
+}
+
+.title.secondary {
+  color: $grey-dark;
+  margin-bottom: 0;
+}
+
+.leading-none {
+  line-height: 1;
 }
 
 .leading-loose {

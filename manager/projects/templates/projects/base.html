@@ -1,6 +1,5 @@
 {% extends 'base_full.html' %}
-{% load i18n %}
-{% load stencila %}
+{% load i18n stencila static %}
 
 {% block sidebar_start %}
 <div class="sidebar__header">
@@ -121,7 +120,6 @@
 
 {% block hide_sidebar_end %}
 {% endblock %}
-
 
 {% block layout_content %}
 {% block projects_content %}{% endblock %}

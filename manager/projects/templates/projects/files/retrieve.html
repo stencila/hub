@@ -14,7 +14,6 @@
   </div>
 
   <div class="level-right buttons">
-
     {% with download_url=file.download_url %}
     {% if download_url %}
     <a class="level-item button is-outlined is-small-mobile is-expanded-mobile" href="{{ download_url }}">
@@ -67,7 +66,7 @@
 </div>
 
 {% flag 'ui-pipelines' %}
-<h1 class="title is-5">Pipeline</h1>
+<h2 class="title is-5">Pipeline</h2>
 
 <ol>
   {% for upstream in upstreams %}
@@ -109,7 +108,6 @@
 
 {% with highlight_url=file.highlight_url %}
 {% if highlight_url %}
-<h1 class="title is-5">Content</h1>
 <iframe src="{{ file.highlight_url }}" class="snapshot--preview">
 </iframe>
 
@@ -117,9 +115,9 @@
 {% endif %}
 {% endwith %}
 
-<h1 class="title is-5">History</h1>
+<h2 class="title is-5">History</h2>
 
-<table class="table is-fullwidth is-striped is-hoverable">
+<table class="table is-fullwidth is-striped is-hoverable leading-none">
   <thead>
     <tr class="table-header">
       <th>
@@ -136,7 +134,7 @@
         </span>
       </th>
       {% flag 'ui-pipelines' %}
-      <th>
+      <th class="is-sr-only-mobile">
         <span class="icon">
           <i class="ri-guide-line"></i>
         </span>
@@ -145,10 +143,10 @@
         </span>
       </th>
       {% endflag %}
-      <th>
+      <th class="is-sr-only-mobile">
         {% trans "Type" %}
       </th>
-      <th>
+      <th class="is-sr-only-mobile">
         <span class="icon">
           <i class="ri-database-2-line"></i>
         </span>
@@ -156,7 +154,7 @@
           {% trans "Size" %}
         </span>
       </th>
-      <th class="is-vcentered">
+      <th class="is-vcentered is-sr-only-mobile">
         <span class="icon">
           <i class="ri-fingerprint-line"></i>
         </span>
@@ -199,7 +197,7 @@
         {% endif %}
       </td>
       {% flag 'ui-pipelines' %}
-      <td class="is-vcentered">
+      <td class="is-vcentered is-sr-only-mobile">
         {% if source %}
         <a href="{% url 'ui-projects-sources-retrieve' account.name project.name source.address %}"
            class="has-text-black has-text-link-hover">
@@ -223,7 +221,7 @@
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.size|format_bytes }}
       </td>
-      <td>
+      <td class="is-sr-only-mobile">
         {{ file.fingerprint|truncatechars:12 }}
       </td>
       <td>
@@ -232,6 +230,8 @@
            class="has-text-black has-text-link-hover">
           # {{file.snapshot.number}}
         </a>
+        {% else %}
+        None
         {% endif %}
       </td>
     </tr>
