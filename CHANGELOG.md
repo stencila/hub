@@ -1,3 +1,15 @@
+# [3.27.0](https://github.com/stencila/hub/compare/v3.26.2...v3.27.0) (2020-08-13)
+
+
+### Bug Fixes
+
+* **UI:** Misc UI refinements ([7ef62a7](https://github.com/stencila/hub/commit/7ef62a768ebfee7f5ab3dc1cbba77aaebdf89cbf))
+
+
+### Features
+
+* **Projects:** Trim project descriptions with "read more" toggle ([7c39234](https://github.com/stencila/hub/commit/7c392345f5031e95ebc399ac767f78de708a7e62))
+
 ## [3.26.2](https://github.com/stencila/hub/compare/v3.26.1...v3.26.2) (2020-08-13)
 
 
