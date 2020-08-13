@@ -294,9 +294,8 @@ def index_html(
         "Content-Security-Policy"
     ] = "frame-ancestors 'self' *.stenci.la {};".format(hosts)
     # `X-Frame-Options` for older browsers (only allows one value, so use first)
-    response["X-Frame-Options"] = "allow-from {}".format(
-        hosts.split()[:1] or "*.stenci.la"
-    )
+    first = hosts.split()[0] if hosts.split() else "*.stenci.la"
+    response["X-Frame-Options"] = "allow-from {}".format(first)
 
     return response
 
