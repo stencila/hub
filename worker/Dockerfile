@@ -71,7 +71,6 @@ RUN mkdir -p working snapshots
 ENTRYPOINT ["/home/worker/entrypoint.sh"]
 CMD celery worker --app worker \
                   --hostname worker@$(hostname) \
-                  --queues default \
                   --concurrency=4 \
                   --events \
                   --heartbeat-interval=60
