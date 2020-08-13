@@ -1,3 +1,10 @@
+## [3.26.2](https://github.com/stencila/hub/compare/v3.26.1...v3.26.2) (2020-08-13)
+
+
+### Bug Fixes
+
+* **Account content:** Do not use slice for setting header ([eb733f6](https://github.com/stencila/hub/commit/eb733f687282af962cfd662eee40b9ec67931a07))
+
 ## [3.26.1](https://github.com/stencila/hub/compare/v3.26.0...v3.26.1) (2020-08-13)
 
 
