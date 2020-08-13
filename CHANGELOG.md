@@ -1,3 +1,10 @@
+## [3.26.1](https://github.com/stencila/hub/compare/v3.26.0...v3.26.1) (2020-08-13)
+
+
+### Bug Fixes
+
+* **Worker:** Remove queues option in Dockerfile ([5bfdd59](https://github.com/stencila/hub/commit/5bfdd5999ba9be3b6db1df3f7ed916cb3f8e64f4))
+
 # [3.26.0](https://github.com/stencila/hub/compare/v3.25.10...v3.26.0) (2020-08-12)
 
 
