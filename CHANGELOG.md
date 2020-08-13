@@ -1,3 +1,11 @@
+## [3.27.1](https://github.com/stencila/hub/compare/v3.27.0...v3.27.1) (2020-08-13)
+
+
+### Bug Fixes
+
+* **Account content:** Pin Thema, add Sentry to index.html ([ca7176b](https://github.com/stencila/hub/commit/ca7176b88af144c516e64fafcf1e6e1775369bd6))
+* **Manager:** Allow HTTP session cookie during dev ([a5891be](https://github.com/stencila/hub/commit/a5891be909c0427361f75d888ce1faeec249f7b0))
+
 # [3.27.0](https://github.com/stencila/hub/compare/v3.26.2...v3.27.0) (2020-08-13)
 
 
