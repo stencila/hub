@@ -84,8 +84,6 @@ def dispatch_job(job: Job) -> Job:
         # order by descending priority
         queues = list(
             Queue.objects.filter(
-                Q(zone__account=job.project.account)
-                | Q(zone__account__name="stencila"),
                 workers__in=Worker.objects.filter(
                     # Has not finished
                     finished__isnull=True,
