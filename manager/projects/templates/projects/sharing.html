@@ -4,25 +4,11 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block projects_content %}
-<div class="level is-mobile">
-  <div class="level-left">
-    <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
-      <div class="level-left">
-        <h1 class="title level-item mb-0 is-sr-only-mobile">
-          {% trans "Sharing" %}
-        </h1>
-
-        <h2 class="title is-4 level-item mb-0 is-hidden-desktop">
-          {% trans "Public" %}
-        </h2>
-      </div>
-    </div>
-  </div>
-
-  <div class="level-right buttons has-flex-justify-content-end-mobile">
-    {% include "./_sharing_public_form.html" %}
-  </div>
+<div class="project-sharing-menu">
+  {% include "./_sharing_public_form.html" %}
 </div>
+
+<hr />
 
 <h2 class="title is-4">{% trans "Collaborators" %}</h2>
 
@@ -32,6 +18,7 @@
   <div class="control is-expanded">
     {% include "users/_search.html" with id_name="agent" %}
   </div>
+
   <div class="control is-expanded-mobile">
     <label class="label is-sr-only" for="projects-agents-add-role">{% trans "User role" %}</label>
     <div class="select">

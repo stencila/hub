@@ -8,127 +8,119 @@
 <h2 class="title">Usage</h2>
 
 <div class="columns">
-  <div class="column">
+  <div class="column pb-0">
+    <h3 class="title is-4">
+      <span class="icon">
+        <i class="ri-book-2-line"></i>
+      </span>
+      <span>
+        {{ fields.projects_private.verbose_name }}
+      </span>
+    </h3>
+
+    <p class="subtitle mb-2">
+      <span class="has-text-weight-normal">
+        {{ usage.projects_private.amount }} of {{ usage.projects_private.limit }}
+      </span>
+
+      <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+            data-tooltip="{{ fields.projects_private.help_text }}">
+        <i class="ri-question-line"></i>
+      </span>
+    </p>
+
     <div>
-      <h3 class="title is-4">
-        <span class="icon">
-          <i class="ri-book-2-line"></i>
-        </span>
-        <span>
-          {{ fields.projects_private.verbose_name }}
-        </span>
-      </h3>
-
-      <p class="subtitle mb-2">
-        <span class="has-text-weight-normal">
-          {{ usage.projects_private.amount }} of {{ usage.projects_private.limit }}
-        </span>
-
-        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
-              data-tooltip="{{ fields.projects_private.help_text }}">
-          <i class="ri-question-line"></i>
-        </span>
-      </p>
-
-      <div>
-        <progress class="progress is-vcentered is-primary" value="{{ usage.projects_private.amount }}"
-                  max="{{ usage.projects_private.limit }}">
-          {{ usage.projects_private.percent }}%
-        </progress>
-      </div>
+      <progress class="progress is-vcentered is-primary" value="{{ usage.projects_private.amount }}"
+                max="{{ usage.projects_private.limit }}">
+        {{ usage.projects_private.percent }}%
+      </progress>
     </div>
   </div>
 
-  <div class="column">
+  <div class="column pb-0">
+    <h3 class="title is-4">
+      <span class="icon">
+        <i class="ri-database-2-line"></i>
+      </span>
+      <span>
+        {{ fields.storage_working.verbose_name }}
+      </span>
+    </h3>
+
+    <p class="subtitle mb-2">
+      <span class="has-text-weight-normal">
+        {{ usage.storage_working.amount|floatformat:3 }}GB of {{ usage.storage_working.limit }}GB
+      </span>
+
+      <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+            data-tooltip="{{ fields.storage_working.help_text }}">
+        <i class="ri-question-line"></i>
+      </span>
+    </p>
+
     <div>
-      <h3 class="title is-4">
-        <span class="icon">
-          <i class="ri-database-2-line"></i>
-        </span>
-        <span>
-          {{ fields.storage_working.verbose_name }}
-        </span>
-      </h3>
-
-      <p class="subtitle mb-2">
-        <span class="has-text-weight-normal">
-          {{ usage.storage_working.amount|floatformat:3 }}GB of {{ usage.storage_working.limit }}GB
-        </span>
-
-        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
-              data-tooltip="{{ fields.storage_working.help_text }}">
-          <i class="ri-question-line"></i>
-        </span>
-      </p>
-
-      <div>
-        <progress class="progress is-vcentered is-primary" value="{{ usage.storage_working.amount }}"
-                  max="{{ usage.storage_working.limit }}">
-          {{ usage.storage_working.percent }}%
-        </progress>
-      </div>
+      <progress class="progress is-vcentered is-primary" value="{{ usage.storage_working.amount }}"
+                max="{{ usage.storage_working.limit }}">
+        {{ usage.storage_working.percent }}%
+      </progress>
     </div>
   </div>
 
-  <div class="column">
+  <div class="column pb-0">
+    <h3 class="title is-4">
+      <span class="icon">
+        <i class="ri-download-cloud-2-line"></i>
+      </span>
+      <span>
+        {{ fields.file_downloads_month.verbose_name }}
+      </span>
+    </h3>
+
+    <p class="subtitle mb-2">
+      <span class="has-text-weight-normal">
+        {{ usage.file_downloads_month.amount|floatformat:3 }}GB of {{ usage.file_downloads_month.limit }}GB
+      </span>
+
+      <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+            data-tooltip="{{ fields.file_downloads_month.help_text }}">
+        <i class="ri-question-line"></i>
+      </span>
+    </p>
+
     <div>
-      <h3 class="title is-4">
-        <span class="icon">
-          <i class="ri-download-cloud-2-line"></i>
-        </span>
-        <span>
-          {{ fields.file_downloads_month.verbose_name }}
-        </span>
-      </h3>
-
-      <p class="subtitle mb-2">
-        <span class="has-text-weight-normal">
-          {{ usage.file_downloads_month.amount|floatformat:3 }}GB of {{ usage.file_downloads_month.limit }}GB
-        </span>
-
-        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
-              data-tooltip="{{ fields.file_downloads_month.help_text }}">
-          <i class="ri-question-line"></i>
-        </span>
-      </p>
-
-      <div>
-        <progress class="progress is-vcentered is-primary" value="{{ usage.file_downloads_month.amount }}"
-                  max="{{ usage.file_downloads_month.limit }}">
-          {{ usage.file_downloads_month.percent }}%
-        </progress>
-      </div>
+      <progress class="progress is-vcentered is-primary" value="{{ usage.file_downloads_month.amount }}"
+                max="{{ usage.file_downloads_month.limit }}">
+        {{ usage.file_downloads_month.percent }}%
+      </progress>
     </div>
   </div>
 
-  <div class="column">
+  <div class="column pb-0">
+    <h3 class="title is-4">
+      <span class="icon">
+        <i class="ri-timer-2-line"></i>
+      </span>
+      <span>
+        {{ fields.job_runtime_month.verbose_name }}
+      </span>
+    </h3>
+
+    <p class="subtitle mb-2">
+      <span class="has-text-weight-normal">
+        {{ usage.job_runtime_month.amount|floatformat:1 }}mins of {{ usage.job_runtime_month.limit }}mins
+      </span>
+
+      <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
+            data-tooltip="{{ fields.job_runtime_month.help_text }}">
+        <i class="ri-question-line"></i>
+      </span>
+    </p>
+
     <div>
-      <h3 class="title is-4">
-        <span class="icon">
-          <i class="ri-timer-2-line"></i>
-        </span>
-        <span>
-          {{ fields.job_runtime_month.verbose_name }}
-        </span>
-      </h3>
-
-      <p class="subtitle mb-2">
-        <span class="has-text-weight-normal">
-          {{ usage.job_runtime_month.amount|floatformat:1 }}mins of {{ usage.job_runtime_month.limit }}mins
-        </span>
-
-        <span class="icon has-text-grey has-tooltip-bottom has-tooltip-text-centered is-vcentered"
-              data-tooltip="{{ fields.job_runtime_month.help_text }}">
-          <i class="ri-question-line"></i>
-        </span>
-      </p>
-
-      <div>
-        <progress class="progress is-vcentered is-primary" value="{{ usage.job_runtime_month.amount }}"
-                  max="{{ usage.job_runtime_month.limit }}">
-          {{ usage.job_runtime_month.percent }}%
-        </progress>
-      </div>
+      <progress class="progress is-vcentered is-primary" value="{{ usage.job_runtime_month.amount }}"
+                max="{{ usage.job_runtime_month.limit }}">
+        {{ usage.job_runtime_month.percent }}%
+      </progress>
     </div>
   </div>
 </div>
@@ -154,7 +146,7 @@
     <ul class="columns is-multiline is-variable is-2 pricing-table mt-4">
       {% for tier in tiers %}
       {% if tier.active %}
-      <li class="column is-one-third">
+      <li class="column is-one-third pb-0">
         <figure class="is-size-5 pricing-table__item">
           <h2 class="has-text-centered title is-4">{% trans tier.name %}</h2>
 

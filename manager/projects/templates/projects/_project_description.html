@@ -1,0 +1,27 @@
+{% load i18n stencila %}
+
+{% if project.description %}
+<p class="project-description">
+  {% spaceless %}
+    {% with head=project.description|split_text %}
+    <span class="intro">{{ head|first }}</span>
+
+    {% if head|last != "" %}
+      <span class="read-more">{{ head|last }}</span>
+      <a href="#" class="read-more-toggle">{% trans "Read more" %}…</a>
+    {% endif %}
+    {% endwith %}
+  {% endspaceless %}
+</p>
+{% elif project.role in 'MANAGER, OWNER' %}
+<p>
+  <a class="button is-white is-light is-small" href="{% url 'ui-projects-update' project.account.name project.name %}">
+    <span class="icon">
+      <i class="ri-add-line"></i>
+    </span>
+    <span>
+      {% trans "Add project description" %}
+    </span>
+  </a>
+</p>
+{% endif %}

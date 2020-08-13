@@ -1,8 +1,68 @@
 @import "./sources/index.scss";
 
-@media screen and (min-width: $tablet) {
-  .project-description {
-    padding-right: $gap;
+.project-description {
+  .intro {
+    display: block;
+    max-height: 8rem;
+    overflow: hidden;
+  }
+
+  .read-more {
+    display: none;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+  }
+
+  .read-more-toggle {
+    color: $grey;
+    display: block;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem 0;
+    line-height: 1;
+    position: relative;
+
+    &:focus,
+    &:hover {
+      color: $primary;
+      text-decoration: underline;
+    }
+
+
+    &:before {
+      background-image: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+      content: '';
+      height: 2rem;
+      left: 0;
+      position: absolute;
+      top: 0;
+      transform: translateY(-100%);
+      width: 100%;
+    }
+  }
+
+  &.is-active {
+    .intro {
+      display: inline;
+      max-height: none;
+      overflow: visible;
+    }
+
+    .read-more {
+      display: inline;
+      height: auto;
+      width: auto;
+      overflow: visible;
+    }
+
+    .read-more-toggle {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: $tablet) {
+      padding-right: $gap;
   }
 }
 
@@ -187,4 +247,29 @@ a.job-list--id {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
   height: calc(100vh - 6rem);
   width: 100%;
+}
+
+// =============================================================================
+// Sharing                                                                      
+// =============================================================================
+
+.project-sharing-menu {
+  flex-wrap: wrap;
+
+  .level-left,
+  .level-right {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  input[type="checkbox"].toggle.is-inline + label {
+    height: 1.5em;
+  }
+
+  // Public URL link div
+  .level-right + div {
+    text-align: right;
+    overflow: auto;
+    width: 100%;
+  }
 }
