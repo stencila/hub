@@ -1,26 +1,10 @@
 {% load i18n %}
 
 <div class="level align-items-flex-start">
-  <div class="level-left">
+  <div class="level-left is-hidden-mobile">
     <div class="level-item level is-flex has-flex-justify-content-space-between-mobile">
-      <div class="level-left project-description">
-        {% if project.description %}
-        <p>
-          {{ project.description }}
-        </p>
-        {% elif project.role in 'MANAGER, OWNER' %}
-        <p>
-          <a class="button is-white is-light is-small"
-             href="{% url 'ui-projects-update' project.account.name project.name %}">
-            <span class="icon">
-              <i class="ri-add-line"></i>
-            </span>
-            <span>
-              {% trans "Add project description" %}
-            </span>
-          </a>
-        </p>
-        {% endif %}
+      <div class="level-left">
+        {% include "./_project_description.html" %}
       </div>
     </div>
   </div>

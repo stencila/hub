@@ -126,6 +126,16 @@ def file_format_icon(format_id=None, mimetype=None):
     except ValueError:
         return FileFormat.default_icon_class()
 
+@register.filter
+def split_text(text, length=280):
+    """
+    Given a string, split it into two at the given length.
+    """
+    return [text[:length], text[length:]]
+    # if (tail == ""):
+    #     return 'nope'
+    # else:
+    #     return head + '<span class="more">' + tail + "</span>"
 
 # fmt: off
 

@@ -2,6 +2,7 @@
 import { enrichHTMXButtons } from "./buttons";
 import { initDropdowns } from "./dropdowns";
 import { initModals } from "./modals";
+import { readMoreToggle } from "./readMore";
 
 /**
  * Wait for document to be ready before calling the callback function.
@@ -24,6 +25,7 @@ const attachAllEventHandlers = () => {
   initDropdowns();
   initModals();
   enrichHTMXButtons();
+  readMoreToggle()
 };
 
 onReady(attachAllEventHandlers);

@@ -1,13 +1,24 @@
 {% extends 'base_full.html' %}
 {% load i18n stencila static %}
 
-{% block sidebar_start %}
-<div class="sidebar__header">
-  <h1 class="is-size-3 has-text-weight-bold">
+{% block header %}
+<div class="column">
+  <h1 class="title size-3">
     {{ project.title|default:project.name }}
   </h1>
 
-  {% if project.temporary %}
+  {% url 'ui-projects-files-list' project.account.name project.name as project_root%}
+  {% if request.path == project_root %}
+  <div class="is-hidden-tablet">
+    {% include "./_project_description.html" %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar_start %}
+{% if project.temporary %}
+<div class="sidebar__header">
   <a href="{% url 'ui-projects-claim' project.account.name project.name %}">
     <span class="tag is-warning is-light">
       <span class="icon">
@@ -18,10 +29,8 @@
       </span>
     </span>
   </a>
-  {% endif %}
-
-  <hr />
 </div>
+{% endif %}
 
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
