@@ -1,3 +1,10 @@
+## [3.27.2](https://github.com/stencila/hub/compare/v3.27.1...v3.27.2) (2020-08-14)
+
+
+### Bug Fixes
+
+* **Jobs:** Remove zone filters on queues ([cab70f9](https://github.com/stencila/hub/commit/cab70f98fca949c14c56990c4f3bf339cf45f720))
+
 ## [3.27.1](https://github.com/stencila/hub/compare/v3.27.0...v3.27.1) (2020-08-13)
 
 
