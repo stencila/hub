@@ -1,3 +1,10 @@
+# [3.28.0](https://github.com/stencila/hub/compare/v3.27.3...v3.28.0) (2020-08-14)
+
+
+### Features
+
+* **Router:** Increase upload file size limit ([2b95576](https://github.com/stencila/hub/commit/2b95576e1caed97c3f431beaa6e30898b6aa2997))
+
 ## [3.27.3](https://github.com/stencila/hub/compare/v3.27.2...v3.27.3) (2020-08-14)
 
 
