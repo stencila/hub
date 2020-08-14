@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Error : Stencila</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="https://unpkg.com/@stencila/hub/director/static/img/favicon.png">
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/@stencila/hub/director/static/css/styles.css">
+        <script>
+            Sentry.init({
+                dsn: 'https://6329017160394100b21be92165555d72:c59cb756288f4b658ca204911c537122@sentry.io/37250',
+            });
+            Sentry.captureException(new Error("413 error caught by Nginx"))
+        </script>
+    </head>
+    <body>
+        <section class="section">
+            <div class="columns">
+                <div class="column is-5 is-offset-4 has-text-centered">
+                    <p style="margin-bottom:5em">
+                        <img src="https://unpkg.com/@stencila/hub@2.20.3/director/static/img/logo-name.svg" alt="Stencila" width="220px">
+                    </p>
+                    
+                    <img class="error-image" src="https://unpkg.com/@stencila/hub@2.20.3/director/static/img/dead-document.svg" alt="Oh no!" width="112px" height="28px">
+                    
+                    <h1 class="title has-margin-top">Oops!</h1>
+                    <p>
+                        Sorry, the file you are trying to upload is too big!
+                        Contact us if you would like us to raise this limit.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
