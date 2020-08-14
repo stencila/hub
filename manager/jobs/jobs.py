@@ -17,7 +17,6 @@ from celery.exceptions import TimeoutError
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
 from django.utils import timezone
 
 from jobs.models import Job, JobMethod, JobStatus, Queue, Worker
