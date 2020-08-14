@@ -1,3 +1,12 @@
+## [3.27.3](https://github.com/stencila/hub/compare/v3.27.2...v3.27.3) (2020-08-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.98.0 ([db253d0](https://github.com/stencila/hub/commit/db253d0bf3f7963b75d9a82cefa174a61884685c))
+* **deps:** update dependency @stencila/executa to v1.13.0 ([8703522](https://github.com/stencila/hub/commit/8703522e75d47764f6ad32e4220f7be678e88430))
+* **deps:** update dependency sentry-sdk to v0.16.4 ([fb16fae](https://github.com/stencila/hub/commit/fb16fae4c9748edde7140b7c734744c424b7b838))
+
 ## [3.27.2](https://github.com/stencila/hub/compare/v3.27.1...v3.27.2) (2020-08-14)
 
 
