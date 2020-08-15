@@ -1,3 +1,16 @@
+# [3.30.0](https://github.com/stencila/hub/compare/v3.29.3...v3.30.0) (2020-08-15)
+
+
+### Bug Fixes
+
+* **Account content:** Revert setting of script-src etc CSP directives ([35c22ea](https://github.com/stencila/hub/commit/35c22ea78d3c875177ae704453c7251886ca6e7a))
+* **Template tags:** Check for match ([e0be30e](https://github.com/stencila/hub/commit/e0be30e416fec0cd2136ad5c2c65bac6192ff89e))
+
+
+### Features
+
+* **Plans:** Updating pricing view & add public pricing page ([30f82ab](https://github.com/stencila/hub/commit/30f82aba3d4e6bd476d0c467a864e73ec221a5fa))
+
 ## [3.29.3](https://github.com/stencila/hub/compare/v3.29.2...v3.29.3) (2020-08-15)
 
 
