@@ -1,3 +1,10 @@
+## [3.29.1](https://github.com/stencila/hub/compare/v3.29.0...v3.29.1) (2020-08-15)
+
+
+### Bug Fixes
+
+* **Snapshots:** Add back "New Snapshot" button to snapshot list view ([360597b](https://github.com/stencila/hub/commit/360597bdba298c2b076aa62f06559c6aadb169a1))
+
 # [3.29.0](https://github.com/stencila/hub/compare/v3.28.0...v3.29.0) (2020-08-15)
 
 
