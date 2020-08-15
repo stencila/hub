@@ -1,3 +1,10 @@
+## [3.29.3](https://github.com/stencila/hub/compare/v3.29.2...v3.29.3) (2020-08-15)
+
+
+### Bug Fixes
+
+* **Account content:** Correct syntax for script-src ([605d900](https://github.com/stencila/hub/commit/605d9003d609e760297ea7838f8d194f0535c767))
+
 ## [3.29.2](https://github.com/stencila/hub/compare/v3.29.1...v3.29.2) (2020-08-15)
 
 
