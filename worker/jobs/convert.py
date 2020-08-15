@@ -1,10 +1,9 @@
 from typing import cast, List, Union, Dict
 import os
-import tempfile
 
 from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
-from util.files import Files, list_files, move_files
+from util.files import Files, list_files, move_files, temp_dir
 
 
 class Convert(SubprocessJob):
@@ -47,13 +46,13 @@ class Convert(SubprocessJob):
         assert isinstance(options, dict), "options must be a dictionary"
 
         # Create temporary directory for output to go into
-        temp_dir = tempfile.mkdtemp()
+        temp = temp_dir()
 
         # Rewrite output path(s) to the new directory
         outputs = output if isinstance(output, list) else [output]
         for index, output in enumerate(outputs):
             if output != "-":
-                outputs[index] = os.path.join(temp_dir, output)
+                outputs[index] = os.path.join(temp, output)
 
         # Encoda currently does not allow for mimetypes in the `from` option.
         # This replaces some mimetypes with codec names for formats that are
@@ -81,10 +80,9 @@ class Convert(SubprocessJob):
             args.append("--{}={}".format(name, value))
         super().do(args, input=input if isinstance(input, bytes) else None)
 
-        # Get list of created files
-        files = list_files(temp_dir)
-
-        # Move files to
-        move_files(temp_dir)
+        # Get list of created files and then move them into current,
+        # working directory
+        files = list_files(temp)
+        move_files(temp)
 
         return files

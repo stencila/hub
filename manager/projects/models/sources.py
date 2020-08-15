@@ -319,9 +319,10 @@ class Source(PolymorphicModel):
         source = self.to_address()
         source["token"] = self.authorization_token(user)
 
-        description = "Pull {0}".format(self.address)
+        description = "Pull {0}"
         if self.type_class == "UploadSource":
-            description = "Upload file"
+            description = "Collect {0}"
+        description = description.format(self.address)
 
         job = Job.objects.create(
             project=self.project,
@@ -682,16 +683,16 @@ class UploadSource(Source):
 
     def to_address(self):
         """
-        Override base method to return address for storage being used.
+        Override base method to return address based on the storage being used.
 
-        Returns the appropriate address ("local" or cloud storage)
-        to pull the uploaded file into the project's working
-        directory.
+        Returns the appropriate address to pull the uploaded file
+        into the project's working directory from either local filesystem
+        (dev) or from a URL (e.g. bucket; prod).
         """
         if isinstance(self.file.storage, FileSystemStorage):
-            return dict(type="local", path=self.file.path)
+            return dict(type="upload", path=self.file.path)
         else:
-            return dict(type="url", url=self.file.url)
+            return dict(type="upload", url=self.file.url)
 
     @staticmethod
     def create_or_update_from_uploaded_file(
