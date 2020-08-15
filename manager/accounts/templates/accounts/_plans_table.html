@@ -1,0 +1,30 @@
+{% load i18n stencila %}
+
+<ul class="columns is-multiline is-variable is-2 pricing-table mt-4">
+  {% for tier in tiers %}
+  {% if tier.active and tier.id != 1 %}
+  <li class="column is-one-third pb-0">
+    {% pricing_dict tier.id as tier_details %}
+    {% include './_plan_table_item.html' with tier=tier details=tier_details %}
+  </li>
+  {% endif %}
+  {% endfor %}
+
+  <li class="column ">
+    <figure class="is-size-5 pricing-table__item has-background-primary-light">
+      <div class="level">
+        <div class="level-left">
+          <div class="has-text-left">
+            <h2 class="title is-4 mb-0">Enterprise / Publisher plan</h2>
+            <p>Looking for a custom plan for your executable document needs?
+          </div>
+        </div>
+
+        <div class="level-right justify-content-flex-start flex-grow pl-5">
+          <a href="mailto:hello@stenci.la" class="button">
+            {% trans "Contact us" %}
+          </a>
+        </div>
+    </figure>
+  </li>
+</ul>

@@ -1,0 +1,121 @@
+{% load i18n stencila humanize %}
+
+<figure class="is-size-5 pricing-table__item">
+  <div>
+    <h2 class="has-text-centered mb-3 has-text-primary">
+      <span class="tag is-primary is-light title is-5">{% trans tier.name %}</span>
+    </h2>
+    <h2 class="has-text-centered title is-2 mb-1 pricing-table__price">
+      <div>
+        ${{ tier_details.price }}
+      </div>
+      <div class="is-size-6 has-text-grey has-text-left pricing-table__frequency">USD</br>/month</div>
+    </h2>
+
+    <p class="has-text-grey has-text-centered mb-5">
+      {{ tier_details.summary }}
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-global-line"></i></span>
+      <span>
+        {{ tier.projects_public|tier_count }} {% trans "Public projects" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+      <span>
+        {{ tier.projects_private|tier_count }} {% trans "Private projects" %}
+      </span>
+    </p>
+
+    {% if account.is_organization %}
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-user-line"></i></span>
+      <span>
+        {{ tier.account_users }} {% trans "Users" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
+      <span>
+        {{ tier.account_teams }} {% trans "Teams" %}
+      </span>
+    </p>
+    {% endif %}
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-timer-line"></i></span>
+      <span>
+        {{ tier.job_runtime_month|floatformat|intcomma }} {% trans "Compute minutes" %}
+      </span>
+      <span class="icon has-text-grey-light has-tooltip-bottom has-tooltip-text-centered"
+            data-tooltip="{% trans fields.job_runtime_month.help_text %}">
+        <i class="ri-question-line"></i>
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-database-2-line"></i></span>
+      <span>
+        {{ tier.storage_working|floatformat }}GB {% trans "Project storage" %}
+      </span>
+    </p>
+
+    <p class="has-text-centered and-more"><span>{% trans "Plus" %}</span></p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-newspaper-line"></i></span>
+      <span>
+        {% trans "Publish executable documents" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
+      <span>
+        {% trans "Collaborate with others" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-arrow-left-right-line"></i></span>
+      <span>
+        {% trans "File format conversion" %}
+      </span>
+    </p>
+
+    {% if tier.account_teams > 0 %}
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-team-line"></i></span>
+      <span>
+        {% trans "Team management" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+      <span>
+        {% trans "Granular permission controls" %}
+      </span>
+    </p>
+    {% endif %}
+  </div>
+
+  {% if user.is_anonymous %}
+  <a href="{% url 'ui-users-signup' %}" class="button is-fullwidth is-primary mt-4">
+    {% trans "Sign up" %}
+  </a>
+  {% else %}
+  <button class="button is-fullwidth is-primary mt-4" has-tooltip-bottom has-tooltip-text-centered image-tooltip
+          data-tooltip="{% trans 'Coming soon!' %}" disabled {% if tier.id == account.tier.id %}disabled{% endif %}>
+    {% if tier.id == account.tier_id %}
+    Your current plan
+    {% else %}
+    Switch to {{ tier.name }}
+    {% endif %}
+  </button>
+  {% endif %}
+</figure>

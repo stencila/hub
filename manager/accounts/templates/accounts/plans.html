@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n stencila %}
+
+{% block title %}{% trans "Pricing" %}{% endblock %}
+
+{% block content %}
+
+<h1 class="title is-1 has-text-centered">
+  Plans to fit the way you work
+</h1>
+<h2 class="is-3 subtitle has-text-centered">
+  Create projects for free, upgrade at any time.
+</h2>
+
+{% include './_plans_beta_notice.html' %}
+
+{% include './_plans_table.html' %}
+
+{% include './_plans_faq.html' %}
+
+{% endblock %}

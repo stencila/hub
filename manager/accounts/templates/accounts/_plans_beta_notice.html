@@ -1,0 +1,38 @@
+{% load i18n %}
+
+{% if account.tier.id == 1 or user.is_anonymous %}
+<div class="message is-warning mb-0 mt-3">
+  <p class="message-header has-text-weight-bold">
+    <span>
+      <span class="icon"><i class="ri-seedling-line"></i></span>
+
+      <span>
+        {% if user.is_anonymous %}
+        {% trans "Stencila is in active beta testing" %}
+        {% else %}
+        {% trans "You are on the Waiting List" %}
+        {% endif %}
+      </span>
+    </span>
+  </p>
+  <div class="message-body">
+    <p>
+      We’re actively working on improvements, and scaling up our platform to handle more users.
+      Periodically we give people full access, and will be reaching out to you by email as soon as we are ready to have
+      you on board. If you have a project you think would be a good fit for early access, <a
+         href="mailto:hello@stenci.la">please contact us</a>.
+    </p>
+
+    <p class="mt-3">
+
+      {% if user.is_anonymous %}
+      Sign up to collaborate with existing projects, and we’ll invite you to create projects of your own as soon as
+      we’re ready.
+      {% else %}
+      While you are on the Waiting List you will not be able to create projects, but you can always contribute to
+      exisitng projects—just ask the project owner to invite you!
+      {% endif %}
+    </p>
+  </div>
+</div>
+{% endif %}
