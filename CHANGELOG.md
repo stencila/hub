@@ -1,3 +1,10 @@
+## [3.29.2](https://github.com/stencila/hub/compare/v3.29.1...v3.29.2) (2020-08-15)
+
+
+### Bug Fixes
+
+* **Account content:** Add CSP directives needed for Sentry integration ([f68310d](https://github.com/stencila/hub/commit/f68310d18afd465f943d338913bda7f9fe6d55fa))
+
 ## [3.29.1](https://github.com/stencila/hub/compare/v3.29.0...v3.29.1) (2020-08-15)
 
 
