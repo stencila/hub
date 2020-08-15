@@ -316,10 +316,6 @@ def index_html(
 
     # CSP for modern browers
     csp = "frame-ancestors 'self' stenci.la *.stenci.la {};".format(hosts)
-    if settings.SENTRY_DSN:
-        # Need to add the following given that we are using CSP
-        # See https://docs.sentry.io/sdks/javascript/#install
-        csp += " script-src https://browser.sentry-cdn.com; connect-src *.sentry.io;"
     response["Content-Security-Policy"] = csp
 
     # `X-Frame-Options` for older browsers (only allows one host value, so use first)
