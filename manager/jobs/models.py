@@ -8,7 +8,7 @@ import shortuuid
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core import validators
-from django.db import models
+from django.db import models, transaction
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -245,6 +245,7 @@ class Worker(models.Model):
     FLATLINE_HEARTBEATS = 5
 
     @classmethod
+    @transaction.atomic
     def get_or_create(cls, event: dict, create=False):
         """
         Get or create a worker from a Celery worker event.
@@ -256,6 +257,9 @@ class Worker(models.Model):
 
         The signature is the only way to uniquely identify
         a worker.
+
+        Atomic to avoid race conditions creating two workers with the
+        same signature.
         """
         hostname = event.get("hostname")
         utcoffset = event.get("utcoffset")
