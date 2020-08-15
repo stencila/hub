@@ -5,5 +5,6 @@ Form to update the content related fields of a project.
   {% include "serializers/_field.html" with field=serializer.liveness icon="ri-service-line" element="select" %}
   {% include "serializers/_field.html" with field=serializer.pinned icon="ri-archive-line" element="select" %}
   {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" element="select" %}
+  {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" %}
   {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
 </form>
