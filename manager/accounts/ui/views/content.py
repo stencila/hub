@@ -311,13 +311,18 @@ def index_html(
 
     response = HttpResponse(html)
 
-    # Add content security headers if the account has `hosts` set
+    # Add security headers to response
     hosts = account.hosts or ""
-    # CSP `frame-ancestors` for modern browers
-    response[
-        "Content-Security-Policy"
-    ] = "frame-ancestors 'self' *.stenci.la {};".format(hosts)
-    # `X-Frame-Options` for older browsers (only allows one value, so use first)
+
+    # CSP for modern browers
+    csp = "frame-ancestors 'self' *.stenci.la {};".format(hosts)
+    if settings.SENTRY_DSN:
+        # Need to add the following given that we are using CSP
+        # See https://docs.sentry.io/sdks/javascript/#install
+        csp += " script-src: https://browser.sentry-cdn.com; connect-src: *.sentry.io;"
+    response["Content-Security-Policy"] = csp
+
+    # `X-Frame-Options` for older browsers (only allows one host value, so use first)
     first = hosts.split()[0] if hosts.split() else "*.stenci.la"
     response["X-Frame-Options"] = "allow-from {}".format(first)
 
