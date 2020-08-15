@@ -1,3 +1,17 @@
+# [3.29.0](https://github.com/stencila/hub/compare/v3.28.0...v3.29.0) (2020-08-15)
+
+
+### Bug Fixes
+
+* **Manager uploads:** Add help text on uploading archives ([94bd88d](https://github.com/stencila/hub/commit/94bd88d5f7334ef0dd681c9c700eeb4750eca95a))
+* **Manager worker:** Make get_or_create an atomic transaction ([cf0415b](https://github.com/stencila/hub/commit/cf0415b67ea4335b2654885f906920e32b843439))
+
+
+### Features
+
+* **Project settings:** Allow setting main file on settings page ([45df91e](https://github.com/stencila/hub/commit/45df91e4a2fc96caecd9bf52f1ae4ea7d4670cf0))
+* **Worker:** Unpack archive uploads ([b9cc410](https://github.com/stencila/hub/commit/b9cc41016fd3c995a0b4af9969750047e9f37892))
+
 # [3.28.0](https://github.com/stencila/hub/compare/v3.27.3...v3.28.0) (2020-08-14)
 
 
