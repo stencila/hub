@@ -25,7 +25,7 @@ urlpatterns = [
     path(RootPaths.robots.value, robots),
     path(RootPaths.api.value + "/", include("manager.api.urls")),
     path(RootPaths.me.value + "/", include("users.ui.urls")),
-    path(RootPaths.pricing.value + "/", pricing, name="pricing"),
+    path(RootPaths.pricing.value + "/", pricing, name="ui-pricing"),
     path(
         "stencila/",
         include(

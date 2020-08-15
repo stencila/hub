@@ -86,6 +86,22 @@
         {% trans "File format conversion" %}
       </span>
     </p>
+
+    {% if tier.account_teams > 0 %}
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-team-line"></i></span>
+      <span>
+        {% trans "Team management" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+      <span>
+        {% trans "Granular permission controls" %}
+      </span>
+    </p>
+    {% endif %}
   </div>
 
   {% if user.is_anonymous %}
