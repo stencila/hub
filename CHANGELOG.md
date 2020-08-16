@@ -1,3 +1,10 @@
+## [3.30.2](https://github.com/stencila/hub/compare/v3.30.1...v3.30.2) (2020-08-16)
+
+
+### Bug Fixes
+
+* **Router:** Optimize Nginx config ([3bcbd80](https://github.com/stencila/hub/commit/3bcbd807c98d411f6027d5cbc55486e9e1df4522))
+
 ## [3.30.1](https://github.com/stencila/hub/compare/v3.30.0...v3.30.1) (2020-08-16)
 
 
