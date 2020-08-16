@@ -177,7 +177,7 @@ class Project(models.Model):
                 pass
 
         candidates = self.files.filter(
-            Q(path__startswith="main.") | Q(path__startswith="README.")
+            Q(path__startswith="main.") | Q(path__startswith="README."), current=True
         ).order_by("-modified")
         if len(candidates):
             return candidates[0]
