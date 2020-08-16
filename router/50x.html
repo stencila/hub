@@ -17,26 +17,26 @@
             });
             Sentry.captureException(new Error("50x error caught by Nginx"))
         </script>
-        <script type="text/javascript" src="https://unpkg.com/@stencila/hub@2.20.3/director/static/js/base.js"></script>
     </head>
     <body>
         <section class="section">
             <div class="columns">
                 <div class="column is-5 is-offset-4 has-text-centered">
-                    <p style="margin-bottom:5em">
-                        <img src="https://unpkg.com/@stencila/hub@2.20.3/director/static/img/logo-name.svg" alt="Stencila" width="220px">
-                    </p>
-                    
                     <img class="error-image" src="https://unpkg.com/@stencila/hub@2.20.3/director/static/img/dead-document.svg" alt="Oh no!" width="112px" height="28px">
-                    
                     <h1 class="title has-margin-top">Oops!</h1>
                     <p>
-                        Sorry, it seems that there is a problem with this page. Our team has been notified and will rectify it as soon as possible!
+                        Sorry, it seems that there is a problem with this page. Either we are doing maintainence, or it's a bug and our team has been notified and will fix it as soon as possible!
                     </p>
-                    <br>               
+                    <br>
+                    <p>
+                        Please try later and/or check our <a href="https://status.stenci.la">status page</a>.
+                    </p>
                     <br>
                     <p>
                         Stencila is an open source product. You can help make it better (and reduce these problems :) by <a href="https://github.com/stencila/hub#readme"> contributing</a> code, documentation,  ideas, bug reports etc. 💖.
+                    </p>
+                    <p style="margin-top:2em">
+                        <img src="https://unpkg.com/@stencila/hub@2.20.3/director/static/img/logo-name.svg" alt="Stencila" width="220px">
                     </p>
                 </div>
             </div>
