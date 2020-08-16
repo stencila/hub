@@ -1,3 +1,11 @@
+## [3.30.3](https://github.com/stencila/hub/compare/v3.30.2...v3.30.3) (2020-08-16)
+
+
+### Bug Fixes
+
+* **Projects:** Only consider current files when choosing main file ([2c79ff1](https://github.com/stencila/hub/commit/2c79ff1cb6cbe5a274997660c83c81763767873d))
+* **Router:** Add status page link to 50x; remove uneeded script tag ([104cc1c](https://github.com/stencila/hub/commit/104cc1c86b25c3fac0e6ce4d8fd09a5b6aa074fc))
+
 ## [3.30.2](https://github.com/stencila/hub/compare/v3.30.1...v3.30.2) (2020-08-16)
 
 
