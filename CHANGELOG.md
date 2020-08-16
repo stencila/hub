@@ -1,3 +1,10 @@
+## [3.30.1](https://github.com/stencila/hub/compare/v3.30.0...v3.30.1) (2020-08-16)
+
+
+### Bug Fixes
+
+* **Router:** Increase number of worker connections ([4d38507](https://github.com/stencila/hub/commit/4d38507303294532a6907f79d84d47e05706da5c))
+
 # [3.30.0](https://github.com/stencila/hub/compare/v3.29.3...v3.30.0) (2020-08-15)
 
 
