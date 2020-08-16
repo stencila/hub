@@ -8,13 +8,7 @@
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/@stencila/hub/director/static/css/styles.css">
         <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js" integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous"></script>
         <script>
-            Sentry.init({
-                dsn: 'https://6329017160394100b21be92165555d72:c59cb756288f4b658ca204911c537122@sentry.io/37250',
-                beforeSend(event, hint) {
-                    Sentry.showReportDialog({ eventId: event.event_id });
-                    return event;
-                }
-            });
+            Sentry.init({ dsn: "https://6329017160394100b21be92165555d72@o18963.ingest.sentry.io/37250"});
             Sentry.captureException(new Error("50x error caught by Nginx"))
         </script>
     </head>
