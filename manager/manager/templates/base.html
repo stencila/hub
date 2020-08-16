@@ -27,8 +27,9 @@
   {% endif %}
 
   {% if SENTRY_DSN %}
-  <script src="https://browser.sentry-cdn.com/5.15.2/bundle.min.js"
-          integrity="sha384-HA4Glk4hAwUFBIu+OfNR4bvn6vGCxT134gRiQce9rwp2YfxcuHHG8nG7qkooJwFt" crossorigin="anonymous">
+  <script src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js"
+          integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo" crossorigin="anonymous">
+  </script>
   </script>
   <script>
     Sentry.init({
@@ -70,7 +71,7 @@
     <nav class="navbar is-fixed-top has-shadow">
       <div class="container">
         <div class="navbar-brand">
-          <a class="navbar-item navbar-logo" href="{% url 'home' %}">
+          <a class="navbar-item navbar-logo" href="https://stenci.la">
             {% if user.is_anonymous %}
             <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
             {% else %}
