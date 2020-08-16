@@ -1,3 +1,12 @@
+## [3.30.4](https://github.com/stencila/hub/compare/v3.30.3...v3.30.4) (2020-08-16)
+
+
+### Bug Fixes
+
+* **Base template:** Upgrade Sentry and change navbar logo link ([36f544c](https://github.com/stencila/hub/commit/36f544cf249dce0377169fd089c51dd19d4b5c5a))
+* **Pricing plans:** Remove empty help text icon ([4719cd0](https://github.com/stencila/hub/commit/4719cd0346005edbbc4c15d6d2f9664039085c57))
+* **Router:** Remove report dialog and update Sentry DSN ([67c083f](https://github.com/stencila/hub/commit/67c083fc2f5f1213a7ef65a4844a2167b1b4237e))
+
 ## [3.30.3](https://github.com/stencila/hub/compare/v3.30.2...v3.30.3) (2020-08-16)
 
 
