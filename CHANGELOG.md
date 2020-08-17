@@ -1,3 +1,10 @@
+# [3.31.0](https://github.com/stencila/hub/compare/v3.30.6...v3.31.0) (2020-08-17)
+
+
+### Features
+
+* **Worker:** Set resources and node pool for sessions ([1d03746](https://github.com/stencila/hub/commit/1d037465ee061b97da042683735b670b9c109ab5))
+
 ## [3.30.6](https://github.com/stencila/hub/compare/v3.30.5...v3.30.6) (2020-08-17)
 
 
