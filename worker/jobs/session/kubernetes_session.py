@@ -179,7 +179,7 @@ fi
                             "command": [
                                 "executa",
                                 "serve",
-                                "--debug",
+                                # "--debug",
                                 "--{}=0.0.0.0:{}".format(protocol, port),
                                 "--key={}".format(key),
                                 "--timeout={}".format(timeout),
@@ -194,6 +194,12 @@ fi
                             },
                             "volumeMounts": volume_mounts,
                             "workingDir": working_dir,
+                            "resources": {
+                                # Currently hard coded but eventually from project
+                                # settings. These are based on current needs.
+                                "requests": {"cpu": "100m", "memory": "600Mi"},
+                                "limits": {"cpu": "200m", "memory": "600Mi"},
+                            },
                         }
                     ],
                     "volumes": [
@@ -216,6 +222,8 @@ fi
                     "restartPolicy": "Never",
                     # Do not automatically mount a token for K8s API access
                     "automountServiceAccountToken": False,
+                    # Place node on the pool reserved for sessions
+                    "nodeSelector": {"cloud.google.com/gke-nodepool": "sessions"},
                 },
             },
             namespace=namespace,
