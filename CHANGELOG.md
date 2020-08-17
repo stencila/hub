@@ -1,3 +1,10 @@
+## [3.31.1](https://github.com/stencila/hub/compare/v3.31.0...v3.31.1) (2020-08-17)
+
+
+### Bug Fixes
+
+* **Worker:** Use startupProbe for sessions ([f086261](https://github.com/stencila/hub/commit/f086261c502921f6d07676d1fba15c21563ee8f6))
+
 # [3.31.0](https://github.com/stencila/hub/compare/v3.30.6...v3.31.0) (2020-08-17)
 
 
