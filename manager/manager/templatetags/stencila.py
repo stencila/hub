@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db.models import fields
 from django.shortcuts import reverse
 from django.urls import resolve
+from django.urls.exceptions import Resolver404
 from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
 
@@ -41,7 +42,10 @@ def is_active(context, name):
 
         class="{% is_active 'ui-accounts-teams' %}"
     """
-    match = resolve(context["request"].path)
+    try:
+        match = resolve(context["request"].path)
+    except Resolver404:
+        return ""
     return (
         "is-active"
         if match and match.url_name and match.url_name.startswith(name)
