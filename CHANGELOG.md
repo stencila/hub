@@ -1,3 +1,10 @@
+## [3.30.5](https://github.com/stencila/hub/compare/v3.30.4...v3.30.5) (2020-08-17)
+
+
+### Bug Fixes
+
+* **Manager:** Catch Resolver404 exceptions ([77cca64](https://github.com/stencila/hub/commit/77cca64286d0fe028c994c3339460fee6ce48413))
+
 ## [3.30.4](https://github.com/stencila/hub/compare/v3.30.3...v3.30.4) (2020-08-16)
 
 
