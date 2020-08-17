@@ -186,10 +186,7 @@ fi
                                 "--timelimit={}".format(timelimit),
                             ],
                             "ports": [{"containerPort": port}],
-                            # Use a startup probe rather than readiness probe so
-                            # that the pod is not marked as failed when it times out
-                            # and shuts down it's WebSocket port.
-                            "startupProbe": {
+                            "readinessProbe": {
                                 "tcpSocket": {"port": port},
                                 "initialDelaySeconds": 0,
                                 "periodSeconds": 1,
