@@ -1,3 +1,10 @@
+## [3.30.6](https://github.com/stencila/hub/compare/v3.30.5...v3.30.6) (2020-08-17)
+
+
+### Bug Fixes
+
+* **Router:** Increase proxy send and read timeout for Websockets ([b3a5a4e](https://github.com/stencila/hub/commit/b3a5a4eab71ae9944485f9eff3caec94a23f2f63))
+
 ## [3.30.5](https://github.com/stencila/hub/compare/v3.30.4...v3.30.5) (2020-08-17)
 
 
