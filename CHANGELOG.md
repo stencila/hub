@@ -1,3 +1,10 @@
+## [3.32.3](https://github.com/stencila/hub/compare/v3.32.2...v3.32.3) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Router:** More fine tuning for running behind GLB ([c49f53a](https://github.com/stencila/hub/commit/c49f53a523510750fe48d7ab8901d6bcaeedcf3d))
+
 ## [3.32.2](https://github.com/stencila/hub/compare/v3.32.1...v3.32.2) (2020-08-19)
 
 
