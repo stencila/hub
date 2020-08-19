@@ -536,6 +536,11 @@ class Staging(Prod):
 
     ACCOUNTS_DOMAIN = "account-test.stenci.la"
 
+    # Default to allowing API access using Basic auth so that
+    # any Basic auth headers set to access the staging site
+    # also work for subsequent API requests.
+    API_BASIC_AUTH = values.BooleanValue(True)
+
 
 class Local(Prod):
     """
