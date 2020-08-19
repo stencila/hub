@@ -524,6 +524,17 @@ class Prod(Configuration):
                 environment=cls.DEPLOYMENT_ENVIRONMENT,
             )
 
+class Staging(Prod):
+    """
+    Configuration for staging environment.
+    """
+
+    DEPLOYMENT_ENVIRONMENT = "staging"
+
+    PRIMARY_DOMAIN = "hub-test.stenci.la"
+
+    ACCOUNTS_DOMAIN = "account-test.stenci.la"
+
 
 class Local(Prod):
     """
@@ -606,7 +617,7 @@ class Dev(Local):
     CACHE_URL = "rpc://"
 
     # For browser screenshotting allow Basic auth
-    UI_BASIC_AUTH = True
+    UI_BASIC_AUTH = False
 
     # Use localhost as the primary domain
     PRIMARY_DOMAIN = "127.0.0.1:8000"

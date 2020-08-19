@@ -7,7 +7,8 @@ VE := venv/bin
 EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
       export $$(egrep -v '^\#' ../.secrets | xargs); \
 	  export DEPLOYMENT_ENVIRONMENT=dev \
-	         DATABASE_URL="sqlite:///dev.sqlite3" \
+	         DJANGO_CONFIGURATION=Dev \
+			 DATABASE_URL="sqlite:///dev.sqlite3" \
 	         BROKER_URL="amqp://stencila:password@localhost:5672/stencila" \
 			 CACHE_URL="redis://stencila:password@localhost:6379/0";
 
@@ -81,10 +82,17 @@ run-postgres: venv
 run-watch:
 	npm run start
 
+# Run development server with staging settings
+run-staging: venv
+	$(EV) \
+	export DJANGO_CONFIGURATION="Staging"; \
+	$(VE)/python3 manage.py runserver
+
 # Run development server with production settings
 run-prod: venv
+	$(EV) \
 	export DJANGO_CONFIGURATION="Prod"; \
-	$(DJ) runserver
+	$(VE)/python3 manage.py runserver
 
 # Format code
 format: venv
