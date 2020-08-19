@@ -1,3 +1,15 @@
+# [3.32.0](https://github.com/stencila/hub/compare/v3.31.1...v3.32.0) (2020-08-19)
+
+
+### Features
+
+* **Router:** Allow for basic auth for staging env ([6f18d3d](https://github.com/stencila/hub/commit/6f18d3decc2a08c53986d0dc1c1f68589a6e254a))
+
+
+### Reverts
+
+* Revert "fix(Worker): Use startupProbe for sessions" ([a4d2dd9](https://github.com/stencila/hub/commit/a4d2dd917b0a94d89376ce92952a9a35a58d0bde))
+
 ## [3.31.1](https://github.com/stencila/hub/compare/v3.31.0...v3.31.1) (2020-08-17)
 
 
