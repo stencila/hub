@@ -1,3 +1,10 @@
+## [3.32.4](https://github.com/stencila/hub/compare/v3.32.3...v3.32.4) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Router:** Add LB public IP as trusted ([71692d6](https://github.com/stencila/hub/commit/71692d60bd639df0a70c8f920b1abb735151a94a))
+
 ## [3.32.3](https://github.com/stencila/hub/compare/v3.32.2...v3.32.3) (2020-08-19)
 
 
