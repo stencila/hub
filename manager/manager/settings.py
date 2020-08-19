@@ -618,7 +618,7 @@ class Dev(Local):
     CACHE_URL = "rpc://"
 
     # For browser screenshotting allow Basic auth
-    UI_BASIC_AUTH = False
+    UI_BASIC_AUTH = True
 
     # Use localhost as the primary domain
     PRIMARY_DOMAIN = "127.0.0.1:8000"
