@@ -1,3 +1,11 @@
+## [3.32.1](https://github.com/stencila/hub/compare/v3.32.0...v3.32.1) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Router:** Add domain for staging ([31f9519](https://github.com/stencila/hub/commit/31f9519fc36bedb78083b20b73a31e02780dcdb3))
+* **Router:** Allow private IPs to bypass basic auth ([6b5f7f1](https://github.com/stencila/hub/commit/6b5f7f1cc7668f01ea8aa287f2eadc074619efa1))
+
 # [3.32.0](https://github.com/stencila/hub/compare/v3.31.1...v3.32.0) (2020-08-19)
 
 
