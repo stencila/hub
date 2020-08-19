@@ -1,3 +1,15 @@
+# [3.33.0](https://github.com/stencila/hub/compare/v3.32.5...v3.33.0) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Manager:** Allow either token or username/password with basic auth ([e0b073a](https://github.com/stencila/hub/commit/e0b073a194eab98abab185124f441c7969bae683))
+
+
+### Features
+
+* **Manager:** Allow configuration of API throttling ([9b52696](https://github.com/stencila/hub/commit/9b5269638706b15dda2191229d5581c7734603cc))
+
 ## [3.32.5](https://github.com/stencila/hub/compare/v3.32.4...v3.32.5) (2020-08-19)
 
 
