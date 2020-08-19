@@ -524,6 +524,7 @@ class Prod(Configuration):
                 environment=cls.DEPLOYMENT_ENVIRONMENT,
             )
 
+
 class Staging(Prod):
     """
     Configuration for staging environment.
