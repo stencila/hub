@@ -7,14 +7,21 @@ from users.models import generate_anonuser_id
 
 
 def basic_auth(get_response):
-    """Middleware that applies Basic authentication."""
+    """
+    Middleware that applies Basic authentication to non-API views.
+
+    This middleware is usually only added if in development
+    and does not get applied to any URLs starting with `/api/` since
+    there are separate settings and authentication mechanisms for those.
+    """
 
     def middleware(request):
-        auth = request.META.get("HTTP_AUTHORIZATION")
-        if auth and auth.startswith("Basic "):
-            backend = BasicAuthentication()
-            user, _ = backend.authenticate(request)
-            request.user = user
+        if not request.path.startswith("/api/"):
+            auth = request.META.get("HTTP_AUTHORIZATION")
+            if auth and auth.startswith("Basic "):
+                backend = BasicAuthentication()
+                user, _ = backend.authenticate(request)
+                request.user = user
         return get_response(request)
 
     return middleware

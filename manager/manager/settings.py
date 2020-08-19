@@ -483,12 +483,6 @@ class Prod(Configuration):
         if not cls.DEPLOYMENT_ENVIRONMENT:
             cls.DEPLOYMENT_ENVIRONMENT = cls.__name__.lower()
 
-        # Add API Basic auth if allowed
-        if cls.API_BASIC_AUTH:
-            cls.REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"].insert(  # type: ignore
-                0, "rest_framework.authentication.BasicAuthentication",
-            )
-
         # Add UI Basic auth if allowed
         if cls.UI_BASIC_AUTH:
             cls.MIDDLEWARE += ("manager.middleware.basic_auth",)
@@ -536,7 +530,7 @@ class Staging(Prod):
 
     ACCOUNTS_DOMAIN = "account-test.stenci.la"
 
-    # Default to allowing API access using Basic auth so that
+    # Default to allowing API access using username / password so that
     # any Basic auth headers set to access the staging site
     # also work for subsequent API requests.
     API_BASIC_AUTH = values.BooleanValue(True)
@@ -622,7 +616,11 @@ class Dev(Local):
     # Comment this out to use the Redis result backend
     CACHE_URL = "rpc://"
 
-    # For browser screenshotting allow Basic auth
+    # For easier testing allow username/password Basic auth for API
+    API_BASIC_AUTH = False
+
+    # For browser screenshotting allow username/password
+    # Basic auth on non-API views
     UI_BASIC_AUTH = True
 
     # Use localhost as the primary domain

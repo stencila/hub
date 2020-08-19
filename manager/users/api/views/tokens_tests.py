@@ -86,19 +86,19 @@ class TokenFlowTests(TokenTestCase):
 
     def test_failure(self):
         response = self.create()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"] == "Authentication credentials were not provided."
         )
 
         response = self.create({"username": "foo"})
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"] == "Authentication credentials were not provided."
         )
 
         response = self.create({"username": "evil", "password": "hackz"})
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.data["message"] == "Incorrect authentication credentials."
 
         response = self.create({"openid": "bar"})
@@ -128,7 +128,7 @@ class TokenCreateOpenIdTests(TokenTestCase):
 
     def test_no_token(self):
         response = super().create()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"] == "Authentication credentials were not provided."
         )
@@ -249,12 +249,12 @@ class TokenAuthenticationTests(TokenTestCase):
     def test_failure(self):
         self.authenticate("fake-token", "Token")
         response = self.me()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.data["message"] == "Invalid token."
 
         self.authenticate("", "Basic")
         response = self.me()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"]
             == "Invalid Basic authorization header. No credentials provided."
@@ -262,7 +262,7 @@ class TokenAuthenticationTests(TokenTestCase):
 
         self.authenticate("too many parts", "Basic")
         response = self.me()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"]
             == "Invalid Basic authorization header. Credentials string should not contain spaces."
@@ -270,13 +270,24 @@ class TokenAuthenticationTests(TokenTestCase):
 
         self.authenticate("//////", "Basic")
         response = self.me()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"]
             == "Invalid Basic authorization header. Credentials not correctly base64 encoded."
         )
 
+        # Attempt to use username and password
+        self.authenticate(
+            base64.b64encode("username:password".encode()).decode(), "Basic"
+        )
+        response = self.me()
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["message"]
+            == "Basic authorization with a password is not allowed; use an API token instead."
+        )
+
         self.authenticate(base64.b64encode("fake-token".encode()).decode(), "Basic")
         response = self.me()
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.data["message"] == "Invalid token."

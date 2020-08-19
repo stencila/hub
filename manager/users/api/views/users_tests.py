@@ -40,7 +40,7 @@ class UserAPIViewsTests(DatabaseTestCase):
 
     def test_retrieve_me(self):
         response = self.retrieve_me(None)
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"] == "Authentication credentials were not provided."
         )

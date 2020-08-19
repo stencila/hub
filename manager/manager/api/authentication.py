@@ -1,18 +1,20 @@
 import base64
 import binascii
 
+from django.conf import settings
 from knox.auth import TokenAuthentication
+from rest_framework.authentication import HTTP_HEADER_ENCODING, BaseAuthentication
+from rest_framework.authentication import BasicAuthentication as DRFBasicAuthentication
 from rest_framework.authentication import (
-    HTTP_HEADER_ENCODING,
     SessionAuthentication,
     get_authorization_header,
 )
 from rest_framework.exceptions import AuthenticationFailed
 
 
-class BasicAuthentication(TokenAuthentication):
+class BasicAuthentication(BaseAuthentication):
     """
-    HTTP Basic authentication using token as username.
+    HTTP Basic authentication allowing token as username.
 
     This class is based on `rest_framework.authentication.BasicAuthentication` but
     expects the username part of the header to be the `knox` token. This allows
@@ -23,8 +25,9 @@ class BasicAuthentication(TokenAuthentication):
     The trailing colon prevents curl from asking for a password.
     Inspired by [Stripe's approach](https://stripe.com/docs/api/authentication).
 
-    We do not allow plain Basic authentication since that may encourage
-    API users to store username/password unsafely in client applications.
+    Basic authentication using username/password is usually not allowed in production
+    since that may encourage API users to store username/password unsafely in client applications.
+    However, it can be turned on during development by setting `settings.API_BASIC_AUTH = True`.
     """
 
     def authenticate(self, request):
@@ -50,16 +53,29 @@ class BasicAuthentication(TokenAuthentication):
 
         try:
             auth_parts = (
-                base64.b64decode(auth[1]).decode(HTTP_HEADER_ENCODING).partition(":")
+                base64.b64decode(auth[1]).decode(HTTP_HEADER_ENCODING).split(":")
             )
         except (TypeError, UnicodeDecodeError, binascii.Error):
             raise AuthenticationFailed(
                 "Invalid Basic authorization header. Credentials not correctly base64 encoded."
             )
 
-        # Pass token on to `knox.TokenAuthentication`; ignore any password supplied
-        token = auth_parts[0]
-        return self.authenticate_credentials(token.encode("utf-8"))
+        username, password = (
+            auth_parts if len(auth_parts) >= 2 else (auth_parts[0], None)
+        )
+        if password:
+            if settings.API_BASIC_AUTH:
+                return DRFBasicAuthentication().authenticate_credentials(
+                    username, password, request
+                )
+            else:
+                raise AuthenticationFailed(
+                    "Basic authorization with a password is not allowed; use an API token instead."
+                )
+        else:
+            # Treat the username as a token; pass it on to `knox.TokenAuthentication`
+            token = username.encode("utf-8")
+            return TokenAuthentication().authenticate_credentials(token)
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
