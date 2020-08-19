@@ -5,9 +5,9 @@ set -e
 # Create basic auth password if necessary
 
 if [ -z "$ROUTER_USER" ]; then
-    export AUTH_REALM="off"
+    export BASIC_AUTH="off"
 else
-    export AUTH_REALM="on"
+    export BASIC_AUTH="on"
     htpasswd -b -c /etc/nginx/.htpasswd "$ROUTER_USER" "$ROUTER_PASSWORD"
 fi
 
@@ -18,6 +18,6 @@ fi
 : "${MONITOR_URL:?Env var MONITOR_URL must be set and non-empty}"
 : "${RESOLVER_ADDRESS:?Env var RESOLVER_ADDRESS must be set and non-empty}"
 
-envsubst '${AUTH_REALM} ${MANAGER_HOST} ${MONITOR_URL} ${RESOLVER_ADDRESS}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+envsubst '${BASIC_AUTH} ${MANAGER_HOST} ${MONITOR_URL} ${RESOLVER_ADDRESS}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
 exec "$@"
