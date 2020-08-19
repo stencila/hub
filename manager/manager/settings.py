@@ -313,6 +313,11 @@ class Prod(Configuration):
 
     # django-rest-framework settings
 
+    # Rate limits for API. These defaults are the similar to Github but
+    # are slightly higher for anonymous users (IP based)
+    DEFAULT_THROTTLE_RATE_ANON = values.Value("100/hour")
+    DEFAULT_THROTTLE_RATE_USER = values.Value("5000/hour")
+
     REST_FRAMEWORK = {
         # Use camel casing for everything (inputs and outputs)
         "DEFAULT_RENDERER_CLASSES": (
@@ -335,7 +340,7 @@ class Prod(Configuration):
             "rest_framework.throttling.AnonRateThrottle",
             "rest_framework.throttling.UserRateThrottle",
         ],
-        "DEFAULT_THROTTLE_RATES": {
+        "REST_FRAMEWORK": {
             # These rates only apply to `/api` endpoints. They
             # do not include "pseudo-requests" made via view sets
             # in UI views, but will include HTMX-initiated async API
@@ -344,8 +349,9 @@ class Prod(Configuration):
             # users without affecting anon user page views.
             # A `429 Too Many Requests` response is returned when rate
             # limits are exceeded.
-            "anon": "100/hour",
-            "user": "5000/hour",
+            # These values are populated in the setup method below.
+            "anon": None,
+            "user": None,
         },
         "EXCEPTION_HANDLER": "manager.api.handlers.custom_exception_handler",
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
@@ -486,6 +492,12 @@ class Prod(Configuration):
         # Add UI Basic auth if allowed
         if cls.UI_BASIC_AUTH:
             cls.MIDDLEWARE += ("manager.middleware.basic_auth",)
+
+        # Set default API throttling rates
+        cls.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+            "anon": cls.DEFAULT_THROTTLE_RATE_ANON,
+            "user": cls.DEFAULT_THROTTLE_RATE_USER,
+        }
 
         # Allow requests from any account subdomains
         # Yes, it is important to append to the existing list, rather
