@@ -1,3 +1,10 @@
+## [3.32.2](https://github.com/stencila/hub/compare/v3.32.1...v3.32.2) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Router:** Get the real IP address ([633a125](https://github.com/stencila/hub/commit/633a1250ee9c4410a99e17853837b73aeddea883))
+
 ## [3.32.1](https://github.com/stencila/hub/compare/v3.32.0...v3.32.1) (2020-08-19)
 
 
