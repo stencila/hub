@@ -1,3 +1,10 @@
+## [3.32.5](https://github.com/stencila/hub/compare/v3.32.4...v3.32.5) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Manager:** Default to allowing basic auth API access in staging ([a67d08b](https://github.com/stencila/hub/commit/a67d08b4b0eb5564c7c5dc9733700e3b1994444c))
+
 ## [3.32.4](https://github.com/stencila/hub/compare/v3.32.3...v3.32.4) (2020-08-19)
 
 
