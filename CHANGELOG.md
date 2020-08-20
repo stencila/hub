@@ -1,3 +1,11 @@
+## [3.33.2](https://github.com/stencila/hub/compare/v3.33.1...v3.33.2) (2020-08-20)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Ignore if session already created ([06e8c17](https://github.com/stencila/hub/commit/06e8c17c5cec663cc7f2e9e66a30d6ce8bbb29e5))
+* **Workers:** Use gevent for greater concurrency, settable as an env var ([1178657](https://github.com/stencila/hub/commit/1178657ce735be228ae9ae86d8741fd20210024d))
+
 ## [3.33.1](https://github.com/stencila/hub/compare/v3.33.0...v3.33.1) (2020-08-20)
 
 
