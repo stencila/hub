@@ -624,7 +624,7 @@ class Dev(Local):
     CACHE_URL = "rpc://"
 
     # For easier testing allow username/password Basic auth for API
-    API_BASIC_AUTH = False
+    API_BASIC_AUTH = True
 
     # For browser screenshotting allow username/password
     # Basic auth on non-API views
