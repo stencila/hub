@@ -1,3 +1,10 @@
+## [3.33.1](https://github.com/stencila/hub/compare/v3.33.0...v3.33.1) (2020-08-20)
+
+
+### Bug Fixes
+
+* **Router:** Do not pass basic auth header on to manager ([0c9ed79](https://github.com/stencila/hub/commit/0c9ed79954ef8abed560de391af4c5f8844896bf))
+
 # [3.33.0](https://github.com/stencila/hub/compare/v3.32.5...v3.33.0) (2020-08-19)
 
 
