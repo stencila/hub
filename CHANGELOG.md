@@ -1,3 +1,10 @@
+## [3.33.4](https://github.com/stencila/hub/compare/v3.33.3...v3.33.4) (2020-08-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/executa to v1.14.0 ([8355952](https://github.com/stencila/hub/commit/835595207929ee2e8bd466e5822b3319292b6830))
+
 ## [3.33.3](https://github.com/stencila/hub/compare/v3.33.2...v3.33.3) (2020-08-20)
 
 
