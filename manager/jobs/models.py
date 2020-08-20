@@ -7,6 +7,7 @@ import inflect
 import shortuuid
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core import validators
 from django.db import models, transaction
 from django.http import HttpRequest
@@ -724,19 +725,9 @@ class Job(models.Model):
         """
         subject = "Session" if self.method == JobMethod.session.value else self.method
         if self.status == JobStatus.DISPATCHED.value:
-            queue_priority = self.queue.priority
-            if queue_priority < 1:
-                priority = "low"
-            elif queue_priority >= 2:
-                priority = "high"
-            else:
-                priority = "medium"
-
-            message = "{subject} is in position {position} on a {priority} priority queue.".format(
-                subject=subject, position=self.position, priority=priority
+            message = "{subject} is {position} in the queue.".format(
+                subject=subject, position=ordinal(self.position)
             )
-            if self.creator is None and priority != "high":
-                message += " Sign in for higher priority."
             return message
         elif self.status == JobStatus.RECEIVED.value:
             return "{subject} is starting.".format(subject=subject)
