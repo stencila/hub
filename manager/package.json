@@ -22,12 +22,12 @@
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "2.4.4",
-    "@stencila/thema": "2.15.4",
+    "@stencila/thema": "2.16.0",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.9.0",
     "bulma-toast": "2.0.1",
     "htmx.org": "0.0.8",
-    "userflow.js": "1.6.0"
+    "userflow.js": "1.7.0"
   },
   "devDependencies": {
     "@babel/core": "7.11.1",
