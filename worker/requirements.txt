@@ -1,6 +1,5 @@
 amqp==2.6.1
 celery==4.4.7
-gevent==20.6.2
 google-api-python-client==1.10.0
 kubernetes==11.0.0
 lxml==4.5.2

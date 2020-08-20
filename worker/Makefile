@@ -42,7 +42,6 @@ run: venv
 	$(VE)/celery worker \
 		--app worker \
 		--hostname worker-$$(date +'%s')@%h \
-		--pool gevent \
 		--heartbeat-interval=60 \
 		--loglevel DEBUG
 
