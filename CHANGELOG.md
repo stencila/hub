@@ -1,3 +1,10 @@
+## [3.33.5](https://github.com/stencila/hub/compare/v3.33.4...v3.33.5) (2020-08-20)
+
+
+### Bug Fixes
+
+* **Worker:** Revert to prefork pool ([2751751](https://github.com/stencila/hub/commit/27517513bbe868db94c0be04d3a291439f5b3904))
+
 ## [3.33.4](https://github.com/stencila/hub/compare/v3.33.3...v3.33.4) (2020-08-20)
 
 
