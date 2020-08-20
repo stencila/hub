@@ -36,16 +36,6 @@ app.conf.update(
         Queue(queue, exchange=queue, routing_key=queue)
         for queue in os.getenv("WORKER_QUEUES", "default").split(",")
     ],
-    # By default Celery will keep on trying to connect to the broker forever
-    # This overrides that. Initially try again immediately, then add 0.5 seconds for each
-    # subsequent try (with a maximum of 3 seconds).
-    # See https://github.com/celery/celery/issues/4296
-    broker_transport_options={
-        "max_retries": 10,
-        "interval_start": 0,
-        "interval_step": 0.5,
-        "interval_max": 3,
-    },
     # Disable prefetching
     # By default Celery will prefetch tasks (ie. reserve) from the queue
     # In effect, these tasks sit in the worker's own queue and have state RECEIVED.
@@ -56,6 +46,21 @@ app.conf.update(
     #  - https://stackoverflow.com/a/37699960/4625911
     task_acks_late=True,
     worker_prefetch_multiplier=1,
+    # Number of gevent threads to run
+    worker_concurrency = os.getenv("WORKER_CONCURRENCY", 10),
+    # Send events
+    worker_send_task_events = True,
+    task_send_sent_event = True,
+    # By default Celery will keep on trying to connect to the broker forever
+    # This overrides that. Initially try again immediately, then add 0.5 seconds for each
+    # subsequent try (with a maximum of 3 seconds).
+    # See https://github.com/celery/celery/issues/4296
+    broker_transport_options={
+        "max_retries": 10,
+        "interval_start": 0,
+        "interval_step": 0.5,
+        "interval_max": 3,
+    },
 )
 
 

@@ -42,9 +42,8 @@ run: venv
 	$(VE)/celery worker \
 		--app worker \
 		--hostname worker-$$(date +'%s')@%h \
-		--concurrency=4 \
-		--events \
-		--heartbeat-interval=30 \
+		--pool gevent \
+		--heartbeat-interval=60 \
 		--loglevel DEBUG
 
 # Build Docker image

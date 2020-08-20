@@ -66,11 +66,9 @@ USER worker
 ENV STORAGE_ROOT=/home/worker
 RUN mkdir -p working snapshots
 
-# By using $(hostname) we give the worker a unique identifier
-# based on the unique hostname of the Docker container.
+# Run the entrypoint script to mount volumes
 ENTRYPOINT ["/home/worker/entrypoint.sh"]
-CMD celery worker --app worker \
-                  --hostname worker@$(hostname) \
-                  --concurrency=4 \
-                  --events \
-                  --heartbeat-interval=60
+
+# Use the array form of CMD to ensure that the celery process has PID 1
+# so that it will receive SIGTERM for graceful shutdown
+CMD ["celery", "worker", "--app=worker", "--pool=gevent", "--events", "--heartbeat-interval=60"]
