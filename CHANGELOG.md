@@ -1,3 +1,10 @@
+## [3.33.3](https://github.com/stencila/hub/compare/v3.33.2...v3.33.3) (2020-08-20)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Use polling instead of attaching ([b906fcb](https://github.com/stencila/hub/commit/b906fcb4e11c301f46e0b267b91b57cc2cd9016f))
+
 ## [3.33.2](https://github.com/stencila/hub/compare/v3.33.1...v3.33.2) (2020-08-20)
 
 
