@@ -6,6 +6,7 @@ import subprocess
 import sys
 import time
 
+from celery.exceptions import Ignore
 import kubernetes
 
 from jobs.base.job import Job
@@ -154,80 +155,86 @@ fi
         # Create pod listening on a random port number
         protocol = "ws"
         port = random.randint(10000, 65535)
-        self.logger.debug("Creating pod")
-        api_instance.create_namespaced_pod(
-            body={
-                "apiVersion": "v1",
-                "kind": "Pod",
-                "metadata": {
-                    "name": self.pod_name,
-                    "labels": {
-                        "method": "session",
-                        # Currently not applying this label because network
-                        # egress is necessary for the init container
-                        # This may become a separate service which is allowed in the
-                        # network policy.
-                        # "networkPolicy": "egress-denied"
-                    },
-                },
-                "spec": {
-                    "initContainers": init_containers,
-                    "containers": [
-                        {
-                            "name": "executa",
-                            "image": environ,
-                            "command": [
-                                "executa",
-                                "serve",
-                                # "--debug",
-                                "--{}=0.0.0.0:{}".format(protocol, port),
-                                "--key={}".format(key),
-                                "--timeout={}".format(timeout),
-                                "--timelimit={}".format(timelimit),
-                            ],
-                            "ports": [{"containerPort": port}],
-                            "readinessProbe": {
-                                "tcpSocket": {"port": port},
-                                "initialDelaySeconds": 0,
-                                "periodSeconds": 1,
-                                "failureThreshold": 60,
-                            },
-                            "volumeMounts": volume_mounts,
-                            "workingDir": working_dir,
-                            "resources": {
-                                # Currently hard coded but eventually from project
-                                # settings. These are based on current needs.
-                                "requests": {"cpu": "100m", "memory": "600Mi"},
-                                "limits": {"cpu": "200m", "memory": "600Mi"},
-                            },
-                        }
-                    ],
-                    "volumes": [
-                        {
-                            # Snapshots stored on the host and obtained by the
-                            # initcontainer
-                            "name": "snapshots",
-                            "hostPath": {
-                                "path": "/var/lib/stencila/snapshots",
-                                "type": "DirectoryOrCreate",
-                            },
-                        },
-                        {
-                            # Secrets needed by the initcontainer to fetch snapshots
-                            "name": "secrets",
-                            "secret": {"secretName": "secrets"},
-                        },
-                    ],
-                    # Do not restart this pod when it stops
-                    "restartPolicy": "Never",
-                    # Do not automatically mount a token for K8s API access
-                    "automountServiceAccountToken": False,
-                    # Place node on the pool reserved for sessions
-                    "nodeSelector": {"cloud.google.com/gke-nodepool": "sessions"},
+        pod = {
+            "apiVersion": "v1",
+            "kind": "Pod",
+            "metadata": {
+                "name": self.pod_name,
+                "labels": {
+                    "method": "session",
+                    # "networkPolicy": "jobs-network-policy-1"
                 },
             },
-            namespace=namespace,
-        )
+            "spec": {
+                "initContainers": init_containers,
+                "containers": [
+                    {
+                        "name": "executa",
+                        "image": environ,
+                        "command": [
+                            "executa",
+                            "serve",
+                            # "--debug",
+                            "--{}=0.0.0.0:{}".format(protocol, port),
+                            "--key={}".format(key),
+                            "--timeout={}".format(timeout),
+                            "--timelimit={}".format(timelimit),
+                        ],
+                        "ports": [{"containerPort": port}],
+                        "readinessProbe": {
+                            "tcpSocket": {"port": port},
+                            "initialDelaySeconds": 0,
+                            "periodSeconds": 1,
+                            "failureThreshold": 60,
+                        },
+                        "volumeMounts": volume_mounts,
+                        "workingDir": working_dir,
+                        "resources": {
+                            # Currently hard coded but eventually from project
+                            # settings. These are based on current needs.
+                            "requests": {"cpu": "100m", "memory": "600Mi"},
+                            "limits": {"cpu": "200m", "memory": "600Mi"},
+                        },
+                    }
+                ],
+                "volumes": [
+                    {
+                        # Snapshots stored on the host and obtained by the
+                        # initcontainer
+                        "name": "snapshots",
+                        "hostPath": {
+                            "path": "/var/lib/stencila/snapshots",
+                            "type": "DirectoryOrCreate",
+                        },
+                    },
+                    {
+                        # Secrets needed by the initcontainer to fetch snapshots
+                        "name": "secrets",
+                        "secret": {"secretName": "secrets"},
+                    },
+                ],
+                # Do not restart this pod when it stops
+                "restartPolicy": "Never",
+                # Do not automatically mount a token for K8s API access
+                "automountServiceAccountToken": False,
+                # Place node on the pool reserved for sessions
+                "nodeSelector": {"cloud.google.com/gke-nodepool": "sessions"},
+            },
+        }
+
+        # Try to create the pod, but it it already exists then ignore
+        # the job (do not record any state from here but remove it from the queue).
+        # See https://docs.celeryproject.org/en/latest/userguide/tasks.html#ignore
+        try:
+            self.logger.debug("Creating pod")
+            api_instance.create_namespaced_pod(
+                body=pod, namespace=namespace,
+            )
+        except kubernetes.client.rest.ApiException as exc:
+            if exc.reason == "Conflict":
+                raise Ignore()
+            else:
+                raise exc
 
         # Wait for pod to be ready so that we can get its IP address
         self.logger.debug("Waiting for pod")
@@ -271,11 +278,11 @@ fi
                 while response.is_open():
                     response.update(timeout=1)
                     stdout = response.readline_stdout(timeout=3)
-                    print(stdout)
+                    self.log(stdout)
                     stderr = response.readline_stderr(timeout=3)
-                    print(stderr)
+                    self.log(stderr)
             else:
-                print(response)
+                self.log(response)
         except kubernetes.client.rest.ApiException as exc:
             # Log the exception if it is not an expected
             # SoftTimeLimitExceeded exception (used for cancelling

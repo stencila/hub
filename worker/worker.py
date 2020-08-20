@@ -47,10 +47,10 @@ app.conf.update(
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     # Number of gevent threads to run
-    worker_concurrency = os.getenv("WORKER_CONCURRENCY", 10),
+    worker_concurrency=os.getenv("WORKER_CONCURRENCY", 10),
     # Send events
-    worker_send_task_events = True,
-    task_send_sent_event = True,
+    worker_send_task_events=True,
+    task_send_sent_event=True,
     # By default Celery will keep on trying to connect to the broker forever
     # This overrides that. Initially try again immediately, then add 0.5 seconds for each
     # subsequent try (with a maximum of 3 seconds).

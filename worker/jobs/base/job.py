@@ -187,6 +187,8 @@ class Job(celery.Task):
             return self.success(result)
         except SoftTimeLimitExceeded:
             return self.terminated()
+        except Ignore as exc:
+            raise exc
         except Exception as exc:
             raise self.failure(exc)
         finally:
