@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 
-from celery.exceptions import Ignore
+from celery.exceptions import Ignore, SoftTimeLimitExceeded
 import kubernetes
 
 from jobs.base.job import Job
@@ -262,27 +262,10 @@ fi
 
         self.logger.debug("Started pod")
 
-        # Stream pod's stdout and stderr to here
         try:
-            response = kubernetes.stream.stream(
-                api_instance.connect_get_namespaced_pod_attach,
-                name=self.pod_name,
-                namespace=namespace,
-                container="executa",
-                stderr=True,
-                stdout=True,
-                stdin=False,
-                tty=False,
-            )
-            if hasattr(response, "is_open"):
-                while response.is_open():
-                    response.update(timeout=1)
-                    stdout = response.readline_stdout(timeout=3)
-                    self.log(stdout)
-                    stderr = response.readline_stderr(timeout=3)
-                    self.log(stderr)
-            else:
-                self.log(response)
+            self.poll()
+        except SoftTimeLimitExceeded:
+            return self.terminated()
         except kubernetes.client.rest.ApiException as exc:
             # Log the exception if it is not an expected
             # SoftTimeLimitExceeded exception (used for cancelling
@@ -294,6 +277,42 @@ fi
 
         self.logger.info("Pod finished")
         return self.completed()
+
+    def attach(self):
+        """
+        Attach to the pod's stdout and stderr streams.
+        """
+        response = kubernetes.stream.stream(
+            api_instance.connect_get_namespaced_pod_attach,
+            name=self.pod_name,
+            namespace=namespace,
+            container="executa",
+            stderr=True,
+            stdout=True,
+            stdin=False,
+            tty=False,
+        )
+        if hasattr(response, "is_open"):
+            while response.is_open():
+                response.update(timeout=1)
+                stdout = response.readline_stdout(timeout=3)
+                self.info(stdout)
+                stderr = response.readline_stderr(timeout=3)
+                self.info(stderr)
+        else:
+            self.info(response)
+
+    def poll(self):
+        """
+        Poll the session until it stops running.
+        """
+        while True:
+            pod = api_instance.read_namespaced_pod(
+                name=self.pod_name, namespace=namespace
+            )
+            if pod.status.phase != "Running":
+                return
+            time.sleep(3)
 
     def terminated(self):
         """
