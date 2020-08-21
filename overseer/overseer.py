@@ -26,6 +26,7 @@ for this purpose (the results should be used for that, which is what
 """
 from datetime import datetime
 from typing import Dict, List, Set, Union
+import asyncio
 import json
 import logging
 import os
@@ -65,24 +66,37 @@ queue_length_worker_ratio = Gauge(
     ["queue"],
 )
 
-# Manager API
-
-client = httpx.Client(
+client = httpx.AsyncClient(
     base_url=os.path.join(os.environ["MANAGER_URL"], "api/"),
     headers={"content-type": "application/json", "accept": "application/json"},
     timeout=30,
 )
 
 
+class Sender(threading.Thread):
+    """A thread with an event loop to send requests to the `manager` service."""
+
+    def run(self):
+        """Run the thread."""
+        self.loop = asyncio.new_event_loop()
+        self.loop.run_forever()
+
+
+# Start the sender
+sender = Sender()
+sender.daemon = True
+sender.start()
+
+
 def request(method: str, url: str, **kwargs):
-    """Send a request to the `manager`."""
-    try:
-        request = client.build_request(method=method, url=url, **kwargs)
-        response = client.send(request)
-        if response.status_code != 200:
-            logger.error(response.text)
-    except Exception as exc:
-        logger.error(str(exc))
+    """
+    Get the sender thread to send a request to the `manager`.
+
+    To maximize throughput of events, and because it is not necessary to
+    get the respone, this is "fire and forget".
+    """
+    request = client.build_request(method=method, url=url, **kwargs)
+    asyncio.run_coroutine_threadsafe(client.send(request), sender.loop)
 
 
 Event = Dict[str, Union[str, int, float]]
