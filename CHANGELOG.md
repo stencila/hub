@@ -1,3 +1,10 @@
+## [3.34.2](https://github.com/stencila/hub/compare/v3.34.1...v3.34.2) (2020-08-21)
+
+
+### Bug Fixes
+
+* **Manager:** Inline Component version number to improve perf ([b9a4bc5](https://github.com/stencila/hub/commit/b9a4bc5c68e72e146e1e9ae7dfc079a04730f25f))
+
 ## [3.34.1](https://github.com/stencila/hub/compare/v3.34.0...v3.34.1) (2020-08-21)
 
 
