@@ -1,3 +1,10 @@
+# [3.34.0](https://github.com/stencila/hub/compare/v3.33.5...v3.34.0) (2020-08-21)
+
+
+### Features
+
+* **Overseer:** Send requests to the manager asynchronously ([a23c283](https://github.com/stencila/hub/commit/a23c28387f977506898f7e39268df8673bcdf811))
+
 ## [3.33.5](https://github.com/stencila/hub/compare/v3.33.4...v3.33.5) (2020-08-20)
 
 
