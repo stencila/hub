@@ -1,3 +1,11 @@
+## [3.34.1](https://github.com/stencila/hub/compare/v3.34.0...v3.34.1) (2020-08-21)
+
+
+### Bug Fixes
+
+* **Deps:** Update Dev Dependencies ([c7391cf](https://github.com/stencila/hub/commit/c7391cfcb15d3e6f6a8af37b12408a35c1ad00b2))
+* **Deps:** Update Thema dependency ([8f3230c](https://github.com/stencila/hub/commit/8f3230cf7f22b18ef2dc5b780d4ff10ab95848f8))
+
 # [3.34.0](https://github.com/stencila/hub/compare/v3.33.5...v3.34.0) (2020-08-21)
 
 
