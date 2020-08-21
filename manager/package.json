@@ -37,6 +37,7 @@
     "@rollup/plugin-babel": "5.2.0",
     "@rollup/plugin-node-resolve": "9.0.0",
     "@rollup/plugin-replace": "2.3.3",
+    "@stencila/components": "^0.21.1",
     "@stencila/email-templates": "0.2.1",
     "autoprefixer": "9.8.6",
     "browser-sync": "2.26.12",
