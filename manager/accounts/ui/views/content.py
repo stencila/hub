@@ -11,7 +11,7 @@ from django.utils import timezone
 from accounts.models import Account
 from accounts.quotas import AccountQuotas
 from jobs.models import JobStatus
-from manager import themes
+from manager import components, themes
 from manager.version import __version__
 from projects.models.files import File, FileDownloads
 from projects.models.projects import Project, ProjectLiveness
@@ -280,6 +280,15 @@ def index_html(
         b"https://unpkg.com/@stencila/thema@2/dist/themes/",
         "https://unpkg.com/@stencila/thema@{version}/dist/themes/".format(
             version=themes.version
+        ).encode(),
+    )
+
+    # # Pin the version of Stencila Components to avoid redirects to NPM which can slow
+    # # page load times down substantially
+    html = html.replace(
+        b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
+        "https://unpkg.com/@stencila/components@{version}/dist/".format(
+            version=components.version
         ).encode(),
     )
 
