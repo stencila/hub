@@ -37,8 +37,10 @@ cover: venv
 # 	CACHE_URL=redis://stencila:password@localhost:6379/0
 # to use Redis instead
 # Uses timestamp to generate unique hostnames for workers.
+# Uses low concurrency for testing of queuing.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
+	WORKER_CONCURRENCY=3 \
 	$(VE)/celery worker \
 		--app worker \
 		--hostname worker-$$(date +'%s')@%h \

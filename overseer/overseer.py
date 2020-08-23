@@ -43,28 +43,12 @@ import httpx
 DEBUG = os.environ.get("DEBUG")
 logging.basicConfig(level="DEBUG" if DEBUG is not None else "INFO")
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger("overseer.main")
 
 app = Celery("overseer", broker=os.environ["BROKER_URL"])
 
-# Monitoring metrics (these are updated by `Receiver` and `Collector` below)
 
-event_processing = Summary(
-    "overseer_event_processing", "Summary of event processing duration"
-)
-
-queue_length = Gauge("overseer_queue_length", "Number of jobs in the queue.", ["queue"])
-
-workers_count = Gauge(
-    "overseer_workers_count", "Number of workers listening to the queue.", ["queue"]
-)
-
-queue_length_worker_ratio = Gauge(
-    "overseer_queue_length_worker_ratio",
-    "Ratio of the number of jobs to the number of workers for each queue.",
-    ["queue"],
-)
+# Client / sender for sending data to the manager service
 
 client = httpx.AsyncClient(
     base_url=os.path.join(os.environ["MANAGER_URL"], "api/"),
@@ -108,6 +92,8 @@ def get_event_time(event: Event):
 
 
 # Handlers for task events
+# To maintain high throughput and avoid issues with not being able to process
+# events quickly enough these handlers should do the minimum work necessary.
 
 
 def update_job(id, data: dict):
@@ -122,7 +108,7 @@ def update_job(id, data: dict):
 
 def task_sent(event: Event):
     """Sent when a task message is published and the task_send_sent_event setting is enabled."""
-    print("task_sent", event)
+    logger.info("task_sent", event)
 
 
 def task_received(event: Event):
@@ -200,7 +186,7 @@ def task_failed(event: Event):
 
 def task_rejected(event: Event):
     """Sent if the task was rejected by the worker, possibly to be re-queued or moved to a dead letter queue."""
-    print("task_rejected", event)
+    logger.info("task_rejected", event)
 
 
 def task_revoked(event: Event):
@@ -223,60 +209,7 @@ def task_revoked(event: Event):
 
 def task_retried(event: Event):
     """Sent if the task failed, but will be retried in the future."""
-    print("task_retried", event)
-
-
-# Keep track of the queues that each worker is listening to
-# so that we can update queue_length_worker_ratio
-WORKERS: Dict[str, List[str]] = {}
-
-# Keep track of all queues ever seen by this process
-# so that we can set metrics to zero if necessary
-QUEUES: Set[str] = set()
-
-
-def add_worker(hostname: str):
-    """
-    Add a worker.
-
-    Gets additional stats and the queues for the worker.
-    The list of queues may initially be empty so try multiple
-    times.
-    """
-    logger.info("Adding worker: {}.".format(hostname))
-
-    inspect = app.control.inspect([hostname])
-    queues = None
-    stats = None
-    trials = 0
-    while queues is None and stats is None and trials < 1000:
-        queues = inspect.active_queues()
-        queues = queues.get(hostname) if queues else None
-        stats = inspect.stats()
-        stats = stats.get(hostname) if stats else None
-        trials += 1
-        time.sleep(0.1)
-
-    if queues is None or stats is None:
-        logger.error(
-            "Unable to fetch queues and/or stats for worker: {}".format(hostname)
-        )
-
-    global QUEUES
-    if queues is not None:
-        queues = [queue["name"] for queue in queues]
-        WORKERS[hostname] = queues
-        QUEUES = QUEUES.union(queues)
-
-    return (queues, stats)
-
-
-def remove_worker(hostname: str):
-    """Remove a worker."""
-    logger.info("Removing worker: {}.".format(hostname))
-
-    if hostname in WORKERS:
-        del WORKERS[hostname]
+    logger.info("task_retried", event)
 
 
 # Handlers for worker events
@@ -286,17 +219,13 @@ def worker_online(event: Event):
     """
     Sent when a worker has connected to the broker.
 
-    Fetches more information on the worker and creates a new worker
-    object on the `manager`.
+    Sends a POST request to the `manager` to mark the
+    worker as started. Additional information on the worker,
+    such as the queues it is listening to are sent by the
+    `Collector` thread because they can take some time and
+    we do not want to block this main event handling thread.
     """
-    hostname = str(event.get("hostname"))
-    queues, stats = add_worker(hostname)
-
-    request(
-        "POST",
-        "workers/online",
-        json=dict(details=dict(queues=queues, stats=stats), **event),
-    )
+    request("POST", "workers/online", json=event)
 
 
 def worker_heartbeat(event: Event):
@@ -308,10 +237,6 @@ def worker_heartbeat(event: Event):
     rather trying to resolve which worker this heartbeat is for here,
     we sent the entire event to the `manager` and do it over there.
     """
-    hostname = str(event.get("hostname"))
-    if hostname not in WORKERS:
-        add_worker(hostname)
-
     request("POST", "workers/heartbeat", json=event)
 
 
@@ -322,10 +247,6 @@ def worker_offline(event: Event):
     Sends a POST request to the `manager` to mark the
     worker as finished.
     """
-    hostname = str(event.get("hostname"))
-    if hostname in WORKERS:
-        remove_worker(hostname)
-
     request("POST", "workers/offline", json=event)
 
 
@@ -363,6 +284,27 @@ class Receiver(EventReceiver):
             return super().process(type, event)
 
 
+# Monitoring metrics (these are updated by `Receiver` and `Collector` below)
+
+event_processing = Summary(
+    "overseer_event_processing", "Summary of event processing duration"
+)
+
+queue_length = Gauge("overseer_queue_length", "Number of jobs in the queue.", ["queue"])
+
+workers_total = Gauge("overseer_workers_total", "Number of workers.")
+
+workers_count = Gauge(
+    "overseer_workers_count", "Number of workers listening to the queue.", ["queue"]
+)
+
+queue_length_worker_ratio = Gauge(
+    "overseer_queue_length_worker_ratio",
+    "Ratio of the number of jobs to the number of workers for each queue.",
+    ["queue"],
+)
+
+
 class Collector(threading.Thread):
     """
     A thread for collecting information on queues and workers.
@@ -370,16 +312,80 @@ class Collector(threading.Thread):
     Based on, the now archived, https://github.com/zerok/celery-prometheus-exporter.
     """
 
+    # How often to collect data
     periodicity_seconds = 15
+
+    # Timeout when pinging workers
     workers_ping_timeout_seconds = 10
 
+    # Time to wait between attempts to get worker data
+    worker_inspect_retry_seconds = 0.5
+    worker_inspect_retry_attempts = 20
+
+    # Keep track of the queues that each worker is listening to
+    # so that we can update queue_length_worker_ratio
+    workers: Dict[str, List[str]] = {}
+
+    # Keep track of all queues ever seen by this process
+    # so that we can set metrics to zero if necessary
+    queues: Set[str] = set()
+
     def __init__(self, app: Celery):
-        """Create the collector thread."""
         self.app = app
         self.connection = app.connection_or_acquire()
         if isinstance(self.connection, FallbackContext):
             self.connection = self.connection.fallback()
+        self.workers = {}
+        self.queues = set()
+        self.logger = logging.getLogger("overseer.Collector")
         super().__init__()
+
+    def add_worker(self, hostname: str):
+        """
+        Add an entry for a worker.
+
+        Gets additional stats and the queues for the worker.
+        The list of queues may initially be empty so try multiple
+        times.
+        """
+        self.logger.info("Adding entry for worker: {}.".format(hostname))
+
+        inspect = app.control.inspect([hostname])
+        queues = None
+        stats = None
+        attempts = 0
+        while (
+            queues is None
+            and stats is None
+            and attempts < self.worker_inspect_retry_attempts
+        ):
+            queues = inspect.active_queues()
+            queues = queues.get(hostname) if queues else None
+            stats = inspect.stats()
+            stats = stats.get(hostname) if stats else None
+            attempts += 1
+            time.sleep(self.worker_inspect_retry_seconds)
+
+        if queues is None or stats is None:
+            self.logger.warning(
+                "Unable to fetch queues and/or stats for worker: {}".format(hostname)
+            )
+
+        if queues is not None:
+            queues = [queue["name"] for queue in queues]
+            self.queues = self.queues.union(queues)
+        else:
+            queues = []
+        self.workers[hostname] = queues
+
+        return (queues, stats)
+
+    def remove_worker(self, hostname: str):
+        """Remove an entry for a worker."""
+        self.logger.info("Removing entry for worker: {}.".format(hostname))
+
+        if hostname in self.workers:
+            del self.workers[hostname]
 
     def run(self):
         """Run the collector thread."""
@@ -389,29 +395,30 @@ class Collector(threading.Thread):
                 workers = self.app.control.ping(
                     timeout=self.workers_ping_timeout_seconds
                 )
-                logger.debug("Workers pinged: {}.".format(len(workers)))
+                self.logger.debug("Workers pinged: {}.".format(len(workers)))
             except Exception as exc:
                 workers = []
-                logger.error("Error pinging workers: {}".format(str(exc)))
+                self.logger.error("Error pinging workers: {}".format(str(exc)))
+            workers_total.set(len(workers))
 
-            # Update `WORKERS` with list of workers that have been
+            # Update `self.workers` with list of workers that have been
             # successfully pinged.
             hostnames = [list(worker.keys())[0] for worker in workers]
             for hostname in hostnames:
-                if hostname not in WORKERS:
-                    add_worker(hostname)
-            for hostname in list(WORKERS.keys()):
+                if hostname not in self.workers or self.workers[hostname] == []:
+                    self.add_worker(hostname)
+            for hostname in list(self.workers.keys()):
                 if hostname not in hostnames:
-                    remove_worker(hostname)
+                    self.remove_worker(hostname)
 
             # Update metrics for each queue
-            for queue in QUEUES:
+            for queue in self.queues:
                 try:
                     length = self.connection.default_channel.queue_declare(
                         queue=queue, passive=True
                     ).message_count
                 except (amqp.exceptions.ChannelError,) as exc:
-                    logger.warning(
+                    self.logger.warning(
                         "Queue Not Found: {}. Setting its value to zero. Error: {}".format(
                             queue, str(exc)
                         )
@@ -422,7 +429,7 @@ class Collector(threading.Thread):
                     set(
                         [
                             hostname
-                            for hostname, queues in WORKERS.items()
+                            for hostname, queues in self.workers.items()
                             if queue in queues
                         ]
                     )
