@@ -1,3 +1,16 @@
+# [3.35.0](https://github.com/stencila/hub/compare/v3.34.2...v3.35.0) (2020-08-23)
+
+
+### Bug Fixes
+
+* **Overseer:** Perform all blocking work outside of event handling thread ([ccc4104](https://github.com/stencila/hub/commit/ccc4104d2df55dc80657b24006df64ad74c04e27))
+
+
+### Features
+
+* **Manager:** Add a partial update endpoint for workers separate from online ([fca3929](https://github.com/stencila/hub/commit/fca392960cb09f0ed5e5767e495696827bcb08bc))
+* **Overseer:** Send worker update to manager ([bd60b01](https://github.com/stencila/hub/commit/bd60b01a1d41f8439bc3edd6d12fb64483500d15))
+
 ## [3.34.2](https://github.com/stencila/hub/compare/v3.34.1...v3.34.2) (2020-08-21)
 
 
