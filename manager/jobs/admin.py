@@ -106,6 +106,7 @@ class WorkerAdmin(admin.ModelAdmin):
         "created",
         "started",
         "updated",
+        "finished",
         "active",
     ]
 

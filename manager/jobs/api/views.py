@@ -286,6 +286,7 @@ class WorkersViewSet(viewsets.GenericViewSet):
     """
 
     permission_classes = [permissions.IsAdminUser]
+    lookup_url_kwarg = "hostname"
 
     @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
@@ -300,21 +301,37 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
         worker = Worker.get_or_create(event, create=True)
         worker.started = timezone.now()
+        worker.save()
 
-        # Parse the additional details that are collected
-        # when a worker comes online
-        details = event.get("details", {})
+        return Response()
 
-        # The broker virtual_host that the worker is connected
-        # to is equal to the account name
-        stats = details.get("stats", {})
+    def partial_update(self, request: Request, hostname: str) -> Response:
+        """
+        Update information on the worker.
+
+        An internal route, intended primarily for the `overseer` service
+        and intended to be used once per worker put separately to `/online`.
+        Receives data such as which virtual host and queues it is listening
+        to. Returns an empty response.
+        """
+        try:
+            worker = Worker.objects.filter(
+                hostname=hostname, finished__isnull=True
+            ).order_by("-created")[0]
+        except IndexError:
+            worker = Worker.objects.create(hostname=hostname)
+
+        data = request.data
+
+        stats = data.get("stats", {})
         account_name = stats["broker"]["virtual_host"]
+        worker.stats = stats
 
-        queues = details.get("queues", [])
+        queues = data.get("queues", [])
         if queues:
-            for queue_name in queues:
+            for queue in queues:
                 queue, created = Queue.get_or_create(
-                    account_name=account_name, queue_name=queue_name,
+                    account_name=account_name, queue_name=queue.get("name", ""),
                 )
                 worker.queues.add(queue)
         else:
@@ -323,6 +340,7 @@ class WorkersViewSet(viewsets.GenericViewSet):
                 extra=dict(worker=worker.signature),
             )
 
+        worker.updated = timezone.now()
         worker.save()
 
         return Response()
