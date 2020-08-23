@@ -313,7 +313,7 @@ class Collector(threading.Thread):
     """
 
     # How often to collect data
-    periodicity_seconds = 15
+    periodicity_seconds = os.getenv("OVERSEER_COLLECTOR_PERIODICITY", 30)
 
     # Timeout when pinging workers
     workers_ping_timeout_seconds = 10
@@ -369,6 +369,12 @@ class Collector(threading.Thread):
         if queues is None or stats is None:
             self.logger.warning(
                 "Unable to fetch queues and/or stats for worker: {}".format(hostname)
+            )
+        else:
+            request(
+                "PATCH",
+                "workers/{0}".format(hostname),
+                json=dict(stats=stats, queues=queues),
             )
 
         if queues is not None:
