@@ -1,3 +1,10 @@
+## [3.35.1](https://github.com/stencila/hub/compare/v3.35.0...v3.35.1) (2020-08-24)
+
+
+### Bug Fixes
+
+* **Worker:** Add support for setting options via env vars ([259d2ea](https://github.com/stencila/hub/commit/259d2ea53b150e6bb87b3f95ca8fc1ade02c7484))
+
 # [3.35.0](https://github.com/stencila/hub/compare/v3.34.2...v3.35.0) (2020-08-23)
 
 
