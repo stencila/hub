@@ -1,3 +1,10 @@
+## [3.35.3](https://github.com/stencila/hub/compare/v3.35.2...v3.35.3) (2020-08-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.16.3 ([3c8a028](https://github.com/stencila/hub/commit/3c8a02804f83a4f42e5e4f11678ce51dd169496e))
+
 ## [3.35.2](https://github.com/stencila/hub/compare/v3.35.1...v3.35.2) (2020-08-24)
 
 
