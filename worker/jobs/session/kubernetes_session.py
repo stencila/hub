@@ -69,10 +69,9 @@ class KubernetesSession(Job):
     """
     Runs a session as a pod in a Kubernetes cluster.
 
-    This class in intended for scalably provisioning
-    untrusted sessions. It uses the K8s API to create
-    a new pod inside a cluster, possible the same cluster
-    this process is in.
+    This class in intended for scalably provisioning untrusted sessions.
+    It uses the K8s API to create a new pod inside a cluster, usually but
+    not necessarily, the same cluster this process is in.
     """
 
     def do(self, *args, **kwargs):
@@ -80,26 +79,49 @@ class KubernetesSession(Job):
         Start the session.
 
         Override of `Job.do` which updates the job state with the
-        URL of the session before starting the session (which blocks
-        until the job is terminated).
+        URL of the session before starting the session.
         """
-        # Get session parameters, with warning, errors or
-        # exceptions if they are not present
+        # Get session parameters, falling back to defaults either set
+        # as environment variables or the values hard coded below.
         key = kwargs.get("key")
         assert key is not None, "A job key is required for a session"
 
-        environ = kwargs.get("environ")
-        if environ is None:
-            environ = "stencila/executa-midi"
-            logger.warning("Using default environment")
+        # Docker image to use
+        environ = kwargs.get("environ") or os.getenv(
+            "SESSION_ENVIRON_DEFAULT", "stencila/executa-midi"
+        )
 
-        # The snapshot directory to use as the working directory
-        # for the session
-        snapshot_path = kwargs.get("snapshot_path")
+        # Session timeout and timelimit defaults
+        timeout = kwargs.get("timeout") or os.getenv(
+            "SESSION_TIMEOUT_DEFAULT", 600  # 10 minutes
+        )
+        timelimit = kwargs.get("timelimit") or os.getenv(
+            "SESSION_TIMELIMIT_DEFAULT", 3600  # 1 hour
+        )
 
-        # Use short timeout and timelimit defaults
-        timeout = kwargs.get("timeout") or (10 * 60)
-        timelimit = kwargs.get("timelimit") or (60 * 60)
+        # Node pool
+        node_pool = kwargs.get("node_pool") or os.getenv(
+            "SESSION_NODE_POOL_DEFAULT", "sessions"
+        )
+
+        # Session CPU and memory requests and limits
+        cpu_request = kwargs.get("cpu_request") or os.getenv(
+            "SESSION_CPU_REQUEST_DEFAULT", 0.1  # 10% of a vCPU / core
+        )
+        cpu_limit = kwargs.get("cpu_limit") or os.getenv(
+            "SESSION_CPU_LIMIT_DEFAULT", 1  # 100% of a vCPU / core
+        )
+        mem_request = kwargs.get("mem_request") or os.getenv(
+            "SESSION_MEM_REQUEST_DEFAULT", 600  # 600MiB
+        )
+        mem_limit = kwargs.get("mem_limit") or os.getenv(
+            "SESSION_MEM_LIMIT_DEFAULT", 600  # 600MiB
+        )
+
+        # Network policy applied to sessions
+        network_policy = kwargs.get("network_policy") or os.getenv(
+            "SESSION_NETWORK_POLICY_DEFAULT", "jobs-network-policy-1"
+        )
 
         # Update the job with a custom state to indicate
         # that we are waiting for the pod to start.
@@ -112,11 +134,15 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
+        # The snapshot directory to use as the working directory
+        # for the session
+        snapshot_path = kwargs.get("snapshot_path")
+
         if snapshot_path:
             init_script = """
-if [ ! -d /snapshots/{id} ]; then
-    mkdir -p /snapshots/{id}
-    gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
+if [ ! -f "/snapshots/{id}/.fetched" ]; then
+    mkdir -p "/snapshots/{id}/"
+    gsutil -m cp -r gs://stencila-hub-snapshots/{id} "/snapshots/{id}/" && date -Iseconds > "/snapshots/{id}/.fetched"
 fi
             """.format(
                 id=snapshot_path
@@ -160,12 +186,10 @@ fi
             "kind": "Pod",
             "metadata": {
                 "name": self.pod_name,
-                "labels": {
-                    "method": "session",
-                    # "networkPolicy": "jobs-network-policy-1"
-                },
+                "labels": {"method": "session", "networkPolicy": network_policy},
             },
             "spec": {
+                "nodeSelector": {"cloud.google.com/gke-nodepool": node_pool},
                 "initContainers": init_containers,
                 "containers": [
                     {
@@ -174,7 +198,6 @@ fi
                         "command": [
                             "executa",
                             "serve",
-                            # "--debug",
                             "--{}=0.0.0.0:{}".format(protocol, port),
                             "--key={}".format(key),
                             "--timeout={}".format(timeout),
@@ -183,17 +206,21 @@ fi
                         "ports": [{"containerPort": port}],
                         "readinessProbe": {
                             "tcpSocket": {"port": port},
-                            "initialDelaySeconds": 0,
+                            "initialDelaySeconds": 2,
                             "periodSeconds": 1,
                             "failureThreshold": 60,
                         },
                         "volumeMounts": volume_mounts,
                         "workingDir": working_dir,
                         "resources": {
-                            # Currently hard coded but eventually from project
-                            # settings. These are based on current needs.
-                            "requests": {"cpu": "100m", "memory": "600Mi"},
-                            "limits": {"cpu": "200m", "memory": "600Mi"},
+                            "requests": {
+                                "cpu": cpu_request,
+                                "memory": "{}Mi".format(mem_request),
+                            },
+                            "limits": {
+                                "cpu": cpu_limit,
+                                "memory": "{}Mi".format(mem_limit),
+                            },
                         },
                     }
                 ],
@@ -217,8 +244,6 @@ fi
                 "restartPolicy": "Never",
                 # Do not automatically mount a token for K8s API access
                 "automountServiceAccountToken": False,
-                # Place node on the pool reserved for sessions
-                "nodeSelector": {"cloud.google.com/gke-nodepool": "sessions"},
             },
         }
 
@@ -264,7 +289,7 @@ fi
 
         try:
             self.poll()
-        except SoftTimeLimitExceeded:
+        except (SoftTimeLimitExceeded, KeyboardInterrupt):
             return self.terminated()
         except kubernetes.client.rest.ApiException as exc:
             # Log the exception if it is not an expected
@@ -353,6 +378,12 @@ if __name__ == "__main__":
         "--timelimit", default=None, type=int, help="Maximum time limit (s)",
     )
     parser.add_argument(
+        "--network-policy",
+        default=None,
+        type=str,
+        help="Network policy to apply to the pod",
+    )
+    parser.add_argument(
         "--snapshot", default=None, type=str, help="Snapshot to use for /work directory"
     )
     args = parser.parse_args()
@@ -364,5 +395,6 @@ if __name__ == "__main__":
         key=secrets.token_urlsafe(8),
         timeout=args.timeout,
         timelimit=args.timelimit,
+        network_policy=args.network_policy,
         snapshot_path=args.snapshot,
     )
