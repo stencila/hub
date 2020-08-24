@@ -1,3 +1,10 @@
+## [3.35.2](https://github.com/stencila/hub/compare/v3.35.1...v3.35.2) (2020-08-24)
+
+
+### Bug Fixes
+
+* **Kubernetes session:** Use flock to avoid races to fetch snapshot ([5b7b215](https://github.com/stencila/hub/commit/5b7b215fb3427df1fbb96bed676551e99b1ea307))
+
 ## [3.35.1](https://github.com/stencila/hub/compare/v3.35.0...v3.35.1) (2020-08-24)
 
 
