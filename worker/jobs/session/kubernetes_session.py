@@ -140,9 +140,9 @@ class KubernetesSession(Job):
 
         if snapshot_path:
             init_script = """
-if [ ! -f "/snapshots/{id}/.fetched" ]; then
-    mkdir -p "/snapshots/{id}/"
-    gsutil -m cp -r gs://stencila-hub-snapshots/{id} "/snapshots/{id}/" && date -Iseconds > "/snapshots/{id}/.fetched"
+if [ ! -d /snapshots/{id} ]; then
+    mkdir -p /snapshots/{id}
+    flock /snapshots/{id}/.lock gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
 fi
             """.format(
                 id=snapshot_path
