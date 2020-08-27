@@ -1,5 +1,5 @@
 <div align="center">
-	<img src="http://stenci.la/img/logo-name.png" alt="Stencila" style="max-width:150px">
+	<img src="https://stenci.la/img/stencila/stencilaLogo.svg" alt="Stencila" style="max-width:150px">
 </div>
 <br>
 
