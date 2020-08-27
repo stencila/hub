@@ -1,3 +1,16 @@
+## [3.35.4](https://github.com/stencila/hub/compare/v3.35.3...v3.35.4) (2020-08-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.98.3 ([ac985df](https://github.com/stencila/hub/commit/ac985df133b606ebaffae4c1196ef5444ae3ab36))
+* **deps:** update dependency django-imagefield to v0.12.2 ([f6f8dca](https://github.com/stencila/hub/commit/f6f8dca5ed1a5aac29f7f46d8ffd3d7f7a9a5031))
+* **deps:** update dependency django-polymorphic to v3 ([8500793](https://github.com/stencila/hub/commit/850079375d2f8138e2f754e8382c5baa1d83576c))
+* **deps:** update dependency httpx to v0.14.2 ([5ccdd5e](https://github.com/stencila/hub/commit/5ccdd5eb59d8e7302b89d0b24b913c1786c17e38))
+* **deps:** update dependency pygithub to v1.53 ([531dd6a](https://github.com/stencila/hub/commit/531dd6a1b74cb3480edcddaf8cc06f4e3d354010))
+* **deps:** update dependency sentry-sdk to v0.17.0 ([10b65d4](https://github.com/stencila/hub/commit/10b65d4ab4d50c7e8ea35b51dc88a213898db322))
+* **Deps:** Updates to Thema and Components versions ([d1d8e96](https://github.com/stencila/hub/commit/d1d8e9698f9b4b5bf3ed7c270996055a7bd39bcd))
+
 ## [3.35.3](https://github.com/stencila/hub/compare/v3.35.2...v3.35.3) (2020-08-24)
 
 
