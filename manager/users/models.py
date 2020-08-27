@@ -21,7 +21,6 @@ from django.shortcuts import reverse
 from django.utils import timezone
 from invitations.adapters import get_invitations_adapter
 from invitations.models import Invitation
-from jsonfallback.fields import FallbackJSONField
 from rest_framework.exceptions import ValidationError
 from waffle.models import AbstractUserFlag
 
@@ -199,7 +198,7 @@ class Invite(models.Model):
 
     subject_object = GenericForeignKey("subject_type", "subject_id")
 
-    arguments = FallbackJSONField(
+    arguments = models.JSONField(
         null=True,
         blank=True,
         help_text="Any additional arguments to pass to the action.",

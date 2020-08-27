@@ -188,7 +188,7 @@ class Prod(Configuration):
     # CORS restrictions elsewhere limit this to ACCOUNTS_DOMAIN
     # Note: The 'None' below is intentionally a string and not a `None` value.
     # See https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-SESSION_COOKIE_SAMESITE
-    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = "None"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = True
 

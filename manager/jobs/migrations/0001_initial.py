@@ -4,7 +4,6 @@ import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import jobs.models
-import jsonfallback.fields
 
 
 class Migration(migrations.Migration):
@@ -29,10 +28,10 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(blank=True, choices=[('WAITING', 'WAITING'), ('DISPATCHED', 'DISPATCHED'), ('PENDING', 'PENDING'), ('RECEIVED', 'RECEIVED'), ('STARTED', 'STARTED'), ('RUNNING', 'RUNNING'), ('SUCCESS', 'SUCCESS'), ('FAILURE', 'FAILURE'), ('CANCELLED', 'CANCELLED'), ('REVOKED', 'REVOKED'), ('TERMINATED', 'TERMINATED'), ('REJECTED', 'REJECTED'), ('RETRY', 'RETRY')], help_text='The current status of the job.', max_length=32, null=True)),
                 ('is_active', models.BooleanField(db_index=True, default=False, help_text='Is the job active?')),
                 ('method', models.CharField(choices=[('parallel', 'parallel'), ('series', 'series'), ('chain', 'chain'), ('pull', 'pull'), ('push', 'push'), ('copy', 'copy'), ('decode', 'decode'), ('encode', 'encode'), ('convert', 'convert'), ('compile', 'compile'), ('build', 'build'), ('execute', 'execute'), ('session', 'session'), ('sleep', 'sleep')], help_text='The job method.', max_length=32)),
-                ('params', jsonfallback.fields.FallbackJSONField(blank=True, help_text='The parameters of the job; a JSON object.', null=True)),
-                ('result', jsonfallback.fields.FallbackJSONField(blank=True, help_text='The result of the job; a JSON value.', null=True)),
-                ('error', jsonfallback.fields.FallbackJSONField(blank=True, help_text='Any error associated with the job; a JSON object with type, message etc.', null=True)),
-                ('log', jsonfallback.fields.FallbackJSONField(blank=True, help_text='The job log; a JSON array of log objects, including any errors.', null=True)),
+                ('params', models.JSONField(blank=True, help_text='The parameters of the job; a JSON object.', null=True)),
+                ('result', models.JSONField(blank=True, help_text='The result of the job; a JSON value.', null=True)),
+                ('error', models.JSONField(blank=True, help_text='Any error associated with the job; a JSON object with type, message etc.', null=True)),
+                ('log', models.JSONField(blank=True, help_text='The job log; a JSON array of log objects, including any errors.', null=True)),
                 ('runtime', models.FloatField(blank=True, help_text='The running time of the job.', null=True)),
                 ('url', models.CharField(blank=True, help_text='The URL of the job on the local network; can be used to interact with it.', max_length=256, null=True)),
                 ('worker', models.CharField(blank=True, help_text='The identifier of the worker that ran the job.', max_length=64, null=True)),
@@ -46,7 +45,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.SlugField(help_text='A name for this pipeline. Must be unique to the project.', max_length=256)),
-                ('definition', jsonfallback.fields.FallbackJSONField(help_text='The JSON definition of the pipeline.')),
+                ('definition', models.JSONField(help_text='The JSON definition of the pipeline.')),
             ],
         ),
         migrations.CreateModel(
@@ -80,7 +79,7 @@ class Migration(migrations.Migration):
                 ('freq', models.FloatField(blank=True, help_text="The worker's heatbeat frequency (in seconds)", null=True)),
                 ('software', models.CharField(blank=True, help_text="The name and version of the worker's software.", max_length=256, null=True)),
                 ('os', models.CharField(blank=True, help_text='Operating system that the worker is running on.', max_length=64, null=True)),
-                ('details', jsonfallback.fields.FallbackJSONField(blank=True, help_text='Details about the worker including queues and statsSee https://docs.celeryproject.org/en/stable/userguide/workers.html#statistics', null=True)),
+                ('details', models.JSONField(blank=True, help_text='Details about the worker including queues and statsSee https://docs.celeryproject.org/en/stable/userguide/workers.html#statistics', null=True)),
                 ('signature', models.CharField(blank=True, help_text='The signature of the worker used to identify it. It is possible, but unlikely, that two or more active workers have the same signature.', max_length=512, null=True)),
                 ('queues', models.ManyToManyField(help_text='The queues that this worker is listening to.', related_name='workers', to='jobs.Queue')),
             ],
@@ -101,7 +100,7 @@ class Migration(migrations.Migration):
                 ('clock', models.IntegerField(help_text="The tick number of the worker's monotonic clock")),
                 ('active', models.IntegerField(help_text='The number of active jobs on the worker.')),
                 ('processed', models.IntegerField(help_text='The number of jobs that have been processed by the worker.')),
-                ('load', jsonfallback.fields.FallbackJSONField(help_text='An array of the system load over the last 1, 5 and 15 minutes. From os.getloadavg().')),
+                ('load', models.JSONField(help_text='An array of the system load over the last 1, 5 and 15 minutes. From os.getloadavg().')),
                 ('worker', models.ForeignKey(help_text='The worker that the heartbeat is for.', on_delete=django.db.models.deletion.CASCADE, related_name='heartbeats', to='jobs.Worker')),
             ],
         ),

@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import jsonfallback.fields
 import users.models
 
 
@@ -32,7 +31,7 @@ class Migration(migrations.Migration):
                 ('completed', models.DateTimeField(blank=True, help_text='When the invite action was completed', null=True)),
                 ('action', models.CharField(blank=True, choices=[('join_account', 'Join account'), ('join_team', 'Join team'), ('join_project', 'Join project'), ('take_tour', 'Take tour')], help_text='The action to perform when the invitee signs up.', max_length=64, null=True)),
                 ('subject_id', models.IntegerField(blank=True, help_text='The id of the target of the action.', null=True)),
-                ('arguments', jsonfallback.fields.FallbackJSONField(blank=True, help_text='Any additional arguments to pass to the action.', null=True)),
+                ('arguments', models.JSONField(blank=True, help_text='Any additional arguments to pass to the action.', null=True)),
                 ('inviter', models.ForeignKey(blank=True, help_text='The user who created the invite.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='invites', to=settings.AUTH_USER_MODEL)),
                 ('subject_type', models.ForeignKey(blank=True, help_text='The type of the target of the action. e.g Team, Account', null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
             ],

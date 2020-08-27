@@ -14,7 +14,6 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_celery_beat.models import PeriodicTask
-from jsonfallback.fields import FallbackJSONField
 
 from accounts.models import Account
 from manager.helpers import EnumChoice
@@ -226,7 +225,7 @@ class Worker(models.Model):
         help_text="Operating system that the worker is running on.",
     )
 
-    details = FallbackJSONField(
+    details = models.JSONField(
         null=True,
         blank=True,
         help_text="Details about the worker including queues and stats"
@@ -337,7 +336,7 @@ class WorkerHeartbeat(models.Model):
         help_text="The number of jobs that have been processed by the worker.",
     )
 
-    load = FallbackJSONField(
+    load = models.JSONField(
         help_text="An array of the system load over the last 1, 5 and 15 minutes. From os.getloadavg().",
     )
 
@@ -645,19 +644,19 @@ class Job(models.Model):
     method = models.CharField(
         max_length=32, choices=JobMethod.as_choices(), help_text="The job method."
     )
-    params = FallbackJSONField(
+    params = models.JSONField(
         blank=True, null=True, help_text="The parameters of the job; a JSON object."
     )
-    result = FallbackJSONField(
+    result = models.JSONField(
         blank=True, null=True, help_text="The result of the job; a JSON value."
     )
-    error = FallbackJSONField(
+    error = models.JSONField(
         blank=True,
         null=True,
         help_text="Any error associated with the job; a JSON object with type, message etc.",
     )
 
-    log = FallbackJSONField(
+    log = models.JSONField(
         blank=True,
         null=True,
         help_text="The job log; a JSON array of log objects, including any errors.",
@@ -962,7 +961,7 @@ class Pipeline(models.Model):
         help_text="A name for this pipeline. Must be unique to the project.",
     )
 
-    definition = FallbackJSONField(help_text="The JSON definition of the pipeline.")
+    definition = models.JSONField(help_text="The JSON definition of the pipeline.")
 
     schedule = models.OneToOneField(
         "PipelineSchedule",
