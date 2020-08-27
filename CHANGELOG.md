@@ -1,3 +1,14 @@
+## [3.35.5](https://github.com/stencila/hub/compare/v3.35.4...v3.35.5) (2020-08-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django to v3.1 ([86c4a59](https://github.com/stencila/hub/commit/86c4a591dcd5df9ecd3e4058916618af991708b5))
+* **deps:** update dependency django-allauth to v0.42.0 ([1551b8b](https://github.com/stencila/hub/commit/1551b8bdc1163051f097711ae22312722c64ce4c))
+* **deps:** update dependency django-extensions to v3.0.5 ([ef50545](https://github.com/stencila/hub/commit/ef505454b08851a2006a7ad38002d6497ce1c260))
+* **Manager:** Remove dependency django-jsonfallback ([5682af9](https://github.com/stencila/hub/commit/5682af9ca4f692ece9885fc19da37910fceb2db4)), closes [#660](https://github.com/stencila/hub/issues/660)
+* **Manager:** Use None string for SESSION_COOKIE_SAMESITE ([a251ff2](https://github.com/stencila/hub/commit/a251ff2d2aa3008a484493a592634ac80eb0dfc2))
+
 ## [3.35.4](https://github.com/stencila/hub/compare/v3.35.3...v3.35.4) (2020-08-27)
 
 
