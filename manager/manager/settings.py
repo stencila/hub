@@ -186,9 +186,9 @@ class Prod(Configuration):
     SESSION_COOKIE_AGE = 31536000  # A year in seconds.
     # Allow session cookies to be sent from other domains.
     # CORS restrictions elsewhere limit this to ACCOUNTS_DOMAIN
-    # TODO: Change this to the string `None` when upgraded to Django 3.1
-    # https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-SESSION_COOKIE_SAMESITE
-    SESSION_COOKIE_SAMESITE = None
+    # Note: The 'None' below is intentionally a string and not a `None` value.
+    # See https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-SESSION_COOKIE_SAMESITE
+    SESSION_COOKIE_SAMESITE = 'None'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = True
 
