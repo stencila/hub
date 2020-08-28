@@ -225,6 +225,7 @@ def working_index_html(
     """
     return index_html(
         account,
+        project,
         html,
         source_url=primary_domain_url(
             request,
@@ -249,6 +250,7 @@ def snapshot_index_html(
     """
     return index_html(
         account,
+        project,
         html,
         source_url=primary_domain_url(
             request,
@@ -266,7 +268,11 @@ def snapshot_index_html(
 
 
 def index_html(
-    account: Account, html: bytes, source_url: str, session_provider_url: str
+    account: Account,
+    project: Project,
+    html: bytes,
+    source_url: str,
+    session_provider_url: str,
 ) -> HttpResponse:
     """
     Augment a index.html file.
@@ -283,8 +289,8 @@ def index_html(
         ).encode(),
     )
 
-    # # Pin the version of Stencila Components to avoid redirects to NPM which can slow
-    # # page load times down substantially
+    # Pin the version of Stencila Components to avoid redirects to NPM which can slow
+    # page load times down substantially
     html = html.replace(
         b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
         "https://unpkg.com/@stencila/components@{version}/dist/".format(
@@ -317,6 +323,19 @@ def index_html(
             source_url=source_url, session_provider_url=session_provider_url
         ).encode(),
     )
+
+    # Add extra content specified by the account and/or project
+    extra_head = project.extra_head or account.extra_head
+    if extra_head:
+        html = html.replace(b"</head>", extra_head.encode() + b"</head>")
+
+    extra_top = project.extra_top or account.extra_top
+    if extra_top:
+        html = html.replace(b"<body>", b"<body>" + extra_top.encode())
+
+    extra_bottom = project.extra_bottom or account.extra_bottom
+    if extra_bottom:
+        html = html.replace(b"</body>", extra_bottom.encode() + b"</body>")
 
     response = HttpResponse(html)
 

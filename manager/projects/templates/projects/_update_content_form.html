@@ -1,10 +1,26 @@
 {% comment %}
 Form to update the content related fields of a project.
-{% endcomment %}
-<form hx-patch="{% url 'api-projects-detail' project.id %}" hx-template="projects/_update_content_form.html">
-  {% include "serializers/_field.html" with field=serializer.liveness icon="ri-service-line" element="select" %}
-  {% include "serializers/_field.html" with field=serializer.pinned icon="ri-archive-line" element="select" %}
-  {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" element="select" %}
-  {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" %}
-  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
-</form>
+
+Uses `hx-swap="none"` because otherwise reloading of the <form>
+  interferes with the CodeMirror enhanced fields included from `_update_content_extras.html`.
+  {% endcomment %}
+  <form hx-patch="{% url 'api-projects-detail' project.id %}" hx-template="projects/_update_content_form.html"
+        hx-swap="none">
+    {% include "serializers/_field.html" with field=serializer.liveness icon="ri-service-line" element="select" %}
+    {% include "serializers/_field.html" with field=serializer.pinned icon="ri-archive-line" element="select" %}
+    {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" element="select" %}
+    {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" %}
+
+    <br>
+    <h3 class="title is-5">Extra content</h3>
+    <p class="is-small">
+      Use the following fields to inject extra content into HTML pages served for this project.
+      You can use them to insert useful elements like <code>&lt;meta&gt;</code> tags and
+      analytics scripts. These settings override the same settings for this project's account (if any).
+    </p>
+
+    <br>
+    {% include "accounts/_update_content_extras.html" %}
+
+    {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+  </form>

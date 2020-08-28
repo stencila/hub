@@ -1,0 +1,30 @@
+{# Form fields for extra content to be injected. Separate partial becusase used for both accounts and projects #}
+
+{% load djangocodemirror_tags %}
+
+<style>
+  .CodeMirror {
+    border: 1px solid #aeb8c3;
+    border-radius: 5px;
+  }
+
+</style>
+
+<div class="field">
+  <label class="label" for="extra_head">Extra content in <code>&lt;head&gt;</code></label>
+  <textarea name="extra_head" id="extra_head">{{ serializer.extra_head.value|default:'' }}</textarea>
+</div>
+
+<div class="field">
+  <label class="label" for="extra_top">Extra content at the top of <code>&lt;body&gt;</code></label>
+  <textarea name="extra_top" id="extra_top">{{ serializer.extra_top.value|default:'' }}</textarea>
+</div>
+
+<div class="field">
+  <label class="label" for="extra_bottom">Extra content at the bottom of <code>&lt;body&gt;</code></label>
+  <textarea name="extra_bottom" id="extra_bottom">{{ serializer.extra_bottom.value|default:'' }}</textarea>
+</div>
+
+{% codemirror_instance 'html' 'extraHeadCodemirror' 'extra_head' %}
+{% codemirror_instance 'html' 'extraTopCodemirror' 'extra_top' False %}
+{% codemirror_instance 'html' 'extraBottomCodemirror' 'extra_bottom' False %}

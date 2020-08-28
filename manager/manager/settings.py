@@ -10,6 +10,7 @@ import datetime
 import os
 from typing import List
 
+import djangocodemirror.settings as dcm_settings
 from configurations import Configuration, values
 
 from manager.version import __version__
@@ -94,6 +95,7 @@ class Prod(Configuration):
         "django_celery_beat",
         "django_intercom",
         "django_prometheus",
+        "djangocodemirror",
         "drf_yasg",
         "imagefield",
         "invitations",
@@ -381,6 +383,19 @@ class Prod(Configuration):
             "API": {"type": "apiKey", "name": "Authorization", "in": "header"}
         }
     }
+
+    # djangocodemirror settings
+    # See https://djangocodemirror.readthedocs.io/en/latest/settings.html
+    CODEMIRROR_FIELD_INIT_JS = dcm_settings.CODEMIRROR_FIELD_INIT_JS
+    CODEMIRROR_SETTINGS = dcm_settings.CODEMIRROR_SETTINGS
+    CODEMIRROR_BASE_JS = dcm_settings.CODEMIRROR_BASE_JS
+    CODEMIRROR_BASE_CSS = dcm_settings.CODEMIRROR_BASE_CSS
+    CODEMIRROR_THEMES = dcm_settings.CODEMIRROR_THEMES
+    CODEMIRROR_MODES = dcm_settings.CODEMIRROR_MODES
+    CODEMIRROR_JS_ASSET_TAG = dcm_settings.CODEMIRROR_JS_ASSET_TAG
+    CODEMIRROR_CSS_ASSET_TAG = dcm_settings.CODEMIRROR_CSS_ASSET_TAG
+    CODEMIRROR_BUNDLE_CSS_NAME = dcm_settings.CODEMIRROR_BUNDLE_CSS_NAME
+    CODEMIRROR_BUNDLE_JS_NAME = dcm_settings.CODEMIRROR_BUNDLE_JS_NAME
 
     ###########################################################################
     # Settings for integration with external third-party services
