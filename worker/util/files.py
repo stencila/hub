@@ -91,7 +91,11 @@ def move_files(source: str, dest: str = ".", cleanup: bool = True) -> None:
     Move from `source` to `dest` directories (with overwrite).
     """
     for subpath in os.listdir(source):
-        shutil.move(os.path.join(source, subpath), os.path.join(dest, subpath))
+        source_path = os.path.join(source, subpath)
+        dest_path = os.path.join(dest, subpath)
+        if Path(dest_path).exists():
+            shutil.rmtree(dest_path, ignore_errors=True)
+        shutil.move(source_path, dest_path)
 
     if cleanup:
         remove_dir(source)
