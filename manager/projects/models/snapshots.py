@@ -139,38 +139,16 @@ class Snapshot(models.Model):
 
         subjobs = []
 
-        # Job to clean the project working directory
-        subjobs.append(project.clean(user))
-
-        # Job to pull the project
-        subjobs.append(project.pull(user))
-
         # Job to create an index.html if a "main" file is defined
         main = project.get_main()
         if main:
             options = {}
 
-            if main.mimetype:
-                options["from"] = main.mimetype
-
             theme = project.get_theme()
             if theme:
                 options["theme"] = theme
 
-            subjobs.append(
-                Job.objects.create(
-                    method=JobMethod.convert.name,
-                    params=dict(
-                        project=project.id,
-                        input=main.path,
-                        output="index.html",
-                        options=options,
-                    ),
-                    description="Create index.html",
-                    project=project,
-                    creator=user,
-                )
-            )
+            subjobs.append(main.convert(user, "index.html", options=options))
 
         # Job to archive the working directory to the snapshot directory
         subjobs.append(
