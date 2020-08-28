@@ -107,6 +107,24 @@ class Account(models.Model):
         # Because of that, it is not a ChoiceField based on the list of names in `assets.thema.themes`.
     )
 
+    extra_head = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject into the <head> element of HTML served for this account.",
+    )
+
+    extra_top = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject at the top of the <body> element of HTML served for this account.",
+    )
+
+    extra_bottom = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject at the bottom of the <body> element of HTML served for this account.",
+    )
+
     hosts = models.TextField(
         null=True,
         blank=True,

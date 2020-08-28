@@ -1,12 +1,31 @@
-{# Form for content related fields of an account #}
+{% comment %}
+Form for content related fields of an account
 
-<form hx-patch="{% url 'api-accounts-detail' account.id %}" hx-template="accounts/_update_content_form.html">
-  {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
-  <p class="help">Preview these themes at <a
-       href="https://stencila.github.io/thema">https://stencila.github.io/thema</a>.
-  <p>
+Uses `hx-swap="none"` because otherwise reloading of the <form>
+  interferes with the CodeMirror enhanced fields included from `_update_content_extras.html`.
+  {% endcomment %}
+
+  <form hx-patch="{% url 'api-accounts-detail' account.id %}" hx-swap="none">
+
+    {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" %}
+    <p class="help">Preview these themes at <a
+         href="https://stencila.github.io/thema">https://stencila.github.io/thema</a>.
+      This default theme can be overridden in individual projects.
+    </p>
+
     <br>
-
     {% include "serializers/_field.html" with field=serializer.hosts icon="ri-server-line" %}
+
+    <br>
+    <h3 class="title is-5">Extra content</h3>
+    <p class="is-small">
+      Use the following fields to inject extra content into HTML pages served for your account.
+      You can use them to insert useful elements like <code>&lt;meta&gt;</code> tags and
+      analytics scripts. These settings can be overridden in individual projects.
+    </p>
+
+    <br>
+    {% include "accounts/_update_content_extras.html" %}
+
     {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
-</form>
+  </form>

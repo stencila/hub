@@ -114,6 +114,24 @@ class Project(models.Model):
         # See note for the `Account.theme` field for why this is a TextField.
     )
 
+    extra_head = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject into the <head> element of HTML served for this project.",
+    )
+
+    extra_top = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject at the top of the <body> element of HTML served for this project.",
+    )
+
+    extra_bottom = models.TextField(
+        null=True,
+        blank=True,
+        help_text="Content to inject at the bottom of the <body> element of HTML served for this project.",
+    )
+
     main = models.TextField(
         null=True, blank=True, help_text="Path of the main file of the project",
     )

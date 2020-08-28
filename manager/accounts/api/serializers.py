@@ -214,6 +214,9 @@ class AccountSerializer(serializers.ModelSerializer):
             "website",
             "email",
             "theme",
+            "extra_head",
+            "extra_top",
+            "extra_bottom",
             "hosts",
         ]
 
@@ -259,6 +262,18 @@ class AccountSerializer(serializers.ModelSerializer):
             )
 
         return name
+
+    def validate_extra_head(self, content: str):
+        """Validate extra content for head."""
+        return content.strip() or None
+
+    def validate_extra_top(self, content: str):
+        """Validate extra content for top of body."""
+        return content.strip() or None
+
+    def validate_extra_bottom(self, content: str):
+        """Validate extra content for bottom of body."""
+        return content.strip() or None
 
 
 class AccountCreateSerializer(AccountSerializer):
