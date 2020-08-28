@@ -5,11 +5,14 @@ from typing import Dict, List, NamedTuple, Optional, Tuple
 
 import httpx
 import pygments
+import pygments.lexer
 import pygments.lexers
 from django.db import models, transaction
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import reverse
 from django.utils import timezone
+from pygments.lexers.markup import MarkdownLexer
+from pygments.lexers.special import TextLexer
 
 from jobs.models import Job, JobMethod
 from manager.storage import FileSystemStorage, snapshots_storage, working_storage
@@ -38,6 +41,7 @@ class FileFormat(NamedTuple):
     kind: str
     mimetype: str
     extensions: List[str]
+    lexer: pygments.lexer.Lexer
     icon_class: str
     minor: bool = False
 
@@ -84,6 +88,7 @@ def file_format(
     kind: Optional[str] = None,
     mimetype: Optional[str] = None,
     extensions: Optional[List[str]] = None,
+    lexer: Optional[pygments.lexer.Lexer] = None,
     icon_class: Optional[str] = None,
     minor: bool = False,
 ):
@@ -106,6 +111,12 @@ def file_format(
     if extensions is None:
         extensions = mimetypes.guess_all_extensions(mimetype)
 
+    if lexer is None:
+        try:
+            lexer = pygments.lexers.get_lexer_for_mimetype(mimetype)
+        except pygments.util.ClassNotFound:
+            lexer = TextLexer
+
     if kind is None:
         if mimetype.startswith("image/"):
             kind = "image"
@@ -118,7 +129,9 @@ def file_format(
         else:
             icon_class = FileFormat.default_icon_class()
 
-    return FileFormat(format_id, label, kind, mimetype, extensions, icon_class, minor)
+    return FileFormat(
+        format_id, label, kind, mimetype, extensions, lexer, icon_class, minor
+    )
 
 
 class FileFormats(enum.Enum):
@@ -169,7 +182,9 @@ class FileFormats(enum.Enum):
     )
     pdf = file_format("pdf", icon_class="ri-file-pdf-line")
     png = file_format("png")
-    rmd = file_format("rmd", label="R Markdown", mimetype="text/r+markdown")
+    rmd = file_format(
+        "rmd", label="R Markdown", mimetype="text/r+markdown", lexer=MarkdownLexer,
+    )
     rnb = file_format(
         "rnb", mimetype="text/rstudio+html", extensions=[".nb.html"], minor=True
     )
@@ -213,6 +228,16 @@ class FileFormats(enum.Enum):
             return FileFormats.from_mimetype(mimetype)
         else:
             raise ValueError("Must provide format id or MIME type")
+
+    @classmethod
+    def from_url(cls, url: str) -> "FileFormat":
+        """
+        Get a file format from a URL (including file name or path).
+        """
+        mimetype, encoding = mimetypes.guess_type(url)
+        if not mimetype:
+            raise ValueError("Unable to determine MIME type for URL {}".format(url))
+        return cls.from_mimetype(mimetype)
 
 
 class File(models.Model):
@@ -412,7 +437,8 @@ class File(models.Model):
         """
         Get a Pygments lexer for the file.
 
-        Returns `None` if no matching lexer can be found.
+        Returns the "null" lexer (which doesn't highlight anything)
+        if no matching lexer can be found.
         """
         try:
             return pygments.lexers.guess_lexer_for_filename(self.path, "")
@@ -420,7 +446,10 @@ class File(models.Model):
             try:
                 return pygments.lexers.get_lexer_for_mimetype(self.mimetype)
             except pygments.util.ClassNotFound:
-                return None
+                try:
+                    FileFormats.from_url(self.path).lexer()
+                except ValueError:
+                    return pygments.lexers.special.TextLexer()
 
     def highlight_content(self) -> Optional[Tuple[str, str]]:
         """
@@ -429,9 +458,6 @@ class File(models.Model):
         Returns `None` if the content can not be highlighted.
         """
         lexer = self.get_lexer()
-        if not lexer:
-            return None
-
         content = self.get_content()
         formatter = pygments.formatters.HtmlFormatter(
             cssclass="source", style="colorful"
@@ -440,23 +466,20 @@ class File(models.Model):
         html = pygments.highlight(content, lexer, formatter)
         return css, html
 
-    def highlight_url(self) -> Optional[str]:
+    def highlight_url(self) -> str:
         """
         Get a URL to view the syntax highlighted content of the file (if possible).
 
         Returns `None` if the content can not be highlighted.
         """
-        if self.get_lexer():
-            return reverse(
-                "ui-projects-files-highlight",
-                kwargs=dict(
-                    account=self.project.account.name,
-                    project=self.project.name,
-                    file=self.path,
-                ),
-            )
-        else:
-            return None
+        return reverse(
+            "ui-projects-files-highlight",
+            kwargs=dict(
+                account=self.project.account.name,
+                project=self.project.name,
+                file=self.path,
+            ),
+        )
 
     def download_url(self) -> str:
         """
@@ -518,21 +541,34 @@ class File(models.Model):
             with self.project.STORAGE.open(location) as file:
                 return file.read()
 
-    def convert(self, user: User, output: str) -> Job:
+    def convert(
+        self, user: User, output: str, options: Dict = {}, snapshot: bool = False
+    ) -> Job:
         """
         Convert a file to another format.
 
         Creates a `convert` job which returns a list of files produced
         (may be more than one e.g a file with a media folder). Each of the
         produced files will have this file as a dependency.
+
+        Do not call back if this conversion is for a snapshot (do
+        not want a file entry for those at present).
         """
+        if self.mimetype:
+            options["from"] = self.mimetype
+
         return Job.objects.create(
             description="Convert '{0}' to '{1}'".format(self.path, output),
+            method=JobMethod.convert.name,
+            params=dict(
+                project=self.project.id,
+                input=self.path,
+                output=output,
+                options=options,
+            ),
             project=self.project,
             creator=user,
-            method=JobMethod.convert.name,
-            params=dict(project=self.project.id, input=self.path, output=output),
-            **Job.create_callback(self, "convert_callback"),
+            **(Job.create_callback(self, "convert_callback") if not snapshot else {})
         )
 
     @transaction.atomic
