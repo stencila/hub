@@ -1,3 +1,17 @@
+# [3.36.0](https://github.com/stencila/hub/compare/v3.35.5...v3.36.0) (2020-08-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.98.5 ([784c96f](https://github.com/stencila/hub/commit/784c96ff6ccf44f898dee8ee56dcfe6b105e0ac1))
+* **deps:** update dependency brotli to v1.0.9 ([549a85d](https://github.com/stencila/hub/commit/549a85d876c5545e1edc4f1d2020909f0f7ba8b3))
+* **deps:** update dependency bulma-toast to v2.0.3 ([b953923](https://github.com/stencila/hub/commit/b9539236d17cf7f854c0d0babb9d9d42c5138d6b))
+
+
+### Features
+
+* **Account content:** Allow per account and per project content injection ([600dd0a](https://github.com/stencila/hub/commit/600dd0a93a25ed8b78248064a997263c54886562)), closes [#655](https://github.com/stencila/hub/issues/655)
+
 ## [3.35.5](https://github.com/stencila/hub/compare/v3.35.4...v3.35.5) (2020-08-27)
 
 
