@@ -1,5 +1,5 @@
 amqp==2.6.1
-brotli==1.0.7
+brotli==1.0.9
 celery==4.4.7
 customidenticon==0.1.5
 dj_database_url==0.5.0
