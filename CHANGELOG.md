@@ -1,3 +1,12 @@
+## [3.36.1](https://github.com/stencila/hub/compare/v3.36.0...v3.36.1) (2020-08-28)
+
+
+### Bug Fixes
+
+* **Manager:** Do not clean and pull in shaphots; reuse file convert method ([bfa3506](https://github.com/stencila/hub/commit/bfa35068b437109ae3d41058144cd006e4900052))
+* **Manager:** Pass mimetype to convert job; add format lexers ([2703701](https://github.com/stencila/hub/commit/270370167306ce03178687720bfa44fa768f90a8)), closes [#663](https://github.com/stencila/hub/issues/663)
+* **Worker:** Remove destination path if exists ([93fdafb](https://github.com/stencila/hub/commit/93fdafbbf4f1a6189b9187ad9280d328fd11fe40))
+
 # [3.36.0](https://github.com/stencila/hub/compare/v3.35.5...v3.36.0) (2020-08-28)
 
 
