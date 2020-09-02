@@ -107,13 +107,9 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     elif request.method == "POST":
         file = request.FILES.get("file")
         if file and path:
-            source = UploadSource.create_or_update_from_uploaded_file(
-                project, path, file
+            UploadSource.create_or_update_from_uploaded_file(
+                request.user, project, path, file
             )
-
-            job = source.pull(request.user)
-            job.dispatch()
-
         return redirect(
             "ui-projects-files-retrieve", project.account.name, project.name, path
         )

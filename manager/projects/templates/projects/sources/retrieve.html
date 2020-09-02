@@ -23,7 +23,6 @@
     </a>
 
     {# Create a pull job and then redirect to this page (which will now have an active source #}
-    {% if source.type_name != "Upload" %}
     <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
        hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
        hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.address %}"
@@ -33,7 +32,6 @@
       </span>
       <span>{% trans "Pull" %}</span>
     </a>
-    {% endif %}
 
     <a class="button is-danger is-outlined is-small-mobile is-expanded-mobile"
        href="{% url 'ui-projects-sources-destroy' project.account.name project.name source.id %}">

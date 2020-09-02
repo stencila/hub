@@ -91,10 +91,20 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         files = request.FILES.getlist("files")
         if files:
             for file in files:
-                UploadSource.create_or_update_from_uploaded_file(
-                    project, file.name, file
+                source = UploadSource.create_or_update_from_uploaded_file(
+                    request.user, project, file.name, file
                 )
-        return redirect("ui-projects-sources-list", project.account.name, project.name)
+            if len(files) == 1:
+                return redirect(
+                    "ui-projects-sources-retrieve",
+                    project.account.name,
+                    project.name,
+                    source.id,
+                )
+            else:
+                return redirect(
+                    "ui-projects-sources-list", project.account.name, project.name
+                )
     else:
         raise Http404
 

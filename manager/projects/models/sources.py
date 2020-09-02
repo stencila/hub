@@ -629,8 +629,8 @@ class UploadSource(Source):
     A file that has been uploaded to the Hub.
 
     This allows us to keep track of files that have been explicitly
-    uploaded to the project folder, rather than being derived from
-    pulling other sources, or being derived from jobs.
+    uploaded to the project folder (as opposed to having been pulled
+    from another type of source, or being derived from jobs e.g. conversion).
 
     During development, uploaded files are stored on the local
     filesystem. In production, they are stored in cloud storage
@@ -696,10 +696,14 @@ class UploadSource(Source):
 
     @staticmethod
     def create_or_update_from_uploaded_file(
-        project: Project, path: str, file: UploadedFile
+        user: User, project: Project, path: str, file: UploadedFile
     ) -> "UploadSource":
         """
         Create or update a `UploadSource` from an uploaded file.
+
+        This method is analogous to the API's `SourceSerializer.create`
+        in that it creates a pull job. This is not part of the API because of
+        the different semantics (re-uploads a file if it already exists).
         """
         try:
             source = UploadSource.objects.get(project=project, path=path)
@@ -711,6 +715,9 @@ class UploadSource(Source):
         source.size = file.size
         source.content_type = file.content_type
         source.save()
+
+        job = source.pull(user)
+        job.dispatch()
 
         return source
 
