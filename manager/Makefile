@@ -69,8 +69,11 @@ show-serializers:
 	$(DJ) runscript show_serializers
 
 # Run development server
+# Do not use multithreading as this can issues with SQLite
+# if there is more than one thread attempting to write to
+# the database.
 run: venv
-	$(DJ) runserver
+	$(DJ) runserver --nothreading
 
 # Run development server with PostgreSQL database
 run-postgres: venv
