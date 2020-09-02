@@ -269,7 +269,7 @@ class Prod(Configuration):
     # django-cors-headers
     # See https://github.com/adamchainz/django-cors-headers#configuration
     # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
-    CORS_ORIGIN_REGEX_WHITELIST: List[str] = []
+    CORS_ALLOWED_ORIGIN_REGEXES: List[str] = []
     # This allows credentials to be send in cross-origin requests
     CORS_ALLOW_CREDENTIALS = True
 
@@ -517,7 +517,7 @@ class Prod(Configuration):
         # Allow requests from any account subdomains
         # Yes, it is important to append to the existing list, rather
         # than replace it, even if it is empty.
-        cls.CORS_ORIGIN_REGEX_WHITELIST += [
+        cls.CORS_ALLOWED_ORIGIN_REGEXES += [
             "^https?://[a-z0-9-]+\\.{0}$".format(
                 cls.ACCOUNTS_DOMAIN.replace(".", "\\.")
             )
