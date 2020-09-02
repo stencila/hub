@@ -5,13 +5,13 @@
   <div class="dropdown-content">
     {% file_format_convert_to_options mimetype=file.mimetype as formats %}
     {% for format in formats %}
-    <a href="{{ convert_url }}?next={{ request.path }}&format={{ format.format_id }}" class="dropdown-item">
+    <a href="{{ convert_url }}?prev={{ request.path }}&format={{ format.format_id }}" class="dropdown-item">
       <span class="icon"><i class="{{ format.icon_class }}"></i></span>
       <span>{{ format.label }}</span>
       <span class="">({{ format.default_extension }})</span>
     </a>
     {% endfor %}
-    <a href="{{ convert_url }}?next={{ request.path }}" class="dropdown-item">
+    <a href="{{ convert_url }}?prev={{ request.path }}" class="dropdown-item">
       <span class="icon"><i class="ri-file-3-line"></i></span>
       <span>Other</span>
     </a>

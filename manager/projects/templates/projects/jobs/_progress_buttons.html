@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div {% if job.is_active %} hx-trigger="every 2s"
-     hx-get="{% url 'api-projects-jobs-detail' job.project_id job.id %}{% if next %}?next={{ next }}{% endif %}"
+     hx-get="{% url 'api-projects-jobs-detail' job.project_id job.id %}?{% if prev %}prev={{ prev }}{% endif %}{% if next %}&next={{ next }}{% endif %}"
      hx-template="projects/jobs/_progress_buttons.html" hx-swap="outerHTML" {% endif %}>
   <progress class="progress is-vcentered is-primary" value="{{ job.runtime_seconds }}"
             max="{{ runtime_expected|default:60 }}">
@@ -13,8 +13,9 @@
   </p>
   {% endif %}
   <div class="buttons mt-2">
-    <button class="button is-primary is-fullwidth-mobile {% if job.is_active %}is-loading{% endif %}"
-            {% if job.is_active %} disabled{% endif %} type="submit">
+    {% if not job or job.is_active %}
+    <button class="button is-primary is-fullwidth-mobile {% if job.is_active %}is-loading disabled{% endif %}"
+            type="submit">
       {% if not job %}
       <span class="icon">
         <i class="{{ begin_icon }}"></i>
@@ -29,7 +30,11 @@
       <span>
         {% blocktrans %}Running{% endblocktrans %}
       </span>
-      {% elif job.status == "SUCCESS" %}
+      {% endif %}
+    </button>
+    {% else %}
+    <a class="button is-primary is-fullwidth-mobile" href="{{ next }}">
+      {% if job.status == "SUCCESS" %}
       <span class="icon">
         <i class="ri-check-line"></i>
       </span>
@@ -44,8 +49,9 @@
         {% blocktrans %}Errored{% endblocktrans %}
       </span>
       {% endif %}
-    </button>
-    <a class="button is-outlined is-fullwidth-mobile" href="{{ next }}">
+    </a>
+    {% endif %}
+    <a href="{{ prev }}" class="button is-outlined is-fullwidth-mobile">
       <span class="icon">
         <i class="ri-arrow-go-back-line"></i>
       </span>

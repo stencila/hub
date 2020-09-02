@@ -531,7 +531,10 @@ class ProjectsJobsViewSet(
         Get the template context for HTML responses.
         """
         return super().get_response_context(
-            *args, **kwargs, next=self.request.GET.get("next")
+            *args,
+            **kwargs,
+            prev=self.request.GET.get("prev"),
+            next=self.request.GET.get("next")
         )
 
     # Shortcut `create` views

@@ -5,14 +5,14 @@
 1. User enters the new file path, confirms the format and submits
 2a. If form is invalid then this template is rerendered with errors
 2b. If form is valid, then a `job` is passed to this template and it's progress is displayed
-3. When the job ends (success or failure), this page redirects to the files list view
-which (if successful) has the new file in it.
+3. When the job ends (success or failure), this page redirects to the new file.
 
 {% endcomment %}
 
 <form hx-post="{% url 'api-projects-files-convert' project.id file.id %}" hx-template="projects/files/_convert.html">
 
-  <h1 class="title is-3">{% trans "Convert to..." %}</h1>
+  <h1 class="title is-4">{% blocktrans with path=file.path %}Convert <code>{{ path }}</code> to...{% endblocktrans %}
+  </h1>
 
   <div class="field has-addons has-addons-centered">
     <div class="control is-expanded">
@@ -33,9 +33,14 @@ which (if successful) has the new file in it.
     </div>
   </div>
 
-  {% if not next %}
-  {% url 'ui-projects-files-retrieve' project.account.name project.name file.path as next %}
+  {% if not prev %}
+  {% url 'ui-projects-files-retrieve' project.account.name project.name file.path as prev %}
   {% endif %}
+
+  {% if not next %}
+  {% url 'ui-projects-files-list' project.account.name project.name as next %}
+  {% endif %}
+
   {% include "projects/jobs/_progress_buttons.html" with begin_icon="ri-file-3-line" begin_text="Convert" runtime_expected=5 %}
 
 </form>
