@@ -592,6 +592,7 @@ class Dev(Local):
 
     # Allow session cookie to be sent over HTTP
     SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
     # Required for debug_toolbar
     INTERNAL_IPS = "127.0.0.1"
