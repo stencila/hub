@@ -1,3 +1,15 @@
+## [3.36.2](https://github.com/stencila/hub/compare/v3.36.1...v3.36.2) (2020-09-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django-cors-headers to v3.5.0 ([85146f4](https://github.com/stencila/hub/commit/85146f45098610dbb7f64e6bbb6ddef8960eabea))
+* **deps:** update dependency django-prometheus to v2.1.0 ([898e9b9](https://github.com/stencila/hub/commit/898e9b962ae6dd6ea5c116d277ab140beaafbcdf))
+* **deps:** update dependency django-sendgrid-v5 to v0.9.0 ([d8f84e8](https://github.com/stencila/hub/commit/d8f84e843e66950a1e9ad31ea69567c5326e3e87))
+* **deps:** update dependency google-api-python-client to v1.11.0 ([80421d3](https://github.com/stencila/hub/commit/80421d322cce77f0de2c5a6ab4bab2e92794dafd))
+* **deps:** update dependency google-cloud-storage to v1.31.0 ([a135c2b](https://github.com/stencila/hub/commit/a135c2b1aa652c4083802ec4828c0a60762b5a54))
+* **Manager:** Rename django-cors-headers settings ([e89f737](https://github.com/stencila/hub/commit/e89f737625b8f9de114090d515147e366e1b9bcb)), closes [/github.com/adamchainz/django-cors-headers/blob/master/HISTORY.rst#350-2020-08-25](https://github.com//github.com/adamchainz/django-cors-headers/blob/master/HISTORY.rst/issues/350-2020-08-25)
+
 ## [3.36.1](https://github.com/stencila/hub/compare/v3.36.0...v3.36.1) (2020-08-28)
 
 
