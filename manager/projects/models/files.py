@@ -230,14 +230,21 @@ class FileFormats(enum.Enum):
             raise ValueError("Must provide format id or MIME type")
 
     @classmethod
-    def from_url(cls, url: str) -> "FileFormat":
+    def from_url_or_mimetype(
+        cls, url: Optional[str] = None, mimetype: Optional[str] = None
+    ) -> "FileFormat":
         """
-        Get a file format from a URL (including file name or path).
+        Get a file format from a URL (including file name or path) or mimetype.
         """
-        mimetype, encoding = mimetypes.guess_type(url)
-        if not mimetype:
-            raise ValueError("Unable to determine MIME type for URL {}".format(url))
-        return cls.from_mimetype(mimetype)
+        if mimetype:
+            return cls.from_mimetype(mimetype)
+        elif url:
+            mimetype, encoding = mimetypes.guess_type(url)
+            if not mimetype:
+                raise ValueError("Unable to determine MIME type for URL {}".format(url))
+            return cls.from_mimetype(mimetype)
+        else:
+            raise ValueError("Must provide a URL or MIME type")
 
 
 class File(models.Model):
@@ -437,8 +444,8 @@ class File(models.Model):
         """
         Get a Pygments lexer for the file.
 
-        Returns the "null" lexer (which doesn't highlight anything)
-        if no matching lexer can be found.
+        Returns None if no matching lexer can be found e.g. for
+        binary files like Word or PDF.
         """
         try:
             return pygments.lexers.guess_lexer_for_filename(self.path, "")
@@ -447,9 +454,11 @@ class File(models.Model):
                 return pygments.lexers.get_lexer_for_mimetype(self.mimetype)
             except pygments.util.ClassNotFound:
                 try:
-                    FileFormats.from_url(self.path).lexer()
+                    return FileFormats.from_url_or_mimetype(
+                        self.path, self.mimetype
+                    ).lexer()
                 except ValueError:
-                    return pygments.lexers.special.TextLexer()
+                    return None
 
     def highlight_content(self) -> Optional[Tuple[str, str]]:
         """
@@ -458,6 +467,7 @@ class File(models.Model):
         Returns `None` if the content can not be highlighted.
         """
         lexer = self.get_lexer()
+        assert lexer is not None
         content = self.get_content()
         formatter = pygments.formatters.HtmlFormatter(
             cssclass="source", style="colorful"
@@ -466,20 +476,24 @@ class File(models.Model):
         html = pygments.highlight(content, lexer, formatter)
         return css, html
 
-    def highlight_url(self) -> str:
+    def highlight_url(self) -> Optional[str]:
         """
         Get a URL to view the syntax highlighted content of the file (if possible).
 
         Returns `None` if the content can not be highlighted.
         """
-        return reverse(
-            "ui-projects-files-highlight",
-            kwargs=dict(
-                account=self.project.account.name,
-                project=self.project.name,
-                file=self.path,
-            ),
-        )
+        lexer = self.get_lexer()
+        if lexer:
+            return reverse(
+                "ui-projects-files-highlight",
+                kwargs=dict(
+                    account=self.project.account.name,
+                    project=self.project.name,
+                    file=self.path,
+                ),
+            )
+        else:
+            return None
 
     def download_url(self) -> str:
         """
