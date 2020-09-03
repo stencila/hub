@@ -1,3 +1,15 @@
+## [3.36.3](https://github.com/stencila/hub/compare/v3.36.2...v3.36.3) (2020-09-03)
+
+
+### Bug Fixes
+
+* **File highlighting:** Skip binary files; fix resolution of lexer ([d2c084d](https://github.com/stencila/hub/commit/d2c084d0d5ada40dce01c12f802c8cc182f4611d))
+* **Manager:** Allow for both prev and next params for jobs ([a6380e5](https://github.com/stencila/hub/commit/a6380e526435f866395f79a28191441f691fce87))
+* **Manager:** Typo ([380960c](https://github.com/stencila/hub/commit/380960caf5307e413142584970e98427303e7921))
+* **Manager:** Use SameSite Lax in development ([cf824d2](https://github.com/stencila/hub/commit/cf824d27f015e93d9d28bf906ee26b15c4b00ea1))
+* **Uploads:** Always pull uploaded files on creation ([c4cc30b](https://github.com/stencila/hub/commit/c4cc30b23886a9c98ab0116234bf8a2a25c25c5f))
+* **Worker:** Upgrade Encoda ([4feb4b7](https://github.com/stencila/hub/commit/4feb4b7bbde6bf52da8f885b97e8b1f744962448))
+
 ## [3.36.2](https://github.com/stencila/hub/compare/v3.36.1...v3.36.2) (2020-09-02)
 
 
