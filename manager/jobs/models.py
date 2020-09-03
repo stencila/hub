@@ -601,11 +601,11 @@ class Job(models.Model):
     )
 
     created = models.DateTimeField(
-        null=False, auto_now_add=True, help_text="The time the job was created."
+        auto_now_add=True, help_text="The time the job was created."
     )
 
     updated = models.DateTimeField(
-        null=False, auto_now=True, help_text="The time the job was last updated."
+        auto_now=True, help_text="The time the job was last updated."
     )
 
     queue = models.ForeignKey(
@@ -626,71 +626,78 @@ class Job(models.Model):
         help_text="The parent job",
     )
 
-    began = models.DateTimeField(null=True, help_text="The time the job began.")
-    ended = models.DateTimeField(null=True, help_text="The time the job ended.")
+    began = models.DateTimeField(
+        null=True, blank=True, help_text="The time the job began."
+    )
+    ended = models.DateTimeField(
+        null=True, blank=True, help_text="The time the job ended."
+    )
 
     status = models.CharField(
         max_length=32,
         choices=JobStatus.as_choices(),
-        blank=True,
         null=True,
+        blank=True,
         help_text="The current status of the job.",
     )
 
     is_active = models.BooleanField(
-        null=False, default=False, db_index=True, help_text="Is the job active?"
+        default=False, db_index=True, help_text="Is the job active?",
     )
 
     method = models.CharField(
         max_length=32, choices=JobMethod.as_choices(), help_text="The job method."
     )
     params = models.JSONField(
-        blank=True, null=True, help_text="The parameters of the job; a JSON object."
+        null=True, blank=True, help_text="The parameters of the job; a JSON object."
     )
     result = models.JSONField(
-        blank=True, null=True, help_text="The result of the job; a JSON value."
+        null=True, blank=True, help_text="The result of the job; a JSON value."
     )
     error = models.JSONField(
-        blank=True,
         null=True,
+        blank=True,
         help_text="Any error associated with the job; a JSON object with type, message etc.",
     )
 
     log = models.JSONField(
-        blank=True,
         null=True,
+        blank=True,
         help_text="The job log; a JSON array of log objects, including any errors.",
     )
     runtime = models.FloatField(
-        blank=True, null=True, help_text="The running time of the job."
+        null=True, blank=True, help_text="The running time of the job."
     )
 
     # Not a URLField because potential for non-standard schemes e.g. ws://
     url = models.CharField(
         max_length=256,
-        blank=True,
         null=True,
+        blank=True,
         help_text="The URL of the job on the local network; can be used to interact with it.",
     )
 
     users = models.ManyToManyField(
         User,
+        blank=True,
         help_text="Users who have created or connected to the job; not necessarily currently connected.",
     )
 
     anon_users = models.ManyToManyField(
-        AnonUser, help_text="Anonymous users who have created or connected to the job.",
+        AnonUser,
+        blank=True,
+        help_text="Anonymous users who have created or connected to the job.",
     )
 
     worker = models.CharField(
         max_length=64,
-        blank=True,
         null=True,
+        blank=True,
         help_text="The identifier of the worker that ran the job.",
     )
 
     retries = models.IntegerField(
-        blank=True, null=True, help_text="The number of retries to fulfil the job.",
+        null=True, blank=True, help_text="The number of retries to fulfil the job.",
     )
 
     callback_type = models.ForeignKey(
