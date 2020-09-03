@@ -1,3 +1,10 @@
+## [3.36.4](https://github.com/stencila/hub/compare/v3.36.3...v3.36.4) (2020-09-03)
+
+
+### Bug Fixes
+
+* **Worker:** Update Encoda system dependencies ([56528f5](https://github.com/stencila/hub/commit/56528f5eb75e3d4ed8e378e57075d02a56ed76e5))
+
 ## [3.36.3](https://github.com/stencila/hub/compare/v3.36.2...v3.36.3) (2020-09-03)
 
 
