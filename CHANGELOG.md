@@ -1,3 +1,13 @@
+## [3.36.5](https://github.com/stencila/hub/compare/v3.36.4...v3.36.5) (2020-09-06)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency @stencila/encoda to 0.99.0 ([3888f3d](https://github.com/stencila/hub/commit/3888f3d701852f68f2874af22695c3732f76fc5a))
+* **deps:** update dependency @stencila/encoda to v0.99.1 ([c4c78db](https://github.com/stencila/hub/commit/c4c78db14b7f423bd95263b1efa24ec9a8468909))
+* **deps:** update dependency django to v3.1.1 ([1b7aa94](https://github.com/stencila/hub/commit/1b7aa94da63b74c967a3013beae7ca7c3022c5c2))
+* **Manager:** Consistent use of null and blank on fields ([7a232ed](https://github.com/stencila/hub/commit/7a232ed36edf5b4fa25b8ad0fc39ff6da254b34f))
+
 ## [3.36.4](https://github.com/stencila/hub/compare/v3.36.3...v3.36.4) (2020-09-03)
 
 
