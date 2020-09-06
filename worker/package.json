@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@stencila/encoda": "0.99.0",
+    "@stencila/encoda": "0.99.1",
     "@stencila/executa": "1.14.0",
     "typescript": "3.9.7"
   }
