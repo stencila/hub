@@ -134,6 +134,8 @@ make run-in-minikube
 
 > 💁 Tip: The `minikube dashboard` is really useful for debugging. And don't forget to `minikube stop` when you're done!
 
+> 💁 Tip: Instead of using `minikube` you might want to consider lighter weight alternatives such as `kind`, `microk8s`, or `k3s` to run a local Kubernetes cluster.
+
 ### Committing
 
 Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is important (but not required) because commit messages are used to determine the semantic version of releases (and thus deployments) and to generate the project's [CHANGELOG.md](CHANGELOG.md). If appropriate, use the sentence case service name as the scope (to help make both `git log` and the change log more readable). Some examples,
@@ -146,15 +148,9 @@ Commit messages should follow the [conventional commits](https://www.conventiona
 
 We use Renovate to keep track of updates to packages this repo depends upon. For more details see  the list of currently open and scheduled [Renovate PRs](https://github.com/stencila/hub/issues/302) and the `renovate` configuration in [`package.json`](package.json).
 
-## 🚀 Continuous integration and deployment
+## 🚀 Continuous integration
 
 We use Azure Pipelines as a continuous integration (CI) service. On each push, the CI does linting and run tests. On each tag, the Docker image for each service is built and pushed to Docker Hub:
 
 - [Stencila Hub's Azure Pipeline](https://dev.azure.com/stencila/stencila/_build?definitionId=5&_a=summary)
 - [Stencila Hub's images on Docker Hub](https://hub.docker.com/u/stencila)
-
-Continuous deployment (CD) to https://hub.stenci.la is done using [FluxCD](https://fluxcd.io/) from another repository:
-
-- [Stencila's continuous deployment and status reporting repo](https://github.com/stencila/gaia)
-- [Stencila's status page](https://status.stenci.la/)
-
