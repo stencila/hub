@@ -1,3 +1,10 @@
+## [3.36.6](https://github.com/stencila/hub/compare/v3.36.5...v3.36.6) (2020-09-07)
+
+
+### Bug Fixes
+
+* **Manager:** Calculate next from the file path ([c20893b](https://github.com/stencila/hub/commit/c20893b9fb7b5312af27f433b7390c3e7dc23f9f))
+
 ## [3.36.5](https://github.com/stencila/hub/compare/v3.36.4...v3.36.5) (2020-09-06)
 
 
