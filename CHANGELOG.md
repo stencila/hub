@@ -1,3 +1,10 @@
+## [3.36.7](https://github.com/stencila/hub/compare/v3.36.6...v3.36.7) (2020-09-07)
+
+
+### Bug Fixes
+
+* **Worker:** Upgrade Encoda ([08856b5](https://github.com/stencila/hub/commit/08856b59f45ed2cbdd8f50f38add2862d717a465))
+
 ## [3.36.6](https://github.com/stencila/hub/compare/v3.36.5...v3.36.6) (2020-09-07)
 
 
