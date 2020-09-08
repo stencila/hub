@@ -1,3 +1,10 @@
+## [3.36.8](https://github.com/stencila/hub/compare/v3.36.7...v3.36.8) (2020-09-08)
+
+
+### Bug Fixes
+
+* **Worker:** Upgrade dependencies ([2eeb0bc](https://github.com/stencila/hub/commit/2eeb0bc9012d80fbc4f754eb55935d4fb01c85fb))
+
 ## [3.36.7](https://github.com/stencila/hub/compare/v3.36.6...v3.36.7) (2020-09-07)
 
 
