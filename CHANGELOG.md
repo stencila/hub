@@ -1,3 +1,10 @@
+## [3.36.9](https://github.com/stencila/hub/compare/v3.36.8...v3.36.9) (2020-09-10)
+
+
+### Bug Fixes
+
+* **Deps:** Update Manager JS dependencies ([a775e7f](https://github.com/stencila/hub/commit/a775e7fefecb22470995529d208abdcadc8083f3))
+
 ## [3.36.8](https://github.com/stencila/hub/compare/v3.36.7...v3.36.8) (2020-09-08)
 
 
