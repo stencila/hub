@@ -1,3 +1,10 @@
+## [3.36.10](https://github.com/stencila/hub/compare/v3.36.9...v3.36.10) (2020-09-11)
+
+
+### Bug Fixes
+
+* **Deps:** Update Stencila Components dependency ([f1b2f17](https://github.com/stencila/hub/commit/f1b2f17a70cf54c6c5dd5dfd7197039317cfe56e))
+
 ## [3.36.9](https://github.com/stencila/hub/compare/v3.36.8...v3.36.9) (2020-09-10)
 
 
