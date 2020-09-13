@@ -1,4 +1,4 @@
 amqp==2.6.1
 celery==4.4.7
-httpx==0.14.2
+httpx==0.14.3
 prometheus_client==0.8.0
