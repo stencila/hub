@@ -17,7 +17,7 @@ django-prometheus==2.1.0
 django-rest-knox==4.1.0
 django-rest-polymorphic==0.1.9
 django-sendgrid-v5==0.9.0
-django-storages==1.9.1
+django-storages==1.10
 django-super-deduper==0.1.4
 django-waffle==1.0.0
 Django==3.1.1
