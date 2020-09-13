@@ -1,3 +1,17 @@
+## [3.36.11](https://github.com/stencila/hub/compare/v3.36.10...v3.36.11) (2020-09-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.99.6 ([365fc95](https://github.com/stencila/hub/commit/365fc959e58728d16264d30cd3fe4cf4344e24d0))
+* **deps:** update dependency @stencila/executa to v1.14.1 ([bfa4462](https://github.com/stencila/hub/commit/bfa4462f47ce930f7d2a21cdcf9d41375929fada))
+* **deps:** update dependency django-extensions to v3.0.8 ([d4e8fd9](https://github.com/stencila/hub/commit/d4e8fd920cb900216243a6a8bf67e46047a9aa35))
+* **deps:** update dependency django-storages to v1.10 ([834ad5e](https://github.com/stencila/hub/commit/834ad5e3695212f56d79f8c5e8c29c641262abe6))
+* **deps:** update dependency django-waffle to v2 ([e1956d8](https://github.com/stencila/hub/commit/e1956d8c8c89a50a632ddd55b7d037ab9bfb350d))
+* **deps:** update dependency httpx to v0.14.3 ([8850670](https://github.com/stencila/hub/commit/8850670edb1584ce6dadf098110f8e21602c4e7b))
+* **deps:** update dependency psycopg2-binary to v2.8.6 ([6635c23](https://github.com/stencila/hub/commit/6635c231f4b821ec097222f86571494142ab039a))
+* **deps:** update dependency sentry-sdk to v0.17.4 ([24f5cb6](https://github.com/stencila/hub/commit/24f5cb6cca6cc37ebacc78ed7bbaa040dc565adf))
+
 ## [3.36.10](https://github.com/stencila/hub/compare/v3.36.9...v3.36.10) (2020-09-11)
 
 
