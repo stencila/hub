@@ -1,3 +1,10 @@
+## [3.36.12](https://github.com/stencila/hub/compare/v3.36.11...v3.36.12) (2020-09-15)
+
+
+### Bug Fixes
+
+* **Manager:** Do not purge Twitter icon class ([be447b5](https://github.com/stencila/hub/commit/be447b5c756e78d49fb03d0d4ed7b791ab3e1edc))
+
 ## [3.36.11](https://github.com/stencila/hub/compare/v3.36.10...v3.36.11) (2020-09-13)
 
 
