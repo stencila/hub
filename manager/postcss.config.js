@@ -11,9 +11,10 @@ const prodPlugins = [
     content: ["./**/templates/**/*.html", "./manager/static/js/src/**/*.js"],
     whitelistPatterns: [
       // Icon classes specified in Python code and purged without this whitelisting
-      /^ri-file-/,
+      /^ri-file-line/,
       /^ri-image-line$/,
-      /^ri-markdown-line$/
+      /^ri-markdown-line$/,
+      /^ri-twitter-line$/
     ]
   }),
   cssnano({
