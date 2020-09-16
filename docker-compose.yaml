@@ -54,6 +54,8 @@ services:
   steward:
     build: ./steward
     image: stencila/hub-steward
+    env_file:
+      - .secrets
     
   broker:
     build: ./broker
