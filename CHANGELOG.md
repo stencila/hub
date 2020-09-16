@@ -1,3 +1,11 @@
+## [3.37.2](https://github.com/stencila/hub/compare/v3.37.1...v3.37.2) (2020-09-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency typescript to v4 ([3031661](https://github.com/stencila/hub/commit/3031661909227f8feac7c110912755ee5bc198ff))
+* **Deps:** Update Stencila Components to v0.23.5 ([985dcd2](https://github.com/stencila/hub/commit/985dcd2558c47c8f79e4be2dd124bccfb000dd71))
+
 ## [3.37.1](https://github.com/stencila/hub/compare/v3.37.0...v3.37.1) (2020-09-16)
 
 
