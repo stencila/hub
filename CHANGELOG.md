@@ -1,3 +1,11 @@
+## [3.37.1](https://github.com/stencila/hub/compare/v3.37.0...v3.37.1) (2020-09-16)
+
+
+### Bug Fixes
+
+* **Docke compose:** Add secrets to steward ([5ea6b1b](https://github.com/stencila/hub/commit/5ea6b1bbd7dc94b119e87c52a8b3b1b18ec6b5d7))
+* **Stward:** Make shell script executable ([19a435f](https://github.com/stencila/hub/commit/19a435fa2e36e7a7cb5883a7f43f8034d16d8af8))
+
 # [3.37.0](https://github.com/stencila/hub/compare/v3.36.13...v3.37.0) (2020-09-16)
 
 
