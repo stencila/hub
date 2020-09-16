@@ -7,7 +7,7 @@ set -eu
 echo $STEWARD_ACCESS_KEY:$STEWARD_ACCESS_SECRET > .passwd-s3fs \
  && chmod 600 .passwd-s3fs
 
-STEWARD_CACHE=/tmp/steward
+STEWARD_CACHE=/var/cache/steward
 GIGABYTE=1073741824
 
 # Mount cloud storage
