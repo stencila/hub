@@ -1,3 +1,15 @@
+# [3.37.0](https://github.com/stencila/hub/compare/v3.36.13...v3.37.0) (2020-09-16)
+
+
+### Bug Fixes
+
+* **Steward:** Use /var/cache rather than /tmp ([5838e44](https://github.com/stencila/hub/commit/5838e44376ca1198f7bd98466da1756caa203040))
+
+
+### Features
+
+* **Steward:** Add service for providing nodes with access to storage ([adb7966](https://github.com/stencila/hub/commit/adb79666de9bd73af163f1f767c7a4f710566073))
+
 ## [3.36.13](https://github.com/stencila/hub/compare/v3.36.12...v3.36.13) (2020-09-15)
 
 
