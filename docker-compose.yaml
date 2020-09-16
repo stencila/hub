@@ -51,6 +51,10 @@ services:
     env_file:
       - .secrets
 
+  steward:
+    build: ./steward
+    image: stencila/hub-steward
+    
   broker:
     build: ./broker
     image: stencila/hub-broker
@@ -107,4 +111,3 @@ services:
 volumes:
   broker:
   monitor:
-    
