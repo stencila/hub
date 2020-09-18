@@ -1,3 +1,10 @@
+## [3.37.3](https://github.com/stencila/hub/compare/v3.37.2...v3.37.3) (2020-09-18)
+
+
+### Bug Fixes
+
+* **Steward:** Set mount permissions ([fc01fc6](https://github.com/stencila/hub/commit/fc01fc68e13147f90819185259f7e007a9b06061))
+
 ## [3.37.2](https://github.com/stencila/hub/compare/v3.37.1...v3.37.2) (2020-09-16)
 
 
