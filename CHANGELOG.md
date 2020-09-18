@@ -1,3 +1,10 @@
+## [3.37.4](https://github.com/stencila/hub/compare/v3.37.3...v3.37.4) (2020-09-18)
+
+
+### Bug Fixes
+
+* **Router:** Increase the size of buffers ([ae34fc4](https://github.com/stencila/hub/commit/ae34fc46ccbfa6297e78c95fddc7e381dd4cf171)), closes [#690](https://github.com/stencila/hub/issues/690)
+
 ## [3.37.3](https://github.com/stencila/hub/compare/v3.37.2...v3.37.3) (2020-09-18)
 
 
