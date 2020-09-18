@@ -31,7 +31,7 @@ httpx==0.14.3
 inflect==4.1.0
 Pillow==7.2.0
 psycopg2-binary==2.8.6
-pygments==2.6.1
+pygments==2.7.1
 pyjwt==1.7.1
 redis==3.5.3
 sentry-sdk==0.17.4
