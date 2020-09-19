@@ -1,3 +1,10 @@
+## [3.37.5](https://github.com/stencila/hub/compare/v3.37.4...v3.37.5) (2020-09-19)
+
+
+### Bug Fixes
+
+* **Steward:** Change umask to allow other access ([499c188](https://github.com/stencila/hub/commit/499c188df7d3eb277d1d8ff84a6e8fff380a5dd5))
+
 ## [3.37.4](https://github.com/stencila/hub/compare/v3.37.3...v3.37.4) (2020-09-18)
 
 
