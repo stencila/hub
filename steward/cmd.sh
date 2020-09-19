@@ -11,7 +11,7 @@ STEWARD_CACHE=/var/cache/steward
 GIGABYTE=1073741824
 
 # Mount cloud storage
-alias s3fsmount="s3fs -o url=https://storage.googleapis.com -o passwd_file=.passwd-s3fs -o nomultipart -o sigv2 -o umask=0007,uid=1000,gid=1000 -o use_cache=$STEWARD_CACHE"
+alias s3fsmount="s3fs -o url=https://storage.googleapis.com -o passwd_file=.passwd-s3fs -o nomultipart -o sigv2 -o umask=0000,uid=1000,gid=1000 -o use_cache=$STEWARD_CACHE"
 s3fsmount stencila-hub-working /mnt/working
 s3fsmount stencila-hub-snapshots /mnt/snapshots
 s3fsmount stencila-hub-content /mnt/content
