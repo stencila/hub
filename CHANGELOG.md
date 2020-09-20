@@ -1,3 +1,17 @@
+## [3.37.6](https://github.com/stencila/hub/compare/v3.37.5...v3.37.6) (2020-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.99.8 ([d4a6ff7](https://github.com/stencila/hub/commit/d4a6ff7e073fab6a56cef5095c0402c3a227dea4))
+* **deps:** update dependency @stencila/thema to v2.17.2 ([ea686fb](https://github.com/stencila/hub/commit/ea686fb11ca6983ce40f5e077eac51682e2c0d49))
+* **deps:** update dependency django-extensions to v3.0.9 ([b57d190](https://github.com/stencila/hub/commit/b57d1909f38c8359fe40c8b2cd3af3afabf0c219))
+* **deps:** update dependency django-imagefield to v0.12.3 ([6168fdb](https://github.com/stencila/hub/commit/6168fdb47dc5cb3611f3551a92bc632582f157dc))
+* **deps:** update dependency django-storages to v1.10.1 ([83d453f](https://github.com/stencila/hub/commit/83d453f7aa61e1141cce90399e1863f3cc166cfa))
+* **deps:** update dependency google-api-python-client to v1.12.1 ([dbe1fba](https://github.com/stencila/hub/commit/dbe1fbaed447febfa0a93a5630ade0e7f30df82e))
+* **deps:** update dependency pygments to v2.7.1 ([c276378](https://github.com/stencila/hub/commit/c2763781eaaacf4da24ea6700631ca538747894c))
+* **deps:** update dependency sentry-sdk to v0.17.6 ([9fdb694](https://github.com/stencila/hub/commit/9fdb6945f2f83fcef4dd5185b05012b0992f19ff))
+
 ## [3.37.5](https://github.com/stencila/hub/compare/v3.37.4...v3.37.5) (2020-09-19)
 
 
