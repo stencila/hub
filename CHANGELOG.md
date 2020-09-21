@@ -1,3 +1,11 @@
+## [3.37.7](https://github.com/stencila/hub/compare/v3.37.6...v3.37.7) (2020-09-21)
+
+
+### Bug Fixes
+
+* **Steward:** Revert to umask 0007; 0000 is not necessary ([703d1ad](https://github.com/stencila/hub/commit/703d1ad4077c197c4d7251ad02d32e78d85e55c3))
+* **Worker:** Use steward snapshot mounts ([f312578](https://github.com/stencila/hub/commit/f3125781eade8ae216d4af83fee90f2302957f02))
+
 ## [3.37.6](https://github.com/stencila/hub/compare/v3.37.5...v3.37.6) (2020-09-20)
 
 
