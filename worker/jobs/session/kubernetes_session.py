@@ -137,46 +137,7 @@ class KubernetesSession(Job):
         # The snapshot directory to use as the working directory
         # for the session
         snapshot_path = kwargs.get("snapshot_path")
-
-        if snapshot_path:
-            init_script = """
-if [ ! -d /snapshots/{id} ]; then
-    mkdir -p /snapshots/{id}
-    flock /snapshots/{id}/.lock gsutil -m cp -r gs://stencila-hub-snapshots/{id} /snapshots/{id}
-fi
-            """.format(
-                id=snapshot_path
-            )
-            init_containers = [
-                {
-                    "name": "init",
-                    "image": "gcr.io/google.com/cloudsdktool/cloud-sdk:alpine",
-                    "command": ["sh", "-c", init_script],
-                    "volumeMounts": [{"name": "snapshots", "mountPath": "/snapshots"}],
-                    "env": [
-                        {
-                            "name": "GOOGLE_APPLICATION_CREDENTIALS",
-                            "value": "/secrets/gcloud-service-account-credentials.json",
-                        }
-                    ],
-                }
-            ]
-            volume_mounts = [
-                {
-                    "name": "snapshots",
-                    # Only mount the directory for the specific snapshot so that
-                    # the container does not have access to other snapshots.
-                    "subPath": snapshot_path,
-                    "readOnly": True,
-                    # The path that the snapshot directory is mounted *into*
-                    "mountPath": "/snapshots/" + os.path.dirname(snapshot_path),
-                }
-            ]
-            working_dir = "/snapshots/" + snapshot_path
-        else:
-            init_containers = []
-            volume_mounts = []
-            working_dir = None
+        assert snapshot_path is not None, "Snapshot path is requiredd"
 
         # Create pod listening on a random port number
         protocol = "ws"
@@ -190,10 +151,9 @@ fi
             },
             "spec": {
                 "nodeSelector": {"cloud.google.com/gke-nodepool": node_pool},
-                "initContainers": init_containers,
                 "containers": [
                     {
-                        "name": "executa",
+                        "name": "session",
                         "image": environ,
                         "command": [
                             "executa",
@@ -203,6 +163,7 @@ fi
                             "--timeout={}".format(timeout),
                             "--timelimit={}".format(timelimit),
                         ],
+                        "securityContext": {"runAsUser": 1000, "runAsGroup": 1000},
                         "ports": [{"containerPort": port}],
                         "readinessProbe": {
                             "tcpSocket": {"port": port},
@@ -210,8 +171,14 @@ fi
                             "periodSeconds": 1,
                             "failureThreshold": 60,
                         },
-                        "volumeMounts": volume_mounts,
-                        "workingDir": working_dir,
+                        "volumeMounts": [
+                            {
+                                "name": "work",
+                                "mountPath": "/work",
+                                "mountPropagation": "HostToContainer",
+                            }
+                        ],
+                        "workingDir": "/work",
                         "resources": {
                             "requests": {
                                 "cpu": cpu_request,
@@ -222,23 +189,61 @@ fi
                                 "memory": "{}Mi".format(mem_limit),
                             },
                         },
-                    }
+                    },
+                    {
+                        # Container to which provides readonly access to the snapshot
+                        # while still allowing the session to write to the working directory
+                        # This is done in a separate sidecar container to avoid having the session
+                        # container be privileged.
+                        "name": "mounter",
+                        "image": "ubuntu:20.04",
+                        "securityContext": {"privileged": True},
+                        # Create an overlay mount with the data directory as the lower directory
+                        # The `tail` makes this container, and thus the mount, run forever.
+                        "command": ["/bin/bash", "-c", "--"],
+                        "args": [
+                            """
+                           mkdir -p /overlay/{upper,work}
+                           mount -t overlay overlay \
+                                 -o lowerdir=/data,upperdir=/overlay/upper,workdir=/overlay/work \
+                                 /work
+                           chown 1000:1000 /work
+                           tail -f /dev/null
+                           """
+                        ],
+                        # Unmount otherwise this container will never terminate.
+                        "lifecycle": {
+                            "preStop": {"exec": {"command": ["umount", "/work"]}}
+                        },
+                        "volumeMounts": [
+                            # Read only data directory (snapshot or project working directory)
+                            {
+                                "name": "data",
+                                "mountPath": "/data",
+                                "readOnly": True,
+                            },
+                            # Temporary working directory for overlay mount to use
+                            {"name": "overlay", "mountPath": "/overlay"},
+                            # Bidirectional mount allowing the session container
+                            # to mount the /work directory
+                            {
+                                "name": "work",
+                                "mountPath": "/work",
+                                "mountPropagation": "Bidirectional",
+                            },
+                        ],
+                    },
                 ],
                 "volumes": [
                     {
-                        # Snapshots stored on the host and obtained by the
-                        # initcontainer
-                        "name": "snapshots",
+                        "name": "data",
                         "hostPath": {
-                            "path": "/var/lib/stencila/snapshots",
-                            "type": "DirectoryOrCreate",
+                            "path": "/var/lib/stencila/hub/storage/snapshots/"
+                            + snapshot_path
                         },
                     },
-                    {
-                        # Secrets needed by the initcontainer to fetch snapshots
-                        "name": "secrets",
-                        "secret": {"secretName": "secrets"},
-                    },
+                    {"name": "overlay", "emptyDir": {}},
+                    {"name": "work", "emptyDir": {}},
                 ],
                 # Do not restart this pod when it stops
                 "restartPolicy": "Never",
