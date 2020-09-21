@@ -217,7 +217,7 @@ class KubernetesSession(Job):
                         },
                         "volumeMounts": [
                             # Read only data directory (snapshot or project working directory)
-                            {"name": "data", "mountPath": "/data", "readOnly": True,},
+                            {"name": "data", "mountPath": "/data", "readOnly": True},
                             # Temporary working directory for overlay mount to use
                             {"name": "overlay", "mountPath": "/overlay"},
                             # Bidirectional mount allowing the session container
