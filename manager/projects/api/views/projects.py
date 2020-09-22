@@ -270,7 +270,7 @@ class ProjectsViewSet(
                 openapi.IN_QUERY,
                 description="The role that the user has on the project "
                 'e.g. "editor", "owner" (for any role, use "member")',
-                type=openapi.TYPE_INTEGER,
+                type=openapi.TYPE_STRING,
             ),
             openapi.Parameter(
                 "public",
