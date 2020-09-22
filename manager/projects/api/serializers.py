@@ -631,11 +631,16 @@ class SourceSerializer(serializers.ModelSerializer):
 
     def create(self, *args, **kwargs):
         """
-        Override to pull the source after it has been created.
+        Override of `create` to pull the source after it has been created.
         """
         source = super().create(*args, **kwargs)
-        job = source.pull()
+
+        request = self.context.get("request")
+        assert request is not None
+
+        job = source.pull(user=request.user)
         job.dispatch()
+
         return source
 
 
