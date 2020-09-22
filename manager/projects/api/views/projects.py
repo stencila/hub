@@ -160,7 +160,7 @@ class ProjectsViewSet(
             queryset = queryset.filter(account_id=account)
 
         role = self.request.GET.get("role")
-        if role:
+        if self.request.user.is_authenticated and role:
             if role.lower() == "member":
                 queryset = queryset.filter(role__isnull=False)
             else:
@@ -268,7 +268,7 @@ class ProjectsViewSet(
             openapi.Parameter(
                 "role",
                 openapi.IN_QUERY,
-                description="The role that the user has on the project "
+                description="The role that the currently authenticated user has on the project "
                 'e.g. "editor", "owner" (for any role, use "member")',
                 type=openapi.TYPE_STRING,
             ),
@@ -300,7 +300,8 @@ class ProjectsViewSet(
         public and those that the user is a member of (i.e. has a project role for).
 
         The returned list can be filtered using query parameters, `account`, `role`, `public`,
-        `search`, `source`.
+        `search`, `source`. The `role` filter applies to the currently authenticated user, and
+        as such has no effected for unauthenticated requests.
 
         For example, to list all projects for which the authenticated user is a member and which
         uses a particular Google Doc as a source:
