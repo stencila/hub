@@ -1,3 +1,10 @@
+## [3.37.8](https://github.com/stencila/hub/compare/v3.37.7...v3.37.8) (2020-09-22)
+
+
+### Bug Fixes
+
+* **Deps:** Update Thema version ([a6f2f8f](https://github.com/stencila/hub/commit/a6f2f8f5c2ad5732a055e2a2cba2a17abb7257dc))
+
 ## [3.37.7](https://github.com/stencila/hub/compare/v3.37.6...v3.37.7) (2020-09-21)
 
 
