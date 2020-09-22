@@ -134,9 +134,9 @@ test: venv static
 test-watch: venv static
 	$(VE)/ptw
 
-# Run tests with coverage and migrations
+# Run tests with coverage
 cover: venv static
-	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml --migrations
+	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Create page snapshots
 snaps: venv
