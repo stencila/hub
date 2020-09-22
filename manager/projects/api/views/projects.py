@@ -268,7 +268,8 @@ class ProjectsViewSet(
             openapi.Parameter(
                 "role",
                 openapi.IN_QUERY,
-                description='The role that the user has on the project e.g. "editor", "owner" (for any role, use "member")',
+                description="The role that the user has on the project "
+                'e.g. "editor", "owner" (for any role, use "member")',
                 type=openapi.TYPE_INTEGER,
             ),
             openapi.Parameter(
@@ -295,11 +296,14 @@ class ProjectsViewSet(
         """
         List projects.
 
-        Returns a list of projects that are accessible to the user, including those that are public and those that the user is
-        a member of (i.e. has a project role for).
+        Returns a list of projects that are accessible to the user, including those that are
+        public and those that the user is a member of (i.e. has a project role for).
 
-        The returned list can be filtered using query parameters, `account`, `role`, `public`, `search`, `source`
-        For example, to list all projects for which the authenticated user is a member and which uses a particular Google Doc as a source:
+        The returned list can be filtered using query parameters, `account`, `role`, `public`,
+        `search`, `source`.
+
+        For example, to list all projects for which the authenticated user is a member and which
+        uses a particular Google Doc as a source:
 
             GET /projects?role=member&source=gdoc://1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA
         """
