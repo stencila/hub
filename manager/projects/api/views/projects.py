@@ -3,6 +3,8 @@ from typing import Dict, List, Optional
 from django.db.models import Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions, permissions, throttling, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -251,6 +253,91 @@ class ProjectsViewSet(
             )
         else:
             return None
+
+    # Most of the following views serve simply to provide docstrings
+    # from which API documentation is generated.
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "account",
+                openapi.IN_QUERY,
+                description="The integer of the id of the account that the project belongs to.",
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "role",
+                openapi.IN_QUERY,
+                description='The role that the user has on the project e.g. "editor", "owner" (for any role, use "member")',
+                type=openapi.TYPE_INTEGER,
+            ),
+            openapi.Parameter(
+                "public",
+                openapi.IN_QUERY,
+                description="Whether or not the project is public.",
+                type=openapi.TYPE_BOOLEAN,
+            ),
+            openapi.Parameter(
+                "search",
+                openapi.IN_QUERY,
+                description="A string to search for in the project `name`, `title` or `description`.",
+                type=openapi.TYPE_STRING,
+            ),
+            openapi.Parameter(
+                "source",
+                openapi.IN_QUERY,
+                description="The address of a project source e.g. `github://<org>/<repo>`, `gdoc://<id>`.",
+                type=openapi.TYPE_STRING,
+            ),
+        ]
+    )
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        """
+        List projects.
+
+        Returns a list of projects that are accessible to the user, including those that are public and those that the user is
+        a member of (i.e. has a project role for).
+
+        The returned list can be filtered using query parameters, `account`, `role`, `public`, `search`, `source`
+        For example, to list all projects for which the authenticated user is a member and which uses a particular Google Doc as a source:
+
+            GET /projects?role=member&source=gdoc://1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA
+        """
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Create a project.
+
+        Receives details of the project.
+        Returns details of the new project.
+        """
+        return super().create(request, *args, **kwargs)
+
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Retrieve a project.
+
+        Returns details of the project.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update a project.
+
+        Receives details of the project.
+        Returns updated details of the project.
+        """
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Destroy a project.
+
+        Returns an empty response on success.
+        """
+        return super().destroy(request, *args, **kwargs)
 
     @action(detail=True, methods=["POST"])
     def pull(self, request: Request, *args, **kwargs) -> Response:
