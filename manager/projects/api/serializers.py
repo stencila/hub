@@ -614,11 +614,11 @@ class SourceSerializer(serializers.ModelSerializer):
         Validate that the source does not yet exist for the project.
         """
         project = data.get("project", self.instance.project if self.instance else None)
-        address = Source(**data).make_address()
+        source = Source(**data)
         id = self.instance.id if self.instance else None
 
         if (
-            Source.objects.filter(project=project, address=address)
+            Source.objects.filter(project=project, address=source.address)
             .exclude(id=id)
             .count()
         ):

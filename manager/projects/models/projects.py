@@ -331,6 +331,15 @@ class ProjectRole(EnumChoice):
             cls.OWNER.name: "Can edit project files, settings, share with others, as well as delete a project",
         }[role.name]
 
+    @classmethod
+    def from_string(cls, role: str) -> "ProjectRole":
+        """Get the role from a string."""
+        role = role.lower()
+        for r in cls:
+            if role == r.name.lower():
+                return r
+        raise ValueError("No project role matching {}".format(role))
+
 
 class ProjectAgent(models.Model):
     """

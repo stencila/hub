@@ -118,6 +118,10 @@ class Source(PolymorphicModel):
             )
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.address = self.make_address()
+
     def __str__(self) -> str:
         return self.address
 
@@ -126,9 +130,13 @@ class Source(PolymorphicModel):
         """
         Get the name the class of a source instance.
 
-        Fetches the name of the model class based on the `polymorphic_ctype_id`
+        If this is an instance of a derived class then returns that class name.
+        Otherwise, fetches the name of the model class based on the `polymorphic_ctype_id`
         (with caching) and then cases it properly.
         """
+        if self.__class__.__name__ != "Source":
+            return self.__class__.__name__
+
         all_lower = ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
         for cls in Source.__subclasses__():
             if cls.__name__.lower() == all_lower:
@@ -693,6 +701,22 @@ class UploadSource(Source):
             return dict(type="upload", path=self.file.path)
         else:
             return dict(type="upload", url=self.file.url)
+
+    @classmethod
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> Optional[SourceAddress]:
+        """Parse a string into a upload address."""
+        match = re.search(r"^upload://(.+)$", address, re.I)
+        if match:
+            return SourceAddress("Upload", name=match.group(1))
+
+        if strict:
+            raise ValidationError(
+                "Invalid upload source identifier: {}".format(address)
+            )
+
+        return None
 
     @staticmethod
     def create_or_update_from_uploaded_file(

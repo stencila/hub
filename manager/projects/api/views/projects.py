@@ -28,6 +28,7 @@ from projects.api.serializers import (
     ProjectUpdateSerializer,
 )
 from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.sources import Source
 from users.models import User
 
 
@@ -156,11 +157,17 @@ class ProjectsViewSet(
         if account:
             queryset = queryset.filter(account_id=account)
 
-        role = self.request.GET.get("role", "").lower()
-        if role == "manager":
-            queryset = queryset.filter(role=ProjectRole.MANAGER.name)
-        elif role == "owner":
-            queryset = queryset.filter(role=ProjectRole.OWNER.name)
+        role = self.request.GET.get("role")
+        if role:
+            if role.lower() == "member":
+                queryset = queryset.filter(role__isnull=False)
+            else:
+                try:
+                    project_role = ProjectRole.from_string(role)
+                except ValueError as exc:
+                    raise exceptions.ValidationError({"role": str(exc)})
+                else:
+                    queryset = queryset.filter(role=project_role.name)
 
         public = self.request.GET.get("public")
         if public:
@@ -168,6 +175,16 @@ class ProjectsViewSet(
                 queryset = queryset.filter(public=False)
             else:
                 queryset = queryset.filter(public=True)
+
+        source = self.request.GET.get("source")
+        if source:
+            try:
+                query = Source.query_from_address(source, prefix="sources")
+            except ValueError as exc:
+                raise exceptions.ValidationError({"source": str(exc)})
+            else:
+                print(query)
+                queryset = queryset.filter(query)
 
         search = self.request.GET.get("search")
         if search:
