@@ -1,6 +1,6 @@
 import datetime
 import os
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from urllib.parse import urlencode
 
 import shortuuid
@@ -338,7 +338,16 @@ class ProjectRole(EnumChoice):
         for r in cls:
             if role == r.name.lower():
                 return r
-        raise ValueError("No project role matching {}".format(role))
+        raise ValueError('No project role matching "{}"'.format(role))
+
+    @classmethod
+    def and_above(cls, role: "ProjectRole") -> List["ProjectRole"]:
+        """Get a list including the role and all the roles above it."""
+        roles: List["ProjectRole"] = []
+        for r in cls:
+            if r == role or len(roles) > 0:
+                roles.append(r)
+        return roles
 
 
 class ProjectAgent(models.Model):

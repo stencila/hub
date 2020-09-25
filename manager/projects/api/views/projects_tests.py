@@ -92,9 +92,17 @@ class ProjectsViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert response.data["count"] == 1
 
+        response = self.list(self.bob, "projects", {"role": "reader,author"})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 1
+
+        response = self.list(self.bob, "projects", {"role": "author+"})
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["count"] == 4  # includes projects where Bob is an owner
+
         response = self.list(self.bob, "projects", {"role": "editor"})
         assert response.status_code == status.HTTP_200_OK
-        assert response.data["count"] == 0
+        assert response.data["count"] == 0  # not projects where Bob is an editor
 
         # Filter by source
 

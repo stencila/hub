@@ -1,3 +1,4 @@
+import re
 from typing import Dict, List, Optional
 
 from django.db.models import Q
@@ -161,15 +162,34 @@ class ProjectsViewSet(
 
         role = self.request.GET.get("role")
         if self.request.user.is_authenticated and role:
-            if role.lower() == "member":
-                queryset = queryset.filter(role__isnull=False)
-            else:
-                try:
-                    project_role = ProjectRole.from_string(role)
-                except ValueError as exc:
-                    raise exceptions.ValidationError({"role": str(exc)})
+            roles = re.split(r"\s*,\s*", role)
+            q = Q()
+            for part in roles:
+                match = re.match(r"([a-zA-Z]+)(\+)?", part)
+                if match:
+                    role_name, and_above = match.groups()
+                    if role_name.lower() == "member":
+                        q |= Q(role__isnull=False)
+                    else:
+                        try:
+                            project_role = ProjectRole.from_string(role_name)
+                        except ValueError as exc:
+                            raise exceptions.ValidationError({"role": str(exc)})
+                        else:
+                            if and_above:
+                                q |= Q(
+                                    role__in=[
+                                        role.name
+                                        for role in ProjectRole.and_above(project_role)
+                                    ]
+                                )
+                            else:
+                                q |= Q(role=project_role.name)
                 else:
-                    queryset = queryset.filter(role=project_role.name)
+                    raise exceptions.ValidationError(
+                        {"role": "Invalid role specification {}".format(part)}
+                    )
+            queryset = queryset.filter(q)
 
         public = self.request.GET.get("public")
         if public:
@@ -301,7 +321,10 @@ class ProjectsViewSet(
 
         The returned list can be filtered using query parameters, `account`, `role`, `public`,
         `search`, `source`. The `role` filter applies to the currently authenticated user, and
-        as such has no effected for unauthenticated requests.
+        as such has no effected for unauthenticated requests. Roles can be specified as a
+        comma separated list e.g. `role=author,manager,owner` or using to the `+` operator
+        to indicate the minimum required role e.g. `role=author+` (equivalent to the previous
+        example).
 
         For example, to list all projects for which the authenticated user is a member and which
         uses a particular Google Doc as a source:
