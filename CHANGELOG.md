@@ -1,3 +1,17 @@
+## [3.37.9](https://github.com/stencila/hub/compare/v3.37.8...v3.37.9) (2020-09-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.5.2 ([e6d3698](https://github.com/stencila/hub/commit/e6d3698ed540382d67fce8d737a0aaf91d629864))
+* **deps:** update dependency django-imagefield to v0.12.4 ([4cfb8d2](https://github.com/stencila/hub/commit/4cfb8d2a1cc696c59436e4575e8afe5eb00faf85))
+* **deps:** update dependency google-api-python-client to v1.12.2 ([d06d76a](https://github.com/stencila/hub/commit/d06d76a2192df86bffa5ca90d40b16d90437c2c9))
+* **deps:** update dependency htmx.org to v0.1.2 ([e76e503](https://github.com/stencila/hub/commit/e76e5038b8ed06e8477ea9dca99acdf608318e77))
+* **deps:** update dependency httpx to v0.15.4 ([d9cdaba](https://github.com/stencila/hub/commit/d9cdabae73f0ad2eb9ea015f20c450b0c7f421e3))
+* **deps:** update dependency sentry-sdk to v0.17.8 ([7ce3bf1](https://github.com/stencila/hub/commit/7ce3bf12a4defc894ff3b5b05a02595ebf015bb5))
+* **deps:** update dependency typescript to v4.0.3 ([b7461e9](https://github.com/stencila/hub/commit/b7461e9bfcb9d12dd4857c7b42eac97018492c77))
+* **Deps:** npm audit fix ([e90c9e3](https://github.com/stencila/hub/commit/e90c9e3b22784cbbcf8d803175eecfd95c9a9f4c))
+
 ## [3.37.8](https://github.com/stencila/hub/compare/v3.37.7...v3.37.8) (2020-09-22)
 
 
