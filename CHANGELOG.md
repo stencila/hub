@@ -1,3 +1,21 @@
+# [3.38.0](https://github.com/stencila/hub/compare/v3.37.9...v3.38.0) (2020-09-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.99.11 ([d63ea19](https://github.com/stencila/hub/commit/d63ea192894eb3168c3f0bfa45a1eab69bf30b6a))
+* **deps:** update dependency google-cloud-storage to v1.31.2 ([b508c0a](https://github.com/stencila/hub/commit/b508c0a37b5cd856e35eea17772256f8150c57e6))
+* **Project sources:** Only set address if it is absent ([028f347](https://github.com/stencila/hub/commit/028f3478fe841706d692945dd8ac3c9deea6581c))
+* **Projects:** Only apply role filter if user is authenticated ([7f2de62](https://github.com/stencila/hub/commit/7f2de626dffc4729f0e951e23caf0009acb12c04))
+* **Sources:** Pass user when creating source pull ([01fd51d](https://github.com/stencila/hub/commit/01fd51d1ecfc9128ed5483f43b76791ae85a58b5))
+
+
+### Features
+
+* **API:** Allow role filter to include multiple roles ([46acff3](https://github.com/stencila/hub/commit/46acff3cf00e2e0e9785b7385718d80bbfb5067b))
+* **Manager:** Add filtering of project based on role and presence of source ([e42342d](https://github.com/stencila/hub/commit/e42342dd3c2da45d0dbe5da97d8ec96c238f9d40)), closes [#705](https://github.com/stencila/hub/issues/705)
+* **Project sources:** Allow filtering by address ([a7ce92f](https://github.com/stencila/hub/commit/a7ce92fcc8e7a618d46be7a338ef470de8ce64b6))
+
 ## [3.37.9](https://github.com/stencila/hub/compare/v3.37.8...v3.37.9) (2020-09-27)
 
 
