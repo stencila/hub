@@ -1,5 +1,6 @@
 {% load humanize i18n %}
 
+{% for source in sources %}
 <tr class="is-relative">
   <td class="source-table--file-type pr-0 is-vcentered">
     {% include './_sourcetype_icon.html' with sourcetype=source.type_name %}
@@ -25,3 +26,4 @@
     {% endif %}
   </td>
 </tr>
+{% endfor %}

@@ -17,7 +17,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     all_messages(request, project)
 
     return render(
-        request, "projects/sources.html", dict(sources=sources, project=project)
+        request, "projects/sources/list.html", dict(sources=sources, project=project)
     )
 
 

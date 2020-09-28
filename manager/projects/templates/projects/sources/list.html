@@ -1,3 +1,24 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block projects_content %}
+
+<div>
+  <p>
+    {% trans "Sources are remote files you can link to your project." %}
+  </p>
+  <p>
+    {% url 'ui-projects-files-list' project.account.name project.name as files_link %}
+    {% blocktrans %}
+    When you "pull" down a source a versioned copy is created in the project "<a href="{{ files_link }}"
+       class="has-text-grey-dark has-text-link-hover is-underlined">Files</a>". {% endblocktrans %}
+  </p>
+</div>
+
+<hr />
+
 {% load i18n static %}
 
 <div class="level level-reverse-mobile">
@@ -10,9 +31,9 @@
         </label>
         <div class="control has-icons-left has-icons-right">
           <input id="source-filter" class="input is-small-mobile" type="text" name="search"
-                 placeholder="{% trans "Filter sources by name…" %}" hx-trigger="keyup changed delay:500ms"
+                 placeholder="{% trans "Filter by address or path" %}" hx-trigger="keyup changed delay:500ms"
                  hx-get="{% url 'api-projects-sources-list' project.id %}"
-                 hx-template="projects/sources/_source_list.html" hx-indicator="#source-filter-indicator"
+                 hx-template="projects/sources/_list.html" hx-indicator="#source-filter-indicator"
                  hx-target="#source-list">
           <span class="icon is-small is-left">
             <i class="ri-filter-line"></i>
@@ -72,7 +93,10 @@
     </tr>
   </thead>
   <tbody id="source-list">
-    {% include "./_source_list.html" %}
+    {% include "./_list.html" %}
   </tbody>
 </table>
 {% endif %}
+
+
+{% endblock %}
