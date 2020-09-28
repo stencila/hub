@@ -16,6 +16,8 @@ from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.client import RequestFactory
 
+from accounts.models import AccountTier
+
 
 def mocked_requests_get(*args, **kwargs):
     class MockedResponse:
@@ -48,7 +50,9 @@ def mocked_requests_get(*args, **kwargs):
 
 class SocialAccountAdapterTests(TestCase):
     def setUp(self):
-        super(SocialAccountAdapterTests, self).setUp()
+        super().setUp()
+
+        AccountTier.objects.create()
 
         # Remove any existing users in db before running these tests
         User.objects.all().delete()

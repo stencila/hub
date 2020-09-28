@@ -1,11 +1,13 @@
 import pytest
 
-from accounts.models import Account
+from accounts.models import Account, AccountTier
 from jobs.models import Queue, Zone
 
 
 @pytest.mark.django_db
 def test_queue_get_or_create():
+    AccountTier.objects.create()
+
     acme = Account.objects.create(name="acme")
 
     # Existing zone
