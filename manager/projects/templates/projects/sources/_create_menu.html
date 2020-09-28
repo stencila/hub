@@ -75,12 +75,12 @@
         </a>
         <div class="dropdown-menu has-text-left" role="menu">
           <div class="dropdown-content">
-
             <a class="dropdown-item"
                href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
               eLife
             </a>
-            <a class="dropdown-item" disabled>
+            <a class="dropdown-item"
+               href="{% url 'ui-projects-sources-create' project.account.name project.name 'plos' %}">
               PLOS
             </a>
           </div>

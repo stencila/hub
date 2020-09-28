@@ -1,9 +1,14 @@
-{% load i18n %}
+{% load static i18n %}
 
-<h2 class="title is-5">eLife</h2>
+<h2 class="title is-5">
+  <img alt="PLOS" src="{% static 'img/plos-logo-color-blue.svg' %}" role="presentation" width="150px" />
+</h2>
 <p class="subtitle">
-  A PLOS source lets you pull an existing PLOS article from it's published JATS XML.
+  A PLOS source lets you pull an existing article into your project from any of the <a href="https://plos.org/"
+     target="_blank" rel="noopener">PLOS</a>
+  journals as it's published JATS XML.
+  You can then save it as another format e.g. Jupyter Notebook and enrich the article with code.
 </p>
 
-{% include "serializers/_field.html" with field=serializer.article icon="ri-at-line" autofocus=True %}
+{% include "serializers/_field.html" with field=serializer.article icon="ri-at-line" autofocus=True help_text="The article's DOI e.g. 10.1371/journal.pcbi.1007676" %}
 {% include "./_create_common_fields.html" %}

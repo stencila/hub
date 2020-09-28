@@ -10,16 +10,16 @@ from .helpers import HttpSession, begin_pull, end_pull, Files
 
 def pull_plos(source: dict, working_dir: str, path: str) -> Files:
     """
-    Pull a plos article.
+    Pull a PLOS article.
 
     Fetches the XML of the article from https://journals.plos.org
     and then walks the XML tree, downloading any graphic media.
     """
-    assert "article" in source, "plos source must have an article"
+    assert "article" in source, "PLOS source must have an article"
 
     doi = source["article"]
     m = re.match(r"^10\.1371\/journal\.([a-z]+)\.(\d+)$", doi)
-    assert m is not None, "unknown plos article format"
+    assert m is not None, "unknown PLOS article format"
 
     journals = dict(
         pbio="plosbiology",
@@ -31,7 +31,7 @@ def pull_plos(source: dict, working_dir: str, path: str) -> Files:
         ppat="plospathogens",
     )
 
-    assert m.group(1) in journals, "unknown plos journal: {}".format(m.group(1))
+    assert m.group(1) in journals, "unknown PLOS journal: {}".format(m.group(1))
 
     code = m.group(1)
     journal = journals[code]
@@ -63,7 +63,7 @@ def pull_plos(source: dict, working_dir: str, path: str) -> Files:
         if id.startswith("e"):  # Equation
             url += "file?id=info:doi/{}.{}&type=thumbnail".format(doi, id)
         else:  # Everything else
-            url += "figure?image?id={}.{}&size=medium".format(doi, id)
+            url += "figure/image?id={}.{}&size=medium".format(doi, id)
 
         filename = "{}.png".format(id)
         new_href = "{}.media/{}".format(article, filename)
