@@ -10,4 +10,4 @@ pyppeteer==0.2.2
 pytest-cov==2.10.1
 pytest-django==3.10.0
 pytest-watch==4.2.0
-pytest==6.0.2
+pytest==6.1.0
