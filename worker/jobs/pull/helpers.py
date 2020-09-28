@@ -85,6 +85,7 @@ class HttpSession(requests.sessions.Session):
 
     def pull(self, url, sink):
         with self.fetch_url(url, stream=True) as response:
+            assert response.status_code == 200
             with open(sink, "wb") as file:
                 for chunk in response:
                     file.write(chunk)
