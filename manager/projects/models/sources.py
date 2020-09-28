@@ -120,7 +120,8 @@ class Source(PolymorphicModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.address = self.make_address()
+        if not self.address:
+            self.address = self.make_address()
 
     def __str__(self) -> str:
         return self.address
