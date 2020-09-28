@@ -1,3 +1,15 @@
+# [3.39.0](https://github.com/stencila/hub/compare/v3.38.0...v3.39.0) (2020-09-28)
+
+
+### Bug Fixes
+
+* **PLOS Source:** Use correct URL for graphics, fail on 404 ([1d91ef9](https://github.com/stencila/hub/commit/1d91ef9811ecd19557ac7a108975b3596c7ddd04))
+
+
+### Features
+
+* **PLOS Source:** Enable PLOS article as a project source ([76c3a16](https://github.com/stencila/hub/commit/76c3a16b6d05e16b76b284debcc59bdbc3d234f1))
+
 # [3.38.0](https://github.com/stencila/hub/compare/v3.37.9...v3.38.0) (2020-09-28)
 
 
