@@ -2,6 +2,8 @@ from typing import Optional
 
 from django.db.models import Q
 from django.shortcuts import redirect, reverse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -153,10 +155,82 @@ class ProjectsSourcesViewSet(
         else:
             return None
 
+    # Most of the following views serve simply to provide docstrings
+    # from which API documentation is generated.
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "search",
+                openapi.IN_QUERY,
+                description="A string to search for in the source's `path`.",
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        """
+        List a project's sources.
+
+        Returns a list of sources in the project.
+        The returned list can be filtered using the query parameter, `search` which matches
+        against the source's `path` string.
+        """
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Create a project source.
+
+        Receives details of the source. This should include the `type` of source, a string matching
+        one of the implemented source classes e.g. `ElifeSource`, `GoogleDocsSource`, `GithubSource`
+        as well as the destination `path`, and other type specific properties.
+        See https://github.com/stencila/hub/blob/master/manager/projects/models/sources.py.
+
+        For example, to create a new source for a Google Doc:
+
+        ```json
+        {
+            "type": "GoogleDocsSource",
+            "path": "report.gdoc",
+            "docId": "1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
+        }
+        ```
+
+        Returns details of the new source.
+        """
+        return super().create(request, *args, **kwargs)
+
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Retrieve a project source.
+
+        Returns details of the source.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update a project source.
+
+        Receives details of the source.
+        Returns updated details of the source.
+        """
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Destroy a project source.
+
+        Removes the source from the project.
+        Returns an empty response on success.
+        """
+        return super().destroy(request, *args, **kwargs)
+
     @action(detail=True, methods=["GET"], url_path="open/?(?P<path>.+)?")
     def open(self, request: Request, *args, **kwargs) -> Response:
         """
-        Open the source, or a file within the source.
+        Open a project source, or a file within it.
 
         Returns a redirect response to an external URL.
         """
@@ -166,7 +240,7 @@ class ProjectsSourcesViewSet(
     @action(detail=True, methods=["POST"])
     def pull(self, request: Request, *args, **kwargs) -> Response:
         """
-        Pull the source.
+        Pull a project source.
 
         Creates a pull job and redirects to it.
         """

@@ -614,11 +614,11 @@ class SourceSerializer(serializers.ModelSerializer):
         Validate that the source does not yet exist for the project.
         """
         project = data.get("project", self.instance.project if self.instance else None)
-        address = Source(**data).make_address()
+        source = Source(**data)
         id = self.instance.id if self.instance else None
 
         if (
-            Source.objects.filter(project=project, address=address)
+            Source.objects.filter(project=project, address=source.address)
             .exclude(id=id)
             .count()
         ):
@@ -631,11 +631,16 @@ class SourceSerializer(serializers.ModelSerializer):
 
     def create(self, *args, **kwargs):
         """
-        Override to pull the source after it has been created.
+        Override of `create` to pull the source after it has been created.
         """
         source = super().create(*args, **kwargs)
-        job = source.pull()
+
+        request = self.context.get("request")
+        assert request is not None
+
+        job = source.pull(user=request.user)
         job.dispatch()
+
         return source
 
 

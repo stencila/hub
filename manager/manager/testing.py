@@ -9,6 +9,7 @@ from knox.settings import knox_settings
 from rest_framework import test
 from rest_framework.response import Response
 
+from accounts.models import Account, AccountTier
 from projects.models.projects import Project
 from users.models import User
 
@@ -37,6 +38,12 @@ class DatabaseTestCase(test.APITestCase):
     def setUpClass(cls) -> None:
         """Set up the test fixtures."""
         super().setUpClass()
+
+        # Necessary, and not created when pytest `--nomigrations` option is used
+        AccountTier.objects.create()
+        Account.objects.create(name="stencila")
+        Account.objects.create(name="temp")
+
         for username in ("ada", "bob", "cam"):
             try:
                 user = User.objects.get(username=username)
