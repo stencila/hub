@@ -78,7 +78,9 @@ class ProjectsSourcesViewSet(
 
         search = self.request.GET.get("search")
         if search:
-            queryset = queryset.filter(Q(path__icontains=search))
+            queryset = queryset.filter(
+                Q(address__icontains=search) | Q(path__icontains=search)
+            )
 
         return queryset
 
