@@ -1,3 +1,10 @@
+# [3.40.0](https://github.com/stencila/hub/compare/v3.39.1...v3.40.0) (2020-09-30)
+
+
+### Features
+
+* **Python API client:** Add initial version ([2f82a15](https://github.com/stencila/hub/commit/2f82a15ebd684d7aee992ddfe6e471a8dffe0acf))
+
 ## [3.39.1](https://github.com/stencila/hub/compare/v3.39.0...v3.39.1) (2020-09-30)
 
 
