@@ -1,3 +1,10 @@
+## [3.39.1](https://github.com/stencila/hub/compare/v3.39.0...v3.39.1) (2020-09-30)
+
+
+### Bug Fixes
+
+* **Deps:** Upgrade Thema ([e3d28f6](https://github.com/stencila/hub/commit/e3d28f6e55b64e50c7a98008d5d576f3ae00d2cf))
+
 # [3.39.0](https://github.com/stencila/hub/compare/v3.38.0...v3.39.0) (2020-09-28)
 
 
