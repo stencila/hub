@@ -380,7 +380,7 @@ class Prod(Configuration):
 
     SWAGGER_SETTINGS = {
         "SECURITY_DEFINITIONS": {
-            "API": {"type": "apiKey", "name": "Authorization", "in": "header"}
+            "Token": {"type": "apiKey", "name": "Authorization", "in": "header"}
         }
     }
 

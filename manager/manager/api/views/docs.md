@@ -1,4 +1,4 @@
-# Authentication
+## Authentication
 
 Many endpoints in the Stencila Hub API require an authentication token. These tokens carry many privileges, so be sure to keep them secure. Do not place your tokens in publicly accessible areas such as client-side code. The API is only served over HTTPS to avoid exposing tokens and other data on the network.
 
@@ -16,6 +16,6 @@ Or, the less ubiquitous, but more accessible [httpie](https://httpie.org/):
 
 In both examples above, the trailing colon is not required but avoids being asked for a password.
 
-# Versioning
+## Versioning
 
 The Stencila Hub is released using semantic versioning. The current version is available from the [`GET /api/status`](/api/status) endpoint. Please see the [Github release page](https://github.com/stencila/hub/releases) and the [changelog](https://github.com/stencila/hub/blob/master/CHANGELOG.md) for details on each release. We currently do not provide versioning of the API but plan to do so soon (probably by using a `Accept: application/vnd.stencila.hub+json;version=1.0` request header). If you are using, or interested in using, the API please contact us and we may be able to expedite this.

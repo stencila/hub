@@ -19,9 +19,6 @@ class StatusResponse(serializers.Serializer):
 
     version = serializers.CharField(help_text="The current version")
 
-    class Meta:
-        ref_name = None
-
 
 class StatusView(generics.GenericAPIView):
     """
@@ -38,7 +35,7 @@ class StatusView(generics.GenericAPIView):
     throttle_classes = []
     pagination_class = None
 
-    @swagger_auto_schema(responses={200: StatusResponse})
+    @swagger_auto_schema(operation_id="status_read", responses={200: StatusResponse})
     def get(self, request: Request) -> Response:
         """Get the system status."""
         try:

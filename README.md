@@ -22,7 +22,15 @@ Stencila Hub consists of several services, each with it's own sub-folder. The `R
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the manager.
 * [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
 
-## Documentation
+## 🤝 Clients
+
+The Hub exposes a public API, https://hub.stenci.la/api. API client packages, generated from the [OpenAPI Schema](https://hub.stenci.la/api/schema), are available in this repository for the following languages:
+
+- [Python](clients/python)
+
+Client packages for other languages will be added based on demand. Please do not hesitate to for a client for your favorite language!
+
+## 📜 Documentation
 
 * User focussed documentation is available in the [Hub collection](http://help.stenci.la/en/collections/2413959-stencila-hub) of our help site.
 

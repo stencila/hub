@@ -139,6 +139,7 @@ cover: venv static
 	$(VE)/pytest --cov=. --cov-report term --cov-report html --cov-report xml
 
 # Create page snapshots
+# Requires that the development server be running on https://localhost:8000
 snaps: venv
 	$(DJ) runscript create_page_snaps
 .PHONY: snaps
