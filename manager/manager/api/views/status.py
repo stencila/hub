@@ -35,7 +35,7 @@ class StatusView(generics.GenericAPIView):
     throttle_classes = []
     pagination_class = None
 
-    @swagger_auto_schema(operation_id='status_read', responses={200: StatusResponse})
+    @swagger_auto_schema(operation_id="status_read", responses={200: StatusResponse})
     def get(self, request: Request) -> Response:
         """Get the system status."""
         try:
