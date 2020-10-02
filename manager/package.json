@@ -26,7 +26,7 @@
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.9.1",
     "bulma-toast": "2.0.3",
-    "htmx.org": "0.1.2",
+    "htmx.org": "0.2.0",
     "userflow.js": "1.7.0"
   },
   "devDependencies": {
