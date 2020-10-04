@@ -27,7 +27,7 @@ djangorestframework==3.12.1
 drf-yasg==1.17.1
 google-api-python-client==1.12.3
 google-cloud-storage==1.31.2
-httpx==0.15.4
+httpx==0.15.5
 inflect==4.1.0
 Pillow==7.2.0
 psycopg2-binary==2.8.6
