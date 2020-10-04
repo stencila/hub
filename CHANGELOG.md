@@ -1,3 +1,19 @@
+## [3.40.1](https://github.com/stencila/hub/compare/v3.40.0...v3.40.1) (2020-10-04)
+
+
+### Bug Fixes
+
+* **deps:** pin dependencies ([dec596e](https://github.com/stencila/hub/commit/dec596e8db38c255e71923022e100ff6181898c9))
+* **deps:** update dependency @popperjs/core to v2.5.3 ([289fd75](https://github.com/stencila/hub/commit/289fd75a9b370ef0c7b22014a892a52c48fe1eea))
+* **deps:** update dependency @stencila/executa to v1.14.2 ([75b520b](https://github.com/stencila/hub/commit/75b520b80db7fc2d1bdb3319dfe09d0ef544fdf4))
+* **deps:** update dependency bulma to v0.9.1 ([146f6a4](https://github.com/stencila/hub/commit/146f6a4d7bda5558206d5ab287095fb9fa99400b))
+* **deps:** update dependency django to v3.1.2 ([0bdcf74](https://github.com/stencila/hub/commit/0bdcf74d124f71d479ebee3b711911c025df2477))
+* **deps:** update dependency djangorestframework to v3.12.1 ([0025475](https://github.com/stencila/hub/commit/00254758c45c756c7266a59d91c18517f56205c8))
+* **deps:** update dependency google-api-python-client to v1.12.3 ([0d8db2a](https://github.com/stencila/hub/commit/0d8db2a919bec738d1dbb410145e87fb20978f4e))
+* **deps:** update dependency httpx to v0.15.5 ([317c9c9](https://github.com/stencila/hub/commit/317c9c9d77bf1bb6a4ac5c2eaae6c2becf8da628))
+* **deps:** update dependency sentry-sdk to v0.18.0 ([14938bb](https://github.com/stencila/hub/commit/14938bb6a5991f8953c76605fc78f93a4fc7642b))
+* **Manager styles:** New file extension for Bulma file ([a3315b3](https://github.com/stencila/hub/commit/a3315b38687351af1ffc98f7241b0119bf4ccebd))
+
 # [3.40.0](https://github.com/stencila/hub/compare/v3.39.1...v3.40.0) (2020-09-30)
 
 
