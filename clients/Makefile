@@ -9,18 +9,15 @@ api.yaml:
 help:
 	docker run openapitools/openapi-generator-cli help generate
 
-# Get help on client generation options for Python
+# Get help on options for Python client generation
 python-help:
 	docker run openapitools/openapi-generator-cli config-help -g python
 
 # Generate Python client
 python: api.yaml
 	docker run --rm -v "${PWD}:/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
-      -i api.yaml \
-      --git-host github.com \
-      --git-user-id stencila \
-      --git-repo-id hub \
-      --package-name stencila.hub \
-	--template-dir python/templates \
-      -g python \
-      -o python
+	  -i api.yaml \
+	  -c python/.openapi-generator-config.yaml \
+	  -g python \
+	  -o python
+.PHONY: python

@@ -58,7 +58,6 @@ docs/Worker.md
 docs/WorkerHeartbeat.md
 docs/WorkersApi.md
 docs/Zone.md
-requirements.txt
 setup.cfg
 setup.py
 stencila/__init__.py
@@ -127,6 +126,5 @@ stencila/hub/models/worker.py
 stencila/hub/models/worker_heartbeat.py
 stencila/hub/models/zone.py
 stencila/hub/rest.py
-test-requirements.txt
 test/__init__.py
 tox.ini
