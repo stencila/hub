@@ -1,3 +1,10 @@
+## [3.40.2](https://github.com/stencila/hub/compare/v3.40.1...v3.40.2) (2020-10-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency htmx.org to v0.2.0 ([89b0011](https://github.com/stencila/hub/commit/89b00113bb3e0bc7aff724d71cf9582bfd239146))
+
 ## [3.40.1](https://github.com/stencila/hub/compare/v3.40.0...v3.40.1) (2020-10-04)
 
 
