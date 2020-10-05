@@ -57,10 +57,10 @@ make -C manager run
 
 ### Generating client
 
-To regenerate the client, in the folder above this one, run
+To regenerate the client, at the top level of this repo, run
 
 ```sh
-make typescript
+make -C clients typescript
 ```
 
 There are two primary options for customizing the files this package:
@@ -77,3 +77,7 @@ Tests run against a local instance of the `manager` service. So start that, gene
 ```sh
 npm test
 ```
+
+## Continuous deployment
+
+This client package is regenerated on each release and published on NPM. Tests of this package are currently not run on each release.

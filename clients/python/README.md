@@ -57,10 +57,10 @@ The generation of the client requires a local instance of the `manager` service 
 make -C manager run
 ```
 
-To regenerate the client, in the folder above this one, run
+To regenerate the client, at the top level of this repo, run
 
 ```sh
-make python
+make -C clients python
 ```
 
 This will also generate Markdown documentation in the `docs` folder.
