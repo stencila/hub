@@ -22,6 +22,11 @@
 # Then explicitly reverse the ignore rule for a single file:
 #!docs/README.md
 
+.gitignore
 .gitlab-ci.yml
 .travis.yml
 git_push.sh
+README.md
+requirements.txt
+test-requirements.txt
+tox.ini

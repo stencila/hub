@@ -1,3 +1,9 @@
+# Ignore the generated files
+.openapi-generator
+setup.py
+docs
+stencila
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -48,19 +54,3 @@ venv/
 .venv/
 .python-version
 .pytest_cache
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-#Ipython Notebook
-.ipynb_checkpoints

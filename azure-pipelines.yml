@@ -15,6 +15,7 @@ trigger:
 
 jobs:
   - job: test
+    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -43,8 +44,9 @@ jobs:
           make -C manager create-devdb-sqlite static
           make -C manager run &
           make -C manager snaps
+          make -C clients api.yaml
           kill %1
-        displayName: Run end-to-end tests
+        displayName: Run end-to-end tests and api.yaml for generating clients
 
       - script: |
           npm ci
