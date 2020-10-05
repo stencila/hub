@@ -48,6 +48,12 @@ typescript: api.yaml
 
 # Publish Typescript package to PyPI
 typescript-publish:
+ifneq ("$(NPM_TOKEN)", "")
+	echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > typescript/.npmrc
+else
+	@echo "Missing NPM_TOKEN env var"
+	@exit 1
+endif
 	cd typescript && \
 	  npm install && \
 	  npm publish

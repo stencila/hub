@@ -62,6 +62,7 @@ jobs:
           GIT_COMMITTER_NAME: Stencila CI Bot
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+          NPM_TOKEN: $(NPM_TOKEN)
         displayName: Tag and release
 
       - script: |
