@@ -23,8 +23,10 @@ python: api.yaml
 .PHONY: python
 
 # Publish Python package to PyPI
+# The following Twine command is intended to work on Azure Pipelines CI
+# See https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/package/twine-authenticate
 python-publish:
 	pip3 install twine wheel
 	cd python && \
 	  python3 setup.py sdist bdist_wheel && \
-	  twine upload dist/*
+	  python3 -m twine upload -r PyPI --config-file $(PYPIRC_PATH) dist/*

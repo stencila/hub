@@ -28,7 +28,7 @@ jobs:
         inputs:
           versionSpec: 12.x
         displayName: Install Node.js
-  
+
       - script: make lint
         displayName: Run linting
 
@@ -48,6 +48,11 @@ jobs:
           kill %1
         displayName: Run end-to-end tests and api.yaml for generating clients
 
+      - task: TwineAuthenticate@1
+        displayName: Authenticate with Twine (for publishing Python client)
+        inputs:
+          pythonUploadServiceConnection: PyPI
+
       - script: |
           npm ci
           npx semantic-release
@@ -58,7 +63,7 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
         displayName: Tag and release
-    
+
       - script: |
           mkdir -p pages/manager/snaps
           mv manager/snaps/* pages/manager/snaps
