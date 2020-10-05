@@ -49,4 +49,5 @@ typescript: api.yaml
 # Publish Typescript package to PyPI
 typescript-publish:
 	cd typescript && \
+	  npm install && \
 	  npm publish
