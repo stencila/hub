@@ -1,3 +1,5 @@
+THIS_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
 # Create API Schema file api.yaml
 # Requires that the development server be running on https://localhost:8000
 api.yaml:
@@ -15,7 +17,7 @@ python-help:
 
 # Generate Python client
 python: api.yaml
-	docker run --rm -v "${PWD}:/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
+	docker run --rm -v "$(THIS_DIR):/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
 	  -i api.yaml \
 	  -c python/.openapi-generator-config.yaml \
 	  -g python \
@@ -37,7 +39,7 @@ typescript-help:
 
 # Generate Typescript client
 typescript: api.yaml
-	docker run --rm -v "${PWD}:/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
+	docker run --rm -v "$(THIS_DIR):/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
 	  -i api.yaml \
 	  -c typescript/.openapi-generator-config.yaml \
 	  -g typescript-fetch \
