@@ -1,0 +1,68 @@
+{% load static %}
+{% comment %}
+This template is only accessible to users that have permission to view the project
+the node belongs to.
+{% endcomment %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{{ node_type }}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css" rel="stylesheet">
+  <style>
+    body {
+      margin: auto;
+      max-width: 50em;
+      padding: 2em;
+    }
+
+    main {
+      margin: 3em 0;
+    }
+
+    footer {
+      font-family: sans;
+      font-size: 0.8em;
+      color: #777;
+    }
+
+    footer a {
+      color: #487adc;
+      text-decoration: none;
+    }
+
+  </style>
+  <script src="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/index.js" type="text/javascript"></script>
+  <script src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.esm.js"
+          type="module"></script>
+  <script src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.js"
+          type="text/javascript"></script>
+</head>
+
+<body>
+  <header>
+    <img src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+  </header>
+  <main>{{ html|safe }}</main>
+  <footer>
+    {% if node.creator %}
+    Created by {{ node.creator }}
+    {% if app_name %}
+    using
+    {% if app_url %}
+    <a href="{{ app_url }}">{{ app_name }}</a>
+    {% else %}
+    {{ app_name }}
+    {% endif %}
+    {% endif %}
+    {% if node.host %}
+    within <a href="{{ node.host }}">this</a> document
+    {% endif %}
+    {% endif %}
+  </footer>
+</body>
+
+</html>

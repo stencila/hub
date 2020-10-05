@@ -6,6 +6,7 @@ from polymorphic.admin import (
 )
 
 from projects.models.files import File
+from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
@@ -136,3 +137,18 @@ class SnapshotAdmin(admin.ModelAdmin):
 
     list_display = ["id", "project", "number", "creator", "created"]
     list_select_related = ["project", "creator", "job"]
+
+
+@admin.register(Node)
+class NodeAdmin(admin.ModelAdmin):
+    """Admin interface for project nodes."""
+
+    list_display = ["id", "key", "creator", "created", "project", "app", "host"]
+    list_select_related = ["creator", "project"]
+    list_filter = ["app"]
+    show_full_result_count = False
+
+    def get_queryset(self, request):
+        """Get custom queryset that does not fetch the `json` field (which can be large)."""
+        queryset = super().get_queryset(request)
+        return queryset.defer("json")
