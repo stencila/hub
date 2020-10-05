@@ -1,4 +1,5 @@
-# Ignore the generated code files
+# Ignore the generated files
+.openapi-generator
 setup.py
 docs
 stencila
