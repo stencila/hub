@@ -27,7 +27,7 @@ The Stencila Hub is released using semantic versioning. The current version is a
 
 ## Requirements.
 
-Python 2.7 and 3.4+
+Python 3.4+ (Will probably work with Python 2.7 but that is not supported).
 
 ## Installation & Usage
 
@@ -88,6 +88,38 @@ with stencila.hub.ApiClient(configuration) as api_client:
         pprint(api_response)
     except ApiException as e:
         print("Exception when calling ProjectsApi.projects_list: %s\n" % e)
+```
+
+## Develop
+
+### Generating client
+
+
+The generation of the client requires a local instance of the `manager` service to be running. To start that, at the top level of this repo, run
+
+```sh
+make -C manager run
+```
+
+To regenerate the client, in the folder above this one, run
+
+```sh
+make python
+```
+
+There are two primary options for customizing the files this package:
+
+1. Override the [Mustache templates](https://github.com/OpenAPITools/openapi-generator/tree/master/modules/openapi-generator/src/main/resources/python) and place them in the [`templates`](templates) folder
+
+2. Turn off generation by adding the file to [`.openapi-generator-ignore`](.openapi-generator-ignore).
+
+
+### Running tests
+
+Run tests using,
+
+```sh
+tox
 ```
 
 ## API Endpoints
