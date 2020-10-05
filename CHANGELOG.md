@@ -1,3 +1,12 @@
+# [3.41.0](https://github.com/stencila/hub/compare/v3.40.3...v3.41.0) (2020-10-05)
+
+
+### Features
+
+* **Nodes:** Add nodes to manager ([795e5a1](https://github.com/stencila/hub/commit/795e5a1526885294a820d74369be097d12c94ebd))
+* **Typescript API client:** Add initial version ([c353143](https://github.com/stencila/hub/commit/c353143c9d02c80f939e866b064cdb24d66dc2c2))
+* **Typescript client:** Only publish dist folder ([b72ada6](https://github.com/stencila/hub/commit/b72ada644a3657e53bef6fb9ac228896579ea75e))
+
 ## [3.40.3](https://github.com/stencila/hub/compare/v3.40.2...v3.40.3) (2020-10-05)
 
 

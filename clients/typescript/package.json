@@ -1,11 +1,13 @@
 {
   "name": "@stencila/hub-client",
-  "version": "3.40.3",
+  "version": "3.41.0",
   "description": "Client for the Stencila Hub API",
   "repository": "https://github.com/stencila/hub",
   "author": "Stencila and contributors",
   "license": "Apache-2.0",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
