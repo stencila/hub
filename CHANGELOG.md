@@ -1,3 +1,12 @@
+## [3.40.3](https://github.com/stencila/hub/compare/v3.40.2...v3.40.3) (2020-10-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency pytest-randomly to v3 ([20925e1](https://github.com/stencila/hub/commit/20925e1b82656bf233a26f273ea798447233a6d2))
+* **Python client:** Do not generate Tox file ([4e04292](https://github.com/stencila/hub/commit/4e04292dd5749697d6bdadc974843d24a4538fda))
+* **Python client:** Put ampersands in the correct place ([919f2cd](https://github.com/stencila/hub/commit/919f2cd1f238a6bcdb5c52e43ab0f2ce3c97fa49))
+
 ## [3.40.2](https://github.com/stencila/hub/compare/v3.40.1...v3.40.2) (2020-10-04)
 
 
