@@ -25,6 +25,6 @@ python: api.yaml
 # Publish Python package to PyPI
 python-publish:
 	cd python && \
-	python3 setup.py sdist bdist_wheel && \
 	pip3 install twine wheel \
+	python3 setup.py sdist bdist_wheel && \
 	twine upload dist/*
