@@ -30,3 +30,21 @@ python-publish:
 	cd python && \
 	  python3 setup.py sdist bdist_wheel && \
 	  python3 -m twine upload -r PyPI --config-file $(PYPIRC_PATH) dist/*
+
+# Get help on options for Typescript client generation
+typescript-help:
+	docker run openapitools/openapi-generator-cli config-help -g typescript-fetch
+
+# Generate Typescript client
+typescript: api.yaml
+	docker run --rm -v "${PWD}:/work" -w /work -u $$(id -u):$$(id -g) openapitools/openapi-generator-cli generate \
+	  -i api.yaml \
+	  -c typescript/.openapi-generator-config.yaml \
+	  -g typescript-fetch \
+	  -o typescript
+.PHONY: typescript
+
+# Publish Typescript package to PyPI
+typescript-publish:
+	cd typescript && \
+	  npm publish

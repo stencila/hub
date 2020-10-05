@@ -24,11 +24,12 @@ Stencila Hub consists of several services, each with it's own sub-folder. The `R
 
 ## 🤝 Clients
 
-The Hub exposes a public API, https://hub.stenci.la/api. API client packages, generated from the [OpenAPI Schema](https://hub.stenci.la/api/schema), are available in this repository for the following languages:
+The Hub exposes a public API, https://hub.stenci.la/api. API client packages, generated from the [Hub's OpenAPI Schema](https://hub.stenci.la/api/schema), are available in this repository for the following languages:
 
 - [Python](clients/python)
+- [Typescript](clients/typescript)
 
-Client packages for other languages will be added based on demand. Please do not hesitate to for a client for your favorite language!
+Client packages for other languages will be added based on demand. Please don't hesitate to ask for a client for your favorite language!
 
 ## 📜 Documentation
 

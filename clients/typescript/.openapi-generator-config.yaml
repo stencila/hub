@@ -1,0 +1,5 @@
+templateDir: typescript/templates
+additionalProperties:
+  npmName: '@stencila/hub-client'
+  supportsES6: true
+  typescriptThreePlus: true

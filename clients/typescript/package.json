@@ -1,0 +1,31 @@
+{
+  "name": "@stencila/hub-client",
+  "version": "3.40.3",
+  "description": "Client for the Stencila Hub API",
+  "repository": "https://github.com/stencila/hub",
+  "author": "Stencila and contributors",
+  "license": "Apache-2.0",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "26.0.14",
+    "jest": "26.4.2",
+    "node-fetch": "2.6.1",
+    "ts-jest": "26.4.1",
+    "typescript": "4.0.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "./**/*.test.ts"
+    ],
+    "setupFilesAfterEnv": [
+      "./__tests__/setup.ts"
+    ]
+  }
+}
