@@ -26,5 +26,5 @@ python: api.yaml
 python-publish:
 	cd python && \
 	python3 setup.py sdist bdist_wheel && \
-	pip3 install twine \
+	pip3 install twine wheel \
 	twine upload dist/*
