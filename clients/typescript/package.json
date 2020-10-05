@@ -5,6 +5,7 @@
   "repository": "https://github.com/stencila/hub",
   "author": "Stencila and contributors",
   "license": "Apache-2.0",
+  "files": ["dist"],
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
