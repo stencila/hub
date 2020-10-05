@@ -72,7 +72,7 @@ There are two primary options for customizing the files this package:
 
 ### Running tests
 
-Tests run against a local instance of the `manager` service. So start that, and then run the tests from in this directory,
+Tests run against a local instance of the `manager` service. So start that, generate the `src` directory, and then run the tests from in this directory,
 
 ```sh
 npm test
