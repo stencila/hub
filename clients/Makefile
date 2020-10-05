@@ -21,3 +21,10 @@ python: api.yaml
 	  -g python \
 	  -o python
 .PHONY: python
+
+# Publish Python package to PyPI
+python-publish:
+	cd python && \
+	python3 setup.py sdist bdist_wheel && \
+	pip3 install twine \
+	twine upload dist/*

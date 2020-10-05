@@ -72,7 +72,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "sed -i -e 's!__version__ = .*!__version__ = \"${nextRelease.version}\"!g' manager/manager/version.py"
+          "prepareCmd": "./release.sh ${nextRelease.version}"
         }
       ],
       [
@@ -81,7 +81,8 @@
           "assets": [
             "package.json",
             "CHANGELOG.md",
-            "manager/manager/version.py"
+            "manager/manager/version.py",
+            "clients/python/.openapi-generator-config.yaml"
           ]
         }
       ],
