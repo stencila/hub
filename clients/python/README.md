@@ -10,35 +10,13 @@ This package may work with Python 2.7 but only recent versions of Python are sup
 
 ## Installation
 
-### Pip
-
-You can install directly using:
+Install from [PyPI](https://pypi.org/project/stencila.hub/) using:
 
 ```sh
-pip3 install git+https://github.com/stencila/hub.git#egg=pkg&subdirectory=client/python
-```
-(you may need to run `pip` with root permission: `sudo pip install ...`)
-
-Then import the package:
-
-```python
-import stencila.hub
+pip3 install stencila.hub
 ```
 
-### Setuptools
-
-Install via [Setuptools](http://pypi.python.org/pypi/setuptools).
-
-```sh
-python3 setup.py install --user
-```
-(or `sudo python setup.py install` to install the package for all users)
-
-Then import the package:
-
-```python
-import stencila.hub
-```
+_You may need to run `pip3` with root permission: `sudo pip3 install ...`_
 
 ## Getting Started
 
