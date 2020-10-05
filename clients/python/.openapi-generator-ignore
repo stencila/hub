@@ -28,3 +28,4 @@
 git_push.sh
 requirements.txt
 test-requirements.txt
+tox.ini
