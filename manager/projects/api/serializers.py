@@ -15,6 +15,7 @@ from manager.api.validators import FromContextDefault
 from manager.helpers import unique_slugify
 from manager.themes import Themes
 from projects.models.files import File
+from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectLiveness, ProjectRole
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
@@ -793,3 +794,41 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
             for model, serializer in model_serializer_mapping.items()
         ]
     )
+
+
+class NodesCreateRequest(serializers.ModelSerializer):
+    """The request data when creating a new node."""
+
+    node = serializers.JSONField(required=True, help_text="The node itself.")
+
+    class Meta:
+        model = Node
+        fields = ["project", "app", "host", "node"]
+        ref_name = None
+
+
+class NodesCreateResponse(serializers.ModelSerializer):
+    """The response data when creating a new node."""
+
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, obj):
+        """Get the URL of this node."""
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.get_absolute_url())
+
+    class Meta:
+        model = Node
+        fields = ["key", "url"]
+        ref_name = None
+
+
+class NodeSerializer(NodesCreateResponse):
+    """The response data when retrieving a node."""
+
+    node = serializers.JSONField(source="json", help_text="The node itself.")
+
+    class Meta:
+        model = Node
+        fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
+        ref_name = None

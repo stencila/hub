@@ -3,9 +3,13 @@ from rest_framework.routers import Route
 
 from manager.api.routers import OptionalSlashRouter
 from projects.api.views.files import ProjectsFilesViewSet
+from projects.api.views.nodes import NodesViewSet
 from projects.api.views.projects import ProjectsAgentsViewSet, ProjectsViewSet
 from projects.api.views.snapshots import ProjectsSnapshotsViewSet
 from projects.api.views.sources import ProjectsSourcesViewSet
+
+nodes = OptionalSlashRouter()
+nodes.register("nodes", NodesViewSet, "api-nodes")
 
 projects = OptionalSlashRouter()
 projects.register("projects", ProjectsViewSet, "api-projects")
@@ -64,9 +68,13 @@ projects_snapshots.register(
 projects_sources = OptionalSlashRouter()
 projects_sources.register("sources", ProjectsSourcesViewSet, "api-projects-sources")
 
-urlpatterns = projects.urls + [
-    path("projects/<project>/", include(projects_agents.urls)),
-    path("projects/<project>/", include(projects_files.urls)),
-    path("projects/<project>/", include(projects_snapshots.urls)),
-    path("projects/<project>/", include(projects_sources.urls)),
-]
+urlpatterns = (
+    nodes.urls
+    + projects.urls
+    + [
+        path("projects/<project>/", include(projects_agents.urls)),
+        path("projects/<project>/", include(projects_files.urls)),
+        path("projects/<project>/", include(projects_snapshots.urls)),
+        path("projects/<project>/", include(projects_sources.urls)),
+    ]
+)

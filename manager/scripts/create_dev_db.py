@@ -8,11 +8,14 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from stencila.schema.json import object_encode
+from stencila.schema.types import CodeChunk, CodeExpression, MathBlock, MathFragment
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountTier, AccountUser
 from jobs.models import Queue, Worker, Zone
 from manager.themes import Themes
 from projects.models.files import File
+from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import (
     ElifeSource,
@@ -313,6 +316,13 @@ def run(*args):
             create_files_for_source(url, ["sub/subsub/mtcars.csv"])
 
     #################################################################
+    # Nodes
+    #################################################################
+
+    for project in Project.objects.all():
+        create_nodes_for_project(project)
+
+    #################################################################
     # Jobs, queues, workers, zones
     #################################################################
 
@@ -420,4 +430,37 @@ def create_files_for_source(source, paths):
             mimetype=mimetype,
             encoding=encoding,
             modified=timezone.now(),
+        )
+
+
+def create_nodes_for_project(project):
+    """
+    Create some nodes for a project.
+
+    The purpose of this is mainly to able to be able to preview
+    the HTML templates used for `Nodes` with real-ish data.
+
+    Generates the same nodes for every project (so you can
+    view them regardless of which test user you are logged in
+    as), with keys that are is easy to remember (the name of
+    the type).
+
+    Browse `/api/nodes/joe-private-project-codechunk.html` etc to preview the
+    templates with these data.
+    """
+
+    nodes = [
+        CodeChunk(programmingLanguage="r", text="plot(mtcars)"),
+        CodeExpression(programmingLanguage="js", text="x * y"),
+        MathBlock(mathLanguage="tex", text="\\int\\limits_a^b x^2  \\mathrm{d} x"),
+        MathFragment(mathLanguage="asciimath", text="2 pi r"),
+    ]
+
+    for node in nodes:
+        Node.objects.create(
+            project=project,
+            key="{}-{}".format(project.name, node.__class__.__name__.lower()),
+            app="gsuita",
+            host="https://example.com/some-doc",
+            json=object_encode(node),
         )
