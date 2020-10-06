@@ -1,3 +1,5 @@
+from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.db.models import Q
 from django.urls import reverse
 from knox.models import AuthToken
@@ -11,11 +13,56 @@ class UserSerializer(serializers.ModelSerializer):
     A serializer for public user details.
 
     Only fields considered public should be available here.
+    Includes fields from the user's personal `Account`.
     """
 
     class Meta:
         model = User
         fields = ["id", "username", "first_name", "last_name"]
+
+
+class MeEmailAddressSerializer(serializers.ModelSerializer):
+    """
+    An email address linked to a user.
+    """
+
+    class Meta:
+        model = EmailAddress
+        fields = ["email", "primary", "verified"]
+
+
+class MeLinkedAccountSerializer(serializers.ModelSerializer):
+    """
+    An external, third party account linked to a user.
+    """
+
+    class Meta:
+        model = SocialAccount
+        fields = ["provider", "uid", "date_joined", "last_login"]
+
+
+class MeSerializer(UserSerializer):
+    """
+    A serializer for a user's own details.
+
+    Adds fields that are private to the user.
+    """
+
+    email_addresses = MeEmailAddressSerializer(
+        source="emailaddress_set", many=True, read_only=True
+    )
+    linked_accounts = MeLinkedAccountSerializer(
+        source="socialaccount_set", many=True, read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = UserSerializer.Meta.fields + [
+            "date_joined",
+            "last_login",
+            "email_addresses",
+            "linked_accounts",
+        ]
 
 
 class UserIdentifierSerializer(serializers.Serializer):
@@ -50,18 +97,6 @@ class UserIdentifierSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
         return data
-
-
-class MeSerializer(UserSerializer):
-    """
-    A serializer for a user's own details.
-
-    Adds fields that are private to the user.
-    """
-
-    class Meta:
-        model = User
-        fields = UserSerializer.Meta.fields
 
 
 class TokenSerializer(serializers.ModelSerializer):
