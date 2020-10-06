@@ -1,4 +1,5 @@
 .npmrc
+.openapi-generator
 dist
 node_modules
 src
