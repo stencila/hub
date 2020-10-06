@@ -11,7 +11,7 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.prod.json",
     "prepare": "npm run build",
     "test": "jest"
   },
