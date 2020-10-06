@@ -28,7 +28,7 @@ test('List as member user', async () => {
 
   // Filtering by role should return fewer
   const listRole = await api.projectsList({
-    role: 'member'
+    role: 'owner'
   })
   expect(listRole.count).toBeLessThan(listAll.count)
 })

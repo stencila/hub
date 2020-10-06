@@ -3,6 +3,8 @@ from typing import List, Optional
 from django.db.models import Prefetch, Q
 from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -104,7 +106,9 @@ class AccountsViewSet(
             if role == "member":
                 queryset = queryset.filter(role__isnull=False)
             elif role == "manager":
-                queryset = queryset.filter(role=AccountRole.MANAGER.name)
+                queryset = queryset.filter(
+                    Q(role=AccountRole.MANAGER.name) | Q(role=AccountRole.OWNER.name)
+                )
             elif role == "owner":
                 queryset = queryset.filter(role=AccountRole.OWNER.name)
         else:
@@ -210,6 +214,78 @@ class AccountsViewSet(
             return reverse("ui-accounts-retrieve", args=[serializer.instance.name])
         else:
             return None
+
+    # Most of the following views serve simply to provide documentation
+    # from which the OpenAPI schema is generated.
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "is",
+                openapi.IN_QUERY,
+                description="Whether or the account is for an organization or user.",
+                type=openapi.TYPE_STRING,
+                enum=["user", "org"],
+            ),
+            openapi.Parameter(
+                "role",
+                openapi.IN_QUERY,
+                description="The role that the currently authenticated user has for the account "
+                'e.g. "member", "manager", or "owner"',
+                type=openapi.TYPE_STRING,
+                enum=[value.name.lower() for value in AccountRole],
+            ),
+            openapi.Parameter(
+                "search",
+                openapi.IN_QUERY,
+                description="A string to search for in the account `name` or `displayName`.",
+                type=openapi.TYPE_STRING,
+            ),
+        ]
+    )
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        """
+        List accounts.
+
+        The returned list can be filtered using query parameters, `is`, `role`, and `search`.
+
+        The `role` filter applies to the currently authenticated user, and
+        as such has no effected for unauthenticated requests. When `role=member` will return
+        all accounts that the user is a `member`, `manager`, or `owner` of. When `role=manager`
+        will return all accounts that the user is a `manager` or `owner` of.
+
+        For example, to list all organizational accounts for which the authenticated user is
+        a member of (and therefore can create a project for):
+
+            GET /accounts?is=org&role=member
+        """
+        return super().list(request, *args, **kwargs)
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Create an account.
+
+        Receives details of the account.
+        Returns details of the new account.
+        """
+        return super().create(request, *args, **kwargs)
+
+    def retrieve(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Retrieve an account.
+
+        Returns details of the account.
+        """
+        return super().retrieve(request, *args, **kwargs)
+
+    def partial_update(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Update an account.
+
+        Receives details of the account.
+        Returns updated details of the account.
+        """
+        return super().partial_update(request, *args, **kwargs)
 
     @action(detail=True, methods=["PATCH"])
     def update_plan(self):
