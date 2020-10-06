@@ -16,9 +16,56 @@ class UserSerializer(serializers.ModelSerializer):
     Includes fields from the user's personal `Account`.
     """
 
+    display_name = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    website = serializers.SerializerMethodField()
+    public_email = serializers.SerializerMethodField()
+
+    def get_display_name(self, user):
+        """Get the display name of the user's personal account."""
+        return user.personal_account.display_name
+
+    def get_location(self, user):
+        """Get the location for the user's personal account."""
+        return user.personal_account.location
+
+    def get_image(self, user):
+        """Get the image for the user's personal account."""
+        request = self.context.get("request")
+        return dict(
+            [
+                (
+                    size,
+                    request.build_absolute_uri(
+                        getattr(user.personal_account.image, size)
+                    ),
+                )
+                for size in ("small", "medium", "large")
+            ]
+        )
+
+    def get_website(self, user):
+        """Get the website of the user's personal account."""
+        return user.personal_account.website
+
+    def get_public_email(self, user):
+        """Get the email address of the user's personal account."""
+        return user.personal_account.email
+
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "display_name",
+            "location",
+            "image",
+            "website",
+            "public_email",
+        ]
 
 
 class MeEmailAddressSerializer(serializers.ModelSerializer):
