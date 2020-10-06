@@ -1,3 +1,10 @@
+## [3.41.2](https://github.com/stencila/hub/compare/v3.41.1...v3.41.2) (2020-10-06)
+
+
+### Bug Fixes
+
+* **Acounts API:** Add docs for parameters ([ff0792a](https://github.com/stencila/hub/commit/ff0792a5e4921c4aa27d226ea23c1196d229e867))
+
 ## [3.41.1](https://github.com/stencila/hub/compare/v3.41.0...v3.41.1) (2020-10-06)
 
 
