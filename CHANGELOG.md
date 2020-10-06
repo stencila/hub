@@ -1,3 +1,10 @@
+## [3.41.1](https://github.com/stencila/hub/compare/v3.41.0...v3.41.1) (2020-10-06)
+
+
+### Bug Fixes
+
+* **TS Client:** Fix packaging of TypeScript client ([0a5010d](https://github.com/stencila/hub/commit/0a5010d41200f2201b89744cb628033ebbd8b360))
+
 # [3.41.0](https://github.com/stencila/hub/compare/v3.40.3...v3.41.0) (2020-10-05)
 
 
