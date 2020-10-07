@@ -1,6 +1,6 @@
 import os
 import re
-from typing import List, Optional, Tuple
+from typing import cast, List, Optional, Tuple
 
 from dxf import DXF
 
@@ -8,10 +8,9 @@ from jobs.base.job import Job
 
 # Dictionary of credentials for authenticating with registries
 CONTAINER_REGISTRY_CREDENTIALS = {
-    "registry-1.docker.io": [
-        os.environ["REGISTRY_USERNAME"],
-        os.environ["REGISTRY_PASSWORD"],
-    ]
+    "registry-1.docker.io": os.environ.get(
+        "DOCKER_REGISTRY_CREDENTIALS", "username:password"
+    ).split(":")
 }
 
 # Regext for pasing a container image identifier
@@ -27,19 +26,18 @@ class Pin(Job):
     A job that pins the version of the container image to use for a project.
 
     Usually used when creating a project snapshot. Resolves an unpinned container image
-    tag e.g. `@stencila/executa-midi:latest` to it's SHA256 identifier e.g. `sha256:a18710...`.
-
-    The returned identifier is the same as listed under `IMAGE ID` column of
-    `docker images` and as returned by `docker inspect <alias> --format='{{.Id}}'`.
-    It differs to the "digest" shown on the Docker Hub (which is also a SHA256 hash).
+    tag e.g. `@stencila/executa-midi:latest` to a fully qualified image identifier including
+    it's registry (e.g. `docker.io`), repository (e.g. `stencila/executa-midi`) and
+    digest (e.g. `sha256:a18710...`). The `digest` part is the same as returned by
+    `docker inspect <alias> --format='{{.RepoDigests}}'` and the "digest" shown on the Docker Hub.
     """
 
     name = "pin"
 
     def do(self, container_image: Optional[str] = None, **kwargs) -> str:  # type: ignore
-        [host, repo, alias, id_] = self.parse(container_image)
-        if id_:
-            return id_
+        [host, repo, alias, digest] = self.parse(container_image)
+        if digest:
+            return digest
 
         if host is None:
             host = "registry-1.docker.io"
@@ -57,10 +55,16 @@ class Pin(Job):
                 username, password, response=response
             ),
         )
-        return dxf.get_digest(alias)
+        # Get the "Docker-Content-Digest" for the alias. This is the SHA256 hash
+        # that can be used with `docker run` and is on the Docker Hub for an image tag,
+        # not the one returned by ``.get_digest()`.
+        digest = dxf._get_dcd(alias)
 
+        return self.deparse(host, repo, cast(str, digest))
+
+    @staticmethod
     def parse(
-        self, container_image: Optional[str] = None
+        container_image: Optional[str] = None,
     ) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
         """
         Parse a container image identifier into its component parts: host, repo, and alias or id.
@@ -75,11 +79,19 @@ class Pin(Job):
         if not match:
             raise ValueError("Unable to parse image identifier: {0}", container_image)
 
-        host, repo, alias, id_ = match.groups()
+        host, repo, alias, digest = match.groups()
         if host is not None and host.endswith("/"):
             host = host[:-1]
         if alias is not None:
             alias = alias[1:]
-        if id_ is not None:
-            id_ = id_[1:]
-        return (host, repo, alias, id_)
+        if digest is not None:
+            digest = digest[1:]
+        return (host, repo, alias, digest)
+
+    @staticmethod
+    def deparse(host: str, repo: str, id_: str) -> str:
+        """
+        Generate a container image identifier from its component parts.
+        """
+        domain = {"registry-1.docker.io": "docker.io"}.get(host, host)
+        return "{domain}/{repo}@{id}".format(domain=domain, repo=repo, id=id_)

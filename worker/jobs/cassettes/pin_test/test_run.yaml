@@ -3,27 +3,25 @@ interactions:
     body: null
     headers:
       Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
+      - application/vnd.docker.distribution.manifest.v2+json
       Accept-Encoding:
       - gzip, deflate
       Connection:
       - keep-alive
       User-Agent:
       - python-requests/2.23.0
-    method: GET
+    method: HEAD
     uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
   response:
     body:
-      string: '{"errors":[{"code":"UNAUTHORIZED","message":"authentication required","detail":[{"Type":"repository","Class":"","Name":"stencila/executa-midi","Action":"pull"}]}]}
-
-        '
+      string: ''
     headers:
       Content-Length:
       - '164'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Oct 2020 01:40:07 GMT
+      - Wed, 07 Oct 2020 01:58:55 GMT
       Docker-Distribution-Api-Version:
       - registry/2.0
       Strict-Transport-Security:
@@ -50,14 +48,14 @@ interactions:
     uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
   response:
     body:
-      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-06T01:40:08.182400727Z"}
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:58:56.764170493Z"}
 
         '
     headers:
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Oct 2020 01:40:08 GMT
+      - Wed, 07 Oct 2020 01:58:56 GMT
       Strict-Transport-Security:
       - max-age=31536000
       Transfer-Encoding:
@@ -69,7 +67,7 @@ interactions:
     body: null
     headers:
       Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
+      - application/vnd.docker.distribution.manifest.v2+json
       Accept-Encoding:
       - gzip, deflate
       Authorization:
@@ -78,75 +76,18 @@ interactions:
       - keep-alive
       User-Agent:
       - python-requests/2.23.0
-    method: GET
+    method: HEAD
     uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
   response:
     body:
-      string: "{\n   \"schemaVersion\": 2,\n   \"mediaType\": \"application/vnd.docker.distribution.manifest.v2+json\"\
-        ,\n   \"config\": {\n      \"mediaType\": \"application/vnd.docker.container.image.v1+json\"\
-        ,\n      \"size\": 16338,\n      \"digest\": \"sha256:055b14cb9563cb25b87973d81adb23a836769a07062425643e790ab8e2dff5fe\"\
-        \n   },\n   \"layers\": [\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 28261433,\n         \"digest\": \"sha256:3f2411103a12c8e169df7a9ea00ff26ab07501858e3eff315a2e11c219e78ce1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 30640,\n         \"digest\": \"sha256:4da04088b2c299c17ae8a78858846c6fd4a6c36717baa816974cc75bef632871\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 846,\n         \"digest\": \"sha256:ab1184837b6f6f4a130c8b4eb72f576b86c4c46b3e33dada4740a966948d98e6\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 164,\n         \"digest\": \"sha256:354c6da61dcc176c5b363ded571bea1de41b718131658fa0e563f2a749028cd1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 152149410,\n         \"digest\": \"sha256:61a16cd7d4b2270fdb65a5f9f77c3d26c3c62953ef70ca45dc17a443204d9371\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 29779674,\n         \"digest\": \"sha256:166378e0094759a0f8269594d2b7f609a31f769ce6b89db86a8446a8f92dc7e6\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 155816644,\n         \"digest\": \"sha256:4fb8d2864b6adfcc9aaa5348315f8890d0192735fb09fe54dd45137160592241\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 186,\n         \"digest\": \"sha256:02dac95d305a104c308edccdf1e657727decfa5f031ac32c36b98b3bcd32e163\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 94272299,\n         \"digest\": \"sha256:cb745240e1f802a7a717bf03aa5e8d69d6c0ebab52778f750b25cc08c34d1bf0\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18578991,\n         \"digest\": \"sha256:438b5ac1aac8f9a24e8f435f0aa2d71e40d849cb81763e5bbb05d714fde4f247\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 324847750,\n         \"digest\": \"sha256:fe58b3c98cd11c4b24d2cd63212182c8ad74adcc3250fb6814ff963721f63604\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 9576588,\n         \"digest\": \"sha256:42c0ddbde092bf5d1bb9149104c57c62c352e48359f98f515686b01d7fc28552\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 211046,\n         \"digest\": \"sha256:bacee5f9ea49b16b79cad556a63b5a68c620e9524e6b5846889eb74af0debf2a\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20356691,\n         \"digest\": \"sha256:4dc63fa02afde7e145fc110f88319f70060bc5eec36b4ac3792698f98ec14e46\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20471719,\n         \"digest\": \"sha256:9d798633763b026f2f336e33734f7d75a86b61aab4e7b90cdd3b16ef38947259\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 4441,\n         \"digest\": \"sha256:255c8a7a3cf92865c1f1bda810a4ccf50b003012166ca35388296895124f33ff\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 557,\n         \"digest\": \"sha256:206d46cbbff8ebb9f42540ca9315ae6a4f452b1706fcb77b21e0bb15033aab25\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 627,\n         \"digest\": \"sha256:8c5916d6dc53b4a20d9eb419b64a2e653c0be232619e8a1c600b96e9d286dd22\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 464,\n         \"digest\": \"sha256:deb133fc8748b5117f9f66ce2ee07bc0a541ee1169f002b2bd643b09faf3a5a5\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 426,\n         \"digest\": \"sha256:ac88010fa09e47784636648faadf1131cca89c903d70cf8d2b51e1481c7a5cb9\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18021780,\n         \"digest\": \"sha256:e258ef0dbf2e7cf6c487d6ea2910ca72b49005ba43549cd1e5c4abfe41584162\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 48299,\n         \"digest\": \"sha256:f4a424ecc324e0f42310b9d4f91b3dc6b52215a31f6265afac3974444a2eee2d\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 47555865,\n         \"digest\": \"sha256:290550e4c31217da4d4eec479614d6a3285cf68d9d6d03024fde98b874208cfc\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 365,\n         \"digest\": \"sha256:79edbe9bc3eef103e085b63dd1aa4dd7b5626e8c19c4e12b8b41de1f3ca0422d\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 189,\n         \"digest\": \"sha256:258c3d9cac85b2e28aea120476667592a4d917808b8375ae209d6ed45db77844\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 362,\n         \"digest\": \"sha256:96ced7edc4b5cc8a5d8b39beb2de2a2c81bb5380125ce1c92421163b8bfb21f1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 168413253,\n         \"digest\": \"sha256:9abf6fd49a98e921da47b8295a63ecc0d26fc569c141d10fc9ae7ca116880b56\"\
-        \n      }\n   ]\n}"
+      string: ''
     headers:
       Content-Length:
       - '5983'
       Content-Type:
       - application/vnd.docker.distribution.manifest.v2+json
       Date:
-      - Tue, 06 Oct 2020 01:40:09 GMT
+      - Wed, 07 Oct 2020 01:58:57 GMT
       Docker-Content-Digest:
       - sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3
       Docker-Distribution-Api-Version:
@@ -162,186 +103,25 @@ interactions:
     body: null
     headers:
       Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.23.0
-    method: GET
-    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
-  response:
-    body:
-      string: '{"errors":[{"code":"UNAUTHORIZED","message":"authentication required","detail":[{"Type":"repository","Class":"","Name":"stencila/executa-midi","Action":"pull"}]}]}
-
-        '
-    headers:
-      Content-Length:
-      - '164'
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 06 Oct 2020 01:40:10 GMT
-      Docker-Distribution-Api-Version:
-      - registry/2.0
-      Strict-Transport-Security:
-      - max-age=31536000
-      Www-Authenticate:
-      - Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:stencila/executa-midi:pull"
-    status:
-      code: 401
-      message: Unauthorized
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Basic c3RlbmNpbGFjaTpzdXB5YmhmNGZ3ZG53N3NvdjkzMw==
-      Connection:
-      - keep-alive
-      User-Agent:
-      - Docker-Client/19.03.2 (linux)
-    method: GET
-    uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
-  response:
-    body:
-      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-06T01:40:11.714443341Z"}
-
-        '
-    headers:
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 06 Oct 2020 01:40:11 GMT
-      Strict-Transport-Security:
-      - max-age=31536000
-      Transfer-Encoding:
-      - chunked
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
-      Accept-Encoding:
-      - gzip, deflate
-      Authorization:
-      - Bearer REDACTED
-      Connection:
-      - keep-alive
-      User-Agent:
-      - python-requests/2.23.0
-    method: GET
-    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
-  response:
-    body:
-      string: "{\n   \"schemaVersion\": 2,\n   \"mediaType\": \"application/vnd.docker.distribution.manifest.v2+json\"\
-        ,\n   \"config\": {\n      \"mediaType\": \"application/vnd.docker.container.image.v1+json\"\
-        ,\n      \"size\": 16338,\n      \"digest\": \"sha256:055b14cb9563cb25b87973d81adb23a836769a07062425643e790ab8e2dff5fe\"\
-        \n   },\n   \"layers\": [\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 28261433,\n         \"digest\": \"sha256:3f2411103a12c8e169df7a9ea00ff26ab07501858e3eff315a2e11c219e78ce1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 30640,\n         \"digest\": \"sha256:4da04088b2c299c17ae8a78858846c6fd4a6c36717baa816974cc75bef632871\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 846,\n         \"digest\": \"sha256:ab1184837b6f6f4a130c8b4eb72f576b86c4c46b3e33dada4740a966948d98e6\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 164,\n         \"digest\": \"sha256:354c6da61dcc176c5b363ded571bea1de41b718131658fa0e563f2a749028cd1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 152149410,\n         \"digest\": \"sha256:61a16cd7d4b2270fdb65a5f9f77c3d26c3c62953ef70ca45dc17a443204d9371\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 29779674,\n         \"digest\": \"sha256:166378e0094759a0f8269594d2b7f609a31f769ce6b89db86a8446a8f92dc7e6\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 155816644,\n         \"digest\": \"sha256:4fb8d2864b6adfcc9aaa5348315f8890d0192735fb09fe54dd45137160592241\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 186,\n         \"digest\": \"sha256:02dac95d305a104c308edccdf1e657727decfa5f031ac32c36b98b3bcd32e163\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 94272299,\n         \"digest\": \"sha256:cb745240e1f802a7a717bf03aa5e8d69d6c0ebab52778f750b25cc08c34d1bf0\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18578991,\n         \"digest\": \"sha256:438b5ac1aac8f9a24e8f435f0aa2d71e40d849cb81763e5bbb05d714fde4f247\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 324847750,\n         \"digest\": \"sha256:fe58b3c98cd11c4b24d2cd63212182c8ad74adcc3250fb6814ff963721f63604\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 9576588,\n         \"digest\": \"sha256:42c0ddbde092bf5d1bb9149104c57c62c352e48359f98f515686b01d7fc28552\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 211046,\n         \"digest\": \"sha256:bacee5f9ea49b16b79cad556a63b5a68c620e9524e6b5846889eb74af0debf2a\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20356691,\n         \"digest\": \"sha256:4dc63fa02afde7e145fc110f88319f70060bc5eec36b4ac3792698f98ec14e46\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20471719,\n         \"digest\": \"sha256:9d798633763b026f2f336e33734f7d75a86b61aab4e7b90cdd3b16ef38947259\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 4441,\n         \"digest\": \"sha256:255c8a7a3cf92865c1f1bda810a4ccf50b003012166ca35388296895124f33ff\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 557,\n         \"digest\": \"sha256:206d46cbbff8ebb9f42540ca9315ae6a4f452b1706fcb77b21e0bb15033aab25\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 627,\n         \"digest\": \"sha256:8c5916d6dc53b4a20d9eb419b64a2e653c0be232619e8a1c600b96e9d286dd22\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 464,\n         \"digest\": \"sha256:deb133fc8748b5117f9f66ce2ee07bc0a541ee1169f002b2bd643b09faf3a5a5\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 426,\n         \"digest\": \"sha256:ac88010fa09e47784636648faadf1131cca89c903d70cf8d2b51e1481c7a5cb9\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18021780,\n         \"digest\": \"sha256:e258ef0dbf2e7cf6c487d6ea2910ca72b49005ba43549cd1e5c4abfe41584162\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 48299,\n         \"digest\": \"sha256:f4a424ecc324e0f42310b9d4f91b3dc6b52215a31f6265afac3974444a2eee2d\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 47555865,\n         \"digest\": \"sha256:290550e4c31217da4d4eec479614d6a3285cf68d9d6d03024fde98b874208cfc\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 365,\n         \"digest\": \"sha256:79edbe9bc3eef103e085b63dd1aa4dd7b5626e8c19c4e12b8b41de1f3ca0422d\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 189,\n         \"digest\": \"sha256:258c3d9cac85b2e28aea120476667592a4d917808b8375ae209d6ed45db77844\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 362,\n         \"digest\": \"sha256:96ced7edc4b5cc8a5d8b39beb2de2a2c81bb5380125ce1c92421163b8bfb21f1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 168413253,\n         \"digest\": \"sha256:9abf6fd49a98e921da47b8295a63ecc0d26fc569c141d10fc9ae7ca116880b56\"\
-        \n      }\n   ]\n}"
-    headers:
-      Content-Length:
-      - '5983'
-      Content-Type:
       - application/vnd.docker.distribution.manifest.v2+json
-      Date:
-      - Tue, 06 Oct 2020 01:40:12 GMT
-      Docker-Content-Digest:
-      - sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3
-      Docker-Distribution-Api-Version:
-      - registry/2.0
-      Etag:
-      - '"sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"'
-      Strict-Transport-Security:
-      - max-age=31536000
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
       Accept-Encoding:
       - gzip, deflate
       Connection:
       - keep-alive
       User-Agent:
       - python-requests/2.23.0
-    method: GET
-    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
   response:
     body:
-      string: '{"errors":[{"code":"UNAUTHORIZED","message":"authentication required","detail":[{"Type":"repository","Class":"","Name":"stencila/executa-midi","Action":"pull"}]}]}
-
-        '
+      string: ''
     headers:
       Content-Length:
       - '164'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Oct 2020 01:40:14 GMT
+      - Wed, 07 Oct 2020 01:58:58 GMT
       Docker-Distribution-Api-Version:
       - registry/2.0
       Strict-Transport-Security:
@@ -368,14 +148,14 @@ interactions:
     uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
   response:
     body:
-      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-06T01:40:15.144122765Z"}
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:59:00.009113198Z"}
 
         '
     headers:
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Oct 2020 01:40:15 GMT
+      - Wed, 07 Oct 2020 01:59:00 GMT
       Strict-Transport-Security:
       - max-age=31536000
       Transfer-Encoding:
@@ -387,7 +167,7 @@ interactions:
     body: null
     headers:
       Accept:
-      - application/vnd.docker.distribution.manifest.v2+json, application/vnd.docker.distribution.manifest.v1+json
+      - application/vnd.docker.distribution.manifest.v2+json
       Accept-Encoding:
       - gzip, deflate
       Authorization:
@@ -396,75 +176,118 @@ interactions:
       - keep-alive
       User-Agent:
       - python-requests/2.23.0
-    method: GET
-    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
   response:
     body:
-      string: "{\n   \"schemaVersion\": 2,\n   \"mediaType\": \"application/vnd.docker.distribution.manifest.v2+json\"\
-        ,\n   \"config\": {\n      \"mediaType\": \"application/vnd.docker.container.image.v1+json\"\
-        ,\n      \"size\": 16343,\n      \"digest\": \"sha256:aa713b9e09f9f4cd7b573bbecc92019f4cc13a25f347c22f01cd57e2cef1b177\"\
-        \n   },\n   \"layers\": [\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 28261433,\n         \"digest\": \"sha256:3f2411103a12c8e169df7a9ea00ff26ab07501858e3eff315a2e11c219e78ce1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 30640,\n         \"digest\": \"sha256:4da04088b2c299c17ae8a78858846c6fd4a6c36717baa816974cc75bef632871\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 846,\n         \"digest\": \"sha256:ab1184837b6f6f4a130c8b4eb72f576b86c4c46b3e33dada4740a966948d98e6\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 164,\n         \"digest\": \"sha256:354c6da61dcc176c5b363ded571bea1de41b718131658fa0e563f2a749028cd1\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 152149330,\n         \"digest\": \"sha256:5161c812ed180426ea861cb4e7cd8c474fc473d7c26e2d524dc69a3cfcbc02e0\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 29779331,\n         \"digest\": \"sha256:8640469e59efa5bc124bcb300432430f079f6084620647196701f9ff1b53d673\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 155823325,\n         \"digest\": \"sha256:7e627fa106e18366f0260642fef5908514fa3382d3c81257d69e3d4086f60040\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 187,\n         \"digest\": \"sha256:ec52a303456401c3d0c3f48c56d8710f2b89b98a291bd6ae45c3b95558a2e225\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 94272362,\n         \"digest\": \"sha256:32762a54771f97b7fc80ab56c5ab882cec846c7b35f740594849d6cd810f8e15\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18575638,\n         \"digest\": \"sha256:97dca3e79fddc18fc1a675e31e6371d4f67e807f436da533799cf31e41958372\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 324741587,\n         \"digest\": \"sha256:24e880b53a3e01e7ab9bad9962e498174d1a384c147ac393840e8f74e10035fd\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 9559242,\n         \"digest\": \"sha256:dcc642aa96966ef787ee38aec6595f64b387c071558cce8e96071413560e8514\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 210901,\n         \"digest\": \"sha256:95384f7c45b8633c4fa4a1e033a4a8647d5bde3671d3069f5a25f0374c782986\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20355186,\n         \"digest\": \"sha256:0ed797fbb53b76a72afe98b9f4bbcc4dca9c17feb3f854c278a4e9f3a16f17f8\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 20470911,\n         \"digest\": \"sha256:93dba0cf4f0aee252d817a79dae4bccc49683a2a4ea268e075003f9b4fcab584\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 4441,\n         \"digest\": \"sha256:a4a32c493b73079089a316bdbe8f7e46e3209174abc9a7858f7ab8399d9cfa7e\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 561,\n         \"digest\": \"sha256:cd2724f2a31930816eeff14c8a21b4f314cbca9805a93238c46055f4b8488c08\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 632,\n         \"digest\": \"sha256:3ef1af07245cee091f9dd6753e2a49ea2a4fee6e6e3516ba6d10f8af85349679\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 464,\n         \"digest\": \"sha256:929452098753ed62e1a4903b2e2444f89d26a65e28af7b915acc18507d17eda2\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 426,\n         \"digest\": \"sha256:82ca9d665e8a7d212913b5b6555cbc4027f67710cbdcd202773fb481416c3cc4\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 18021886,\n         \"digest\": \"sha256:432f075ceb44b50c6286b75ac7cb32df780df7a06bdbf1b1e7f699221e2fa51c\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 48297,\n         \"digest\": \"sha256:60a46b6c0bdee8d5cf0286c6539c8af444998f84b7bd87f189252efcac7b0d47\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 47555952,\n         \"digest\": \"sha256:9fe9448f65aa8b9349f08f4d861b0be7f7231df5a071b0080ea15af4962dacac\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 363,\n         \"digest\": \"sha256:24a0012f7672c90a14cad041ccda57f8a9aca1b1cafda6e4be2ded4e73865cea\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 190,\n         \"digest\": \"sha256:88e1442df4792972c74585ec148a0105af34adc855fbf100081438e43926947c\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 363,\n         \"digest\": \"sha256:af721cd8d4f747771fa7cfa6bb2a2f8d55b8b74c5d193db3c89314be029a5271\"\
-        \n      },\n      {\n         \"mediaType\": \"application/vnd.docker.image.rootfs.diff.tar.gzip\"\
-        ,\n         \"size\": 168390653,\n         \"digest\": \"sha256:095527cc31505113a65230f8604cd831dc0c3f53b6c97eb34b11d2b60f39cd4e\"\
-        \n      }\n   ]\n}"
+      string: ''
     headers:
       Content-Length:
       - '5983'
       Content-Type:
       - application/vnd.docker.distribution.manifest.v2+json
       Date:
-      - Tue, 06 Oct 2020 01:40:16 GMT
+      - Wed, 07 Oct 2020 01:59:01 GMT
+      Docker-Content-Digest:
+      - sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Etag:
+      - '"sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"'
+      Strict-Transport-Security:
+      - max-age=31536000
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '164'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:59:02 GMT
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      Www-Authenticate:
+      - Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:stencila/executa-midi:pull"
+    status:
+      code: 401
+      message: Unauthorized
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Basic REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Docker-Client/19.03.2 (linux)
+    method: GET
+    uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
+  response:
+    body:
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:59:03.234857487Z"}
+
+        '
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:59:03 GMT
+      Strict-Transport-Security:
+      - max-age=31536000
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '5983'
+      Content-Type:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Date:
+      - Wed, 07 Oct 2020 01:59:04 GMT
       Docker-Content-Digest:
       - sha256:ba8dfd7bbd91cc704baa9fa1b9e6100d70a4a0b153ea97d37ca0eef0fc5dea57
       Docker-Distribution-Api-Version:

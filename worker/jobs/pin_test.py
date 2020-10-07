@@ -60,14 +60,11 @@ def test_parse():
 def test_run():
     job = Pin()
 
-    executa_midi_latest = (
-        "sha256:055b14cb9563cb25b87973d81adb23a836769a07062425643e790ab8e2dff5fe"
-    )
+    executa_midi_latest = "docker.io/stencila/executa-midi@sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"  # noqa
     assert job.do() == executa_midi_latest
     assert job.do("stencila/executa-midi") == executa_midi_latest
-    assert job.do(executa_midi_latest) == executa_midi_latest
 
     assert (
         job.do("stencila/executa-midi:20201004.1")
-        == "sha256:aa713b9e09f9f4cd7b573bbecc92019f4cc13a25f347c22f01cd57e2cef1b177"
+        == "docker.io/stencila/executa-midi@sha256:ba8dfd7bbd91cc704baa9fa1b9e6100d70a4a0b153ea97d37ca0eef0fc5dea57"
     )
