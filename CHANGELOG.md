@@ -1,3 +1,16 @@
+# [3.43.0](https://github.com/stencila/hub/compare/v3.42.0...v3.43.0) (2020-10-07)
+
+
+### Bug Fixes
+
+* **Worker:** Use correct image digest ([4ff8582](https://github.com/stencila/hub/commit/4ff8582c9355a9e4389a89c0e338325a395a1556))
+
+
+### Features
+
+* **Projects:** Specify and pin container image used to run project ([eccbd0a](https://github.com/stencila/hub/commit/eccbd0a62109b6b3e067700f1f78e987b950f299))
+* **Worker:** Add "pin" job ([b3dfa2f](https://github.com/stencila/hub/commit/b3dfa2fcb0087b7e36865b53d83b8d74966c8e14))
+
 # [3.42.0](https://github.com/stencila/hub/compare/v3.41.2...v3.42.0) (2020-10-07)
 
 
