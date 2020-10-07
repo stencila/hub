@@ -1,3 +1,12 @@
+# [3.42.0](https://github.com/stencila/hub/compare/v3.41.2...v3.42.0) (2020-10-07)
+
+
+### Features
+
+* **User API:** Add fields from a user's personal account to /users/{id} ([ed74e3f](https://github.com/stencila/hub/commit/ed74e3f7aa9123fb8d4391cd8ac5da6a8774d2fd))
+* **Users API:** Add fields to /users/me ([fff3f4a](https://github.com/stencila/hub/commit/fff3f4a94d6fd7af570d9d619eb37b188eeddfbb))
+* **Users API:** Allow user to be retrieved using username or id ([78b7847](https://github.com/stencila/hub/commit/78b784713cf265fefa8734bbb06074709532cd0f))
+
 ## [3.41.2](https://github.com/stencila/hub/compare/v3.41.1...v3.41.2) (2020-10-06)
 
 
