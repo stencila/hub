@@ -200,12 +200,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             "public",
             "key",
             "main",
+            "container_image",
+            "liveness",
+            "pinned",
             "theme",
             "extra_head",
             "extra_top",
             "extra_bottom",
-            "liveness",
-            "pinned",
         ]
 
     def validate_ownership_by_account(self, public: bool, account: Account):
@@ -541,7 +542,15 @@ class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snapshot
         fields = "__all__"
-        read_only_fields = ["id", "project", "number", "creator", "created", "job"]
+        read_only_fields = [
+            "id",
+            "project",
+            "number",
+            "creator",
+            "created",
+            "container_image",
+            "job",
+        ]
 
     def create(self, validated_data):
         """

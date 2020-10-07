@@ -4,12 +4,12 @@ Form to update the content related fields of a project.
 Uses `hx-swap="none"` because otherwise reloading of the <form>
   interferes with the CodeMirror enhanced fields included from `_update_content_extras.html`.
   {% endcomment %}
+
   <form hx-patch="{% url 'api-projects-detail' project.id %}" hx-template="projects/_update_content_form.html"
         hx-swap="none">
     {% include "serializers/_field.html" with field=serializer.liveness icon="ri-service-line" element="select" %}
     {% include "serializers/_field.html" with field=serializer.pinned icon="ri-archive-line" element="select" %}
     {% include "serializers/_field.html" with field=serializer.theme icon="ri-paint-brush-line" element="select" %}
-    {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" %}
 
     <br>
     <h3 class="title is-5">Extra content</h3>

@@ -1,8 +1,7 @@
 {% comment %}
 A partial for displaying a snapshot (with updating, via polling).
 
-This is a partial mainly because it is self-replacing (see below).
-
+This is a partial mainly because it is self-replacing.
 If the snapshot is active then will have `hx-trigger="every 2s"` so that it's status,
 results etc get updated. Uses `hx-swap="outerHTML"` so that the trigger
 is removed when the snapshot is inactive. Also includes the snapshot as JSON data
@@ -21,7 +20,12 @@ in case the enclosing page want to use that data to trigger further events
   <div class="level">
     <div class="level-left">
       <h1 class="title">
-        Snapshot #{{ snapshot.number }}
+        <span class="icon is-vcentered">
+          <i class="ri-archive-line"></i>
+        </span>
+        <span>
+          Snapshot #{{ snapshot.number }}
+        </span>
       </h1>
     </div>
     {% if job.status == "SUCCESS" %}
@@ -81,7 +85,6 @@ in case the enclosing page want to use that data to trigger further events
           </a>
         </span>
       </div>
-
       {% endif %}
     </div>
   </div>
@@ -90,26 +93,60 @@ in case the enclosing page want to use that data to trigger further events
   {% trans 'Creating snapshot, please wait…' %}
   {# TODO: Add a progress bar here #}
   {% else %}
-  <h2 class="title is-5">Preview</h2>
+  <h2 class="title is-5">
+    <span class="icon is-vcentered">
+      <i class="ri-eye-line"></i>
+    </span>
+    <span>Preview</span>
+  </h2>
+  <h3 class="subtitle is-6">
+    A preview of how you snapshot will appear to readers.
+  </h3>
   {% if snapshot.has_index %}
   <iframe id="frame" class="snapshot--preview" src="{{ snapshot.content_url }}">
   </iframe>
   {% else %}
-  <p class="is-size-5 has-text-grey-dark">
+  <p class="notification is-warning">
     {% trans 'A preview is not available for this snapshot. Is there a main file in the project?' %}
   </p>
   {% endif %}
 
   <hr />
+  <h2 class="title is-5">
+    <span class="icon is-vcentered">
+      <i class="ri-computer-line"></i>
+    </span>
+    <span>Image</span>
+  </h2>
+  <h3 class="subtitle is-6">
+    The fully qualified identifier for the container image used to generate this snapshot.
+  </h3>
+  {% if snapshot.container_image %}
+  <code>{{ snapshot.container_image }}</code>
+  {% else %}
+  <p class="notification is-warning">
+    {% trans 'This snapshot is not pinned to particular image' %}
+  </p>
+  {% endif %}
 
-  <h2 class="title is-5">Files</h2>
+  <hr />
+  <h2 class="title is-5">
+    <span class="icon is-vcentered">
+      <i class="ri-folder-lock-line"></i>
+    </span>
+    <span>Files</span>
+  </h2>
+  <h3 class="subtitle is-6">
+    The files archived in this snapshot.
+  </h3>
   {% if files %}
   {% include "../files/_list.html" %}
   {% else %}
-  <p class="is-size-5 has-text-grey-dark">
+  <p class="notification is-warning">
     {% trans 'There are no files in this snapshot' %}
   </p>
   {% endif %}
+
   {% endif %}
 </div>
 

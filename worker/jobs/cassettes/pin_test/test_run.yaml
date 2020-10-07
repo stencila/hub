@@ -1,0 +1,302 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '164'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:58:55 GMT
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      Www-Authenticate:
+      - Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:stencila/executa-midi:pull"
+    status:
+      code: 401
+      message: Unauthorized
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Basic REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Docker-Client/19.03.2 (linux)
+    method: GET
+    uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
+  response:
+    body:
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:58:56.764170493Z"}
+
+        '
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:58:56 GMT
+      Strict-Transport-Security:
+      - max-age=31536000
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '5983'
+      Content-Type:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Date:
+      - Wed, 07 Oct 2020 01:58:57 GMT
+      Docker-Content-Digest:
+      - sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Etag:
+      - '"sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"'
+      Strict-Transport-Security:
+      - max-age=31536000
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '164'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:58:58 GMT
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      Www-Authenticate:
+      - Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:stencila/executa-midi:pull"
+    status:
+      code: 401
+      message: Unauthorized
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Basic REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Docker-Client/19.03.2 (linux)
+    method: GET
+    uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
+  response:
+    body:
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:59:00.009113198Z"}
+
+        '
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:59:00 GMT
+      Strict-Transport-Security:
+      - max-age=31536000
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/latest
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '5983'
+      Content-Type:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Date:
+      - Wed, 07 Oct 2020 01:59:01 GMT
+      Docker-Content-Digest:
+      - sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Etag:
+      - '"sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"'
+      Strict-Transport-Security:
+      - max-age=31536000
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '164'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:59:02 GMT
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Strict-Transport-Security:
+      - max-age=31536000
+      Www-Authenticate:
+      - Bearer realm="https://auth.docker.io/token",service="registry.docker.io",scope="repository:stencila/executa-midi:pull"
+    status:
+      code: 401
+      message: Unauthorized
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Basic REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Docker-Client/19.03.2 (linux)
+    method: GET
+    uri: https://auth.docker.io/token?service=registry.docker.io&scope=repository%3Astencila%2Fexecuta-midi%3Apull
+  response:
+    body:
+      string: '{"token":"REDACTED","expires_in":300,"issued_at":"2020-10-07T01:59:03.234857487Z"}
+
+        '
+    headers:
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 07 Oct 2020 01:59:03 GMT
+      Strict-Transport-Security:
+      - max-age=31536000
+      Transfer-Encoding:
+      - chunked
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Bearer REDACTED
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.23.0
+    method: HEAD
+    uri: https://registry-1.docker.io/v2/stencila/executa-midi/manifests/20201004.1
+  response:
+    body:
+      string: ''
+    headers:
+      Content-Length:
+      - '5983'
+      Content-Type:
+      - application/vnd.docker.distribution.manifest.v2+json
+      Date:
+      - Wed, 07 Oct 2020 01:59:04 GMT
+      Docker-Content-Digest:
+      - sha256:ba8dfd7bbd91cc704baa9fa1b9e6100d70a4a0b153ea97d37ca0eef0fc5dea57
+      Docker-Distribution-Api-Version:
+      - registry/2.0
+      Etag:
+      - '"sha256:ba8dfd7bbd91cc704baa9fa1b9e6100d70a4a0b153ea97d37ca0eef0fc5dea57"'
+      Strict-Transport-Security:
+      - max-age=31536000
+    status:
+      code: 200
+      message: OK
+version: 1

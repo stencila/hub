@@ -363,6 +363,8 @@ class JobMethod(EnumChoice):
     encode = "encode"
     convert = "convert"
 
+    pin = "pin"
+
     compile = "compile"
     build = "build"
     execute = "execute"
