@@ -1,3 +1,5 @@
+from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.db.models import Q
 from django.urls import reverse
 from knox.models import AuthToken
@@ -11,11 +13,103 @@ class UserSerializer(serializers.ModelSerializer):
     A serializer for public user details.
 
     Only fields considered public should be available here.
+    Includes fields from the user's personal `Account`.
     """
+
+    display_name = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    website = serializers.SerializerMethodField()
+    public_email = serializers.SerializerMethodField()
+
+    def get_display_name(self, user):
+        """Get the display name of the user's personal account."""
+        return user.personal_account.display_name
+
+    def get_location(self, user):
+        """Get the location for the user's personal account."""
+        return user.personal_account.location
+
+    def get_image(self, user):
+        """Get the image for the user's personal account."""
+        request = self.context.get("request")
+        return dict(
+            [
+                (
+                    size,
+                    request.build_absolute_uri(
+                        getattr(user.personal_account.image, size)
+                    ),
+                )
+                for size in ("small", "medium", "large")
+            ]
+        )
+
+    def get_website(self, user):
+        """Get the website of the user's personal account."""
+        return user.personal_account.website
+
+    def get_public_email(self, user):
+        """Get the email address of the user's personal account."""
+        return user.personal_account.email
 
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name"]
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "display_name",
+            "location",
+            "image",
+            "website",
+            "public_email",
+        ]
+
+
+class MeEmailAddressSerializer(serializers.ModelSerializer):
+    """
+    An email address linked to a user.
+    """
+
+    class Meta:
+        model = EmailAddress
+        fields = ["email", "primary", "verified"]
+
+
+class MeLinkedAccountSerializer(serializers.ModelSerializer):
+    """
+    An external, third party account linked to a user.
+    """
+
+    class Meta:
+        model = SocialAccount
+        fields = ["provider", "uid", "date_joined", "last_login"]
+
+
+class MeSerializer(UserSerializer):
+    """
+    A serializer for a user's own details.
+
+    Adds fields that are private to the user.
+    """
+
+    email_addresses = MeEmailAddressSerializer(
+        source="emailaddress_set", many=True, read_only=True
+    )
+    linked_accounts = MeLinkedAccountSerializer(
+        source="socialaccount_set", many=True, read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = UserSerializer.Meta.fields + [
+            "date_joined",
+            "last_login",
+            "email_addresses",
+            "linked_accounts",
+        ]
 
 
 class UserIdentifierSerializer(serializers.Serializer):
@@ -50,18 +144,6 @@ class UserIdentifierSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("User does not exist")
         return data
-
-
-class MeSerializer(UserSerializer):
-    """
-    A serializer for a user's own details.
-
-    Adds fields that are private to the user.
-    """
-
-    class Meta:
-        model = User
-        fields = UserSerializer.Meta.fields
 
 
 class TokenSerializer(serializers.ModelSerializer):

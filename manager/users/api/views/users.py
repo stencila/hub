@@ -1,7 +1,7 @@
 from django.db.models import Q, QuerySet
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import mixins, permissions, viewsets
+from rest_framework import exceptions, mixins, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -24,9 +24,8 @@ class UsersViewSet(
     Authentication is only required for the `me` action.
     """
 
-    # Configuration
-
     model = User
+    lookup_url_kwarg = "user"
     permission_classes = ()
 
     def get_queryset(self) -> QuerySet:
@@ -58,6 +57,21 @@ class UsersViewSet(
 
         return queryset
 
+    def get_object(self) -> User:
+        """
+        Override of `GenericAPIView.get_object`.
+
+        Allows use of `id` or `username` to fetch a user.
+        """
+        user = self.kwargs.get("user")
+        try:
+            try:
+                return User.objects.get(id=user)
+            except ValueError:
+                return User.objects.get(username=user)
+        except User.DoesNotExist:
+            raise exceptions.NotFound
+
     def get_serializer_class(self):
         """
         Override of `GenericAPIView.get_serializer_class`.
@@ -65,8 +79,6 @@ class UsersViewSet(
         Returns different serializers for different views.
         """
         return MeSerializer if self.action == "me" else UserSerializer
-
-    # Views
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -94,13 +106,22 @@ class UsersViewSet(
             serializer = self.get_serializer(pages, many=True)
             return self.get_paginated_response(serializer.data)
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "user",
+                openapi.IN_PATH,
+                description="Username or integer id",
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
     def retrieve(self, request: Request, *args, **kwargs) -> Response:
         """
         Retrieve a user.
 
         Returns details of the user.
         """
-        # This method exists only to add the above docs to the schema.
         return super().retrieve(request, *args, **kwargs)
 
     @swagger_auto_schema(responses={200: MeSerializer})

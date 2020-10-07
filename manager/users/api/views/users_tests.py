@@ -12,8 +12,8 @@ class UserAPIViewsTests(DatabaseTestCase):
     def list_users(self, user, data={}):
         return self.list(user, "users", data=data)
 
-    def retrieve_user(self, user, pk: int):
-        return self.retrieve(user, "users", kwargs={"pk": pk})
+    def retrieve_user(self, user, user_: str):
+        return self.retrieve(user, "users", kwargs={"user": user_})
 
     def retrieve_me(self, user):
         return self.retrieve(user, "api-users-me")
@@ -34,9 +34,16 @@ class UserAPIViewsTests(DatabaseTestCase):
         assert users[0]["username"] == "cam"
 
     def test_retrieve_user(self):
-        response = self.retrieve_user(None, 2)
+        response = self.retrieve_user(None, "2")
         assert response.status_code == status.HTTP_200_OK
         assert response.data["username"] == User.objects.get(id=2).username
+
+        response = self.retrieve_user(None, "bob")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["username"] == "bob"
+
+        response = self.retrieve_user(None, "foo")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_retrieve_me(self):
         response = self.retrieve_me(None)
