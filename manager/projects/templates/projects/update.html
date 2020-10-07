@@ -5,13 +5,20 @@
 
 {% block projects_content %}
 
+<h2 class="title is-3">{% trans "Profile" %}</h2>
+<p class="subtitle is-6">{% trans "Settings for this project's public profile." %}</p>
 {% include "./_update_profile_form.html" %}
+
+<hr>
+
+<h2 class="title is-3">{% trans "Execution" %}</h2>
+<p class="subtitle is-6">{% trans "Settings affecting how this project is run." %}</p>
+{% include "./_update_execution_form.html" %}
 
 <hr>
 
 <h2 class="title is-3">{% trans "Content" %}</h2>
 <p class="subtitle is-6">{% trans "Settings affecting how content is served for this project." %}</p>
-
 {% include "./_update_content_form.html" %}
 
 <hr />

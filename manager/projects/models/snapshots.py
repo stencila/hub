@@ -78,6 +78,12 @@ class Snapshot(models.Model):
         help_text="The name of snapshot's Zip file (within the snapshot directory).",
     )
 
+    container_image = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The container image to use as the execution environment for this snapshot.",
+    )
+
     job = models.ForeignKey(
         Job,
         on_delete=models.SET_NULL,
@@ -132,8 +138,8 @@ class Snapshot(models.Model):
         """
         Snapshot the project.
 
-        Pulls the project and creates a copy of its working
-        directory.
+        Creates a copy of the project's working directory and pins the
+        container image to use.
         """
         snapshot = Snapshot.objects.create(project=project, creator=user)
 
@@ -149,6 +155,18 @@ class Snapshot(models.Model):
                 options["theme"] = theme
 
             subjobs.append(main.convert(user, "index.html", options=options))
+
+        # Job to pin the container image for the snapshot
+        subjobs.append(
+            Job.objects.create(
+                method=JobMethod.pin.name,
+                params=dict(container_image=project.container_image,),
+                description="Pin container image for '{0}'".format(project.name),
+                project=project,
+                creator=user,
+                **Job.create_callback(snapshot, "pin_callback")
+            )
+        )
 
         # Job to archive the working directory to the snapshot directory
         subjobs.append(
@@ -180,11 +198,20 @@ class Snapshot(models.Model):
 
         return snapshot
 
+    def pin_callback(self, job: Job):
+        """
+        Update the container image for this snapshot.
+
+        Called when the `pin` sub-job is complete.
+        """
+        self.container_image = job.result
+        self.save()
+
     def archive_callback(self, job: Job):
         """
         Update the files associated with this snapshot.
 
-        Called when the snapshot's job final `archive` sub-job is complete.
+        Called when the `archive` sub-job is complete.
         """
         result = job.result
         if not result:

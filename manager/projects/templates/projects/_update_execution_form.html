@@ -1,0 +1,24 @@
+{% comment %}
+Form to update fileds related to how a project is executed.
+{% endcomment %}
+
+<form hx-patch="{% url 'api-projects-detail' project.id %}" hx-template="projects/_update_execution_form.html">
+  {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" placeholder="File path e.g. my_notebook.ipynb" %}
+
+  <div class="field">
+    <label class="label" for="container_image">Container image</label>
+    <div class="control has-icons-left">
+      <input class="input" name="container_image" id="container_image" type="text" value="{{project.container_image}}"
+             placeholder="Container identifier e.g. my-custom-image:v1.3">
+      <span class="icon is-left">
+        <i class="ri-computer-line"></i>
+      </span>
+    </div>
+    <span class="help">The container image to use as the execution environment for this project. See <a
+         href="https://help.stenci.la">help.stenci.la</a> for ways you can build and specify a custom image. If you
+      leave this
+      blank a default image will be used.</span>
+  </div>
+
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

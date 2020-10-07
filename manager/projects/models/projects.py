@@ -107,6 +107,12 @@ class Project(models.Model):
         null=True, blank=True, help_text="Brief description of the project."
     )
 
+    container_image = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The container image to use as the execution environment for this project.",
+    )
+
     theme = models.TextField(
         null=True,
         blank=True,
