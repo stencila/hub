@@ -6,7 +6,6 @@ api.yaml:
 	curl http://localhost:8000/api/schema > $@
 	sed -i -e 's|host: localhost:8000|host: hub.stenci.la|' $@
 	sed -i -e 's|  - http|  - https|' $@
-.PHONY: api.yaml
 
 # Get help on client generation options
 help:
