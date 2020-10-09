@@ -1,3 +1,12 @@
+## [3.43.1](https://github.com/stencila/hub/compare/v3.43.0...v3.43.1) (2020-10-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/thema to v2.19.1 ([be002be](https://github.com/stencila/hub/commit/be002be6a303f81dd94a343618207e927fbce3c4))
+* **deps:** update dependency httpx to v0.16.1 ([34cd8af](https://github.com/stencila/hub/commit/34cd8af5d81b4076a4173486ef40df04e8bf7f95))
+* **deps:** update dependency pytest to v6 ([de7e50c](https://github.com/stencila/hub/commit/de7e50c90997c60e64633b785075755086a0ae13))
+
 # [3.43.0](https://github.com/stencila/hub/compare/v3.42.0...v3.43.0) (2020-10-07)
 
 
