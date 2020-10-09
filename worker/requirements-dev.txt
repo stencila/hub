@@ -1,8 +1,8 @@
 black==19.10b0
 flake8==3.8.4
-mypy==0.782
+mypy==0.790
 pydocstyle==5.1.1
 pytest==6.1.1
 pytest-cov==2.10.1
-pytest-recording==0.9.0
-testfixtures==6.14.2
+pytest-recording==0.10.0
+testfixtures==6.15.0
