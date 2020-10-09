@@ -289,6 +289,13 @@ def index_html(
         ).encode(),
     )
 
+    html = html.replace(
+        b"<head>",
+        '<script src="{static}js/errorHandler.js"></script>'.format(
+            static=settings.STATIC_URL
+        ).encode(),
+    )
+
     # Pin the version of Stencila Components to avoid redirects to NPM which can slow
     # page load times down substantially
     html = html.replace(

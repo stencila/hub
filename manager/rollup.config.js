@@ -36,4 +36,14 @@ export default [
     },
     plugins,
   },
+  {
+    input: "manager/static/js/src/errorHandler.js",
+    output: {
+      file: "manager/static/js/errorHandler.js",
+      sourcemap: true,
+      name: "ERAerrorHandler",
+      format: "iife",
+    },
+    plugins,
+  },
 ];
