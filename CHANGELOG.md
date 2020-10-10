@@ -1,3 +1,12 @@
+## [3.43.2](https://github.com/stencila/hub/compare/v3.43.1...v3.43.2) (2020-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency amqp to v5 ([4e7ba37](https://github.com/stencila/hub/commit/4e7ba37f959471521be919ba4c411a79e3597e8e))
+* **deps:** update dependency celery to v5 ([2c8f987](https://github.com/stencila/hub/commit/2c8f987cab7c1d93d9248b733eccef0c7cb0119a))
+* **Deps:** Update Celery invocations for change in CLI args ([47b8c19](https://github.com/stencila/hub/commit/47b8c197d27447e0406faaeb40b979933dffec27)), closes [/docs.celeryproject.org/en/stable/whatsnew-5.0.html#v500](https://github.com//docs.celeryproject.org/en/stable/whatsnew-5.0.html/issues/v500)
+
 ## [3.43.1](https://github.com/stencila/hub/compare/v3.43.0...v3.43.1) (2020-10-09)
 
 
