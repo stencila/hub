@@ -71,4 +71,4 @@ ENTRYPOINT ["/home/worker/entrypoint.sh"]
 
 # Use the array form of CMD to ensure that the celery process has PID 1
 # so that it will receive SIGTERM for graceful shutdown
-CMD ["celery", "worker", "--app=worker", "--heartbeat-interval=60"]
+CMD ["celery", "--app=worker", "--heartbeat-interval=60", "worker"]

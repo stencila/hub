@@ -14,7 +14,7 @@ venv: requirements.txt
 run: venv
 	BROKER_URL="amqp://stencila:password@localhost:5672/stencila" \
 	DATABASE_URL=postgres://stencila:password@localhost:5432/hub \
-	$(VE)/celery beat --app scheduler --loglevel debug
+	$(VE)/celery --app scheduler --loglevel debug beat
 
 # Build Docker image
 build:

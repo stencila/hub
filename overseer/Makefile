@@ -30,7 +30,7 @@ run: venv
 
 # Run `celery flower` during development.
 flower: venv
-	$(VE)/celery flower --broker=amqp://stencila:password@localhost:5672/stencila
+	$(VE)/celery --broker=amqp://stencila:password@localhost:5672/stencila flower
 
 # Build Docker image
 build:
