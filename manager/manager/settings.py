@@ -633,12 +633,6 @@ class Dev(Local):
     # In standalone development, default to using a pseudo, in-memory broker
     BROKER_URL = values.Value("memory://", environ_prefix=None)
 
-    # Use RPC backend during development to avoid having to
-    # run the `cache` service. Note however it's limitations when
-    # using multiple `manager` processes as in prod.
-    # Comment this out to use the Redis result backend
-    CACHE_URL = "rpc://"
-
     # For easier testing allow username/password Basic auth for API
     API_BASIC_AUTH = True
 
@@ -677,5 +671,5 @@ class Test(Local):
     # During testing, default to using a pseudo, in-memory broker
     BROKER_URL = "memory://"
 
-    # During testing, use RPC result backend
-    CACHE_URL = "rpc://"
+    # During testing this value needs to be set but is not used
+    CACHE_URL = ""

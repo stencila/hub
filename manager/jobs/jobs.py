@@ -138,9 +138,9 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
     """
     Update a job.
 
-    This method is triggered FROM a PATCH request from the
+    This method is triggered by a PATCH request from the
     `overseer` service. It updates the status, and other fields of
-    the job, and if the job has a parent, updates it's status.
+    the job, and if the job has a parent, updates it's status too.
 
     See https://stackoverflow.com/a/38267978 for important considerations
     in using AsyncResult.

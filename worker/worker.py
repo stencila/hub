@@ -25,11 +25,8 @@ from jobs.sleep import Sleep
 JOBS = [Archive, Clean, Convert, Decode, Encode, Pin, Pull, Session, Sleep]
 
 # Setup the Celery app
-# If CACHE_URL is not set then falls back to using the RPC backend.
-# RPC backend should only be used during development due to it's limitations
-# when using multiple `manager` processes.
 app = Celery(
-    "worker", broker=os.environ["BROKER_URL"], backend=os.getenv("CACHE_URL", "rpc://"),
+    "worker", broker=os.environ["BROKER_URL"], backend=os.environ["CACHE_URL"],
 )
 app.conf.update(
     # List of queues to subscribe to
@@ -48,8 +45,9 @@ app.conf.update(
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     # Number of gevent threads to run
-    worker_concurrency=os.getenv("WORKER_CONCURRENCY", 10),
+    worker_concurrency=int(os.getenv("WORKER_CONCURRENCY", 10)),
     # Send events
+    # In Celery 5.0 it appear necessary to also set `--events` in the command line
     worker_send_task_events=True,
     task_send_sent_event=True,
     # By default Celery will keep on trying to connect to the broker forever

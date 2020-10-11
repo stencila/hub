@@ -40,13 +40,16 @@ cover: venv
 # Uses low concurrency for testing of queuing.
 run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
+	CACHE_URL=redis://stencila:password@localhost:6379/0 \
 	WORKER_CONCURRENCY=3 \
-	$(VE)/celery
+	$(VE)/celery \
 		--app worker \
-		--hostname worker-$$(date +'%s')@%h \
-		--heartbeat-interval=60 \
+		worker \
+		--events \
 		--loglevel DEBUG \
-		worker
+		--hostname worker-$$(date +'%s')@%h \
+		--heartbeat-interval 60
+
 
 # Build Docker image
 build:
