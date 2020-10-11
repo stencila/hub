@@ -1,7 +1,9 @@
-// This is a simple attempt to handle errors which can occur when reading an executable article
-// The handler attempts to reload the article once, showing a message to the user if it continues to fail.
+// This is a simple attempt to handle Javascript errors in the `@stencila/components` package
+// when reading an executable document.
+// The handler attempts to reload the article once, showing a message to the user, and raising an
+// exception for error reporting, if it continues to fail.
 
-const reloadSessionKey = "ERA_RELOAD_ATTEMPTED";
+const reloadSessionKey = "DOCUMENT_RELOAD_ATTEMPTED";
 let reloadAttempted;
 try {
   reloadAttempted = window.sessionStorage.getItem(reloadSessionKey) === "true";
@@ -9,20 +11,20 @@ try {
   reloadAttempted = true;
 }
 
-// Attempt to reload the article once
+// Attempt to reload the document once
 const tryAgain = () => {
   window.sessionStorage.setItem(reloadSessionKey, "true");
   window.location.reload();
 };
 
-// If the components fail to initialize after reloading the article, show an alert message to the reader
+// If the components fail to initialize after reloading the document, show an alert message to the reader
 let alertShown = false;
 const showAlert = () => {
   window.sessionStorage.removeItem(reloadSessionKey);
   if (!alertShown) {
     alertShown = true;
     alert(
-      "Unfortunately we are having problems loading the article. Please try visitng this page from different browser."
+      "Unfortunately we are having problems loading the document. Please try visiting this page from different browser."
     );
 
     // throw a custom error to track in Sentry
