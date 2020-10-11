@@ -2,6 +2,8 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
+from accounts.models import Account
+from projects.models.projects import Project
 from projects.models.sources import (
     ElifeSource,
     GithubSource,
@@ -37,8 +39,8 @@ def test_coerce_address():
         sa = Source.coerce_address("foo")
 
 
-def test_default_str():
-    assert str(ElifeSource(article=43143)) == "elife://43143"
+def test_default_make_address():
+    assert ElifeSource(article=43143).make_address() == "elife://43143"
 
 
 def test_default_parse_address():
@@ -109,10 +111,10 @@ def test_to_address():
     assert a.subpath == "a/folder"
 
 
-def test_githubsource_str():
-    assert str(GithubSource(repo="user/repo")) == "github://user/repo"
+def test_githubsource_make_address():
+    assert GithubSource(repo="user/repo").make_address() == "github://user/repo"
     assert (
-        str(GithubSource(repo="user/repo", subpath="a/file.txt"))
+        GithubSource(repo="user/repo", subpath="a/file.txt").make_address()
         == "github://user/repo/a/file.txt"
     )
 
@@ -156,8 +158,8 @@ def test_githubsource_parse_address():
         assert sa["subpath"] == "django/db/models/query_utils.py"
 
 
-def test_googledocssource_str():
-    assert str(GoogleDocsSource(doc_id="an-id")) == "gdoc://an-id"
+def test_googledocssource_make_address():
+    assert GoogleDocsSource(doc_id="an-id").make_address() == "gdoc://an-id"
 
 
 def test_googledocssource_url():
@@ -196,8 +198,8 @@ def test_googledocssource_parse_address():
         GoogleDocsSource.parse_address("foo", strict=True)
 
 
-def test_urlsource_str():
-    assert str(UrlSource(url="http://example.com")) == "http://example.com"
+def test_urlsource_make_address():
+    assert UrlSource(url="http://example.com").make_address() == "http://example.com"
 
 
 def test_urlsource_url():
@@ -218,3 +220,14 @@ def test_urlsource_parse_address():
 
     with pytest.raises(ValidationError, match="Invalid URL source"):
         UrlSource.parse_address("foo", strict=True)
+
+
+@pytest.mark.django_db
+def test_delete_project_with_source():
+    """
+    A regression test for https://github.com/stencila/hub/issues/754
+    """
+    account = Account.objects.create(name="test-account")
+    project = Project.objects.create(account=account, name="test-project")
+    ElifeSource.objects.create(project=project, article=5000, path="article.xml")
+    project.delete()
