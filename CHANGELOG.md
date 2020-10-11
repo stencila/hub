@@ -1,3 +1,10 @@
+## [3.43.3](https://github.com/stencila/hub/compare/v3.43.2...v3.43.3) (2020-10-11)
+
+
+### Bug Fixes
+
+* **Worker, Manager:** upgrades necessary for Celery 5.0 ([c3292af](https://github.com/stencila/hub/commit/c3292af972800510be9adea9832e5214fd43cb85))
+
 ## [3.43.2](https://github.com/stencila/hub/compare/v3.43.1...v3.43.2) (2020-10-10)
 
 
