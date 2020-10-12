@@ -54,7 +54,6 @@ ENV PATH="${PATH}:./node_modules/.bin"
 
 # Copy worker files over (see .dockerignore for what is included)
 COPY . ./
-RUN chmod +x entrypoint.sh
 
 # Ensure Celery startup banner is printed
 # See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
