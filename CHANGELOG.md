@@ -1,3 +1,21 @@
+# [4.0.0](https://github.com/stencila/hub/compare/v3.43.3...v4.0.0) (2020-10-12)
+
+
+### Bug Fixes
+
+* **Manager sources:** Avoid recursion on delete ([8764347](https://github.com/stencila/hub/commit/876434797c256ed4bc57a2b01369ca8808376031)), closes [#754](https://github.com/stencila/hub/issues/754)
+
+
+### Features
+
+* **Manager:** Attempt to handle WebComponent loading errors ([8880251](https://github.com/stencila/hub/commit/888025159c1468d46afed27eb4de0f7a1306a9a1))
+* **Project sessions:** Sessions can be started in a project's working directory ([17c6047](https://github.com/stencila/hub/commit/17c60473c5571999ccaf68b9d83aee008f9966f1))
+
+
+### BREAKING CHANGES
+
+* **Project sessions:** Significant changes to deployment configuration in this and other recent commits warrant a major version bump.
+
 ## [3.43.3](https://github.com/stencila/hub/compare/v3.43.2...v3.43.3) (2020-10-11)
 
 
