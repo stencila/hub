@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/stencila/hub/compare/v4.0.0...v4.0.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* **Worker:** Remove redundant RUN in Dockerfile ([a41def3](https://github.com/stencila/hub/commit/a41def36f27026574c573c7aebc853fd70384d8c))
+
 # [4.0.0](https://github.com/stencila/hub/compare/v3.43.3...v4.0.0) (2020-10-12)
 
 
