@@ -157,18 +157,16 @@ class Snapshot(models.Model):
             subjobs.append(main.convert(user, "index.html", options=options))
 
         # Job to pin the container image for the snapshot
-        # TODO: Instate for all users after testing in staging
-        if user.is_staff:
-            subjobs.append(
-                Job.objects.create(
-                    method=JobMethod.pin.name,
-                    params=dict(container_image=project.container_image,),
-                    description="Pin container image for '{0}'".format(project.name),
-                    project=project,
-                    creator=user,
-                    **Job.create_callback(snapshot, "pin_callback")
-                )
+        subjobs.append(
+            Job.objects.create(
+                method=JobMethod.pin.name,
+                params=dict(container_image=project.container_image,),
+                description="Pin container image for '{0}'".format(project.name),
+                project=project,
+                creator=user,
+                **Job.create_callback(snapshot, "pin_callback")
             )
+        )
 
         # Job to archive the working directory to the snapshot directory
         subjobs.append(
