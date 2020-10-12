@@ -12,6 +12,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from jobs.api.helpers import redirect_to_job
+from jobs.models import Job
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -32,7 +33,7 @@ from projects.api.serializers import (
 )
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import Source
-from users.models import User
+from users.models import AnonUser, User
 
 
 def get_projects(user: User):
@@ -378,6 +379,33 @@ class ProjectsViewSet(
         job = project.pull(request.user)
         job.dispatch()
         return redirect_to_job(job, accepts_html=self.accepts_html())
+
+    @action(detail=True, methods=["post"])
+    def session(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Get a session for the project.
+
+        If the user has already created, or is connected to,
+        a `session` job for this project, and that job is still running,
+        then returns that job. Otherwise, creates a new session.
+        """
+        project = self.get_object()
+        try:
+            job = Job.objects.filter(
+                project=project,
+                snapshot__isnull=True,
+                is_active=True,
+                **(
+                    {"users": request.user}
+                    if request.user.is_authenticated
+                    else {"anon_users__id": AnonUser.get_id(request)}
+                ),
+            ).order_by("-created")[0]
+        except IndexError:
+            job = project.session(request)
+            job.dispatch()
+
+        return redirect_to_job(job)
 
 
 class ProjectsAgentsViewSet(

@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
+from django.http import HttpRequest
 from django.shortcuts import reverse
 
 from accounts.models import Account, AccountTeam
@@ -288,6 +289,20 @@ class Project(models.Model):
             method=JobMethod.parallel.name,
         )
         job.children.set([source.pull(user) for source in self.sources.all()])
+        return job
+
+    def session(self, request: HttpRequest) -> Job:
+        """
+        Create a session job for the project.
+        """
+        job = Job.objects.create(
+            method=JobMethod.session.name,
+            params=dict(project=self.id, container_image=self.container_image),
+            description="Session for project",
+            project=self,
+            creator=request.user if request.user.is_authenticated else None,
+        )
+        job.add_user(request)
         return job
 
 

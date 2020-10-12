@@ -9,6 +9,7 @@ import time
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
 import kubernetes
 
+from config import get_snapshot_dir, get_working_dir
 from jobs.base.job import Job
 
 # Kubernetes namespace to put job pods in
@@ -83,12 +84,21 @@ class KubernetesSession(Job):
         """
         # Get session parameters, falling back to defaults either set
         # as environment variables or the values hard coded below.
+
+        # Project to start session for
+        project = kwargs.get("project")
+        assert project is not None, "A project id is required to start a session"
+
+        # Snapshot to start session for (if any)
+        snapshot = kwargs.get("snapshot")
+
+        # Key to control access to the session
         key = kwargs.get("key")
         assert key is not None, "A job key is required for a session"
 
-        # Docker image to use
-        environ = kwargs.get("environ") or os.getenv(
-            "SESSION_ENVIRON_DEFAULT", "stencila/executa-midi"
+        # Container image to use
+        container_image = kwargs.get("container_image") or os.getenv(
+            "SESSION_CONTAINER_IMAGE", "stencila/executa-midi"
         )
 
         # Session timeout and timelimit defaults
@@ -134,10 +144,12 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
-        # The snapshot directory to use as the working directory
-        # for the session
-        snapshot_path = kwargs.get("snapshot_path")
-        assert snapshot_path is not None, "Snapshot path is requiredd"
+        # Determine the path on the host for the session's working directory
+        workdir = (
+            get_snapshot_dir(project, snapshot)
+            if snapshot
+            else get_working_dir(project)
+        )
 
         # Create pod listening on a random port number
         protocol = "ws"
@@ -154,7 +166,7 @@ class KubernetesSession(Job):
                 "containers": [
                     {
                         "name": "session",
-                        "image": environ,
+                        "image": container_image,
                         "command": [
                             "executa",
                             "serve",
@@ -231,13 +243,7 @@ class KubernetesSession(Job):
                     },
                 ],
                 "volumes": [
-                    {
-                        "name": "data",
-                        "hostPath": {
-                            "path": "/var/lib/stencila/hub/storage/snapshots/"
-                            + snapshot_path
-                        },
-                    },
+                    {"name": "data", "hostPath": {"path": workdir}},
                     {"name": "overlay", "emptyDir": {}},
                     {"name": "work", "emptyDir": {}},
                 ],
@@ -369,6 +375,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "--debug", default=False, type=bool, help="Output debug log entries"
     )
+    parser.add_argument("--project", type=int, help="Project the session is for (id)")
+    parser.add_argument(
+        "--snapshot", default=None, type=str, help="Snapshot the session is for (id)"
+    )
     parser.add_argument(
         "--timeout",
         default=None,
@@ -384,18 +394,16 @@ if __name__ == "__main__":
         type=str,
         help="Network policy to apply to the pod",
     )
-    parser.add_argument(
-        "--snapshot", default=None, type=str, help="Snapshot to use for /work directory"
-    )
     args = parser.parse_args()
 
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     session = KubernetesSession()
     session.run(
+        project=args.project,
+        snapshot=args.snapshot,
         key=secrets.token_urlsafe(8),
         timeout=args.timeout,
         timelimit=args.timelimit,
         network_policy=args.network_policy,
-        snapshot_path=args.snapshot,
     )

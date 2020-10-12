@@ -15,10 +15,10 @@ class Archive(Job):
     name = "archive"
 
     def do(  # type: ignore
-        self, project: int, snapshot_path: str, zip_name: Optional[str], **kwargs
+        self, project: int, snapshot: str, zip_name: Optional[str], **kwargs
     ) -> Files:
         files = list_files(".")
-        dest = get_snapshot_dir(snapshot_path)
+        dest = get_snapshot_dir(project, snapshot)
         shutil.copytree(".", dest)
         if zip_name:
             shutil.make_archive(

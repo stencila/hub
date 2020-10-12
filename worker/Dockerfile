@@ -60,14 +60,8 @@ RUN chmod +x entrypoint.sh
 # See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
 ENV PYTHONUNBUFFERED=1
 
-# Run as `worker` using two local directories for storage.
-# These are normally mounted to external volumes when running this image.
+# Run non-root user
 USER worker
-ENV STORAGE_ROOT=/home/worker
-RUN mkdir -p working snapshots
-
-# Run the entrypoint script to mount volumes
-ENTRYPOINT ["/home/worker/entrypoint.sh"]
 
 # Use the array form of CMD to ensure that the celery process has PID 1
 # so that it will receive SIGTERM for graceful shutdown

@@ -11,7 +11,7 @@ NODE_MODULES = os.environ.get(
 )
 
 
-def get_working_dir(project_id: int):
+def get_working_dir(project: int):
     """
     Get the path to a project's working directory.
 
@@ -22,11 +22,11 @@ def get_working_dir(project_id: int):
     """
     return os.path.join(
         os.environ.get("WORKING_DIR", os.path.join(STORAGE_ROOT, "working")),
-        str(project_id),
+        str(project),
     )
 
 
-def get_snapshot_dir(snapshot_path: str) -> str:
+def get_snapshot_dir(project: int, snapshot: str) -> str:
     """
     Get the path to a project snapshot directory.
 
@@ -35,7 +35,8 @@ def get_snapshot_dir(snapshot_path: str) -> str:
     """
     return os.path.join(
         os.environ.get("SNAPSHOT_DIR", os.path.join(STORAGE_ROOT, "snapshots")),
-        snapshot_path,
+        str(project),
+        snapshot,
     )
 
 
