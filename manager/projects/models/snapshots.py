@@ -176,7 +176,7 @@ class Snapshot(models.Model):
                 method=JobMethod.archive.name,
                 params=dict(
                     project=project.id,
-                    snapshot_path=snapshot.path,
+                    snapshot=snapshot.id,
                     zip_name=snapshot.zip_name,
                 ),
                 description="Archive project '{0}'".format(project.name),
@@ -224,11 +224,15 @@ class Snapshot(models.Model):
 
     def session(self, request: HttpRequest) -> Job:
         """
-        Create a session job having the snapshot as the working directory.
+        Create a session job for the snapshot.
         """
         job = Job.objects.create(
             method=JobMethod.session.name,
-            params=dict(project=self.project.id, snapshot_path=self.path),
+            params=dict(
+                project=self.project.id,
+                snapshot=self.id,
+                container_image=self.container_image,
+            ),
             description="Session for snapshot #{0}".format(self.number),
             project=self.project,
             snapshot=self,

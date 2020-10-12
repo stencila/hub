@@ -164,11 +164,11 @@ class ProjectsSnapshotsViewSet(
     @action(detail=True, methods=["post"])
     def session(self, request: Request, *args, **kwargs) -> Response:
         """
-        Get a session with the snapshot as the working directory.
+        Get a session for the snapshot.
 
-        If the user has already created or connected to
-        a `session` job for this snapshot, and that job is still running
-        then will return that job. Otherwise, will create a new session.
+        If the user has already created, or is connected to,
+        a `session` job for this snapshot, and that job is still running,
+        then returns that job. Otherwise, creates a new session.
         """
         snapshot = self.get_object()
         try:

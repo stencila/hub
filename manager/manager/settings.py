@@ -564,7 +564,7 @@ class Local(Prod):
     """
 
     STORAGE_ROOT = os.getenv(
-        "DJANGO_STORAGE_ROOT", os.path.join(BASE_DIR, "..", "storage", "data")
+        "STORAGE_ROOT", os.path.join(BASE_DIR, "..", "storage", "data")
     )
     MEDIA_ROOT = values.Value(os.path.join(STORAGE_ROOT, "media"))
     UPLOADS_ROOT = values.Value(os.path.join(STORAGE_ROOT, "uploads"))
