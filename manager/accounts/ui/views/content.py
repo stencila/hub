@@ -49,7 +49,9 @@ def content(
 
         # Assert that this is NOT the primary domain (we never want to
         # serve account content from there)
-        assert match is not None, "Host did not match *.{}".format(settings.ACCOUNTS_DOMAIN)
+        assert match is not None, "Host did not match *.{}".format(
+            settings.ACCOUNTS_DOMAIN
+        )
         assert settings.PRIMARY_DOMAIN not in host
 
         account_name = match.group(1)
