@@ -1,3 +1,16 @@
+# [4.1.0](https://github.com/stencila/hub/compare/v4.0.2...v4.1.0) (2020-10-12)
+
+
+### Bug Fixes
+
+* **Account content:** Show required domain in assertion message ([e7748a0](https://github.com/stencila/hub/commit/e7748a0338ed5de8ca77bbc63a86f527648e69b1))
+* **Worker:** Warn if DJANGO_SENTRY_DSN is not set ([e03be2b](https://github.com/stencila/hub/commit/e03be2b76dd8578474caffba64dd3a2e84998b91))
+
+
+### Features
+
+* **Snapshots:** Instate pinning for all users ([a084c22](https://github.com/stencila/hub/commit/a084c22b5cf014ea2beb71b938c2eae702d9007b))
+
 ## [4.0.2](https://github.com/stencila/hub/compare/v4.0.1...v4.0.2) (2020-10-12)
 
 
