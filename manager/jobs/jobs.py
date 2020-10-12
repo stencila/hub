@@ -157,22 +157,17 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
         is_active = False
         all_previous_succeeded = True
         any_previous_failed = False
-        children = job.children.all().order_by("id")
-        for child in children:
-            # If the child is active then the compound job is active
-            if child.is_active:
-                is_active = True
-
+        for child in job.get_children():
             # If the child has a 'higher' status then update the
             # status of the compound job
             status = JobStatus.highest([status, child.status])
 
-            # If this job is still waiting then...
+            # If the child is still waiting then...
             if child.status == JobStatus.WAITING.value:
                 # If all previous have succeeded, dispatch it
                 if all_previous_succeeded:
                     dispatch_job(child)
-                # If all previous have succeeded, cancel it
+                # If any previous have failed, cancel it
                 elif any_previous_failed:
                     cancel_job(child)
 
@@ -180,6 +175,10 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
                 all_previous_succeeded = False
             if child.status == JobStatus.FAILURE.value:
                 any_previous_failed = True
+
+            # If the child is still active then the compound job is active
+            if child.is_active:
+                is_active = True
 
         job.is_active = is_active
         job.status = JobStatus.RUNNING.value if is_active else status
