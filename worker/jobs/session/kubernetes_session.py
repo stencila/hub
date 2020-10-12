@@ -203,8 +203,8 @@ class KubernetesSession(Job):
                         },
                     },
                     {
-                        # Container to which provides readonly access to the snapshot
-                        # while still allowing the session to write to the working directory
+                        # Container which provides readonly access to the project or snapshot directory
+                        # while still allowing the session to write to the working directory.
                         # This is done in a separate sidecar container to avoid having the session
                         # container be privileged.
                         "name": "mounter",
