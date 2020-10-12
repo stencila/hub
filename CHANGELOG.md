@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/stencila/hub/compare/v4.0.1...v4.0.2) (2020-10-12)
+
+
+### Bug Fixes
+
+* **Steward:** Alter permissions for mounts ([0565897](https://github.com/stencila/hub/commit/05658979ff23800433474e6a60de239180f02e64))
+
 ## [4.0.1](https://github.com/stencila/hub/compare/v4.0.0...v4.0.1) (2020-10-12)
 
 
