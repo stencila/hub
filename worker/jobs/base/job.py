@@ -32,7 +32,7 @@ if DJANGO_SENTRY_DSN:
         dsn=DJANGO_SENTRY_DSN, integrations=[CeleryIntegration(), RedisIntegration()]
     )
 else:
-    logger.warn(
+    logger.warning(
         "No DJANGO_SENTRY_DSN environment variable, errors will not be reported to Sentry."
     )
 
