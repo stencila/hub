@@ -812,10 +812,18 @@ class Job(models.Model):
         """
         if self.runtime is not None:
             return self.runtime
-        elif self.began and self.ended:
-            return (self.ended - self.began).seconds
-        else:
+        elif self.is_active:
             return (timezone.now() - self.created).seconds
+        elif self.ended and self.began:
+            return (self.ended - self.began).seconds
+        elif self.updated and self.began:
+            return (self.updated - self.began).seconds
+        elif self.status == JobStatus.CANCELLED.value:
+            return 0
+        elif self.updated and self.created:
+            return (self.updated - self.created).seconds
+        else:
+            return 0
 
     @cached_property
     def runtime_formatted(self) -> Optional[str]:
