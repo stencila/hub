@@ -21,6 +21,9 @@ WARN = 1
 INFO = 2
 DEBUG = 3
 
+# Get the Celery logger
+logger = get_task_logger(__name__)
+
 # Initialize Sentry. This reuses the environment variable already set
 # for the `manager` service (which is why it is prefixed by `DJANGO_`).
 DJANGO_SENTRY_DSN = os.environ.get("DJANGO_SENTRY_DSN")
@@ -28,9 +31,10 @@ if DJANGO_SENTRY_DSN:
     sentry_sdk.init(
         dsn=DJANGO_SENTRY_DSN, integrations=[CeleryIntegration(), RedisIntegration()]
     )
-
-# Get the Celery logger
-logger = get_task_logger(__name__)
+else:
+    logger.warn(
+        "No DJANGO_SENTRY_DSN environment variable, errors will not be reported to Sentry."
+    )
 
 
 class Job(celery.Task):
