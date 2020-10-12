@@ -1,3 +1,12 @@
+## [4.1.1](https://github.com/stencila/hub/compare/v4.1.0...v4.1.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* **Jobs:** Show subjobs ordered by id ([2d7d9ce](https://github.com/stencila/hub/commit/2d7d9ce1d867d75d8eff322b90920a6d2b54c161))
+* **Jobs:** Test if child job is inactive after potential cancellation ([02b0fe2](https://github.com/stencila/hub/commit/02b0fe247c012124a5f1908df70c29118a755e8e))
+* **Worker:** Session working directory must be host path ([e849a7d](https://github.com/stencila/hub/commit/e849a7d944808b8a32d717de84b1bbd32fd322de))
+
 # [4.1.0](https://github.com/stencila/hub/compare/v4.0.2...v4.1.0) (2020-10-12)
 
 
