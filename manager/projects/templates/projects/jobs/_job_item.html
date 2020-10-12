@@ -94,8 +94,12 @@
 
 </div>
 
-{% if job.children.all and show_sub_jobs == True %}
+{% if show_sub_jobs == True %}
+{% with jobs=job.get_children %}
+{% if jobs %}
 <div class="job-list__sub-jobs">
-  {% include "./_job_list.html" with jobs=job.children.all show_sub_jobs=True %}
+  {% include "./_job_list.html" with show_sub_jobs=True %}
 </div>
+{% endif %}
+{% endwith %}
 {% endif %}

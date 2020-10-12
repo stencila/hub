@@ -40,7 +40,7 @@ is removed when the job is inactive.
   <pre>{{ job.result_prettified }}</pre>
   {% endif %}
 
-  {% with children=job.children.all %}
+  {% with children=job.get_children %}
   {% if children %}
   <hr />
   <h2 class="title is-4">{% trans "Sub-Jobs" %}</h2>

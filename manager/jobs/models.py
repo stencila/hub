@@ -874,6 +874,10 @@ class Job(models.Model):
         """Prettify the JSON result, if any."""
         return json.dumps(self.result, indent="  ") if self.result else None
 
+    def get_children(self) -> models.QuerySet:
+        """Get the child jobs of this job in order of id."""
+        return self.children.all().order_by("id")
+
     # Shortcuts to the functions for controlling
     # and updating jobs.
 
