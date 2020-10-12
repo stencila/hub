@@ -145,10 +145,11 @@ class KubernetesSession(Job):
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
         # Determine the path on the host for the session's working directory
+        host_path = "/var/lib/stencila/hub/storage"
         workdir = (
-            get_snapshot_dir(project, snapshot)
+            os.join.path(host_path, "snapshots", str(project), snapshot)
             if snapshot
-            else get_working_dir(project)
+            else os.join.path(host_path, "working", str(project))
         )
 
         # Create pod listening on a random port number
