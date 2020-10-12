@@ -1,19 +1,13 @@
 import os
 import re
-from typing import cast, List, Optional, Tuple
+from typing import cast, Dict, List, Optional, Tuple
 
 from dxf import DXF
 
 from jobs.base.job import Job
 
-# Dictionary of credentials for authenticating with registries
-CONTAINER_REGISTRY_CREDENTIALS = {
-    "registry-1.docker.io": os.environ.get(
-        "DOCKER_REGISTRY_CREDENTIALS", "username:password"
-    ).split(":")
-}
 
-# Regext for pasing a container image identifier
+# Regex for parsing a container image identifier
 # Based on answers at https://stackoverflow.com/questions/39671641/regex-to-parse-docker-tag
 # Playground at https://regex101.com/r/hP8bK1/42
 CONTAINER_IMAGE_REGEX = re.compile(
@@ -34,6 +28,10 @@ class Pin(Job):
 
     name = "pin"
 
+    def __init__(self, credentials: Dict[str, str] = {}):
+        super().__init__()
+        self.credentials = credentials
+
     def do(self, container_image: Optional[str] = None, **kwargs) -> str:  # type: ignore
         [host, repo, alias, digest] = self.parse(container_image)
         if digest:
@@ -46,15 +44,7 @@ class Pin(Job):
         if alias is None:
             alias = "latest"
 
-        username, password = CONTAINER_REGISTRY_CREDENTIALS[host]
-
-        dxf = DXF(
-            host,
-            repo,
-            lambda dxf, response: dxf.authenticate(
-                username, password, response=response
-            ),
-        )
+        dxf = DXF(host, repo, self.authenticate)
         # Get the "Docker-Content-Digest" for the alias. This is the SHA256 hash
         # that can be used with `docker run` and is on the Docker Hub for an image tag,
         # not the one returned by ``.get_digest()`.
@@ -95,3 +85,28 @@ class Pin(Job):
         """
         domain = {"registry-1.docker.io": "docker.io"}.get(host, host)
         return "{domain}/{repo}@{id}".format(domain=domain, repo=repo, id=id_)
+
+    def authenticate(self, dxf, response):
+        """
+        Get credentials for a container registry.
+
+        If the credential environment variable exists then split it
+        into username and password. Otherwise, warn and return empty tuple.
+        """
+
+        # Map host into an environment variable name
+        name = {"registry-1.docker.io": "DOCKER_REGISTRY_CREDENTIALS"}.get(
+            dxf._host, "CONTAINER_REGISTRY_CREDENTIALS"
+        )
+
+        # Get credentials
+        credentials = self.credentials.get(name) or os.environ.get(name)
+        if not credentials:
+            raise RuntimeError(
+                "No environment variable '{0}' found for authentication credentials for '{1}'".format(
+                    name, dxf._host
+                )
+            )
+
+        username, password = credentials.split(":")
+        dxf.authenticate(username, password, response=response)

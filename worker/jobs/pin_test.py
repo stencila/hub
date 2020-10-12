@@ -58,7 +58,12 @@ def test_parse():
 
 @pytest.mark.vcr
 def test_run():
-    job = Pin()
+    job = Pin(
+        {
+            # Fake authentication credentials
+            "DOCKER_REGISTRY_CREDENTIALS": "username:password"
+        }
+    )
 
     executa_midi_latest = "docker.io/stencila/executa-midi@sha256:0718ba0aa79b648a9abfa8ac324aa6e7a1d86084587a60ff1ab4ec75173848f3"  # noqa
     assert job.do() == executa_midi_latest
