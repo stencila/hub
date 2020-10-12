@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from accounts.models import Account
+from manager.testing import DatabaseTestCase
 from projects.models.projects import Project
 from projects.models.sources import (
     ElifeSource,
@@ -222,12 +223,12 @@ def test_urlsource_parse_address():
         UrlSource.parse_address("foo", strict=True)
 
 
-@pytest.mark.django_db
-def test_delete_project_with_source():
-    """
-    A regression test for https://github.com/stencila/hub/issues/754
-    """
-    account = Account.objects.create(name="test-account")
-    project = Project.objects.create(account=account, name="test-project")
-    ElifeSource.objects.create(project=project, article=5000, path="article.xml")
-    project.delete()
+class SourcesTests(DatabaseTestCase):
+    def test_delete_project_with_source(self):
+        """
+        A regression test for https://github.com/stencila/hub/issues/754
+        """
+        account = Account.objects.create(name="test-account")
+        project = Project.objects.create(account=account, name="test-project")
+        ElifeSource.objects.create(project=project, article=5000, path="article.xml")
+        project.delete()
