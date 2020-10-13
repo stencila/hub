@@ -64,4 +64,8 @@ USER worker
 
 # Use the array form of CMD to ensure that the celery process has PID 1
 # so that it will receive SIGTERM for graceful shutdown
-CMD ["celery", "--app=worker", "worker", "--events", "--heartbeat-interval=60"]
+CMD ["celery", "--app=worker", "worker", \
+       "--events", \
+       "--heartbeat-interval=60", \
+       "--prefetch-multiplier=1", \
+       "--concurrency=10" ]

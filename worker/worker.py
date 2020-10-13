@@ -29,6 +29,9 @@ app = Celery(
     "worker", broker=os.environ["BROKER_URL"], backend=os.environ["CACHE_URL"],
 )
 app.conf.update(
+    # In Celery 5.0 it appear necessary to also set (some of?) these options
+    # in the command line invocation
+    
     # List of queues to subscribe to
     task_queues=[
         Queue(queue, exchange=queue, routing_key=queue)
@@ -44,10 +47,9 @@ app.conf.update(
     #  - https://stackoverflow.com/a/37699960/4625911
     task_acks_late=True,
     worker_prefetch_multiplier=1,
-    # Number of gevent threads to run
+    # Concurrency of workers
     worker_concurrency=int(os.getenv("WORKER_CONCURRENCY", 10)),
     # Send events
-    # In Celery 5.0 it appear necessary to also set `--events` in the command line
     worker_send_task_events=True,
     task_send_sent_event=True,
     # By default Celery will keep on trying to connect to the broker forever
