@@ -1,3 +1,10 @@
+## [4.1.4](https://github.com/stencila/hub/compare/v4.1.3...v4.1.4) (2020-10-13)
+
+
+### Bug Fixes
+
+* Downgrade to Celery 4.4.6 ([c75c2bb](https://github.com/stencila/hub/commit/c75c2bb12bf106e8e6f6206f7c948773b4709d30))
+
 ## [4.1.3](https://github.com/stencila/hub/compare/v4.1.2...v4.1.3) (2020-10-13)
 
 
