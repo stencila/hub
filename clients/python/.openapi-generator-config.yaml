@@ -1,7 +1,7 @@
 templateDir: python/templates
 packageName: 'stencila.hub'
 packageUrl: https://pypi.org/project/stencila.hub/
-packageVersion: 4.1.1
+packageVersion: 4.1.2
 infoName: Stencila and contributors
 infoEmail: hello@stenci.la
 licenseInfo: Apache 2.0

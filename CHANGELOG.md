@@ -1,3 +1,11 @@
+## [4.1.2](https://github.com/stencila/hub/compare/v4.1.1...v4.1.2) (2020-10-13)
+
+
+### Bug Fixes
+
+* **Jobs:** Improve calculation of runtime ([05066ed](https://github.com/stencila/hub/commit/05066eda2a76042adb073d92bbcb24a726030bd4))
+* **Worker:** Correct function name ([9abbcb7](https://github.com/stencila/hub/commit/9abbcb7c0a4f8f1079759c48b0d2a3e00a8bbe99))
+
 ## [4.1.1](https://github.com/stencila/hub/compare/v4.1.0...v4.1.1) (2020-10-12)
 
 
