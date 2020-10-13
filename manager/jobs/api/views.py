@@ -136,7 +136,11 @@ class AccountsZonesViewSet(
         account manager or owner.
         """
         if self.action == "create":
-            self.get_queryset([AccountRole.MANAGER, AccountRole.OWNER])
+            # Permission check
+            # Skip when doing API Schema generation
+            # (permission check should probably go elsewhere)
+            if not getattr(self, "swagger_fake_view", False):
+                self.get_queryset([AccountRole.MANAGER, AccountRole.OWNER])
             return ZoneCreateSerializer
         else:
             return ZoneSerializer
@@ -287,6 +291,10 @@ class WorkersViewSet(viewsets.GenericViewSet):
 
     permission_classes = [permissions.IsAdminUser]
     lookup_url_kwarg = "hostname"
+
+    # This serializer class is unused here but is necessary to
+    # avoid a warning when generating the API schema
+    serializer_class = WorkerSerializer
 
     @swagger_auto_schema(responses={200: "OK"})
     @action(detail=False, methods=["POST"])
@@ -517,12 +525,15 @@ class ProjectsJobsViewSet(
         For `create`, ensures that the user is a
         project author, manager, or owner.
         """
-        if self.action in ("create", "execute"):
-            # Get project as permission check
-            self.get_project()
-            return JobCreateSerializer
-        elif self.action == "list":
+        if self.action == "list":
             return JobListSerializer
+        elif self.action in ("create", "execute"):
+            # Get project as permission check
+            # Skip when doing API Schema generation
+            # (permission check should probably go elsewhere)
+            if not getattr(self, "swagger_fake_view", False):
+                self.get_project()
+            return JobCreateSerializer
         else:
             return JobRetrieveSerializer
 

@@ -250,16 +250,13 @@ class ProjectsViewSet(
 
     def get_serializer_class(self):
         """Get the serializer class for the current action."""
-        try:
-            return {
-                "list": ProjectListSerializer,
-                "create": ProjectCreateSerializer,
-                "retrieve": ProjectRetrieveSerializer,
-                "partial_update": ProjectUpdateSerializer,
-                "destroy": ProjectDestroySerializer,
-            }[self.action]
-        except KeyError:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+        return {
+            "list": ProjectListSerializer,
+            "create": ProjectCreateSerializer,
+            "retrieve": ProjectRetrieveSerializer,
+            "partial_update": ProjectUpdateSerializer,
+            "destroy": ProjectDestroySerializer,
+        }.get(self.action, ProjectListSerializer)
 
     def get_success_url(self, serializer):
         """
@@ -368,6 +365,7 @@ class ProjectsViewSet(
         """
         return super().destroy(request, *args, **kwargs)
 
+    @swagger_auto_schema(responses={302: "Redirect to job"})
     @action(detail=True, methods=["POST"])
     def pull(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -380,6 +378,7 @@ class ProjectsViewSet(
         job.dispatch()
         return redirect_to_job(job, accepts_html=self.accepts_html())
 
+    @swagger_auto_schema(responses={302: "Redirect to job"})
     @action(detail=True, methods=["post"])
     def session(self, request: Request, *args, **kwargs) -> Response:
         """
@@ -459,7 +458,10 @@ class ProjectsAgentsViewSet(
         """Get the serializer class for the current action."""
         if self.action == "create":
             # Call `get_project` to perform permission check
-            self.get_project()
+            # Skip when doing API Schema generation
+            # (permission check should probably go elsewhere)
+            if not getattr(self, "swagger_fake_view", False):
+                self.get_project()
             return ProjectAgentCreateSerializer
         elif self.action == "partial_update":
             return ProjectAgentUpdateSerializer

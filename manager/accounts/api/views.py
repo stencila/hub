@@ -188,16 +188,13 @@ class AccountsViewSet(
 
         For this class, each action has it's own serializer.
         """
-        try:
-            return {
-                "list": AccountListSerializer,
-                "create": AccountCreateSerializer,
-                "retrieve": AccountRetrieveSerializer,
-                "update": AccountUpdateSerializer,
-                "partial_update": AccountUpdateSerializer,
-            }[self.action]
-        except KeyError:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+        return {
+            "list": AccountListSerializer,
+            "create": AccountCreateSerializer,
+            "retrieve": AccountRetrieveSerializer,
+            "update": AccountUpdateSerializer,
+            "partial_update": AccountUpdateSerializer,
+        }.get(self.action, AccountListSerializer)
 
     def get_success_url(self, serializer):
         """
@@ -457,7 +454,10 @@ class AccountsTeamsViewSet(
         or OWNER and that the account quota for teams has
         not been exceeded.
         """
-        if self.action == "create":
+        # Permission check
+        # Skip when doing API Schema generation
+        # (permission check should probably go elsewhere)
+        if self.action == "create" and not getattr(self, "swagger_fake_view", False):
             try:
                 account = Account.objects.get(
                     **filter_from_ident(self.kwargs["account"]),
@@ -469,16 +469,13 @@ class AccountsTeamsViewSet(
 
             AccountQuotas.ACCOUNT_TEAMS.check(account)
 
-        try:
-            return {
-                "list": AccountTeamSerializer,
-                "create": AccountTeamCreateSerializer,
-                "retrieve": AccountTeamSerializer,
-                "partial_update": AccountTeamUpdateSerializer,
-                "destroy": AccountTeamDestroySerializer,
-            }[self.action]
-        except KeyError:
-            raise RuntimeError("Unexpected action {}".format(self.action))
+        return {
+            "list": AccountTeamSerializer,
+            "create": AccountTeamCreateSerializer,
+            "retrieve": AccountTeamSerializer,
+            "partial_update": AccountTeamUpdateSerializer,
+            "destroy": AccountTeamDestroySerializer,
+        }.get(self.action, AccountTeamSerializer)
 
     def get_account(self, filters={}):  # noqa: D102
         try:

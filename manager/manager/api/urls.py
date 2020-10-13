@@ -23,6 +23,7 @@ urlpatterns = (
         re_path(r"status/?", StatusView.as_view(), name="api-status"),
         path("", include("django_prometheus.urls")),
         re_path(r"schema/?", schema_view, name="api-schema"),
-        re_path(r"^$|(docs/?)", swagger_view, name="api-docs"),
+        # To avoid a `drf-yasg` warning, the following URL should end with a $
+        re_path(r"^$|docs/$", swagger_view, name="api-docs"),
     ]
 )

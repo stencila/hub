@@ -340,7 +340,14 @@ def get_user_field(field_name: str):
     """Get a field from the user (if any) of the account."""
 
     def getter(context):
-        account = context["view"].get_object()
+        view = context["view"]
+
+        # Do not get user field if this is called during
+        # generation of API schema
+        if getattr(view, "swagger_fake_view", False):
+            return ""
+
+        account = view.get_object()
         if account and account.user:
             return getattr(account.user, field_name) or ""
         return ""

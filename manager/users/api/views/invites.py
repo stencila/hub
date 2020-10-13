@@ -28,7 +28,13 @@ class InvitesViewSet(
         """
         Get all invites sent by the current user.
         """
-        return Invite.objects.filter(inviter=self.request.user).order_by("-created")
+        return Invite.objects.filter(
+            # Usually the user is authenticated but during API schema generation is not.
+            # The following conditional expression prevents an error in the latter case
+            inviter=self.request.user
+            if self.request.user.is_authenticated
+            else -1
+        ).order_by("-created")
 
     def get_serializer_class(self):
         """

@@ -104,6 +104,13 @@ class ProjectsSourcesViewSet(
             # Use the base serializer class which gives the type
             # of the source
             return SourceSerializer
+        elif action == "destroy":
+            return None
+        elif getattr(self, "swagger_fake_view", False):
+            # For API Schema generation return the polymorphic serializer
+            # instead of dynamically determined, class specific serializer
+            # as below for `create` and `partial_update`
+            return SourcePolymorphicSerializer
         elif action == "create":
             # Call `get_project` to perform permission check
             self.get_project()
@@ -126,8 +133,6 @@ class ProjectsSourcesViewSet(
             return SourcePolymorphicSerializer.model_serializer_mapping[
                 source.__class__
             ]
-        elif action == "destroy":
-            return None
         else:
             return SourcePolymorphicSerializer
 
