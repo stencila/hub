@@ -42,14 +42,10 @@ run: venv
 	BROKER_URL=amqp://stencila:password@localhost:5672/stencila \
 	CACHE_URL=redis://stencila:password@localhost:6379/0 \
 	WORKER_CONCURRENCY=3 \
-	$(VE)/celery \
-		--app worker \
-		worker \
-		--events \
+	$(VE)/celery --app=worker worker \
 		--loglevel DEBUG \
 		--hostname worker-$$(date +'%s')@%h \
 		--heartbeat-interval 60
-
 
 # Build Docker image
 build:
