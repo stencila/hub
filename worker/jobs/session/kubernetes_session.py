@@ -147,9 +147,9 @@ class KubernetesSession(Job):
         # Determine the path on the host for the session's working directory
         host_path = "/var/lib/stencila/hub/storage"
         workdir = (
-            os.join.path(host_path, "snapshots", str(project), snapshot)
+            os.path.join(host_path, "snapshots", str(project), snapshot)
             if snapshot
-            else os.join.path(host_path, "working", str(project))
+            else os.path.join(host_path, "working", str(project))
         )
 
         # Create pod listening on a random port number
