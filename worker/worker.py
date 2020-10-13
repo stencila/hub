@@ -31,7 +31,6 @@ app = Celery(
 app.conf.update(
     # In Celery 5.0 it appear necessary to also set (some of?) these options
     # in the command line invocation
-    
     # List of queues to subscribe to
     task_queues=[
         Queue(queue, exchange=queue, routing_key=queue)
