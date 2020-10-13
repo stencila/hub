@@ -1,3 +1,11 @@
+## [4.1.3](https://github.com/stencila/hub/compare/v4.1.2...v4.1.3) (2020-10-13)
+
+
+### Bug Fixes
+
+* **Worker:** Also specify options in CLI in Dockerfile ([a326090](https://github.com/stencila/hub/commit/a326090b31a805ee71260ed243c817ed52569e13))
+* **Worker:** Do not use mounter sidecar container ([4ebb4d6](https://github.com/stencila/hub/commit/4ebb4d6671c0cdf91019bbcbbc934ae9d7aac29b))
+
 ## [4.1.2](https://github.com/stencila/hub/compare/v4.1.1...v4.1.2) (2020-10-13)
 
 
