@@ -5,7 +5,7 @@ from typing import List
 from .helpers import HttpSession, begin_pull, end_pull, Files
 
 
-def pull_http(source: dict, working_dir: str, path: str) -> Files:
+def pull_http(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull a file from an HTTP source.
     """

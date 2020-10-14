@@ -19,7 +19,7 @@ from util.path_operations import (
 from .helpers import begin_pull, end_pull, Files
 
 
-def pull_github(source: dict, working_dir: str, path: str) -> Files:
+def pull_github(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull a GitHub repo/subpath.
 

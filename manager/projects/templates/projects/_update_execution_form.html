@@ -8,7 +8,8 @@ Form to update fileds related to how a project is executed.
   <div class="field">
     <label class="label" for="container_image">Container image</label>
     <div class="control has-icons-left">
-      <input class="input" name="container_image" id="container_image" type="text" value="{{project.container_image}}"
+      <input class="input" name="container_image" id="container_image" type="text"
+             {% if project.container_image %}value="{{project.container_image}}" {% endif %}
              placeholder="Container identifier e.g. my-custom-image:v1.3">
       <span class="icon is-left">
         <i class="ri-computer-line"></i>

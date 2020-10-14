@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import hashlib
 import os
 import mimetypes
@@ -36,11 +36,14 @@ def list_files(directory: str = ".") -> Files:
     return files
 
 
-def file_info(path: str) -> FileInfo:
+def file_info(path: str, mimetype: Optional[str] = None) -> FileInfo:
     """
     Get info on a file.
     """
-    mimetype, encoding = mimetypes.guess_type(path)
+    if mimetype:
+        encoding = None
+    else:
+        mimetype, encoding = mimetypes.guess_type(path)
     return {
         "size": os.path.getsize(path),
         "mimetype": mimetype,

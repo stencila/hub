@@ -14,7 +14,7 @@ from .upload import pull_upload
 from .helpers import Files
 
 # Functions for pulling individual source types
-PULL_FUNCS: Dict[str, Callable[[dict, str, str], Files]] = {
+PULL_FUNCS: Dict[str, Callable[..., Files]] = {
     "elife": pull_elife,
     "github": pull_github,
     "googledocs": pull_gdoc,
@@ -38,15 +38,16 @@ class Pull(Job):
 
     name = "pull"
 
-    def do(self, source: dict, path: str, **kwargs):  # type: ignore
+    def do(self, source: dict, path: str, secrets: Dict = {}, **kwargs):  # type: ignore
         """
         Pull `source` to `path` within `project`.
 
         :param source:  A dictionary with `type` and any other keys required to
                         pull the source (e.g. urls, authentication tokens).
-        :param project: The id of the project to pull the source to
         :param path:    The path, within the project, to pull the source to;
                         could be the path of a directory or file; may not yet exist.
+        :param secrets: Authentication credentials, API keys and other secrets needed
+                        to pull the source. Secrets are not displayed in job listings.
         :returns:       A list of paths, with the project, created by the pull.
         """
         assert isinstance(source, dict), "source must be a dictionary"
@@ -54,6 +55,7 @@ class Pull(Job):
         assert (
             isinstance(path, str) and len(path) > 0
         ), "path must be a non-empty string"
+        assert isinstance(secrets, dict), "secrets must be a dictionary"
 
         # Resolve the pull function based on the source type
         typ = source["type"].lower()
@@ -61,4 +63,6 @@ class Pull(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         pull_func = PULL_FUNCS[typ]
 
-        return pull_func(source, os.getcwd(), path)
+        return pull_func(
+            source=source, working_dir=os.getcwd(), path=path, secrets=secrets
+        )
