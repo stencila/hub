@@ -289,6 +289,8 @@ class Prod(Configuration):
                 "https://www.googleapis.com/auth/spreadsheets",
                 "https://www.googleapis.com/auth/drive",
             ],
+            # Set to offline in order to receive a refresh token on first login and
+            # on reauthentication requests. See https://stackoverflow.com/a/42570423/4625911
             "AUTH_PARAMS": {"access_type": "offline"},
         }
     }
