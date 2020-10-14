@@ -15,7 +15,8 @@ def pull_gdoc(source: dict, path: str, secrets: Dict = {}, **kwargs) -> Files:
     assert source.get("doc_id"), "A document id is required"
     assert secrets.get(
         "access_token"
-    ), "A Google access token is required. Please connect a Google account to your Stencila account."
+    ), """A Google access token is required. Please connect a Google account to your Stencila
+ account at https://hub.stenci.la/me/social/connections/."""
 
     credentials = GoogleCredentials(
         access_token=secrets.get("access_token"),
