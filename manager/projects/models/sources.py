@@ -4,6 +4,7 @@ import re
 from enum import Enum, unique
 from typing import Any, Dict, List, Optional, Type, Union
 
+from allauth.socialaccount.models import SocialApp, SocialToken
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
@@ -18,7 +19,7 @@ from jobs.models import Job, JobMethod
 from manager.storage import uploads_storage
 from projects.models.projects import Project
 from users.models import User
-from users.socialaccount.tokens import get_user_github_token, get_user_google_token
+from users.socialaccount.tokens import Provider, get_user_social_token
 
 
 class SourceAddress(dict):
@@ -297,14 +298,15 @@ class Source(PolymorphicModel):
             ),
         )
 
-    def authorization_token(self, user: User) -> Optional[str]:
+    def get_secrets(self, user: User) -> Dict:
         """
-        Get an authorization token for user to pull or push the source.
+        Get any secrets required to pull or push the source.
 
         This method should be overridden by derived classes to return
-        a token specific for the source if one is necessary.
+        a secrets (e.g. OAuth tokens, API keys) specific to the source
+        (if necessary).
         """
-        return None
+        return {}
 
     def get_url(self, path: Optional[str] = None):
         """
@@ -322,7 +324,7 @@ class Source(PolymorphicModel):
         Creates a job, and adds it to the source's `jobs` list.
         """
         source = self.to_address()
-        source["token"] = self.authorization_token(user)
+        secrets = self.get_secrets(user)
 
         description = "Pull {0}"
         if self.type_class == "UploadSource":
@@ -334,7 +336,9 @@ class Source(PolymorphicModel):
             creator=user or self.creator,
             description=description,
             method=JobMethod.pull.value,
-            params=dict(source=source, project=self.project.id, path=self.path),
+            params=dict(
+                project=self.project.id, source=source, path=self.path, secrets=secrets
+            ),
             **Job.create_callback(self, "pull_callback"),
         )
         self.jobs.add(job)
@@ -516,12 +520,45 @@ class GithubSource(Source):
             url += os.path.join("/blob/master", self.subpath or "", path or "")
         return url
 
-    def authorization_token(self, user: User) -> Optional[str]:
+    def get_secrets(self, user: User) -> Dict:
         """Get the Github authorization token for the user."""
-        return get_user_github_token(user)
+        return get_user_social_token(user, Provider.github)
 
 
-class GoogleDocsSource(Source):
+class GoogleSourceMixin:
+    """
+    Mixin class for all Google related sources.
+    """
+
+    def get_secrets(self, user: User) -> Dict:
+        """
+        Get Google OAuth2 credentials.
+        
+        Will use the credentials of the source's creator if
+        available, falling back to the request's user.
+        """
+
+        token = None
+
+        if self.creator:
+            token = get_user_social_token(self.creator, Provider.google)
+
+        if token is None and user and user.is_authenticated:
+            token = get_user_social_token(user, Provider.google)
+
+        print(token, self.creator)
+
+        app = SocialApp.objects.get(provider=Provider.google.name)
+
+        return dict(
+            access_token=token.token if token else None,
+            refresh_token=token.token_secret if token else None,
+            client_id=app.client_id,
+            client_secret=app.secret,
+        )
+
+
+class GoogleDocsSource(GoogleSourceMixin, Source):
     """A reference to a Google Docs document."""
 
     doc_id = models.TextField(
@@ -576,12 +613,8 @@ class GoogleDocsSource(Source):
         """Make the URL of a Google Doc."""
         return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
 
-    def authorization_token(self, user: User) -> Optional[str]:
-        """Get the Google authorization token for the user."""
-        return get_user_google_token(user)
 
-
-class GoogleDriveSource(Source):
+class GoogleDriveSource(GoogleSourceMixin, Source):
     """A reference to a Google Drive folder."""
 
     folder_id = models.TextField(null=False, help_text="Google's ID of the folder.")
@@ -596,10 +629,6 @@ class GoogleDriveSource(Source):
         return "https://drive.google.com/folders/{folder_id}".format(
             folder_id=self.folder_id
         )
-
-    def authorization_token(self, user: User) -> Optional[str]:
-        """Get the Google authorization token for the user."""
-        return get_user_google_token(user)
 
 
 class PlosSource(Source):
