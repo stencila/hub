@@ -1,3 +1,10 @@
+## [4.2.1](https://github.com/stencila/hub/compare/v4.2.0...v4.2.1) (2020-10-14)
+
+
+### Bug Fixes
+
+* **GDoc:** Add link in access token error message ([14856d0](https://github.com/stencila/hub/commit/14856d0d9f194a3d1c13f9d2112366fdf6ea50e0))
+
 # [4.2.0](https://github.com/stencila/hub/compare/v4.1.5...v4.2.0) (2020-10-14)
 
 
