@@ -1,3 +1,11 @@
+## [4.1.5](https://github.com/stencila/hub/compare/v4.1.4...v4.1.5) (2020-10-14)
+
+
+### Bug Fixes
+
+* **API:** Avoid warnings during schema generation ([1ec3256](https://github.com/stencila/hub/commit/1ec325613ebdb1f2d6d86a9707b6953281c7c478)), closes [#755](https://github.com/stencila/hub/issues/755)
+* **API:** Improve schema generation for creating a project source. ([613e533](https://github.com/stencila/hub/commit/613e5330413eae0309623a0589e0bed9e0fdf240))
+
 ## [4.1.4](https://github.com/stencila/hub/compare/v4.1.3...v4.1.4) (2020-10-13)
 
 
