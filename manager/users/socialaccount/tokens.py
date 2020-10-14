@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import Dict, Optional
 
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+from allauth.socialaccount.models import SocialToken
 from django.contrib.auth.models import User
 
 from manager.api.exceptions import SocialTokenMissing

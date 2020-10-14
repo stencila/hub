@@ -4,7 +4,7 @@ import re
 from enum import Enum, unique
 from typing import Any, Dict, List, Optional, Type, Union
 
-from allauth.socialaccount.models import SocialApp, SocialToken
+from allauth.socialaccount.models import SocialApp
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
@@ -533,7 +533,7 @@ class GoogleSourceMixin:
     def get_secrets(self, user: User) -> Dict:
         """
         Get Google OAuth2 credentials.
-        
+
         Will use the credentials of the source's creator if
         available, falling back to the request's user.
         """
