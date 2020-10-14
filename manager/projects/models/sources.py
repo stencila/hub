@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+from enum import Enum, unique
 from typing import Any, Dict, List, Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
@@ -775,3 +776,18 @@ class UrlSource(Source):
             raise ValidationError("Invalid URL source: {}".format(address))
 
         return None
+
+
+@unique
+class SourceTypes(Enum):
+    """
+    Enumeration of the types of project sources.
+    """
+
+    ElifeSource = ElifeSource
+    GithubSource = GithubSource
+    GoogleDocsSource = GoogleDocsSource
+    GoogleDriveSource = GoogleDriveSource
+    PlosSource = PlosSource
+    UploadSource = UploadSource
+    UrlSource = UrlSource

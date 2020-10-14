@@ -2,6 +2,7 @@ import re
 
 import shortuuid
 from django.db.models import Q
+from drf_yasg import openapi
 from rest_framework import exceptions, serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 
@@ -25,6 +26,7 @@ from projects.models.sources import (
     GoogleDriveSource,
     PlosSource,
     Source,
+    SourceTypes,
     UploadSource,
     UrlSource,
 )
@@ -803,6 +805,19 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
             for model, serializer in model_serializer_mapping.items()
         ]
     )
+
+    class Meta:
+        swagger_schema_fields = dict(
+            type=openapi.TYPE_OBJECT,
+            properties=dict(
+                type=openapi.Schema(
+                    type=openapi.TYPE_STRING, enum=[cls.name for cls in SourceTypes]
+                ),
+                path=openapi.Schema(type=openapi.TYPE_STRING),
+            ),
+            additional_properties=dict(type=openapi.TYPE_STRING),
+            required=("type", "path"),
+        )
 
 
 class NodesCreateRequest(serializers.ModelSerializer):
