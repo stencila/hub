@@ -1,3 +1,10 @@
+## [4.2.2](https://github.com/stencila/hub/compare/v4.2.1...v4.2.2) (2020-10-14)
+
+
+### Bug Fixes
+
+* **Social accounts:** Reauthenticate when connecting; improve styling. ([4cbce69](https://github.com/stencila/hub/commit/4cbce69c6bb635b13542aa3a902e27eb8b5d5280)), closes [#758](https://github.com/stencila/hub/issues/758)
+
 ## [4.2.1](https://github.com/stencila/hub/compare/v4.2.0...v4.2.1) (2020-10-14)
 
 
