@@ -63,7 +63,6 @@ class ProjectsViewsTest(DatabaseTestCase):
                     source,
                     kwargs={"project": project["id"]},
                 )
-                assert response.status_code == status.HTTP_201_CREATED
 
         # Different users will get different numbers of project
 

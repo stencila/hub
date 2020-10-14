@@ -521,8 +521,9 @@ class GithubSource(Source):
         return url
 
     def get_secrets(self, user: User) -> Dict:
-        """Get the Github authorization token for the user."""
-        return get_user_social_token(user, Provider.github)
+        """Get the GitHub authorization token for the user."""
+        token = get_user_social_token(user, Provider.github)
+        return dict(token=token.token if token else None)
 
 
 class GoogleSourceMixin:
@@ -530,14 +531,15 @@ class GoogleSourceMixin:
     Mixin class for all Google related sources.
     """
 
+    creator: User
+
     def get_secrets(self, user: User) -> Dict:
         """
         Get Google OAuth2 credentials.
 
         Will use the credentials of the source's creator if
-        available, falling back to the request's user.
+        available, falling back to those of the request's user.
         """
-
         token = None
 
         if self.creator:
@@ -545,8 +547,6 @@ class GoogleSourceMixin:
 
         if token is None and user and user.is_authenticated:
             token = get_user_social_token(user, Provider.google)
-
-        print(token, self.creator)
 
         app = SocialApp.objects.get(provider=Provider.google.name)
 
