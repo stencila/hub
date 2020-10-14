@@ -5,7 +5,7 @@ from util.files import Files, ensure_parent, list_files, move_files, temp_dir
 from .helpers import HttpSession
 
 
-def pull_upload(source: dict, working_dir: str, path: str) -> Files:
+def pull_upload(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull an upload source into a project's working directory.
 
