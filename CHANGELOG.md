@@ -1,3 +1,19 @@
+# [4.2.0](https://github.com/stencila/hub/compare/v4.1.5...v4.2.0) (2020-10-14)
+
+
+### Bug Fixes
+
+* **GDoc pull:** Allow for tokens to be refreshed ([4fb8050](https://github.com/stencila/hub/commit/4fb805046fc55475ce924046972747d969a16b14))
+* **Project settings:** Container image should be blank not None ([2419be7](https://github.com/stencila/hub/commit/2419be74f91bb89d38881fd011a256964a2e9164))
+* **Project sources:** Set creator of source ([e628580](https://github.com/stencila/hub/commit/e628580b389984a68a4d64ac2eb0a2e4578e5ff3))
+* **Upload pull:** Allow for keyword args ([5e01e7e](https://github.com/stencila/hub/commit/5e01e7ef4fbe183bdc357de639d1d9026794364f))
+
+
+### Features
+
+* **Project sources:** Enable GoogleDocs as source ([49e6c6e](https://github.com/stencila/hub/commit/49e6c6e33fd8728bc4a7733ea290a044aa7d5b04))
+* **Worker:** Allow explicit mimetype ([c1cf8db](https://github.com/stencila/hub/commit/c1cf8dbd0084ec530c15fe4f0ca13b4f76e97436))
+
 ## [4.1.5](https://github.com/stencila/hub/compare/v4.1.4...v4.1.5) (2020-10-14)
 
 
