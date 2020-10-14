@@ -1,6 +1,7 @@
 import os
 import pytest
 
+from util.working_directory import working_directory
 from .gdoc import pull_gdoc
 
 # The following access token is expired, but was valid when this test
@@ -16,16 +17,22 @@ GOOGLE_TOKEN = (
 
 
 def test_missing_token(tempdir):
-    doc_id = "1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
     with pytest.raises(AssertionError) as excinfo:
-        pull_gdoc(dict(doc_id=doc_id), tempdir.path, "{}.json".format(doc_id))
-    assert "A Google authentication token is required" in str(excinfo.value)
+        pull_gdoc(source=dict(doc_id="foo"), path="foo.gdoc")
+    assert "A Google access token is required" in str(excinfo.value)
 
 
 @pytest.mark.vcr
 def test_ok(tempdir):
-    doc_id = "14z9ScjW4gVjPBRw5XfIdA5LxrApUJx3-S7cXgdNvElc"
-    doc_json = "{}.json".format(doc_id)
-    files = pull_gdoc(dict(doc_id=doc_id, token=GOOGLE_TOKEN,), tempdir.path, doc_json,)
-    assert os.path.exists(os.path.join(tempdir.path, doc_json))
-    assert files[doc_json]["mimetype"] == "application/vnd.google-apps.document"
+    with working_directory(tempdir.path):
+        doc_id = "14z9ScjW4gVjPBRw5XfIdA5LxrApUJx3-S7cXgdNvElc"
+        doc_json = "{}.json".format(doc_id)
+
+        files = pull_gdoc(
+            source=dict(doc_id=doc_id),
+            path=doc_json,
+            secrets=dict(access_token=GOOGLE_TOKEN),
+        )
+
+        assert os.path.exists(doc_json)
+        assert files[doc_json]["mimetype"] == "application/vnd.google-apps.document"

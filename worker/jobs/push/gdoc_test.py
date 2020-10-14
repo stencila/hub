@@ -40,9 +40,11 @@ def test_ok(tempdir):
     doc_id_1 = files_resource.copy(fileId=doc_id_0).execute()["id"]
 
     # Pull down a local copy of the copy, and extract the revisionId
-    doc_json = "{}.json".format(doc_id_1)
+    doc_json = os.path.join(tempdir.path, "{}.json".format(doc_id_1))
     pulled = pull_gdoc(
-        dict(doc_id=doc_id_1, token=GOOGLE_TOKEN,), tempdir.path, doc_json,
+        source=dict(doc_id=doc_id_1),
+        path=doc_json,
+        secrets=dict(access_token=GOOGLE_TOKEN),
     )
 
     path = os.path.join(tempdir.path, list(pulled.keys())[0])
@@ -77,7 +79,9 @@ def test_ok(tempdir):
 
     # Pull down the copy of the edited document
     pulled = pull_gdoc(
-        dict(doc_id=doc_id_2, token=GOOGLE_TOKEN,), tempdir.path, doc_json,
+        source=dict(doc_id=doc_id_2),
+        path=doc_json,
+        secrets=dict(access_token=GOOGLE_TOKEN),
     )
 
     # Delete the second copy
