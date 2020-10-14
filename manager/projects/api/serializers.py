@@ -583,6 +583,8 @@ class SourceSerializer(serializers.ModelSerializer):
         )
     )
 
+    creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     type = serializers.SerializerMethodField()
 
     class Meta:
@@ -621,6 +623,7 @@ class SourceSerializer(serializers.ModelSerializer):
                 )
         return value
 
+    # TODO: Reinstate this method
     def skip_validate(self, data):
         """
         Validate that the source does not yet exist for the project.
