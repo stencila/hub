@@ -9,7 +9,7 @@ from lxml import etree
 from .helpers import HttpSession, Files, begin_pull, end_pull
 
 
-def pull_elife(source: dict, working_dir: str, path: str) -> Files:
+def pull_elife(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull an eLife article.
 

@@ -8,7 +8,7 @@ from lxml import etree
 from .helpers import HttpSession, begin_pull, end_pull, Files
 
 
-def pull_plos(source: dict, working_dir: str, path: str) -> Files:
+def pull_plos(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull a PLOS article.
 

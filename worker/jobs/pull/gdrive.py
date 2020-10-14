@@ -20,7 +20,7 @@ from util.path_operations import (
 )
 
 
-def pull_gdrive(source: dict, working_dir: str, path: str) -> Files:
+def pull_gdrive(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     Pull a google drive folder
     """
