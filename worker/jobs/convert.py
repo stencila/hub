@@ -73,7 +73,9 @@ class Convert(SubprocessJob):
 
         # For some conversion targets it is necessary to also create a source.
         if isinstance(output, str) and output.endswith(".gdoc"):
-            files[output]["source"] = create_gdoc(input, secrets)
+            files[output]["source"] = create_gdoc(
+                input_=input, options=options, secrets=secrets
+            )
 
         return files
 
@@ -84,40 +86,42 @@ def encoda_args(  # type: ignore
     """
     Create an array of Encoda arguments based on job inputs, outputs and options.
     """
-    # Determine --from option
-    # Encoda currently does not allow for mimetypes in the `from` option.
-    # This replaces some mimetypes with codec names for formats that are
-    # not easily identifiable from there extension. This means that for other
-    # files, the file extension will be used to determine the format (which
-    # works in most cases).
-    if "from" in options and isinstance(options["from"], str):
-        format = {"application/jats+xml": "jats"}.get(options["from"], None)
-        if format:
-            options["from"] = format
-        else:
-            del options["from"]
-
     args = [
         get_node_modules_bin("encoda"),
         "convert",
         "-" if isinstance(input, bytes) else input,
     ] + outputs
     for name, value in options.items():
+        # Determine --from option
+        # Encoda currently does not allow for mimetypes in the `from` option.
+        # This replaces some mimetypes with codec names for formats that are
+        # not easily identifiable from there extension. This means that for other
+        # files, the file extension will be used to determine the format (which
+        # works in most cases).
+        if name == "from" and isinstance(value, str):
+            value = {"application/jats+xml": "jats"}.get(value, "")
+            if not value:
+                continue
+
+        # Transform boolean values
         if value is False:
             value = "false"
         if value is True:
             value = "true"
+
         args.append("--{}={}".format(name, value))
     return args
 
 
-def create_gdoc(input_: Union[str, bytes], secrets: Dict = {}) -> Dict[str, str]:
+def create_gdoc(
+    input_: Union[str, bytes], options: Dict[str, Union[str, bool]], secrets: Dict
+) -> Dict[str, str]:
     """
     Create a GoogleDoc from input and return its id.
     """
     # Create a temporary docx to upload
     docx = tempfile.NamedTemporaryFile(delete=False).name
-    Convert().run(input_, docx, {"from": "gdoc", "to": "docx"})
+    Convert().run(input=input_, output=docx, options=dict(**options, to="docx"))
 
     # Create the GoogleDoc
     gdoc = (
