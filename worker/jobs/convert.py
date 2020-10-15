@@ -1,9 +1,16 @@
+import json
 import os
+import tempfile
 from typing import Dict, List, Union, cast
+
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from oauth2client.client import GoogleCredentials
 
 from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
 from util.files import Files, list_files, move_files, temp_dir
+from util.gapis import gdrive_service
 
 
 class Convert(SubprocessJob):
@@ -21,6 +28,7 @@ class Convert(SubprocessJob):
         input: Union[str, bytes],
         output: Union[str, List[str]],
         options: Dict[str, Union[str, bool]] = {},
+        secrets: Dict = {},
         **kwargs,
     ) -> Files:
         """
@@ -54,30 +62,8 @@ class Convert(SubprocessJob):
             if output != "-":
                 outputs[index] = os.path.join(temp, output)
 
-        # Encoda currently does not allow for mimetypes in the `from` option.
-        # This replaces some mimetypes with codec names for formats that are
-        # not easily identifiable from there extension. This means that for other
-        # files, the file extension will be used to determine the format (which
-        # works in most cases).
-        if "from" in options and isinstance(options["from"], str):
-            format = {"application/jats+xml": "jats"}.get(options["from"], None)
-            if format:
-                options["from"] = format
-            else:
-                del options["from"]
-
-        # Call Encoda
-        args = [
-            get_node_modules_bin("encoda"),
-            "convert",
-            "-" if isinstance(input, bytes) else input,
-        ] + outputs
-        for name, value in options.items():
-            if value is False:
-                value = "false"
-            if value is True:
-                value = "true"
-            args.append("--{}={}".format(name, value))
+        # Generate arguments to Encoda and call it
+        args = encoda_args(input, outputs, options)
         super().do(args, input=input if isinstance(input, bytes) else None)
 
         # Get list of created files and then move them into current,
@@ -85,4 +71,70 @@ class Convert(SubprocessJob):
         files = list_files(temp)
         move_files(temp)
 
+        # For some conversion targets it is necessary to also create a source.
+        if isinstance(output, str) and output.endswith(".gdoc"):
+            files[output]["source"] = create_gdoc(input, secrets)
+
         return files
+
+
+def encoda_args(  # type: ignore
+    input: Union[str, bytes], outputs: List[str], options: Dict[str, Union[str, bool]],
+) -> List[str]:
+    """
+    Create an array of Encoda arguments based on job inputs, outputs and options.
+    """
+    # Determine --from option
+    # Encoda currently does not allow for mimetypes in the `from` option.
+    # This replaces some mimetypes with codec names for formats that are
+    # not easily identifiable from there extension. This means that for other
+    # files, the file extension will be used to determine the format (which
+    # works in most cases).
+    if "from" in options and isinstance(options["from"], str):
+        format = {"application/jats+xml": "jats"}.get(options["from"], None)
+        if format:
+            options["from"] = format
+        else:
+            del options["from"]
+
+    args = [
+        get_node_modules_bin("encoda"),
+        "convert",
+        "-" if isinstance(input, bytes) else input,
+    ] + outputs
+    for name, value in options.items():
+        if value is False:
+            value = "false"
+        if value is True:
+            value = "true"
+        args.append("--{}={}".format(name, value))
+    return args
+
+
+def create_gdoc(input_: Union[str, bytes], secrets: Dict = {}) -> Dict[str, str]:
+    """
+    Create a GoogleDoc from input and return its id.
+    """
+    # Create a temporary docx to upload
+    docx = tempfile.NamedTemporaryFile(delete=False).name
+    Convert().run(input_, docx, {"from": "gdoc", "to": "docx"})
+
+    # Create the GoogleDoc
+    gdoc = (
+        gdrive_service(secrets)
+        .files()
+        .create(
+            body={
+                "name": input_ if type(input_) is str else "Unititled",
+                "mimeType": "application/vnd.google-apps.document",
+            },
+            media_body=MediaFileUpload(docx),
+            media_mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        )
+        .execute()
+    )
+
+    # Remove the temporary docx
+    os.unlink(docx)
+
+    return dict(type_name="GoogleDocs", doc_id=gdoc["id"])
