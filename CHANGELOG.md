@@ -1,3 +1,16 @@
+# [4.3.0](https://github.com/stencila/hub/compare/v4.2.2...v4.3.0) (2020-10-15)
+
+
+### Bug Fixes
+
+* **Worker:** Ensure that the orginal format of the input is ussed via the --from option ([d6bf12a](https://github.com/stencila/hub/commit/d6bf12aee4bfb4c5659d79a924ee55ac8a24bcbe))
+
+
+### Features
+
+* **Files:** Add any source from convert job ([148d2a0](https://github.com/stencila/hub/commit/148d2a0d7be321cfefe8bed27d36563fbb9c688f))
+* **Worker:** When converting to GDoc create a GDoc ([a1a4d26](https://github.com/stencila/hub/commit/a1a4d264def9038c415afa60bad70b4b17efb1ff))
+
 ## [4.2.2](https://github.com/stencila/hub/compare/v4.2.1...v4.2.2) (2020-10-14)
 
 
