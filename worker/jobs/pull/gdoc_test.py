@@ -1,7 +1,9 @@
 import os
+
 import pytest
 
 from util.working_directory import working_directory
+
 from .gdoc import pull_gdoc
 
 # The following access token is expired, but was valid when this test

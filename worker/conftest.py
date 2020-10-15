@@ -1,7 +1,7 @@
 """Configuration for pytest."""
 
-from testfixtures import TempDirectory
 import pytest
+from testfixtures import TempDirectory
 
 
 @pytest.fixture()

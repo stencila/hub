@@ -1,7 +1,7 @@
 import json
 import os
-import pytest
 
+import pytest
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 

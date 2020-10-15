@@ -5,7 +5,7 @@ from typing import List
 
 from lxml import etree
 
-from .helpers import HttpSession, begin_pull, end_pull, Files
+from .helpers import Files, HttpSession, begin_pull, end_pull
 
 
 def pull_plos(source: dict, working_dir: str, path: str, **kwargs) -> Files:

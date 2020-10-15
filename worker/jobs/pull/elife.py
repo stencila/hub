@@ -1,12 +1,12 @@
 import io
 import os
 import re
-import requests
 from typing import List
 
+import requests
 from lxml import etree
 
-from .helpers import HttpSession, Files, begin_pull, end_pull
+from .helpers import Files, HttpSession, begin_pull, end_pull
 
 
 def pull_elife(source: dict, working_dir: str, path: str, **kwargs) -> Files:

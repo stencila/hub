@@ -1,11 +1,10 @@
 import os
 import re
-from typing import cast, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast
 
 from dxf import DXF
 
 from jobs.base.job import Job
-
 
 # Regex for parsing a container image identifier
 # Based on answers at https://stackoverflow.com/questions/39671641/regex-to-parse-docker-tag

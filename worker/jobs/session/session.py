@@ -1,6 +1,6 @@
 from typing import Type, Union
 
-from .kubernetes_session import api_instance, KubernetesSession
+from .kubernetes_session import KubernetesSession, api_instance
 from .subprocess_session import SubprocessSession
 
 # If on a K8s is available then use that

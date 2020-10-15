@@ -1,5 +1,5 @@
-from typing import cast, List, Union, Dict
 import os
+from typing import Dict, List, Union, cast
 
 from config import get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob

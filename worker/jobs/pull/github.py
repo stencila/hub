@@ -1,22 +1,17 @@
 import json
 import os
 import shutil
-
-from github import Github
-from github.ContentFile import ContentFile
 from io import BytesIO
 from typing import List
 
-from util.path_operations import (
-    utf8_path_join,
-    utf8_normpath,
-    utf8_makedirs,
-    utf8_path_exists,
-    utf8_isdir,
-    utf8_unlink,
-)
+from github import Github
+from github.ContentFile import ContentFile
 
-from .helpers import begin_pull, end_pull, Files
+from util.path_operations import (utf8_isdir, utf8_makedirs, utf8_normpath,
+                                  utf8_path_exists, utf8_path_join,
+                                  utf8_unlink)
+
+from .helpers import Files, begin_pull, end_pull
 
 
 def pull_github(source: dict, working_dir: str, path: str, **kwargs) -> Files:

@@ -1,5 +1,5 @@
 import json
-from typing import cast, List, Union, Dict
+from typing import Dict, List, Union, cast
 
 from .convert import Convert
 

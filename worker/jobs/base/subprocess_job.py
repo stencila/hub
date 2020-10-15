@@ -4,7 +4,7 @@ import subprocess
 import threading
 from typing import List, Optional, Union
 
-from .job import Job, DEBUG, INFO, WARN, ERROR
+from .job import DEBUG, ERROR, INFO, WARN, Job
 
 
 class SubprocessJob(Job):

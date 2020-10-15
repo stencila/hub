@@ -1,14 +1,15 @@
-from typing import Dict, Any
-from pathlib import Path
-import tempfile
 import ipaddress
 import mimetypes
 import os
 import re
-import requests
 import shutil
+import tempfile
+from pathlib import Path
 from socket import gethostbyname
+from typing import Any, Dict
 from urllib.parse import urlparse
+
+import requests
 
 from util.files import Files, list_files
 

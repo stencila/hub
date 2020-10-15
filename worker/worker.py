@@ -10,9 +10,8 @@ from typing import Type
 from celery import Celery
 from kombu import Queue
 
-from jobs.base.job import Job
-
 from jobs.archive import Archive
+from jobs.base.job import Job
 from jobs.clean import Clean
 from jobs.convert import Convert
 from jobs.decode import Decode

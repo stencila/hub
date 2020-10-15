@@ -1,7 +1,9 @@
 import os
+
 import pytest
 
 from util.path_operations import utf8_path_exists, utf8_path_join
+
 from .gdrive import pull_gdrive
 
 # The following access token is expired, but was valid when this test

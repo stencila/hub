@@ -1,5 +1,5 @@
-from typing import Callable, Dict, List
 import os
+from typing import Callable, Dict, List
 
 import config
 from jobs.base.job import Job
@@ -8,10 +8,10 @@ from .elife import pull_elife
 from .gdoc import pull_gdoc
 from .gdrive import pull_gdrive
 from .github import pull_github
+from .helpers import Files
 from .http import pull_http
 from .plos import pull_plos
 from .upload import pull_upload
-from .helpers import Files
 
 # Functions for pulling individual source types
 PULL_FUNCS: Dict[str, Callable[..., Files]] = {

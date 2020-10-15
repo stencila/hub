@@ -1,7 +1,7 @@
 import pytest
 from celery.exceptions import SoftTimeLimitExceeded
 
-from .kubernetes_session import api_instance, KubernetesSession
+from .kubernetes_session import KubernetesSession, api_instance
 
 
 @pytest.mark.skipif(api_instance is None, reason="can only run if K8s is available")

@@ -15,10 +15,12 @@ venv: requirements.txt requirements-dev.txt package.json
 # Format code
 format: venv
 	$(VE)/black .
+	$(VE)/isort .
 
 # Lint code
 lint: venv
 	$(VE)/black --check .
+	$(VE)/isort --check .
 	$(VE)/flake8
 	$(VE)/mypy --config-file pyproject.toml .
 	$(VE)/pydocstyle --match-dir='^(?!venv)'

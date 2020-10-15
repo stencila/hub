@@ -1,5 +1,5 @@
-from typing import Callable, Dict, List
 import os
+from typing import Callable, Dict, List
 
 import config
 from jobs.base.job import Job

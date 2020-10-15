@@ -1,14 +1,14 @@
-from datetime import datetime
-from typing import Any, Optional
 import os
 import traceback
+from datetime import datetime
 from pathlib import Path
+from typing import Any, Optional
 
 import celery
+import sentry_sdk
 from celery import states
 from celery.exceptions import Ignore, SoftTimeLimitExceeded
 from celery.utils.log import get_task_logger
-import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 

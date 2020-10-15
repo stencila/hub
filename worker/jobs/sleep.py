@@ -1,5 +1,5 @@
-from datetime import datetime
 import time
+from datetime import datetime
 
 from jobs.base.job import Job
 

@@ -4,8 +4,8 @@ from unittest import mock
 import pytest
 from celery.exceptions import Ignore
 
+from .job import DEBUG, ERROR, INFO, WARN, Job
 from .subprocess_job import SubprocessJob
-from .job import Job, DEBUG, INFO, WARN, ERROR
 
 
 def test_success():

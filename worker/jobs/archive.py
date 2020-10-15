@@ -1,6 +1,6 @@
-from typing import Optional, List, Union, Dict
 import os
 import shutil
+from typing import Dict, List, Optional, Union
 
 from config import get_snapshot_dir
 from jobs.base.job import Job

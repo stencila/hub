@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import List
 
-from .helpers import HttpSession, begin_pull, end_pull, Files
+from .helpers import Files, HttpSession, begin_pull, end_pull
 
 
 def pull_http(source: dict, working_dir: str, path: str, **kwargs) -> Files:

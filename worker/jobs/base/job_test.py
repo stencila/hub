@@ -3,7 +3,7 @@ from unittest import mock
 import pytest
 from celery.exceptions import Ignore
 
-from .job import Job, DEBUG, INFO, WARN, ERROR
+from .job import DEBUG, ERROR, INFO, WARN, Job
 
 
 def test_logging():

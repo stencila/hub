@@ -5,7 +5,7 @@ from typing import Dict, List
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 
-from util.files import file_info, Files
+from util.files import Files, file_info
 
 
 def pull_gdoc(source: dict, path: str, secrets: Dict = {}, **kwargs) -> Files:

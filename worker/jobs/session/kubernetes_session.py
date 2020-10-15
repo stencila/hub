@@ -6,8 +6,8 @@ import subprocess
 import sys
 import time
 
-from celery.exceptions import Ignore, SoftTimeLimitExceeded
 import kubernetes
+from celery.exceptions import Ignore, SoftTimeLimitExceeded
 
 from config import get_snapshot_dir, get_working_dir
 from jobs.base.job import Job
