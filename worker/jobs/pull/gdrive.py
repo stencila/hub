@@ -8,9 +8,14 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 from oauth2client.client import GoogleCredentials
 
-from util.path_operations import (utf8_isdir, utf8_makedirs, utf8_normpath,
-                                  utf8_path_exists, utf8_path_join,
-                                  utf8_unlink)
+from util.path_operations import (
+    utf8_isdir,
+    utf8_makedirs,
+    utf8_normpath,
+    utf8_path_exists,
+    utf8_path_join,
+    utf8_unlink,
+)
 
 from .helpers import Files, begin_pull, end_pull
 

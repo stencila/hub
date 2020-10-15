@@ -7,9 +7,14 @@ from typing import List
 from github import Github
 from github.ContentFile import ContentFile
 
-from util.path_operations import (utf8_isdir, utf8_makedirs, utf8_normpath,
-                                  utf8_path_exists, utf8_path_join,
-                                  utf8_unlink)
+from util.path_operations import (
+    utf8_isdir,
+    utf8_makedirs,
+    utf8_normpath,
+    utf8_path_exists,
+    utf8_path_join,
+    utf8_unlink,
+)
 
 from .helpers import Files, begin_pull, end_pull
 
