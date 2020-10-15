@@ -2,7 +2,7 @@ import datetime
 import os
 import re
 from enum import Enum, unique
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Dict, List, Optional, Type, Union
 
 from allauth.socialaccount.models import SocialApp
 from django.contrib.contenttypes.models import ContentType
@@ -262,9 +262,7 @@ class Source(PolymorphicModel):
         return models.Q(**kwargs)
 
     @staticmethod
-    def from_address(
-        address_or_string: Union[SourceAddress, str], other: Dict[str, Any] = {}
-    ) -> "Source":
+    def from_address(address_or_string: Union[SourceAddress, str], **other) -> "Source":
         """
         Create a source instance from a source address.
 
@@ -542,7 +540,7 @@ class GoogleSourceMixin:
         """
         token = None
 
-        if self.creator:
+        if getattr(self, "creator", None):
             token = get_user_social_token(self.creator, Provider.google)
 
         if token is None and user and user.is_authenticated:

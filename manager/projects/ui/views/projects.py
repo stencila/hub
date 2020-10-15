@@ -68,7 +68,7 @@ def open(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
         url = request.POST.get("url")
         if url:
-            Source.from_address(url, dict(project=project, path="main"))
+            Source.from_address(url, project=project, path="main")
 
         file = request.FILES.get("file")
         if file:
