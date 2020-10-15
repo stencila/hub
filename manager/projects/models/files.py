@@ -17,7 +17,7 @@ from pygments.lexers.special import TextLexer
 from jobs.models import Job, JobMethod
 from manager.storage import FileSystemStorage, snapshots_storage, working_storage
 from projects.models.projects import Project
-from projects.models.sources import Source
+from projects.models.sources import GoogleSourceMixin, Source, SourceAddress
 from users.models import User
 
 SNAPSHOTS_STORAGE = snapshots_storage()
@@ -359,6 +359,7 @@ class File(models.Model):
         job: Optional[Job] = None,
         source: Optional[Source] = None,
         upstreams: List["File"] = [],
+        downstreams: List["File"] = [],
         snapshot=None,
     ) -> "File":
         """
@@ -392,8 +393,13 @@ class File(models.Model):
             encoding=info.get("encoding"),
             fingerprint=info.get("fingerprint"),
         )
+
         if upstreams:
             file.upstreams.set(upstreams)
+
+        if downstreams:
+            for other in downstreams:
+                other.upstreams.add(file)
 
         return file
 
@@ -561,15 +567,23 @@ class File(models.Model):
         """
         Convert a file to another format.
 
-        Creates a `convert` job which returns a list of files produced
-        (may be more than one e.g a file with a media folder). Each of the
-        produced files will have this file as a dependency.
+        Creates a `convert` job which returns a list of files produced (may be
+        more than one e.g a file with a media folder). Each of the files will have this
+        file as an upstream dependency.
+
+        For certain target formats (e.g. `gdoc`), a source is also created (e.g. `GoogleDocsSource`)
+        in the job callback. The source will have this new file as a downstream dependant,
+        and this file will have the new file as an upstream dependency.
 
         Do not call back if this conversion is for a snapshot (do
         not want a file entry for those at present).
         """
         if self.mimetype:
             options["from"] = self.mimetype
+
+        secrets = None
+        if output.endswith(".gdoc"):
+            secrets = GoogleSourceMixin().get_secrets(user)
 
         return Job.objects.create(
             description="Convert '{0}' to '{1}'".format(self.path, output),
@@ -579,6 +593,7 @@ class File(models.Model):
                 input=self.path,
                 output=output,
                 options=options,
+                secrets=secrets,
             ),
             project=self.project,
             creator=user,
@@ -588,14 +603,30 @@ class File(models.Model):
     @transaction.atomic
     def convert_callback(self, job: Job):
         """
+        Create files, and any sources, including their dependcy relations after a convert job.
+
         Add the created files to the project and make this file the upstream of each.
+        Create any sources and make this file a downstream.
         """
         result = job.result
         if not result:
             return
 
         for path, info in result.items():
-            File.create(self.project, path, info, job=job, upstreams=[self])
+            if "source" in info:
+                assert (
+                    "type_name" in info["source"]
+                ), "Convert job must provide a `type_name` for a source"
+                source = Source.from_address(
+                    SourceAddress(**info["source"]),
+                    project=self.project,
+                    creator=job.creator,
+                    path=path,
+                )
+                relations = dict(source=source, downstreams=[self])
+            else:
+                relations = dict(upstreams=[self])
+            File.create(self.project, path, info, job=job, **relations)
 
 
 class FileDownloads(models.Model):
