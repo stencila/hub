@@ -1,3 +1,16 @@
+# [4.5.0](https://github.com/stencila/hub/compare/v4.4.0...v4.5.0) (2020-10-16)
+
+
+### Bug Fixes
+
+* **GitHub source:** Handle large files, keep credentials in worker ([0077764](https://github.com/stencila/hub/commit/0077764e667c9c1d100d6718f4627cb874c03595))
+* **Worker:** Fixes to Github pull job ([f99c504](https://github.com/stencila/hub/commit/f99c504e559a88a69017250720a8e9a38182aedf))
+
+
+### Features
+
+* **GitHub source:** Renable pulling from GitHub repos ([b2fd658](https://github.com/stencila/hub/commit/b2fd658abecb8df0c5ad9d51e48d097f845d93eb))
+
 # [4.4.0](https://github.com/stencila/hub/compare/v4.3.0...v4.4.0) (2020-10-16)
 
 
