@@ -2,8 +2,6 @@ import os
 
 import pytest
 
-from util.path_operations import utf8_path_exists, utf8_path_join
-
 from .gdrive import pull_gdrive
 
 # The following access token is expired, but was valid when this test
@@ -30,4 +28,4 @@ def test_folder(tempdir):
         "test-1.txt",
         "sub/test-2.txt",
     ):
-        assert utf8_path_exists(utf8_path_join(tempdir.path, expected))
+        assert os.path.exists(os.path.join(tempdir.path, expected))
