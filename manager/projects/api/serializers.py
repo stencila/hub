@@ -696,7 +696,10 @@ class GithubSourceSerializer(SourceSerializer):
     """
 
     url = serializers.CharField(
-        required=False, allow_blank=True, help_text="The URL of the repository, folder or file e.g. https://github.com/stencila/stencila/blob/master/help/hub/getting-started.md"
+        required=False,
+        allow_blank=True,
+        help_text="The URL of the repository, folder or file "
+        "e.g. https://github.com/stencila/stencila/blob/master/help/hub/getting-started.md",
     )
 
     repo = serializers.CharField(
