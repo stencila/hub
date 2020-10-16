@@ -174,7 +174,7 @@ class Source(PolymorphicModel):
 
         raise ValueError('Unable to find class matching "{}"'.format(type_name))
 
-    def make_address(self):
+    def make_address(self) -> str:
         """
         Create a human readable string representation of the source instance.
 

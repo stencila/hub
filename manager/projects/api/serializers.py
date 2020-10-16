@@ -619,28 +619,47 @@ class SourceSerializer(serializers.ModelSerializer):
             match = re.search(r"^[A-Za-z][A-Za-z0-9\.\-_ ]*$", part, re.I)
             if not match:
                 raise exceptions.ValidationError(
-                    'Path contains an invalid part: "{0}"'.format(part)
+                    'Path contains invalid characters. The invalid part is "{0}"'.format(
+                        part
+                    )
                 )
+
         return value
 
-    # TODO: Reinstate this method
-    def skip_validate(self, data):
+    def validate(self, data):
         """
-        Validate that the source does not yet exist for the project.
+        Validate that neither the source address or path exist for the project.
         """
         project = data.get("project", self.instance.project if self.instance else None)
-        source = Source(**data)
+        path = data.get("path", self.instance.path if self.instance else None)
         id = self.instance.id if self.instance else None
 
+        if Source.objects.filter(project=project, path=path).exclude(id=id).count():
+            raise exceptions.ValidationError(
+                dict(
+                    path='There is already a source linked to path "{}" in this project.'
+                    " Remove it or use a different path.".format(path)
+                )
+            )
+
+        # Create a draft object for the type of source so that we
+        # can check that the project does not already have the a
+        # source with that address
+        source = self.Meta.model(**data)
+        address = source.make_address()
+
         if (
-            Source.objects.filter(project=project, address=source.address)
+            Source.objects.filter(project=project, address=address)
             .exclude(id=id)
             .count()
         ):
             raise exceptions.ValidationError(
                 # For now, we need to associate this error with path, because
-                # it is always in the form.
-                dict(path="This source is already linked into this project.")
+                # `path` is always in the form, whereas other fields differ
+                # by source type.
+                dict(
+                    path="Source {} is already linked into this project".format(address)
+                )
             )
         return data
 
