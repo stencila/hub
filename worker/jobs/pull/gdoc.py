@@ -1,6 +1,5 @@
 import json
 import os
-from typing import Dict, List
 
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
@@ -9,11 +8,11 @@ from util.files import Files, file_info
 from util.gapis import gdocs_service
 
 
-def pull_gdoc(source: dict, path: str, secrets: Dict = {}, **kwargs) -> Files:
+def pull_gdoc(source: dict, path: str, secrets: dict = {}, **kwargs) -> Files:
     """
     Pull a Google Doc into a project.
     """
-    assert source.get("doc_id"), "A document id is required"
+    assert source.get("doc_id"), "A Google Doc id is required"
 
     gdoc = (
         gdocs_service(secrets)
