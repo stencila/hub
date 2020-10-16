@@ -43,13 +43,13 @@ interactions:
       Content-Length:
       - '1231'
       X-GitHub-Request-Id:
-      - A286:5C94:117A9AB:141AD00:5F895CEC
+      - D530:0CAE:10739D5:130E272:5F8968D8
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
       - '59'
       X-Ratelimit-Reset:
-      - '1602841340'
+      - '1602844392'
       X-Ratelimit-Used:
       - '1'
       access-control-allow-origin:
@@ -67,7 +67,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 16 Oct 2020 08:42:21 GMT
+      - Fri, 16 Oct 2020 09:33:13 GMT
       etag:
       - W/"8206a8280aa2a7190dc5ee6409538b14ac0bc553e89896641f159c0d8b1c537b"
       last-modified:
@@ -120,13 +120,13 @@ interactions:
       Content-Length:
       - '271'
       X-GitHub-Request-Id:
-      - A286:5C94:117A9C9:141AD1E:5F895CED
+      - D530:0CAE:10739F8:130E28D:5F8968D9
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
       - '58'
       X-Ratelimit-Reset:
-      - '1602841341'
+      - '1602844393'
       X-Ratelimit-Used:
       - '2'
       access-control-allow-origin:
@@ -144,84 +144,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 16 Oct 2020 08:42:21 GMT
-      etag:
-      - W/"e402a4d39a9b20d0829e608059816df3034b7554"
-      last-modified:
-      - Wed, 20 May 2020 20:57:06 GMT
-      referrer-policy:
-      - origin-when-cross-origin, strict-origin-when-cross-origin
-      server:
-      - GitHub.com
-      status:
-      - 200 OK
-      strict-transport-security:
-      - max-age=31536000; includeSubdomains; preload
-      vary:
-      - Accept, Accept-Encoding, Accept, X-Requested-With, Accept-Encoding
-      x-content-type-options:
-      - nosniff
-      x-frame-options:
-      - deny
-      x-github-media-type:
-      - github.v3; format=json
-      x-xss-protection:
-      - 1; mode=block
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - PyGithub/Python
-    method: GET
-    uri: https://api.github.com/repos/stencila/test/contents/sub
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAA62RQWvDMAyF/4vPJc6arlkCYwzW4y67jlEUW6nNHDtYDmUr/e9Tth6SwmAtuxj8
-        0PskPb0ehIcORS1eNo9Pz5us02IhekiGJRoaOZXJAKtFvlYlliXm+bJo+bmBagVVWaFarUt9pwvV
-        5kuNzCH7yejidiGG6NhqUuqplhJ6m+1sMkOTqdDJiH0gSQm9sg5kQkpSBc//xPJ0iIeI7X0HXBoZ
-        b1LntnPyhDrnNS408sc5RzKHTWeYPwzIJjlCSV4QiA577wLos3YR9qc8BsJ4Wv07mvkSv8yfPvrx
-        gq11Y+hbZ/07ifogCF37/6nz4pdBr0pqvO2kzRV3PR7fvgDr1kGc3gIAAA==
-    headers:
-      Accept-Ranges:
-      - bytes
-      Content-Length:
-      - '271'
-      X-GitHub-Request-Id:
-      - A286:5C94:117A9E3:141AD40:5F895CED
-      X-Ratelimit-Limit:
-      - '60'
-      X-Ratelimit-Remaining:
-      - '57'
-      X-Ratelimit-Reset:
-      - '1602841340'
-      X-Ratelimit-Used:
-      - '3'
-      access-control-allow-origin:
-      - '*'
-      access-control-expose-headers:
-      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
-        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
-      cache-control:
-      - public, max-age=60, s-maxage=60
-      content-encoding:
-      - gzip
-      content-security-policy:
-      - default-src 'none'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Fri, 16 Oct 2020 08:42:21 GMT
+      - Fri, 16 Oct 2020 09:33:14 GMT
       etag:
       - W/"e402a4d39a9b20d0829e608059816df3034b7554"
       last-modified:
@@ -275,15 +198,15 @@ interactions:
       Content-Length:
       - '332'
       X-GitHub-Request-Id:
-      - A286:5C94:117A9E9:141AD4E:5F895CED
+      - D530:0CAE:1073A1F:130E2B2:5F8968DA
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
-      - '56'
+      - '57'
       X-Ratelimit-Reset:
-      - '1602841340'
+      - '1602844392'
       X-Ratelimit-Used:
-      - '4'
+      - '3'
       access-control-allow-origin:
       - '*'
       access-control-expose-headers:
@@ -299,7 +222,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 16 Oct 2020 08:42:22 GMT
+      - Fri, 16 Oct 2020 09:33:15 GMT
       etag:
       - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
       last-modified:
