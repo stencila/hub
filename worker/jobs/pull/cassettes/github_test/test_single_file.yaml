@@ -15,47 +15,49 @@ interactions:
   response:
     body:
       string: !!binary |
-        H4sIAAAAAAAAA+1YXW/iOBT9K4jXpTVlSkcgVbMr7U6lkapqVvMwMy/ISUzi4sSR7cBC1P++x3ZC
-        AmJK8bz2pYB7z/H19f10PeTJcD6Z3d18uL2bjYaFTNjCLg0f//5n8yS+iPhhtqPf/13HxWr79O3H
-        f4+7r5Onr/f3QwjTnEHSMG3wa1kJsWiWtGFFzAUlzf9KxdfUQHhJhWajodwUTA3n9VDIlBfgaAHg
-        sbt//DC5m02O1Nk+rWbbn5PPFf1eZsmDWEfP8e7x+cf0MXXqUGxB1aJSAoSZMaWeE+IX9fg65Sar
-        okozFcsC6pnrWOakIn6rT+v7W1CkqiFxJsDCEVnJGx4PBpkmPdUzk4uj/f22TrwnuJRCyA3Qx9q+
-        tgHZo6y1HQMv0gAGoGoiTcZgLBzhxR6ca3OZMg5RE/sBh7EcGtZXLLlIoQYDdaxHvNREsVI6sirS
-        seKl4bK4TLEDJJikSmnBd/RyJiA1CKxKl6ngEECyNfzsMqiH1MRFTLy1plAsZnwNwwbQHWHBZral
-        DdqnnlWsublhC5rkNhhdjL6MEEJv8eY2xBO2vy/Q/zXQORViYC0xWEo1sIkAfjeQlRo8cDOgRWI/
-        EZIDjnBE4Ln7gSqQXu0Txavx58y8D6tWEYs/Y/MTQAQXYNh+xbYBaIuqCf42sRAjPGkkcSp5LshP
-        KXMAr0n/p/UIw2geoKSDAZ5JGWIhBwOca12xNznjqaM5tCatnxdVHvkU9BbvPkXocdCLas3TgrEA
-        y+yhNWkzYqRoEWchZC2yJv6buzGaBqhlUQBHQkYBaJQe4qA10Rn1Wd4swjSxXBZ5QKXYMlAti9xT
-        GRV0Z04lC90ToZgYXF+ATi2S1I2lBC3SiqYhXHsobs6Wt5Tuzhb6U37dYUFkexbFoyo0nXRoq5Wv
-        rYi7EFN14I7KlenXC//JI/aKvDtknvNz9fIUTwM8cM5gMutXx4T29/lS/ivVLLImXabzCbThvNxq
-        TQZtdeozN61twLW2SFL/UVKT2WyBDUqq2OUKNkBSRxSNxPX1dZ0x6lrEnKmgmPI4EFAVZ+iFLtep
-        bpGo8zk1rtNcWpUSdJ5C0iTAZnsoaPylXK6Xx/XvsMQcFaCMg/V5ci7Qc8kiJId12D5jIQ1f8vgt
-        nfSpUDiA1580L2I2QpM4gpcZHnP4HTpEeydonViIDTwOKmMw9Z2zYHDBAGsq5pE18bNNwkoht4E5
-        oAe2YaUYRuFkQQ365Mn4Zno1vrma3HybjOfTu/l09hMyVZn0ZSbjq/H0ajJ2Mh/n4zsrU1Y662iO
-        RW6tCFJZ45H4hmEYf9FwHwyjrmu2Qy3Etc468T874fnBON8IxwKudeTv5/jXxzXiVwAok8mclajA
-        fg7XfIdv04OKGsuqgA3Ho+GGGrRqqGbdUluFh/MCgQE6qhc+1oZzoyq8QdiVUslnFhvdX+uiuie4
-        4St+ALS9wX5K8SNHs/kN0hxXSjYvEX77JvvgVaF5AUm4ppFg3YIsWdFo2D8Gj1mhcXRP44eUObbo
-        iR+YwP1I2JJWwix8/wkL5hRXqGBVw/Jy4a/OyBXDtOeJ+0Py+7vMub7Izgi9wfP9XaZ5a3v19er9
-        XabnMr/zLlMws8FjRZslkAz6DX2bhV7+B6Eq0TzbFQAA
+        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
     headers:
       Accept-Ranges:
       - bytes
       Content-Length:
-      - '1230'
+      - '1231'
       X-GitHub-Request-Id:
-      - 4B71:313A:20F6FD:25CC07:5EEC4B4D
+      - D52E:1BE3:1229086:14CD135:5F8968EC
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
-      - '47'
+      - '49'
       X-Ratelimit-Reset:
-      - '1592546242'
+      - '1602844393'
+      X-Ratelimit-Used:
+      - '11'
       access-control-allow-origin:
       - '*'
       access-control-expose-headers:
       - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
-        X-GitHub-Media-Type, Deprecation, Sunset
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
       cache-control:
       - public, max-age=60, s-maxage=60
       content-encoding:
@@ -65,9 +67,9 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 19 Jun 2020 05:21:13 GMT
+      - Fri, 16 Oct 2020 09:33:37 GMT
       etag:
-      - W/"6238ef13e3a87f85704bca8785438b93"
+      - W/"8206a8280aa2a7190dc5ee6409538b14ac0bc553e89896641f159c0d8b1c537b"
       last-modified:
       - Wed, 20 May 2020 20:57:06 GMT
       referrer-policy:
@@ -119,19 +121,21 @@ interactions:
       Content-Length:
       - '332'
       X-GitHub-Request-Id:
-      - 4B71:313A:20F705:25CC0E:5EEC4B4D
+      - D52E:1BE3:1229095:14CD162:5F8968F1
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
-      - '46'
+      - '48'
       X-Ratelimit-Reset:
-      - '1592546242'
+      - '1602844392'
+      X-Ratelimit-Used:
+      - '12'
       access-control-allow-origin:
       - '*'
       access-control-expose-headers:
       - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
-        X-GitHub-Media-Type, Deprecation, Sunset
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
       cache-control:
       - public, max-age=60, s-maxage=60
       content-encoding:
@@ -141,83 +145,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 19 Jun 2020 05:21:14 GMT
-      etag:
-      - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
-      last-modified:
-      - Wed, 20 May 2020 20:57:03 GMT
-      referrer-policy:
-      - origin-when-cross-origin, strict-origin-when-cross-origin
-      server:
-      - GitHub.com
-      status:
-      - 200 OK
-      strict-transport-security:
-      - max-age=31536000; includeSubdomains; preload
-      vary:
-      - Accept, Accept-Encoding, Accept, X-Requested-With, Accept-Encoding
-      x-content-type-options:
-      - nosniff
-      x-frame-options:
-      - deny
-      x-github-media-type:
-      - github.v3; format=json
-      x-xss-protection:
-      - 1; mode=block
-    status:
-      code: 200
-      message: OK
-- request:
-    body: null
-    headers:
-      Accept:
-      - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      User-Agent:
-      - PyGithub/Python
-    method: GET
-    uri: https://api.github.com/repos/stencila/test/contents/sub/README.md
-  response:
-    body:
-      string: !!binary |
-        H4sIAAAAAAAAA62SX2vCMBTFv0uexXS2WhVkTCZFYYNNplAGkn9tw9KkNOlExe++260PrTCYspdA
-        Djm/3HvuPSFNcoGm6HXx8Pi06Occ9VBBXAaSrShuyzYjoPreiIUiDIXnDfwEjjsyCcgknAgWjEI+
-        5j5LvAEXwLHyCGh/2ENVqcCaOVfYKcakkP1UuqyifWZyXIrCWGyd0Ewqgp2wDjOj4e5AbhdxX4pk
-        lhN4WgI+c7nadcktapdHlaH4x9lFAgdMF5g/FAgmXEMtviIQbvZaGcIvvivJvsmjsqJsWv+OptvE
-        L/W7Q1FPMJGqDr2xg7CONpZG4zTWq0+6nnskekuZv5FxpA7x9tmj/mq4jOZHvl2lyxcze9dghyEY
-        LnUKfkqsGAWg7ZTUHxZNT8gKlfz/ICHL66A3hV+vS+ubG1blfP4CRNeazC8DAAA=
-    headers:
-      Accept-Ranges:
-      - bytes
-      Content-Length:
-      - '332'
-      X-GitHub-Request-Id:
-      - 4B71:313A:20F709:25CC17:5EEC4B4D
-      X-Ratelimit-Limit:
-      - '60'
-      X-Ratelimit-Remaining:
-      - '45'
-      X-Ratelimit-Reset:
-      - '1592546243'
-      access-control-allow-origin:
-      - '*'
-      access-control-expose-headers:
-      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
-        X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval,
-        X-GitHub-Media-Type, Deprecation, Sunset
-      cache-control:
-      - public, max-age=60, s-maxage=60
-      content-encoding:
-      - gzip
-      content-security-policy:
-      - default-src 'none'
-      content-type:
-      - application/json; charset=utf-8
-      date:
-      - Fri, 19 Jun 2020 05:21:14 GMT
+      - Fri, 16 Oct 2020 09:33:37 GMT
       etag:
       - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
       last-modified:

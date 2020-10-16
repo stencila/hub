@@ -58,14 +58,14 @@ def pull_folder(files_resource, folder_id: str, path: str) -> Files:
         os.makedirs(path, exist_ok=True)
 
     files = {}
-    for f in list_folder(files_resource, folder_id):
-        child_path = os.path.join(path, f["name"])
-        if f["mimeType"] == "application/vnd.google-apps.folder":
-            files.update(pull_folder(files_resource, f["id"], child_path))
+    for child in list_folder(files_resource, folder_id):
+        child_path = os.path.join(path, child["name"])
+        if child["mimeType"] == "application/vnd.google-apps.folder":
+            files.update(pull_folder(files_resource, child["id"], child_path))
         else:
-            if f["mimeType"].startswith("application/vnd.google-apps."):
+            if child["mimeType"].startswith("application/vnd.google-apps."):
                 continue
-            files.update(pull_file(files_resource, f["id"], child_path))
+            files.update(pull_file(files_resource, child["id"], child_path))
     return files
 
 

@@ -696,7 +696,10 @@ class GithubSourceSerializer(SourceSerializer):
     """
 
     url = serializers.CharField(
-        required=False, allow_blank=True, help_text="The URL of the repository."
+        required=False,
+        allow_blank=True,
+        help_text="The URL of the repository, folder or file "
+        "e.g. https://github.com/stencila/stencila/blob/master/help/hub/getting-started.md",
     )
 
     repo = serializers.CharField(
@@ -723,7 +726,7 @@ class GithubSourceSerializer(SourceSerializer):
             data["subpath"] = address.subpath
             return data
         elif repo:
-            if not re.match(r"^(?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+)$"):
+            if not re.match(r"^(?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+)$", repo):
                 raise exceptions.ValidationError(
                     dict(repo="Not a valid GitHub repository name.")
                 )

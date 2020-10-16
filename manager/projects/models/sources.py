@@ -508,8 +508,20 @@ class GithubSource(Source):
         return url
 
     def get_secrets(self, user: User) -> Dict:
-        """Get the GitHub authorization token for the user."""
-        token = get_user_social_token(user, Provider.github)
+        """
+        Get GitHub API token.
+
+        Will use the token of the source's creator if available, falling back
+        to request user's token.
+        """
+        token = None
+
+        if self.creator:
+            token = get_user_social_token(self.creator, Provider.github)
+
+        if token is None and user and user.is_authenticated:
+            token = get_user_social_token(user, Provider.github)
+
         return dict(token=token.token if token else None)
 
 
@@ -535,13 +547,16 @@ class GoogleSourceMixin:
         if token is None and user and user.is_authenticated:
             token = get_user_social_token(user, Provider.google)
 
-        app = SocialApp.objects.get(provider=Provider.google.name)
+        try:
+            app = SocialApp.objects.get(provider=Provider.google.name)
+        except SocialApp.DoesNotExist:
+            app = None
 
         return dict(
             access_token=token.token if token else None,
             refresh_token=token.token_secret if token else None,
-            client_id=app.client_id,
-            client_secret=app.secret,
+            client_id=app.client_id if app else None,
+            client_secret=app.secret if app else None,
         )
 
 
