@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 import typing
@@ -6,64 +5,74 @@ from typing import List
 
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-from oauth2client.client import GoogleCredentials
 
-from util.path_operations import (
-    utf8_isdir,
-    utf8_makedirs,
-    utf8_normpath,
-    utf8_path_exists,
-    utf8_path_join,
-    utf8_unlink,
-)
-
-from .helpers import Files, begin_pull, end_pull
+from util.files import Files, file_info
+from util.gapis import gdrive_service
 
 
-def pull_gdrive(source: dict, working_dir: str, path: str, **kwargs) -> Files:
+def pull_gdrive(source: dict, path: str, secrets: dict = {}, **kwargs) -> Files:
     """
-    Pull a google drive folder
+    Pull a Google Drive folder
     """
-    assert source.get("folder_id"), "A folder id is required"
-    assert source.get("token"), "A Google authentication token is required"
+    assert source.get("kind") in (
+        "file",
+        "folder",
+    ), "Kind is required and must be file or folder"
+    assert source.get("google_id"), "A Google id is required"
 
-    credentials = GoogleCredentials(
-        source["token"], None, None, None, None, None, "Stencila Hub Client",
-    )
-    drive_service = build("drive", "v3", credentials=credentials, cache_discovery=False)
-    files_resource = drive_service.files()
+    kind = source["kind"]
+    google_id = source["google_id"]
 
-    temporary_dir = begin_pull(working_dir)
-    local_path = utf8_normpath(utf8_path_join(temporary_dir, path))
-    utf8_makedirs(local_path, exist_ok=True)
-    pull_directory(files_resource, source["folder_id"], local_path)
-    return end_pull(working_dir, path, temporary_dir)
+    files_resource = gdrive_service(secrets).files()
+    if kind == "file":
+        return pull_file(files_resource, google_id, path)
+    else:
+        return pull_folder(files_resource, google_id, path)
 
 
-def pull_directory(files_resource, drive_parent: str, local_parent: str) -> List[str]:
-    pulled = []
+def pull_file(files_resource, file_id: str, path: str) -> Files:
+    """
+    Pull a file from Google Drive.
+    """
+    if os.path.exists(path) and os.path.isdir(path):
+        shutil.rmtree(path)
 
-    for f in list_folder(files_resource, drive_parent):
-        local_path = utf8_path_join(local_parent, f["name"])
+    with open(path, "wb") as file:
+        request = files_resource.get_media(fileId=file_id)
+        downloader = MediaIoBaseDownload(file, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+
+    return {path: file_info(path)}
+
+
+def pull_folder(files_resource, folder_id: str, path: str) -> Files:
+    """
+    Pull a folder from Google Drive.
+    """
+    if os.path.exists(path):
+        if not os.path.isdir(path):
+            os.unlink(path)
+    else:
+        os.makedirs(path, exist_ok=True)
+
+    files = {}
+    for f in list_folder(files_resource, folder_id):
+        child_path = os.path.join(path, f["name"])
         if f["mimeType"] == "application/vnd.google-apps.folder":
-            if utf8_path_exists(local_path) and not utf8_isdir(local_path):
-                utf8_unlink(local_path)
-            utf8_makedirs(local_path, exist_ok=True)
-            pulled += pull_directory(files_resource, f["id"], local_path)
+            files.update(pull_folder(files_resource, f["id"], child_path))
         else:
             if f["mimeType"].startswith("application/vnd.google-apps."):
-                print("{} not downloaded".format(f["name"]))
                 continue
-            if utf8_path_exists(local_path) and utf8_isdir(local_path):
-                shutil.rmtree(local_path)
-            with open(local_path, "wb") as fh:
-                _ = download(files_resource, f["id"], fh)
-        pulled.append(local_path)
-
-    return pulled
+            files.update(pull_file(files_resource, f["id"], child_path))
+    return files
 
 
-def list_folder(files_resource, folder_id):
+def list_folder(files_resource, folder_id: str):
+    """
+    List the files or sub-folders within a Google Drive folder.
+    """
     next_page_token = None
     files: typing.List[dict] = []
     query = "'{}' in parents".format(folder_id)
@@ -77,12 +86,3 @@ def list_folder(files_resource, folder_id):
             break
 
     return files
-
-
-def download(files_resource, file_id, fh):
-    request = files_resource.get_media(fileId=file_id)
-    downloader = MediaIoBaseDownload(fh, request)
-    done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-    return status.progress == 100

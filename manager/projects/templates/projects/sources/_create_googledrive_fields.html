@@ -1,0 +1,31 @@
+{% load i18n static %}
+
+<h2 class="title">
+  <img alt="Google Drive" src="{% static 'img/google-drive-logo.png' %}" role="presentation" width="200px" />
+</h2>
+<p class="subtitle is-6">
+  A Google Drive source lets you pull files from your Google Drive into your project
+  so that you can convert files to other formats (e.g. a Word document), use them in
+  compute sessions (e.g. CSV files) or publish in a snapshot.
+</p>
+
+<hr>
+
+<p class="title is-5">
+  Enter the URL of the Google Drive file or folder:
+</p>
+
+{% include "serializers/_field.html" with field=serializer.url icon="ri-link" %}
+
+<hr>
+
+<p class="title is-5">
+  Or, provide the Google id for the file or folder
+</p>
+
+{% include "serializers/_field.html" with field=serializer.kind %}
+{% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
+
+<hr>
+
+{% include "./_create_common_fields.html" %}

@@ -50,7 +50,8 @@
           Google Doc
         </span>
       </a>
-      <a class="dropdown-item" disabled>
+      <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledrive' %}">
         <span class="icon">
           <i class="ri-drive-line"></i>
         </span>

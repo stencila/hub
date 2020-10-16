@@ -23,6 +23,7 @@ from projects.models.sources import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    GoogleDriveKind,
     GoogleDriveSource,
     PlosSource,
     Source,
@@ -727,14 +728,10 @@ class GithubSourceSerializer(SourceSerializer):
                     dict(repo="Not a valid GitHub repository name.")
                 )
             return data
-        else:
-            raise exceptions.ValidationError(
-                dict(
-                    url="Please provide either a GitHub URL or a GitHub repository name."
-                )
-            )
 
-        return super.validate()
+        raise exceptions.ValidationError(
+            dict(url="Please provide either a GitHub URL or a GitHub repository name.")
+        )
 
 
 class GoogleDocsSourceSerializer(SourceSerializer):
@@ -764,10 +761,73 @@ class GoogleDriveSourceSerializer(SourceSerializer):
     Serializer for Google Drive sources.
     """
 
+    url = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="A Google Drive URL. e.g. https://drive.google.com/drive/folders/1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m",
+    )
+
+    kind = serializers.ChoiceField(
+        choices=GoogleDriveKind.as_choices(),
+        required=False,
+        allow_blank=True,
+        help_text="The kind of Google Drive resource: file or folder.",
+    )
+
+    google_id = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="A Google Drive id e.g. 1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m",
+    )
+
     class Meta:
         model = GoogleDriveSource
         fields = "__all__"
         read_only_fields = SourceSerializer.Meta.read_only_fields
+
+    def validate_url(self, value):
+        """
+        Validate the Google Drive URL.
+        """
+        if value:
+            if GoogleDriveSource.parse_address(value):
+                return value
+            else:
+                raise exceptions.ValidationError("Invalid Google Drive URL.")
+
+    def validate_google_id(self, value):
+        """
+        Validate the Google Drive id.
+        """
+        if value:
+            if re.match(r"^([a-z\d])([a-z\d_\-]{10,})$", value, re.I):
+                return value
+            else:
+                raise exceptions.ValidationError("Invalid Google Drive id.")
+
+    def validate(self, data):
+        """
+        Ensure that either URL or kind and id are provided.
+        """
+        url = data.get("url")
+        kind = data.get("kind")
+        google_id = data.get("google_id")
+
+        if url:
+            address = GoogleDriveSource.parse_address(url, strict=True)
+            del data["url"]
+            data["kind"] = address.kind
+            data["google_id"] = address.google_id
+            return data
+
+        if google_id:
+            if not kind:
+                raise exceptions.ValidationError(dict(kind="This field is required."))
+            del data["url"]
+            return data
+
+        message = "Please provide either a URL or Google Drive id."
+        raise exceptions.ValidationError(dict(url=message, google_id=message))
 
 
 class PlosSourceSerializer(SourceSerializer):

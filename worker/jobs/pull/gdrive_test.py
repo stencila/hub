@@ -20,8 +20,12 @@ GOOGLE_TOKEN = (
 
 @pytest.mark.vcr
 def test_folder(tempdir):
-    source = dict(folder_id="14SEW9vSYDfgCvuyTjwQI6-x-RF3B_s4z", token=GOOGLE_TOKEN)
-    pull_gdrive(source, tempdir.path, "")
+    pull_gdrive(
+        source=dict(kind="folder", google_id="14SEW9vSYDfgCvuyTjwQI6-x-RF3B_s4z"),
+        path=tempdir.path,
+        secrets=dict(access_token=GOOGLE_TOKEN),
+    )
+
     for expected in (
         "test-1.txt",
         "sub/test-2.txt",

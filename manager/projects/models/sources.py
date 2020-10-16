@@ -16,6 +16,7 @@ from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job, JobMethod
+from manager.helpers import EnumChoice
 from manager.storage import uploads_storage
 from projects.models.projects import Project
 from users.models import User
@@ -152,18 +153,6 @@ class Source(PolymorphicModel):
         necessary.
         """
         return self.type_class[:-6]
-
-    @property
-    def provider_name(self) -> str:
-        """
-        Get the name of the provider of a source instance.
-
-        Intended mainly for user interfaces (e.g. to send a message to a client
-        that they need to authenticate with a provider in order to
-        use a particular source type). Will usually be the same as the `type_name`,
-        but derived classes can override if not.
-        """
-        return self.type_name
 
     @staticmethod
     def class_from_type_name(type_name: str) -> Type["Source"]:
@@ -564,11 +553,6 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
         help_text="The id of the document e.g. 1iNeKTanIcW_92Hmc8qxMkrW2jPrvwjHuANju2hkaYkA",
     )
 
-    @property
-    def provider_name(self) -> str:
-        """Get the provider name for a Google Doc."""
-        return "Google"
-
     def make_address(self) -> str:
         """Make the address string of a Google Doc source."""
         return "gdoc://{}".format(self.doc_id)
@@ -612,20 +596,70 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
         return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
 
 
+class GoogleDriveKind(EnumChoice):
+    """Enumeration of the kinds of Google Drive resources."""
+
+    file = "File"
+    folder = "Folder"
+
+
 class GoogleDriveSource(GoogleSourceMixin, Source):
-    """A reference to a Google Drive folder."""
+    """A reference to a Google Drive file or folder."""
 
-    folder_id = models.TextField(null=False, help_text="Google's ID of the folder.")
+    kind = models.CharField(
+        max_length=16,
+        choices=GoogleDriveKind.as_choices(),
+        help_text="The kind of Google Drive resource: file or folder.",
+    )
 
-    @property
-    def provider_name(self) -> str:
-        """Get the provider name for a Google Drive source."""
-        return "Google"
+    google_id = models.TextField(null=False, help_text="The id of the file or folder.")
+
+    def make_address(self) -> str:
+        """Make the address string of a Google Drive source."""
+        return "gdrive://{kind}/{id}".format(kind=self.kind, id=self.google_id)
+
+    @classmethod
+    def parse_address(
+        cls, address: str, naked: bool = True, strict: bool = False
+    ) -> Optional[SourceAddress]:
+        """Parse a string into a Google Drive address."""
+        google_id = None
+
+        match = re.search(r"^gdrive://(file|folder)/(.+)$", address, re.I)
+        if match:
+            kind = match.group(1)
+            google_id = match.group(2)
+
+        match = re.search(
+            r"^(?:https://)?drive.google.com/file/d/([^/]+)/?.*", address, re.I
+        )
+        if match:
+            kind = "file"
+            google_id = match.group(1)
+
+        match = re.search(
+            r"^(?:https://)?drive.google.com/drive(?:.*?)/folders/([^/]+)/?.*",
+            address,
+            re.I,
+        )
+        if match:
+            kind = "folder"
+            google_id = match.group(1)
+
+        if google_id:
+            return SourceAddress("GoogleDrive", kind=kind, google_id=google_id)
+
+        if strict:
+            raise ValidationError("Invalid Google Drive address: {}".format(address))
+
+        return None
 
     def get_url(self, path: Optional[str] = None) -> str:
-        """Make the URL of a Google Drive folder."""
-        return "https://drive.google.com/folders/{folder_id}".format(
-            folder_id=self.folder_id
+        """Make the URL of a Google Drive file or folder."""
+        return (
+            "https://drive.google.com/"
+            + ("file/d/" if self.kind == "file" else "drive/folders/")
+            + self.google_id
         )
 
 

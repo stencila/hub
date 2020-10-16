@@ -9,6 +9,7 @@ from projects.models.sources import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    GoogleDriveSource,
     Source,
     SourceAddress,
     UrlSource,
@@ -197,6 +198,56 @@ def test_googledocssource_parse_address():
     assert GoogleDocsSource.parse_address("foo") is None
     with pytest.raises(ValidationError, match="Invalid Google Doc identifier"):
         GoogleDocsSource.parse_address("foo", strict=True)
+
+
+def test_googledrivesource_make_address():
+    assert (
+        GoogleDriveSource(kind="file", google_id="an-id").make_address()
+        == "gdrive://file/an-id"
+    )
+    assert (
+        GoogleDriveSource(kind="folder", google_id="an-id").make_address()
+        == "gdrive://folder/an-id"
+    )
+
+
+def test_googledrivesource_url():
+    assert (
+        GoogleDriveSource(kind="file", google_id="an-id").get_url()
+        == "https://drive.google.com/file/d/an-id"
+    )
+    assert (
+        GoogleDriveSource(kind="folder", google_id="an-id").get_url()
+        == "https://drive.google.com/drive/folders/an-id"
+    )
+
+
+def test_googledrivesource_parse_address():
+    for url in [
+        "gdrive://file/1AkmcbU9uuEL9YBFsOXEP-LzORXsCGOIl",
+        "drive.google.com/file/d/1AkmcbU9uuEL9YBFsOXEP-LzORXsCGOIl",
+        "https://drive.google.com/file/d/1AkmcbU9uuEL9YBFsOXEP-LzORXsCGOIl",
+        "https://drive.google.com/file/d/1AkmcbU9uuEL9YBFsOXEP-LzORXsCGOIl/view?usp=sharing",
+    ]:
+        sa = GoogleDriveSource.parse_address(url)
+        assert sa.type == GoogleDriveSource
+        assert sa.kind == "file"
+        assert sa.google_id == "1AkmcbU9uuEL9YBFsOXEP-LzORXsCGOIl"
+
+    for url in [
+        "gdrive://folder/1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m",
+        "https://drive.google.com/drive/folders/1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m",
+        "https://drive.google.com/drive/u/1/folders/1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m",
+    ]:
+        sa = GoogleDriveSource.parse_address(url)
+        assert sa.type == GoogleDriveSource
+        assert sa.kind == "folder"
+        assert sa.google_id == "1OcB7VTWb3lc0u8FJX2LXc5GraKpn-r_m"
+
+    # Use of strict
+    assert GoogleDriveSource.parse_address("foo") is None
+    with pytest.raises(ValidationError, match="Invalid Google Drive address"):
+        GoogleDriveSource.parse_address("foo", strict=True)
 
 
 def test_urlsource_make_address():
