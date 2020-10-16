@@ -33,7 +33,7 @@
         </span>
       </a>
       <a class="dropdown-item"
-         {# href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}" #} disabled>
+         href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}">
         <span class="icon">
           <i class="ri-github-line"></i>
         </span>
@@ -59,7 +59,6 @@
           Google Drive
         </span>
       </a>
-
       <div class="dropdown dropdown-item px-0 py-0" data-placement="right-start">
         <a class="dropdown-trigger dropdown-item px-0 py-0">
           <div class="level is-mobile dropdown-item">
@@ -87,25 +86,6 @@
           </div>
         </div>
       </div>
-      {% comment %}
-      <a href="#" class="dropdown-item">
-        <span class="icon">
-          <i class="ri-folder-add-line"></i>
-        </span>
-        <span>
-          {% trans "Folder" %}
-        </span>
-      </a>
-      <hr class="dropdown-divider">
-      <a href="#" class="dropdown-item">
-        <span class="icon">
-          <i class="ri-upload-cloud-2-line"></i>
-        </span>
-        <span>
-          {% trans "File upload" %}
-        </span>
-      </a>
-      {% endcomment %}
     </div>
   </div>
 </div>
