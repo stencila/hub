@@ -1,3 +1,20 @@
+# [4.4.0](https://github.com/stencila/hub/compare/v4.3.0...v4.4.0) (2020-10-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.99.13 ([f9cd393](https://github.com/stencila/hub/commit/f9cd393dcc5295073828bd53bdcb355cb081dc0f))
+* **deps:** update dependency django-allauth to v0.43.0 ([ca322a6](https://github.com/stencila/hub/commit/ca322a69dcfb74b78dd82830a09a2b8b1909faa6))
+* **deps:** update dependency sentry-sdk to v0.19.0 ([c02a5a9](https://github.com/stencila/hub/commit/c02a5a93f9abc0ad41faa870ed7ed3e2ed89ff5c))
+* **deps:** update dependency setuptools to v50.3.1 ([03936ac](https://github.com/stencila/hub/commit/03936ace57c26c053891727a4ebbbdf1f423bea5))
+* **GoogleDoc source:** Add logo to form ([efbf7c3](https://github.com/stencila/hub/commit/efbf7c3298816738eef901a34d7e985a0a8134ae))
+* **Project sources:** Check that a source is not duplicated. ([13805bf](https://github.com/stencila/hub/commit/13805bf48b24bf1bdea5c389ff623be96ff89cc1)), closes [#681](https://github.com/stencila/hub/issues/681)
+
+
+### Features
+
+* **GoogleDrive source:** Enable pullling files and folders from Google Drive ([3746659](https://github.com/stencila/hub/commit/3746659aa8ce9b4edd78bc36bdadb8232ef7b1b7))
+
 # [4.3.0](https://github.com/stencila/hub/compare/v4.2.2...v4.3.0) (2020-10-15)
 
 
