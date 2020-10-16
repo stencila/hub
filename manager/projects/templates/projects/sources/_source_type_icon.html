@@ -1,0 +1,31 @@
+<span class="has-tooltip-top has-tooltip-text-centered has-tooltip-bottom image-tooltip"
+      data-tooltip="{{ tooltip|default:type }}">
+  {% spaceless %}
+  {% if type == 'Github' %}
+  <i class="ri-github-line"></i>
+  {% elif type in 'GoogleDocs' %}
+  <i class="ri-google-line"></i>
+  {% elif type in 'GoogleDrive' %}
+  <i class="ri-drive-line"></i>
+  {% elif type == 'Upload' %}
+  <i class="ri-upload-cloud-line"></i>
+  {% else %}
+  <i class="ri-links-line"></i>
+  {% endif %}
+  {% endspaceless %}
+</span>
+<span class="is-sr-only">
+  {% if type == 'Github' %}
+  GitHub
+  {% elif type == 'GoogleDocs' %}
+  Google Docs
+  {% elif type == 'GoogleDrive' %}
+  Google Drive
+  {% elif type == 'Upload' %}
+  Uploaded file
+  {% elif type == 'Url' %}
+  Remote file
+  {% else %}
+  {{type}} file
+  {% endif %}
+</span>
