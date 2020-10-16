@@ -89,8 +89,8 @@ class Pin(Job):
         """
         Get credentials for a container registry.
 
-        If the credential environment variable exists then split it
-        into username and password. Otherwise, warn and return empty tuple.
+        Credentials can be provided as a contrusctor arguments
+        or in environment variables.
         """
 
         # Map host into an environment variable name
@@ -99,7 +99,7 @@ class Pin(Job):
         )
 
         # Get credentials
-        credentials = self.credentials.get(name) or os.environ.get(name)
+        credentials = self.credentials.get(name) or os.getenv(name)
         if not credentials:
             raise RuntimeError(
                 "No environment variable '{0}' found for authentication credentials for '{1}'".format(
