@@ -269,8 +269,11 @@ class Prod(Configuration):
     # django-cors-headers
     # See https://github.com/adamchainz/django-cors-headers#configuration
     # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
-    CORS_ALLOWED_ORIGIN_REGEXES: List[str] = []
-    # This allows credentials to be send in cross-origin requests
+    CORS_ALLOWED_ORIGIN_REGEXES: List[str] = [
+        # Allow cross-origin requests from Stencila's GoogleDocs Add-on
+        r"^https://n-zoqnmwqnnhslxffeq3hh6ne46wicurqczwe4csa-0lu-script.googleusercontent.com?$"
+    ]
+    # This allows credentials to be sent in cross-origin requests
     CORS_ALLOW_CREDENTIALS = True
 
     # django-allauth settings
