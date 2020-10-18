@@ -8,7 +8,7 @@ See https://github.com/jazzband/django-configurations.
 
 import datetime
 import os
-from typing import List
+from typing import Dict, List
 
 import djangocodemirror.settings as dcm_settings
 from configurations import Configuration, values
@@ -307,7 +307,7 @@ class Prod(Configuration):
     # bootstapping when including the `manager.assistant` module. However, we do not use
     # this setting and instead set these formats on the `ImageFields` themselves
 
-    IMAGEFIELD_FORMATS = {}
+    IMAGEFIELD_FORMATS: Dict = {}
 
     # django-invitations settings
     # See https://github.com/bee-keeper/django-invitations#additional-configuration
