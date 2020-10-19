@@ -1,3 +1,10 @@
+## [4.5.1](https://github.com/stencila/hub/compare/v4.5.0...v4.5.1) (2020-10-19)
+
+
+### Bug Fixes
+
+* **Jobs:** Allow access to jobs in private projects using key ([6b7f5dd](https://github.com/stencila/hub/commit/6b7f5dd12b73966680bd7547cc4228af713a91b8))
+
 # [4.5.0](https://github.com/stencila/hub/compare/v4.4.0...v4.5.0) (2020-10-16)
 
 
