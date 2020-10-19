@@ -94,11 +94,13 @@ def get_project(
         filter.update({"account__name": "temp"})
 
     try:
-        return get_projects(user).get(
-            **filter, **(dict(role__in=[role.name for role in roles]) if roles else {}),
-        )
+        project = get_projects(user).get(**filter)
     except Project.DoesNotExist:
         raise exceptions.NotFound
+    else:
+        if roles and project.role not in [role.name for role in roles]:
+            raise exceptions.NotFound
+        return project
 
 
 class ProjectsCreateAnonThrottle(throttling.AnonRateThrottle):

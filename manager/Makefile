@@ -68,6 +68,10 @@ migrate-devdb: venv
 show-serializers:
 	$(DJ) runscript show_serializers
 
+# Show all URLs
+show-urls:
+	$(DJ) show_urls
+
 # Run development server
 # Do not use multithreading as this can issues with SQLite
 # if there is more than one thread attempting to write to

@@ -434,15 +434,15 @@ class ProjectsJobsViewSet(
     object_name = "job"
     queryset_name = "jobs"
 
-    # Actions which require the job key for users that
-    # do not have a role on the project
-    actions_key_required = ["retrieve", "connect", "cancel"]
+    # Actions which allow use of a job key for users that
+    # do not have a sufficient role on the project
+    actions_key_allowed = ["retrieve", "connect", "cancel"]
 
     def get_permissions(self):
         """
         Get the permissions that the current action requires.
         """
-        if self.action in self.actions_key_required:
+        if self.action in self.actions_key_allowed:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
@@ -460,14 +460,12 @@ class ProjectsJobsViewSet(
 
     def get_project(self) -> Project:
         """
-        Get the project for the current action and check user has roles.
+        Get the project, checking that the user necessary role.
         """
         return get_project(
             self.kwargs,
             self.request.user,
-            []
-            if self.action in self.actions_key_required
-            else [
+            [
                 ProjectRole.AUTHOR,
                 ProjectRole.EDITOR,
                 ProjectRole.MANAGER,
@@ -496,27 +494,33 @@ class ProjectsJobsViewSet(
         """
         Get the object for the current action.
 
-        If the user `role` is `None` because they are not a
-        member of the project (e.g. an anonymous user) then this
-        function checks that they provided the job `key`.
+        If the user does not have sufficient role on the project
+        to access the job, then check for a key for those actions
+        where a key is allowed.
         """
-        project = project or self.get_project()
-        queryset = self.get_queryset(project)
+        if not project:
+            try:
+                project = self.get_project()
+            except exceptions.NotFound:
+                project = None
 
-        try:
-            job = queryset.get(id=self.kwargs["job"])
-        except Job.DoesNotExist:
-            raise exceptions.NotFound
-
-        if project.role is None:
-            if self.action in self.actions_key_required:
-                key = self.request.GET.get("key")
-                if key != job.key:
-                    raise exceptions.PermissionDenied("Missing or invalid job key")
+        job_id = self.kwargs["job"]
+        if not project:
+            if self.action in self.actions_key_allowed:
+                project_id = self.kwargs["project"]
+                job_key = self.request.GET.get("key")
+                try:
+                    return Job.objects.get(project=project_id, id=job_id, key=job_key)
+                except Job.DoesNotExist:
+                    raise exceptions.NotFound
             else:
-                raise exceptions.PermissionDenied
-
-        return job
+                raise exceptions.NotFound
+        else:
+            queryset = self.get_queryset(project)
+            try:
+                return queryset.get(id=job_id)
+            except Job.DoesNotExist:
+                raise exceptions.NotFound
 
     def get_serializer_class(self):
         """
