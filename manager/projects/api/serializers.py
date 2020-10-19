@@ -590,7 +590,7 @@ class SourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Source
-        exclude = ["polymorphic_ctype", "jobs", "watch_data"]
+        exclude = ["polymorphic_ctype", "jobs", "subscription"]
         read_only_fields = [
             "project",
             "address",
