@@ -303,11 +303,13 @@ class Prod(Configuration):
     # django-imagefield settings
     # See https://django-imagefield.readthedocs.io/en/latest/
     #
-    # It seems necessary to define `IMAGEFIELD_FORMATS` here to avoid errors on initial
+    # It seems necessary to define these here to avoid errors on initial
     # bootstapping when including the `manager.assistant` module. However, we do not use
-    # this setting and instead set these formats on the `ImageFields` themselves
+    # this `IMAGEFIELD_FORMATS` settins and instead set these formats on the `ImageFields`
+    # themselves
 
     IMAGEFIELD_FORMATS: Dict = {}
+    IMAGEFIELD_AUTOGENERATE = True
 
     # django-invitations settings
     # See https://github.com/bee-keeper/django-invitations#additional-configuration
