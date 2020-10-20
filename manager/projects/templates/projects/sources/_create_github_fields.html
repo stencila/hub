@@ -9,20 +9,22 @@
 
 <hr>
 
-<p class="title is-6">
-  Enter the URL of the GitHub repository, optionally including a subpath:
-</p>
-
-{% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True %}
+<fieldset>
+  <p class="title is-6">
+    Enter the URL of the GitHub repository, optionally including a subpath:
+  </p>
+  {% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True %}
+</fieldset>
 
 <hr>
 
-<p class="title is-6">
-  Or, enter the repository name and subpath directly.
-</p>
-
-{% include "serializers/_field.html" with field=serializer.repo icon="ri-at-line" autofocus=True %}
-{% include "serializers/_field.html" with field=serializer.subpath icon="ri-at-line" %}
+<fieldset>
+  <p class="title is-6">
+    Or, enter the repository name and subpath directly.
+  </p>
+  {% include "serializers/_field.html" with field=serializer.repo icon="ri-at-line" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.subpath icon="ri-at-line" %}
+</fieldset>
 
 <hr>
 

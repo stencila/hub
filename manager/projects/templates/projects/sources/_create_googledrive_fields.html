@@ -11,20 +11,22 @@
 
 <hr>
 
-<p class="title is-5">
-  Enter the URL of the Google Drive file or folder:
-</p>
-
-{% include "serializers/_field.html" with field=serializer.url icon="ri-link" %}
+<fieldset>
+  <p class="title is-5">
+    Enter the URL of the Google Drive file or folder:
+  </p>
+  {% include "serializers/_field.html" with field=serializer.url icon="ri-link" %}
+</fieldset>
 
 <hr>
 
-<p class="title is-5">
-  Or, provide the Google id for the file or folder
-</p>
-
-{% include "serializers/_field.html" with field=serializer.kind %}
-{% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
+<fieldset>
+  <p class="title is-5">
+    Or, provide the Google id for the file or folder
+  </p>
+  {% include "serializers/_field.html" with field=serializer.kind %}
+  {% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
+</fieldset>
 
 <hr>
 

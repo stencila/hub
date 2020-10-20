@@ -187,21 +187,53 @@ ELEMS = [
         ],
     ],
     [
-        r"^an-org/first-project/sources/upload$",
+        r"^an-org/first-project/sources/new/elife$",
         [
-            elem("project-sources-new-upload", "form"),
+            elem("project-sources-new-elife", "form"),
+            # These are common elements to all new source pages
+            # so we just create snaps for them once here.
+            elem("project-sources-new-path-field", ".field:last-of-type", padding=15),
+            elem("project-sources-new-create-button", "button.is-primary", padding=15),
         ]
     ],
     [
         r"^an-org/first-project/sources/new/github$",
         [
             elem("project-sources-new-github", "form"),
+            elem("project-sources-new-github-url", "form fieldset:first-of-type"),
+            elem("project-sources-new-github-repo", "form fieldset:last-of-type"),
         ]
     ],
     [
-        r"^an-org/first-project/sources/new/elife$",
+        r"^an-org/first-project/sources/new/googledrive$",
         [
-            elem("project-sources-new-elife", "form"),
+            elem("project-sources-new-googledrive", "form"),
+            elem("project-sources-new-googledrive-url", "form fieldset:first-of-type"),
+            elem("project-sources-new-googledrive-repo", "form fieldset:last-of-type"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/googledoc$",
+        [
+            elem("project-sources-new-googledoc", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/plos$",
+        [
+            elem("project-sources-new-plos", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/url$",
+        [
+            elem("project-sources-new-url", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/upload$",
+        [
+            elem("project-sources-new-upload", "form", padding=75),
         ]
     ],
     [
