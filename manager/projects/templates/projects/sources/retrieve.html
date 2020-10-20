@@ -44,5 +44,31 @@
   {% endif %}
 </div>
 
+<form class="form">
+  {# If the source is active (e.g. being pulled) then these fields should not be changed #}
+  <fieldset {% if source_active %}disabled{% endif %}>
+    {% flag 'ui-source-watch' %}
+    {# Preliminary implemenentation of a watch / unwatch toggle for testing #}
+    {% if not source.subscription %}
+    <button class="button is-small-mobile is-expanded-mobile"
+            hx-post="{% url 'api-projects-sources-watch' project.id source.id %}" hx-swap="none">
+      <span class="icon">
+        <i class="ri-eye-2-line"></i>
+      </span>
+      <span>{% trans "Watch" %}</span>
+    </button>
+    {% else %}
+    <button class="button is-small-mobile is-expanded-mobile"
+            hx-post="{% url 'api-projects-sources-unwatch' project.id source.id %}" hx-swap="none">
+      <span class="icon">
+        <i class="ri-eye-2-fill"></i>
+      </span>
+      <span>{% trans "Unwatch" %}</span>
+    </button>
+    {% endif %}
+  </fieldset>
+  {% endflag %}
+</form>
+
 {% include 'projects/sources/_retrieve.html' %}
 {% endblock %}

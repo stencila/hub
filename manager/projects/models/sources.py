@@ -316,6 +316,22 @@ class Source(PolymorphicModel):
         """
         raise NotImplementedError
 
+    def get_event_url(self):
+        """
+        Create a URL for source events to be sent to.
+
+        This is the Webhook URL used by Github, Google and other source
+        providers to send event data to when a source has been `watch()`ed.
+        """
+        return (
+            "https://"
+            + settings.PRIMARY_DOMAIN
+            + reverse(
+                "api-projects-sources-event",
+                kwargs=dict(project=self.project.id, source=self.id),
+            )
+        )
+
     def pull(self, user: Optional[User] = None) -> Job:
         """
         Pull the source to the filesystem.
@@ -581,10 +597,7 @@ class GithubSource(Source):
                 " have your GitHub account connected to your Stencila Hub account."
             )
 
-        url = settings.PRIMARY_DOMAIN + reverse(
-            "api-projects-sources-event",
-            kwargs=dict(project=self.project, source=self.id),
-        )
+        url = self.get_event_url()
         try:
             hook = (
                 Github(token.token)
@@ -705,10 +718,7 @@ class GoogleSourceMixin:
             cache_discovery=False,
         )
 
-        url = settings.PRIMARY_DOMAIN + reverse(
-            "api-projects-sources-event",
-            kwargs=dict(project=self.project, source=self.id),
-        )
+        url = self.get_event_url()  # type: ignore
 
         file_id = self.google_id if isinstance(self, GoogleDriveSource) else self.doc_id
 
