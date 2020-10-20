@@ -23,7 +23,9 @@ import configurations  # noqa
 
 configurations.setup()
 
-app = Celery("manager", broker=os.environ["BROKER_URL"])
+from django.conf import settings  # noqa
+
+app = Celery("manager", broker=settings.BROKER_URL, backend=settings.CACHE_URL)
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
