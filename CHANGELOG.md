@@ -1,3 +1,10 @@
+## [4.6.2](https://github.com/stencila/hub/compare/v4.6.1...v4.6.2) (2020-10-20)
+
+
+### Bug Fixes
+
+* **Sources:** Do not require authentication for event endpoint ([e6d4936](https://github.com/stencila/hub/commit/e6d493683902a9b9c1eb770b8c6863683bdd28f1))
+
 ## [4.6.1](https://github.com/stencila/hub/compare/v4.6.0...v4.6.1) (2020-10-20)
 
 
