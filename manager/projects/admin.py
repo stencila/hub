@@ -13,6 +13,8 @@ from projects.models.sources import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    GoogleDriveSource,
+    PlosSource,
     Source,
     UploadSource,
     UrlSource,
@@ -85,6 +87,10 @@ class SourceChildAdmin(PolymorphicChildModelAdmin):
     """Base admin class for all child models of Source."""
 
 
+# If an admin class is not declared for each source type a 403
+# error is thrown when trying to edit that source in the admin interface.
+
+
 @admin.register(ElifeSource)
 class ElifeSourceAdmin(SourceChildAdmin):
     """Admin interface for eLife sources."""
@@ -106,6 +112,22 @@ class GoogleDocsSourceAdmin(SourceChildAdmin):
     """Admin interface for GoogleDocs sources."""
 
     base_model = GoogleDocsSource
+    show_in_index = True
+
+
+@admin.register(GoogleDriveSource)
+class GoogleDriveSourceAdmin(SourceChildAdmin):
+    """Admin interface for GoogleDrive sources."""
+
+    base_model = GoogleDriveSource
+    show_in_index = True
+
+
+@admin.register(PlosSource)
+class PlosSourceAdmin(SourceChildAdmin):
+    """Admin interface for PLOS sources."""
+
+    base_model = PlosSource
     show_in_index = True
 
 
