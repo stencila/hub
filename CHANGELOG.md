@@ -1,3 +1,17 @@
+# [4.6.0](https://github.com/stencila/hub/compare/v4.5.1...v4.6.0) (2020-10-20)
+
+
+### Bug Fixes
+
+* **Project events:** Fix migration and serializers, add admin ([baae341](https://github.com/stencila/hub/commit/baae3418e0c204f5dfcf2a8b955600f791b09998))
+* **Project sources:** Implement GoogleSource watch and unwatch ([22a78f5](https://github.com/stencila/hub/commit/22a78f5a567e3fdbc9cae28e67e0991597a7263f))
+
+
+### Features
+
+* **Assistant:** Add the assistant service ([fee3ac2](https://github.com/stencila/hub/commit/fee3ac217a6b986a1fcfc021208c609209b56920))
+* **Project sources:** Add watch subscriptions and event handling ([4c5e485](https://github.com/stencila/hub/commit/4c5e485c772872d96a076b3c01e6d2d30736f762))
+
 ## [4.5.1](https://github.com/stencila/hub/compare/v4.5.0...v4.5.1) (2020-10-19)
 
 
