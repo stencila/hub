@@ -43,8 +43,10 @@ class ProjectsSourcesViewSet(
 
         Actions `list` and `retreive` do not require authentication
         for public projects (i.e. anon users can view sources).
+        The `event` action also does not require authentication so
+        that source providers such as Google can post event notifications.
         """
-        if self.action in ["list", "retrieve", "open"]:
+        if self.action in ["list", "retrieve", "open", "event"]:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
