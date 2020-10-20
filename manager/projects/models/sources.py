@@ -4,6 +4,7 @@ import re
 from enum import Enum, unique
 from typing import Dict, List, Optional, Type, Union
 
+import shortuuid
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -15,6 +16,8 @@ from django.db import models, transaction
 from django.shortcuts import reverse
 from django.utils import timezone
 from github import Github, GithubException
+from googleapiclient.discovery import build as google_client
+from oauth2client.client import GoogleCredentials
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
@@ -578,11 +581,10 @@ class GithubSource(Source):
                 " have your GitHub account connected to your Stencila Hub account."
             )
 
-        path = reverse(
+        url = settings.PRIMARY_DOMAIN + reverse(
             "api-projects-sources-event",
             kwargs=dict(project=self.project, source=self.id),
         )
-        url = f"https://{settings.PRIMARY_DOMAIN}{path}"
         try:
             hook = (
                 Github(token.token)
@@ -594,8 +596,6 @@ class GithubSource(Source):
                     events=["push"],
                 )
             )
-            self.subscription = hook.raw_data
-            self.save()
         except GithubException as exc:
             if exc.status == 403:
                 raise PermissionError(
@@ -603,6 +603,9 @@ class GithubSource(Source):
                 )
             else:
                 raise exc
+        else:
+            self.subscription = hook.raw_data
+            self.save()
 
     def unwatch(self, user: User):
         """
@@ -632,9 +635,14 @@ class GoogleSourceMixin:
     Mixin class for all Google related sources.
     """
 
+    # For type checking we need to declare attributes
+    # that concrete derived classes have
     creator: User
-
     subscription: Optional[dict]
+    project: Project
+    id: int
+    doc_id: int
+    google_id: int
 
     def get_secrets(self, user: User) -> Dict:
         """
@@ -663,6 +671,20 @@ class GoogleSourceMixin:
             client_secret=app.secret if app else None,
         )
 
+    def create_credentials(self, secrets: dict) -> GoogleCredentials:
+        """
+        Create a Google credentials object to use with Google APIs.
+        """
+        return GoogleCredentials(
+            access_token=secrets.get("access_token"),
+            client_id=secrets.get("client_id"),
+            client_secret=secrets.get("client_secret"),
+            refresh_token=secrets.get("refresh_token"),
+            token_expiry=None,
+            token_uri="https://accounts.google.com/o/oauth2/token",
+            user_agent="Stencila Hub Client",
+        )
+
     def watch(self, user: User):
         """
         Watch this source by creating a notification channel.
@@ -676,17 +698,34 @@ class GoogleSourceMixin:
                 "to your Stencila Hub account."
             )
 
+        client = google_client(
+            "drive",
+            "v3",
+            credentials=self.create_credentials(secrets),
+            cache_discovery=False,
+        )
+
+        url = settings.PRIMARY_DOMAIN + reverse(
+            "api-projects-sources-event",
+            kwargs=dict(project=self.project, source=self.id),
+        )
+
+        file_id = self.google_id if isinstance(self, GoogleDriveSource) else self.doc_id
+
         try:
-            # TODO
-            self.subscription = dict()
-            self.save()  # type: ignore
-        except GithubException as exc:
-            if exc.status == 403:
-                raise PermissionError(
-                    f"Permission denied by GitHub: {exc.data.get('message')}"
+            subscription = (
+                client.files()
+                .watch(
+                    fileId=file_id,
+                    body=dict(id=shortuuid.uuid(), type="web_hook", address=url),
                 )
-            else:
-                raise exc
+                .execute()
+            )
+        except Exception as exc:
+            raise PermissionError(f"Permission denied by Google: {str(exc)}")
+        else:
+            self.subscription = subscription
+            self.save()  # type: ignore
 
     def unwatch(self, user: User):
         """
@@ -701,10 +740,20 @@ class GoogleSourceMixin:
                 "to your Stencila Hub account."
             )
 
+        client = google_client(
+            "drive",
+            "v3",
+            credentials=self.create_credentials(secrets),
+            cache_discovery=False,
+        )
+
         if self.subscription:
-            # channel_id = self.subscription.get("id")
-            # resource_id = self.subscription.get("resourceId")
-            # TODO
+            client.channels().stop(
+                body=dict(
+                    id=self.subscription.get("id"),
+                    resource_id=self.subscription.get("resourceId"),
+                )
+            )
             self.subscription = None
             self.save()  # type: ignore
 

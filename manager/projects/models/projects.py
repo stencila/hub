@@ -265,7 +265,7 @@ class Project(models.Model):
 
         Records the event and evaluates each project trigger.
         """
-        event = ProjectEvent.objects.create(project=self, data=data, source=source)
+        ProjectEvent.objects.create(project=self, data=data, source=source)
 
         # TODO: Evaluate each project trigger
         # #for trigger in self.triggers.all():

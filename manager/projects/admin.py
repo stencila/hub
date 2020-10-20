@@ -46,7 +46,7 @@ class ProjectAgentAdmin(admin.ModelAdmin):
 class ProjectEventAdmin(admin.ModelAdmin):
     """
     Admin interface for projects events.
-    
+
     Because there are many events the list display is kept
     simple and uses related ids rather than selecting replated objects.
     """
