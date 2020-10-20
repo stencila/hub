@@ -1,3 +1,11 @@
+## [4.6.1](https://github.com/stencila/hub/compare/v4.6.0...v4.6.1) (2020-10-20)
+
+
+### Bug Fixes
+
+* **Sources:** Add waffle_tags ([d0092e6](https://github.com/stencila/hub/commit/d0092e61c33778ae8860acf48cccae15d7c0a689))
+* **Sources:** Fix webhook URL and add toggle for testing ([3913b7d](https://github.com/stencila/hub/commit/3913b7d8940ffe0143ef1ea7364fee1bcbca382b))
+
 # [4.6.0](https://github.com/stencila/hub/compare/v4.5.1...v4.6.0) (2020-10-20)
 
 
