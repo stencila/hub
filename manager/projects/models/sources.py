@@ -4,18 +4,25 @@ import re
 from enum import Enum, unique
 from typing import Dict, List, Optional, Type, Union
 
+import shortuuid
 from allauth.socialaccount.models import SocialApp
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.core.files.uploadedfile import UploadedFile
 from django.core.validators import URLValidator
 from django.db import models, transaction
+from django.shortcuts import reverse
 from django.utils import timezone
+from github import Github, GithubException
+from googleapiclient.discovery import build as google_client
+from oauth2client.client import GoogleCredentials
 from polymorphic.managers import PolymorphicManager
 from polymorphic.models import PolymorphicModel
 
 from jobs.models import Job, JobMethod
+from manager.api import exceptions
 from manager.helpers import EnumChoice
 from manager.storage import uploads_storage
 from projects.models.projects import Project
@@ -97,10 +104,15 @@ class Source(PolymorphicModel):
         auto_now=True, help_text="The time the source was last changed."
     )
 
+    subscription = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Information from the source provider (e.g. Github, Google) when a watch subscription was created.",
+    )
+
     jobs = models.ManyToManyField(
         Job,
-        help_text="Jobs associated with this source. "
-        "e.g. pull, push or convert jobs",
+        help_text="Jobs associated with this source. e.g. pull, push or convert jobs.",
     )
 
     # The default object manager which will fetch data from multiple
@@ -363,6 +375,31 @@ class Source(PolymorphicModel):
             "Push is not implemented for class {}".format(self.__class__.__name__)
         )
 
+    def watch(self, user: User):
+        """
+        Create a subscription to listen to events for the source.
+        """
+        raise NotImplementedError(
+            "Watch is not implemented for class {}".format(self.__class__.__name__)
+        )
+
+    def unwatch(self, user: User):
+        """
+        Remove a subscription to listen to events for the source.
+        """
+        raise NotImplementedError(
+            "Unwatch is not implemented for class {}".format(self.__class__.__name__)
+        )
+
+    def event(self, data: dict):
+        """
+        Handle an event notification.
+
+        Passes on the event to the project's event handler with
+        this source added to the context.
+        """
+        self.project.event(data=data, source=self)
+
     def preview(self, user: User) -> Job:
         """
         Generate a HTML preview of a source.
@@ -524,13 +561,88 @@ class GithubSource(Source):
 
         return dict(token=token.token if token else None)
 
+    def watch(self, user: User):
+        """
+        Watch this source by creating a GitHub repository Webhook.
+
+        Requires that the user be an admin on the repository and has their Github account linked
+        to their Stencila Hub account. Ass
+
+        Currently, only subscribing to "push" events.
+        For a full list of GitHub events see https://developer.github.com/webhooks/event-payloads/.
+
+        This is not an async task so that permissions errors (i.e. not a repo admin) can
+        be reported back to the user.
+        """
+        token = get_user_social_token(user, Provider.github)
+        if not token:
+            raise exceptions.SocialTokenMissing(
+                "To watch a GitHub source you must be a admin for the repository and"
+                " have your GitHub account connected to your Stencila Hub account."
+            )
+
+        url = settings.PRIMARY_DOMAIN + reverse(
+            "api-projects-sources-event",
+            kwargs=dict(project=self.project, source=self.id),
+        )
+        try:
+            hook = (
+                Github(token.token)
+                .get_repo(self.repo)
+                .create_hook(
+                    "web",
+                    active=True,
+                    config=dict(url=url, content_type="json",),
+                    events=["push"],
+                )
+            )
+        except GithubException as exc:
+            if exc.status == 403:
+                raise PermissionError(
+                    f"Permission denied by GitHub: {exc.data.get('message')}"
+                )
+            else:
+                raise exc
+        else:
+            self.subscription = hook.raw_data
+            self.save()
+
+    def unwatch(self, user: User):
+        """
+        Unwatch this source by deleting it's GitHub repository Webhook.
+
+        Instead of deleting the Webhook we could set it to inactive. But that would
+        result in multiple hooks if a user toggle's whether a `GithubSource` is watched or not.
+        """
+        token = get_user_social_token(user, Provider.github)
+        if not token:
+            raise exceptions.SocialTokenMissing(
+                "To unwatch a GitHub source you must be a admin for the repository and"
+                " have your GitHub account connected to your Stencila Hub account."
+            )
+
+        if self.subscription:
+            repo = Github(token.token).get_repo(self.repo)
+            hook_id = self.subscription.get("id")
+            hook = repo.get_hook(hook_id)
+            hook.delete()
+            self.subscription = None
+            self.save()
+
 
 class GoogleSourceMixin:
     """
     Mixin class for all Google related sources.
     """
 
+    # For type checking we need to declare attributes
+    # that concrete derived classes have
     creator: User
+    subscription: Optional[dict]
+    project: Project
+    id: int
+    doc_id: int
+    google_id: int
 
     def get_secrets(self, user: User) -> Dict:
         """
@@ -558,6 +670,92 @@ class GoogleSourceMixin:
             client_id=app.client_id if app else None,
             client_secret=app.secret if app else None,
         )
+
+    def create_credentials(self, secrets: dict) -> GoogleCredentials:
+        """
+        Create a Google credentials object to use with Google APIs.
+        """
+        return GoogleCredentials(
+            access_token=secrets.get("access_token"),
+            client_id=secrets.get("client_id"),
+            client_secret=secrets.get("client_secret"),
+            refresh_token=secrets.get("refresh_token"),
+            token_expiry=None,
+            token_uri="https://accounts.google.com/o/oauth2/token",
+            user_agent="Stencila Hub Client",
+        )
+
+    def watch(self, user: User):
+        """
+        Watch this source by creating a notification channel.
+
+        See https://developers.google.com/drive/api/v3/push#creating-notification-channels.
+        """
+        secrets = self.get_secrets(user)
+        if not secrets.get("access_token"):
+            raise exceptions.SocialTokenMissing(
+                "To watch a Google source you need to have your Google account connected "
+                "to your Stencila Hub account."
+            )
+
+        client = google_client(
+            "drive",
+            "v3",
+            credentials=self.create_credentials(secrets),
+            cache_discovery=False,
+        )
+
+        url = settings.PRIMARY_DOMAIN + reverse(
+            "api-projects-sources-event",
+            kwargs=dict(project=self.project, source=self.id),
+        )
+
+        file_id = self.google_id if isinstance(self, GoogleDriveSource) else self.doc_id
+
+        try:
+            subscription = (
+                client.files()
+                .watch(
+                    fileId=file_id,
+                    body=dict(id=shortuuid.uuid(), type="web_hook", address=url),
+                )
+                .execute()
+            )
+        except Exception as exc:
+            raise PermissionError(f"Permission denied by Google: {str(exc)}")
+        else:
+            self.subscription = subscription
+            self.save()  # type: ignore
+
+    def unwatch(self, user: User):
+        """
+        Unwatch this source by stopping the notification channel.
+
+        See https://developers.google.com/drive/api/v3/push#stopping-notifications.
+        """
+        secrets = self.get_secrets(user)
+        if not secrets.get("access_token"):
+            raise exceptions.SocialTokenMissing(
+                "To unwatch a Google source you need to have your Google account connected "
+                "to your Stencila Hub account."
+            )
+
+        client = google_client(
+            "drive",
+            "v3",
+            credentials=self.create_credentials(secrets),
+            cache_discovery=False,
+        )
+
+        if self.subscription:
+            client.channels().stop(
+                body=dict(
+                    id=self.subscription.get("id"),
+                    resource_id=self.subscription.get("resourceId"),
+                )
+            )
+            self.subscription = None
+            self.save()  # type: ignore
 
 
 class GoogleDocsSource(GoogleSourceMixin, Source):

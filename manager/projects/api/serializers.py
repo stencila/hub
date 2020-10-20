@@ -590,7 +590,7 @@ class SourceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Source
-        exclude = ["polymorphic_ctype", "jobs"]
+        exclude = ["polymorphic_ctype", "jobs", "subscription"]
         read_only_fields = [
             "project",
             "address",
@@ -686,7 +686,7 @@ class ElifeSourceSerializer(SourceSerializer):
 
     class Meta:
         model = ElifeSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -710,7 +710,7 @@ class GithubSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GithubSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate(self, data):
@@ -730,6 +730,7 @@ class GithubSourceSerializer(SourceSerializer):
                 raise exceptions.ValidationError(
                     dict(repo="Not a valid GitHub repository name.")
                 )
+            del data["url"]
             return data
 
         raise exceptions.ValidationError(
@@ -749,7 +750,7 @@ class GoogleDocsSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleDocsSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate_doc_id(self, value):
@@ -785,7 +786,7 @@ class GoogleDriveSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleDriveSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate_url(self, value):
@@ -840,7 +841,7 @@ class PlosSourceSerializer(SourceSerializer):
 
     class Meta:
         model = PlosSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -851,7 +852,7 @@ class UploadSourceSerializer(SourceSerializer):
 
     class Meta:
         model = UploadSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 
@@ -862,7 +863,7 @@ class UrlSourceSerializer(SourceSerializer):
 
     class Meta:
         model = UrlSource
-        fields = "__all__"
+        exclude = SourceSerializer.Meta.exclude
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
 

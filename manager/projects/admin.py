@@ -7,7 +7,7 @@ from polymorphic.admin import (
 
 from projects.models.files import File
 from projects.models.nodes import Node
-from projects.models.projects import Project, ProjectAgent
+from projects.models.projects import Project, ProjectAgent, ProjectEvent
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -40,6 +40,18 @@ class ProjectAgentAdmin(admin.ModelAdmin):
 
     list_display = ["id", "project", "user_id", "team_id", "role"]
     list_select_related = ["project"]
+
+
+@admin.register(ProjectEvent)
+class ProjectEventAdmin(admin.ModelAdmin):
+    """
+    Admin interface for projects events.
+
+    Because there are many events the list display is kept
+    simple and uses related ids rather than selecting replated objects.
+    """
+
+    list_display = ["id", "time", "project_id", "user_id", "source_id"]
 
 
 @admin.register(Source)

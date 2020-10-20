@@ -101,6 +101,13 @@ run-prod: venv
 	export DJANGO_CONFIGURATION="Prod"; \
 	$(VE)/python3 manage.py runserver
 
+# Run the `assistant` service in development mode
+run-assistant: venv
+	$(EV) \
+	export DJANGO_CONFIGURATION="Dev"; \
+	$(VE)/celery --app=manager worker \
+		--loglevel=DEBUG
+
 # Format code
 format: venv
 	$(VE)/black --exclude migrations .
@@ -152,31 +159,44 @@ snaps: venv
 build: Dockerfile static
 	docker build --tag stencila/hub-manager .
 
+# Build `assistant` Docker image
+build-assistant: assistant.Dockerfile
+	docker build --tag stencila/hub-assistant --file assistant.Dockerfile .
+
 # Run Docker image
 #
 # This setup aims to be as close to production as possible without
 # the need for secret variables.
-# Add `--env DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
-# Necessary environment variables required for `Prod` settings need to
-# be passed using the `--env` option.
-# Uses development database and local storage directory.
+# Use `--env DJANGO_CONFIGURATION="Dev"` to run in Dev mode instead.
+# Necessary environment variables need to be passed using the `--env` option.
 # Uses `DJANGO_SECURE_SSL_REDIRECT=false` to avoid being redirected
 # to HTTPS (which is the default for prod)
+# Uses development database and local storage directory.
 run-docker: build
 	$(EV) \
 	docker run \
+		--env DJANGO_CONFIGURATION="Prod" \
 		--env DJANGO_SECRET_KEY \
-		--env DJANGO_SENDGRID_API_KEY \
 		--env DJANGO_SECURE_SSL_REDIRECT=false \
 		--env DJANGO_MEDIA_ROOT=/storage/media \
 		--env DJANGO_UPLOADS_ROOT=/storage/uploads \
 		--env DJANGO_WORKING_ROOT=/storage/working \
 		--env DJANGO_SNAPSHOTS_ROOT=/storage/snapshots \
-		-v $$PWD/../storage/data:/storage:rw \
 		--env BROKER_URL \
 		--env CACHE_URL \
 		-v $$PWD/dev.sqlite3:/home/manager/dev.sqlite3:rw \
+		-v $$PWD/../storage/data:/storage:rw \
 		-p 8000:8000 -it --rm stencila/hub-manager
+
+# Run the `assistant` Docker image
+run-assistant-docker: build-assistant
+	$(EV) \
+	docker run \
+		--env DJANGO_CONFIGURATION="Prod" \
+		--env DJANGO_SECRET_KEY \
+		--env BROKER_URL \
+		--env CACHE_URL \
+		-it --rm stencila/hub-assistant
 
 clean:
 	rm -rf venv coverage static

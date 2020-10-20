@@ -259,6 +259,18 @@ class Project(models.Model):
         """
         return os.path.join(str(self.id), file)
 
+    def event(self, data: dict, source=None):
+        """
+        Handle an event notification.
+
+        Records the event and evaluates each project trigger.
+        """
+        ProjectEvent.objects.create(project=self, data=data, source=source)
+
+        # TODO: Evaluate each project trigger
+        # #for trigger in self.triggers.all():
+        #    trigger.evaluate(event=event, context=dict(event=event, source=source))
+
     def clean(self, user: User) -> Job:
         """
         Clean the project's working directory.
@@ -422,3 +434,44 @@ class ProjectAgent(models.Model):
                 fields=["project", "team"], name="%(class)s_unique_project_team"
             ),
         ]
+
+
+class ProjectEvent(models.Model):
+    """
+    A project event.
+
+    Project events are recorded primarily to provide traceability.
+    There are no fixed event types and arbitrary JSON data can be stored
+    in the `data` field. Events may be associated with a `source` or a `user`.
+    """
+
+    id = models.BigAutoField(primary_key=True, help_text="Id of the event.",)
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name="events",
+        help_text="Project to which the event applies.",
+    )
+
+    time = models.DateTimeField(auto_now_add=True, help_text="Time of the event.")
+
+    data = models.JSONField(help_text="Data associated with the event.")
+
+    source = models.ForeignKey(
+        "Source",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="events",
+        help_text="Source associated with the event.",
+    )
+
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="events",
+        help_text="User associated with the event.",
+    )

@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.shortcuts import redirect, reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import permissions, viewsets
+from rest_framework import exceptions, permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -255,3 +255,53 @@ class ProjectsSourcesViewSet(
         job = source.pull(request.user)
         job.dispatch()
         return redirect_to_job(job, accepts_html=self.accepts_html())
+
+    @action(detail=True, methods=["POST"])
+    def watch(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Watch a project source.
+
+        Creates a subscription to listen to events for the source.
+        Returns an empty response on success. Returns a 405 if the
+        source type does not support watches.
+        """
+        source = self.get_object()
+        try:
+            source.watch(request.user)
+        except PermissionError as exc:
+            raise exceptions.PermissionDenied(str(exc))
+        except NotImplementedError:
+            raise exceptions.MethodNotAllowed(
+                "POST",
+                f"Watching a source of type {source.__class__.__name__} is not supported.",
+            )
+        return Response()
+
+    @action(detail=True, methods=["POST"])
+    def unwatch(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Unwatch a project source.
+
+        Removes any subscription to listen to events for the source.
+        Returns an empty response on success (including if the source
+        was not being watched before the request).
+        """
+        source = self.get_object()
+        try:
+            source.unwatch(request.user)
+        except NotImplementedError:
+            pass
+        return Response()
+
+    @action(detail=True, methods=["POST"])
+    def event(self, request: Request, *args, **kwargs) -> Response:
+        """
+        Receive an event notification for a project source.
+
+        Receives event data from a source provider (e.g. Github, Google)
+        and forward's it on to the source's event handler.
+        Returns an empty response
+        """
+        source = self.get_object()
+        source.event(self.request.data)
+        return Response()

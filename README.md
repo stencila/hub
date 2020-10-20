@@ -11,13 +11,14 @@ Stencila is an platform of open source tools for authoring, collaborating on, an
 
 ## ⚙️ Services
 
-Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service (🦄 not all of these are written yet) provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development:
+Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service (🦄 not all of these are written yet) provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development.
 
 * [`router`](router): A [Nginx](https://nginx.org/) server that routes requests to other services.
 * [`manager`](manager): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
-* [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker.
-* [`worker`](worker): A [Celery](https://docs.celeryproject.org) process that runs jobs from the broker's queue.
-* [`scheduler`](scheduler): A Celery process that places periodic, scheduled jobs on the broker's queue.
+* [`assistant`](manager/manager/assistant.py): A [Celery](https://docs.celeryproject.org) worker that runs asynchronous _tasks_ on behalf of the manager.
+* [`worker`](worker): A Celery process that runs _jobs_ on behalf of users.
+* [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker for tasks and jobs.
+* [`scheduler`](scheduler): A Celery process that places periodic, scheduled tasks and jobs on the broker's queue.
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the manager.
 * [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
