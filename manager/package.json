@@ -22,7 +22,6 @@
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "2.5.3",
-    "@stencila/thema": "2.19.1",
     "@vizuaalog/bulmajs": "0.11.0",
     "bulma": "0.9.1",
     "bulma-toast": "2.0.3",
@@ -39,6 +38,7 @@
     "@rollup/plugin-replace": "2.3.3",
     "@stencila/components": "0.24.1",
     "@stencila/email-templates": "0.2.1",
+    "@stencila/thema": "2.19.1",
     "autoprefixer": "9.8.6",
     "browser-sync": "2.26.13",
     "concurrently": "5.3.0",
