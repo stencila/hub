@@ -1,3 +1,13 @@
+## [4.6.4](https://github.com/stencila/hub/compare/v4.6.3...v4.6.4) (2020-10-21)
+
+
+### Bug Fixes
+
+* **Admin:** Register child models ([72c0e15](https://github.com/stencila/hub/commit/72c0e15a1dd565c1b2c3bdfa7cffe53008cede28))
+* **deps:** update dependency kubernetes to v12 ([2fcdafa](https://github.com/stencila/hub/commit/2fcdafaa94e4f22c07f569584cab7ff963fe1537))
+* **deps:** update dependency pillow to v8 ([a35cd82](https://github.com/stencila/hub/commit/a35cd825b8a94b4431211e2a77952a62edb104a8))
+* **Sources:** Handle permission errors on events ([4b7cbdf](https://github.com/stencila/hub/commit/4b7cbdf2145bfc6e2536a637b335ed28e47a8fdb))
+
 ## [4.6.3](https://github.com/stencila/hub/compare/v4.6.2...v4.6.3) (2020-10-21)
 
 
