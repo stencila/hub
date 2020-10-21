@@ -1,3 +1,11 @@
+## [4.6.3](https://github.com/stencila/hub/compare/v4.6.2...v4.6.3) (2020-10-21)
+
+
+### Bug Fixes
+
+* **Sources:** Allow access to event for private projects; custom event handling for GoogleSource ([30dfbf1](https://github.com/stencila/hub/commit/30dfbf1a4584aef370935cc86527dc84a61e57e3))
+* **Sources:** Unwatch a source before deletion ([11b74c4](https://github.com/stencila/hub/commit/11b74c4900a6370c6dac0919d634b98989c78a73))
+
 ## [4.6.2](https://github.com/stencila/hub/compare/v4.6.1...v4.6.2) (2020-10-20)
 
 
