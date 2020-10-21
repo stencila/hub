@@ -410,7 +410,7 @@ class Source(PolymorphicModel):
             "Unwatch is not implemented for class {}".format(self.__class__.__name__)
         )
 
-    def event(self, data: dict):
+    def event(self, data: dict, headers: dict = {}):
         """
         Handle an event notification.
 
@@ -749,7 +749,12 @@ class GoogleSourceMixin:
                 client.files()
                 .watch(
                     fileId=file_id,
-                    body=dict(id=shortuuid.uuid(), type="web_hook", address=url),
+                    body=dict(
+                        id=shortuuid.uuid(),
+                        type="web_hook",
+                        address=url,
+                        token=shortuuid.uuid(),
+                    ),
                 )
                 .execute()
             )
@@ -788,6 +793,35 @@ class GoogleSourceMixin:
             )
             self.subscription = None
             self.save()  # type: ignore
+
+    def event(self, data: dict, headers: dict = {}):
+        """
+        Handle an event notification.
+
+        Override of `Source.event` to check add information in the request header
+        to the data.
+
+        See https://developers.google.com/drive/api/v3/push#receiving-notifications
+        """
+        if not self.subscription:
+            raise PermissionError("This source has no subscription.")
+
+        token = self.subscription.get("token")
+        if token:
+            if headers.get("X-Goog-Channel-Token") != token:
+                raise PermissionError("Invalid source subscription token.")
+
+        data.update(
+            dict(
+                channelId=headers.get("X-Goog-Channel-ID"),
+                messageNumber=headers.get("X-Goog-Message-Number"),
+                resourceId=headers.get("X-Goog-Resource-ID"),
+                resourceState=headers.get("X-Goog-Resource-Sate"),
+                resourceUri=headers.get("X-Goog-Resource-URI"),
+                changed=headers.get("X-Goog-Changed"),
+            )
+        )
+        Source.event(self, data=data)  # type: ignore
 
 
 class GoogleDocsSource(GoogleSourceMixin, Source):

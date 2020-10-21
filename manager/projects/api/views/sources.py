@@ -302,8 +302,14 @@ class ProjectsSourcesViewSet(
 
         Receives event data from a source provider (e.g. Github, Google)
         and forward's it on to the source's event handler.
-        Returns an empty response
+        Returns an empty response.
         """
-        source = self.get_object()
-        source.event(self.request.data)
+        # This method allows for posting events for private projects
+        # so bypasses the `get_object` method. The following approach
+        # is also more DB query efficient which is important for
+        # this high volume endpoint.
+        source = Source.objects.select_related("project").get(
+            project_id=self.kwargs["project"], id=self.kwargs["source"]
+        )
+        source.event(data=self.request.data, headers=self.request.headers)
         return Response()
