@@ -1,6 +1,6 @@
 {
   "name": "@stencila/hub-client",
-  "version": "4.6.2",
+  "version": "4.6.3",
   "description": "Client for the Stencila Hub API",
   "repository": "https://github.com/stencila/hub",
   "author": "Stencila and contributors",
@@ -16,8 +16,8 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@types/jest": "26.0.14",
-    "jest": "26.4.2",
+    "@types/jest": "26.0.15",
+    "jest": "26.6.0",
     "node-fetch": "2.6.1",
     "ts-jest": "26.4.1",
     "typescript": "4.0.3"
