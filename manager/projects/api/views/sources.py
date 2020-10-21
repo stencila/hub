@@ -271,7 +271,7 @@ class ProjectsSourcesViewSet(
         try:
             source.watch(request.user)
         except PermissionError as exc:
-            raise exceptions.PermissionDenied(str(exc))
+            raise exceptions.PermissionDenied(exc)
         except NotImplementedError:
             raise exceptions.MethodNotAllowed(
                 "POST",
@@ -311,5 +311,8 @@ class ProjectsSourcesViewSet(
         source = Source.objects.select_related("project").get(
             project_id=self.kwargs["project"], id=self.kwargs["source"]
         )
-        source.event(data=self.request.data, headers=self.request.headers)
+        try:
+            source.event(data=self.request.data, headers=self.request.headers)
+        except PermissionError as exc:
+            raise exceptions.PermissionDenied(exc)
         return Response()
