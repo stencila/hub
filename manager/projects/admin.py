@@ -61,7 +61,7 @@ class SourceParentAdmin(PolymorphicParentModelAdmin):
     """Base admin class for source classes."""
 
     base_model = Source
-    
+
     # If an admin class is not declared for each source type a 403
     # error is thrown when trying to edit that source in the admin interface.
     child_models = (
