@@ -68,11 +68,16 @@ def robots(request: HttpRequest) -> HttpResponse:
     """
     Return a robots.txt response.
 
-    Allows access to all public (unauthenticated) pages.
-    In addition SEO benefits, having this avoids losts of
+    Allows access to all public (unauthenticated) pages except for
+    those under /me/ (to avoid noise on signin pages, particularly
+    allauth pages like /me/twitter/login/).
+    In addition to SEO benefits, having this avoids lots of
     404 log entries for missing `robots.txt`.
     """
-    return HttpResponse("User-Agent: *\nDisallow:\n", content_type="text/plain")
+    robots = """User-Agent: *
+Disallow: /me/
+"""
+    return HttpResponse(robots, content_type="text/plain")
 
 
 def render_template(request: HttpRequest) -> HttpResponse:
