@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import re
 from enum import Enum, unique
@@ -28,6 +29,8 @@ from manager.storage import uploads_storage
 from projects.models.projects import Project
 from users.models import User
 from users.socialaccount.tokens import Provider, get_user_social_token
+
+logger = logging.getLogger(__name__)
 
 
 class SourceAddress(dict):
@@ -475,6 +478,25 @@ class Source(PolymorphicModel):
             self.address = self.make_address()
 
         return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """
+        Delete the source.
+
+        Override to unwatch a source before deleting it. This avoids the
+        source provider continuing to send events for the source
+        when it no longer exists.
+        """
+        if self.subscription:
+            # Because we do not have the quest user here, use
+            # the source creator for the unwatch and log any
+            # exceptions as warnings only.
+            try:
+                self.unwatch(self.creator)
+            except Exception as exc:
+                logger.warning(str(exc), exc_info=True)
+
+        return super().delete(*args, **kwargs)
 
 
 # Source classes in alphabetical order
