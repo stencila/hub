@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import exceptions, serializers
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
@@ -9,6 +10,8 @@ from manager.paths import RootPaths
 from manager.themes import Themes
 from users.api.serializers import UserIdentifierSerializer, UserSerializer
 from users.models import User
+
+from .serializers_account_image import AccountImageSerializer
 
 
 class AccountUserSerializer(serializers.ModelSerializer):
@@ -305,8 +308,11 @@ class AccountListSerializer(AccountSerializer):
     """
     A serializer for listing accounts.
 
-    Includes the role of the user making the request.
+    Only provides fields that are considered public.
+    Includes alternative images sizes as well as the role of the user making the request.
     """
+
+    image = serializers.SerializerMethodField()
 
     role = serializers.CharField(
         read_only=True, help_text="Role of the current user on the account (if any)."
@@ -314,17 +320,34 @@ class AccountListSerializer(AccountSerializer):
 
     class Meta:
         model = Account
-        fields = AccountSerializer.Meta.fields + ["role"]
+        fields = [
+            "id",
+            "name",
+            "display_name",
+            "email",
+            "image",
+            "location",
+            "website",
+            "role",
+        ]
+
+    @swagger_serializer_method(serializer_or_field=AccountImageSerializer)
+    def get_image(self, account):
+        """Get the URLs of alternative image sizes for the account."""
+        return AccountImageSerializer.create(self.context.get("request"), account)
 
 
 class AccountRetrieveSerializer(AccountListSerializer):
     """
     A serializer for retrieving accounts.
 
-    Includes more details on the account:
+    Includes more details on related items of the account including,
 
     - the account users
     - the account teams
+
+    Redacts these and other details if the request user is not an
+    account member.
     """
 
     users = AccountUserSerializer(read_only=True, many=True)
@@ -333,7 +356,30 @@ class AccountRetrieveSerializer(AccountListSerializer):
 
     class Meta:
         model = Account
-        fields = AccountListSerializer.Meta.fields + ["users", "teams"]
+        fields = AccountSerializer.Meta.fields + ["role", "users", "teams"]
+
+    def to_representation(self, obj):
+        """
+        Create a representation of this serializer.
+
+        If the user is not an account member then remove the
+        more private fields which non-members shouldn't really need
+        access to.
+        """
+        rep = super().to_representation(obj)
+
+        role = rep.get("role")
+        if role is None:
+            rep.pop("user")
+            rep.pop("users")
+            rep.pop("teams")
+            rep.pop("theme")
+            rep.pop("extra_head")
+            rep.pop("extra_top")
+            rep.pop("extra_bottom")
+            rep.pop("hosts")
+
+        return rep
 
 
 def get_user_field(field_name: str):

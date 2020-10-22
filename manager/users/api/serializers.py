@@ -2,9 +2,11 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.db.models import Q
 from django.urls import reverse
+from drf_yasg.utils import swagger_serializer_method
 from knox.models import AuthToken
 from rest_framework import serializers
 
+from accounts.api.serializers_account_image import AccountImageSerializer
 from users.models import Invite, User
 
 
@@ -30,19 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
         """Get the location for the user's personal account."""
         return user.personal_account.location
 
+    @swagger_serializer_method(serializer_or_field=AccountImageSerializer)
     def get_image(self, user):
-        """Get the image for the user's personal account."""
-        request = self.context.get("request")
-        return dict(
-            [
-                (
-                    size,
-                    request.build_absolute_uri(
-                        getattr(user.personal_account.image, size)
-                    ),
-                )
-                for size in ("small", "medium", "large")
-            ]
+        """Get the URLs of alternative image sizes for the account."""
+        return AccountImageSerializer.create(
+            self.context.get("request"), user.personal_account
         )
 
     def get_website(self, user):

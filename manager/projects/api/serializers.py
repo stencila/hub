@@ -373,7 +373,12 @@ class ProjectCreateSerializer(ProjectSerializer):
         return data
 
 
-ProjectRetrieveSerializer = ProjectSerializer
+class ProjectRetrieveSerializer(ProjectSerializer):
+    """
+    Serializer for retrieving a project.
+    """
+
+    account = AccountListSerializer()
 
 
 class ProjectUpdateSerializer(ProjectSerializer):
