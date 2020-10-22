@@ -17,6 +17,13 @@ before_account_urls = [
         name="ui-projects-create",
     ),
     path("open/", project_views.open, name="ui-projects-open",),
+    # Redirect /projects/<project_id>/<rest> to <account_name>/<project_name>
+    re_path(
+        RootPaths.projects.value + r"/(?P<project>\d+)/(?P<rest>.*)",
+        project_views.redirect,
+        name="ui-projects-redirect",
+    ),
+    # Redirect /<account_name>/<project_id>/<rest> to <account_name>/<project_name>
     re_path(
         r"^(?P<account>[^/]+)/(?P<project>\d+)/(?P<rest>.*)",
         project_views.redirect,

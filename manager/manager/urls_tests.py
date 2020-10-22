@@ -104,6 +104,39 @@ checks = [
         ada=title("Oops!")
     ),
     # Project URLs
+    # Redirects for integer ids
+    Check(
+        "/projects/1",
+        anon=200,
+        ada=200,
+        bob=200
+    ),
+    Check(
+        "/projects/2",
+        anon=404,
+        ada=200,
+        bob=404
+    ),
+    # Redirects for integer ids under accounts
+    Check(
+        "/ada/1",
+        anon=200,
+        ada=200,
+        bob=200
+    ),
+    Check(
+        "/ada/2",
+        anon=404,
+        ada=200,
+        bob=404
+    ),
+    # Unredirected URLs
+    Check(
+        "/ada/public/files",
+        anon=200,
+        ada=200,
+        bob=200
+    ),
     Check(
         "/ada/private/files",
         anon=404,
