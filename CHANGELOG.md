@@ -1,3 +1,16 @@
+# [4.7.0](https://github.com/stencila/hub/compare/v4.6.4...v4.7.0) (2020-10-22)
+
+
+### Bug Fixes
+
+* **Accounts API:** Provide account details in project; redact private account fields; improve typing of account image ([33631fb](https://github.com/stencila/hub/commit/33631fb35f8d8eaddf970c38364ad4e7dd112e2b))
+* **Robots.txt:** Disallow /me paths ([fc970ad](https://github.com/stencila/hub/commit/fc970ad5ccc784c2cb41b4056611672df07a8024))
+
+
+### Features
+
+* **Manager:** Resolve canonical project URL from /projects/<int> ([5dc55da](https://github.com/stencila/hub/commit/5dc55daab673bf2c030eb89d59ae4c81e69b74d3))
+
 ## [4.6.4](https://github.com/stencila/hub/compare/v4.6.3...v4.6.4) (2020-10-21)
 
 

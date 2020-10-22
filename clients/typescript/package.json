@@ -1,6 +1,6 @@
 {
   "name": "@stencila/hub-client",
-  "version": "4.6.4",
+  "version": "4.7.0",
   "description": "Client for the Stencila Hub API",
   "repository": "https://github.com/stencila/hub",
   "author": "Stencila and contributors",
