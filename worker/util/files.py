@@ -6,6 +6,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import filetype
+
 FileInfo = Dict[str, Any]
 Files = Dict[str, FileInfo]
 
@@ -14,11 +16,16 @@ Files = Dict[str, FileInfo]
 # "When the extension is already known, the new type will replace the old
 # one. When the type is already known the extension will be added to the
 # list of known extensions."
-mimetypes.add_type("application/vnd.google-apps.document", ".gdoc")
-mimetypes.add_type("application/x-ipynb+json", ".ipynb")
-mimetypes.add_type("application/ld+json", ".jsonld")
-mimetypes.add_type("text/markdown", ".md")
-mimetypes.add_type("text/r+markdown", ".rmd")
+for mimetype, ext in [
+    ("application/vnd.google-apps.document", ".gdoc"),
+    ("application/x-ipynb+json", ".ipynb"),
+    ("application/ld+json", ".jsonld"),
+    ("text/markdown", ".md"),
+    ("text/r+markdown", ".rmd"),
+    ("text/x-yaml", ".yaml"),
+    ("text/x-yaml", ".yml"),
+]:
+    mimetypes.add_type(mimetype, ext)
 
 
 def list_files(directory: str = ".") -> Files:
@@ -43,7 +50,12 @@ def file_info(path: str, mimetype: Optional[str] = None) -> FileInfo:
     if mimetype:
         encoding = None
     else:
-        mimetype, encoding = mimetypes.guess_type(path)
+        mimetype, encoding = mimetypes.guess_type(path, strict=False)
+        if not mimetype:
+            kind = filetype.guess(path)
+            if kind:
+                mimetype = kind.mime
+
     return {
         "size": os.path.getsize(path),
         "mimetype": mimetype,
