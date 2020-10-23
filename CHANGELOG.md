@@ -1,3 +1,16 @@
+# [4.8.0](https://github.com/stencila/hub/compare/v4.7.0...v4.8.0) (2020-10-23)
+
+
+### Bug Fixes
+
+* **Worker:** Improvements to pull jobs ([1b0c1ba](https://github.com/stencila/hub/commit/1b0c1baf8372e0daba6efd710336adc1918f2621))
+
+
+### Features
+
+* **Manager:** Allow source path to be null ([325d4b6](https://github.com/stencila/hub/commit/325d4b6211c83fffa9ab5d14ff6dcfb0af3ccc67))
+* **Worker:** Allow gdive, github and elife pull jobs to select default path ([195e7b2](https://github.com/stencila/hub/commit/195e7b26333317e4a900ff3d0ab0d98a8dc5e9d6))
+
 # [4.7.0](https://github.com/stencila/hub/compare/v4.6.4...v4.7.0) (2020-10-22)
 
 
