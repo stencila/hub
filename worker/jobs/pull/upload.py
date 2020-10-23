@@ -1,11 +1,12 @@
+import os
 import shutil
+from typing import Optional
 
 from util.files import Files, ensure_parent, list_files, move_files, temp_dir
+from util.http import HttpSession
 
-from .helpers import HttpSession
 
-
-def pull_upload(source: dict, working_dir: str, path: str, **kwargs) -> Files:
+def pull_upload(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     """
     Pull an upload source into a project's working directory.
 
@@ -16,6 +17,10 @@ def pull_upload(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     In production, `source["url"]` is the URL (usually a storage bucket).
     In development `source["path"]` is the path on the local file system.
     """
+    if not path:
+        src = source["path"] if "path" in source else source["url"]
+        path = os.path.basename(src)
+
     temp = temp_dir()
 
     # Get the file

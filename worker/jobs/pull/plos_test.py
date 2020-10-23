@@ -1,15 +1,16 @@
 import pytest
 
+from util.working_directory import working_directory
+
 from .plos import pull_plos
 
 
 @pytest.mark.vcr
 def test_ok(tempdir):
-    files = pull_plos(
-        {"article": "10.1371/journal.pcbi.1007273"},
-        tempdir.path,
-        "pcbi.1007273.jats.xml",
-    )
+    with working_directory(tempdir.path):
+        files = pull_plos(
+            {"article": "10.1371/journal.pcbi.1007273"}, "pcbi.1007273.jats.xml",
+        )
 
     expected = ["pcbi.1007273.jats.xml", "pcbi.1007273.jats.xml.media/"] + [
         "pcbi.1007273.jats.xml.media/" + image

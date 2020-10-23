@@ -2,14 +2,13 @@ import io
 import os
 import re
 import shutil
+from pathlib import Path
 from typing import List, Optional
 
-import requests
 from lxml import etree
 
 from util.files import Files, file_info
-
-from .helpers import HttpSession
+from util.http import HttpSession
 
 
 def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
@@ -20,14 +19,14 @@ def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     and then walks the XML tree, downloading any graphic media from the
     elife image server https://iiif.elifesciences.org/
     """
-    assert "article" in source, "eLife source must have an article number"
-
-    article = source["article"]
+    article = source.get("article")
+    assert article, "eLife source must have an article number"
 
     if not path:
         path = f"elife-{article}.xml"
 
     folder, file = os.path.split(path)
+    Path(folder).mkdir(parents=True, exist_ok=True)
 
     files = {}
     session = HttpSession()
@@ -47,6 +46,7 @@ def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
             href += ".tif"
 
         url = f"https://iiif.elifesciences.org/lax:{article}%2F{href}/full/600,/0/default.jpg"
+
         image_name = href.replace(f"elife-{article}-", "")
         image_name = re.sub(r"-v\d+\.tif$", ".jpg", image_name)
         new_href = f"{file}.media/{image_name}"

@@ -11,49 +11,6 @@ from urllib.parse import urlparse
 
 import requests
 
-from util.files import Files, list_files
-
-
-def begin_pull(working_dir: str) -> str:
-    """
-    Begin a pull job.
-
-    Creates a temporary directory, within the working directory,
-    for the pull to create files. Returns absolute path to
-    the temporary directory.
-    """
-    Path(working_dir).mkdir(parents=True, exist_ok=True)
-    return tempfile.mkdtemp(dir=working_dir)
-
-
-def end_pull(working_dir: str, path: str, temporary_dir: str) -> Files:
-    """
-    End a pull job.
-
-    Collects file information for temporary directory,
-    removes the existing contents of path, and replaces it with
-    the contents of temporary. Returns dictionary of file information.
-
-    working: The working directory to pull the source into
-    path: The path inside the working directory to pull the source to
-    temporary: The temporary directory used for the pull
-    """
-    files = list_files(temporary_dir)
-
-    # TODO: Remove existing files at the path from a previous pull
-    # Not done at present pending what those paths might be e.g. `.`, `file.txt`, `dir`
-
-    # Move from temporary to working (with overwrite)
-    for subpath in os.listdir(temporary_dir):
-        shutil.move(
-            os.path.join(temporary_dir, subpath), os.path.join(working_dir, subpath)
-        )
-
-    # Remove temporary directory
-    shutil.rmtree(temporary_dir, ignore_errors=True)
-
-    return files
-
 
 class HttpSession(requests.sessions.Session):
     def __init__(self):

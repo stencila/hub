@@ -3,12 +3,12 @@ from typing import Callable, Dict, List
 
 import config
 from jobs.base.job import Job
+from util.files import Files
 
 from .elife import pull_elife
 from .gdoc import pull_gdoc
 from .gdrive import pull_gdrive
 from .github import pull_github
-from .helpers import Files
 from .http import pull_http
 from .plos import pull_plos
 from .upload import pull_upload
@@ -60,6 +60,4 @@ class Pull(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         pull_func = PULL_FUNCS[typ]
 
-        return pull_func(
-            source=source, working_dir=os.getcwd(), path=path, secrets=secrets
-        )
+        return pull_func(source=source, path=path, secrets=secrets)

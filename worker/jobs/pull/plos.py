@@ -1,25 +1,28 @@
 import io
 import os
 import re
-from typing import List
+import shutil
+from pathlib import Path
+from typing import List, Optional
 
 from lxml import etree
 
-from .helpers import Files, HttpSession, begin_pull, end_pull
+from util.files import Files, file_info
+from util.http import HttpSession
 
 
-def pull_plos(source: dict, working_dir: str, path: str, **kwargs) -> Files:
+def pull_plos(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     """
     Pull a PLOS article.
 
     Fetches the XML of the article from https://journals.plos.org
     and then walks the XML tree, downloading any graphic media.
     """
-    assert "article" in source, "PLOS source must have an article"
+    doi = source.get("article")
+    assert doi, "PLOS source must have an article DOI"
 
-    doi = source["article"]
-    m = re.match(r"^10\.1371\/journal\.([a-z]+)\.(\d+)$", doi)
-    assert m is not None, "unknown PLOS article format"
+    match = re.match(r"^10\.1371\/journal\.([a-z]+)\.(\d+)$", doi or "")
+    assert match is not None, "unknown PLOS article format"
 
     journals = dict(
         pbio="plosbiology",
@@ -30,49 +33,54 @@ def pull_plos(source: dict, working_dir: str, path: str, **kwargs) -> Files:
         pone="plosone",
         ppat="plospathogens",
     )
+    journal = journals.get(match.group(1))
+    assert journal, "unknown PLOS journal: {}".format(match.group(1))
 
-    assert m.group(1) in journals, "unknown PLOS journal: {}".format(m.group(1))
+    if not path:
+        path = f"{journal}-{match.group(2)}.xml"
 
-    code = m.group(1)
-    journal = journals[code]
+    folder, file = os.path.split(path)
+    Path(folder).mkdir(parents=True, exist_ok=True)
 
-    url = "https://journals.plos.org/{}/article/file?id={}&type=manuscript".format(
-        journal, doi
-    )
-
-    folder, article = os.path.split(path)
-
+    files = {}
     session = HttpSession()
-    response = session.fetch_url(url)
+
+    # Get the article JATS XML
+    response = session.fetch_url(
+        f"https://journals.plos.org/{journal}/article/file?id={doi}&type=manuscript"
+    )
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
 
-    temporary_dir = begin_pull(working_dir)
-    os.makedirs(os.path.join(temporary_dir, "{}.media".format(path)), exist_ok=True)
-
     # Get the figures and rewrite hrefs
     for graphic in root.iterdescendants(tag="graphic"):
         href = graphic.attrib.get("{%s}href" % xlinkns)
-
-        if not href.startswith("info:doi/{}".format(doi)):
+        if not href.startswith(f"info:doi/{doi}"):
             continue
 
-        url = "https://journals.plos.org/{}/article/".format(journal)
+        url = f"https://journals.plos.org/{journal}/article/"
         id = href.split(".").pop()
         if id.startswith("e"):  # Equation
-            url += "file?id=info:doi/{}.{}&type=thumbnail".format(doi, id)
+            url += f"file?id=info:doi/{doi}.{id}&type=thumbnail"
         else:  # Everything else
-            url += "figure/image?id={}.{}&size=medium".format(doi, id)
+            url += f"figure/image?id={doi}.{id}&size=medium"
 
-        filename = "{}.png".format(id)
-        new_href = "{}.media/{}".format(article, filename)
+        image_name = f"{id}.png"
+        new_href = f"{file}.media/{image_name}"
+        image_path = os.path.join(folder, new_href)
+
+        os.makedirs(os.path.join(folder, f"{file}.media"), exist_ok=True)
+        session.pull(url, image_path)
+
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "png"
-        session.pull(url, os.path.join(temporary_dir, new_href))
 
-    tree.write(open(os.path.join(temporary_dir, folder, article), "wb"))
+        files[image_path] = file_info(image_path)
 
-    files = end_pull(working_dir, path, temporary_dir)
-    files[article]["mimetype"] = "application/jats+xml"
+    if os.path.exists(path) and os.path.isdir(path):
+        shutil.rmtree(path)
+    tree.write(open(path, "wb"))
+    files[path] = file_info(path, mimetype="application/jats+xml")
+
     return files

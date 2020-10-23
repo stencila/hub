@@ -1,20 +1,30 @@
 import os
+import shutil
 from pathlib import Path
-from typing import List
+from typing import Optional
 
-from .helpers import Files, HttpSession, begin_pull, end_pull
+from util.files import Files, file_info
+from util.http import HttpSession
 
 
-def pull_http(source: dict, working_dir: str, path: str, **kwargs) -> Files:
+def pull_http(
+    source: dict, path: Optional[str] = None, secrets: dict = {}, **kwargs
+) -> Files:
     """
-    Pull a file from an HTTP source.
+    Pull a file from a HTTP source.
     """
-    assert "url" in source, "HTTP source must have a URL"
+    url = source.get("url")
+    assert url, "HTTP source must have a URL"
+
+    if not path:
+        path = str(os.path.basename(url))
+
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+    if os.path.exists(path) and os.path.isdir(path):
+        shutil.rmtree(path)
 
     session = HttpSession()
+    session.pull(url, path)
 
-    temporary_dir = begin_pull(working_dir)
-    dest_path = os.path.join(temporary_dir, path)
-    Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-    session.pull(source["url"], dest_path)
-    return end_pull(working_dir, path, temporary_dir)
+    return {path: file_info(path)}
