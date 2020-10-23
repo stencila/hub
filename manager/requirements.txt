@@ -25,8 +25,8 @@ djangocodemirror==2.1.0
 djangorestframework-camel-case==1.2.0
 djangorestframework==3.11.1
 drf-yasg==1.17.1
-google-api-python-client==1.12.3
-google-api-python-client==1.12.3
+google-api-python-client==1.12.5
+google-api-python-client==1.12.5
 google-cloud-storage==1.31.2
 httpx==0.16.1
 inflect==4.1.0
