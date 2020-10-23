@@ -1,3 +1,26 @@
+# [4.9.0](https://github.com/stencila/hub/compare/v4.8.0...v4.9.0) (2020-10-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.99.15 ([54c33f9](https://github.com/stencila/hub/commit/54c33f91c05c2abb261f3e1187059a59ba094476))
+* **deps:** update dependency @stencila/executa to v1.15.0 ([08d05f4](https://github.com/stencila/hub/commit/08d05f4f8e5c00336765a2ea6875f2a6772cc97a))
+* **deps:** update dependency django-celery-beat to v2.1.0 ([682dd52](https://github.com/stencila/hub/commit/682dd52fcea7f69f12c712a2667ba19d1ed44364))
+* **deps:** update dependency google-api-python-client to v1.12.5 ([a84816d](https://github.com/stencila/hub/commit/a84816d5edd6321c71297ccf9b29f13568ef8712))
+* **deps:** update dependency google-cloud-storage to v1.32.0 ([55fd3e8](https://github.com/stencila/hub/commit/55fd3e8aa4045da9b6b8b9cdfc37e4d3698b6cbb))
+* **deps:** update dependency lxml to v4.6.1 ([1a40ffc](https://github.com/stencila/hub/commit/1a40ffce4571263920d23f6d6117b83b6e6c8aca))
+* **deps:** update dependency pillow to v8.0.1 ([77baa49](https://github.com/stencila/hub/commit/77baa49c9c417d2864b452abfa7876d9babd316c))
+* **deps:** update dependency sentry-sdk to v0.19.1 ([bf4bfe3](https://github.com/stencila/hub/commit/bf4bfe30174cc335b69fc34b0ff9f68ef08a5ee9))
+* **deps:** update dependency setuptools to v50.3.2 ([19fe912](https://github.com/stencila/hub/commit/19fe912b22f91b49796b12d881ff2f77b836c041))
+* **deps:** update dependency urllib3 to v1.25.11 ([877ea1d](https://github.com/stencila/hub/commit/877ea1d4e39898a5a5952dd2029277d0acf65134))
+* **File detail:** Display images ([4d48f71](https://github.com/stencila/hub/commit/4d48f718249460936027d0377730b2fdbed3ab6e))
+* **Worker:** Improve mimetype resolution ([d8b38ca](https://github.com/stencila/hub/commit/d8b38cac08668503256a800c867be373124f9722))
+
+
+### Features
+
+* **FIle browser:** Add tooltip for mimetype ([7e0e3c4](https://github.com/stencila/hub/commit/7e0e3c46ad4db29a57a5b9ca2b8522ff113924fa))
+
 # [4.8.0](https://github.com/stencila/hub/compare/v4.7.0...v4.8.0) (2020-10-23)
 
 
