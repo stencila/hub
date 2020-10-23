@@ -3,4 +3,4 @@ future; python_version<="2.7"
 six==1.15.0
 python_dateutil==2.8.1
 setuptools==50.3.1
-urllib3==1.25.10
+urllib3==1.25.11
