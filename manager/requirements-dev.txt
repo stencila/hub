@@ -8,6 +8,6 @@ mypy==0.790
 pydocstyle==5.1.1
 pyppeteer==0.2.2
 pytest-cov==2.10.1
-pytest-django==3.10.0
+pytest-django==4.1.0
 pytest-watch==4.2.0
 pytest==6.1.1
