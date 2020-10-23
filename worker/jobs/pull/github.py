@@ -2,7 +2,7 @@ import base64
 import os
 import shutil
 from io import BytesIO
-from typing import List
+from typing import List, Optional
 
 from github import Github
 from github.ContentFile import ContentFile
@@ -17,7 +17,9 @@ from util.files import Files, file_info
 GITHUB_API_CREDENTIALS = os.getenv("GITHUB_API_CREDENTIALS")
 
 
-def pull_github(source: dict, path: str = ".", secrets: dict = {}, **kwargs) -> Files:
+def pull_github(
+    source: dict, path: Optional[str] = None, secrets: dict = {}, **kwargs
+) -> Files:
     """
     Pull a GitHub repo/subpath.
 
@@ -51,9 +53,9 @@ def pull_github(source: dict, path: str = ".", secrets: dict = {}, **kwargs) -> 
     repo_resource = client.get_repo(source["repo"])
     contents = repo_resource.get_contents(subpath)
     if type(contents) is list:
-        return pull_directory(repo_resource, contents, path)
+        return pull_directory(repo_resource, contents, path or "")
     else:
-        return pull_file(repo_resource, contents, path)
+        return pull_file(repo_resource, contents, path or os.path.basename(subpath))
 
 
 def pull_file(repo_resource, contents, path: str) -> Files:
@@ -81,11 +83,12 @@ def pull_directory(repo_resource, contents_or_subpath, path: str) -> Files:
     """
     Pull a directory from GitHub.
     """
-    if os.path.exists(path):
-        if not os.path.isdir(path):
-            os.unlink(path)
-    else:
-        os.makedirs(path, exist_ok=True)
+    if len(path):
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                os.unlink(path)
+        else:
+            os.makedirs(path, exist_ok=True)
 
     files = {}
     for child in (

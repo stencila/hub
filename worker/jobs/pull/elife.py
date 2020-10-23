@@ -1,15 +1,18 @@
 import io
 import os
 import re
-from typing import List
+import shutil
+from typing import List, Optional
 
 import requests
 from lxml import etree
 
-from .helpers import Files, HttpSession, begin_pull, end_pull
+from util.files import Files, file_info
+
+from .helpers import HttpSession
 
 
-def pull_elife(source: dict, working_dir: str, path: str, **kwargs) -> Files:
+def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     """
     Pull an eLife article.
 
@@ -19,20 +22,21 @@ def pull_elife(source: dict, working_dir: str, path: str, **kwargs) -> Files:
     """
     assert "article" in source, "eLife source must have an article number"
 
-    url = "https://elifesciences.org/articles/{article}.xml".format(**source)
+    article = source["article"]
 
-    folder, article = os.path.split(path)
-    if not article.endswith(".xml"):
-        article += ".xml"
+    if not path:
+        path = f"elife-{article}.xml"
 
+    folder, file = os.path.split(path)
+
+    files = {}
     session = HttpSession()
-    response = session.fetch_url(url)
+
+    # Get the article JATS XML
+    response = session.fetch_url(f"https://elifesciences.org/articles/{article}.xml")
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
-
-    temporary_dir = begin_pull(working_dir)
-    os.makedirs(os.path.join(temporary_dir, "{}.media".format(article)), exist_ok=True)
 
     # Get the figures and rewrite hrefs
     for graphic in root.iterdescendants(tag="graphic"):
@@ -42,20 +46,23 @@ def pull_elife(source: dict, working_dir: str, path: str, **kwargs) -> Files:
         if not href.endswith(".tif"):
             href += ".tif"
 
-        url = "https://iiif.elifesciences.org/lax:{}%2F{}/full/600,/0/default.jpg".format(
-            source["article"], href
-        )
+        url = f"https://iiif.elifesciences.org/lax:{article}%2F{href}/full/600,/0/default.jpg"
+        image_name = href.replace(f"elife-{article}-", "")
+        image_name = re.sub(r"-v\d+\.tif$", ".jpg", image_name)
+        new_href = f"{file}.media/{image_name}"
+        image_path = os.path.join(folder, new_href)
 
-        filename = href.replace("elife-{}-".format(source["article"]), "")
-        filename = re.sub(r"-v\d+\.tif$", ".jpg", filename)
+        os.makedirs(os.path.join(folder, f"{file}.media"), exist_ok=True)
+        session.pull(url, image_path)
 
-        new_href = "{}.media/{}".format(article, filename)
         graphic.attrib["{%s}href" % xlinkns] = new_href
         graphic.attrib["mime-subtype"] = "jpeg"
-        session.pull(url, os.path.join(temporary_dir, folder, new_href))
 
-    tree.write(open(os.path.join(temporary_dir, folder, article), "wb"))
+        files[image_path] = file_info(image_path)
 
-    files = end_pull(working_dir, path, temporary_dir)
-    files[article]["mimetype"] = "application/jats+xml"
+    if os.path.exists(path) and os.path.isdir(path):
+        shutil.rmtree(path)
+    tree.write(open(path, "wb"))
+    files[path] = file_info(path, mimetype="application/jats+xml")
+
     return files

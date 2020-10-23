@@ -1,11 +1,14 @@
 import pytest
 
+from util.working_directory import working_directory
+
 from .elife import pull_elife
 
 
 @pytest.mark.vcr
 def test_ok(tempdir):
-    files = pull_elife({"article": 45187}, tempdir.path, "45187.jats.xml")
+    with working_directory(tempdir.path):
+        files = pull_elife({"article": 45187}, "45187.jats.xml")
 
     file_paths = ["45187.jats.xml"] + [
         "45187.jats.xml.media/{0}".format(fig)
@@ -52,5 +55,5 @@ def test_ok(tempdir):
 
 def test_missing_article(tempdir):
     with pytest.raises(AssertionError) as excinfo:
-        pull_elife({}, tempdir, "temp.jats.xml")
+        pull_elife({}, "temp.jats.xml")
     assert "source must have an article number" in str(excinfo.value)

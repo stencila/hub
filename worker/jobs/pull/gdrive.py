@@ -1,7 +1,7 @@
 import os
 import shutil
 import typing
-from typing import List
+from typing import List, Optional
 
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
@@ -10,7 +10,9 @@ from util.files import Files, file_info
 from util.gapis import gdrive_service
 
 
-def pull_gdrive(source: dict, path: str, secrets: dict = {}, **kwargs) -> Files:
+def pull_gdrive(
+    source: dict, path: Optional[str] = None, secrets: dict = {}, **kwargs
+) -> Files:
     """
     Pull a Google Drive folder
     """
@@ -25,9 +27,9 @@ def pull_gdrive(source: dict, path: str, secrets: dict = {}, **kwargs) -> Files:
 
     files_resource = gdrive_service(secrets).files()
     if kind == "file":
-        return pull_file(files_resource, google_id, path)
+        return pull_file(files_resource, google_id, path or "google-" + google_id)
     else:
-        return pull_folder(files_resource, google_id, path)
+        return pull_folder(files_resource, google_id, path or "")
 
 
 def pull_file(files_resource, file_id: str, path: str) -> Files:
@@ -51,11 +53,12 @@ def pull_folder(files_resource, folder_id: str, path: str) -> Files:
     """
     Pull a folder from Google Drive.
     """
-    if os.path.exists(path):
-        if not os.path.isdir(path):
-            os.unlink(path)
-    else:
-        os.makedirs(path, exist_ok=True)
+    if path:
+        if os.path.exists(path):
+            if not os.path.isdir(path):
+                os.unlink(path)
+        else:
+            os.makedirs(path, exist_ok=True)
 
     files = {}
     for child in list_folder(files_resource, folder_id):

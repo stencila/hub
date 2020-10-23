@@ -52,9 +52,6 @@ class Pull(Job):
         """
         assert isinstance(source, dict), "source must be a dictionary"
         assert "type" in source, "source must have a type"
-        assert (
-            isinstance(path, str) and len(path) > 0
-        ), "path must be a non-empty string"
         assert isinstance(secrets, dict), "secrets must be a dictionary"
 
         # Resolve the pull function based on the source type
