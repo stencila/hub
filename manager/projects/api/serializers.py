@@ -621,15 +621,15 @@ class SourceSerializer(serializers.ModelSerializer):
         Splits into parts and checks that it each part only contains valid
         characters.
         """
-        for part in value.split("/"):
-            match = re.search(r"^[A-Za-z][A-Za-z0-9\.\-_ ]*$", part, re.I)
-            if not match:
-                raise exceptions.ValidationError(
-                    'Path contains invalid characters. The invalid part is "{0}"'.format(
-                        part
+        if value:
+            for part in value.split("/"):
+                match = re.search(r"^[A-Za-z][A-Za-z0-9\.\-_ ]*$", part, re.I)
+                if not match:
+                    raise exceptions.ValidationError(
+                        'Path contains invalid characters. The invalid part is "{0}"'.format(
+                            part
+                        )
                     )
-                )
-
         return value
 
     def validate(self, data):
@@ -640,7 +640,10 @@ class SourceSerializer(serializers.ModelSerializer):
         path = data.get("path", self.instance.path if self.instance else None)
         id = self.instance.id if self.instance else None
 
-        if Source.objects.filter(project=project, path=path).exclude(id=id).count():
+        if (
+            path
+            and Source.objects.filter(project=project, path=path).exclude(id=id).count()
+        ):
             raise exceptions.ValidationError(
                 dict(
                     path='There is already a source linked to path "{}" in this project.'

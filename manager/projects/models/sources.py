@@ -85,9 +85,9 @@ class Source(PolymorphicModel):
     )
 
     path = models.TextField(
-        null=False,
-        blank=False,
-        help_text="The path that the source is mapped to in the project.",
+        null=True,
+        blank=True,
+        help_text="The file or folder name, or path, that the source is mapped to.",
     )
 
     creator = models.ForeignKey(
