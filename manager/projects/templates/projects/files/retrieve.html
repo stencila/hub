@@ -106,14 +106,14 @@
 <hr>
 {% endflag %}
 
-{% with highlight_url=file.highlight_url %}
-{% if highlight_url %}
-<iframe src="{{ file.highlight_url }}" class="snapshot--preview">
+{% if file.get_format.is_image %}
+<figure class="image">
+  <img src="{{ file.download_url }}" style="width:auto; max-width:90%; margin:4em auto">
+</figure>
+{% elif file.highlight_url %}
+<iframe src="{{ file.highlight_url }}" class="snapshot--preview" style="margin:3em auto">
 </iframe>
-
-<hr>
 {% endif %}
-{% endwith %}
 
 <h2 class="title is-5">History</h2>
 

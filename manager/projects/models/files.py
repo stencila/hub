@@ -56,6 +56,11 @@ class FileFormat(NamedTuple):
         return "ri-file-3-line"
 
     @property
+    def is_image(self) -> bool:
+        """Is the format an image format."""
+        return self.kind == "image" or self.mimetype.startswith("image/")
+
+    @property
     def is_binary(self) -> bool:
         """Is the format be considered binary when determining the type of HTTP response."""
         return self.format_id not in ("html", "json", "jsonld", "md", "rmd", "xml")
@@ -410,6 +415,15 @@ class File(models.Model):
         self.current = False
         self.updated = timezone.now()
         self.save()
+
+    def get_format(self) -> Optional[FileFormat]:
+        """
+        Get the format of this file.
+        """
+        try:
+            return FileFormats.from_url_or_mimetype(self.path, self.mimetype)
+        except ValueError:
+            return None
 
     def get_upstreams(self, current=True):
         """
