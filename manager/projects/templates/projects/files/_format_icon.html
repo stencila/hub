@@ -1,8 +1,6 @@
 {% load stencila %}
-{% comment %}
-Renders the icon class name to use for a source based on its mimetype.
-{% endcomment %}
-<span class="icon has-tooltip-top has-tooltip-text-centered image-tooltip has-tooltip-bottom"
-      {% if tooltip %}data-tooltip="{{ tooltip }}" {% endif %}>
+
+<span class="icon has-tooltip-bottom has-tooltip-text-centered image-tooltip"
+      data-tooltip="{% if tooltip %}{{ tooltip }}" {% else %}{{ mimetype }}{% endif %}">
   <i class="{% file_format_icon format mimetype %}"></i>
 </span>
