@@ -209,13 +209,13 @@ ELEMS = [
         [
             elem("project-sources-new-googledrive", "form"),
             elem("project-sources-new-googledrive-url", "form fieldset:first-of-type"),
-            elem("project-sources-new-googledrive-repo", "form fieldset:last-of-type"),
+            elem("project-sources-new-googledrive-id", "form fieldset:last-of-type"),
         ]
     ],
     [
-        r"^an-org/first-project/sources/new/googledoc$",
+        r"^an-org/first-project/sources/new/googledocs$",
         [
-            elem("project-sources-new-googledoc", "form"),
+            elem("project-sources-new-googledocs", "form"),
         ]
     ],
     [
