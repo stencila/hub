@@ -1,3 +1,10 @@
+# [4.10.0](https://github.com/stencila/hub/compare/v4.9.0...v4.10.0) (2020-10-27)
+
+
+### Features
+
+* **Project & orgs:** Add menu option to filter by role ([e749a28](https://github.com/stencila/hub/commit/e749a28fb0a9415add990fb16289f1bc26a1e006)), closes [#772](https://github.com/stencila/hub/issues/772)
+
 # [4.9.0](https://github.com/stencila/hub/compare/v4.8.0...v4.9.0) (2020-10-23)
 
 
