@@ -53,6 +53,18 @@ def is_active(context, name):
     )
 
 
+@register.simple_tag(takes_context=True)
+def is_selected(context, name, value):
+    """
+    Return "selected" if current request URL has a matching value for the query parameter.
+
+    Used to add the "selected" attribute to a `<select><option>` based on the URL e.g.
+
+        <option value="member" {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
+    """
+    return "selected" if context["request"].GET.get(name) == value else ""
+
+
 @register.filter
 def field_element(field, default=None):
     """

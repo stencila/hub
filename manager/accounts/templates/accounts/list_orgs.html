@@ -1,5 +1,5 @@
 {% extends 'base_centered.html' %}
-{% load i18n %}
+{% load i18n stencila %}
 
 {% block title %}{% trans "Organizations" %}{% endblock %}
 
@@ -29,12 +29,12 @@
 </div>
 
 <div class="field has-addons">
-  <label for="orgs-search-input" class="label is-sr-only">{% trans "Search Organizations" %}</label>
+  <label for="orgs-search-input" class="label is-sr-only">{% trans "Search organizations" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
     <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
-           hx-trigger="keyup changed delay:500ms, role-changed" hx-get="/api/accounts"
-           hx-include="#orgs-search-role, #orgs-search-is-org" hx-template="accounts/_list_orgs_result.html"
-           hx-target="#orgs-search-result" hx-indicator="#orgs-search-indicator">
+           hx-trigger="keyup changed delay:500ms, role-changed" hx-get="{% url 'api-accounts-list' %}"
+           hx-include="#orgs-search-role" hx-vars="is:'org'" hx-template="accounts/_list_orgs_result.html"
+           hx-indicator="#orgs-search-indicator" hx-target="#orgs-search-result">
     <span class="icon is-small is-left">
       <i class="ri-search-line"></i>
     </span>
@@ -45,26 +45,21 @@
   {% if user.is_authenticated %}
   <div class="control">
     <div class="select">
-      <label for="orgs-search-role" class="label is-sr-only">{% trans "Role in Organization" %}</label>
+      <label for="orgs-search-role" class="label is-sr-only">{% trans "Role in organization" %}</label>
       <select id="orgs-search-role" name="role">
         <option value="">All</option>
-        <option value="member">Member</option>
-        <option value="manager">Manager</option>
-        <option value="owner">Owner</option>
+        <option value="member" {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
+        <option value="manager" {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
+        <option value="owner" {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
       </select>
+      <script>
+        document.querySelector('#orgs-search-role').addEventListener('change', function(event) {
+          document.querySelector('#orgs-search-input').dispatchEvent(new Event('role-changed'));
+        });
+
+      </script>
     </div>
   </div>
-  {% endif %}
-  <input id="orgs-search-is-org" type="hidden" name="is" value="org">
-
-  {% if user.is_authenticated %}
-  {# Only authenticated users see a "role" dropdown #}
-  <script>
-    document.querySelector('#orgs-search-role').addEventListener('change', function(event) {
-      document.querySelector('#orgs-search-input').dispatchEvent(new Event('role-changed'));
-    });
-
-  </script>
   {% endif %}
 </div>
 

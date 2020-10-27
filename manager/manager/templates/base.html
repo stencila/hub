@@ -115,6 +115,14 @@
                     {% trans "All Projects" %}
                   </span>
                 </a>
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-list' %}?role=member">
+                  <span class="icon">
+                    <i class="ri-user-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "My Projects" %}
+                  </span>
+                </a>
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-create' %}">
                   <span class="icon">
                     <i class="ri-add-circle-line" aria-hidden="true"></i>
@@ -148,6 +156,14 @@
                   </span>
                   <span>
                     {% trans "All Organizations" %}
+                  </span>
+                </a>
+                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-list-orgs' %}?role=member">
+                  <span class="icon">
+                    <i class="ri-user-line" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    {% trans "My Organizations" %}
                   </span>
                 </a>
                 <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">

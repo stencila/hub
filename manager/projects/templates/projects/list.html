@@ -1,5 +1,5 @@
 {% extends 'base_centered.html' %}
-{% load i18n %}
+{% load i18n stencila %}
 
 {% block title %}{% trans "Projects" %}{% endblock %}
 
@@ -27,13 +27,14 @@
   {% endif %}
 </div>
 
-<div class="field">
-  <label for="projects-search-input" class="label is-sr-only">{% trans "Search Projects" %}</label>
+<div class="field has-addons">
+  <label for="projects-search-input" class="label is-sr-only">{% trans "Search projects" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
     <input id="projects-search-input" class="input" type="text" name="search"
-           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms"
-           hx-get="{% url 'api-projects-list' %}" hx-template="projects/_project_list.html"
-           hx-indicator="#projects-search-indicator" hx-target="#projects-search-result">
+           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms, role-changed"
+           hx-get="{% url 'api-projects-list' %}" hx-include="#projects-search-role"
+           hx-template="projects/_project_list.html" hx-indicator="#projects-search-indicator"
+           hx-target="#projects-search-result">
     <span class="icon is-left">
       <i class="ri-search-line"></i>
     </span>
@@ -41,6 +42,27 @@
       <i class="ri-loader-line animate-spin"></i>
     </span>
   </div>
+  {% if user.is_authenticated %}
+  <div class="control">
+    <div class="select">
+      <label for="projects-search-role" class="label is-sr-only">{% trans "Role in project" %}</label>
+      <select id="projects-search-role" name="role">
+        <option value="">All</option>
+        <option value="member" {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
+        <option value="reviewer" {% is_selected "role" "reviewer" %}>{% trans "I am a reviewer" %}</option>
+        <option value="author" {% is_selected "role" "author" %}>{% trans "I am a author" %}</option>
+        <option value="manager" {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
+        <option value="owner" {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
+      </select>
+      <script>
+        document.querySelector('#projects-search-role').addEventListener('change', function(event) {
+          document.querySelector('#projects-search-input').dispatchEvent(new Event('role-changed'));
+        });
+
+      </script>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <div id="projects-search-result">
