@@ -1,3 +1,10 @@
+## [4.10.2](https://github.com/stencila/hub/compare/v4.10.1...v4.10.2) (2020-10-29)
+
+
+### Bug Fixes
+
+* **Manager:** Upgrade Thema ([a00c125](https://github.com/stencila/hub/commit/a00c125c63d85010f055de582a887f4a9fdd5fb7))
+
 ## [4.10.1](https://github.com/stencila/hub/compare/v4.10.0...v4.10.1) (2020-10-29)
 
 
