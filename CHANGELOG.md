@@ -1,3 +1,11 @@
+## [4.10.1](https://github.com/stencila/hub/compare/v4.10.0...v4.10.1) (2020-10-29)
+
+
+### Bug Fixes
+
+* **Manager:** Update Stencila packages ([fbf1c6d](https://github.com/stencila/hub/commit/fbf1c6dcbc0ad38e2031da9b5090ecbd29ae387d))
+* **Worker:** Upgrade Encoda ([41d5701](https://github.com/stencila/hub/commit/41d5701231601d7c0f73931c8ce07d7bf27cea01))
+
 # [4.10.0](https://github.com/stencila/hub/compare/v4.9.0...v4.10.0) (2020-10-27)
 
 
