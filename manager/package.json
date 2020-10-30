@@ -35,7 +35,7 @@
     "@fullhuman/postcss-purgecss": "2.3.0",
     "@rollup/plugin-babel": "5.2.1",
     "@rollup/plugin-node-resolve": "9.0.0",
-    "@rollup/plugin-replace": "2.3.3",
+    "@rollup/plugin-replace": "2.3.4",
     "@stencila/components": "0.25.0",
     "@stencila/email-templates": "0.2.1",
     "@stencila/thema": "2.20.0",
