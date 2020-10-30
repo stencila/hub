@@ -503,12 +503,12 @@ class Prod(Configuration):
     # The domain from which account subdomains are served
     ACCOUNTS_DOMAIN = "stencila.io"
 
-    # Use a local URL for jobs
+    # Use local URLs for jobs
     # If this is True the URLs of session jobs are local
     # not global. This is useful during development as
     # it avoids the need for the `router` service to reverse
     # proxy Websocket connections.
-    JOB_URL_LOCAL = values.BooleanValue(False)
+    JOB_URLS_LOCAL = values.BooleanValue(False)
 
     # A list of job methods restricted to staff members
     JOB_METHODS_STAFF_ONLY: List[str] = []
@@ -664,7 +664,7 @@ class Dev(Local):
     ACCOUNTS_DOMAIN = "stencila.io:9000"
 
     # Use local URLs to more easily tests connections to jobs
-    JOB_URL_LOCAL = True
+    JOB_URLS_LOCAL = True
 
 
 class Test(Local):

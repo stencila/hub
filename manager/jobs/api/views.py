@@ -549,7 +549,7 @@ class ProjectsJobsViewSet(
             *args,
             **kwargs,
             prev=self.request.GET.get("prev"),
-            next=self.request.GET.get("next")
+            next=self.request.GET.get("next"),
         )
 
     # Shortcut `create` views
@@ -579,16 +579,14 @@ class ProjectsJobsViewSet(
         Connect to a job.
 
         Redirects to the internal URL so that users can
-        connect to the job and run methods inside of it,
-        Russian doll style.
+        connect to the job and run methods inside of it.
 
         This request it proxied through the `router`. This view
-        first checks that the user has permission to edit the
-        job.
+        first checks that the user has permission to edit the job.
         """
         job = self.get_object()
 
-        if not job.url:
+        if not job.urls:
             return Response(
                 {"message": "Job is not ready"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
@@ -598,14 +596,28 @@ class ProjectsJobsViewSet(
                 {"message": "Job has ended"}, status.HTTP_503_SERVICE_UNAVAILABLE
             )
 
-        # Record the user is connecting to the job
+        # Record the user that is connecting to the job
         job.add_user(request)
 
-        # Nginx will respond with the error:
-        #    invalid URL prefix in "ws://192.168.1.116:39591/" while reading response header from upstream
-        # so we replace ws with http and let the upgrade to Websocket
-        # occur elsewhere.
-        url = re.sub(r"^ws", "http", job.url)
+        # Get the correct internal URL based on the request's protocol
+        protocol = request.scheme
+        if protocol in ("ws", "wss"):
+            url = job.urls.get("ws")
+        elif protocol in ("http", "https"):
+            url = job.urls.get("http")
+        else:
+            raise RuntimeError(f"Unhandled request scheme {protocol}")
+
+        if url is None:
+            return Response(
+                {"message": f"Job does not support transport protocol {protocol}"},
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        # If necessary, replace `ws` with `http` and let the upgrade to Websocket
+        # occur elsewhere. Without this Nginx will respond with the error:
+        #  invalid URL prefix in "ws://192.168.1.116:39591/" while reading response header from upstream
+        url = re.sub(r"^ws", "http", url)
         path = self.kwargs.get("path")
         url = os.path.join(url, path or "")
 

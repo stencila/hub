@@ -31,17 +31,15 @@ class SubprocessSession(SubprocessJob):
         if snapshot:
             os.chdir(get_snapshot_dir(project, snapshot))
 
-        protocol = "ws"
         ip = get_local_ip()
-        port = get_random_port()
+        ports = {"ws": get_random_port(), "http": get_random_port()}
 
-        self.notify(state="RUNNING", url="{}://{}:{}".format(protocol, ip, port))
+        urls = dict(
+            (protocol, f"{protocol}://{ip}:{port}") for protocol, port in ports.items()
+        )
+        self.notify(state="RUNNING", urls=urls)
 
         return super().do(
-            [
-                get_node_modules_bin("executa"),
-                "serve",
-                "--debug",
-                "--{}=0.0.0.0:{}".format(protocol, port),
-            ]
+            [get_node_modules_bin("executa"), "serve", "--debug"]
+            + [f"--{protocol}=0.0.0.0:{port}" for protocol, port in ports.items()]
         )
