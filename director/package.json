@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@stencila/encoda": "0.99.15"
+    "@stencila/encoda": "0.100.0"
   }
 }
