@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from typing import Dict, List, Optional, Tuple, cast
@@ -6,12 +7,18 @@ from dxf import DXF
 
 from jobs.base.job import Job
 
+logger = logging.getLogger(__name__)
+
 # Regex for parsing a container image identifier
 # Based on answers at https://stackoverflow.com/questions/39671641/regex-to-parse-docker-tag
 # Playground at https://regex101.com/r/hP8bK1/42
 CONTAINER_IMAGE_REGEX = re.compile(
     r"^((?=[^:\/]{1,253})(?!-)[a-zA-Z0-9-]{1,63}(?<!-)(?:\.(?!-)[a-zA-Z0-9-]{1,63}(?<!-))+(?::[0-9]{1,5})?/)?((?![._-])(?:[a-z0-9._-]*)(?<![._-])(?:/(?![._-])[a-z0-9._-]*(?<![._-]))*)(?:(:(?![.-])[a-zA-Z0-9_.-]{1,128})|(@sha256:[a-f0-9]+))?$"  # noqa
 )
+
+
+class MissingCredentialsError(RuntimeError):
+    pass
 
 
 class Pin(Job):
@@ -43,13 +50,21 @@ class Pin(Job):
         if alias is None:
             alias = "latest"
 
-        dxf = DXF(host, repo, self.authenticate)
-        # Get the "Docker-Content-Digest" for the alias. This is the SHA256 hash
-        # that can be used with `docker run` and is on the Docker Hub for an image tag,
-        # not the one returned by ``.get_digest()`.
-        digest = dxf._get_dcd(alias)
-
-        return self.deparse(host, repo, cast(str, digest))
+        try:
+            dxf = DXF(host, repo, self.authenticate)
+            # Get the "Docker-Content-Digest" for the alias. This is the SHA256 hash
+            # that can be used with `docker run` and is on the Docker Hub for an image tag,
+            # not the one returned by ``.get_digest()`.
+            digest = dxf._get_dcd(alias)
+        except MissingCredentialsError as exc:
+            # If no credentials were available for the container registry
+            # then raise a warning and return an unpinned container image.
+            # This is intended primarily for use during development so it is not
+            # necessary to provide credentials to create snapshots.
+            logger.warning(str(exc))
+            return self.deparse(host, repo)
+        else:
+            return self.deparse(host, repo, cast(str, digest))
 
     @staticmethod
     def parse(
@@ -78,18 +93,18 @@ class Pin(Job):
         return (host, repo, alias, digest)
 
     @staticmethod
-    def deparse(host: str, repo: str, id_: str) -> str:
+    def deparse(host: str, repo: str, digest: Optional[str] = None) -> str:
         """
         Generate a container image identifier from its component parts.
         """
         domain = {"registry-1.docker.io": "docker.io"}.get(host, host)
-        return "{domain}/{repo}@{id}".format(domain=domain, repo=repo, id=id_)
+        return f"{domain}/{repo}" + (f"@{digest}" if digest else "")
 
     def authenticate(self, dxf, response):
         """
         Get credentials for a container registry.
 
-        Credentials can be provided as a contrusctor arguments
+        Credentials can be provided as a constructor arguments
         or in environment variables.
         """
 
@@ -101,10 +116,8 @@ class Pin(Job):
         # Get credentials
         credentials = self.credentials.get(name) or os.getenv(name)
         if not credentials:
-            raise RuntimeError(
-                "No environment variable '{0}' found for authentication credentials for '{1}'".format(
-                    name, dxf._host
-                )
+            raise MissingCredentialsError(
+                f"No environment variable '{name}' found for authentication credentials for '{dxf._host}'"
             )
 
         username, password = credentials.split(":")
