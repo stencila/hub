@@ -29,6 +29,8 @@ class JobListSerializer(serializers.ModelSerializer):
 
     runtime_formatted = serializers.CharField(read_only=True)
 
+    urls = serializers.SerializerMethodField()
+
     url = serializers.SerializerMethodField()
 
     class Meta:
@@ -36,34 +38,53 @@ class JobListSerializer(serializers.ModelSerializer):
         fields = "__all__"
         ref_name = None
 
-    def get_url(self, job: Job):
+    def get_urls(self, job: Job):
         """
-        Get the URL to connect to the job from outside the local network.
+        Get the URLs to connect to the job from outside the local network.
 
-        Will be `None` if the job does not have an
-        internal URL or has ended.
+        A map of protocols to URLs e.g.
+
+        ```json
+        "urls": {
+          "http": "https://hub.stenci.la/api/projects/1/jobs/16/connect?key=DYBnucbz8ZQC7xKsgEPL5Vm26oTfvZvg",
+          "ws": "wss://hub.stenci.la/api/projects/1/jobs/16/connect?key=DYBnucbz8ZQC7xKsgEPL5Vm26oTfvZvg"
+        },
+        ```
+
+        Will be `null` if the job does not have any internal URLs or has ended.
         """
-        if job.url and job.is_active:
-            if settings.JOB_URL_LOCAL:
-                return job.url
+        if job.urls and job.is_active:
+            if settings.JOB_URLS_LOCAL:
+                return job.urls
             else:
                 request = self.context.get("request")
-                url = request.build_absolute_uri(
-                    reverse(
-                        "api-projects-jobs-connect",
-                        kwargs=dict(project=job.project.id, job=job.id),
+                urls = {}
+                for protocol, url in job.urls.items():
+                    # Get the URL that gives (and records) access to the job
+                    url = request.build_absolute_uri(
+                        reverse(
+                            "api-projects-jobs-connect",
+                            kwargs=dict(project=job.project.id, job=job.id),
+                        )
+                        + f"?key={job.key}"
                     )
-                    + "?key="
-                    + job.key
-                )
 
-                # The `build_absolute_uri` function will always return
-                # `http` or `https` so change to `ws` or `wss` if the
-                # job's URL is a Websocket address.
-                if job.url.startswith("ws"):
-                    url = re.sub(r"^http", "ws", url)
+                    # The `build_absolute_uri` function will always return
+                    # `http` or `https` so replace with the protocol of the URL.
+                    urls[protocol] = re.sub(r"^https?://", protocol + "://", url)
 
-                return url
+            return urls
+
+    def get_url(self, job: Job):
+        """
+        Get the Websocket URL of the job.
+
+        This field is deprecated, use `urls` instead. It is provided for
+        backwards compatability with previous API versions and may be removed
+        in the future.
+        """
+        urls = self.get_urls(job)
+        return urls.get("ws") if urls else None
 
 
 class JobRetrieveSerializer(JobListSerializer):
@@ -105,7 +126,7 @@ class JobCreateSerializer(JobRetrieveSerializer):
             "began",
             "ended",
             "result",
-            "url",
+            "urls",
             "log",
             "runtime",
             "users",
