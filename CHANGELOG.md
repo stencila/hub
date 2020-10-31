@@ -1,3 +1,17 @@
+## [4.10.3](https://github.com/stencila/hub/compare/v4.10.2...v4.10.3) (2020-10-31)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency @stencila/encoda to 0.100.0 ([45af3e3](https://github.com/stencila/hub/commit/45af3e38c9cf1d7c772a95ceffbaaa3063621c45))
+* **deps:** update dependency @stencila/encoda to v0.100.0 ([46edc3c](https://github.com/stencila/hub/commit/46edc3c27e19992704d61dc585484c650fbc2a10))
+* **deps:** update dependency @stencila/encoda to v0.101.0 ([708e56e](https://github.com/stencila/hub/commit/708e56ec6086635645127c8f561769702870a16c))
+* **deps:** update dependency bulma-toast to v2.1.0 ([774470a](https://github.com/stencila/hub/commit/774470aad635cc39d5ae6471a2dcfabf38fdd9b0))
+* **deps:** update dependency drf-yasg to v1.20.0 ([8c58f4f](https://github.com/stencila/hub/commit/8c58f4fde85846d4700e1b99ea6802f8ee5669d4))
+* **deps:** update dependency pygments to v2.7.2 ([9dfec7e](https://github.com/stencila/hub/commit/9dfec7e01bf4806d5495d27d2835eb8372d5c0e1))
+* **deps:** update dependency pytest to v6.1.2 ([6881c7d](https://github.com/stencila/hub/commit/6881c7d8486ca8c0c03f4ba604d8bc1fbc684e9a))
+* **deps:** update dependency typescript to v4.0.5 ([1aef30e](https://github.com/stencila/hub/commit/1aef30e1c3e644e8fe20556e3363c08797d7eff7))
+
 ## [4.10.2](https://github.com/stencila/hub/compare/v4.10.1...v4.10.2) (2020-10-29)
 
 
