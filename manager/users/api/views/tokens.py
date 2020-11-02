@@ -8,9 +8,9 @@ import knox.auth
 import knox.crypto
 import knox.models
 import knox.views
+from allauth.account.models import EmailAddress
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.text import slugify
 from drf_yasg.utils import swagger_auto_schema
@@ -163,7 +163,7 @@ class TokensViewSet(
 
     # Views
 
-    def list(self, request):
+    def list(self, request: Request):
         """
         List authentication tokens.
 
@@ -239,16 +239,22 @@ class TokensViewSet(
         return super().destroy(request, token)
 
 
-def authenticate_openid(request, token):
-    """Authenticate user using an OpenID token."""
+def authenticate_openid(request: Request, token: str) -> User:
+    """
+    Authenticate user using an OpenID token.
+
+    Currently only deals with tokens issued by Google.
+    Validates token following recommendations at
+    https://developers.google.com/identity/protocols/oauth2/openid-connect#validatinganidtoken
+    Does basic validation before pinging Google to do token verification.
+
+    If the verified email address matches an existing user then returns
+    that user, otherwise creates a new user with the email as their primary email.
+    """
     try:
         unverified_claims = jwt.decode(token, None, False)
     except Exception as exc:
         raise ParseError("Bad token: {}".format(str(exc)))
-
-    # Validates token following recommendations at
-    # https://developers.google.com/identity/protocols/oauth2/openid-connect#validatinganidtoken
-    # Does basic validation before pinging Google to do token verification
 
     exp = unverified_claims.get("exp")
     if exp and float(exp) < time.time():
@@ -270,17 +276,27 @@ def authenticate_openid(request, token):
         raise ParseError("Email address has not been verified")
 
     email = claims.get("email")
+    email_verified = claims.get("email_verified")
     given_name = claims.get("given_name")
     family_name = claims.get("family_name")
     name = claims.get("name")
     if name is not None and given_name is None and family_name is None:
         given_name, family_name = name.split()[:1]
-    try:
-        user = User.objects.get(email=email)
-    except ObjectDoesNotExist:
+
+    user = None
+    if email_verified:
+        try:
+            user = EmailAddress.objects.get(email__iexact=email, verified=True).user
+        except EmailAddress.DoesNotExist:
+            pass
+
+    if user is None:
         username = generate_username(email, given_name, family_name)
         user = User.objects.create_user(
             username, email=email, first_name=given_name, last_name=family_name
+        )
+        EmailAddress.objects.create(
+            user=user, email=email, verified=email_verified, primary=True
         )
 
     return user

@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest import mock
 
 import jwt
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
@@ -165,7 +166,8 @@ class TokenCreateOpenIdTests(TokenTestCase):
         assert response.data["message"] == "Email address has not been verified"
 
     def test_existing_email(self):
-        User.objects.create_user("pete", "pete@example.com")
+        pete = User.objects.create_user("pete")
+        EmailAddress.objects.create(user=pete, email="pete@example.com", verified=True)
 
         with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
             response = self.create(
