@@ -33,5 +33,5 @@ app = Celery("manager", broker=settings.BROKER_URL, backend=settings.CACHE_URL)
 # should have a `CELERY_` prefix.
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-# Load task modules from all registered Django app configs.
+# Load `tasks.py` modules from all registered Django app configs.
 app.autodiscover_tasks()
