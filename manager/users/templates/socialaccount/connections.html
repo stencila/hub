@@ -13,7 +13,7 @@
 </h1>
 {% if form.accounts %}
 <p class="help mb-3">
-  {% blocktrans %}The following external accounts are connect to your Stencila Hub account.{% endblocktrans %}
+  {% blocktrans %}The following external accounts are connected to your Stencila Hub account.{% endblocktrans %}
 </p>
 <form method="post" action="{% url 'socialaccount_connections' %}">
   {% csrf_token %}
