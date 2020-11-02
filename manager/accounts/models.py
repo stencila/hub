@@ -175,7 +175,7 @@ class Account(models.Model):
             self.user.save()
 
         if not self.image:
-            self.set_image_from_name()
+            self.set_image_from_name(should_save=False)
 
         return super().save(*args, **kwargs)
 
@@ -215,7 +215,7 @@ class Account(models.Model):
             or re.match(r"[0-9a-f]{24}\.png", filename) is not None
         )
 
-    def set_image_from_name(self):
+    def set_image_from_name(self, should_save: bool = False):
         """
         Set the image as an "identicon" based on the account name.
 
@@ -226,7 +226,8 @@ class Account(models.Model):
         file = ContentFile(customidenticon.create(self.name, size=5))
         file.name = "identicon-" + shortuuid.uuid()
         self.image = file
-        self.save()
+        if should_save:
+            self.save()
 
     def set_image_from_url(self, url: str):
         """
