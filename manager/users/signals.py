@@ -1,5 +1,6 @@
 from allauth.account.models import EmailAddress
 from allauth.account.signals import user_logged_in, user_logged_out
+from allauth.socialaccount.signals import social_account_added, social_account_updated
 
 
 def clear_user_session_data(sender, request, user, **kwargs):
@@ -75,3 +76,19 @@ def add_new_emails(sender, request, response, user, **kwargs):
 
 
 user_logged_in.connect(add_new_emails)
+
+
+def set_account_image(sender, request, sociallogin, **kwargs):
+    """
+    Set the user's personal account image (if necessary) from the social account.
+    """
+    import accounts.tasks
+
+    accounts.tasks.set_image_from_socialaccount(
+        account_id=sociallogin.user.personal_account.id,
+        provider=sociallogin.account.provider,
+    )
+
+
+social_account_added.connect(set_account_image)
+social_account_updated.connect(set_account_image)

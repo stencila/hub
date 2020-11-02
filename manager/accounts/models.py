@@ -1,7 +1,11 @@
-import secrets
-from typing import Dict
+import os
+import re
+from typing import Dict, Union
 
 import customidenticon
+import httpx
+import shortuuid
+from allauth.socialaccount.models import SocialAccount
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_save
@@ -171,10 +175,7 @@ class Account(models.Model):
             self.user.save()
 
         if not self.image:
-            file = ContentFile(customidenticon.create(self.name, size=5))
-            # Use a random name because self.pk may not be available
-            file.name = secrets.token_hex(12)
-            self.image = file
+            self.set_image_from_name()
 
         return super().save(*args, **kwargs)
 
@@ -203,6 +204,87 @@ class Account(models.Model):
         if not hasattr(cls, "_temp_account"):
             cls._temp_account = Account.objects.get(name="temp")
         return cls._temp_account
+
+    def image_is_identicon(self) -> bool:
+        """
+        Is the account image a default identicon.
+        """
+        filename = os.path.basename(self.image.name)
+        return (
+            filename.startswith("identicon")
+            or re.match(r"[0-9a-f]{24}\.png", filename) is not None
+        )
+
+    def set_image_from_name(self):
+        """
+        Set the image as an "identicon" based on the account name.
+
+        Prefixes the file name of the image with identicon so that
+        we can easily tell if it is a default and should be replaced by
+        images that may be available from external accounts e.g. Google.
+        """
+        file = ContentFile(customidenticon.create(self.name, size=5))
+        file.name = "identicon-" + shortuuid.uuid()
+        self.image = file
+        self.save()
+
+    def set_image_from_url(self, url: str):
+        """
+        Set the image from a URL.
+        """
+        response = httpx.get(url)
+        print(url, response.status_code)
+        if response.status_code == 200:
+            file = ContentFile(response.content)
+            file.name = "url-" + shortuuid.uuid()
+            self.image = file
+            self.save()
+
+    def set_image_from_socialaccount(self, socialaccount: Union[str, SocialAccount]):
+        """
+        Set the image from a social account if possible.
+
+        Does nothing for organizational accounts (where `self.user` is null).
+        """
+        if not self.image_is_identicon():
+            return
+
+        if not isinstance(socialaccount, SocialAccount):
+            try:
+                socialaccount = SocialAccount.objects.get(
+                    user=self.user, provider=socialaccount
+                )
+            except SocialAccount.DoesNotExist:
+                return
+
+        url = None
+        provider = socialaccount.provider
+        data = socialaccount.extra_data
+        if provider == "google":
+            url = data.get("picture")
+        elif provider == "github":
+            url = data.get("avatar_url")
+        elif provider == "twitter":
+            url = data.get("profile_image_url")
+
+        if url:
+            self.set_image_from_url(url)
+
+    def set_image_from_socialaccounts(self):
+        """
+        Set the image from any of the account's social accounts if possible.
+
+        Does nothing for organizational accounts (where `self.user` is null)
+        or if the image is already not an identicon.
+        """
+        if not self.image_is_identicon():
+            return
+
+        socialaccounts = SocialAccount.objects.filter(user=self.user)
+        for socialaccount in socialaccounts:
+            self.set_image_from_socialaccount(socialaccount)
+            if not self.image_is_identicon():
+                return
 
 
 def make_account_creator_an_owner(
