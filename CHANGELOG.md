@@ -1,3 +1,16 @@
+# [4.11.0](https://github.com/stencila/hub/compare/v4.10.4...v4.11.0) (2020-11-02)
+
+
+### Bug Fixes
+
+* **Accounts:** Fix typo in template ([00d8861](https://github.com/stencila/hub/commit/00d8861cc6b823bfe5bd8615c5cef9779fd735b1))
+* **Accounts:** Only save if necessary ([cc39533](https://github.com/stencila/hub/commit/cc39533e4be6c4c9f5d058575b50623982d45f13))
+
+
+### Features
+
+* **Users:** Allow account image to be set from external account ([51956d8](https://github.com/stencila/hub/commit/51956d8e10796358781cb392ca177a3119b9a8f9))
+
 ## [4.10.4](https://github.com/stencila/hub/compare/v4.10.3...v4.10.4) (2020-11-02)
 
 
