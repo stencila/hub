@@ -234,7 +234,6 @@ class Account(models.Model):
         Set the image from a URL.
         """
         response = httpx.get(url)
-        print(url, response.status_code)
         if response.status_code == 200:
             file = ContentFile(response.content)
             file.name = "url-" + shortuuid.uuid()

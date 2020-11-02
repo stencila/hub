@@ -30,6 +30,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 
+from accounts.tasks import set_image_from_url
 from users.api.serializers import TokenSerializer
 
 # Claims verified for OpenID JWTs issued by Google
@@ -298,6 +299,10 @@ def authenticate_openid(request: Request, token: str) -> User:
         EmailAddress.objects.create(
             user=user, email=email, verified=email_verified, primary=True
         )
+
+    picture = claims.get("picture")
+    if picture and user.personal_account.image_is_identicon():
+        set_image_from_url.delay(user.personal_account.id, picture)
 
     return user
 
