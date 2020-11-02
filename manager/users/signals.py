@@ -49,27 +49,27 @@ def add_new_emails(sender, request, response, user, **kwargs):
     account is added later. Delayed until after login to avoid triggering
     a call to SocialLogin.save on an existing socialaccount.
     """
-    if "sociallogin" not in kwargs:
+    sociallogin = kwargs.get("sociallogin")
+    if not sociallogin:
         return
 
-    if not getattr(kwargs["sociallogin"], "autoconnect", False):
+    if not getattr(sociallogin, "autoconnect", False):
         return
 
-    for e in kwargs["sociallogin"].email_addresses:
+    for email in sociallogin.email_addresses:
         try:
-            existing = EmailAddress.objects.get(email__iexact=e.email.lower())
+            existing = EmailAddress.objects.get(email__iexact=email.email.lower())
         except EmailAddress.DoesNotExist:
-            new = EmailAddress(
-                email=e.email, verified=e.verified, primary=False, user=user
+            EmailAddress.objects.create(
+                email=email.email, verified=email.verified, primary=False, user=user
             )
-            new.save()
             continue
 
         if existing.user != user:
             # TODO: what if this email is verified but the existing
             # email is unverified? Can this user steal it?
             continue
-        elif e.verified and not existing.verified:
+        elif email.verified and not existing.verified:
             existing.verified = True
             existing.save()
 
