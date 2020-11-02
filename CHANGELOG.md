@@ -1,3 +1,10 @@
+## [4.10.4](https://github.com/stencila/hub/compare/v4.10.3...v4.10.4) (2020-11-02)
+
+
+### Bug Fixes
+
+* **Users authentication:** When authenticating with OpenID check against verified email addresses ([494a908](https://github.com/stencila/hub/commit/494a908a443420dafa25112e3da6c5aacfe3a837)), closes [#426](https://github.com/stencila/hub/issues/426)
+
 ## [4.10.3](https://github.com/stencila/hub/compare/v4.10.2...v4.10.3) (2020-10-31)
 
 
