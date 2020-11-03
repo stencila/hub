@@ -164,7 +164,7 @@ def task_updated(event: Event):
     data = {"status": event.get("state", "RUNNING")}
 
     # Rather than send all data, only pass on known fields
-    for field in ["log", "url"]:
+    for field in ["log", "urls"]:
         value = event.get(field)
         if value:
             data.update({field: value})

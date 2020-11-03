@@ -152,9 +152,17 @@ class KubernetesSession(Job):
             else os.path.join(host_path, "working", str(project))
         )
 
-        # Create pod listening on a random port number
-        protocol = "ws"
-        port = random.randint(10000, 65535)
+        # Protocols and ports that the session will listen on.
+        # Note that random is about the best we can do (we do not
+        # know which ports are already in use because we do not
+        # know which machine this pod will be assigned to).
+        # There is a small probability of clashes.
+        ports = {
+            "ws": random.randint(10000, 65535),
+            "http": random.randint(10000, 65535),
+        }
+
+        # Pod manifest
         pod = {
             "apiVersion": "v1",
             "kind": "Pod",
@@ -171,15 +179,18 @@ class KubernetesSession(Job):
                         "command": [
                             "executa",
                             "serve",
-                            "--{}=0.0.0.0:{}".format(protocol, port),
                             "--key={}".format(key),
                             "--timeout={}".format(timeout),
                             "--timelimit={}".format(timelimit),
+                        ]
+                        + [
+                            f"--{protocol}=0.0.0.0:{port}"
+                            for protocol, port in ports.items()
                         ],
                         "securityContext": {"runAsUser": 1000, "runAsGroup": 1000},
-                        "ports": [{"containerPort": port}],
+                        "ports": [{"containerPort": port} for port in ports.values()],
                         "readinessProbe": {
-                            "tcpSocket": {"port": port},
+                            "tcpSocket": {"port": ports["ws"]},
                             "initialDelaySeconds": 2,
                             "periodSeconds": 1,
                             "failureThreshold": 60,
@@ -300,8 +311,11 @@ class KubernetesSession(Job):
             time.sleep(0.25)
         ip = pod.status.pod_ip
 
-        # Update the job state with the internal URL of the pod
-        self.notify(state="RUNNING", url="{}://{}:{}".format(protocol, ip, port))
+        # Update the job state with the internal URLs of the pod
+        urls = dict(
+            (protocol, f"{protocol}://{ip}:{port}") for protocol, port in ports.items()
+        )
+        self.notify(state="RUNNING", urls=urls)
 
         self.logger.debug("Started pod")
 

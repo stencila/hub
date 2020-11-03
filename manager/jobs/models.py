@@ -671,12 +671,10 @@ class Job(models.Model):
         null=True, blank=True, help_text="The running time of the job."
     )
 
-    # Not a URLField because potential for non-standard schemes e.g. ws://
-    url = models.CharField(
-        max_length=256,
+    urls = models.JSONField(
         null=True,
         blank=True,
-        help_text="The URL of the job on the local network; can be used to interact with it.",
+        help_text="The URLs of the job on the local network (by protocol); can be used to interact with it.",
     )
 
     users = models.ManyToManyField(
