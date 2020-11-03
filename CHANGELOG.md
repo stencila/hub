@@ -1,3 +1,10 @@
+## [4.13.4](https://github.com/stencila/hub/compare/v4.13.3...v4.13.4) (2020-11-03)
+
+
+### Bug Fixes
+
+* **Sessions:** Re-enable HTTP server on sessions ([52509c4](https://github.com/stencila/hub/commit/52509c4acee643c1c312386a11943f0e9e8f1df6))
+
 # [4.13.0](https://github.com/stencila/hub/compare/v4.12.0...v4.13.0) (2020-11-03)
 
 
