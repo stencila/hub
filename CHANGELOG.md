@@ -1,3 +1,15 @@
+# [4.12.0](https://github.com/stencila/hub/compare/v4.11.0...v4.12.0) (2020-11-03)
+
+
+### Bug Fixes
+
+* **Overseer:** Only record events and collect data on workers ([4f5b50e](https://github.com/stencila/hub/commit/4f5b50ef3b886e03ddd187c68747557ca8a6fd2a))
+
+
+### Features
+
+* **Accounts:** Obtain picture when authenticating with OpenID ([5b87ece](https://github.com/stencila/hub/commit/5b87ece2b877eea4e9123dbd8d052ca6d7e475e9))
+
 # [4.11.0](https://github.com/stencila/hub/compare/v4.10.4...v4.11.0) (2020-11-02)
 
 
