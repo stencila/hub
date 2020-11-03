@@ -599,9 +599,10 @@ class ProjectsJobsViewSet(
         # Record the user that is connecting to the job
         job.add_user(request)
 
-        # Get the correct internal URL based on the request's protocol
-        # TODO: Remove this temporary forcing of ws
-        protocol = "ws" # request.scheme
+        # Get the correct internal URL based on the `protocol` URL query parameter
+        # It is not possible to use `request.scheme` here because it always seems to
+        # be `http` (even for `ws` requests, at least when behind Nginx).
+        protocol = request.GET.get("protocol", "ws")
         if protocol in ("ws", "wss"):
             url = job.urls.get("ws")
         elif protocol in ("http", "https"):

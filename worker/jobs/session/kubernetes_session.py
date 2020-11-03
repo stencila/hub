@@ -159,8 +159,7 @@ class KubernetesSession(Job):
         # There is a small probability of clashes.
         ports = {
             "ws": random.randint(10000, 65535),
-            # TODO: Remove this temporary fix.
-            # "http": random.randint(10000, 65535),
+            "http": random.randint(10000, 65535),
         }
 
         # Pod manifest

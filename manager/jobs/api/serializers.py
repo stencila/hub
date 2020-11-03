@@ -66,11 +66,12 @@ class JobListSerializer(serializers.ModelSerializer):
                             "api-projects-jobs-connect",
                             kwargs=dict(project=job.project.id, job=job.id),
                         )
-                        + f"?key={job.key}"
+                        + f"?protocol={protocol}&key={job.key}"
                     )
 
                     # The `build_absolute_uri` function will always return
                     # `http` or `https` so replace with the protocol of the URL if necessary.
+                    # Note: this will result a `wss://` URL if the request is a secure one (i.e. HTTPS).
                     if protocol == "ws":
                         url = re.sub(r"^http", "ws", url)
 
