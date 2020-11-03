@@ -70,8 +70,11 @@ class JobListSerializer(serializers.ModelSerializer):
                     )
 
                     # The `build_absolute_uri` function will always return
-                    # `http` or `https` so replace with the protocol of the URL.
-                    urls[protocol] = re.sub(r"^https?://", protocol + "://", url)
+                    # `http` or `https` so replace with the protocol of the URL if necessary.
+                    if protocol == "ws":
+                        url = re.sub(r"^http", "ws", url)
+
+                    urls[protocol] = url
 
             return urls
 
