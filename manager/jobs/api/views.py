@@ -600,7 +600,8 @@ class ProjectsJobsViewSet(
         job.add_user(request)
 
         # Get the correct internal URL based on the request's protocol
-        protocol = request.scheme
+        # TODO: Remove this temporary forcing of ws
+        protocol = "ws" # request.scheme
         if protocol in ("ws", "wss"):
             url = job.urls.get("ws")
         elif protocol in ("http", "https"):
