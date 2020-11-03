@@ -25,7 +25,7 @@ for this purpose (the results should be used for that, which is what
 `update_job` does; see https://github.com/celery/celery/issues/2190#issuecomment-51609500).
 """
 from datetime import datetime
-from typing import Dict, List, Set, Union
+from typing import cast, Dict, List, Set, Union
 import asyncio
 import json
 import logging
@@ -224,8 +224,10 @@ def worker_online(event: Event):
     such as the queues it is listening to are sent by the
     `Collector` thread because they can take some time and
     we do not want to block this main event handling thread.
+    Ignores events from other types of Celery workers e.g. `assistant`.
     """
-    request("POST", "workers/online", json=event)
+    if "worker" in cast(str, event.get("hostname")):
+        request("POST", "workers/online", json=event)
 
 
 def worker_heartbeat(event: Event):
@@ -236,18 +238,21 @@ def worker_heartbeat(event: Event):
     Because of the intricacies of uniquely identifying workers,
     rather trying to resolve which worker this heartbeat is for here,
     we sent the entire event to the `manager` and do it over there.
+    Ignores events from other types of Celery workers e.g. `assistant`.
     """
-    request("POST", "workers/heartbeat", json=event)
+    if "worker" in cast(str, event.get("hostname")):
+        request("POST", "workers/heartbeat", json=event)
 
 
 def worker_offline(event: Event):
     """
     Sent when a worker has disconnected from the broker.
 
-    Sends a POST request to the `manager` to mark the
-    worker as finished.
+    Sends a POST request to the `manager` to mark the worker as finished.
+    Ignores events from other types of Celery workers e.g. `assistant`.
     """
-    request("POST", "workers/offline", json=event)
+    if "worker" in cast(str, event.get("hostname")):
+        request("POST", "workers/offline", json=event)
 
 
 class Receiver(EventReceiver):
@@ -409,7 +414,10 @@ class Collector(threading.Thread):
 
             # Update `self.workers` with list of workers that have been
             # successfully pinged.
-            hostnames = [list(worker.keys())[0] for worker in workers]
+            hostnames = filter(
+                lambda hostname: "worker" in hostname,
+                [list(worker.keys())[0] for worker in workers],
+            )
             for hostname in hostnames:
                 if hostname not in self.workers or self.workers[hostname] == []:
                     self.add_worker(hostname)
