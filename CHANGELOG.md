@@ -1,3 +1,16 @@
+# [4.13.0](https://github.com/stencila/hub/compare/v4.12.0...v4.13.0) (2020-11-03)
+
+
+### Bug Fixes
+
+* **Worker:** Gracefully handle lack of registry credentials in pin job ([546ac31](https://github.com/stencila/hub/commit/546ac310a113fcb22a2c1f5587d96b37d9ff33e9))
+* **Worker:** Update Encoda ([f7ce211](https://github.com/stencila/hub/commit/f7ce211bfd1e60be04e551ff1f2ce2d3747a5da3))
+
+
+### Features
+
+* **Sessions:** Serve sessions on both Websocket and HTTP ([db0354a](https://github.com/stencila/hub/commit/db0354a10e7fca1a69e3009031aca5fb4624146f))
+
 # [4.12.0](https://github.com/stencila/hub/compare/v4.11.0...v4.12.0) (2020-11-03)
 
 
