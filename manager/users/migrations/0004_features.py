@@ -5,7 +5,7 @@ def create_flags(apps, schema_editor):
     Flag.objects.create(
         name = "product_messages",
         label = "Support messages",
-        note = "We use Intercom to provide...",
+        note = "We use Intercom to provide in-app support via chat messages and notifications.",
         superusers = False,
         default = "on",
         settable = True
@@ -13,7 +13,7 @@ def create_flags(apps, schema_editor):
     Flag.objects.create(
         name = "product_tours",
         label = "Product tours",
-        note = "We use UserFlow to provide...",
+        note = "We use UserFlow to provide in-app product tours and onboarding checklists.",
         superusers = False,
         default = "on",
         settable = True
@@ -21,7 +21,7 @@ def create_flags(apps, schema_editor):
     Flag.objects.create(
         name = "product_analytics",
         label = "Product analytics",
-        note = "We use PostHog to provide...",
+        note = "We use PostHog to collect analytics on how users use our products.",
         superusers = False,
         default = "on",
         settable = True,
@@ -29,7 +29,7 @@ def create_flags(apps, schema_editor):
     Flag.objects.create(
         name = "crash_monitoring",
         label = "Crash monitoring",
-        note = "We use Sentry to provide...",
+        note = "We use Sentry for application monitoring and error reporting.",
         superusers = False,
         default = "on",
         settable = True
@@ -39,7 +39,7 @@ def create_flags(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0001_initial'),
+        ('users', '0003_auto_20201005_1924'),
     ]
 
     operations = [
