@@ -88,13 +88,39 @@ class Flag(AbstractUserFlag):
     """
     Custom feature flag model.
 
-    It is only possible to set this custom model once. In the future, fields may be
+    Adds fields to allow users to turn features on/off themselves.
+
+    In the future, fields may be
     added to allow flags to be set based on the account (in addition to, or instead
-    of only the user).
+    of, only the user).
     See https://waffle.readthedocs.io/en/stable/types/flag.html#custom-flag-models
     """
 
-    pass
+    label = models.CharField(
+        max_length=128, help_text="A label for the feature to display to users."
+    )
+
+    default = models.CharField(
+        max_length=3,
+        choices=[("on", "On"), ("off", "Off")],
+        default="on",
+        help_text='If the default is "on" then when the flag is active, '
+        'the feature should be considered "off" and vice versa.',
+    )
+
+    settable = models.BooleanField(
+        default=False, help_text="User can turn this flag on/off for themselves."
+    )
+
+    def is_active_for_user(self, user) -> bool:
+        """
+        Is the feature "on" for a user.
+
+        Changes the underlying behaviour of Waffle flags based on
+        the `default` field for the flag.
+        """
+        is_active = super().is_active_for_user(user)
+        return is_active if self.default == "off" else not is_active
 
 
 def generate_invite_key():

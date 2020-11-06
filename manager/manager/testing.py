@@ -84,30 +84,31 @@ class DatabaseTestCase(test.APITestCase):
                 )
             )
 
-    def list(self, user: Optional[User], viewname: str, data={}, kwargs={}) -> Response:
+    @staticmethod
+    def reverse(viewname_or_url: str, list_or_detail: str, kwargs={}) -> str:
+        """Get the URL path for a view."""
+        if viewname_or_url.startswith("/"):
+            return viewname_or_url
+        return reverse(
+            viewname_or_url
+            if "-" in viewname_or_url
+            else f"api-{viewname_or_url}-{list_or_detail}",
+            kwargs=kwargs,
+        )
+
+    def list(
+        self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
+    ) -> Response:
         """List objects of a type for a user."""
         self.authenticate(user)
-        return self.client.get(
-            reverse(
-                viewname if "-" in viewname else "api-{}-list".format(viewname),
-                kwargs=kwargs,
-            ),
-            data,
-        )
+        return self.client.get(self.reverse(viewname, "list", kwargs), data, **headers)
 
     def create(
         self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
     ) -> Response:
         """Create an object of a type for a user."""
         self.authenticate(user)
-        return self.client.post(
-            reverse(
-                viewname if "-" in viewname else "api-{}-list".format(viewname),
-                kwargs=kwargs,
-            ),
-            data,
-            **headers,
-        )
+        return self.client.post(self.reverse(viewname, "list", kwargs), data, **headers)
 
     def retrieve(
         self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
@@ -115,10 +116,14 @@ class DatabaseTestCase(test.APITestCase):
         """Create an object of a type for a user."""
         self.authenticate(user)
         return self.client.get(
-            reverse(
-                viewname if "-" in viewname else "api-{}-detail".format(viewname),
-                kwargs=kwargs,
-            ),
-            data,
-            **headers,
+            self.reverse(viewname, "detail", kwargs), data, **headers,
+        )
+
+    def update(
+        self, user: Optional[User], viewname: str, data={}, kwargs={}, headers={}
+    ) -> Response:
+        """Update an object of a type for a user."""
+        self.authenticate(user)
+        return self.client.patch(
+            self.reverse(viewname, "detail", kwargs), data, **headers,
         )

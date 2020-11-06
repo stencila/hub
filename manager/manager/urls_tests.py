@@ -73,6 +73,11 @@ checks = [
         ada=title("Manage e-mail addresses")
     ),
     Check(
+        "/me/features/",
+        anon=signin,
+        ada=title("Feature and privacy settings")
+    ),
+    Check(
         "/me/social/connections/",
         anon=signin,
         ada=title("Manage account connections")

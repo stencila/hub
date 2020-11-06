@@ -646,8 +646,10 @@ class Dev(Local):
     STRIPE_TEST_PUBLIC_KEY = values.Value("")
     STRIPE_TEST_SECRET_KEY = values.Value("sk_test_test")
 
-    # In standalone development, default to using a pseudo, in-memory broker
+    # In standalone development, default to using a pseudo, in-memory broker and
+    # phony cache.
     BROKER_URL = values.Value("memory://", environ_prefix=None)
+    CACHE_URL = values.Value("", environ_prefix=None)
 
     # For easier testing allow username/password Basic auth for API
     API_BASIC_AUTH = True

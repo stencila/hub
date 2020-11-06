@@ -26,6 +26,8 @@
   </script>
   {% endif %}
 
+  {% flag 'crash_monitoring' %}
+  <!-- crash_monitoring: on -->
   {% if SENTRY_DSN %}
   <script src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js"
           integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo" crossorigin="anonymous">
@@ -39,7 +41,10 @@
 
   </script>
   {% endif %}
+  {% endflag %}
 
+  {% flag 'product_analytics' %}
+  <!-- product_analytics: on -->
   {% if POSTHOG_KEY %}
   <script>
     /* beautify ignore:start */
@@ -62,6 +67,7 @@
 
   </script>
   {% endif %}
+  {% endflag %}
 </head>
 
 {% language LANGUAGE_CODE %}
@@ -338,8 +344,13 @@
       <div class="container">
   </footer>
 
+  {% flag 'product_messages' %}
+  <!-- product_messages: on -->
   {% intercom_tag %}
+  {% endflag %}
 
+  {% flag 'product_tours' %}
+  <!-- product_tours: on -->
   {% if USERFLOW_KEY %}
   <script>
     managerLibs.userflow.init('{{ USERFLOW_KEY }}')
@@ -350,6 +361,7 @@
 
   </script>
   {% endif %}
+  {% endflag %}
 
   <div class="modal" id="modal-target">
     <div class="modal-background cursor-close"></div>

@@ -1,0 +1,36 @@
+{% extends "base_centered.html" %}
+
+{% load i18n waffle_tags %}
+
+{% block title %}{% trans "Feature and privacy settings" %}{% endblock %}
+
+{% block layout_content %}
+<h1 class="title is-3">{% trans "Feature and privacy settings" %}</h1>
+
+<form hx-patch="{% url 'api-features' %}" hx-template="users/features.html" hx-select="form"
+      include-vals="{% for flag in flags %}{{ flag.name }}: document.querySelector('form [name={{ flag.name }}]').checked, {% endfor %}">
+  {% for flag in flags %}
+  <div class="level">
+    <h1 class="level-left title is-5">{{ flag.label }}</h1>
+    <span class="level-right has-text-right-tablet">
+      <input id="{{ flag.name }}" name="{{ flag.name }}" type="checkbox" class="toggle is-small is-inline"
+             {% flag flag.name %}checked{% endflag %}>
+      <label for="{{ flag.name }}">
+        <span class="is-sr-only">{{ flag.label }}</span>
+      </label>
+    </span>
+  </div>
+  <p>{{ flag.note }}</p>
+  <hr />
+  {% endfor %}
+  <button class="button is-primary" type="submit">
+    <span class="icon">
+      <i class="ri-refresh-line"></i>
+    </span>
+    <span>
+      {% trans "Update" %}
+    </span>
+  </button>
+</form>
+
+{% endblock %}
