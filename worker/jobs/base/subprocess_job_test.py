@@ -1,3 +1,4 @@
+import os
 import sys
 from unittest import mock
 
@@ -25,7 +26,10 @@ def test_input():
     assert result["log"] == []
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="flakey on other platforms")
+@pytest.mark.skipif(
+    sys.platform != "linux" and os.getenv("CI", "0") != "0",
+    reason="flakey on other platforms; causes minute changes in coverage on CI",
+)
 def test_failure():
     """If the subprocess returns a non zero exit code then the job fails."""
     job = SubprocessJob()
