@@ -1,3 +1,15 @@
+# [4.14.0](https://github.com/stencila/hub/compare/v4.13.5...v4.14.0) (2020-11-06)
+
+
+### Bug Fixes
+
+* **Features:** Update migration ([cf7f199](https://github.com/stencila/hub/commit/cf7f19911b19f8c7958bd49551500cd98169f515))
+
+
+### Features
+
+* **Features and privacy:** Allow users to turn on/off features ([99baabf](https://github.com/stencila/hub/commit/99baabf5db1a5f6b16faae8fe8ecf7f16774e5fd))
+
 ## [4.13.5](https://github.com/stencila/hub/compare/v4.13.4...v4.13.5) (2020-11-06)
 
 
