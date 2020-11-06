@@ -1,3 +1,16 @@
+## [4.13.5](https://github.com/stencila/hub/compare/v4.13.4...v4.13.5) (2020-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.5.4 ([497575d](https://github.com/stencila/hub/commit/497575ddce3fd58b2ba11cce9ea7d1ac625f663d))
+* **deps:** update dependency @stencila/encoda to v0.101.3 ([035af0f](https://github.com/stencila/hub/commit/035af0fef62f87b778b076e876c4114d49834835))
+* **deps:** update dependency @stencila/executa to v1.15.1 ([0d94ee5](https://github.com/stencila/hub/commit/0d94ee557aad9127de3a64faa171b722575f8198))
+* **deps:** update dependency django to v3.1.3 ([944fdc9](https://github.com/stencila/hub/commit/944fdc9dce28b2a4ffc64dccf0483b98692e0d1f))
+* **deps:** update dependency djangorestframework to v3.12.2 ([c7d452f](https://github.com/stencila/hub/commit/c7d452fcdfcd76feebee11a8d9770f06f0029004))
+* **deps:** update dependency htmx.org to v0.3.0 ([2840572](https://github.com/stencila/hub/commit/2840572ecb1951cc11a29be27f687cd1e5f83cfa))
+* **deps:** update dependency sentry-sdk to v0.19.2 ([d7e583f](https://github.com/stencila/hub/commit/d7e583f19d969318571e6136cc63fa2a47bc8901))
+
 ## [4.13.4](https://github.com/stencila/hub/compare/v4.13.3...v4.13.4) (2020-11-03)
 
 
