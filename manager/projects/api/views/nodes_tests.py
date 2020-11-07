@@ -134,7 +134,6 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
         assert response.template_name == "projects/nodes/complete.html"
-        assert response.data.get("node_type") == "Text"
         assert response.data.get("html") is not None
 
     def test_retrieve_anything(self):

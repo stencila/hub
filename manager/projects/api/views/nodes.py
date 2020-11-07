@@ -7,7 +7,6 @@ from rest_framework import mixins, parsers, permissions, renderers, status, view
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
-from stencila.schema.util import node_type
 
 from projects.api.serializers import (
     NodesCreateRequest,
@@ -154,7 +153,7 @@ class NodesViewSet(
                     get_projects(request.user).get(id=node.project.id)
                 except Project.DoesNotExist:
                     return Response(
-                        {"node_type": node_type(node.json), "node": node},
+                        {"meta": node.get_meta(), "node": node},
                         template_name="projects/nodes/basic.html",
                     )
 
@@ -166,7 +165,7 @@ class NodesViewSet(
             app_name, app_url = APPS.get(node.app, (node.app, None))
             return Response(
                 {
-                    "node_type": node_type(node.json),
+                    "meta": node.get_meta(),
                     "app_url": app_url,
                     "app_name": app_name,
                     "node": node,

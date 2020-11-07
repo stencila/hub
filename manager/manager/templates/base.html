@@ -1,17 +1,17 @@
-{% load i18n static stencila intercom waffle_tags %}
+{% load i18n static stencila meta intercom waffle_tags %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
 <html lang="{{ LANGUAGE_CODE }}">
 
-<head>
+<head {% meta_namespaces %}>
   <title>{% block title %}Home{% endblock %} : Stencila</title>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An open source platform for reproducible research.">
+  {% include 'meta/meta.html' %}
 
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-
   <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
   {% block styles %}{% endblock %}
 

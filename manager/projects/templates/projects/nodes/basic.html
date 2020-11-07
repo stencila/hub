@@ -1,4 +1,4 @@
-{% load static %}
+{% load static meta %}
 {% comment %}
 This template is accessible to anonymous users so should only expose basic information about a node.
 It should NOT include details of where and by what app the node was created,
@@ -11,10 +11,11 @@ useful links to Stencila Hub to authenticate to view the full article etc might 
 <!DOCTYPE html>
 <html>
 
-<head>
-  <title>{{ node_type }}</title>
+<head {% meta_namespaces %}>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% include 'meta/meta.html' %}
+
   <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
   <style>
     body {

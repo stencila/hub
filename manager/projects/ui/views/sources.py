@@ -17,7 +17,9 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     all_messages(request, project)
 
     return render(
-        request, "projects/sources/list.html", dict(sources=sources, project=project)
+        request,
+        "projects/sources/list.html",
+        dict(sources=sources, project=project, meta=project.get_meta()),
     )
 
 
@@ -69,6 +71,7 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             fields_template=fields_template,
             source_class=source_class,
             project=project,
+            meta=project.get_meta(),
         ),
     )
 
@@ -86,7 +89,11 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
 
     if request.method == "GET":
-        return render(request, "projects/sources/upload.html", dict(project=project))
+        return render(
+            request,
+            "projects/sources/upload.html",
+            dict(project=project, meta=project.get_meta()),
+        )
     elif request.method == "POST":
         files = request.FILES.getlist("files")
         if files:
@@ -115,7 +122,9 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     source = viewset.get_object(project)
     return render(
-        request, "projects/sources/retrieve.html", dict(source=source, project=project)
+        request,
+        "projects/sources/retrieve.html",
+        dict(source=source, project=project, meta=project.get_meta()),
     )
 
 
@@ -123,12 +132,13 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update a source."""
     viewset = ProjectsSourcesViewSet.init("partial_update", request, args, kwargs)
-    source = viewset.get_object()
+    project = viewset.get_project()
+    source = viewset.get_object(project)
     serializer = viewset.get_serializer(source)
     return render(
         request,
         "projects/sources/update.html",
-        dict(serializer=serializer, source=source),
+        dict(serializer=serializer, source=source, meta=project.get_meta()),
     )
 
 
@@ -160,5 +170,10 @@ def destroy(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "projects/sources/destroy.html",
-        dict(source=source, project=project, account=project.account),
+        dict(
+            source=source,
+            project=project,
+            account=project.account,
+            meta=project.get_meta(),
+        ),
     )

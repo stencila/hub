@@ -1,4 +1,4 @@
-{% load static %}
+{% load static meta %}
 {% comment %}
 This template is only accessible to users that have permission to view the project
 the node belongs to.
@@ -6,10 +6,11 @@ the node belongs to.
 <!DOCTYPE html>
 <html>
 
-<head>
-  <title>{{ node_type }}</title>
+<head {% meta_namespaces %}>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% include 'meta/meta.html' %}
+
   <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
   <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css" rel="stylesheet">
   <style>

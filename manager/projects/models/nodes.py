@@ -1,5 +1,7 @@
 from django.db import models
 from django.shortcuts import reverse
+from meta.views import Meta
+from stencila.schema.util import node_type
 
 from projects.models.projects import Project
 from users.models import User
@@ -80,3 +82,7 @@ class Node(models.Model):
     def get_absolute_url(self):
         """Get the URL of this node."""
         return reverse("api-nodes-detail", kwargs={"key": self.key})
+
+    def get_meta(self) -> Meta:
+        """Get the metadata to include in the head of the node's page."""
+        return Meta(title=node_type(self.json) + " node", use_title_tag=True)

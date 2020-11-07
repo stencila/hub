@@ -11,6 +11,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
 from imagefield.fields import ImageField
+from meta.views import Meta
 
 from manager.helpers import EnumChoice, unique_slugify
 from manager.storage import media_storage
@@ -285,6 +286,23 @@ class Account(models.Model):
             self.set_image_from_socialaccount(socialaccount)
             if not self.image_is_identicon():
                 return
+
+    def get_meta(self) -> Meta:
+        """
+        Get the metadata to include in the head of the account's page.
+        """
+        return Meta(
+            object_type="profile",
+            extra_custom_props=[
+                ("property", "profile.username", self.user.username),
+                ("property", "profile.first_name", self.user.first_name),
+                ("property", "profile.last_name", self.user.last_name),
+            ]
+            if self.user
+            else [],
+            title=self.display_name or self.name,
+            image=self.image.large,
+        )
 
 
 def make_account_creator_an_owner(

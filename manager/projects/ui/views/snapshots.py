@@ -15,7 +15,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "projects/snapshots/list.html",
-        dict(project=project, snapshots=snapshots),
+        dict(project=project, snapshots=snapshots, meta=project.get_meta()),
     )
 
 
@@ -29,4 +29,8 @@ def retrieve(
     project = viewset.get_project()
     snapshot = viewset.get_object(project)
 
-    return render(request, template, dict(project=project, snapshot=snapshot))
+    return render(
+        request,
+        template,
+        dict(project=project, snapshot=snapshot, meta=project.get_meta()),
+    )

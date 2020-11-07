@@ -73,7 +73,12 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "accounts/retrieve.html",
-        dict(account=account, role=account.role, projects=projects),
+        dict(
+            account=account,
+            role=account.role,
+            projects=projects,
+            meta=account.get_meta(),
+        ),
     )
 
 

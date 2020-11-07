@@ -29,7 +29,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
     project = viewset.get_project()
     files = viewset.get_queryset(project)
-    context = viewset.get_response_context(queryset=files)
+    context = viewset.get_response_context(queryset=files, meta=project.get_meta())
 
     all_messages(request, project)
 
@@ -55,6 +55,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         upstreams=upstreams,
         downstreams=downstreams,
         history=history,
+        meta=project.get_meta(),
     )
 
     return render(request, "projects/files/retrieve.html", context)
@@ -102,7 +103,9 @@ def upload(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
     if request.method == "GET":
         return render(
-            request, "projects/files/upload.html", dict(project=project, path=path)
+            request,
+            "projects/files/upload.html",
+            dict(project=project, path=path, meta=project.get_meta()),
         )
     elif request.method == "POST":
         file = request.FILES.get("file")
@@ -135,7 +138,12 @@ def convert(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     next = request.GET.get("next")
 
     context = viewset.get_response_context(
-        file=file, path=path, format=format, prev=prev, next=next
+        file=file,
+        path=path,
+        format=format,
+        prev=prev,
+        next=next,
+        meta=project.get_meta(),
     )
 
     return render(request, "projects/files/convert.html", context)
@@ -149,6 +157,6 @@ def destroy(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsFilesViewSet.init("destroy", request, args, kwargs)
     project = viewset.get_project()
     file = viewset.get_object(project)
-    context = viewset.get_response_context(file=file)
+    context = viewset.get_response_context(file=file, meta=project.get_meta())
 
     return render(request, "projects/files/destroy.html", context)
