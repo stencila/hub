@@ -1,3 +1,10 @@
+## [4.14.1](https://github.com/stencila/hub/compare/v4.14.0...v4.14.1) (2020-11-07)
+
+
+### Bug Fixes
+
+* **Features:** Allow null values for label ([426b86e](https://github.com/stencila/hub/commit/426b86e724023bf063581a954b1e311711c48562))
+
 # [4.14.0](https://github.com/stencila/hub/compare/v4.13.5...v4.14.0) (2020-11-06)
 
 
