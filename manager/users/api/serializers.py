@@ -7,6 +7,7 @@ from knox.models import AuthToken
 from rest_framework import serializers
 
 from accounts.api.serializers_account_image import AccountImageSerializer
+from users.api.views.features import get_features
 from users.models import Invite, User
 
 
@@ -92,9 +93,12 @@ class MeSerializer(UserSerializer):
     email_addresses = MeEmailAddressSerializer(
         source="emailaddress_set", many=True, read_only=True
     )
+
     linked_accounts = MeLinkedAccountSerializer(
         source="socialaccount_set", many=True, read_only=True
     )
+
+    features = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -103,7 +107,12 @@ class MeSerializer(UserSerializer):
             "last_login",
             "email_addresses",
             "linked_accounts",
+            "features",
         ]
+
+    def get_features(self, user):
+        """Get the dictionary of feature flags for a user."""
+        return get_features(user)
 
 
 class UserIdentifierSerializer(serializers.Serializer):
