@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.http import HttpRequest
 from django.shortcuts import reverse
+from meta.views import Meta
 
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
@@ -172,6 +173,17 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_meta(self) -> Meta:
+        """
+        Get the metadata to include in the head of the project's pages.
+        """
+        return Meta(
+            object_type="article",
+            title=self.title or self.name,
+            description=self.description,
+            image=self.account.image.large,
+        )
 
     @property
     def scheduled_deletion_time(self) -> Optional[datetime.datetime]:

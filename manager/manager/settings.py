@@ -100,6 +100,7 @@ class Prod(Configuration):
         "imagefield",
         "invitations",
         "knox",
+        "meta",
         "polymorphic",
         "rest_framework",
         "waffle",
@@ -323,6 +324,18 @@ class Prod(Configuration):
     INVITATIONS_EMAIL_MAX_LENGTH = 1024
     INVITATIONS_EMAIL_SUBJECT_PREFIX = "Invitation to Stencila"
     INVITATIONS_INVITATION_MODEL = "users.Invite"
+
+    # django-meta settings
+    # See https://django-meta.readthedocs.io/en/latest/settings.html
+
+    META_SITE_PROTOCOL = "https"
+    META_SITE_DOMAIN = "hub.stenci.la"
+    META_SITE_TYPE = "website"
+    META_SITE_NAME = "Stencila"
+    META_DEFAULT_KEYWORDS = ["reproducible", "research"]
+    META_USE_OG_PROPERTIES = True
+    META_USE_TWITTER_PROPERTIES = True
+    META_USE_SCHEMAORG_PROPERTIES = True
 
     # django-waffle settings
     # See https://waffle.readthedocs.io/en/stable/starting/configuring.html

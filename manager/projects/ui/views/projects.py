@@ -121,16 +121,17 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Update a project."""
     viewset = ProjectsViewSet.init("partial_update", request, args, kwargs)
-    instance = viewset.get_object()
-    serializer = viewset.get_serializer(instance)
+    project = viewset.get_object()
+    serializer = viewset.get_serializer(project)
     destroy_serializer = ProjectDestroySerializer()
     return render(
         request,
         "projects/update.html",
         dict(
-            project=instance,
+            project=project,
             serializer=serializer,
             destroy_serializer=destroy_serializer,
+            meta=project.get_meta(),
         ),
     )
 
@@ -139,5 +140,7 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project's sharing settings."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
-    instance = viewset.get_object()
-    return render(request, "projects/sharing.html", dict(project=instance))
+    project = viewset.get_object()
+    return render(
+        request, "projects/sharing.html", dict(project=project, meta=project.get_meta())
+    )

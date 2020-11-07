@@ -14,7 +14,11 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     jobs = viewset.get_queryset(project)
 
-    return render(request, "projects/jobs/list.html", dict(project=project, jobs=jobs))
+    return render(
+        request,
+        "projects/jobs/list.html",
+        dict(project=project, jobs=jobs, meta=project.get_meta()),
+    )
 
 
 @login_required
@@ -27,5 +31,7 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     job = viewset.get_object(project)
 
     return render(
-        request, "projects/jobs/retrieve.html", dict(project=project, job=job)
+        request,
+        "projects/jobs/retrieve.html",
+        dict(project=project, job=job, meta=project.get_meta()),
     )
