@@ -97,7 +97,10 @@ class Flag(AbstractUserFlag):
     """
 
     label = models.CharField(
-        max_length=128, help_text="A label for the feature to display to users."
+        max_length=128,
+        null=True,
+        blank=True,
+        help_text="A label for the feature to display to users.",
     )
 
     default = models.CharField(
