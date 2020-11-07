@@ -1,3 +1,10 @@
+# [4.15.0](https://github.com/stencila/hub/compare/v4.14.1...v4.15.0) (2020-11-07)
+
+
+### Features
+
+* **Meta data:** Add meta data to pages for Accounts, Projects and Nodes. ([f38d0d3](https://github.com/stencila/hub/commit/f38d0d37954969dc972a52767994da380f2729fb))
+
 ## [4.14.1](https://github.com/stencila/hub/compare/v4.14.0...v4.14.1) (2020-11-07)
 
 
