@@ -9,6 +9,7 @@ from .elife import pull_elife
 from .gdoc import pull_gdoc
 from .gdrive import pull_gdrive
 from .github import pull_github
+from .gsheet import pull_gsheet
 from .http import pull_http
 from .plos import pull_plos
 from .upload import pull_upload
@@ -18,6 +19,7 @@ PULL_FUNCS: Dict[str, Callable[..., Files]] = {
     "elife": pull_elife,
     "github": pull_github,
     "googledocs": pull_gdoc,
+    "googlesheets": pull_gsheet,
     "googledrive": pull_gdrive,
     "http": pull_http,
     "plos": pull_plos,
