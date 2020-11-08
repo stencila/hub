@@ -1,0 +1,12 @@
+{% load i18n static %}
+
+<h2 class="title">
+  <img alt="Google Sheets" src="{% static 'img/google-sheets-logo.png' %}" role="presentation" width="200px" />
+</h2>
+<p class="subtitle is-6">
+  A Google Sheet source lets you pull a Google Sheet into your project so
+  that you can convert it to other formats or publish it!
+</p>
+
+{% include "serializers/_field.html" with field=serializer.doc_id icon="ri-at-line" autofocus=True %}
+{% include "./_create_common_fields.html" %}

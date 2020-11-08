@@ -3,9 +3,9 @@
   {% spaceless %}
   {% if type == 'Github' %}
   <i class="ri-github-line"></i>
-  {% elif type in 'GoogleDocs' %}
+  {% elif type in 'GoogleDocs, GoogleSheets' %}
   <i class="ri-google-line"></i>
-  {% elif type in 'GoogleDrive' %}
+  {% elif type == 'GoogleDrive' %}
   <i class="ri-drive-line"></i>
   {% elif type == 'Upload' %}
   <i class="ri-upload-cloud-line"></i>
@@ -19,6 +19,8 @@
   GitHub
   {% elif type == 'GoogleDocs' %}
   Google Docs
+  {% elif type == 'GoogleSheets' %}
+  Google Sheets
   {% elif type == 'GoogleDrive' %}
   Google Drive
   {% elif type == 'Upload' %}

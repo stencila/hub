@@ -11,6 +11,7 @@ from django.db import models, transaction
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import reverse
 from django.utils import timezone
+from pygments.lexers.data import JsonLexer
 from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.special import TextLexer
 
@@ -154,6 +155,15 @@ class FileFormats(enum.Enum):
         label="Google Doc",
         mimetype="application/vnd.google-apps.document",
         icon_class="ri-google-line",
+        lexer=JsonLexer,
+    )
+    gsheet = file_format(
+        "gsheet",
+        label="Google Sheet",
+        mimetype="application/vnd.google-apps.spreadsheet",
+        icon_class="ri-google-line",
+        kind="spreadsheet",
+        lexer=JsonLexer,
     )
     gif = file_format("gif", icon_class="ri-file-gif-line")
     html = file_format("html")

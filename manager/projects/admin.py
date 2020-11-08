@@ -14,6 +14,7 @@ from projects.models.sources import (
     GithubSource,
     GoogleDocsSource,
     GoogleDriveSource,
+    GoogleSheetsSource,
     PlosSource,
     Source,
     UploadSource,
@@ -68,6 +69,7 @@ class SourceParentAdmin(PolymorphicParentModelAdmin):
         ElifeSource,
         GithubSource,
         GoogleDocsSource,
+        GoogleSheetsSource,
         GoogleDriveSource,
         PlosSource,
         UploadSource,
@@ -113,6 +115,14 @@ class GoogleDocsSourceAdmin(SourceChildAdmin):
     """Admin interface for GoogleDocs sources."""
 
     base_model = GoogleDocsSource
+    show_in_index = True
+
+
+@admin.register(GoogleSheetsSource)
+class GoogleSheetsSourceAdmin(SourceChildAdmin):
+    """Admin interface for GoogleSheets sources."""
+
+    base_model = GoogleSheetsSource
     show_in_index = True
 
 

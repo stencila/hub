@@ -152,9 +152,9 @@ class Source(PolymorphicModel):
             return self.__class__.__name__
 
         all_lower = ContentType.objects.get_for_id(self.polymorphic_ctype_id).model
-        for cls in Source.__subclasses__():
-            if cls.__name__.lower() == all_lower:
-                return cls.__name__
+        for source_type in SourceTypes:
+            if source_type.name.lower() == all_lower:
+                return source_type.name
         return ""
 
     @property
@@ -172,9 +172,9 @@ class Source(PolymorphicModel):
     @staticmethod
     def class_from_type_name(type_name: str) -> Type["Source"]:
         """Find the class matching the type name."""
-        for cls in Source.__subclasses__():
-            if cls.__name__.lower().startswith(type_name.lower()):
-                return cls
+        for source_type in SourceTypes:
+            if source_type.name.lower().startswith(type_name.lower()):
+                return source_type.value
 
         raise ValueError('Unable to find class matching "{}"'.format(type_name))
 
@@ -203,8 +203,8 @@ class Source(PolymorphicModel):
         if isinstance(address, SourceAddress):
             return address
 
-        for cls in Source.__subclasses__():
-            result = cls.parse_address(address)
+        for source_type in SourceTypes:
+            result = source_type.value.parse_address(address)
             if result is not None:
                 return result
 
@@ -295,8 +295,7 @@ class Source(PolymorphicModel):
                     (name, value)
                     for name, value in self.__dict__.items()
                     if name in class_fields
-                ],
-                type=self.type_name,
+                ]
             ),
         )
 
@@ -342,6 +341,8 @@ class Source(PolymorphicModel):
         Creates a job, and adds it to the source's `jobs` list.
         """
         source = self.to_address()
+        source["type"] = source.type_name
+
         secrets = self.get_secrets(user)
 
         description = "Pull {0}"
@@ -825,7 +826,16 @@ class GoogleSourceMixin:
 
 
 class GoogleDocsSource(GoogleSourceMixin, Source):
-    """A reference to a Google Docs document."""
+    """
+    A Google Docs document.
+
+    This class is also used as a base class for `GoogleSheetsSource`
+    and `GoogleSlidesSource`.
+    """
+
+    # Used to differentiate between docs, sheets and slides.
+    doc_type = "document"
+    doc_protocol = "gdoc"
 
     doc_id = models.TextField(
         null=False,
@@ -834,7 +844,16 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
 
     def make_address(self) -> str:
         """Make the address string of a Google Doc source."""
-        return "gdoc://{}".format(self.doc_id)
+        return f"{self.doc_protocol}://{self.doc_id}"
+
+    def to_address(self):
+        """
+        Override base method to return address based on the doc type.
+
+        This is needed for derived classes e.g. `GoogleSheetsSource` to
+        work properly.
+        """
+        return SourceAddress(self.type_name, doc_id=self.doc_id)
 
     @classmethod
     def parse_address(
@@ -843,12 +862,14 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
         """Parse a string into a Google Doc address."""
         doc_id = None
 
-        match = re.search(r"^gdoc://(.+)$", address, re.I)
+        match = re.search(r"^" + cls.doc_protocol + "://(.+)$", address, re.I)
         if match:
             doc_id = match.group(1)
 
         match = re.search(
-            r"^(?:https://)?docs.google.com/document/d/([^/]+)/?.*", address, re.I
+            r"^(?:https://)?docs.google.com/" + cls.doc_type + "/d/([^/]+)/?.*",
+            address,
+            re.I,
         )
         if match:
             doc_id = match.group(1)
@@ -863,7 +884,7 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
                 doc_id = None
 
         if doc_id:
-            return SourceAddress("GoogleDocs", doc_id=doc_id)
+            return SourceAddress(cls.__name__[:-6], doc_id=doc_id)
 
         if strict:
             raise ValidationError("Invalid Google Doc identifier: {}".format(address))
@@ -872,7 +893,18 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
 
     def get_url(self, path: Optional[str] = None) -> str:
         """Make the URL of a Google Doc."""
-        return "https://docs.google.com/document/d/{}/edit".format(self.doc_id)
+        return (
+            "https://docs.google.com/"
+            + self.doc_type
+            + "/d/{}/edit".format(self.doc_id)
+        )
+
+
+class GoogleSheetsSource(GoogleDocsSource):
+    """A Google Sheets document."""
+
+    doc_type = "spreadsheets"
+    doc_protocol = "gsheet"
 
 
 class GoogleDriveKind(EnumChoice):
@@ -883,7 +915,7 @@ class GoogleDriveKind(EnumChoice):
 
 
 class GoogleDriveSource(GoogleSourceMixin, Source):
-    """A reference to a Google Drive file or folder."""
+    """A Google Drive file or folder."""
 
     kind = models.CharField(
         max_length=16,
@@ -1127,6 +1159,7 @@ class SourceTypes(Enum):
     ElifeSource = ElifeSource
     GithubSource = GithubSource
     GoogleDocsSource = GoogleDocsSource
+    GoogleSheetsSource = GoogleSheetsSource
     GoogleDriveSource = GoogleDriveSource
     PlosSource = PlosSource
     UploadSource = UploadSource

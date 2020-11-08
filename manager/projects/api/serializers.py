@@ -25,6 +25,7 @@ from projects.models.sources import (
     GoogleDocsSource,
     GoogleDriveKind,
     GoogleDriveSource,
+    GoogleSheetsSource,
     PlosSource,
     Source,
     SourceTypes,
@@ -768,6 +769,28 @@ class GoogleDocsSourceSerializer(SourceSerializer):
         return GoogleDocsSource.parse_address(value, naked=True, strict=True).doc_id
 
 
+class GoogleSheetsSourceSerializer(SourceSerializer):
+    """
+    Serializer for Google Sheets sources.
+    """
+
+    doc_id = serializers.CharField(
+        help_text="A Google Sheet id e.g. 1SzslazJYVi8KYI6sisUmhJujWW5rbzFthVGtvUb3miM, or its "
+        "URL e.g https://docs.google.com/spreadsheets/d/1SzslazJYVi8KYI6sisUmhJujWW5rbzFthVGtvUb3miM/edit"
+    )
+
+    class Meta:
+        model = GoogleSheetsSource
+        exclude = SourceSerializer.Meta.exclude
+        read_only_fields = SourceSerializer.Meta.read_only_fields
+
+    def validate_doc_id(self, value):
+        """
+        Validate the document id.
+        """
+        return GoogleSheetsSource.parse_address(value, naked=True, strict=True).doc_id
+
+
 class GoogleDriveSourceSerializer(SourceSerializer):
     """
     Serializer for Google Drive sources.
@@ -887,6 +910,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
         ElifeSource: ElifeSourceSerializer,
         GithubSource: GithubSourceSerializer,
         GoogleDocsSource: GoogleDocsSourceSerializer,
+        GoogleSheetsSource: GoogleSheetsSourceSerializer,
         GoogleDriveSource: GoogleDriveSourceSerializer,
         PlosSource: PlosSourceSerializer,
         UploadSource: UploadSourceSerializer,

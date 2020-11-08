@@ -50,6 +50,15 @@
         </span>
       </a>
       <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-create' project.account.name project.name 'googlesheets' %}">
+        <span class="icon">
+          <i class="ri-google-line"></i>
+        </span>
+        <span>
+          Google Sheet
+        </span>
+      </a>
+      <a class="dropdown-item"
          href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledrive' %}">
         <span class="icon">
           <i class="ri-drive-line"></i>
