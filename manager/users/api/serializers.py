@@ -7,8 +7,14 @@ from knox.models import AuthToken
 from rest_framework import serializers
 
 from accounts.api.serializers_account_image import AccountImageSerializer
-from users.api.views.features import get_features
-from users.models import Invite, User
+from accounts.models import Account
+from users.models import (
+    Invite,
+    User,
+    get_feature_flags,
+    get_orgs_summary,
+    get_projects_summary,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -36,8 +42,11 @@ class UserSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=AccountImageSerializer)
     def get_image(self, user):
         """Get the URLs of alternative image sizes for the account."""
-        return AccountImageSerializer.create(
-            self.context.get("request"), user.personal_account
+        request = self.context.get("request")
+        return (
+            AccountImageSerializer.create(request, user.personal_account)
+            if request
+            else None
         )
 
     def get_website(self, user):
@@ -83,6 +92,16 @@ class MeLinkedAccountSerializer(serializers.ModelSerializer):
         fields = ["provider", "uid", "date_joined", "last_login"]
 
 
+class PersonalAccountSerializer(serializers.ModelSerializer):
+    """
+    The user's own personal account.
+    """
+
+    class Meta:
+        model = Account
+        fields = ["id", "tier"]
+
+
 class MeSerializer(UserSerializer):
     """
     A serializer for a user's own details.
@@ -98,7 +117,13 @@ class MeSerializer(UserSerializer):
         source="socialaccount_set", many=True, read_only=True
     )
 
-    features = serializers.SerializerMethodField()
+    personal_account = PersonalAccountSerializer()
+
+    orgs_summary = serializers.SerializerMethodField()
+
+    projects_summary = serializers.SerializerMethodField()
+
+    feature_flags = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -107,12 +132,23 @@ class MeSerializer(UserSerializer):
             "last_login",
             "email_addresses",
             "linked_accounts",
-            "features",
+            "personal_account",
+            "orgs_summary",
+            "projects_summary",
+            "feature_flags",
         ]
 
-    def get_features(self, user):
-        """Get the dictionary of feature flags for a user."""
-        return get_features(user)
+    def get_orgs_summary(self, user):
+        """Get a summary of organizations that the user is a member ofr."""
+        return get_orgs_summary(user)
+
+    def get_projects_summary(self, user):
+        """Get a summary of projects for the user."""
+        return get_projects_summary(user)
+
+    def get_feature_flags(self, user):
+        """Get a dictionary of feature flags for the user."""
+        return get_feature_flags(user)
 
 
 class UserIdentifierSerializer(serializers.Serializer):

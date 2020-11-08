@@ -1,41 +1,9 @@
-from django.db import connection
 from rest_framework import exceptions, generics
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from manager.api.helpers import HtmxMixin
-from users.models import Flag
-
-
-def get_features(user):
-    """
-    Get a dictionary of feature settings for a user.
-    """
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT "name", "default", "user_id"
-            FROM users_flag
-            LEFT JOIN (
-                SELECT *
-                FROM users_flag_users
-                WHERE user_id = %s
-            ) ON users_flag.id = flag_id
-            WHERE users_flag.settable
-            """,
-            [user.id],
-        )
-        rows = cursor.fetchall()
-
-    features = {}
-    for row in rows:
-        name, default, has_flag = row
-        if has_flag:
-            features[name] = "off" if default == "on" else "on"
-        else:
-            features[name] = default
-
-    return features
+from users.models import Flag, get_feature_flags
 
 
 class FeaturesView(
@@ -52,7 +20,7 @@ class FeaturesView(
         """
         Get the feature settings for the current user.
         """
-        features = get_features(request.user)
+        features = get_feature_flags(request.user)
         return Response(features)
 
     def patch(self, request: Request) -> Response:
@@ -87,5 +55,5 @@ class FeaturesView(
         if self.accepts_html():
             return Response(dict(flags=flags))
         else:
-            features = get_features(request.user)
+            features = get_feature_flags(request.user)
             return Response(features)

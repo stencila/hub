@@ -2,7 +2,6 @@ import re
 from typing import Dict, List, Optional
 
 from django.db.models import Q
-from django.db.models.expressions import RawSQL
 from django.shortcuts import reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -33,47 +32,7 @@ from projects.api.serializers import (
 )
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import Source
-from users.models import AnonUser, User
-
-
-def get_projects(user: User):
-    """
-    Get a queryset of projects for the user.
-
-    For authenticated users, each project is annotated with the
-    role of the user for the project.
-    """
-    if user.is_authenticated:
-        # Annotate the queryset with the role of the user
-        # Role is the "greater" of the project role and the
-        # account role (for the account that owns the project).
-        # Authenticated users can see public projects and those in
-        # which they have a role
-        return Project.objects.annotate(
-            role=RawSQL(
-                """
-SELECT
-CASE account_role.role
-WHEN 'OWNER' THEN 'OWNER'
-WHEN 'MANAGER' THEN
-    CASE project_role.role
-    WHEN 'OWNER' THEN 'OWNER'
-    ELSE 'MANAGER' END
-ELSE project_role.role END AS "role"
-FROM projects_project AS project
-LEFT JOIN
-    (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
-    ON project.id = project_role.project_id
-LEFT JOIN
-    (SELECT account_id, "role" FROM accounts_accountuser WHERE user_id = %s) AS account_role
-    ON project.account_id = account_role.account_id
-WHERE project.id = projects_project.id""",
-                [user.id, user.id],
-            )
-        ).filter(Q(public=True) | Q(role__isnull=False))
-    else:
-        # Unauthenticated users can only see public projects
-        return Project.objects.filter(public=True).extra(select={"role": "NULL"})
+from users.models import AnonUser, User, get_projects
 
 
 def get_project(

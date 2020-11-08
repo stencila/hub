@@ -13,9 +13,9 @@ from projects.api.serializers import (
     NodesCreateResponse,
     NodeSerializer,
 )
-from projects.api.views.projects import get_projects
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectRole
+from users.models import get_projects
 
 # Applications known to create nodes
 # For these provide further details in HTML views of nodes

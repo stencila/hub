@@ -8,14 +8,16 @@ This module only serves to provide some consistency across the
 to do the following.
 """
 
-from typing import Optional
+from typing import Dict, Optional
 
 import django.contrib.auth.models
 import shortuuid
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
+from django.db import connection, models
+from django.db.models import Count, F, Max, Q
+from django.db.models.expressions import RawSQL
 from django.http import HttpRequest
 from django.shortcuts import reverse
 from django.utils import timezone
@@ -28,6 +30,153 @@ from waffle.models import AbstractUserFlag
 import users.signals  # noqa
 
 User: django.contrib.auth.models.User = get_user_model()
+
+
+def get_attributes(user: User) -> Dict:
+    """
+    Get a dictionary of user attributes.
+
+    Used for updating external services with current
+    values of user attributes e.g number of projects etc.
+    Flattens various other summary dictionaries e.g `get_projects_summary`
+    into a single dictionary.
+    """
+    return {
+        **dict(
+            (f"feature_{name}", value)
+            for name, value in get_feature_flags(user).items()
+        ),
+        **dict(
+            (f"orgs_{name}", value) for name, value in get_orgs_summary(user).items()
+        ),
+        **dict(
+            (f"projects_{name}", value)
+            for name, value in get_projects_summary(user).items()
+        ),
+    }
+
+
+def get_orgs(user: User):
+    """
+    Get all organizational accounts that a user is a member of.
+    """
+    from accounts.models import Account
+
+    return Account.objects.filter(user__isnull=True, users__user=user).annotate(
+        role=F("users__role")
+    )
+
+
+def get_orgs_summary(user: User) -> Dict:
+    """
+    Get a summary of organizational accounts the user is a member of.
+    """
+    from accounts.models import AccountRole
+
+    zero_by_role = dict([(role.name.lower(), 0) for role in AccountRole])
+    orgs = get_orgs(user)
+    orgs_summary = orgs.values("role").annotate(count=Count("id"), tier=Max("tier"))
+    orgs_by_role = dict([(row["role"].lower(), row["count"]) for row in orgs_summary])
+    return {
+        "max_tier": max(row["tier"] for row in orgs_summary) if orgs_summary else None,
+        "total": sum(orgs_by_role.values()),
+        **zero_by_role,
+        **orgs_by_role,
+    }
+
+
+def get_projects(user: User, include_public=True):
+    """
+    Get a queryset of projects for the user.
+
+    For authenticated users, each project is annotated with the
+    role of the user for the project.
+    """
+    from projects.models.projects import Project
+
+    if user.is_authenticated:
+        # Annotate the queryset with the role of the user
+        # Role is the "greater" of the project role and the
+        # account role (for the account that owns the project).
+        # Authenticated users can see public projects and those in
+        # which they have a role
+        return Project.objects.annotate(
+            role=RawSQL(
+                """
+SELECT
+CASE account_role.role
+WHEN 'OWNER' THEN 'OWNER'
+WHEN 'MANAGER' THEN
+    CASE project_role.role
+    WHEN 'OWNER' THEN 'OWNER'
+    ELSE 'MANAGER' END
+ELSE project_role.role END AS "role"
+FROM projects_project AS project
+LEFT JOIN
+    (SELECT project_id, "role" FROM projects_projectagent WHERE user_id = %s) AS project_role
+    ON project.id = project_role.project_id
+LEFT JOIN
+    (SELECT account_id, "role" FROM accounts_accountuser WHERE user_id = %s) AS account_role
+    ON project.account_id = account_role.account_id
+WHERE project.id = projects_project.id""",
+                [user.id, user.id],
+            )
+        ).filter((Q(public=True) if include_public else Q()) | Q(role__isnull=False))
+    else:
+        # Unauthenticated users can only see public projects
+        return Project.objects.filter(public=True).extra(select={"role": "NULL"})
+
+
+def get_projects_summary(user: User) -> Dict:
+    """
+    Get a summary of project memberships for a user.
+    """
+    from projects.models.projects import ProjectRole
+
+    zero_by_role = dict([(role.name.lower(), 0) for role in ProjectRole])
+    projects = get_projects(user, include_public=False)
+    projects_by_role = dict(
+        [
+            (row["role"].lower(), row["count"])
+            for row in projects.values("role").annotate(count=Count("id"))
+        ]
+    )
+    return {
+        "total": sum(projects_by_role.values()),
+        **zero_by_role,
+        **projects_by_role,
+    }
+
+
+def get_feature_flags(user: User) -> Dict[str, str]:
+    """
+    Get the feature flag settings for a user.
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT "name", "default", "user_id"
+            FROM users_flag
+            LEFT JOIN (
+                SELECT *
+                FROM users_flag_users
+                WHERE user_id = %s
+            ) ON users_flag.id = flag_id
+            WHERE users_flag.settable
+            """,
+            [user.id],
+        )
+        rows = cursor.fetchall()
+
+    features = {}
+    for row in rows:
+        name, default, has_flag = row
+        if has_flag:
+            features[name] = "off" if default == "on" else "on"
+        else:
+            features[name] = default
+
+    return features
 
 
 def generate_anonuser_id():
