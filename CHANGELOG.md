@@ -1,3 +1,11 @@
+# [4.16.0](https://github.com/stencila/hub/compare/v4.15.0...v4.16.0) (2020-11-08)
+
+
+### Features
+
+* **Users:** Add feature flags to /api/users/me result ([24c66f6](https://github.com/stencila/hub/commit/24c66f63c4bbcf74b2713fd9d802e85ef2eb9a85))
+* **Users:** Update external services with new data ([8760d8b](https://github.com/stencila/hub/commit/8760d8b3e0330a63b09f03b1be2b14806cc020fa))
+
 # [4.15.0](https://github.com/stencila/hub/compare/v4.14.1...v4.15.0) (2020-11-07)
 
 
