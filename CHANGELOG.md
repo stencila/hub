@@ -1,3 +1,12 @@
+## [4.17.1](https://github.com/stencila/hub/compare/v4.17.0...v4.17.1) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Assistant:** Increase log level to info ([99e9b46](https://github.com/stencila/hub/commit/99e9b46308180abdd89b7ae3106b37913956e9d1))
+* **Featur flags:** Add serializer to avoid warning on API schema generation ([56b8dd9](https://github.com/stencila/hub/commit/56b8dd9a7f32b7699404085df669d768161e2fcd))
+* **User tasks:** Fix queries ([6dc1b7a](https://github.com/stencila/hub/commit/6dc1b7aa7bf8980e791e3229be7575e57b1e7b77))
+
 # [4.17.0](https://github.com/stencila/hub/compare/v4.16.1...v4.17.0) (2020-11-09)
 
 
