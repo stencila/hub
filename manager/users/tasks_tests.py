@@ -5,7 +5,7 @@ from users.tasks import update_services_for_user
 
 
 class UserTasksTests(DatabaseTestCase):
-    @mock.patch("django.conf.settings.USERFLOW_KEY", "userflow_key")
+    @mock.patch("django.conf.settings.USERFLOW_API_KEY", "userflow_key")
     @mock.patch("httpx.post")
     def test_update_userflow(self, httpx_post):
         update_services_for_user(self.ada, services=["userflow"])
