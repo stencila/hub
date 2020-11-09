@@ -1,3 +1,17 @@
+# [4.17.0](https://github.com/stencila/hub/compare/v4.16.1...v4.17.0) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Scheduler:** Increase log level to INFO ([fa942e9](https://github.com/stencila/hub/commit/fa942e9727a56ece3dc6ed647850fa35bfecb5ab))
+* **UserFlow integration:** Rename token and API key secrets ([5c91458](https://github.com/stencila/hub/commit/5c91458131980fba3e91ffb09af7238bc10d5c10))
+
+
+### Features
+
+* **Google Sheets:** Add Google Sheets as a project source ([4438e0e](https://github.com/stencila/hub/commit/4438e0ec7c60625eee40dd6381a32407eef7506c))
+* **Worker:** Add job to pull Google Sheets ([65404c5](https://github.com/stencila/hub/commit/65404c59bbd89ad76eb6026233ead29d864fff0e))
+
 ## [4.16.1](https://github.com/stencila/hub/compare/v4.16.0...v4.16.1) (2020-11-09)
 
 
