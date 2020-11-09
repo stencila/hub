@@ -1,3 +1,10 @@
+## [4.17.5](https://github.com/stencila/hub/compare/v4.17.4...v4.17.5) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Upload source:** Fix pull job and add typings and regression test ([0e03a15](https://github.com/stencila/hub/commit/0e03a15d02bd54de23db424ecb6caf144365185c)), closes [#809](https://github.com/stencila/hub/issues/809)
+
 ## [4.17.4](https://github.com/stencila/hub/compare/v4.17.3...v4.17.4) (2020-11-09)
 
 
