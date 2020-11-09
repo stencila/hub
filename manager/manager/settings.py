@@ -450,7 +450,8 @@ class Prod(Configuration):
 
     # UserFlow settings
 
-    USERFLOW_KEY = values.Value()
+    USERFLOW_TOKEN = values.Value()
+    USERFLOW_API_KEY = values.Value()
 
     # PostHog settings
 

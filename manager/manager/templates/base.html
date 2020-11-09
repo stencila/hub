@@ -351,9 +351,9 @@
 
   {% flag 'product_tours' %}
   <!-- product_tours: on -->
-  {% if USERFLOW_KEY %}
+  {% if USERFLOW_TOKEN %}
   <script>
-    managerLibs.userflow.init('{{ USERFLOW_KEY }}')
+    managerLibs.userflow.init('{{ USERFLOW_TOKEN }}')
     managerLibs.userflow.identify('{{ user.id }}', {
       username: '{{ user.username }}',
       email: '{{ user.email }}'

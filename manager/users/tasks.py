@@ -56,7 +56,7 @@ def update_userflow(user: User, data: dict):
     del attributes["email_addresses"]
     del attributes["linked_accounts"]
 
-    key = getattr(conf.settings, "USERFLOW_KEY", None)
+    key = getattr(conf.settings, "USERFLOW_API_KEY", None)
     if key:
         httpx.post(
             "https:/api.getuserflow.com/users",
