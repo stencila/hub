@@ -18,4 +18,4 @@ ENV PYTHONUNBUFFERED=1
 # Run Celery as the user `scheduler`
 # See https://stackoverflow.com/a/56383736 for reason for empty pidfile option
 USER scheduler
-CMD ["celery", "--app=scheduler", "--pidfile=", "beat"]
+CMD ["celery", "--app=scheduler", "--loglevel=info", "--pidfile=", "beat"]
