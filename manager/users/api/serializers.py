@@ -102,6 +102,18 @@ class PersonalAccountSerializer(serializers.ModelSerializer):
         fields = ["id", "tier"]
 
 
+class MeFeatureFlagsSerializer(serializers.Serializer):
+    """
+    Serializer for a user's feature flag settings.
+
+    This is here simply for documentation purposes (`drf-yasg`
+    requires a `serializer_class` on views). The actual properties
+    are dynamic, based on database rows.
+    """
+
+    feature_flag = serializers.ChoiceField(["on", "off"])
+
+
 class MeSerializer(UserSerializer):
     """
     A serializer for a user's own details.

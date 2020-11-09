@@ -3,6 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from manager.api.helpers import HtmxMixin
+from users.api.serializers import MeFeatureFlagsSerializer
 from users.models import Flag, get_feature_flags
 
 
@@ -15,6 +16,8 @@ class FeaturesView(
     This is not a `ViewSet` because it involves a non-standard
     approach to both getting and setting of feature flags.
     """
+
+    serializer_class = MeFeatureFlagsSerializer
 
     def get(self, request: Request) -> Response:
         """
