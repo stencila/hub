@@ -1,3 +1,10 @@
+## [4.17.4](https://github.com/stencila/hub/compare/v4.17.3...v4.17.4) (2020-11-09)
+
+
+### Bug Fixes
+
+* **User tasks:** For UserFlow send JSON, add fields ([717a9a7](https://github.com/stencila/hub/commit/717a9a71fcd1e393e1b2943dc27bd81abafb2149))
+
 ## [4.17.3](https://github.com/stencila/hub/compare/v4.17.2...v4.17.3) (2020-11-09)
 
 
