@@ -272,7 +272,7 @@ class Prod(Configuration):
     # This gets populated, based on the ACCOUNTS_SUBDOMAIN setting in post_setup
     CORS_ALLOWED_ORIGIN_REGEXES: List[str] = [
         # Allow cross-origin requests from Stencila's GoogleDocs Add-on
-        r"^https://n-zoqnmwqnnhslxffeq3hh6ne46wicurqczwe4csa-0lu-script.googleusercontent.com?$"
+        r"^https://n-zoqnmwqnnhslxffeq3hh6ne46wicurqczwe4csa-[\w]+-script.googleusercontent.com?$"
     ]
     # This allows credentials to be sent in cross-origin requests
     CORS_ALLOW_CREDENTIALS = True
