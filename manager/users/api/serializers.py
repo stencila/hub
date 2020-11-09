@@ -1,3 +1,5 @@
+from typing import Optional
+
 from allauth.account.models import EmailAddress
 from allauth.socialaccount.models import SocialAccount
 from django.db.models import Q
@@ -31,13 +33,21 @@ class UserSerializer(serializers.ModelSerializer):
     website = serializers.SerializerMethodField()
     public_email = serializers.SerializerMethodField()
 
-    def get_display_name(self, user):
+    def get_display_name(self, user) -> Optional[str]:
         """Get the display name of the user's personal account."""
-        return user.personal_account.display_name
+        return (
+            user.personal_account.display_name
+            if user.personal_account and user.personal_account.display_name
+            else None
+        )
 
-    def get_location(self, user):
+    def get_location(self, user) -> Optional[str]:
         """Get the location for the user's personal account."""
-        return user.personal_account.location
+        return (
+            user.personal_account.location
+            if user.personal_account and user.personal_account.location
+            else None
+        )
 
     @swagger_serializer_method(serializer_or_field=AccountImageSerializer)
     def get_image(self, user):
@@ -49,13 +59,21 @@ class UserSerializer(serializers.ModelSerializer):
             else None
         )
 
-    def get_website(self, user):
+    def get_website(self, user) -> Optional[str]:
         """Get the website of the user's personal account."""
-        return user.personal_account.website
+        return (
+            user.personal_account.website
+            if user.personal_account and user.personal_account.website
+            else None
+        )
 
-    def get_public_email(self, user):
+    def get_public_email(self, user) -> Optional[str]:
         """Get the email address of the user's personal account."""
-        return user.personal_account.email
+        return (
+            user.personal_account.email
+            if user.personal_account and user.personal_account.email
+            else None
+        )
 
     class Meta:
         model = User
