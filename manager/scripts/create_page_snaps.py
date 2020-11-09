@@ -32,7 +32,15 @@ INCLUDE = (
         # Forms for creating new sources
         # These pages are used below in `ELEMS`
         "an-org/first-project/sources/new/%s" % type
-        for type in ["github", "googledocs", "googledrive", "url", "elife", "plos"]
+        for type in [
+            "github",
+            "googledocs",
+            "googlesheets",
+            "googledrive",
+            "url",
+            "elife",
+            "plos",
+        ]
     ]
     + [
         # Render these templates instead of testing the pages (and getting non-200 responses)
@@ -216,6 +224,12 @@ ELEMS = [
         r"^an-org/first-project/sources/new/googledocs$",
         [
             elem("project-sources-new-googledocs", "form"),
+        ]
+    ],
+    [
+        r"^an-org/first-project/sources/new/googlesheets$",
+        [
+            elem("project-sources-new-googlesheets", "form"),
         ]
     ],
     [

@@ -42,3 +42,12 @@ def gdrive_service(secrets: Dict):
     return build(
         "drive", "v3", credentials=google_credentials(secrets), cache_discovery=False
     )
+
+
+def gsheets_service(secrets: Dict):
+    """
+    Build a Google Sheets API service client.
+    """
+    return build(
+        "sheets", "v4", credentials=google_credentials(secrets), cache_discovery=False
+    )

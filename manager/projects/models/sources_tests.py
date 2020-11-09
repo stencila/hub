@@ -10,6 +10,7 @@ from projects.models.sources import (
     GithubSource,
     GoogleDocsSource,
     GoogleDriveSource,
+    GoogleSheetsSource,
     Source,
     SourceAddress,
     UrlSource,
@@ -27,6 +28,10 @@ def test_coerce_address():
     assert sa.type == GithubSource
     assert sa["repo"] == "org/repo"
     assert sa["subpath"] == "a/file.md"
+
+    sa = Source.coerce_address("gsheet://1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA")
+    assert sa.type == GoogleSheetsSource
+    assert sa["doc_id"] == "1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
 
     # A HTTP URL that is matched by a specific source
     sa = Source.coerce_address("https://github.com/org/repo")
@@ -108,7 +113,7 @@ def test_to_address():
     s = GithubSource(repo="org/repo", subpath="a/folder")
     a = s.to_address()
     assert a.type_name == "Github"
-    assert list(a.keys()) == ["repo", "subpath", "type"]
+    assert list(a.keys()) == ["repo", "subpath"]
     assert a.repo == "org/repo"
     assert a.subpath == "a/folder"
 
@@ -164,6 +169,13 @@ def test_googledocssource_make_address():
     assert GoogleDocsSource(doc_id="an-id").make_address() == "gdoc://an-id"
 
 
+def test_googledocssource_to_address():
+    a = GoogleDocsSource(doc_id="an-id").to_address()
+    assert a.type_name == "GoogleDocs"
+    assert list(a.keys()) == ["doc_id"]
+    assert a.doc_id == "an-id"
+
+
 def test_googledocssource_url():
     assert (
         GoogleDocsSource(doc_id="an-id").get_url()
@@ -198,6 +210,36 @@ def test_googledocssource_parse_address():
     assert GoogleDocsSource.parse_address("foo") is None
     with pytest.raises(ValidationError, match="Invalid Google Doc identifier"):
         GoogleDocsSource.parse_address("foo", strict=True)
+
+
+def test_googlesheetssource_make_address():
+    assert GoogleSheetsSource(doc_id="an-id").make_address() == "gsheet://an-id"
+
+
+def test_googlesheetssource_to_address():
+    a = GoogleSheetsSource(doc_id="an-id").to_address()
+    assert a.type_name == "GoogleSheets"
+    assert list(a.keys()) == ["doc_id"]
+    assert a.doc_id == "an-id"
+
+
+def test_googlesheetssource_url():
+    assert (
+        GoogleSheetsSource(doc_id="an-id").get_url()
+        == "https://docs.google.com/spreadsheets/d/an-id/edit"
+    )
+
+
+def test_googlesheetssource_parse_address():
+    for url in [
+        "gsheet://1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
+        "docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
+        "https://docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/",
+        "https://docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
+    ]:
+        sa = GoogleSheetsSource.parse_address(url)
+        assert sa.type == GoogleSheetsSource
+        assert sa.doc_id == "1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
 
 
 def test_googledrivesource_make_address():
