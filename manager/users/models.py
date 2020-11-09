@@ -161,7 +161,7 @@ def get_feature_flags(user: User) -> Dict[str, str]:
                 SELECT *
                 FROM users_flag_users
                 WHERE user_id = %s
-            ) ON users_flag.id = flag_id
+            ) AS subquery ON users_flag.id = subquery.flag_id
             WHERE users_flag.settable
             """,
             [user.id],
