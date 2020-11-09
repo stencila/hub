@@ -1,3 +1,10 @@
+## [4.16.1](https://github.com/stencila/hub/compare/v4.16.0...v4.16.1) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Feature flags:** Make SQL Postgres compatible ([89ceee1](https://github.com/stencila/hub/commit/89ceee193fd149ec6f85354c7f3f1523f03061c1)), closes [#807](https://github.com/stencila/hub/issues/807)
+
 # [4.16.0](https://github.com/stencila/hub/compare/v4.15.0...v4.16.0) (2020-11-08)
 
 
