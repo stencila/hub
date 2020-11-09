@@ -13,6 +13,7 @@ from projects.models.sources import (
     GoogleSheetsSource,
     Source,
     SourceAddress,
+    UploadSource,
     UrlSource,
 )
 
@@ -290,6 +291,19 @@ def test_googledrivesource_parse_address():
     assert GoogleDriveSource.parse_address("foo") is None
     with pytest.raises(ValidationError, match="Invalid Google Drive address"):
         GoogleDriveSource.parse_address("foo", strict=True)
+
+
+@pytest.mark.django_db
+def test_upload_source_pull():
+    account = Account.objects.create(name="account-name")
+    project = Project.objects.create(account=account, name="project-name")
+    source = UploadSource.objects.create(project=project, file="some-file.txt")
+    job = source.pull()
+    params = job.params
+
+    assert params["project"] == 1
+    assert params["source"]["type"] == "Upload"
+    assert params["source"]["path"].endswith("some-file.txt")
 
 
 def test_urlsource_make_address():

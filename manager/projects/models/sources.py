@@ -846,7 +846,7 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
         """Make the address string of a Google Doc source."""
         return f"{self.doc_protocol}://{self.doc_id}"
 
-    def to_address(self):
+    def to_address(self) -> SourceAddress:
         """
         Override base method to return address based on the doc type.
 
@@ -1058,7 +1058,7 @@ class UploadSource(Source):
             # then just return None, so that the URL gets updated when in does.
             return None
 
-    def to_address(self):
+    def to_address(self) -> SourceAddress:
         """
         Override base method to return address based on the storage being used.
 
@@ -1067,9 +1067,9 @@ class UploadSource(Source):
         (dev) or from a URL (e.g. bucket; prod).
         """
         if isinstance(self.file.storage, FileSystemStorage):
-            return dict(type="upload", path=self.file.path)
+            return SourceAddress(self.type_name, path=self.file.path)
         else:
-            return dict(type="upload", url=self.file.url)
+            return SourceAddress(self.type_name, url=self.file.url)
 
     @classmethod
     def parse_address(
