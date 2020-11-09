@@ -1,3 +1,10 @@
+## [4.17.3](https://github.com/stencila/hub/compare/v4.17.2...v4.17.3) (2020-11-09)
+
+
+### Bug Fixes
+
+* **User tasks:** Fix URL for UserFlow API ([2ca03ef](https://github.com/stencila/hub/commit/2ca03ef689ed7a94c400905b18f3df48ef85e4da))
+
 ## [4.17.2](https://github.com/stencila/hub/compare/v4.17.1...v4.17.2) (2020-11-09)
 
 
