@@ -15,6 +15,9 @@ INSTALLED_APPS = ["django_celery_beat"]
 # Read and parse the DATABASE_URL env var.
 DATABASES = {"default": dj_database_url.config()}
 
+# Use the same time zone as the `manager`
+TIME_ZONE = "UTC"
+
 # Time zone awareness needs to be the same as in the database
 DJANGO_CELERY_BEAT_TZ_AWARE = False
 
