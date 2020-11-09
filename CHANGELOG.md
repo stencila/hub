@@ -1,3 +1,11 @@
+## [4.17.6](https://github.com/stencila/hub/compare/v4.17.5...v4.17.6) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Settings:** Widen regex for CORS from Google Docs add-on ([4a43d83](https://github.com/stencila/hub/commit/4a43d83d25cfa41481baf816381d5163da8ab7e0))
+* **User serialiser:** Handle users with no personal account ([27965b2](https://github.com/stencila/hub/commit/27965b251efcf3d963db1f5a4c821268c06a406e))
+
 ## [4.17.5](https://github.com/stencila/hub/compare/v4.17.4...v4.17.5) (2020-11-09)
 
 
