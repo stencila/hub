@@ -13,7 +13,7 @@ class UserTasksTests(DatabaseTestCase):
     @mock.patch("django.conf.settings.USERFLOW_API_KEY", "userflow_key")
     @mock.patch("httpx.post")
     def test_update_userflow(self, httpx_post):
-        data = {
+        json = {
             "id": 1,
             "attributes": {
                 "username": "ada",
@@ -40,6 +40,8 @@ class UserTasksTests(DatabaseTestCase):
                 "projects_summary_author": 0,
                 "projects_summary_manager": 0,
                 "projects_summary_owner": 2,
+                "name": "ada",
+                "email": "",
             },
         }
         headers = {
@@ -50,11 +52,11 @@ class UserTasksTests(DatabaseTestCase):
         # Called with a user object
         update_services_for_user(self.ada, services=["userflow"])
         httpx_post.assert_called_with(
-            "https://api.getuserflow.com/users", data=data, headers=headers,
+            "https://api.getuserflow.com/users", json=json, headers=headers,
         )
 
         # Called with an `int` instead
         update_services_for_user(self.ada.id, services=["userflow"])
         httpx_post.assert_called_with(
-            "https://api.getuserflow.com/users", data=data, headers=headers,
+            "https://api.getuserflow.com/users", json=json, headers=headers,
         )

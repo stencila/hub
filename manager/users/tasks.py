@@ -57,6 +57,16 @@ def update_userflow(user: User, data: dict):
         else:
             attributes[name] = value
 
+    # UserFlow "expects" some attributes (shows them in
+    # their interface by default), so provide them
+    attributes["name"] = user.username
+    email = user.email
+    for email in attributes.get("email_addresses", []):
+        if email.get("primary", False):
+            email = email.get("email")
+            break
+    attributes["email"] = email
+
     # Remove attributes we don't want to send
     del attributes["id"]
     del attributes["email_addresses"]
@@ -64,11 +74,12 @@ def update_userflow(user: User, data: dict):
 
     key = getattr(conf.settings, "USERFLOW_API_KEY", None)
     if key:
-        httpx.post(
+        response = httpx.post(
             "https://api.getuserflow.com/users",
             headers={
                 "Authorization": f"Bearer {key}",
                 "UserFlow-Version": "2020-01-03",
             },
-            data={"id": user.id, "attributes": attributes},
+            json={"id": user.id, "attributes": attributes},
         )
+        response.raise_for_status()
