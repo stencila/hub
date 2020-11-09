@@ -50,11 +50,11 @@ class UserTasksTests(DatabaseTestCase):
         # Called with a user object
         update_services_for_user(self.ada, services=["userflow"])
         httpx_post.assert_called_with(
-            "https:/api.getuserflow.com/users", data=data, headers=headers,
+            "https://api.getuserflow.com/users", data=data, headers=headers,
         )
 
         # Called with an `int` instead
         update_services_for_user(self.ada.id, services=["userflow"])
         httpx_post.assert_called_with(
-            "https:/api.getuserflow.com/users", data=data, headers=headers,
+            "https://api.getuserflow.com/users", data=data, headers=headers,
         )

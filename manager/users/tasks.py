@@ -65,7 +65,7 @@ def update_userflow(user: User, data: dict):
     key = getattr(conf.settings, "USERFLOW_API_KEY", None)
     if key:
         httpx.post(
-            "https:/api.getuserflow.com/users",
+            "https://api.getuserflow.com/users",
             headers={
                 "Authorization": f"Bearer {key}",
                 "UserFlow-Version": "2020-01-03",
