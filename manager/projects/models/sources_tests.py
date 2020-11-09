@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 
-from accounts.models import Account
+from accounts.models import Account, AccountTier
 from manager.testing import DatabaseTestCase
 from projects.models.projects import Project
 from projects.models.sources import (
@@ -295,7 +295,8 @@ def test_googledrivesource_parse_address():
 
 @pytest.mark.django_db
 def test_upload_source_pull():
-    account = Account.objects.create(name="account-name")
+    tier = AccountTier.objects.create()
+    account = Account.objects.create(name="account-name", tier=tier)
     project = Project.objects.create(account=account, name="project-name")
     source = UploadSource.objects.create(project=project, file="some-file.txt")
     job = source.pull()
