@@ -1,3 +1,10 @@
+## [4.17.2](https://github.com/stencila/hub/compare/v4.17.1...v4.17.2) (2020-11-09)
+
+
+### Bug Fixes
+
+* **Scheduler:** Use UTC timezone ([c5aafc5](https://github.com/stencila/hub/commit/c5aafc5a08abf8b3df36b83d1f6a9344aa74914e))
+
 ## [4.17.1](https://github.com/stencila/hub/compare/v4.17.0...v4.17.1) (2020-11-09)
 
 
