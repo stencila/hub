@@ -27,4 +27,4 @@ USER assistant
 # Run Celery worker
 # Use the array form of CMD to ensure that the celery process has PID 1
 # so that it will receive SIGTERM for graceful shutdown
-CMD ["celery", "--app=manager.assistant", "worker"]
+CMD ["celery", "--app=manager.assistant", "--loglevel=info", "worker"]
