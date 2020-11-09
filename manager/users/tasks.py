@@ -13,7 +13,9 @@ def update_services_all_users(services=["userflow"]):
     """
     Update external services for all users.
     """
-    users = User.objects.filter()
+    users = User.objects.select_related("personal_account").prefetch_related(
+        "projects", "accounts"
+    )
     for user in users:
         update_services_for_user(user, services)
 
@@ -26,7 +28,11 @@ def update_services_for_user(user: Union[User, int], services=["userflow"]):
     If the user has turned off the related feature, then the service will not be updated.
     """
     if isinstance(user, int):
-        user = User.objects.select_related("projects").get(id=user)
+        user = (
+            User.objects.select_related("personal_account")
+            .prefetch_related("projects", "accounts")
+            .get(id=user)
+        )
 
     data = MeSerializer(user).data
     feature_flags = data["feature_flags"]
