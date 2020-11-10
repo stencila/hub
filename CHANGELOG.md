@@ -1,3 +1,10 @@
+## [4.17.7](https://github.com/stencila/hub/compare/v4.17.6...v4.17.7) (2020-11-10)
+
+
+### Bug Fixes
+
+* **User serializer:** Handle no personal account ([9ff235b](https://github.com/stencila/hub/commit/9ff235b8d97959b8b9c3670c541653e29efca4cc)), closes [#813](https://github.com/stencila/hub/issues/813)
+
 ## [4.17.6](https://github.com/stencila/hub/compare/v4.17.5...v4.17.6) (2020-11-09)
 
 
