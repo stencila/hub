@@ -33,47 +33,38 @@ class UserSerializer(serializers.ModelSerializer):
     website = serializers.SerializerMethodField()
     public_email = serializers.SerializerMethodField()
 
+    def get_personal_account_attr(self, user: User, attr: str) -> Optional[str]:
+        """Get an attribute of a user's personal account."""
+        try:
+            return getattr(user.personal_account, attr, None)
+        except User.personal_account.RelatedObjectDoesNotExist:
+            return None
+
     def get_display_name(self, user) -> Optional[str]:
         """Get the display name of the user's personal account."""
-        return (
-            user.personal_account.display_name
-            if user.personal_account and user.personal_account.display_name
-            else None
-        )
+        return self.get_personal_account_attr(user, "display_name")
 
     def get_location(self, user) -> Optional[str]:
         """Get the location for the user's personal account."""
-        return (
-            user.personal_account.location
-            if user.personal_account and user.personal_account.location
-            else None
-        )
+        return self.get_personal_account_attr(user, "location")
 
     @swagger_serializer_method(serializer_or_field=AccountImageSerializer)
-    def get_image(self, user):
+    def get_image(self, user) -> Optional[dict]:
         """Get the URLs of alternative image sizes for the account."""
         request = self.context.get("request")
-        return (
-            AccountImageSerializer.create(request, user.personal_account)
-            if request
-            else None
-        )
+        try:
+            account = user.personal_account
+        except User.personal_account.RelatedObjectDoesNotExist:
+            return None
+        return AccountImageSerializer.create(request, account) if request else None
 
     def get_website(self, user) -> Optional[str]:
         """Get the website of the user's personal account."""
-        return (
-            user.personal_account.website
-            if user.personal_account and user.personal_account.website
-            else None
-        )
+        return self.get_personal_account_attr(user, "website")
 
     def get_public_email(self, user) -> Optional[str]:
         """Get the email address of the user's personal account."""
-        return (
-            user.personal_account.email
-            if user.personal_account and user.personal_account.email
-            else None
-        )
+        return self.get_personal_account_attr(user, "email")
 
     class Meta:
         model = User
