@@ -1,3 +1,10 @@
+## [4.17.8](https://github.com/stencila/hub/compare/v4.17.7...v4.17.8) (2020-11-10)
+
+
+### Bug Fixes
+
+* Update Stencila Encoda and Components for Plotly support ([ec1b20e](https://github.com/stencila/hub/commit/ec1b20ea269cb5ce3c28ba89ba50ce7aab584cff))
+
 ## [4.17.7](https://github.com/stencila/hub/compare/v4.17.6...v4.17.7) (2020-11-10)
 
 
