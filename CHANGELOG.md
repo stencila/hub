@@ -1,3 +1,10 @@
+## [4.17.9](https://github.com/stencila/hub/compare/v4.17.8...v4.17.9) (2020-11-11)
+
+
+### Bug Fixes
+
+* **Worker:** Update Encoda to 0.102.2 ([e517ea6](https://github.com/stencila/hub/commit/e517ea6b4b5f6a4bd2c5af3ec4576da2a09076ef))
+
 ## [4.17.8](https://github.com/stencila/hub/compare/v4.17.7...v4.17.8) (2020-11-10)
 
 
