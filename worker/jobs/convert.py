@@ -68,11 +68,12 @@ class Convert(SubprocessJob):
         result = super().do(args, input=input if isinstance(input, bytes) else None)
 
         # If the output is a stream then just return the bytes
-        if len(outputs) == 1 and outputs[0] == '-':
+        if len(outputs) == 1 and outputs[0] == "-":
             return result
 
         # Get list of created files and then move them into current,
         # working directory
+        assert isinstance(temp, str)
         files = list_files(temp)
         move_files(temp)
 
@@ -107,7 +108,7 @@ def encoda_args(  # type: ignore
             value = {"application/jats+xml": "jats"}.get(value, value)
             # If the value has a slash in it, assume it's still a mimetype
             # and skip
-            if "/" in value:
+            if isinstance(value, str) and "/" in value:
                 continue
 
         # Transform boolean values

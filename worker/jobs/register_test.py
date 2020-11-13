@@ -1,7 +1,8 @@
 from datetime import datetime
+
 import pytest
-from stencila.schema.types import Article, CreativeWork
 from stencila.schema.json import object_encode
+from stencila.schema.types import Article, CreativeWork
 
 from .register import Register
 
@@ -11,10 +12,12 @@ from .register import Register
 #  CROSSREF_API_CREDENTIALS=username:password ./venv/bin/pytest --record-mode=rewrite jobs/register_test.py
 
 # TODO: Import Review directly when it is available
+
+
 def Review(*args, **kwargs):
     work = CreativeWork(*args, **kwargs)
     work.type = "Review"
-    return  work
+    return work
 
 
 def is_isodate(value: str) -> bool:
@@ -22,7 +25,7 @@ def is_isodate(value: str) -> bool:
     return isinstance(datetime.fromisoformat(value.replace("Z", "+00:00")), datetime)
 
 
-@pytest.mark.skip('Only works with https://github.com/stencila/encoda/pull/754.')
+@pytest.mark.skip("Only works with https://github.com/stencila/encoda/pull/754.")
 @pytest.mark.vcr
 def test_register_article():
     """
@@ -40,7 +43,9 @@ def test_register_article():
     assert isinstance(result["response"], dict)
 
 
-@pytest.mark.skip('Requires https://github.com/stencila/schema/issues/228 to be in Encoda for Review schema.')
+@pytest.mark.skip(
+    "Requires https://github.com/stencila/schema/issues/228 to be in Encoda for Review schema."
+)
 @pytest.mark.vcr
 def test_register_review():
     """
@@ -63,7 +68,9 @@ def test_bad_credentials():
     """
     Test incorrect credentials error.
     """
-    job = Register(server="https://test.crossref.org/servlet/deposit", credentials='foo:bar')
+    job = Register(
+        server="https://test.crossref.org/servlet/deposit", credentials="foo:bar"
+    )
     result = job.do(
         node=object_encode(Article()), doi="10.5555/54321", url="https://example.org"
     )
@@ -79,9 +86,11 @@ def test_no_credentials():
     """
     Test no credentials error.
     """
-    job = Register(server="https://test.crossref.org/servlet/deposit", credentials='')
+    job = Register(server="https://test.crossref.org/servlet/deposit", credentials="")
     with pytest.raises(PermissionError) as excinfo:
         job.do(
-            node=object_encode(Article()), doi="10.5555/54321", url="https://example.org"
+            node=object_encode(Article()),
+            doi="10.5555/54321",
+            url="https://example.org",
         )
         assert "Credentials for DOI registrar are not available" in str(excinfo.value)

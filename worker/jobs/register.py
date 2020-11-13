@@ -1,9 +1,10 @@
 import io
+import json
 import logging
 import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-import json
+
 import httpx
 
 from jobs.base.job import Job
@@ -42,7 +43,7 @@ class Register(Job):
         # Generate Crossref deposit XML
         convert = Convert()
         xml = convert.run(
-            json.dumps(node).encode('utf-8'),
+            json.dumps(node).encode("utf-8"),
             "-",
             {"from": "json", "to": "crossref", "doi": doi, "url": url},
         ).get("result")
@@ -59,10 +60,10 @@ class Register(Job):
 
         # Crossref returns 200 response with an error message for bad login credentials
         # so we need to check for 'SUCCESS' in the response body
-        if response.status_code == 200 and 'SUCCESS' in response.text:
+        registered = None
+        if response.status_code == 200 and "SUCCESS" in response.text:
             registered = datetime.utcnow().isoformat()
         else:
-            registered = None
             logger.error(f"Unexpected response from {self.server}")
 
         # Return details of this job
