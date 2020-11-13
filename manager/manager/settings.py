@@ -110,6 +110,7 @@ class Prod(Configuration):
         # Uses dotted paths to AppConfig subclasses as
         # recommended in https://docs.djangoproject.com/en/3.0/ref/applications/#configuring-applications
         "accounts.apps.AccountsConfig",
+        "dois.apps.DoisConfig",
         "jobs.apps.JobsConfig",
         "projects.apps.ProjectsConfig",
         "users.apps.UsersConfig",
@@ -517,6 +518,10 @@ class Prod(Configuration):
 
     # The domain from which account subdomains are served
     ACCOUNTS_DOMAIN = "stencila.io"
+
+    # The prefix for DOIs that are minted and registered by the Hub
+    DOI_PREFIX = values.Value("10.47704")
+    DOI_SUFFIX_LEFT = values.Value("stencila.")
 
     # Use local URLs for jobs
     # If this is True the URLs of session jobs are local
