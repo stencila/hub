@@ -39,7 +39,8 @@ class Convert(SubprocessJob):
         aligned to the Encoda CLI.
 
         input: The path to the input file, or bytes to be sent to stdin.
-        output: The path to the output file, or a list of outputs files
+        output: The path to the output file, a list of outputs files, or
+                "-" for output stream bytes (mostly when used by other jobs).
         options:
             from: The format to convert from (defaults to ext name of input)
             to: The format to convert to (defaults to ext name of output)
@@ -53,18 +54,22 @@ class Convert(SubprocessJob):
         ), "output must be a string or list of strings"
         assert isinstance(options, dict), "options must be a dictionary"
 
-        # Create temporary directory for output to go into
-        temp = temp_dir()
-
-        # Rewrite output path(s) to the new directory
+        # Rewrite output path(s) to a temporary directory
+        temp = None
         outputs = output if isinstance(output, list) else [output]
         for index, output in enumerate(outputs):
             if output != "-":
+                if temp is None:
+                    temp = temp_dir()
                 outputs[index] = os.path.join(temp, output)
 
         # Generate arguments to Encoda and call it
         args = encoda_args(input, outputs, options)
-        super().do(args, input=input if isinstance(input, bytes) else None)
+        result = super().do(args, input=input if isinstance(input, bytes) else None)
+
+        # If the output is a stream then just return the bytes
+        if len(outputs) == 1 and outputs[0] == '-':
+            return result
 
         # Get list of created files and then move them into current,
         # working directory
@@ -99,8 +104,10 @@ def encoda_args(  # type: ignore
         # files, the file extension will be used to determine the format (which
         # works in most cases).
         if name == "from" and isinstance(value, str):
-            value = {"application/jats+xml": "jats"}.get(value, "")
-            if not value:
+            value = {"application/jats+xml": "jats"}.get(value, value)
+            # If the value has a slash in it, assume it's still a mimetype
+            # and skip
+            if "/" in value:
                 continue
 
         # Transform boolean values
