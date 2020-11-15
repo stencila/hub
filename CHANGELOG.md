@@ -1,3 +1,15 @@
+## [4.17.10](https://github.com/stencila/hub/compare/v4.17.9...v4.17.10) (2020-11-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.102.2 ([96d1978](https://github.com/stencila/hub/commit/96d19789fc5492c5bf4b344518188f9889760b53))
+* **deps:** update dependency certifi to v2020.11.8 ([4d39548](https://github.com/stencila/hub/commit/4d39548f1f425ea63d24b65b1bf9cf806c0952b1))
+* **deps:** update dependency kubernetes to v12.0.1 ([1feb99f](https://github.com/stencila/hub/commit/1feb99fbfc92bb5b2cd0f910bf207787fa005971))
+* **deps:** update dependency sentry-sdk to v0.19.3 ([f15f8e5](https://github.com/stencila/hub/commit/f15f8e5a093f167aba40a8492761da93803dd580))
+* **deps:** update dependency urllib3 to v1.26.2 ([ba9a034](https://github.com/stencila/hub/commit/ba9a03427d6b430c129d223ac808644aafcc9905))
+* **Manager:** Update version of components ([8246068](https://github.com/stencila/hub/commit/8246068bb717bd5dd46549b46ed5c5b6f894d862))
+
 ## [4.17.9](https://github.com/stencila/hub/compare/v4.17.8...v4.17.9) (2020-11-11)
 
 
