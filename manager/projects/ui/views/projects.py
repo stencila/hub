@@ -36,9 +36,9 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Create a project.
 
-    This is the usual way that a signed-in user will create
-    an account. It allows them to select the account to own the project,
-    and set the name and public/private flag of the project.
+    This is the usual way that a signed-in user will create a project.
+    It allows them to select the account to own the project,
+    and set the name and public/private flag.
     """
     viewset = ProjectsViewSet.init("create", request, args, kwargs)
     serializer = viewset.get_serializer(dict(public=True))

@@ -5,6 +5,9 @@
 </h2>
 <p class="subtitle is-6">
   A GitHub source lets you pull all, or part of, a GitHub repository into your project.
+  <br><br>
+  You can add public repositories as well as private repositories if you have signed in with
+  GitHub or connected your GitHub account <a href="{% url 'socialaccount_connections' %}">here</a>.
 </p>
 
 <hr>
@@ -13,7 +16,7 @@
   <p class="title is-6">
     Enter the URL of the GitHub repository, optionally including a subpath:
   </p>
-  {% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True placeholder="A URL e.g. https://github.com/octocat/hello-worId" %}
 </fieldset>
 
 <hr>
@@ -22,8 +25,39 @@
   <p class="title is-6">
     Or, enter the repository name and subpath directly.
   </p>
-  {% include "serializers/_field.html" with field=serializer.repo icon="ri-at-line" autofocus=True %}
-  {% include "serializers/_field.html" with field=serializer.subpath icon="ri-at-line" %}
+  <div class="field">
+    <label class="label" for="repo">Repository</label>
+    {% if github_repos %}
+    <div class="control has-icons-left">
+      <div class="select">
+        <select id="repo-select">
+          <option value="" selected>--------</option>
+          {% for repo in github_repos %}
+          <option value="{{ repo.full_name }}">{{ repo.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <span class="icon is-left">
+        <i class="ri-git-repository-line"></i>
+      </span>
+      <script>
+        document.getElementById('repo-select').addEventListener('change', function(event) {
+          document.getElementById('repo').value = event.target.value;
+        });
+
+      </script>
+    </div>
+    {% endif %}
+    <div class="control has-icons-left">
+      <input class="input" name="repo" id="repo" type="text" autofocus="" value=""
+             placeholder="Repository name e.g. octocat/hello-worId">
+      <span class="icon is-left">
+        <i class="ri-git-repository-line"></i>
+      </span>
+    </div>
+    <span class="help">A GitHub repository name (e.g. org/name).</span>
+  </div>
+  {% include "serializers/_field.html" with field=serializer.subpath icon="ri-folder-line" %}
 </fieldset>
 
 <hr>

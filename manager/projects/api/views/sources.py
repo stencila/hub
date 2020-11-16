@@ -20,6 +20,7 @@ from manager.api.helpers import (
 from projects.api.serializers import SourcePolymorphicSerializer, SourceSerializer
 from projects.api.views.projects import get_project
 from projects.models.projects import Project, ProjectRole
+from projects.models.providers import GithubRepo
 from projects.models.sources import Source
 
 
@@ -138,15 +139,23 @@ class ProjectsSourcesViewSet(
         else:
             return SourcePolymorphicSerializer
 
-    def get_response_context(self, *args, **kwargs):
+    def get_response_context(self, *args, source_class: str = None, **kwargs):
         """
         Add project to the response context for templates.
 
-        Done because some templates need to use `project.role`
+        The `project` is added because some templates need to use `project.role`
         for source actions (`role` is not available via `source.project`).
         """
         context = super().get_response_context(*args, **kwargs)
         context["project"] = self.get_project()
+
+        if self.action == "create":
+            source_class = source_class or self.request.data.get("type")
+            if source_class == "GithubSource":
+                context["github_repos"] = GithubRepo.objects.filter(
+                    user=self.request.user
+                )
+
         return context
 
     def get_success_url(self, serializer):
