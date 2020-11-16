@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 
+from projects.models.providers import GithubRepo
 from users.models import AnonUser, Flag
 
 # Unregister the default user model admin
@@ -27,6 +28,8 @@ class CustomUserAdmin(UserAdmin):
         "last_login",
         "date_joined",
     ]
+
+    actions = ["update_github_repos"]
 
     def get_form(self, request, obj=None, **kwargs):
         """
@@ -72,6 +75,13 @@ class CustomUserAdmin(UserAdmin):
         elif not instance.is_staff and instance.groups.filter(name="Staff").count() > 0:
             group = Group.objects.get(name="Staff")
             instance.groups.remove(group)
+
+    def refresh_github_repos(self, request, queryset):
+        """Refresh the list of GitHub repos the user is a member of."""
+        for user in queryset.all():
+            GithubRepo.refresh_for_user(user)
+
+    refresh_github_repos.short_description = "Refresh list of GitHub repos"
 
 
 @admin.register(AnonUser)

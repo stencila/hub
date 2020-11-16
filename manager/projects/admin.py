@@ -8,6 +8,7 @@ from polymorphic.admin import (
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectEvent
+from projects.models.providers import GithubRepo
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -197,3 +198,12 @@ class NodeAdmin(admin.ModelAdmin):
         """Get custom queryset that does not fetch the `json` field (which can be large)."""
         queryset = super().get_queryset(request)
         return queryset.defer("json")
+
+
+@admin.register(GithubRepo)
+class GithubRepoAdmin(admin.ModelAdmin):
+    """Admin interface for GitHub repos for a user."""
+
+    list_display = ["id", "user", "refreshed", "full_name", "updated"]
+    list_filter = ["user", "refreshed", "updated"]
+    show_full_result_count = False

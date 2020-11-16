@@ -9,6 +9,7 @@ from allauth.socialaccount.models import (
     SocialLogin,
     SocialToken,
 )
+from allauth.socialaccount.signals import social_account_added, social_account_updated
 from django.contrib.auth.models import AnonymousUser, User
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
@@ -17,6 +18,11 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 
 from accounts.models import AccountTier
+
+# Turn of signal receivers to avoid additional requests
+# to update user data from providers during these tests.
+for signal in [social_account_added, social_account_updated]:
+    signal.receivers = []
 
 
 def mocked_requests_get(*args, **kwargs):

@@ -41,7 +41,6 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
        projects/sources/_create_fields.html
     """
     viewset = ProjectsSourcesViewSet.init("create", request, args, kwargs)
-    project = viewset.get_project()
 
     source_type = kwargs.get("type")
     assert isinstance(source_type, str)
@@ -63,6 +62,8 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     serializer_class = viewset.get_serializer_class(source_class=source_class)
     serializer = serializer_class()
 
+    context = viewset.get_response_context(source_class=source_class)
+
     return render(
         request,
         template,
@@ -70,8 +71,8 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             serializer=serializer,
             fields_template=fields_template,
             source_class=source_class,
-            project=project,
-            meta=project.get_meta(),
+            meta=context.get("project").get_meta(),
+            **context
         ),
     )
 

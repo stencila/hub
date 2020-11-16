@@ -78,17 +78,23 @@ def add_new_emails(sender, request, response, user, **kwargs):
 user_logged_in.connect(add_new_emails)
 
 
-def set_account_image(sender, request, sociallogin, **kwargs):
+def update_data_from_provider(sender, request, sociallogin, **kwargs):
     """
     Set the user's personal account image (if necessary) from the social account.
     """
     import accounts.tasks
+    import projects.tasks
+
+    user = sociallogin.user
+    provider = sociallogin.account.provider
 
     accounts.tasks.set_image_from_socialaccount(
-        account_id=sociallogin.user.personal_account.id,
-        provider=sociallogin.account.provider,
+        account_id=user.personal_account.id, provider=provider,
     )
 
+    if provider == "github":
+        projects.tasks.refresh_github_repos_for_user(user_id=user.id)
 
-social_account_added.connect(set_account_image)
-social_account_updated.connect(set_account_image)
+
+social_account_added.connect(update_data_from_provider)
+social_account_updated.connect(update_data_from_provider)
