@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<ul class="dropdown-content">
+  {% for repo in repos %}
+  <li class="dropdown-item repo-search-item py-2" data-full-name="{{ repo.full_name }}">
+    <figure class="image is-32x32 is-inline-block mr-2 is-vcentered">
+      <img src="{{ repo.image_url }}" alt="{{ repo.full_name }}"></img>
+    </figure>
+    <div class="is-inline-block is-vcentered">
+      <div class="has-text-weight-bold is-size-6">{{ repo.full_name }}</div>
+    </div>
+  </li>
+  {% empty %}
+  <li class="dropdown-item has-text-weight-bold">
+    {% trans "Sorry, could not find a matching repository that you are member of." %}
+  </li>
+  {% endfor %}
+</ul>

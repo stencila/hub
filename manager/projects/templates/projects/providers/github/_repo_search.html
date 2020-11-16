@@ -1,0 +1,31 @@
+{% load i18n %}
+
+<label for="repo-search-input" class="label is-sr-only">{% trans "Search repos" %}</label>
+<div id="repo-search" class="dropdown is-expanded is-active">
+  <div class="dropdown-trigger">
+    <div class="control has-icons-left has-icons-right">
+      <input id="repo-search-input" class="input" type="text" name="search"
+             include-vals="repo: document.getElementById('repo-search-input').value"
+             placeholder="{% trans "Search by owner/name" %}" autocomplete="off"
+             hx-trigger="keyup changed delay:300ms" hx-get="/api/providers/github/repos"
+             hx-template="projects/providers/github/_repo_search_results.html"
+             hx-indicator="#repo-search .htmx-indicator" hx-target="#repo-search .dropdown-menu">
+      <span class="icon is-small is-left">
+        <i class="ri-search-line"></i>
+      </span>
+      <span class="icon is-small is-right htmx-indicator">
+        <i class="ri-loader-line"></i>
+      </span>
+    </div>
+  </div>
+
+  <div class="dropdown-menu"></div>
+
+  <script>
+    document.querySelector('#repo-search .dropdown-menu').addEventListener('click', function(event) {
+      var item = htmx.closest(event.target, '.dropdown-item')
+      document.getElementById('repo-search-input').value = item.getAttribute('data-full-name')
+    });
+
+  </script>
+</div>

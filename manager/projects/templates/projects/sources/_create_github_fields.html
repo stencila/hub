@@ -28,26 +28,9 @@
   <div class="field">
     <label class="label" for="repo">Repository</label>
     {% if github_repos %}
-    <div class="control has-icons-left">
-      <div class="select">
-        <select id="repo-select">
-          <option value="" selected>--------</option>
-          {% for repo in github_repos %}
-          <option value="{{ repo.full_name }}">{{ repo.full_name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <span class="icon is-left">
-        <i class="ri-git-repository-line"></i>
-      </span>
-      <script>
-        document.getElementById('repo-select').addEventListener('change', function(event) {
-          document.getElementById('repo').value = event.target.value;
-        });
-
-      </script>
-    </div>
-    {% endif %}
+    {% include "projects/providers/github/_repo_search.html" %}
+    <span class="help">Search GitHub repos you are a member of, or just enter a repository name (e.g. org/name).</span>
+    {% else %}
     <div class="control has-icons-left">
       <input class="input" name="repo" id="repo" type="text" autofocus="" value=""
              placeholder="Repository name e.g. octocat/hello-worId">
@@ -56,6 +39,7 @@
       </span>
     </div>
     <span class="help">A GitHub repository name (e.g. org/name).</span>
+    {% endif %}
   </div>
   {% include "serializers/_field.html" with field=serializer.subpath icon="ri-folder-line" %}
 </fieldset>
