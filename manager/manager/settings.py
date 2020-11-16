@@ -285,6 +285,7 @@ class Prod(Configuration):
     ACCOUNT_ADAPTER = "invitations.models.InvitationsAdapter"
 
     SOCIALACCOUNT_PROVIDERS = {
+        "github": {"SCOPE": ["user", "repo", "read:org"]},
         "google": {
             "SCOPE": [
                 "profile",
@@ -296,7 +297,7 @@ class Prod(Configuration):
             # Set to offline in order to receive a refresh token on first login and
             # on reauthentication requests. See https://stackoverflow.com/a/42570423/4625911
             "AUTH_PARAMS": {"access_type": "offline"},
-        }
+        },
     }
 
     SOCIALACCOUNT_ADAPTER = "users.socialaccount.adapter.SocialAccountAdapter"
