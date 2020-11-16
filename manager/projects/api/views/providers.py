@@ -1,6 +1,6 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets
+from rest_framework import throttling, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -8,6 +8,14 @@ from rest_framework.response import Response
 from manager.api.helpers import HtmxListMixin
 from projects.api.serializers import GithubRepoSerializer
 from projects.models.providers import GithubRepo
+
+
+class GithubReposRefreshThrottle(throttling.UserRateThrottle):
+    """
+    Throttle for requests to refresh the list of user's GitHub repos.
+    """
+
+    rate = "10/hour"
 
 
 class GithubReposViewSet(
@@ -32,6 +40,14 @@ class GithubReposViewSet(
             queryset = queryset.filter(full_name__icontains=search)
 
         return queryset.order_by("-updated")
+
+    def get_throttles(self):
+        """
+        Get the throttles to apply to the current request.
+        """
+        if self.action == "refresh":
+            return [GithubReposRefreshThrottle()]
+        return super().get_throttles()
 
     @swagger_auto_schema(
         manual_parameters=[
