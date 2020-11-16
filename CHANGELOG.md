@@ -1,3 +1,17 @@
+# [4.18.0](https://github.com/stencila/hub/compare/v4.17.10...v4.18.0) (2020-11-16)
+
+
+### Bug Fixes
+
+* **GitHub:** Expanded scopes for connected GitHub accounts ([ab481c4](https://github.com/stencila/hub/commit/ab481c403333b1a3757ae8cf3fe9870d1c7561e4))
+* **GitHub repos:** Add throttle for requests to refresh ([232cb26](https://github.com/stencila/hub/commit/232cb263658424877fa6a509d92122ab20e693fe))
+
+
+### Features
+
+* **GitHub repos:** Add search field ([dcaa15f](https://github.com/stencila/hub/commit/dcaa15ff8a3d6c83a30d610e8281a8c1a13d36ea))
+* **GitHub sources:** Maintain a list of GitHUb repos that a user has access to ([a7f2cb0](https://github.com/stencila/hub/commit/a7f2cb004aa5509d8b29a7d367b229d758156857))
+
 ## [4.17.10](https://github.com/stencila/hub/compare/v4.17.9...v4.17.10) (2020-11-15)
 
 
