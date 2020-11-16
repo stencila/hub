@@ -5,6 +5,7 @@ from manager.api.routers import OptionalSlashRouter
 from projects.api.views.files import ProjectsFilesViewSet
 from projects.api.views.nodes import NodesViewSet
 from projects.api.views.projects import ProjectsAgentsViewSet, ProjectsViewSet
+from projects.api.views.providers import GithubReposViewSet
 from projects.api.views.snapshots import ProjectsSnapshotsViewSet
 from projects.api.views.sources import ProjectsSourcesViewSet
 
@@ -68,6 +69,9 @@ projects_snapshots.register(
 projects_sources = OptionalSlashRouter()
 projects_sources.register("sources", ProjectsSourcesViewSet, "api-projects-sources")
 
+github_repos = OptionalSlashRouter()
+github_repos.register("repos", GithubReposViewSet, "api-providers-github-repos")
+
 urlpatterns = (
     nodes.urls
     + projects.urls
@@ -77,4 +81,5 @@ urlpatterns = (
         path("projects/<project>/", include(projects_snapshots.urls)),
         path("projects/<project>/", include(projects_sources.urls)),
     ]
+    + [path("providers/github/", include(github_repos.urls))]
 )

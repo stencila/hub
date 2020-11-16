@@ -18,6 +18,7 @@ from manager.themes import Themes
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectLiveness, ProjectRole
+from projects.models.providers import GithubRepo
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -974,3 +975,11 @@ class NodeSerializer(NodesCreateResponse):
         model = Node
         fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
         ref_name = None
+
+
+class GithubRepoSerializer(serializers.ModelSerializer):
+    """The response data when retrieving a GitHub repo."""
+
+    class Meta:
+        model = GithubRepo
+        exclude = ["id", "user"]

@@ -93,7 +93,7 @@ def update_data_from_provider(sender, request, sociallogin, **kwargs):
     )
 
     if provider == "github":
-        projects.tasks.update_github_repos_for_user(user_id=user.id)
+        projects.tasks.refresh_github_repos_for_user(user_id=user.id)
 
 
 social_account_added.connect(update_data_from_provider)

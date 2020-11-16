@@ -14,6 +14,7 @@ from typing import Optional
 
 from allauth.socialaccount.models import SocialToken
 from django.db import models, transaction
+from django.utils import timezone
 from github import Github
 
 from users.models import User
@@ -32,23 +33,19 @@ class GithubRepo(models.Model):
     a GitHub source to a project.
     """
 
-    created = models.DateTimeField(
-        auto_now_add=True, help_text="The time that this record was created.",
+    refreshed = models.DateTimeField(
+        auto_now=True,
+        help_text="The date-time that this information was last refreshed from GitHub.",
     )
 
     user = models.ForeignKey(
         User,
-        null=False,
-        blank=False,
         on_delete=models.CASCADE,
         help_text="The user who has access to the repository.",
     )
 
     full_name = models.CharField(
-        max_length=512,
-        null=False,
-        blank=False,
-        help_text="The full name of the repository ie. owner/name",
+        max_length=512, help_text="The full name of the repository ie. owner/name",
     )
 
     image_url = models.URLField(
@@ -59,25 +56,36 @@ class GithubRepo(models.Model):
         help_text="A JSON object with permissions that the user has for the repo."
     )
 
+    updated = models.DateTimeField(
+        help_text="The date-time that the repository was last updated."
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "full_name"], name="%(class)s_unique_user_full_name"
+            )
+        ]
+
     @staticmethod
-    def update_for_all_users():
+    def refresh_for_all_users():
         """
-        Update the list of repos for all users with a GitHub token.
+        Refresh the list of repos for all users with a GitHub token.
         """
         tokens = SocialToken.objects.filter(
             app__provider=Provider.github.name
         ).select_related("account__user")
         for token in tokens:
             try:
-                GithubRepo.update_for_user(token.account.user, token)
+                GithubRepo.refresh_for_user(token.account.user, token)
             except Exception as exc:
                 logger.warn(str(exc))
 
     @staticmethod
     @transaction.atomic
-    def update_for_user(user: User, token: Optional[SocialToken] = None):
+    def refresh_for_user(user: User, token: Optional[SocialToken] = None):
         """
-        Update the list of repos for the user.
+        Refresh the list of repos for the user.
         """
         # Get a token for the user
         if not token:
@@ -100,13 +108,16 @@ class GithubRepo(models.Model):
 
         # Create repos as necessary
         for repo in repos:
-            GithubRepo.objects.get_or_create(
+            GithubRepo.objects.update_or_create(
                 user=user,
                 full_name=repo.full_name,
-                image_url=repo.owner.avatar_url,
-                permissions=dict(
-                    admin=repo.permissions.admin,
-                    pull=repo.permissions.pull,
-                    push=repo.permissions.push,
+                defaults=dict(
+                    image_url=repo.owner.avatar_url,
+                    permissions=dict(
+                        admin=repo.permissions.admin,
+                        pull=repo.permissions.pull,
+                        push=repo.permissions.push,
+                    ),
+                    updated=timezone.make_aware(repo.updated_at, timezone=timezone.utc),
                 ),
             )

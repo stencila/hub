@@ -204,6 +204,6 @@ class NodeAdmin(admin.ModelAdmin):
 class GithubRepoAdmin(admin.ModelAdmin):
     """Admin interface for GitHub repos for a user."""
 
-    list_display = ["id", "user", "created", "full_name"]
-    list_filter = ["user", "created"]
+    list_display = ["id", "user", "refreshed", "full_name", "updated"]
+    list_filter = ["user", "refreshed", "updated"]
     show_full_result_count = False
