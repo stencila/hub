@@ -12,6 +12,7 @@ e.g. a list all the GitHub repos that a user has access to.
 import logging
 from typing import Optional
 
+import github
 from allauth.socialaccount.models import SocialToken
 from django.db import models, transaction
 from django.utils import timezone
@@ -93,25 +94,28 @@ class GithubRepo(models.Model):
             if not token:
                 return
 
-        # Get all the repositories the user has access to
-        github = Github(token.token)
-        authed_user = github.get_user()
-        repos = list(authed_user.get_repos())
-        orgs = authed_user.get_orgs()
-        for org in orgs:
-            repos += list(org.get_repos())
+        # Get all the repositories the user has explicit permission to access
+        # See https://docs.github.com/en/free-pro-team@latest/rest/reference/repos#list-repositories-for-the-authenticated-user   # noqa
+        #   "The authenticated user has explicit permission to access repositories
+        #   they own, repositories where they are a collaborator, and repositories
+        #   that they can access through an organization membership."
+        try:
+            repos = list(Github(token.token).get_user().get_repos())
+        except github.BadCredentialsException:
+            logger.warn(f"Bad GitHub credentials for user {user.username}")
+            return
 
-        # Remove repos as necessary
-        GithubRepo.objects.filter(user=user).exclude(
-            full_name__in=[repo.full_name for repo in repos]
-        ).delete()
+        # Remove all repos for the user so we can do `bulk_create`
+        GithubRepo.objects.filter(user=user).delete()
 
-        # Create repos as necessary
-        for repo in repos:
-            GithubRepo.objects.update_or_create(
-                user=user,
-                full_name=repo.full_name,
-                defaults=dict(
+        # Bulk create repos for the user
+        # Previously we used `update_or_create` for this, but `bulk_create`
+        # is much faster, particularly when a user has lots of repos.
+        GithubRepo.objects.bulk_create(
+            [
+                GithubRepo(
+                    user=user,
+                    full_name=repo.full_name,
                     image_url=repo.owner.avatar_url,
                     permissions=dict(
                         admin=repo.permissions.admin,
@@ -119,5 +123,7 @@ class GithubRepo(models.Model):
                         push=repo.permissions.push,
                     ),
                     updated=timezone.make_aware(repo.updated_at, timezone=timezone.utc),
-                ),
-            )
+                )
+                for repo in repos
+            ]
+        )
