@@ -1,3 +1,10 @@
+# [4.19.0](https://github.com/stencila/hub/compare/v4.18.1...v4.19.0) (2020-11-17)
+
+
+### Features
+
+* **Admin:** Improve filtering of GitHub repos ([4a7e40e](https://github.com/stencila/hub/commit/4a7e40e1ddc2b4bb7af58b27466d8dced11b7cc1))
+
 ## [4.18.1](https://github.com/stencila/hub/compare/v4.18.0...v4.18.1) (2020-11-17)
 
 
