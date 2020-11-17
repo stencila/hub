@@ -2,12 +2,12 @@
 
 <label for="repo-search-input" class="label is-sr-only">{% trans "Search repos" %}</label>
 <div id="repo-search" class="dropdown is-expanded is-active">
-  <div class="dropdown-trigger">
-    <div class="control has-icons-left has-icons-right">
+  <div class="dropdown-trigger field has-addons">
+    <div class="control has-icons-left has-icons-right is-expanded">
       <input id="repo-search-input" class="input" type="text" name="repo"
              include-vals="search: document.getElementById('repo-search-input').value"
              placeholder="{% trans "Search by owner/name" %}" autocomplete="off"
-             hx-trigger="keyup changed delay:300ms" hx-get="/api/providers/github/repos"
+             hx-trigger="focus, keyup changed delay:300ms" hx-get="{% url 'api-providers-github-repos-list' %}"
              hx-template="projects/providers/github/_repo_search_results.html"
              hx-indicator="#repo-search .htmx-indicator" hx-target="#repo-search .dropdown-menu">
       <span class="icon is-small is-left">
@@ -17,6 +17,14 @@
         <i class="ri-loader-line"></i>
       </span>
     </div>
+    <p class="control">
+      <button id="repo-refresh" class="button" hx-post="{% url 'api-providers-github-repos-refresh' %}" 
+         hx-swap="none" hx-template="">
+        <span class="icon is-small has-tooltip-top has-tooltip-text-centered" data-tooltip="Refresh the list of your repositories">
+          <i class="ri-refresh-line"></i>
+        </span>
+      </button>
+    </p>
   </div>
 
   <div class="dropdown-menu"></div>
