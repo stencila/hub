@@ -80,7 +80,7 @@ class GithubRepo(models.Model):
             try:
                 GithubRepo.refresh_for_user(token.account.user, token)
             except Exception as exc:
-                logger.warn(str(exc))
+                logger.warning(str(exc))
 
     @staticmethod
     @transaction.atomic
@@ -102,7 +102,9 @@ class GithubRepo(models.Model):
         try:
             repos = list(Github(token.token).get_user().get_repos())
         except github.BadCredentialsException:
-            logger.warn(f"Bad GitHub credentials for user {user.username}")
+            logger.warning(
+                f"Bad GitHub credentials for user", extra={"username": user.username}
+            )
             return
 
         # Remove all repos for the user so we can do `bulk_create`
