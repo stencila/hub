@@ -1,3 +1,16 @@
+# [4.20.0](https://github.com/stencila/hub/compare/v4.19.0...v4.20.0) (2020-11-17)
+
+
+### Bug Fixes
+
+* **GitHub repos:** Improve refresh speed by reducing requests and using bulk_create ([669346b](https://github.com/stencila/hub/commit/669346b6486670972742b56a45ff479a9e289579))
+* **GitHub repos:** Send username as data; don't use deprecated `warn` ([98f4fce](https://github.com/stencila/hub/commit/98f4fce4205d8ea324d0e5d3e7ce141c237f76eb))
+
+
+### Features
+
+* **GitHub repos:** Allow user to update list of repos in form ([7cb7a98](https://github.com/stencila/hub/commit/7cb7a98fb49262198ebb4f0dbefeb6e5baa5cda0))
+
 # [4.19.0](https://github.com/stencila/hub/compare/v4.18.1...v4.19.0) (2020-11-17)
 
 
