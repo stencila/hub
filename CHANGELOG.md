@@ -1,3 +1,11 @@
+## [4.18.1](https://github.com/stencila/hub/compare/v4.18.0...v4.18.1) (2020-11-17)
+
+
+### Bug Fixes
+
+* **Github pull:** Fetch zip archive of repo. ([2da189e](https://github.com/stencila/hub/commit/2da189e3d75bd91c9f1616dc97a90ce349931cc3)), closes [#831](https://github.com/stencila/hub/issues/831)
+* **GitHub repos:** Invert how values in request are named ([8d23203](https://github.com/stencila/hub/commit/8d2320353fedbfe2da555b0acd976460f5ddfbf9))
+
 # [4.18.0](https://github.com/stencila/hub/compare/v4.17.10...v4.18.0) (2020-11-16)
 
 
