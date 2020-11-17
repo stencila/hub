@@ -6,7 +6,7 @@ import pytest
 
 from util.working_directory import working_directory
 
-from .github import pull_github
+from .github import pull_github, pull_zip
 
 
 def mocked_httpx_stream(*args, **kwargs):
@@ -86,3 +86,22 @@ def test_single_file(mock_stream, tempdir):
     assert not os.path.exists(os.path.join(tempdir.path, "README.md"))
     assert not os.path.exists(os.path.join(tempdir.path, "sub/README.md"))
     assert os.path.exists(os.path.join(tempdir.path, "sub_README.md"))
+
+
+def test_large_zip(tempdir):
+    with working_directory(tempdir.path):
+        zip_file = os.path.join(
+            os.path.dirname(__file__), "fixtures", "1000-maniacs.zip"
+        )
+        files = pull_zip(zip_file, strip=0)
+
+    assert len(files.keys()) == 1000
+
+    info = files.get("1.txt")
+    assert info == {
+        "encoding": None,
+        "fingerprint": "76acfa80b0650e510874a93071fe0419be1305fb95083c2390b391be5d101162",
+        "mimetype": "text/plain",
+        "modified": 1605656268.0,
+        "size": 6,
+    }

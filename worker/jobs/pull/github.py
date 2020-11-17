@@ -1,13 +1,14 @@
 import os
 import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
-from zipfile import ZipFile
+from zipfile import ZipFile, ZipInfo
 
 import httpx
 from github import Github
 
-from util.files import Files, file_info
+from util.files import Files, bytes_fingerprint, ensure_parent, file_mimetype
 
 # Github API credentials
 # Used to authenticate with GitHub API as a OAuth App to get higher rate limits
@@ -74,9 +75,12 @@ def pull_zip(
     :param strip: Number of leading components from filenames to ignore.
                   Similar to `tar`'s `--strip-components` option.
     """
+    files = {}
+
     with ZipFile(zip_file, "r") as zip_archive:
-        files = {}
-        for zip_path in zip_archive.namelist():
+        for zip_info in zip_archive.infolist():
+            zip_path = zip_info.filename
+
             # Skip directories
             if zip_path[-1] == "/":
                 continue
@@ -100,12 +104,28 @@ def pull_zip(
                 dest_path = (
                     os.path.join(path, remainder_path) if remainder_path else path
                 )
-                Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
+                ensure_parent(dest_path)
 
                 dest_file = open(dest_path, "wb")
                 dest_file.write(data)
                 dest_file.close()
 
-                files[remainder_path] = file_info(dest_path)
+                files[remainder_path] = file_info(zip_info, data)
 
     return files
+
+
+def file_info(zip_info: ZipInfo, data: bytes) -> dict:
+    """
+    Get a file info dictionary from a `ZipInfo` object.
+
+    See https://docs.python.org/3/library/zipfile.html#zipinfo-objects
+    """
+    mimetype, encoding = file_mimetype(zip_info.filename)
+    return {
+        "size": zip_info.file_size,
+        "mimetype": mimetype,
+        "encoding": encoding,
+        "modified": int(datetime(*zip_info.date_time).timestamp()),
+        "fingerprint": bytes_fingerprint(data),
+    }

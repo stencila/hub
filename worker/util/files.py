@@ -4,7 +4,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import filetype
 
@@ -50,11 +50,7 @@ def file_info(path: str, mimetype: Optional[str] = None) -> FileInfo:
     if mimetype:
         encoding = None
     else:
-        mimetype, encoding = mimetypes.guess_type(path, strict=False)
-        if not mimetype:
-            kind = filetype.guess(path)
-            if kind:
-                mimetype = kind.mime
+        mimetype, encoding = file_mimetype(path)
 
     return {
         "size": os.path.getsize(path),
@@ -63,6 +59,18 @@ def file_info(path: str, mimetype: Optional[str] = None) -> FileInfo:
         "modified": os.path.getmtime(path),
         "fingerprint": file_fingerprint(path),
     }
+
+
+def file_mimetype(path: str) -> Tuple[Optional[str], Optional[str]]:
+    """
+    Get the mimetype of a file.
+    """
+    mimetype, encoding = mimetypes.guess_type(path, strict=False)
+    if not mimetype:
+        kind = filetype.guess(path)
+        if kind:
+            mimetype = kind.mime
+    return mimetype, encoding
 
 
 def file_fingerprint(path: str) -> str:
@@ -75,6 +83,21 @@ def file_fingerprint(path: str) -> str:
     with open(path, "rb", buffering=0) as f:
         for n in iter(lambda: f.readinto(mv), 0):  # type: ignore
             h.update(mv[:n])
+    return h.hexdigest()
+
+
+def bytes_fingerprint(data: bytes) -> str:
+    """
+    Generate a SHA256 fingerprint of bytes.
+
+    A alternative to `file_fingerprint` when we already have
+    the bytes of the file loaded into memory.
+    """
+    h = hashlib.sha256()
+    b = bytearray(128 * 1024)
+    mv = memoryview(b)
+    for n in data:
+        h.update(mv[:n])
     return h.hexdigest()
 
 
