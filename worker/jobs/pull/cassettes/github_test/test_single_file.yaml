@@ -43,15 +43,15 @@ interactions:
       Content-Length:
       - '1231'
       X-GitHub-Request-Id:
-      - D52E:1BE3:1229086:14CD135:5F8968EC
+      - 351A:01B2:FF23F4:12217E5:5FB33B0E
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
-      - '49'
+      - '55'
       X-Ratelimit-Reset:
-      - '1602844393'
+      - '1605585180'
       X-Ratelimit-Used:
-      - '11'
+      - '5'
       access-control-allow-origin:
       - '*'
       access-control-expose-headers:
@@ -67,7 +67,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Fri, 16 Oct 2020 09:33:37 GMT
+      - Tue, 17 Nov 2020 02:53:01 GMT
       etag:
       - W/"8206a8280aa2a7190dc5ee6409538b14ac0bc553e89896641f159c0d8b1c537b"
       last-modified:
@@ -105,31 +105,21 @@ interactions:
       User-Agent:
       - PyGithub/Python
     method: GET
-    uri: https://api.github.com/repos/stencila/test/contents/sub/README.md
+    uri: https://api.github.com/repos/stencila/test/zipball
   response:
     body:
-      string: !!binary |
-        H4sIAAAAAAAAA62SX2vCMBTFv0uexXS2WhVkTCZFYYNNplAGkn9tw9KkNOlExe++260PrTCYspdA
-        Djm/3HvuPSFNcoGm6HXx8Pi06Occ9VBBXAaSrShuyzYjoPreiIUiDIXnDfwEjjsyCcgknAgWjEI+
-        5j5LvAEXwLHyCGh/2ENVqcCaOVfYKcakkP1UuqyifWZyXIrCWGyd0Ewqgp2wDjOj4e5AbhdxX4pk
-        lhN4WgI+c7nadcktapdHlaH4x9lFAgdMF5g/FAgmXEMtviIQbvZaGcIvvivJvsmjsqJsWv+OptvE
-        L/W7Q1FPMJGqDr2xg7CONpZG4zTWq0+6nnskekuZv5FxpA7x9tmj/mq4jOZHvl2lyxcze9dghyEY
-        LnUKfkqsGAWg7ZTUHxZNT8gKlfz/ICHL66A3hV+vS+ubG1blfP4CRNeazC8DAAA=
+      string: ''
     headers:
-      Accept-Ranges:
-      - bytes
-      Content-Length:
-      - '332'
       X-GitHub-Request-Id:
-      - D52E:1BE3:1229095:14CD162:5F8968F1
+      - 351A:01B2:FF23FD:12217EB:5FB33B0E
       X-Ratelimit-Limit:
       - '60'
       X-Ratelimit-Remaining:
-      - '48'
+      - '54'
       X-Ratelimit-Reset:
-      - '1602844392'
+      - '1605585180'
       X-Ratelimit-Used:
-      - '12'
+      - '6'
       access-control-allow-origin:
       - '*'
       access-control-expose-headers:
@@ -137,38 +127,36 @@ interactions:
         X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
         X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
       cache-control:
-      - public, max-age=60, s-maxage=60
-      content-encoding:
-      - gzip
+      - public, must-revalidate, max-age=0
+      content-length:
+      - '0'
       content-security-policy:
       - default-src 'none'
       content-type:
-      - application/json; charset=utf-8
+      - text/html;charset=utf-8
       date:
-      - Fri, 16 Oct 2020 09:33:37 GMT
-      etag:
-      - W/"306c7e77e0023f0021a94a979ec467d8d3cf02de"
-      last-modified:
-      - Wed, 20 May 2020 20:57:03 GMT
+      - Tue, 17 Nov 2020 02:53:01 GMT
+      expires:
+      - Tue, 17 Nov 2020 02:53:01 GMT
+      location:
+      - https://codeload.github.com/stencila/test/legacy.zip/master
       referrer-policy:
       - origin-when-cross-origin, strict-origin-when-cross-origin
       server:
       - GitHub.com
       status:
-      - 200 OK
+      - 302 Found
       strict-transport-security:
       - max-age=31536000; includeSubdomains; preload
       vary:
-      - Accept, Accept-Encoding, Accept, X-Requested-With, Accept-Encoding
+      - Accept-Encoding, Accept, X-Requested-With, Accept-Encoding
       x-content-type-options:
       - nosniff
       x-frame-options:
       - deny
-      x-github-media-type:
-      - github.v3; format=json
       x-xss-protection:
       - 1; mode=block
     status:
-      code: 200
-      message: OK
+      code: 302
+      message: Found
 version: 1
