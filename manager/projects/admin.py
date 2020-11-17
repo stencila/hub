@@ -5,6 +5,7 @@ from polymorphic.admin import (
     PolymorphicParentModelAdmin,
 )
 
+from manager.admin import InputFilter, UserUsernameFilter
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectEvent
@@ -200,10 +201,27 @@ class NodeAdmin(admin.ModelAdmin):
         return queryset.defer("json")
 
 
+class GithubRepoFullnameFilter(InputFilter):
+    """
+    Filter repos by their full name.
+    """
+
+    parameter_name = "fullname"
+    title = "Repo name contains"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the list of repos by similar names.
+        """
+        name = self.value()
+        if name is not None:
+            return queryset.filter(full_name__contains=name)
+
+
 @admin.register(GithubRepo)
 class GithubRepoAdmin(admin.ModelAdmin):
     """Admin interface for GitHub repos for a user."""
 
-    list_display = ["id", "user", "refreshed", "full_name", "updated"]
-    list_filter = ["user", "refreshed", "updated"]
+    list_display = ["id", "user", "full_name", "updated", "refreshed"]
+    list_filter = [UserUsernameFilter, GithubRepoFullnameFilter, "refreshed", "updated"]
     show_full_result_count = False
