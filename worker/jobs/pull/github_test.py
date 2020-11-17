@@ -16,10 +16,13 @@ def mocked_httpx_stream(*args, **kwargs):
     Returns a context manager that mimics that returned by
     httpx.stream for the stencila/test repo.
     """
-    return MockedHttpxStreamContext()
+    return MockedHttpxStreamContext(*args, **kwargs)
 
 
 class MockedHttpxStreamContext(ContextDecorator):
+    def __init__(self, method, url, **kwargs):
+        self.url = url
+
     def __enter__(self, *args, **kwargs):
         return self
 
@@ -27,9 +30,13 @@ class MockedHttpxStreamContext(ContextDecorator):
         return self
 
     def iter_bytes(self):
+        if self.url == "https://codeload.github.com/stencila/test/legacy.zip/master":
+            archive = "stencila-test-archive.zip"
+        else:
+            raise ValueError(f"Unmocked repo archive {self.url}")
         return open(
             os.path.join(
-                os.path.dirname(__file__), "cassettes", "github_test", "archive.zip"
+                os.path.dirname(__file__), "cassettes", "github_test", archive
             ),
             "rb",
         )

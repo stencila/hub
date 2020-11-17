@@ -59,8 +59,22 @@ def pull_github(
             zip_file.write(data)
     zip_file.close()
 
-    # Extract the desired subpath (if any) from the zip file
-    with ZipFile(zip_file.name, "r") as zip_archive:  #
+    return pull_zip(zip_file.name, subpath=subpath, path=path)
+
+
+def pull_zip(
+    zip_file: str, subpath: str = "", path: str = ".", strip: int = 1
+) -> Files:
+    """
+    Pull files from a Zip file.
+
+    :param zip_file: The path to the zip file.
+    :param subpath: The file or directory in the zip file to extract.
+    :param path: The destination path
+    :param strip: Number of leading components from filenames to ignore.
+                  Similar to `tar`'s `--strip-components` option.
+    """
+    with ZipFile(zip_file, "r") as zip_archive:
         files = {}
         for zip_path in zip_archive.namelist():
             # Skip directories
@@ -68,7 +82,7 @@ def pull_github(
                 continue
 
             # Remove the first element of the path (the repo name + hash)
-            inner_path = os.path.join(*(zip_path.split("/")[1:]))
+            inner_path = os.path.join(*(zip_path.split("/")[strip:]))
 
             # Save if in the subpath
             remainder_path = None
