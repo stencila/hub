@@ -103,7 +103,7 @@ class GithubRepo(models.Model):
             repos = list(Github(token.token).get_user().get_repos())
         except github.BadCredentialsException:
             logger.warning(
-                f"Bad GitHub credentials for user", extra={"username": user.username}
+                "Bad GitHub credentials for user", extra={"username": user.username}
             )
             return
 
