@@ -222,7 +222,12 @@
                  alt="{% trans "Your user profile" %}">
                 {% if request.session.user.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
-                  <img class="is-rounded" src="{{ request.session.user.image }}" alt="Your profile image">
+                  {% comment %}
+                  The alt attribute is empty to avoid broken image icon due to cached URL being invalid
+                  after a change in the account image.
+                  See https://github.com/stencila/hub/issues/816.
+                  {% endcomment %}
+                  <img class="is-rounded" src="{{ request.session.user.image }}" alt="">
                 </figure>
 
                 <span class="is-hidden-desktop pl-1">
