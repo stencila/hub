@@ -285,7 +285,7 @@ class Prod(Configuration):
     ACCOUNT_ADAPTER = "invitations.models.InvitationsAdapter"
 
     SOCIALACCOUNT_PROVIDERS = {
-        "github": {"SCOPE": ["user", "repo", "read:org"]},
+        "github": {"SCOPE": ["read:user", "user:email", "read:org", "repo"]},
         "google": {
             "SCOPE": [
                 "profile",
