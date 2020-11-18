@@ -101,6 +101,20 @@ def bytes_fingerprint(data: bytes) -> str:
     return h.hexdigest()
 
 
+def is_within(parent, child) -> bool:
+    """
+    Check that a path is within another.
+    """
+    return Path(parent).resolve() in Path(child).resolve().parents
+
+
+def assert_within(parent, child):
+    """
+    Assert that a path is within another.
+    """
+    assert is_within(parent, child), f"Path {child} is not within {parent}"
+
+
 def ensure_parent(*args) -> Path:
     """
     Ensure that the parent directory of a file exists.

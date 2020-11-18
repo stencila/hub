@@ -3,7 +3,7 @@ from typing import Callable, Dict, List
 
 import config
 from jobs.base.job import Job
-from util.files import Files
+from util.files import Files, assert_within
 
 from .elife import pull_elife
 from .gdoc import pull_gdoc
@@ -54,6 +54,8 @@ class Pull(Job):
         """
         assert isinstance(source, dict), "source must be a dictionary"
         assert "type" in source, "source must have a type"
+        assert isinstance(path, str), "path must be a string"
+        assert_within(".", path) if path else True
         assert isinstance(secrets, dict), "secrets must be a dictionary"
 
         # Resolve the pull function based on the source type
