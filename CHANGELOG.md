@@ -1,3 +1,19 @@
+## [4.20.1](https://github.com/stencila/hub/compare/v4.20.0...v4.20.1) (2020-11-18)
+
+
+### Bug Fixes
+
+* **Base template:** Temporary fix for [#816](https://github.com/stencila/hub/issues/816) ([2f16bb6](https://github.com/stencila/hub/commit/2f16bb6d246825d7862d17cf31098c7446029f21))
+* **Jobs:** Do not add keys or secrets to job parameters ([950cb82](https://github.com/stencila/hub/commit/950cb82e5794c9ba4a1e64ddb0d6e390dec1c823))
+* **Nodes:** Display JSON, shorter key, refactored serializer names ([27cf51e](https://github.com/stencila/hub/commit/27cf51e79ea90de9072b8cedd81e7c4d0a82dbdf))
+* **Settings:** Reduce user scope to read info and emails ([664a51a](https://github.com/stencila/hub/commit/664a51aed1affd9f56a7691c2bb2e3a1d6166f83))
+
+
+### Performance Improvements
+
+* **GitHub pull:** Avoid re-reading files for file info ([c09bc07](https://github.com/stencila/hub/commit/c09bc07508a7939371337beef2ad3429fa83efca))
+* **GitHub pull:** Use extract and add test_huge_zip ([978daef](https://github.com/stencila/hub/commit/978daef5f778a19b5ea38dca9767c1a04eab811a))
+
 # [4.20.0](https://github.com/stencila/hub/compare/v4.19.0...v4.20.0) (2020-11-17)
 
 
