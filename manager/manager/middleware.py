@@ -36,7 +36,7 @@ def session_storage(get_response):
     This reduces the number of database queries that need to
     be made on each request (e.g. for the URL of the user's image)
     by caching data in the session. For authenticated users, the
-    cache is removed every hour to avoid it being stale 
+    cache is removed every hour to avoid it being stale
     (e.g. an async task updates the user's image).
     """
 
