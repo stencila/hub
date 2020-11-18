@@ -1,3 +1,4 @@
+import shortuuid
 from django.db import models
 from django.shortcuts import reverse
 from meta.views import Meta
@@ -5,6 +6,13 @@ from stencila.schema.util import node_type
 
 from projects.models.projects import Project
 from users.models import User
+
+
+def generate_node_key():
+    """
+    Generate a unique, and very difficult to guess, key to access the node.
+    """
+    return shortuuid.ShortUUID().random(length=32)
 
 
 class Node(models.Model):
@@ -75,7 +83,12 @@ class Node(models.Model):
         help_text="URL of the host document within which the node was created.",
     )
 
-    key = models.TextField(db_index=True, help_text="The key to the node")
+    key = models.CharField(
+        unique=True,
+        default=generate_node_key,
+        max_length=64,
+        help_text="A unique, and very difficult to guess, key to access this node if it is not public.",
+    )
 
     json = models.JSONField(help_text="The JSON content of node.")
 

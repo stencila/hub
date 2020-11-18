@@ -442,11 +442,7 @@ def create_nodes_for_project(project):
 
     Generates the same nodes for every project (so you can
     view them regardless of which test user you are logged in
-    as), with keys that are is easy to remember (the name of
-    the type).
-
-    Browse `/api/nodes/joe-private-project-codechunk.html` etc to preview the
-    templates with these data.
+    as).
     """
 
     nodes = [
@@ -459,7 +455,6 @@ def create_nodes_for_project(project):
     for node in nodes:
         Node.objects.create(
             project=project,
-            key="{}-{}".format(project.name, node.__class__.__name__.lower()),
             app="gsuita",
             host="https://example.com/some-doc",
             json=object_encode(node),

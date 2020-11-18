@@ -939,7 +939,7 @@ class SourcePolymorphicSerializer(PolymorphicSerializer):
         )
 
 
-class NodesCreateRequest(serializers.ModelSerializer):
+class NodeCreateRequest(serializers.ModelSerializer):
     """The request data when creating a new node."""
 
     node = serializers.JSONField(required=True, help_text="The node itself.")
@@ -947,10 +947,9 @@ class NodesCreateRequest(serializers.ModelSerializer):
     class Meta:
         model = Node
         fields = ["project", "app", "host", "node"]
-        ref_name = None
 
 
-class NodesCreateResponse(serializers.ModelSerializer):
+class NodeCreateResponse(serializers.ModelSerializer):
     """The response data when creating a new node."""
 
     url = serializers.SerializerMethodField()
@@ -963,10 +962,9 @@ class NodesCreateResponse(serializers.ModelSerializer):
     class Meta:
         model = Node
         fields = ["key", "url"]
-        ref_name = None
 
 
-class NodeSerializer(NodesCreateResponse):
+class NodeSerializer(NodeCreateResponse):
     """The response data when retrieving a node."""
 
     node = serializers.JSONField(source="json", help_text="The node itself.")
@@ -974,7 +972,6 @@ class NodeSerializer(NodesCreateResponse):
     class Meta:
         model = Node
         fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
-        ref_name = None
 
 
 class GithubRepoSerializer(serializers.ModelSerializer):

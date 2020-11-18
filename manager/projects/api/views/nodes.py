@@ -1,16 +1,19 @@
-import secrets
+import json
 from typing import Optional
 
+import pygments
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
+from pygments.formatters import HtmlFormatter
+from pygments.lexers.data import JsonLexer
 from rest_framework import mixins, parsers, permissions, renderers, status, viewsets
 from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from projects.api.serializers import (
-    NodesCreateRequest,
-    NodesCreateResponse,
+    NodeCreateRequest,
+    NodeCreateResponse,
     NodeSerializer,
 )
 from projects.models.nodes import Node
@@ -67,8 +70,8 @@ class NodesViewSet(
         return [permission() for permission in permission_classes]
 
     @swagger_auto_schema(
-        request_body=NodesCreateRequest,
-        responses={status.HTTP_201_CREATED: NodesCreateResponse},
+        request_body=NodeCreateRequest,
+        responses={status.HTTP_201_CREATED: NodeCreateResponse},
     )
     def create(self, request: Request) -> Response:
         """
@@ -77,7 +80,7 @@ class NodesViewSet(
         Receives a request with the `node` and other information e.g. `project`.
         Returns the URL of the node.
         """
-        serializer = NodesCreateRequest(data=request.data)
+        serializer = NodeCreateRequest(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         project = serializer.validated_data.get("project")
@@ -98,17 +101,12 @@ class NodesViewSet(
             except Project.DoesNotExist:
                 raise PermissionDenied
 
-        # Create the node with a unique key
+        # Create the node
         node = Node.objects.create(
-            creator=request.user,
-            key=secrets.token_hex(32),
-            project=project,
-            app=app,
-            host=host,
-            json=node,
+            creator=request.user, project=project, app=app, host=host, json=node,
         )
 
-        serializer = NodesCreateResponse(node, context={"request": request})
+        serializer = NodeCreateResponse(node, context={"request": request})
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED,
@@ -160,7 +158,10 @@ class NodesViewSet(
             # Return a more complete view if the user has VIEW permissions.
             # This should include public projects.
             # TODO: generate and cache a HTML representation of the node using a job
-            html = ""
+            lexer = JsonLexer()
+            formatter = HtmlFormatter(cssclass="source", style="colorful")
+            css = formatter.get_style_defs(".source")
+            html = pygments.highlight(json.dumps(node.json, indent=2), lexer, formatter)
 
             app_name, app_url = APPS.get(node.app, (node.app, None))
             return Response(
@@ -169,6 +170,7 @@ class NodesViewSet(
                     "app_url": app_url,
                     "app_name": app_name,
                     "node": node,
+                    "css": css,
                     "html": html,
                 },
                 template_name="projects/nodes/complete.html",
