@@ -1,3 +1,5 @@
+import time
+
 import rest_framework
 from django.shortcuts import render
 from rest_framework.authentication import BasicAuthentication
@@ -32,11 +34,21 @@ def session_storage(get_response):
     Middleware that stores commonly accessed data in the session.
 
     This reduces the number of database queries that need to
-    be made on each request e.g. for the URL of the user's image
+    be made on each request (e.g. for the URL of the user's image)
+    by caching data in the session. For authenticated users, the
+    cache is removed every hour to avoid it being stale 
+    (e.g. an async task updates the user's image).
     """
 
     def middleware(request):
-        if "user" not in request.session:
+        user = request.session.get("user")
+        if user is not None:
+            is_anon = user.get("anon", True)
+            stored_time = user.get("time")
+            if not is_anon and (not stored_time or stored_time < (time.time() - 3600)):
+                user = None
+
+        if user is None:
             if request.user.is_authenticated:
                 user = {
                     "anon": False,
@@ -44,7 +56,9 @@ def session_storage(get_response):
                 }
             else:
                 user = {"anon": True, "id": generate_anonuser_id()}
+            user["time"] = time.time()
             request.session["user"] = user
+
         return get_response(request)
 
     return middleware
