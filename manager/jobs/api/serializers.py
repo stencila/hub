@@ -36,7 +36,6 @@ class JobListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         fields = "__all__"
-        ref_name = None
 
     def get_urls(self, job: Job):
         """
@@ -106,7 +105,6 @@ class JobRetrieveSerializer(JobListSerializer):
     class Meta:
         model = Job
         fields = "__all__"
-        ref_name = "Job"
 
 
 class JobCreateSerializer(JobRetrieveSerializer):
@@ -137,7 +135,6 @@ class JobCreateSerializer(JobRetrieveSerializer):
             "retries",
             "worker",
         ]
-        ref_name = None
 
     project = serializers.HiddenField(
         default=FromContextDefault(
@@ -174,7 +171,6 @@ class JobUpdateSerializer(JobRetrieveSerializer):
         model = Job
         fields = "__all__"
         read_only_fields = ["creator", "created", "method", "params", "zone", "queue"]
-        ref_name = None
 
 
 class ZoneSerializer(serializers.ModelSerializer):
@@ -201,7 +197,6 @@ class ZoneCreateSerializer(ZoneSerializer):
     class Meta:
         model = Zone
         fields = "__all__"
-        ref_name = None
 
     account = serializers.HiddenField(
         default=FromContextDefault(

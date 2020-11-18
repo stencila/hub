@@ -57,9 +57,6 @@ class TokensCreateRequest(serializers.Serializer):
         write_only=True, required=False, help_text="An OpenID Connect JSON Web Token."
     )
 
-    class Meta:
-        ref_name = None
-
 
 class TokensCreateResponse(TokenSerializer):
     """The response data when creating a new token."""
@@ -91,7 +88,6 @@ class TokensCreateResponse(TokenSerializer):
             "first_name",
             "last_name",
         ]
-        ref_name = None
 
 
 class TokensViewSet(

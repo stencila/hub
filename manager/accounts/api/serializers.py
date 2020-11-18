@@ -134,7 +134,6 @@ class AccountTeamCreateSerializer(AccountTeamSerializer):
     class Meta:
         model = AccountTeam
         fields = AccountTeamSerializer.Meta.fields
-        ref_name = None
 
     account = serializers.HiddenField(
         default=FromContextDefault(
@@ -161,7 +160,6 @@ class AccountTeamUpdateSerializer(AccountTeamCreateSerializer):
         model = AccountTeam
         fields = AccountTeamCreateSerializer.Meta.fields
         read_only_fields = ["account"]
-        ref_name = None
 
 
 class AccountTeamDestroySerializer(serializers.Serializer):

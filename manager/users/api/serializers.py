@@ -185,9 +185,6 @@ class UserIdentifierSerializer(serializers.Serializer):
 
     username = serializers.CharField(required=False)
 
-    class Meta:
-        ref_name = None
-
     def validate(self, data):
         """
         Validate the suppied data.
