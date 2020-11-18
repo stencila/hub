@@ -371,17 +371,33 @@ class Source(PolymorphicModel):
         if not result:
             return
 
-        from projects.models.files import File
+        from projects.models.files import File, get_modified
 
-        # Any existing files for the source, not is results, need to be made
-        # non-current
-        File.objects.filter(project=self.project, source=self).exclude(
-            path__in=result.keys()
-        ).update(current=False, updated=timezone.now())
+        # All existing files for the source are made "non-current" (i.e. will not
+        # be displayed in project working directory but are retained for history)
+        File.objects.filter(project=self.project, source=self).update(
+            current=False, updated=timezone.now()
+        )
 
-        # Files in in results need to be "created" (i.e. added or have their info updated)
-        for path, info in result.items():
-            File.create(self.project, path, info, job=job, source=self)
+        # Do a batch insert of files. This is much faster when there are a lot of file
+        # than inserting each file individually.
+        File.objects.bulk_create(
+            [
+                File(
+                    project=self.project,
+                    path=path,
+                    job=job,
+                    source=self,
+                    updated=timezone.now(),
+                    modified=get_modified(info),
+                    size=info.get("size"),
+                    mimetype=info.get("mimetype"),
+                    encoding=info.get("encoding"),
+                    fingerprint=info.get("fingerprint"),
+                )
+                for path, info in result.items()
+            ]
+        )
 
     def push(self) -> Job:
         """
