@@ -1,7 +1,7 @@
 import json
 import re
 from enum import unique
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import inflect
 import shortuuid
@@ -661,12 +661,12 @@ class Job(models.Model):
         blank=True,
         help_text="Any error associated with the job; a JSON object with type, message etc.",
     )
-
     log = models.JSONField(
         null=True,
         blank=True,
         help_text="The job log; a JSON array of log objects, including any errors.",
     )
+
     runtime = models.FloatField(
         null=True, blank=True, help_text="The running time of the job."
     )
@@ -723,6 +723,10 @@ class Job(models.Model):
     )
 
     callback_object = GenericForeignKey("callback_type", "callback_id")
+
+    # Ephemeral secrets for the job. These may be required by
+    # workers but are not stored in the database.
+    secrets: Dict = {}
 
     @cached_property
     def status_message(self) -> str:

@@ -117,8 +117,9 @@ def dispatch_job(job: Job) -> Job:
         # job's process (e.g. Executa) to limit access to it.
         # Doing this here ensures it is done for all jobs
         # and avoids putting the key in the job's `params` field.
-        kwargs = job.params or {}
+        kwargs = dict(**job.params) if job.params else {}
         kwargs["key"] = job.key
+        kwargs["secrets"] = job.secrets
 
         # Send the job to the queue
         task = signature(

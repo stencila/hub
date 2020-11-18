@@ -1,3 +1,4 @@
+import logging
 import re
 
 from django.conf import settings
@@ -10,12 +11,15 @@ from manager.api.helpers import get_object_from_ident
 from manager.api.validators import FromContextDefault
 from projects.models.projects import Project
 
+logger = logging.getLogger(__name__)
+
 
 class JobListSerializer(serializers.ModelSerializer):
     """
     A job serializer for the `list` action.
 
-    This serializer includes all model fields.
+    This serializer includes all model fields except potentially
+    large JSON fields.
     Some are made read only in derived serializers
     (e.g. can not be set in `create` or `update` views).
 
@@ -35,7 +39,7 @@ class JobListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields = "__all__"
+        exclude = ["params", "result", "error", "log"]
 
     def get_urls(self, job: Job):
         """
@@ -94,17 +98,34 @@ class JobRetrieveSerializer(JobListSerializer):
     """
     A job serializer for the `retrieve` action.
 
-    Adds the `position` of the job in the queue.
-    This involves another database query for each job
-    so is probably best to avoid for lists.
+    Adds all fields as well as the `position` of the job in the
+    queue (which involves another database query for each job
+    so is probably best to avoid for jobs in a list).
     """
 
     position = serializers.IntegerField(read_only=True)
+
     children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    params = serializers.SerializerMethodField()
 
     class Meta:
         model = Job
         fields = "__all__"
+
+    def get_params(self, job: Job):
+        """
+        Remove `secrets` from the job's parameters (if present).
+
+        Removes any secrets in the job parameters.
+        Secrets should not be placed in job parameters in the first case.
+        This is a further precaution to avoid leakage if they are present
+        and as such logs a warning if they are.
+        """
+        if job.params and "secrets" in job.params:
+            logger.warning("Secrets were present in job params", extra={"job": job.id})
+            del job.params["secrets"]
+        return job.params
 
 
 class JobCreateSerializer(JobRetrieveSerializer):
