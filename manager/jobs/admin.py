@@ -11,6 +11,24 @@ from jobs.models import (
     WorkerHeartbeat,
     Zone,
 )
+from manager.admin import InputFilter
+
+
+class JobCreatorUsernameFilter(InputFilter):
+    """
+    Filter repos by the username of their creator.
+    """
+
+    parameter_name = "creator"
+    title = "Creator"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the list of jobs by creator username.
+        """
+        name = self.value()
+        if name is not None:
+            return queryset.filter(creator__username=name)
 
 
 @admin.register(Job)
@@ -19,6 +37,7 @@ class JobAdmin(admin.ModelAdmin):
 
     list_display = [
         "id",
+        "parent_id",
         "project_id",
         "creator",
         "created",
@@ -27,11 +46,27 @@ class JobAdmin(admin.ModelAdmin):
         "status",
         "method",
         "queue_id",
-        "worker",
     ]
     list_select_related = ["creator"]
-    list_filter = ["status", "method"]
+    list_filter = [JobCreatorUsernameFilter, "created", "status", "method"]
     show_full_result_count = False
+
+    # Page load speed is improved by making fields that do look ups readonly
+    # Most of these you never want to edit anyway.
+    readonly_fields = [
+        "created",
+        "began",
+        "ended",
+        "runtime",
+        "urls",
+        "users",
+        "anon_users",
+        "worker",
+        "retries",
+        "callback_type",
+        "callback_id",
+        "callback_method",
+    ]
 
     actions = ["cancel"]
 
