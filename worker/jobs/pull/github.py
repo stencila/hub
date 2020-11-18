@@ -8,7 +8,14 @@ from zipfile import ZipFile, ZipInfo
 import httpx
 from github import Github
 
-from util.files import Files, bytes_fingerprint, ensure_parent, file_mimetype
+from util.files import (
+    Files,
+    bytes_fingerprint,
+    ensure_parent,
+    file_fingerprint,
+    file_info,
+    file_mimetype,
+)
 
 # Github API credentials
 # Used to authenticate with GitHub API as a OAuth App to get higher rate limits
@@ -99,33 +106,16 @@ def pull_zip(
                 remainder_path = inner_path
 
             if remainder_path:
-                data = zip_archive.read(zip_path)
+                dest_path = os.path.join(path, remainder_path)
 
-                dest_path = (
-                    os.path.join(path, remainder_path) if remainder_path else path
-                )
-                ensure_parent(dest_path)
+                # Using `extract` is much much faster than reading bytes
+                # and then writing them to file. Also it maintains other file info
+                # such as modified time in the file written to disk. This speed up
+                # is much more important for real world zips than any speed advantage
+                # due to not reading bytes twice for fingerprint generation.
+                zip_info.filename = dest_path
+                zip_archive.extract(zip_info)
 
-                dest_file = open(dest_path, "wb")
-                dest_file.write(data)
-                dest_file.close()
-
-                files[remainder_path] = file_info(zip_info, data)
+                files[remainder_path] = file_info(dest_path)
 
     return files
-
-
-def file_info(zip_info: ZipInfo, data: bytes) -> dict:
-    """
-    Get a file info dictionary from a `ZipInfo` object.
-
-    See https://docs.python.org/3/library/zipfile.html#zipinfo-objects
-    """
-    mimetype, encoding = file_mimetype(zip_info.filename)
-    return {
-        "size": zip_info.file_size,
-        "mimetype": mimetype,
-        "encoding": encoding,
-        "modified": int(datetime(*zip_info.date_time).timestamp()),
-        "fingerprint": bytes_fingerprint(data),
-    }

@@ -66,7 +66,7 @@ def file_mimetype(path: str) -> Tuple[Optional[str], Optional[str]]:
     Get the mimetype of a file.
     """
     mimetype, encoding = mimetypes.guess_type(path, strict=False)
-    if not mimetype:
+    if not mimetype and os.path.exists(path):
         kind = filetype.guess(path)
         if kind:
             mimetype = kind.mime

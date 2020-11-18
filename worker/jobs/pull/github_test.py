@@ -98,10 +98,31 @@ def test_large_zip(tempdir):
     assert len(files.keys()) == 1000
 
     info = files.get("1.txt")
+    del info["modified"]
     assert info == {
         "encoding": None,
-        "fingerprint": "76acfa80b0650e510874a93071fe0419be1305fb95083c2390b391be5d101162",
+        "fingerprint": "7f8cafc8690f2707d1b7e8a40a59d8299e1af8f862576ba896acaca287fd4006",
         "mimetype": "text/plain",
-        "modified": 1605656268.0,
         "size": 6,
     }
+
+
+def test_huge_zip(tempdir):
+    """
+    A performance test using a huge repository archive.
+
+    To run this test, download the Zip file of https://github.com/sophiedeb/logistic_models
+    and run this file with:
+        ./venv/bin/pytest jobs/pull/githubtest.py --durations=0
+
+    It has 3304 files in it (at time of writing). Before optimizations this too 360s to
+    run; after 11s.
+    """
+    zip_file = os.path.join(
+        os.path.dirname(__file__), "fixtures", "logistic_models-master.zip"
+    )
+    if not os.path.exists(zip_file):
+        return
+
+    with working_directory(tempdir.path):
+        pull_zip(zip_file)
