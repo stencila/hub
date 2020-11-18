@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict
 from typing import Callable, Dict, List
 
 import config
@@ -64,4 +65,8 @@ class Pull(Job):
             raise ValueError("Unknown source type: {}".format(typ))
         pull_func = PULL_FUNCS[typ]
 
-        return pull_func(source=source, path=path, secrets=secrets)
+        # Call the function to get a dictionary of files
+        files = pull_func(source=source, path=path, secrets=secrets)
+
+        # Sort the dictionary by file path
+        return OrderedDict(sorted(files.items()))
