@@ -72,7 +72,11 @@
 {% endif %}
 
 <div id="file-list">
+  {% if files %}
   {% include './_list.html' %}
+  {% else %}
+  {% include "../_assets_empty_state.html" with asset_type="file" %}
+  {% endif %}
 </div>
 
 {% endblock %}

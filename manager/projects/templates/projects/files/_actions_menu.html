@@ -32,6 +32,8 @@
       {% endif %}
       {% endwith %}
 
+      {% comment %}
+
       {% with download_url=file.download_url %}
       {% if download_url %}
       <a href="{{ download_url }}" class="dropdown-item">
@@ -42,6 +44,8 @@
       </a>
       {% endif %}
       {% endwith %}
+
+      {% endcomment %}
 
       {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
       <hr class="dropdown-divider">

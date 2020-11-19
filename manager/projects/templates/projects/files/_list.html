@@ -1,8 +1,6 @@
-{% load i18n humanize stencila waffle_tags %}
+{% load i18n humanize stencila %}
 
-{% is_active 'ui-projects-files' as is_root_files_list %}
-
-{% if files %}
+{% with account=project.account files_count=files|length %}
 <table class="table is-fullwidth is-striped is-hoverable">
   <thead>
     <tr class="table-header">
@@ -12,11 +10,6 @@
       <th>
         {% trans "Path" %}
       </th>
-      {% flag 'ui-pipelines' %}
-      <th>
-        {% trans "Upstream" %}
-      </th>
-      {% endflag %}
       <th class="is-sr-only-mobile">
         {% trans "Last modified" %}
       </th>
@@ -31,8 +24,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for file in files %}
-    {% with account=project.account source=file.source upstreams=file.upstreams.all %}
+    {% for file in files|slice:":100" %}
     <tr>
       <td class="source-table--file-type pr-0 is-vcentered">
         {% if file.is_directory %}
@@ -61,6 +53,11 @@
         {% endif %}
         {% endif %}
       </td>
+
+      {% comment %}
+      This section is for visualization of pipelines (sources and upstream files) and needs
+      reconsideration and optimization so that it will work efficiently with a large number of files.
+
       {% flag 'ui-pipelines' %}
       <td class="is-vcentered">
         {% if is_root_files_list and not file.is_directory %}
@@ -82,6 +79,9 @@
         {% endif %}
       </td>
       {% endflag %}
+
+      {% endcomment %}
+
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.modified|naturaltime }}
       </td>
@@ -94,10 +94,12 @@
         {% endif %}
       </td>
     </tr>
-    {% endwith %}
     {% endfor %}
   </tbody>
 </table>
-{% elif is_root_files_list %}
-{% include "../_assets_empty_state.html" with asset_type="file" %}
+{% if files_count > 100 %}
+<p class="notification is-warning">
+  {% trans 'The maximum number of files that can be list is currently 100.' %}
+</p>
 {% endif %}
+{% endwith %}

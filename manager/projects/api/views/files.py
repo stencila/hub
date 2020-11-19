@@ -68,12 +68,9 @@ class ProjectsFilesViewSet(
         """
         project = project or self.get_project()
 
-        queryset = (
-            File.objects.filter(project=project, current=True)
-            .order_by("path")
-            .select_related("project", "project__account", "job", "source")
-            .prefetch_related("upstreams")
-        )
+        # Avoid using select_related and prefetch_related here
+        # as it can slow down queries significantly
+        queryset = File.objects.filter(project=project, current=True).order_by("path")
 
         source = self.request.GET.get("source")
         if source:
@@ -112,26 +109,30 @@ class ProjectsFilesViewSet(
         if expand is not None:
             return queryset
 
+        # Fetch the files, limiting to 10,000 so the following grouping
+        # does not take forever
+        # TODO: Put a message in the result if this limit is reached
+        files = list(queryset.all()[:10000])
+
         groups: Dict[str, Dict[str, Any]] = {}
-        for file in queryset.all():
+        for file in files:
             if "/" in file.path[len(prefix) + 1 :]:
                 name = file.name
                 info = groups.get(name)
                 if not info:
                     groups[name] = dict(
-                        project=file.project,
                         path=prefix + name,
                         name=file.name,
                         is_directory=True,
                         count=1,
-                        source=[file.source],
+                        source=[file.source_id],
                         size=file.size,
                         modified=file.modified,
                     )
                 else:
                     info["count"] += 1
                     info["size"] += file.size
-                    info["source"] += [file.source]
+                    info["source"] += [file.source_id]
                     info["modified"] = (
                         file.modified
                         if file.modified > info["modified"]
@@ -142,7 +143,7 @@ class ProjectsFilesViewSet(
                 groups[file.path] = file
 
         # Return items sorted by path again
-        return [value for key, value in sorted(groups.items(), reverse=True)]
+        return [value for key, value in sorted(groups.items())]
 
     def get_object(self, project: Optional[Project] = None) -> File:
         """

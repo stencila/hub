@@ -505,7 +505,10 @@ class FileSerializer(serializers.ModelSerializer):
 
 class FileListSerializer(FileSerializer):
     """
-    Serializer for a file.
+    Serializer for a list of files.
+
+    Excludes properties of a file that are expensive to extract
+    from the database (e.g. upstream files)
     """
 
     # These fields are calculated in `get_queryset`
@@ -533,7 +536,11 @@ class FileListSerializer(FileSerializer):
         if isinstance(obj, dict):
             return [source.id for source in obj["source"]]
         else:
-            return [obj.source and obj.source.id]
+            return [obj.source_id]
+
+    class Meta:
+        model = File
+        exclude = ["upstreams"]
 
 
 class SnapshotSerializer(serializers.ModelSerializer):
