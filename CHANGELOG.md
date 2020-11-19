@@ -1,3 +1,20 @@
+## [4.20.2](https://github.com/stencila/hub/compare/v4.20.1...v4.20.2) (2020-11-19)
+
+
+### Bug Fixes
+
+* **Files:** Improve file listing for sources and snapshots ([e878753](https://github.com/stencila/hub/commit/e878753c92330f5dcec8ccca12058a1abe3dad14))
+* **Jobs admin:** Add filters, make some fields readonly ([8e85765](https://github.com/stencila/hub/commit/8e8576564ded80f95dc07b79c082e23ca5655a44))
+* **Pull job:** Ensure path is within current directory ([aa5fb61](https://github.com/stencila/hub/commit/aa5fb617031e4c13b714d695734068c5b11e67c8))
+* **Pull job:** Sort files by path ([aa97f9e](https://github.com/stencila/hub/commit/aa97f9ef1da77d5e6035d11245ac353b587da0d6))
+* **User session cache:** Bust every hour for authed users ([e68ec3d](https://github.com/stencila/hub/commit/e68ec3d76c5b837524f983b4e94a31a3aa9b6a0d)), closes [#816](https://github.com/stencila/hub/issues/816)
+
+
+### Performance Improvements
+
+* **Project files:** Improve performance of listing many files ([2e8a88f](https://github.com/stencila/hub/commit/2e8a88f9b15ddec4a324c25ed887c1c7d9baa22e))
+* **Pull callback:** Do a bulk create of files ([fa4a1c4](https://github.com/stencila/hub/commit/fa4a1c490010fdc979d731ae584bff32acef0031))
+
 ## [4.20.1](https://github.com/stencila/hub/compare/v4.20.0...v4.20.1) (2020-11-18)
 
 
