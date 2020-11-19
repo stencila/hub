@@ -10,7 +10,7 @@ in case the enclosing page want to use that data to trigger further events
 {% endcomment %}
 
 {% load i18n humanize stencila %}
-{% with files=snapshot.files.all job=snapshot.job project=snapshot.project %}
+{% with job=snapshot.job project=snapshot.project %}
 {% url 'ui-projects-jobs-retrieve' project.account.name project.name job.id  as job_url %}
 
 <div {% if snapshot.is_active %} hx-trigger="every 2s"

@@ -1,7 +1,57 @@
 {% load i18n humanize stencila %}
 
 {% with account=project.account files_count=files|length %}
-<table class="table is-fullwidth is-striped is-hoverable">
+
+<div class="level">
+  <div class="level-right">
+    <div class="level-item">
+      {% if breadcrumbs|length > 1 %}
+      <nav class="breadcrumb mb-2" aria-label="breadcrumbs">
+        <ul>
+          {% for breadcrumb in breadcrumbs %}
+          <li class="{% if forloop.last %}is-active{% endif %}">
+            <a href="{% url 'ui-projects-files-list' project.account.name project.name breadcrumb.1 %}"
+               {% if forloop.last %}aria-current="page" {% endif %}>
+              {% if forloop.first %}
+              <span class="icon">
+                <i class="ri-home-line"></i>
+              </span>
+              {% else %}
+              {{ breadcrumb.0 }}
+              {% endif %}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+  <div class="level-right">
+    <div class="level-item">
+      <form class="field width-full">
+        <label class="is-sr-only" for="file-filter">
+          {% trans "File filter" %}
+        </label>
+        <div class="control has-icons-left has-icons-right is-expanded">
+          <input id="file-filter" class="input is-small-mobile" type="text" name="search"
+                 placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
+                 hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True{% if source %}&source={{ source.id }}{% endif %}{% if snapshot %}&snapshot={{ snapshot.id }}{% endif %}"
+                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-select="#file-table"
+                 hx-target="#file-table">
+          <span class="icon is-small is-left">
+            <i class="ri-filter-line"></i>
+          </span>
+          <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
+            <i class="ri-loader-line"></i>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<table id="file-table" class="table is-fullwidth is-striped is-hoverable">
   <thead>
     <tr class="table-header">
       <th>
@@ -37,10 +87,16 @@
         {% endif %}
       </td>
       <td class="is-vcentered table-icon-label has-text-black has-text-weight-bold">
+        {% if snapshot %}
+
+        {# The below links do not work for files or directories in a snapshot so skip them here #}
+        <span>{{ file.name }}</span>
+
+        {% else %}
+
         {% if file.is_directory %}
         <a href="{% url 'ui-projects-files-list' account.name project.name file.path %}"
-           class="has-text-black has-text-link-hover has-tooltip-bottom has-tooltip-text-centered"
-           data-tooltip="Directory with {{file.count}} file{{ file.count|pluralize }}">
+           class="has-text-black has-text-link-hover">
           {{ file.name }}
         </a>
         {% else %}
@@ -51,6 +107,8 @@
         {% if project.main and project.main == file.path %}
         <span class="tag is-primary is-light">{% trans 'Main' %}</span>
         {% endif %}
+        {% endif %}
+
         {% endif %}
       </td>
 
@@ -89,7 +147,7 @@
         {{ file.size|format_bytes }}
       </td>
       <td class="has-text-right is-vcentered" style="weight: 1em;">
-        {% if not file.is_directory %}
+        {% if not file.is_directory and not snapshot %}
         {% include "./_actions_menu.html" %}
         {% endif %}
       </td>
@@ -97,9 +155,11 @@
     {% endfor %}
   </tbody>
 </table>
+
 {% if files_count > 100 %}
 <p class="notification is-warning">
-  {% trans 'The maximum number of files that can be list is currently 100.' %}
+  {% trans 'The maximum number of files that can be listed is currently 100.' %}
 </p>
 {% endif %}
+
 {% endwith %}

@@ -3,6 +3,7 @@ from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.template.loader import select_template
 
+from projects.api.views.files import ProjectsFilesViewSet
 from projects.api.views.sources import ProjectsSourcesViewSet
 from projects.models.sources import Source, UploadSource
 from projects.ui.views.messages import all_messages
@@ -122,10 +123,15 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = ProjectsSourcesViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_project()
     source = viewset.get_object(project)
+
+    viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
+    files = viewset.get_queryset(project=project, source=source)
+    context = viewset.get_response_context(queryset=files)
+
     return render(
         request,
         "projects/sources/retrieve.html",
-        dict(source=source, project=project, meta=project.get_meta()),
+        dict(source=source, meta=project.get_meta(), **context),
     )
 
 

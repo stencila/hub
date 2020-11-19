@@ -12,6 +12,7 @@ from projects.api.serializers import FileListSerializer, FileSerializer
 from projects.api.views.projects import get_project
 from projects.models.files import File
 from projects.models.projects import Project
+from projects.models.snapshots import Snapshot
 from projects.models.sources import Source
 
 
@@ -56,7 +57,12 @@ class ProjectsFilesViewSet(
             prefix += "/"
         return prefix
 
-    def get_queryset(self, project: Optional[Project] = None):
+    def get_queryset(
+        self,
+        project: Optional[Project] = None,
+        source: Optional[Source] = None,
+        snapshot: Optional[Snapshot] = None,
+    ):
         """
         Get project files.
 
@@ -72,23 +78,24 @@ class ProjectsFilesViewSet(
         # as it can slow down queries significantly
         queryset = File.objects.filter(project=project, current=True).order_by("path")
 
-        source = self.request.GET.get("source")
+        source = source or self.request.GET.get("source")
         if source:
             queryset = queryset.filter(source=source)
 
-        snapshot = self.request.GET.get("snapshot")
+        snapshot = snapshot or self.request.GET.get("snapshot")
         if snapshot:
             queryset = queryset.filter(snapshot=snapshot)
         else:
             queryset = queryset.filter(snapshot__isnull=True)
 
-        search = self.request.GET.get("search", "").strip()
-        if search:
-            queryset = queryset.filter(path__icontains=search)
-
         prefix = self.get_prefix()
         if prefix:
             queryset = queryset.filter(path__startswith=prefix)
+
+        search = self.request.GET.get("search", "").strip()
+        if search:
+            print(prefix, search)
+            queryset = queryset.filter(path__istartswith=prefix + search)
 
         queryset = queryset.annotate(
             name=Substr(
@@ -237,9 +244,21 @@ class ProjectsFilesViewSet(
 
         context["project"] = self.get_project()
 
+        source = self.request.GET.get("source")
+        if source:
+            context["source"] = Source.objects.get(id=source)
+
+        snapshot = self.request.GET.get("snapshot")
+        if snapshot:
+            context["snapshot"] = Snapshot.objects.get(id=snapshot)
+
+        prefix = self.get_prefix()
+        if prefix:
+            context["prefix"] = prefix
+
         breadcrumbs = [("root", "")]
         path = ""
-        for name in self.get_prefix().split("/"):
+        for name in prefix.split("/"):
             if name:
                 path += name + "/"
                 breadcrumbs.append((name, path))

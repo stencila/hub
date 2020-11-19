@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
+from projects.api.views.files import ProjectsFilesViewSet
 from projects.api.views.snapshots import ProjectsSnapshotsViewSet
 
 
@@ -29,8 +30,10 @@ def retrieve(
     project = viewset.get_project()
     snapshot = viewset.get_object(project)
 
+    viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
+    files = viewset.get_queryset(project=project, snapshot=snapshot)
+    context = viewset.get_response_context(queryset=files)
+
     return render(
-        request,
-        template,
-        dict(project=project, snapshot=snapshot, meta=project.get_meta()),
+        request, template, dict(snapshot=snapshot, meta=project.get_meta(), **context),
     )

@@ -18,13 +18,11 @@ in case the enclosing page want to use that data to trigger further events
 
   <h2 class="title is-5">Files</h2>
   <p class="subtitle is-6">The files that were last pulled from the source.</p>
-  {% with files=source.get_downstreams %}
   {% if files %}
   {% include "../files/_list.html" %}
   {% else %}
   <p>No files have been pulled yet for this source.</p>
   {% endif %}
-  {% endwith %}
 
   <hr />
 

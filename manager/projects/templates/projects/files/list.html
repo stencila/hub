@@ -12,25 +12,6 @@
 
 <div class="level level-reverse-mobile">
   <div class="level-left">
-    <div class="level-item">
-      <form class="field width-full">
-        <label class="is-sr-only" for="file-filter">
-          {% trans "File filter" %}
-        </label>
-        <div class="control has-icons-left has-icons-right is-expanded">
-          <input id="file-filter" class="input is-small-mobile" type="text" name="search"
-                 placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
-                 hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True"
-                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-target="#file-list">
-          <span class="icon is-small is-left">
-            <i class="ri-filter-line"></i>
-          </span>
-          <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
-            <i class="ri-loader-line"></i>
-          </span>
-        </div>
-      </form>
-    </div>
   </div>
 
   {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
@@ -52,31 +33,10 @@
   {% endif %}
 </div>
 
-{% if breadcrumbs|length > 1 %}
-<nav class="breadcrumb mb-2" aria-label="breadcrumbs">
-  <ul>
-    {% for breadcrumb in breadcrumbs %}
-    <li class="{% if forloop.last %}is-active{% endif %}">
-      <a href="{% url 'ui-projects-files-list' project.account.name project.name breadcrumb.1 %}"
-         {% if forloop.last %}aria-current="page" {% endif %}>
-        {% if forloop.first %}
-        {{ project.title|default:project.name }}
-        {% else %}
-        {{ breadcrumb.0 }}
-        {% endif %}
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
-</nav>
+{% if files %}
+{% include './_list.html' %}
+{% else %}
+{% include "../_assets_empty_state.html" with asset_type="file" %}
 {% endif %}
-
-<div id="file-list">
-  {% if files %}
-  {% include './_list.html' %}
-  {% else %}
-  {% include "../_assets_empty_state.html" with asset_type="file" %}
-  {% endif %}
-</div>
 
 {% endblock %}
