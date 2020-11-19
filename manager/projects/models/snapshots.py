@@ -4,10 +4,11 @@ from typing import Optional
 import shortuuid
 from django.db import models
 from django.http import HttpRequest
+from django.utils import timezone
 
 from jobs.models import Job, JobMethod
 from manager.storage import FileSystemStorage, snapshots_storage
-from projects.models.files import File
+from projects.models.files import File, get_modified
 from projects.models.projects import Project
 from users.models import User
 
@@ -217,8 +218,25 @@ class Snapshot(models.Model):
         if not result:
             return
 
-        for path, info in result.items():
-            File.create(self.project, path, info, job=job, snapshot=self)
+        # Do a batch insert of files. This is much faster when there are a lot of file
+        # than inserting each file individually.
+        File.objects.bulk_create(
+            [
+                File(
+                    project=self.project,
+                    path=path,
+                    job=job,
+                    snapshot=self,
+                    updated=timezone.now(),
+                    modified=get_modified(info),
+                    size=info.get("size"),
+                    mimetype=info.get("mimetype"),
+                    encoding=info.get("encoding"),
+                    fingerprint=info.get("fingerprint"),
+                )
+                for path, info in result.items()
+            ]
+        )
 
     def session(self, request: HttpRequest) -> Job:
         """
