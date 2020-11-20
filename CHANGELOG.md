@@ -1,3 +1,24 @@
+## [4.20.3](https://github.com/stencila/hub/compare/v4.20.2...v4.20.3) (2020-11-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.103.0 ([f086cb3](https://github.com/stencila/hub/commit/f086cb36a885da235064d679d5ad842723701778))
+* **deps:** update dependency @stencila/executa to v1.15.2 ([8f92c81](https://github.com/stencila/hub/commit/8f92c816cef7c6c4007b645c671277b6bdf4b1fc))
+* **deps:** update dependency dj-stripe to v2.4.0 ([d532a66](https://github.com/stencila/hub/commit/d532a660922f995d8e566a579815d683a4692dd6))
+* **deps:** update dependency django-meta to v2.0.0 ([405e6ab](https://github.com/stencila/hub/commit/405e6ab90e8968e948ac7c0f8a85d6d93f992da3))
+* **deps:** update dependency google-api-python-client to v1.12.8 ([ff808d6](https://github.com/stencila/hub/commit/ff808d6d7c025388bfd42f795614ea49f52dba46))
+* **deps:** update dependency google-cloud-storage to v1.33.0 ([fc28b24](https://github.com/stencila/hub/commit/fc28b24c7e1a1b0a4cc972da0cd8fd3d738fa650))
+* **deps:** update dependency htmx.org to v0.4.0 ([715c4ef](https://github.com/stencila/hub/commit/715c4efab4d1b2547776a069a2fbf75ddea9737b))
+* **deps:** update dependency inflect to v4.1.1 ([d33fd84](https://github.com/stencila/hub/commit/d33fd8472f7096eb1d1324cd38637e5e72e4df2d))
+* **deps:** update dependency inflect to v5 ([06eec6c](https://github.com/stencila/hub/commit/06eec6c157bbf47f40aea5a8e250a04b72b4bbe5))
+* **deps:** update dependency prometheus_client to v0.9.0 ([da0bfb7](https://github.com/stencila/hub/commit/da0bfb79fd4ca3ce46b1c8bb7d7135b4f7bdd9c3))
+* **deps:** update dependency pytest-randomly to v3.5.0 ([49bb5d8](https://github.com/stencila/hub/commit/49bb5d8c6d971c0ef34cc8fa2116309e69715dbf))
+* **deps:** update dependency sentry-sdk to v0.19.4 ([5b92943](https://github.com/stencila/hub/commit/5b929438e481c1b926192d8c4cdd60a5652bcdf5))
+* **deps:** update dependency stencila-schema to v0.47.2 ([64b92be](https://github.com/stencila/hub/commit/64b92beac58043db9f54d8a0c380c493e25d901c))
+* **deps:** update dependency typescript to v4.1.2 ([1124907](https://github.com/stencila/hub/commit/1124907bb222fbf16a7c23607870b64cee658361))
+* **Manager:** Use hx-vars instead of include-vals ([7b2ddec](https://github.com/stencila/hub/commit/7b2ddecb9407581fb97662a55581f2e8bde96cd3))
+
 ## [4.20.2](https://github.com/stencila/hub/compare/v4.20.1...v4.20.2) (2020-11-19)
 
 
