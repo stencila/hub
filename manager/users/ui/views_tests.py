@@ -1,3 +1,5 @@
+import re
+
 from django.test import Client
 
 from manager.testing import DatabaseTestCase
@@ -15,7 +17,10 @@ class SignInTestCase(DatabaseTestCase):
         # without next parameter, we should not have the hidden next field in the HTML
         client = Client()
         resp = client.get("/me/signin/")
-        self.assertNotIn(b'input type="hidden" name="next"', resp.content)
+        self.assertNotIn(
+            'input type="hidden" name="next"',
+            re.sub(r"\n +", " ", resp.content.decode()),
+        )
 
         # when posting, we get redirected to /
         login_resp = client.post("/me/signin/", {"login": "ada", "password": "ada"})
@@ -29,7 +34,8 @@ class SignInTestCase(DatabaseTestCase):
         client = Client()
         resp = client.get("/me/signin/?next=/test-redirect/")
         self.assertIn(
-            b'input type="hidden" name="next" value="/test-redirect/', resp.content
+            'input type="hidden" name="next" value="/test-redirect/',
+            re.sub(r"\n +", " ", resp.content.decode()),
         )
 
         # when posting, provide the `next` value that should be in the form
