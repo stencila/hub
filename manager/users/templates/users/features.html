@@ -8,7 +8,7 @@
 <h1 class="title is-3">{% trans "Feature and privacy settings" %}</h1>
 
 <form hx-patch="{% url 'api-features' %}" hx-template="users/features.html" hx-select="form"
-      include-vals="{% for flag in flags %}{{ flag.name }}: document.querySelector('form [name={{ flag.name }}]').checked, {% endfor %}">
+      hx-vars="{% for flag in flags %}{{ flag.name }}: document.querySelector('form [name={{ flag.name }}]').checked, {% endfor %}">
   {% for flag in flags %}
   <div class="level">
     <h1 class="level-left title is-5">{{ flag.label }}</h1>

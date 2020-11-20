@@ -5,7 +5,7 @@
   <div class="dropdown-trigger field has-addons">
     <div class="control has-icons-left has-icons-right is-expanded">
       <input id="repo-search-input" class="input" type="text" name="repo"
-             include-vals="search: document.getElementById('repo-search-input').value"
+             hx-vars="search: document.getElementById('repo-search-input').value"
              placeholder="{% trans "Search by owner/name" %}" autocomplete="off"
              hx-trigger="focus, keyup changed delay:300ms" hx-get="{% url 'api-providers-github-repos-list' %}"
              hx-template="projects/providers/github/_repo_search_results.html"

@@ -6,6 +6,5 @@ export { toast as Toast } from "bulma-toast";
 export userflow from "userflow.js";
 // `htmx` is available globally
 import "htmx.org";
-import "htmx.org/dist/ext/include-vals";
 import "htmx.org/dist/ext/json-enc";
 import "./htmx-extensions.js";

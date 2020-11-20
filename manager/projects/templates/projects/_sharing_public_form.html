@@ -1,5 +1,5 @@
 <form hx-trigger="change" hx-patch="{% url 'api-projects-detail' project.id %}"
-      include-vals="public: document.querySelector('#public-toggle').checked"
+      hx-vars="public: document.querySelector('#public-toggle').checked"
       hx-template="projects/_sharing_public_form.html" hx-swap="outerHTML">
   <div class="field mb-0">
     <input id="public-toggle" type="checkbox" class="toggle is-small is-inline toggle__label-before"
