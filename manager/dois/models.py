@@ -1,16 +1,34 @@
 import datetime
+import logging
+import re
+import time
+from typing import Optional
 
 from django.conf import settings
 from django.db import models
+from django.dispatch import receiver
+from django.utils import timezone
 
 from jobs.models import Job, JobMethod
+from manager.signals import email_received
 from projects.models.nodes import Node
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class Doi(models.Model):
     """
     A Digital Object Identifier (DOI).
+
+    All Stencila DOIs point to a CreativeWork node of some type e.g. Article, Review, Dataset.
+    The node is the source of bibliographic metadata used when registering the DOI.
+    The node is protected from deletion.
+
+    We use a common base URL for the registered DOI URLs and then redirect from that URL
+    to the node. This enables changes over time in the URL for the node, without breaking
+    the permanent, registered DOI URL. We store the DOI URL as a record e.g in case there
+    are changes in the base URL convention.
     """
 
     doi = models.CharField(
@@ -19,17 +37,14 @@ class Doi(models.Model):
     )
 
     url = models.URLField(
-        help_text="The URL of the resource that this DOI is points to.",
+        help_text="The URL registered for the DOI. e.g. https://hub.stenci.la/doi/10.47704/stencila.54321",
     )
 
     node = models.ForeignKey(
         Node,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         related_name="dois",
-        help_text="The node that the DOI points to. Most Stencila DOIs point to a CreativeWork node of some type "
-        "e.g. a Article, a Review, a Dataset.",
+        help_text="The Stencila node that the DOI points to.",
     )
 
     creator = models.ForeignKey(
@@ -45,61 +60,93 @@ class Doi(models.Model):
         auto_now_add=True, help_text="Date-time the DOI was created."
     )
 
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.SET_NULL,
+        related_name="doi_registered",
+        null=True,
+        blank=True,
+        help_text="The job that registered the DOI.",
+    )
+
     deposited = models.DateField(
         null=True,
         blank=True,
-        help_text="Date-time that the registration request was sent to the registrar.",
+        help_text="Date-time that the deposit request was sent to the registrar.",
+    )
+
+    deposit_request = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="JSON serialization of the deposit request sent to the registrar.",
+    )
+
+    deposit_response = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="JSON serialization of the deposit response received from the registrar.",
+    )
+
+    deposit_success = models.BooleanField(
+        null=True, blank=True, help_text="Whether or not the deposit was successful.",
     )
 
     registered = models.DateField(
         null=True,
         blank=True,
-        help_text="Date-time that a successful registration response was received "
-        "from the registrar. If `deposited` is not null and this is null it "
-        "implies that the registration was unsuccessful.",
+        help_text="Date-time that a registration notification was received from the registrar.",
     )
 
-    request = models.JSONField(
+    registration_response = models.JSONField(
         null=True,
         blank=True,
-        help_text="JSON serialization of the request sent to the registrar.",
+        help_text="The payload received from the registrar on notification.",
     )
 
-    response = models.JSONField(
+    registration_success = models.BooleanField(
         null=True,
         blank=True,
-        help_text="JSON serialization of the response received from the registrar.",
+        help_text="Whether or not the registration was successful.",
     )
 
     def save(self, *args, **kwargs):
         """
-        Override save to ensure that DOI attribute is set based on the id.
+        Override save to ensure that `doid` and `url` attributes are set based on the `id`.
         """
         super().save(*args, **kwargs)
 
         if not self.doi:
             self.doi = f"{settings.DOI_PREFIX}/{settings.DOI_SUFFIX_LEFT}{self.id}"
+            self.url = f"http{'' if settings.DEBUG else 's'}://{settings.PRIMARY_DOMAIN}/doi/{self.doi}"
             self.save()
 
-    def register(self, user: User) -> Job:
+    def register(self, user: Optional[User] = None) -> Job:
         """
         Register the DOI.
 
-        Creates a job which will asynchronously register the DOI when it is
-        `dispatch()`ed.
+        Creates a job that asynchronously registers the DOI with a
+        registration agency.
         """
-        return Job.objects.create(
+        job = Job.objects.create(
             description="Register DOI",
             method=JobMethod.register.name,
-            params=dict(doi=self.url, url=self.path, node=self.node),
-            project=self.project,
+            params=dict(
+                node=self.node.json,
+                doi=self.doi,
+                url=self.url,
+                batch=f"{self.id}@{time.time()}",
+            ),
+            project=self.node and self.node.project,
             creator=user,
             **Job.create_callback(self, "register_callback"),
         )
+        self.job = job
+        self.save()
+        return job
 
     def register_callback(self, job: Job):
         """
-        Store registration details resulting from a register job.
+        Store registration details resulting from a `register` job.
         """
         result = job.result
         if result:
@@ -111,8 +158,36 @@ class Doi(models.Model):
                     else None
                 )
 
+            success = result.get("deposit_success")
+
             self.deposited = get_date("deposited")
-            self.registered = get_date("registered")
-            self.request = result.get("request")
-            self.response = result.get("response")
+            self.deposit_request = result.get("deposit_request")
+            self.deposit_response = result.get("deposit_response")
+            self.deposit_success = success
             self.save()
+
+            if not success:
+                logger.error("Error depositing DOI", extra={"id": self.id})
+
+
+@receiver(email_received)
+def receive_registration_email(sender, email, **kwargs):
+    """
+    Record the registration confirmation (or rejection) email from Crossref.
+    """
+    if "@crossref.org" in email.get("from"):
+        text = email.get("text")
+        match = re.search(r"<batch_id>([^@]+)@", text)
+        if match:
+            success = '<record_diagnostic status="Success">' in text
+
+            doi = Doi.objects.get(id=match.group(1))
+            doi.registered = timezone.now()
+            doi.registration_response = text
+            doi.registration_success = success
+            doi.save()
+
+            if not success:
+                logger.error("Error registering DOI", extra={"text": text})
+        else:
+            logger.warning("Unable to find batch id", extra={"text": text})

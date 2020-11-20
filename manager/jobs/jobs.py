@@ -103,7 +103,7 @@ def dispatch_job(job: Job) -> Job:
                 account_name="stencila", queue_name="default"
             )
         else:
-            if job.creator is None:
+            if job.creator is None or job.project is None:
                 # Jobs created by anonymous users go on the lowest
                 # priority queue
                 priority = 1

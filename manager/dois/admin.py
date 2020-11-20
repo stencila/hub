@@ -13,16 +13,35 @@ class ProjectAdmin(admin.ModelAdmin):
         "creator_id",
         "created",
         "deposited",
+        "deposit_success",
         "registered",
+        "registration_success",
     ]
-    list_filter = ["created", "deposited", "registered"]
+
+    list_filter = [
+        "created",
+        "deposited",
+        "deposit_success",
+        "registered",
+        "registration_success",
+    ]
 
     readonly_fields = [
         "doi",
         "creator",
         "created",
         "deposited",
+        "deposit_request",
+        "deposit_response",
+        "deposit_success",
         "registered",
-        "request",
-        "response",
+        "registration_response",
+        "registration_success",
     ]
+
+    actions = ["register"]
+
+    def register(self, request, queryset):
+        """Register the selected DOIs."""
+        for doi in queryset.all():
+            doi.register()
