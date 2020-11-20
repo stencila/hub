@@ -30,8 +30,11 @@
 <ul>
   {% for team in teams %}
   <li class="collection-list--item">
-    <a {% if role in "MANAGER,OWNER" %} href="{% url 'ui-accounts-teams-update' account.name team.name %}" {% else %}
-       href="{% url 'ui-accounts-teams-retrieve' account.name team.name %}" {% endif %}
+    <a {% if role in "MANAGER,OWNER" %}
+       href="{% url 'ui-accounts-teams-update' account.name team.name %}"
+       {% else %}
+       href="{% url 'ui-accounts-teams-retrieve' account.name team.name %}"
+       {% endif %}
        class="list-menu--item collection-list--item-contents">
       <div class="level is-mobile">
         <div class="level-left accounts--team-list-item">

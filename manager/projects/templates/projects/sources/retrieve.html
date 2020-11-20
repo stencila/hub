@@ -15,7 +15,9 @@
   {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
   <div class="level-right buttons has-flex-justify-content-end-mobile">
     <a class="button is-small-mobile is-expanded-mobile"
-       href="{% url 'api-projects-sources-open' project.id source.id %}" target="_blank" rel="noopener">
+       href="{% url 'api-projects-sources-open' project.id source.id %}"
+       target="_blank"
+       rel="noopener">
       <span class="icon">
         <i class="ri-external-link-line"></i>
       </span>
@@ -23,7 +25,8 @@
     </a>
 
     {# Create a pull job and then redirect to this page (which will now have an active source #}
-    <a class="button is-small-mobile is-expanded-mobile" {% if source_active %}disabled{% endif %}
+    <a class="button is-small-mobile is-expanded-mobile"
+       {% if source_active %}disabled{% endif %}
        hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
        hx-redirect="CREATED:{% url 'ui-projects-sources-retrieve' project.account.name project.name source.address %}"
        hx-swap="none">
@@ -51,7 +54,8 @@
     {# Preliminary implemenentation of a watch / unwatch toggle for testing #}
     {% if not source.subscription %}
     <button class="button is-small-mobile is-expanded-mobile"
-            hx-post="{% url 'api-projects-sources-watch' project.id source.id %}" hx-swap="none">
+            hx-post="{% url 'api-projects-sources-watch' project.id source.id %}"
+            hx-swap="none">
       <span class="icon">
         <i class="ri-eye-2-line"></i>
       </span>
@@ -59,7 +63,8 @@
     </button>
     {% else %}
     <button class="button is-small-mobile is-expanded-mobile"
-            hx-post="{% url 'api-projects-sources-unwatch' project.id source.id %}" hx-swap="none">
+            hx-post="{% url 'api-projects-sources-unwatch' project.id source.id %}"
+            hx-swap="none">
       <span class="icon">
         <i class="ri-eye-2-fill"></i>
       </span>

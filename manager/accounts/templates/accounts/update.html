@@ -16,13 +16,17 @@
 <h2 class="title is-3">{% trans "Image" %}</h2>
 <p class="subtitle is-6">{% trans "Your account's profile image." %}</p>
 <div id="image-form">
-  <form method="post" action="{% url 'ui-accounts-update-image' account.name %}" enctype="multipart/form-data">
+  <form method="post"
+        action="{% url 'ui-accounts-update-image' account.name %}"
+        enctype="multipart/form-data">
     {% csrf_token %}
     <div class="field has-addons-tablet">
       <div class="control">
         <div class="file has-name">
           <label class="file-label">
-            <input class="file-input" type="file" name="image">
+            <input class="file-input"
+                   type="file"
+                   name="image">
             <span class="file-cta">
               <span class="file-icon">
                 <i class="ri-file-upload-line"></i>
@@ -38,7 +42,8 @@
         </div>
       </div>
       <div class="control">
-        <button class="button is-primary is-fullwidth-mobile" type="submit">
+        <button class="button is-primary is-fullwidth-mobile"
+                type="submit">
           {% trans "Upload" %}
         </button>
       </div>

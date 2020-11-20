@@ -8,14 +8,16 @@
 
   {% if head|last != "" %}
   <span class="read-more">{{ head|last }}</span>
-  <a href="#" class="read-more-toggle">{% trans "Read more" %}…</a>
+  <a href="#"
+     class="read-more-toggle">{% trans "Read more" %}…</a>
   {% endif %}
   {% endwith %}
   {% endspaceless %}
 </p>
 {% elif project.role in 'MANAGER, OWNER' %}
 <p>
-  <a class="button is-white is-light is-small" href="{% url 'ui-projects-update' project.account.name project.name %}">
+  <a class="button is-white is-light is-small"
+     href="{% url 'ui-projects-update' project.account.name project.name %}">
     <span class="icon">
       <i class="ri-add-line"></i>
     </span>

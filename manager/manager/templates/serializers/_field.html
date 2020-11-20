@@ -6,11 +6,13 @@
   {% if element == "checkbox" %}
 
   {% include "./_field_control.html" with field_id=field_id %}
-  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+  <label class="label"
+         for="{{ field_id }}">{{ field.label|default:field.name }}</label>
 
   {% else %}
 
-  <label class="label" for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+  <label class="label"
+         for="{{ field_id }}">{{ field.label|default:field.name }}</label>
 
   {% if element %}
   {% include "./_field_control.html" with field_id=field_id %}

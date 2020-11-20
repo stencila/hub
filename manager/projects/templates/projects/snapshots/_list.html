@@ -30,25 +30,29 @@ A partial for displaying a list of snapshots.
       {% url 'ui-projects-snapshots-retrieve' project.account.name project.name snapshot.number as retrieve_url %}
       <tr class="is-relative">
         <td class="source-table--file-type pr-0 is-vcentered">
-          <a href="{{ retrieve_url }}" class="has-text-black has-text-link-hover">
+          <a href="{{ retrieve_url }}"
+             class="has-text-black has-text-link-hover">
             {{ snapshot.number }}
           </a>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered is-hidden-mobile">
-          <a href="{{ retrieve_url }}" class="has-text-black has-text-link-hover">
+          <a href="{{ retrieve_url }}"
+             class="has-text-black has-text-link-hover">
             {{ snapshot.created }}
           </a>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered is-hidden-mobile">
           <span class="icon is-small is-vcentered pr-1">
-            <img src="{{ snapshot.creator.personal_account.image.small }}" role="presentation"></img>
+            <img src="{{ snapshot.creator.personal_account.image.small }}"
+                 role="presentation"></img>
           </span>
           <span class="is-vcentered">
             {{ snapshot.creator.username }}
           </span>
         </td>
         <td class="source-table--file-type pr-0 is-vcentered">
-          <a href="{{ retrieve_url }}" class="button is-outlined is-small is-fullwidth">
+          <a href="{{ retrieve_url }}"
+             class="button is-outlined is-small is-fullwidth">
             <span>
               {% trans "Details" %}
             </span>

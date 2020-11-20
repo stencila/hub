@@ -41,8 +41,11 @@
               {% trans "Sent" %} {{ invite.sent|naturaltime }}
             </span>
           </span>
-          <a class="button is-danger is-outlined is-small mb-2" hx-delete="{% url 'api-invites-detail' invite.id %}"
-             hx-target="#invite-list" hx-template="invitations/_list.html" hx-extra-context="queryset">
+          <a class="button is-danger is-outlined is-small mb-2"
+             hx-delete="{% url 'api-invites-detail' invite.id %}"
+             hx-target="#invite-list"
+             hx-template="invitations/_list.html"
+             hx-extra-context="queryset">
             <span class="icon">
               <i class="ri-close-line"></i>
             </span>

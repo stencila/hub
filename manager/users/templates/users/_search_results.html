@@ -9,10 +9,13 @@ for displaying user search results.
 
 <ul class="dropdown-content">
   {% for user in queryset %}
-  <li class="dropdown-item user-search-item py-2" data-id="{{ user.id }}" data-username="{{ user.username }}">
+  <li class="dropdown-item user-search-item py-2"
+      data-id="{{ user.id }}"
+      data-username="{{ user.username }}">
     {% with account=user.personal_account %}
     <figure class="image is-32x32 is-inline-block mr-2 is-vcentered">
-      <img src="{{ account.image.small }}" alt="{{ user.get_full_name|default:user.username }}"></img>
+      <img src="{{ account.image.small }}"
+           alt="{{ user.get_full_name|default:user.username }}"></img>
     </figure>
     <div class="is-inline-block is-vcentered">
       <div class="has-text-weight-bold is-size-6">{{ user.first_name }} {{ user.last_name }}</div>

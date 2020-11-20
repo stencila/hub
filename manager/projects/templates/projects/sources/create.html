@@ -4,8 +4,10 @@
 {% block title %}{% trans "New source" %}{% endblock %}
 
 {% block layout_content %}
-<form hx-post="{% url 'api-projects-sources-list' project.id %}" hx-template="{{ fields_template }}"
-      hx-target="#source-create-fields" hx-redirect="CREATED:Location">
+<form hx-post="{% url 'api-projects-sources-list' project.id %}"
+      hx-template="{{ fields_template }}"
+      hx-target="#source-create-fields"
+      hx-redirect="CREATED:Location">
 
   <h1 class="title is-3">{% trans "New project source" %}</h1>
 
@@ -15,11 +17,14 @@
     {% include fields_template with serializer=serializer source_class=source_class %}
   </div>
 
-  <input type="hidden" name="type" value="{{ source_class }}">
+  <input type="hidden"
+         name="type"
+         value="{{ source_class }}">
 
   <hr>
 
-  <button class="button is-primary is-fullwidth-mobile" type="submit">
+  <button class="button is-primary is-fullwidth-mobile"
+          type="submit">
     <span class="icon">
       <i class="ri-add-fill"></i>
     </span>

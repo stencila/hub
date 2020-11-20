@@ -26,18 +26,26 @@
     {% if sources %}
     <div class="level-item">
       <form class="field width-full">
-        <label class="is-sr-only" for="source-filter">
+        <label class="is-sr-only"
+               for="source-filter">
           {% trans "Source filter" %}
         </label>
         <div class="control has-icons-left has-icons-right">
-          <input id="source-filter" class="input is-small-mobile" type="text" name="search"
-                 placeholder="{% trans "Filter by address or path" %}" hx-trigger="keyup changed delay:500ms"
-                 hx-get="{% url 'api-projects-sources-list' project.id %}" hx-template="projects/sources/_list.html"
-                 hx-indicator="#source-filter-indicator" hx-target="#source-list">
+          <input id="source-filter"
+                 class="input is-small-mobile"
+                 type="text"
+                 name="search"
+                 placeholder="{% trans "Filter by address or path" %}"
+                 hx-trigger="keyup changed delay:500ms"
+                 hx-get="{% url 'api-projects-sources-list' project.id %}"
+                 hx-template="projects/sources/_list.html"
+                 hx-indicator="#source-filter-indicator"
+                 hx-target="#source-list">
           <span class="icon is-small is-left">
             <i class="ri-filter-line"></i>
           </span>
-          <span id="source-filter-indicator" class="icon is-small is-right htmx-indicator">
+          <span id="source-filter-indicator"
+                class="icon is-small is-right htmx-indicator">
             <i class="ri-loader-line"></i>
           </span>
         </div>
@@ -49,8 +57,10 @@
   <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
     {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
     <a class="button is-small-mobile is-expanded-mobile has-tooltip-bottom has-tooltip-text-centered"
-       data-tooltip="{% trans 'Pull all sources for the project' %}" hx-post="{% url 'api-projects-pull' project.id %}"
-       hx-swap="none" hx-redirect="CREATED:Location">
+       data-tooltip="{% trans 'Pull all sources for the project' %}"
+       hx-post="{% url 'api-projects-pull' project.id %}"
+       hx-swap="none"
+       hx-redirect="CREATED:Location">
       <span class="icon">
         <i class="ri-download-cloud-2-line"></i>
       </span>

@@ -27,7 +27,8 @@
     <div class="control has-background-white">
       <button class="button is-primary is-outlined"
               hx-post="{% url 'api-accounts-teams-members-list' account.id team.id %}"
-              hx-include="#user-search input[name=id]" hx-template="accounts/teams/_members.html"
+              hx-include="#user-search input[name=id]"
+              hx-template="accounts/teams/_members.html"
               hx-target="#accounts-teams-members-list">
         <span class="icon"><i class="ri-add-line"></i></span>
         <span>Add</span>

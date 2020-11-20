@@ -1,5 +1,7 @@
-<button class="{{ classes|default:"delete" }}" aria-label="close"
-        hx-get="{% url 'ui-projects-retrieve' project.account.name project.name %}" hx-template="projects/retrieve.html"
+<button class="{{ classes|default:"delete" }}"
+        aria-label="close"
+        hx-get="{% url 'ui-projects-retrieve' project.account.name project.name %}"
+        hx-template="projects/retrieve.html"
         hx-target="body">
   {% if icon %}
   <span class="icon">

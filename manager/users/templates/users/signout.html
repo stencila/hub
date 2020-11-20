@@ -27,11 +27,15 @@
       {% endcomment %}
     </section>
     <footer class="modal-card-foot">
-      <form class="form" method="post" action="{% url 'ui-users-signout' %}">
+      <form class="form"
+            method="post"
+            action="{% url 'ui-users-signout' %}">
         {% csrf_token %}
         <div class="buttons">
-          <button class="button is-primary is-fullwidth-mobile" type="submit"
-                  {% if POSTHOG_KEY %}onclick="posthog.reset()" {% endif %}>
+          <button class="button is-primary is-fullwidth-mobile"
+                  type="submit"
+                  {% if POSTHOG_KEY %}onclick="posthog.reset()"
+                  {% endif %}>
             <span class="icon">
               <i class="ri-logout-box-line"></i>
             </span>
@@ -39,7 +43,8 @@
               Yes, just sign me out!
             </span>
           </button>
-          <a class="button is-fullwidth-mobile" href="/">
+          <a class="button is-fullwidth-mobile"
+             href="/">
             <span class="icon">
               <i class="ri-arrow-go-back-line"></i>
             </span>

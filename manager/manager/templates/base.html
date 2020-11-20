@@ -8,15 +8,21 @@
   <title>{% block title %}Home{% endblock %} : Stencila</title>
 
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
   {% include 'meta/meta.html' %}
 
-  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+  <link rel="icon"
+        type="image/png"
+        href="{% static 'img/favicon.png' %}">
+  <link rel="stylesheet"
+        type="text/css"
+        href="{% static 'css/styles.css' %}">
   {% block styles %}{% endblock %}
 
   <script src="{% static 'js/libs.js' %}"></script>
-  <script src="{% static 'js/index.js' %}" async></script>
+  <script src="{% static 'js/index.js' %}"
+          async></script>
   {% block scripts %}{% endblock %}
 
   {% if debug %}
@@ -30,7 +36,8 @@
   <!-- crash_monitoring: on -->
   {% if SENTRY_DSN %}
   <script src="https://browser.sentry-cdn.com/5.20.1/bundle.min.js"
-          integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo" crossorigin="anonymous">
+          integrity="sha384-O8HdAJg1h8RARFowXd2J/r5fIWuinSBtjhwQoPesfVILeXzGpJxvyY/77OaPPXUo"
+          crossorigin="anonymous">
   </script>
   </script>
   <script>
@@ -77,26 +84,39 @@
     <nav class="navbar is-fixed-top has-shadow">
       <div class="container">
         <div class="navbar-brand">
-          <a class="navbar-item navbar-logo" href="https://stenci.la">
+          <a class="navbar-item navbar-logo"
+             href="https://stenci.la">
             {% if user.is_anonymous %}
-            <img title="Homepage" src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+            <img title="Homepage"
+                 src="{% static 'img/stencilaLogo.svg' %}"
+                 alt="Stencila"
+                 width="112px"
+                 height="28px">
             {% else %}
-            <img title="Homepage" src="{% static 'img/stencilaIcon.svg' %}" alt="Stencila" width="28px" height="28px">
+            <img title="Homepage"
+                 src="{% static 'img/stencilaIcon.svg' %}"
+                 alt="Stencila"
+                 width="28px"
+                 height="28px">
             {% endif %}
           </a>
-          <a class="navbar-burger" data-target="navbar-menu">
+          <a class="navbar-burger"
+             data-target="navbar-menu">
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
           </a>
         </div>
-        <div id="navbar-menu" class="navbar-menu">
+        <div id="navbar-menu"
+             class="navbar-menu">
           <div class="navbar-start">
             {% flag 'ui-projects-open' %}
             <div class="navbar-item px-0">
-              <a class="navbar-link is-arrowless" href="{% url 'ui-projects-open' %}">
+              <a class="navbar-link is-arrowless"
+                 href="{% url 'ui-projects-open' %}">
                 <span class="icon">
-                  <i class="ri-book-open-line" aria-hidden="true"></i>
+                  <i class="ri-book-open-line"
+                     aria-hidden="true"></i>
                 </span>
                 <span>{% trans "Open" %}</span>
               </a>
@@ -106,32 +126,39 @@
               <a class="navbar-link {% if user.is_anonymous %}is-arrowless{% endif%}"
                  href="{% url 'ui-projects-list' %}">
                 <span class="icon">
-                  <i class="ri-book-2-line" aria-hidden="true"></i>
+                  <i class="ri-book-2-line"
+                     aria-hidden="true"></i>
                 </span>
                 <span>{% trans "Projects" %}</span>
               </a>
 
               {% if user.is_authenticated %}
               <div class="navbar-dropdown">
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-list' %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-projects-list' %}">
                   <span class="icon">
-                    <i class="ri-stack-line" aria-hidden="true"></i>
+                    <i class="ri-stack-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "All Projects" %}
                   </span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-list' %}?role=member">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-projects-list' %}?role=member">
                   <span class="icon">
-                    <i class="ri-user-line" aria-hidden="true"></i>
+                    <i class="ri-user-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "My Projects" %}
                   </span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-projects-create' %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-projects-create' %}">
                   <span class="icon">
-                    <i class="ri-add-circle-line" aria-hidden="true"></i>
+                    <i class="ri-add-circle-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "New Project" %}
@@ -149,32 +176,39 @@
               <a class="navbar-link {% if user.is_anonymous %}is-arrowless{% endif%}"
                  href="{% url 'ui-accounts-list-orgs' %}">
                 <span class="icon">
-                  <i class="ri-building-4-line" aria-hidden="true"></i>
+                  <i class="ri-building-4-line"
+                     aria-hidden="true"></i>
                 </span>
                 <span>{% trans "Organizations" %}</span>
               </a>
 
               {% if user.is_authenticated %}
               <div class="navbar-dropdown">
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-list-orgs' %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-accounts-list-orgs' %}">
                   <span class="icon">
-                    <i class="ri-stack-line" aria-hidden="true"></i>
+                    <i class="ri-stack-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "All Organizations" %}
                   </span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-list-orgs' %}?role=member">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-accounts-list-orgs' %}?role=member">
                   <span class="icon">
-                    <i class="ri-user-line" aria-hidden="true"></i>
+                    <i class="ri-user-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "My Organizations" %}
                   </span>
                 </a>
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-create' %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-accounts-create' %}">
                   <span class="icon">
-                    <i class="ri-add-circle-line" aria-hidden="true"></i>
+                    <i class="ri-add-circle-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>
                     {% trans "New Organization" %}
@@ -185,7 +219,8 @@
             </div>
 
             {% if user.is_anonymous %}
-            <a class="navbar-item {% is_active 'ui-pricing' %}" href="{% url 'ui-pricing' %}">
+            <a class="navbar-item {% is_active 'ui-pricing' %}"
+               href="{% url 'ui-pricing' %}">
               <span>{% trans "Pricing" %}</span>
             </a>
             {% endif %}
@@ -203,7 +238,8 @@
                 {% url 'ui-users-signup' as user_signup_url %}
 
                 {% if request.path != user_signin_url %}
-                <a class="button is-primary is-outlined has-text-weight-bold" href="{% url 'ui-users-signin' %}">
+                <a class="button is-primary is-outlined has-text-weight-bold"
+                   href="{% url 'ui-users-signin' %}">
                   {% trans "Sign in" %}
                 </a>
                 {% endif %}
@@ -218,7 +254,8 @@
             </div>
             {% else %}
             <div class="navbar-item has-dropdown">
-              <a class="navbar-link" href="{% url 'ui-accounts-retrieve' user.username %}"
+              <a class="navbar-link"
+                 href="{% url 'ui-accounts-retrieve' user.username %}"
                  alt="{% trans "Your user profile" %}">
                 {% if request.session.user.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
@@ -227,7 +264,9 @@
                   after a change in the account image.
                   See https://github.com/stencila/hub/issues/816.
                   {% endcomment %}
-                  <img class="is-rounded" src="{{ request.session.user.image }}" alt="">
+                  <img class="is-rounded"
+                       src="{{ request.session.user.image }}"
+                       alt="">
                 </figure>
 
                 <span class="is-hidden-desktop pl-1">
@@ -238,40 +277,51 @@
                 {% endif %}
               </a>
               <div class="navbar-dropdown">
-                <a class="navbar-item is-hidden-touch" href="{% url 'ui-accounts-retrieve' user.username %}"
+                <a class="navbar-item is-hidden-touch"
+                   href="{% url 'ui-accounts-retrieve' user.username %}"
                    alt="{% trans "Your user profile" %}">
                   Signed in as&nbsp;<strong>{{ user.username }}</strong>
                 </a>
                 <hr class="navbar-divider">
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-accounts-update' user.username %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-accounts-update' user.username %}">
                   <span class="icon">
-                    <i class="ri-settings-4-line" aria-hidden="true"></i>
+                    <i class="ri-settings-4-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>{% trans "Settings" %}</span>
                 </a>
 
 
                 {% if user.is_staff or user.is_superuser %}
-                <a class="navbar-item has-text-weight-bold" href="{% url 'admin:index' %}" target="_blank"
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'admin:index' %}"
+                   target="_blank"
                    rel="noopener">
                   <span class="icon">
-                    <i class="ri-alert-line" aria-hidden="true"></i>
+                    <i class="ri-alert-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>{% trans "Admin" %}</span>
                 </a>
                 {% endif %}
 
-                <a class="navbar-item has-text-weight-bold" href="http://help.stenci.la/" target="_blank"
+                <a class="navbar-item has-text-weight-bold"
+                   href="http://help.stenci.la/"
+                   target="_blank"
                    rel="noopener">
                   <span class="icon">
-                    <i class="ri-lifebuoy-line" aria-hidden="true"></i>
+                    <i class="ri-lifebuoy-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>{% trans "Help" %}</span>
                 </a>
 
-                <a class="navbar-item has-text-weight-bold" href="{% url 'ui-users-signout' %}">
+                <a class="navbar-item has-text-weight-bold"
+                   href="{% url 'ui-users-signout' %}">
                   <span class="icon">
-                    <i class="ri-logout-box-line" aria-hidden="true"></i>
+                    <i class="ri-logout-box-line"
+                       aria-hidden="true"></i>
                   </span>
                   <span>{% trans "Sign out" %}</span>
                 </a>
@@ -323,24 +373,43 @@
     <div class="container">
       <div class="columns">
         <div class="column is-full has-text-centered">
-          <a href="http://help.stenci.la/en" target="_blank" rel="noopener">{% trans "Docs" %}</a>
-          <a href="{% url 'api-docs' %}" target="_blank" rel="noopener">API</a>
-          <a href="https://status.stenci.la" target="_blank" rel="noopener">{% trans "Status" %}</a>
-          <a href="https://policies.stenci.la/privacy" target="_blank" rel="noopener">{% trans "Privacy" %}</a>
-          <a href="https://policies.stenci.la/terms" target="_blank" rel="noopener">{% trans "Terms" %}</a>
+          <a href="http://help.stenci.la/en"
+             target="_blank"
+             rel="noopener">{% trans "Docs" %}</a>
+          <a href="{% url 'api-docs' %}"
+             target="_blank"
+             rel="noopener">API</a>
+          <a href="https://status.stenci.la"
+             target="_blank"
+             rel="noopener">{% trans "Status" %}</a>
+          <a href="https://policies.stenci.la/privacy"
+             target="_blank"
+             rel="noopener">{% trans "Privacy" %}</a>
+          <a href="https://policies.stenci.la/terms"
+             target="_blank"
+             rel="noopener">{% trans "Terms" %}</a>
         </div>
       </div>
-      <div class="level" style="font-size: 80%">
+      <div class="level"
+           style="font-size: 80%">
         <p class="level-left has-text-centered">
           Made with
           <span class="icon has-text-danger">
             <i class="ri-heart-fill"></i>
           </span>
           in&nbsp;
-          <a href="https://www.kaikoura.co.nz/" target="_blank" rel="noopener">Kaikoura</a>,&nbsp;
-          <a href="https://montreal.ca/" target="_blank" rel="noopener">Montreal</a>,&nbsp;
-          <a href="https://www.aucklandnz.com/" target="_blank" rel="noopener">Auckland</a>, and&nbsp;
-          <a href="https://www.wellingtonnz.com/" target="_blank" rel="noopener">Wellington</a>.
+          <a href="https://www.kaikoura.co.nz/"
+             target="_blank"
+             rel="noopener">Kaikoura</a>,&nbsp;
+          <a href="https://montreal.ca/"
+             target="_blank"
+             rel="noopener">Montreal</a>,&nbsp;
+          <a href="https://www.aucklandnz.com/"
+             target="_blank"
+             rel="noopener">Auckland</a>, and&nbsp;
+          <a href="https://www.wellingtonnz.com/"
+             target="_blank"
+             rel="noopener">Wellington</a>.
         </p>
         <p class="level-right has-text-centered">
           © {% now 'Y' %} Stencila Ltd.
@@ -368,7 +437,8 @@
   {% endif %}
   {% endflag %}
 
-  <div class="modal" id="modal-target">
+  <div class="modal"
+       id="modal-target">
     <div class="modal-background cursor-close"></div>
   </div>
 </body>

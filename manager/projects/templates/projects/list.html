@@ -14,7 +14,8 @@
   {% if user.is_authenticated %}
   <div class="level-right">
     <p class="level-item">
-      <a class="button is-primary is-small-mobile" href="{% url 'ui-projects-create' %}">
+      <a class="button is-primary is-small-mobile"
+         href="{% url 'ui-projects-create' %}">
         <span class="icon">
           <i class="ri-add-line"></i>
         </span>
@@ -28,31 +29,46 @@
 </div>
 
 <div class="field has-addons">
-  <label for="projects-search-input" class="label is-sr-only">{% trans "Search projects" %}</label>
+  <label for="projects-search-input"
+         class="label is-sr-only">{% trans "Search projects" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
-    <input id="projects-search-input" class="input" type="text" name="search"
-           placeholder="Search by name or description" hx-trigger="keyup changed delay:500ms, role-changed"
-           hx-get="{% url 'api-projects-list' %}" hx-include="#projects-search-role"
-           hx-template="projects/_project_list.html" hx-indicator="#projects-search-indicator"
+    <input id="projects-search-input"
+           class="input"
+           type="text"
+           name="search"
+           placeholder="Search by name or description"
+           hx-trigger="keyup changed delay:500ms, role-changed"
+           hx-get="{% url 'api-projects-list' %}"
+           hx-include="#projects-search-role"
+           hx-template="projects/_project_list.html"
+           hx-indicator="#projects-search-indicator"
            hx-target="#projects-search-result">
     <span class="icon is-left">
       <i class="ri-search-line"></i>
     </span>
-    <span class="icon is-right htmx-indicator" id="projects-search-indicator">
+    <span class="icon is-right htmx-indicator"
+          id="projects-search-indicator">
       <i class="ri-loader-line animate-spin"></i>
     </span>
   </div>
   {% if user.is_authenticated %}
   <div class="control">
     <div class="select">
-      <label for="projects-search-role" class="label is-sr-only">{% trans "Role in project" %}</label>
-      <select id="projects-search-role" name="role">
+      <label for="projects-search-role"
+             class="label is-sr-only">{% trans "Role in project" %}</label>
+      <select id="projects-search-role"
+              name="role">
         <option value="">All</option>
-        <option value="member" {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
-        <option value="reviewer" {% is_selected "role" "reviewer" %}>{% trans "I am a reviewer" %}</option>
-        <option value="author" {% is_selected "role" "author" %}>{% trans "I am a author" %}</option>
-        <option value="manager" {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
-        <option value="owner" {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
+        <option value="member"
+                {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
+        <option value="reviewer"
+                {% is_selected "role" "reviewer" %}>{% trans "I am a reviewer" %}</option>
+        <option value="author"
+                {% is_selected "role" "author" %}>{% trans "I am a author" %}</option>
+        <option value="manager"
+                {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
+        <option value="owner"
+                {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
       </select>
       <script>
         document.querySelector('#projects-search-role').addEventListener('change', function(event) {

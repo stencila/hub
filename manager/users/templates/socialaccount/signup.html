@@ -12,13 +12,19 @@
     {{site_name}}. As a final step, please complete the following form:{% endblocktrans %}
   </p>
 
-  <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+  <form class="signup"
+        id="signup_form"
+        method="post"
+        action="{% url 'socialaccount_signup' %}">
     {% csrf_token %}
     {% include "forms/form.html" with form=form %}
     {% if redirect_field_value %}
-    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    <input type="hidden"
+           name="{{ redirect_field_name }}"
+           value="{{ redirect_field_value }}" />
     {% endif %}
-    <button class="button is-primary" type="submit">{% trans "Sign me up!" %}</button>
+    <button class="button is-primary"
+            type="submit">{% trans "Sign me up!" %}</button>
   </form>
 </section>
 {% endblock %}

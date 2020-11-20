@@ -6,12 +6,14 @@
   <div class="level-right">
     <div class="level-item">
       {% if breadcrumbs|length > 1 %}
-      <nav class="breadcrumb mb-2" aria-label="breadcrumbs">
+      <nav class="breadcrumb mb-2"
+           aria-label="breadcrumbs">
         <ul>
           {% for breadcrumb in breadcrumbs %}
           <li class="{% if forloop.last %}is-active{% endif %}">
             <a href="{% url 'ui-projects-files-list' project.account.name project.name breadcrumb.1 %}"
-               {% if forloop.last %}aria-current="page" {% endif %}>
+               {% if forloop.last %}aria-current="page"
+               {% endif %}>
               {% if forloop.first %}
               <span class="icon">
                 <i class="ri-home-line"></i>
@@ -30,19 +32,27 @@
   <div class="level-right">
     <div class="level-item">
       <form class="field width-full">
-        <label class="is-sr-only" for="file-filter">
+        <label class="is-sr-only"
+               for="file-filter">
           {% trans "File filter" %}
         </label>
         <div class="control has-icons-left has-icons-right is-expanded">
-          <input id="file-filter" class="input is-small-mobile" type="text" name="search"
-                 placeholder="{% trans "Filter files by name…" %}" hx-trigger="keyup changed delay:500ms"
+          <input id="file-filter"
+                 class="input is-small-mobile"
+                 type="text"
+                 name="search"
+                 placeholder="{% trans "Filter files by name…" %}"
+                 hx-trigger="keyup changed delay:500ms"
                  hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True{% if source %}&source={{ source.id }}{% endif %}{% if snapshot %}&snapshot={{ snapshot.id }}{% endif %}"
-                 hx-template="projects/files/_list.html" hx-indicator="#file-filter-indicator" hx-select="#file-table"
+                 hx-template="projects/files/_list.html"
+                 hx-indicator="#file-filter-indicator"
+                 hx-select="#file-table"
                  hx-target="#file-table">
           <span class="icon is-small is-left">
             <i class="ri-filter-line"></i>
           </span>
-          <span id="file-filter-indicator" class="icon is-small is-right htmx-indicator">
+          <span id="file-filter-indicator"
+                class="icon is-small is-right htmx-indicator">
             <i class="ri-loader-line"></i>
           </span>
         </div>
@@ -51,7 +61,8 @@
   </div>
 </div>
 
-<table id="file-table" class="table is-fullwidth is-striped is-hoverable">
+<table id="file-table"
+       class="table is-fullwidth is-striped is-hoverable">
   <thead>
     <tr class="table-header">
       <th>
@@ -146,7 +157,8 @@
       <td class="is-vcentered is-sr-only-mobile">
         {{ file.size|format_bytes }}
       </td>
-      <td class="has-text-right is-vcentered" style="weight: 1em;">
+      <td class="has-text-right is-vcentered"
+          style="weight: 1em;">
         {% if not file.is_directory and not snapshot %}
         {% include "./_actions_menu.html" %}
         {% endif %}

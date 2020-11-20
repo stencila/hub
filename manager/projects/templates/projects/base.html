@@ -34,7 +34,8 @@
 
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
-    <li class="sidebar__item" id="menu-item-files">
+    <li class="sidebar__item"
+        id="menu-item-files">
       <a href="{% url 'ui-projects-files-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-files' %}">
         <span class="icon">
@@ -46,7 +47,8 @@
       </a>
     </li>
 
-    <li class="sidebar__item" id="menu-item-sources">
+    <li class="sidebar__item"
+        id="menu-item-sources">
       <a href="{% url 'ui-projects-sources-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-sources' %}">
         <span class="icon">
@@ -59,7 +61,8 @@
     </li>
 
     {% if project.temporary %}
-    <li class="sidebar__item" id="menu-item-snapshots">
+    <li class="sidebar__item"
+        id="menu-item-snapshots">
       <a href="{% url 'ui-projects-claim' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-claim' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
         <span class="icon">
@@ -71,7 +74,8 @@
       </a>
     </li>
     {% else %}
-    <li class="sidebar__item" id="menu-item-snapshots">
+    <li class="sidebar__item"
+        id="menu-item-snapshots">
       <a href="{% url 'ui-projects-snapshots-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-snapshots' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
         <span class="icon">
@@ -84,7 +88,8 @@
     </li>
 
     {% if project.role in 'AUTHOR, EDITOR, MANAGER, OWNER' %}
-    <li class="sidebar__item" id="menu-item-jobs">
+    <li class="sidebar__item"
+        id="menu-item-jobs">
       <a href="{% url 'ui-projects-jobs-list' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-jobs' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
         <span class="icon">
@@ -98,7 +103,8 @@
     {% endif %}
 
     {% if project.role in 'MANAGER, OWNER' %}
-    <li class="sidebar__item" id="menu-item-sharing">
+    <li class="sidebar__item"
+        id="menu-item-sharing">
       <a href="{% url 'ui-projects-sharing' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-sharing' %}">
         <span class="icon">
@@ -110,7 +116,8 @@
       </a>
     </li>
 
-    <li class="sidebar__item" id="menu-item-settings">
+    <li class="sidebar__item"
+        id="menu-item-settings">
       <a href="{% url 'ui-projects-update' project.account.name project.name %}"
          class="panel-block transition-colors {% is_active 'ui-projects-update' %}">
         <span class="icon">

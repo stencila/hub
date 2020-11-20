@@ -5,10 +5,13 @@
     <p class="modal-card-title">{% trans "New source" %}</p>
     {% include "./_cancel_modal.html" with project=project account=account %}
   </header>
-  <form hx-post="{% url 'api-projects-sources-list' project.id %}" hx-ext="stencila"
+  <form hx-post="{% url 'api-projects-sources-list' project.id %}"
+        hx-ext="stencila"
         hx-redirect="CREATED:{% url 'ui-projects-retrieve' project.account.name project.name %}">
     <section class="modal-card-body">
-      <input type="hidden" name="project" value="{{ project.id }}" />
+      <input type="hidden"
+             name="project"
+             value="{{ project.id }}" />
       {% include "serializers/_field.html" with field=serializer.path autofocus=True %}
     </section>
     <footer class="modal-card-foot">

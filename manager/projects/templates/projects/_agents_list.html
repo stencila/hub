@@ -8,7 +8,8 @@
         {% if agent.user %}
         {% with user=agent.user %}
         <span class="icon is-round list-menu--icon">
-          <img src="{{ user.personal_account.image.medium }}" role="presentation"></img>
+          <img src="{{ user.personal_account.image.medium }}"
+               role="presentation"></img>
         </span>
         <span class="has-text-bold">
           <a href="{% url 'ui-accounts-retrieve' user.username %}">
@@ -29,11 +30,17 @@
         <div class="field has-addons">
           <div class="control">
             <div class="select is-small-mobile">
-              <select class="user-role-select" hx-patch="{% url 'api-projects-agents-detail' project.id agent.id %}"
-                      hx-template="projects/_agents_list.html" hx-target="#projects-agents-list" name="role">
-                <option value="AUTHOR" {% if agent.role == "AUTHOR" %}selected{% endif %}>Author</option>
-                <option value="MANAGER" {% if agent.role == "MANAGER" %}selected{% endif %}>Manager</option>
-                <option value="OWNER" {% if agent.role == "OWNER" %}selected{% endif %}>Owner</option>
+              <select class="user-role-select"
+                      hx-patch="{% url 'api-projects-agents-detail' project.id agent.id %}"
+                      hx-template="projects/_agents_list.html"
+                      hx-target="#projects-agents-list"
+                      name="role">
+                <option value="AUTHOR"
+                        {% if agent.role == "AUTHOR" %}selected{% endif %}>Author</option>
+                <option value="MANAGER"
+                        {% if agent.role == "MANAGER" %}selected{% endif %}>Manager</option>
+                <option value="OWNER"
+                        {% if agent.role == "OWNER" %}selected{% endif %}>Owner</option>
               </select>
             </div>
           </div>
@@ -41,16 +48,22 @@
           <div class="control">
             <div class="dropdown">
               <div class="dropdown-trigger">
-                <button class="button is-small-mobile" aria-haspopup="true" aria-controls="dropdown-menu">
+                <button class="button is-small-mobile"
+                        aria-haspopup="true"
+                        aria-controls="dropdown-menu">
                   <span>
                     <i class="ri-more-2-line"></i>
                   </span>
                 </button>
               </div>
-              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+              <div class="dropdown-menu"
+                   id="dropdown-menu"
+                   role="menu">
                 <div class="dropdown-content">
-                  <a class="dropdown-item" hx-delete="{% url 'api-projects-agents-detail' project.id agent.id %}"
-                     hx-template="projects/_agents_list.html" hx-target="#projects-agents-list">
+                  <a class="dropdown-item"
+                     hx-delete="{% url 'api-projects-agents-detail' project.id agent.id %}"
+                     hx-template="projects/_agents_list.html"
+                     hx-target="#projects-agents-list">
                     <span class="icon is-small is-danger">
                       <i class="ri-user-unfollow-line"></i>
                     </span>

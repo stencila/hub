@@ -1,12 +1,14 @@
 {% load i18n %}
 
 {% for account in accounts %}
-<a href="{% url 'ui-accounts-retrieve' account.name %}" class="list-menu--item">
+<a href="{% url 'ui-accounts-retrieve' account.name %}"
+   class="list-menu--item">
   <div class="level is-mobile">
     <div class="level-left">
       {% if account.image %}
       <span class="icon is-medium list-menu--icon">
-        <img src="{{ account.image.medium }}" role="presentation"></img>
+        <img src="{{ account.image.medium }}"
+             role="presentation"></img>
       </span>
       {% endif %}
       <span class="has-text-weight-bold">

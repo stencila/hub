@@ -11,12 +11,14 @@
     <a href="{{ account_url }}">
       <span class="icon is-medium has-tooltip-top has-tooltip-text-centered image-tooltip"
             data-tooltip="Project belongs to @{{ account.name }}">
-        <img src="{{ account.image.medium }}" role="presentation"></img>
+        <img src="{{ account.image.medium }}"
+             role="presentation"></img>
       </span>
     </a>
     {% endif %}
 
-    <a href="{{ project_url }}" class="has-text-black has-text-link-hover">
+    <a href="{{ project_url }}"
+       class="has-text-black has-text-link-hover">
       {{ project.title|default:project.name|default:"Untitled Project" }}
     </a>
 
@@ -32,7 +34,8 @@
     {% endif %}
 
     {% if role %}
-    <a href="{{ project_sharing_url }}" <span
+    <a href="{{ project_sharing_url }}"
+       <span
        class="tag is-light {% if role == 'MANAGER' %}has-background-warning-light{% elif role == 'OWNER' %}has-background-danger-light{% endif %} has-tooltip-top has-tooltip-text-centered image-tooltip"
        data-tooltip="{% blocktrans %}You are a {{ role }} on this project{% endblocktrans %}">
       <span class="icon is-small">
@@ -45,7 +48,8 @@
 
   {% if project.description %}
   <p class="subtitle is-size-6">
-    <a href="{{ project_url }}" class="has-text-black has-text-link-hover">
+    <a href="{{ project_url }}"
+       class="has-text-black has-text-link-hover">
       {{ project.description|truncatechars:180 }}
     </a>
   </p>

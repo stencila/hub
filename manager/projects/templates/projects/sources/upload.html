@@ -4,7 +4,8 @@
 {% block title %}{% trans "New upload source" %}{% endblock %}
 
 {% block layout_content %}
-<form method="POST" action="{% url 'ui-projects-sources-upload' project.account.name project.name %}"
+<form method="POST"
+      action="{% url 'ui-projects-sources-upload' project.account.name project.name %}"
       enctype="multipart/form-data">
   {% csrf_token %}
 
@@ -18,7 +19,10 @@
     <div class="control">
       <div class="file has-name">
         <label class="file-label">
-          <input class="file-input" type="file" name="files" multiple="true">
+          <input class="file-input"
+                 type="file"
+                 name="files"
+                 multiple="true">
           <span class="file-cta">
             <span class="file-icon">
               <i class="ri-file-upload-line"></i>
@@ -34,7 +38,8 @@
       </div>
     </div>
     <div class="control">
-      <button class="button is-primary is-fullwidth-mobile" type="submit">
+      <button class="button is-primary is-fullwidth-mobile"
+              type="submit">
         {% trans "Upload" %}
       </button>
     </div>

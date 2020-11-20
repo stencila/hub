@@ -12,8 +12,12 @@ is removed when the job is inactive.
 
 {% load i18n humanize stencila %}
 
-<div {% if job.is_active %} hx-trigger="every 3s" hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}"
-     hx-template="projects/jobs/_retrieve.html" hx-swap="outerHTML" {% endif %}>
+<div {% if job.is_active %}
+     hx-trigger="every 3s"
+     hx-get="{% url 'api-projects-jobs-detail' job.project.id job.id %}"
+     hx-template="projects/jobs/_retrieve.html"
+     hx-swap="outerHTML"
+     {% endif %}>
   {% include "./_job_item.html" %}
 
   {% if job.error and job.error.message != "None" %}

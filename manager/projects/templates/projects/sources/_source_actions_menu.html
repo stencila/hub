@@ -2,16 +2,22 @@
 
 <div class="dropdown">
   <div class="dropdown-trigger">
-    <button class="button is-small has-text-weight-bold" aria-haspopup="true" aria-controls="dropdown-menu">
+    <button class="button is-small has-text-weight-bold"
+            aria-haspopup="true"
+            aria-controls="dropdown-menu">
       <span>
         <i class="ri-more-2-line"></i>
       </span>
     </button>
   </div>
-  <div class="dropdown-menu has-text-left" role="menu">
+  <div class="dropdown-menu has-text-left"
+       role="menu">
     <div class="dropdown-content">
       {% if source.url %}
-      <a href="{{ source.url }}" target="_blank" rel="noopener" class="dropdown-item">
+      <a href="{{ source.url }}"
+         target="_blank"
+         rel="noopener"
+         class="dropdown-item">
         <span class="icon">
           <i class="ri-external-link-line"></i>
         </span>
@@ -24,7 +30,9 @@
       <hr class="dropdown-divider">
       {% endif %}
 
-      <a class="dropdown-item" hx-post="{% url 'api-projects-sources-pull' project.id source.id %}" hx-swap="none"
+      <a class="dropdown-item"
+         hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
+         hx-swap="none"
          hx-redirect="CREATED:Location">
         <span class="icon">
           <i class="ri-download-cloud-2-line"></i>

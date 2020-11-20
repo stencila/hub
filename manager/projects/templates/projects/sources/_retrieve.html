@@ -12,9 +12,12 @@ in case the enclosing page want to use that data to trigger further events
 
 {% load i18n humanize stencila %}
 
-<div {% if source.is_active %} hx-trigger="every 2s"
+<div {% if source.is_active %}
+     hx-trigger="every 2s"
      hx-get="{% url 'api-projects-sources-detail' source.project.id source.id %}"
-     hx-template="projects/sources/_retrieve.html" hx-swap="outerHTML" {% endif %}>
+     hx-template="projects/sources/_retrieve.html"
+     hx-swap="outerHTML"
+     {% endif %}>
 
   <h2 class="title is-5">Files</h2>
   <p class="subtitle is-6">The files that were last pulled from the source.</p>

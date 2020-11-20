@@ -16,7 +16,8 @@
   <div class="level-right buttons">
     {% with download_url=file.download_url %}
     {% if download_url %}
-    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile" href="{{ download_url }}">
+    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
+       href="{{ download_url }}">
       <span class="icon">
         <i class="ri-download-line"></i>
       </span>
@@ -37,7 +38,8 @@
 
     <div class="level-item dropdown">
       <div class="dropdown-trigger">
-        <button class="button is-outlined is-small-mobile is-expanded-mobile" aria-haspopup="true"
+        <button class="button is-outlined is-small-mobile is-expanded-mobile"
+                aria-haspopup="true"
                 aria-controls="dropdown-menu">
           <span class="icon">
             <i class="ri-file-transfer-line"></i>
@@ -108,10 +110,13 @@
 
 {% if file.get_format.is_image %}
 <figure class="image">
-  <img src="{{ file.download_url }}" style="width:auto; max-width:90%; margin:4em auto">
+  <img src="{{ file.download_url }}"
+       style="width:auto; max-width:90%; margin:4em auto">
 </figure>
 {% elif file.highlight_url %}
-<iframe src="{{ file.highlight_url }}" class="snapshot--preview" style="margin:3em auto">
+<iframe src="{{ file.highlight_url }}"
+        class="snapshot--preview"
+        style="margin:3em auto">
 </iframe>
 {% endif %}
 

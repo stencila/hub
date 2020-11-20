@@ -8,11 +8,15 @@ the node belongs to.
 
 <head {% meta_namespaces %}>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
   {% include 'meta/meta.html' %}
 
-  <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
-  <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css" rel="stylesheet">
+  <link rel="shortcut icon"
+        type="image/png"
+        href="{% static 'img/favicon.png' %}">
+  <link href="https://unpkg.com/@stencila/thema@2/dist/themes/stencila/styles.css"
+        rel="stylesheet">
   <style>
     body {
       margin: auto;
@@ -50,7 +54,10 @@ the node belongs to.
 
 <body>
   <header>
-    <img src="{% static 'img/stencilaLogo.svg' %}" alt="Stencila" width="112px" height="28px">
+    <img src="{% static 'img/stencilaLogo.svg' %}"
+         alt="Stencila"
+         width="112px"
+         height="28px">
   </header>
   <main>{{ html|safe }}</main>
   <footer>

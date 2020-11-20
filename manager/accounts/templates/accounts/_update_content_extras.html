@@ -11,18 +11,24 @@
 </style>
 
 <div class="field">
-  <label class="label" for="extra_head">Extra content in <code>&lt;head&gt;</code></label>
-  <textarea name="extra_head" id="extra_head">{{ serializer.extra_head.value|default:'' }}</textarea>
+  <label class="label"
+         for="extra_head">Extra content in <code>&lt;head&gt;</code></label>
+  <textarea name="extra_head"
+            id="extra_head">{{ serializer.extra_head.value|default:'' }}</textarea>
 </div>
 
 <div class="field">
-  <label class="label" for="extra_top">Extra content at the top of <code>&lt;body&gt;</code></label>
-  <textarea name="extra_top" id="extra_top">{{ serializer.extra_top.value|default:'' }}</textarea>
+  <label class="label"
+         for="extra_top">Extra content at the top of <code>&lt;body&gt;</code></label>
+  <textarea name="extra_top"
+            id="extra_top">{{ serializer.extra_top.value|default:'' }}</textarea>
 </div>
 
 <div class="field">
-  <label class="label" for="extra_bottom">Extra content at the bottom of <code>&lt;body&gt;</code></label>
-  <textarea name="extra_bottom" id="extra_bottom">{{ serializer.extra_bottom.value|default:'' }}</textarea>
+  <label class="label"
+         for="extra_bottom">Extra content at the bottom of <code>&lt;body&gt;</code></label>
+  <textarea name="extra_bottom"
+            id="extra_bottom">{{ serializer.extra_bottom.value|default:'' }}</textarea>
 </div>
 
 {% codemirror_instance 'html' 'extraHeadCodemirror' 'extra_head' %}

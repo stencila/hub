@@ -21,7 +21,8 @@
   <div class="level-right">
     {% if role in 'MEMBER, MANAGER, OWNER' %}
     <p class="level-item">
-      <a class="button is-primary is-small-mobile" href="{% url 'ui-projects-create' %}?account={{ account.name }}">
+      <a class="button is-primary is-small-mobile"
+         href="{% url 'ui-projects-create' %}?account={{ account.name }}">
         <span class="icon">
           <i class="ri-add-line"></i>
         </span>
@@ -49,7 +50,9 @@
     {% endif %}
   </h3>
 
-  <img class="illustration-backdrop" src="{% static 'img/illustrations/wonder.svg' %}" role="presentation" />
+  <img class="illustration-backdrop"
+       src="{% static 'img/illustrations/wonder.svg' %}"
+       role="presentation" />
 </div>
 
 {% else %}

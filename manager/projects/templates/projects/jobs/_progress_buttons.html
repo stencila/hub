@@ -1,9 +1,13 @@
 {% load i18n %}
 
-<div {% if job.is_active %} hx-trigger="every 2s"
+<div {% if job.is_active %}
+     hx-trigger="every 2s"
      hx-get="{% url 'api-projects-jobs-detail' job.project_id job.id %}?{% if prev %}prev={{ prev }}{% endif %}{% if next %}&next={{ next }}{% endif %}"
-     hx-template="projects/jobs/_progress_buttons.html" hx-swap="outerHTML" {% endif %}>
-  <progress class="progress is-vcentered is-primary" value="{{ job.runtime_seconds }}"
+     hx-template="projects/jobs/_progress_buttons.html"
+     hx-swap="outerHTML"
+     {% endif %}>
+  <progress class="progress is-vcentered is-primary"
+            value="{{ job.runtime_seconds }}"
             max="{{ runtime_expected|default:60 }}">
     {{ job.runtime_formatted }}
   </progress>
@@ -33,7 +37,8 @@
       {% endif %}
     </button>
     {% else %}
-    <a class="button is-primary is-fullwidth-mobile" href="{{ next }}">
+    <a class="button is-primary is-fullwidth-mobile"
+       href="{{ next }}">
       {% if job.status == "SUCCESS" %}
       <span class="icon">
         <i class="ri-check-line"></i>
@@ -51,7 +56,8 @@
       {% endif %}
     </a>
     {% endif %}
-    <a href="{{ prev }}" class="button is-outlined is-fullwidth-mobile">
+    <a href="{{ prev }}"
+       class="button is-outlined is-fullwidth-mobile">
       <span class="icon">
         <i class="ri-arrow-go-back-line"></i>
       </span>

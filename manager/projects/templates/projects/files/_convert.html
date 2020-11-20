@@ -18,15 +18,24 @@
 
   <div class="field has-addons has-addons-centered">
     <div class="control is-expanded">
-      <input class="input" name="path" id="path" type="text" placeholder="Path for the new file" autofocus=""
-             {% if path %} value="{{ path }}" {% endif %}>
+      <input class="input"
+             name="path"
+             id="path"
+             type="text"
+             placeholder="Path for the new file"
+             autofocus=""
+             {% if path %}
+             value="{{ path }}"
+             {% endif %}>
     </div>
     <div class="control">
       <span class="select">
         <select name="format">
           {% file_format_convert_to_options mimetype=file.mimetype as formats %}
           {% for option in formats %}
-          <option value="{{ option.format_id }}" {% if format == option.format_id %} selected{% endif %}>
+          <option value="{{ option.format_id }}"
+                  {% if format == option.format_id %}
+                  selected{% endif %}>
             {{ option.label }} ({{ option.default_extension }})
           </option>
           {% endfor %}

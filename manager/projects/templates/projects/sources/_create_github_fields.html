@@ -1,7 +1,10 @@
 {% load i18n static %}
 
 <h2 class="title">
-  <img alt="GitHub" src="{% static 'img/github-logo.png' %}" role="presentation" width="200px" />
+  <img alt="GitHub"
+       src="{% static 'img/github-logo.png' %}"
+       role="presentation"
+       width="200px" />
 </h2>
 <p class="subtitle is-6">
   A GitHub source lets you pull all, or part of, a GitHub repository into your project.
@@ -26,13 +29,19 @@
     Or, enter the repository name and subpath directly.
   </p>
   <div class="field">
-    <label class="label" for="repo">Repository</label>
+    <label class="label"
+           for="repo">Repository</label>
     {% if github_repos %}
     {% include "projects/providers/github/_repo_search.html" %}
     <span class="help">Search GitHub repos you are a member of, or just enter a repository name (e.g. org/name).</span>
     {% else %}
     <div class="control has-icons-left">
-      <input class="input" name="repo" id="repo" type="text" autofocus="" value=""
+      <input class="input"
+             name="repo"
+             id="repo"
+             type="text"
+             autofocus=""
+             value=""
              placeholder="Repository name e.g. octocat/hello-worId">
       <span class="icon is-left">
         <i class="ri-git-repository-line"></i>

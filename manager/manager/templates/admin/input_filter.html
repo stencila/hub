@@ -4,13 +4,18 @@
 <ul>
   <li>
     {% with choices.0 as all_choice %}
-    <form method="GET" action="">
+    <form method="GET"
+          action="">
 
       {% for k, v in all_choice.query_parts %}
-      <input type="hidden" name="{{ k }}" value="{{ v }}" />
+      <input type="hidden"
+             name="{{ k }}"
+             value="{{ v }}" />
       {% endfor %}
 
-      <input type="text" value="{{ spec.value|default_if_none:'' }}" name="{{ spec.parameter_name }}" />
+      <input type="text"
+             value="{{ spec.value|default_if_none:'' }}"
+             name="{{ spec.parameter_name }}" />
 
       {% if not all_choice.selected %}
       <strong><a href="{{ all_choice.query_string }}">x {% trans 'Remove' %}</a></strong>

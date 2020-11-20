@@ -16,8 +16,10 @@
 
   {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
   <div class="level-right buttons has-flex-justify-content-end-mobile is-flex">
-    <a class="button is-small-mobile is-expanded-mobile" hx-post="{% url 'api-projects-snapshots-list' project.id %}"
-       hx-swap="none" hx-redirect="CREATED:Location">
+    <a class="button is-small-mobile is-expanded-mobile"
+       hx-post="{% url 'api-projects-snapshots-list' project.id %}"
+       hx-swap="none"
+       hx-redirect="CREATED:Location">
       <span class="icon">
         <i class="ri-camera-line"></i>
       </span>

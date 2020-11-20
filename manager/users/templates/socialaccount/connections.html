@@ -15,7 +15,8 @@
 <p class="help mb-3">
   {% blocktrans %}The following external accounts are connected to your Stencila Hub account.{% endblocktrans %}
 </p>
-<form method="post" action="{% url 'socialaccount_connections' %}">
+<form method="post"
+      action="{% url 'socialaccount_connections' %}">
   {% csrf_token %}
 
   {% if form.non_field_errors %}
@@ -41,8 +42,12 @@
       </div>
       <div class="level-right">
         <div class="control">
-          <label class="radio" for="id_account_{{ base_account.id }}">
-            <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}" />
+          <label class="radio"
+                 for="id_account_{{ base_account.id }}">
+            <input id="id_account_{{ base_account.id }}"
+                   type="radio"
+                   name="account"
+                   value="{{ base_account.id }}" />
           </label>
         </div>
       </div>
@@ -57,7 +62,9 @@
     <div class="level-right">
       <div class="field">
         <div class="control">
-          <input type="submit" class="button is-danger" value="{% trans 'Remove' %}">
+          <input type="submit"
+                 class="button is-danger"
+                 value="{% trans 'Remove' %}">
         </div>
       </div>
     </div>
@@ -76,7 +83,8 @@
 {% for provider in socialaccount_providers %}
 {% if provider.id == "openid" %}
 {% for brand in provider.get_brands %}
-<a title="{{brand.name}}" class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}"
+<a title="{{brand.name}}"
+   class="list-menu--item socialaccount_provider {{provider.id}} {{brand.id}}"
    href="{% provider_login_url provider.id openid=brand.openid_url process='connect' action='reauthenticate' %}">
   <div class="level is-mobile">
     <div class="level-left">
@@ -98,7 +106,8 @@
 </a>
 {% endfor %}
 {% endif %}
-<a title="{{provider.name}}" class="list-menu--item socialaccount_provider {{provider.id}}"
+<a title="{{provider.name}}"
+   class="list-menu--item socialaccount_provider {{provider.id}}"
    href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params action='reauthenticate' %}">
   <div class="level is-mobile">
     <div class="level-left">

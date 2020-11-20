@@ -15,7 +15,8 @@
   {% if user.is_authenticated %}
   <div class="level-right">
     <p class="level-item">
-      <a class="button is-primary is-small-mobile" href="{% url 'ui-accounts-create' %}">
+      <a class="button is-primary is-small-mobile"
+         href="{% url 'ui-accounts-create' %}">
         <span class="icon">
           <i class="ri-add-line"></i>
         </span>
@@ -29,28 +30,43 @@
 </div>
 
 <div class="field has-addons">
-  <label for="orgs-search-input" class="label is-sr-only">{% trans "Search organizations" %}</label>
+  <label for="orgs-search-input"
+         class="label is-sr-only">{% trans "Search organizations" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
-    <input id="orgs-search-input" class="input" type="text" name="search" placeholder="Search by name for orgs"
-           hx-trigger="keyup changed delay:500ms, role-changed" hx-get="{% url 'api-accounts-list' %}"
-           hx-include="#orgs-search-role" hx-vars="is:'org'" hx-template="accounts/_list_orgs_result.html"
-           hx-indicator="#orgs-search-indicator" hx-target="#orgs-search-result">
+    <input id="orgs-search-input"
+           class="input"
+           type="text"
+           name="search"
+           placeholder="Search by name for orgs"
+           hx-trigger="keyup changed delay:500ms, role-changed"
+           hx-get="{% url 'api-accounts-list' %}"
+           hx-include="#orgs-search-role"
+           hx-vars="is:'org'"
+           hx-template="accounts/_list_orgs_result.html"
+           hx-indicator="#orgs-search-indicator"
+           hx-target="#orgs-search-result">
     <span class="icon is-small is-left">
       <i class="ri-search-line"></i>
     </span>
-    <span class="icon is-right htmx-indicator" id="orgs-search-indicator">
+    <span class="icon is-right htmx-indicator"
+          id="orgs-search-indicator">
       <i class="ri-loader-line animate-spin"></i>
     </span>
   </div>
   {% if user.is_authenticated %}
   <div class="control">
     <div class="select">
-      <label for="orgs-search-role" class="label is-sr-only">{% trans "Role in organization" %}</label>
-      <select id="orgs-search-role" name="role">
+      <label for="orgs-search-role"
+             class="label is-sr-only">{% trans "Role in organization" %}</label>
+      <select id="orgs-search-role"
+              name="role">
         <option value="">All</option>
-        <option value="member" {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
-        <option value="manager" {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
-        <option value="owner" {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
+        <option value="member"
+                {% is_selected "role" "member" %}>{% trans "I am a member" %}</option>
+        <option value="manager"
+                {% is_selected "role" "manager" %}>{% trans "I am a manager" %}</option>
+        <option value="owner"
+                {% is_selected "role" "owner" %}>{% trans "I am an owner" %}</option>
       </select>
       <script>
         document.querySelector('#orgs-search-role').addEventListener('change', function(event) {

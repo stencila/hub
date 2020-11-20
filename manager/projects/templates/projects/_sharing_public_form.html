@@ -1,8 +1,12 @@
-<form hx-trigger="change" hx-patch="{% url 'api-projects-detail' project.id %}"
+<form hx-trigger="change"
+      hx-patch="{% url 'api-projects-detail' project.id %}"
       hx-vars="public: document.querySelector('#public-toggle').checked"
-      hx-template="projects/_sharing_public_form.html" hx-swap="outerHTML">
+      hx-template="projects/_sharing_public_form.html"
+      hx-swap="outerHTML">
   <div class="field mb-0">
-    <input id="public-toggle" type="checkbox" class="toggle is-small is-inline toggle__label-before"
+    <input id="public-toggle"
+           type="checkbox"
+           class="toggle is-small is-inline toggle__label-before"
            {% if project.public %}checked{% endif %}>
     <label for="public-toggle">
       <span class="title is-size-5">Public</span>
@@ -10,7 +14,9 @@
   </div>
 
   {% with project_url=project.content_url %}
-  <a href="{{ project_url }}" target="_blank" rel="noopener"
+  <a href="{{ project_url }}"
+     target="_blank"
+     rel="noopener"
      class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
     <span class="icon">
       <i class="ri-global-line"></i>

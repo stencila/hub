@@ -13,15 +13,22 @@ See comments at https://github.com/stencila/hub/pull/552
 <form method="POST">
   {% csrf_token %}
 
-  <label class="label" for="url">URL</label>
+  <label class="label"
+         for="url">URL</label>
   <div class="control has-icons-left">
-    <input class="input" name="url" id="url" type="url" autofocus="" value="">
+    <input class="input"
+           name="url"
+           id="url"
+           type="url"
+           autofocus=""
+           value="">
     <span class="icon is-left">
       <i class="ri-links-line"></i>
     </span>
   </div>
   <div class="control">
-    <button class="button is-primary is-fullwidth-mobile" type="submit">
+    <button class="button is-primary is-fullwidth-mobile"
+            type="submit">
       Submit
     </button>
   </div>
@@ -29,14 +36,18 @@ See comments at https://github.com/stencila/hub/pull/552
 
 <hr />
 
-<form method="POST" enctype="multipart/form-data">
+<form method="POST"
+      enctype="multipart/form-data">
   {% csrf_token %}
 
   <div class="field has-addons-tablet">
     <div class="control">
-      <div class="file has-name" data-bulma-attached="attached">
+      <div class="file has-name"
+           data-bulma-attached="attached">
         <label class="file-label">
-          <input class="file-input" type="file" name="file">
+          <input class="file-input"
+                 type="file"
+                 name="file">
           <span class="file-cta">
             <span class="file-icon">
               <i class="ri-file-upload-line"></i>
@@ -52,7 +63,8 @@ See comments at https://github.com/stencila/hub/pull/552
       </div>
     </div>
     <div class="control">
-      <button class="button is-primary is-fullwidth-mobile" type="submit">
+      <button class="button is-primary is-fullwidth-mobile"
+              type="submit">
         Upload
       </button>
     </div>

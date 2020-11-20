@@ -1,6 +1,7 @@
 {% load stencila %}
 
 <span class="icon has-tooltip-bottom has-tooltip-text-centered image-tooltip"
-      data-tooltip="{% if tooltip %}{{ tooltip }}" {% else %}{{ mimetype }}{% endif %}">
+      data-tooltip="{% if tooltip %}{{ tooltip }}"
+      {% else %}{{ mimetype }}{% endif %}">
   <i class="{% file_format_icon format mimetype %}"></i>
 </span>

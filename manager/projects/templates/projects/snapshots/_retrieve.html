@@ -13,9 +13,12 @@ in case the enclosing page want to use that data to trigger further events
 {% with job=snapshot.job project=snapshot.project %}
 {% url 'ui-projects-jobs-retrieve' project.account.name project.name job.id  as job_url %}
 
-<div {% if snapshot.is_active %} hx-trigger="every 2s"
+<div {% if snapshot.is_active %}
+     hx-trigger="every 2s"
      hx-get="{% url 'api-projects-snapshots-detail' project.id snapshot.number %}"
-     hx-template="projects/snapshots/_retrieve.html" hx-swap="outerHTML" {% endif %}>
+     hx-template="projects/snapshots/_retrieve.html"
+     hx-swap="outerHTML"
+     {% endif %}>
 
   <div class="level">
     <div class="level-left">
@@ -40,7 +43,9 @@ in case the enclosing page want to use that data to trigger further events
         </span>
       </a>
       {% if snapshot.has_index %}
-      <a class="button is-primary is-small-mobile is-expanded-mobile" target="_blank" rel="noopener"
+      <a class="button is-primary is-small-mobile is-expanded-mobile"
+         target="_blank"
+         rel="noopener"
          href="{{ snapshot.content_url }}">
         <span class="icon">
           <i class="ri-external-link-line"></i>
@@ -60,7 +65,8 @@ in case the enclosing page want to use that data to trigger further events
       <div class="job-list--meta mb-2">
         <span>
           <span class="icon is-small is-vcentered pr-1">
-            <img src="{{ snapshot.creator.personal_account.image.small }}" role="presentation"></img>
+            <img src="{{ snapshot.creator.personal_account.image.small }}"
+                 role="presentation"></img>
           </span>
           <span class="is-vcentered">
             {{ snapshot.creator.username }}
@@ -103,7 +109,9 @@ in case the enclosing page want to use that data to trigger further events
     A preview of how your snapshot will appear to readers.
   </h3>
   {% if snapshot.has_index %}
-  <iframe id="frame" class="snapshot--preview" src="{{ snapshot.content_url }}">
+  <iframe id="frame"
+          class="snapshot--preview"
+          src="{{ snapshot.content_url }}">
   </iframe>
   {% else %}
   <p class="notification is-warning">
