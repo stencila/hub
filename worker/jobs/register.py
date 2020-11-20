@@ -2,6 +2,7 @@ import io
 import json
 import logging
 import os
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -34,11 +35,9 @@ class Register(Job):
         self.server = server
         self.credentials = credentials
 
-    def do(self, node: dict, doi: str, url: str) -> dict:  # type: ignore
-        credentials = self.credentials or os.getenv("CROSSREF_API_CREDENTIALS")
-        if not credentials:
-            raise PermissionError("Credentials for DOI registrar are not available")
-        username, password = credentials.split(":")
+    def do(self, node: dict, doi: str, url: str, batch: str, *args, **kwargs) -> dict:  # type: ignore
+        assert node is not None
+        assert "type" in node and node["type"] in ("Article", "Review")
 
         # Generate Crossref deposit XML
         convert = Convert()
@@ -50,7 +49,28 @@ class Register(Job):
         if not xml:
             raise RuntimeError("Failed to convert node to Crossref XML")
 
-        # Deposit to server
+        # Replace batch id and email
+        xml = re.sub(
+            r"<doi_batch_id>[^<]*</doi_batch_id>",
+            f"<doi_batch_id>{batch}</doi_batch_id>",
+            xml,
+        )
+        xml = re.sub(
+            r"<email_address>[^<]*</email_address>",
+            r"<email_address>doi@hub.stenci.la</email_address>",
+            xml,
+        )
+
+        credentials = self.credentials or os.getenv("CROSSREF_API_CREDENTIALS")
+        if not credentials:
+            # If no credentials were available for the registration agency
+            # then log a warning and return an empty dictionary
+            # This is intended primarily for use during development.
+            logger.warning("Credentials for DOI registrar are not available")
+            return dict()
+
+        # Deposit XML
+        username, password = credentials.split(":")
         deposited = datetime.utcnow().isoformat()
         response = httpx.post(
             self.server,
@@ -60,20 +80,18 @@ class Register(Job):
 
         # Crossref returns 200 response with an error message for bad login credentials
         # so we need to check for 'SUCCESS' in the response body
-        registered = None
-        if response.status_code == 200 and "SUCCESS" in response.text:
-            registered = datetime.utcnow().isoformat()
-        else:
+        deposit_success = response.status_code == 200 and "SUCCESS" in response.text
+        if not deposit_success:
             logger.error(f"Unexpected response from {self.server}")
 
         # Return details of this job
         return dict(
             deposited=deposited,
-            registered=registered,
-            request=dict(body=xml),
-            response=dict(
+            deposit_request=dict(body=xml),
+            deposit_response=dict(
                 status=dict(code=response.status_code),
                 headers=response.headers,
                 body=response.text,
             ),
+            deposit_success=deposit_success,
         )
