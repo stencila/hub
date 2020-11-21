@@ -421,6 +421,12 @@ class AccountTier(models.Model):
         help_text="The maximum number of job minutes per month.",
     )
 
+    dois_created_month = models.IntegerField(
+        verbose_name="DOIs minted",
+        default=0,
+        help_text="The maximum number of DOIs minted per month.",
+    )
+
     def __str__(self) -> str:
         return "Tier {0}".format(self.id)
 
