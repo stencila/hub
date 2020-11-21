@@ -8,18 +8,22 @@ generated.
 from django.urls import include, path, re_path
 
 import accounts.api.urls
+import dois.api.urls
 import jobs.api.urls
 import projects.api.urls
 import users.api.urls
 from manager.api.views.docs import schema_view, swagger_view
+from manager.api.views.emails import EmailsView
 from manager.api.views.status import StatusView
 
 urlpatterns = (
     accounts.api.urls.urlpatterns
-    + projects.api.urls.urlpatterns
+    + dois.api.urls.urlpatterns
     + jobs.api.urls.urlpatterns
+    + projects.api.urls.urlpatterns
     + users.api.urls.urlpatterns
     + [
+        re_path(r"emails/?", EmailsView.as_view(), name="api-emails"),
         re_path(r"status/?", StatusView.as_view(), name="api-status"),
         path("", include("django_prometheus.urls")),
         re_path(r"schema/?", schema_view, name="api-schema"),

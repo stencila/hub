@@ -58,7 +58,7 @@ class Pin(Job):
             digest = dxf._get_dcd(alias)
         except MissingCredentialsError as exc:
             # If no credentials were available for the container registry
-            # then raise a warning and return an unpinned container image.
+            # then log a warning and return an unpinned container image.
             # This is intended primarily for use during development so it is not
             # necessary to provide credentials to create snapshots.
             logger.warning(str(exc))

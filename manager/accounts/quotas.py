@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Callable, Dict, NamedTuple
 
 from django.core.cache import cache
@@ -5,6 +6,7 @@ from django.db.models import F, Sum
 from django.utils import timezone
 
 from accounts.models import Account, AccountTeam, AccountTier, AccountUser
+from dois.models import Doi
 from jobs.models import Job
 from manager.api.exceptions import AccountQuotaExceeded
 from projects.models.files import File, FileDownloads
@@ -17,7 +19,6 @@ class AccountQuota(NamedTuple):
 
     name: Name of the quota
     calc: A function to calculate the current value for an account
-    default: Default value
     message: Message if the quota is exceeded
     """
 
@@ -139,7 +140,7 @@ class AccountQuotas:
             ).aggregate(downloads=Sum(F("count") * F("file__size")))["downloads"]
             or 0
         ),
-        "Download limit has been reached." "Please upgrade the plan for the account.",
+        "Download limit has been reached. Please upgrade the plan for the account.",
     )
 
     JOB_RUNTIME_MONTH = AccountQuota(
@@ -151,7 +152,19 @@ class AccountQuotas:
             or 0
         )
         / 60000,
-        "Job minutes has been exceeded." "Please upgrade the plan for the account.",
+        "Job minutes has been exceeded. Please upgrade the plan for the account.",
+    )
+
+    DOIS_CREATED_MONTH = AccountQuota(
+        "dois_created_month",
+        lambda account: (
+            Doi.objects.filter(
+                node__project__account=account,
+                created__year=datetime.utcnow().year,
+                created__month=datetime.utcnow().month,
+            ).count()
+        ),
+        "The number of DOIs created has been exceeded. Please upgrade the plan for the account.",
     )
 
     @staticmethod

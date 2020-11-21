@@ -9,7 +9,14 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from stencila.schema.json import object_encode
-from stencila.schema.types import CodeChunk, CodeExpression, MathBlock, MathFragment
+from stencila.schema.types import (
+    Article,
+    CodeChunk,
+    CodeExpression,
+    MathBlock,
+    MathFragment,
+    Review,
+)
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountTier, AccountUser
 from jobs.models import Queue, Worker, Zone
@@ -446,6 +453,8 @@ def create_nodes_for_project(project):
     """
 
     nodes = [
+        Article(),
+        Review(),
         CodeChunk(programmingLanguage="r", text="plot(mtcars)"),
         CodeExpression(programmingLanguage="js", text="x * y"),
         MathBlock(mathLanguage="tex", text="\\int\\limits_a^b x^2  \\mathrm{d} x"),

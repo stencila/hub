@@ -24,6 +24,7 @@ urlpatterns = [
     path(RootPaths.favicon.value, favicon),
     path(RootPaths.robots.value, robots),
     path(RootPaths.api.value + "/", include("manager.api.urls")),
+    path(RootPaths.doi.value + "/", include("dois.urls")),
     path(RootPaths.me.value + "/", include("users.ui.urls")),
     path(RootPaths.pricing.value + "/", pricing, name="ui-pricing"),
     path(

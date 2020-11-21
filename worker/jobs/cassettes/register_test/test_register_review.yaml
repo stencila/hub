@@ -1,0 +1,86 @@
+interactions:
+- request:
+    body: "--6d8619682a22c2149162aabc1eebb738\r\nContent-Disposition: form-data; name=\"\
+      login_id\"\r\n\r\nxxxx\r\n--6d8619682a22c2149162aabc1eebb738\r\nContent-Disposition:\
+      \ form-data; name=\"login_passwd\"\r\n\r\nxxxxxxxxxx\r\n--6d8619682a22c2149162aabc1eebb738\r\
+      \nContent-Disposition: form-data; name=\"fname\"; filename=\"upload\"\r\nContent-Type:\
+      \ application/octet-stream\r\n\r\n<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+      <doi_batch version=\"4.4.2\" xmlns=\"http://www.crossref.org/schema/4.4.2\"\
+      \ xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"\
+      http://www.crossref.org/schema/4.4.2 http://data.crossref.org/schemas/crossref4.4.2.xsd\"\
+      \ xmlns:jats=\"http://www.ncbi.nlm.nih.gov/JATS1\">\n  <head>\n    <doi_batch_id>the-unique-batch-id</doi_batch_id>\n\
+      \    <timestamp>1605847266341</timestamp>\n    <depositor>\n      <depositor_name>Stencila</depositor_name>\n\
+      \      <email_address>doi@hub.stenci.la</email_address>\n    </depositor>\n\
+      \    <registrant>Stencila</registrant>\n  </head>\n  <body>\n    <peer_review>\n\
+      \      <contributors>\n        <person_name contributor_role=\"reviewer\" sequence=\"\
+      first\">\n          <given_name>Joe</given_name>\n          <surname>James</surname>\n\
+      \        </person_name>\n      </contributors>\n      <titles>\n        <title>Review\
+      \ of my preprint</title>\n      </titles>\n      <review_date>\n        <month>11</month>\n\
+      \        <day>20</day>\n        <year>2020</year>\n      </review_date>\n  \
+      \    <program xmlns=\"http://www.crossref.org/relations.xsd\">\n        <related_item>\n\
+      \          <inter_work_relation relationship-type=\"isReviewOf\" identifier-type=\"\
+      doi\">10.5555/54320</inter_work_relation>\n        </related_item>\n      </program>\n\
+      \      <doi_data>\n        <doi>10.47704/54321</doi>\n        <resource>https://example.org</resource>\n\
+      \      </doi_data>\n    </peer_review>\n  </body>\n</doi_batch>\n\r\n--6d8619682a22c2149162aabc1eebb738--\r\
+      \n"
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '1820'
+      content-type:
+      - multipart/form-data; boundary=6d8619682a22c2149162aabc1eebb738
+      host:
+      - test.crossref.org
+      user-agent:
+      - python-httpx/0.16.1
+    method: POST
+    uri: https://test.crossref.org/servlet/deposit
+  response:
+    content: '
+
+
+
+
+      <html>
+
+      <head><title>SUCCESS</title>
+
+      </head>
+
+      <body>
+
+      <h2>SUCCESS</h2>
+
+      <p>Your batch submission was successfully received.</p>
+
+      </body>
+
+      </html>
+
+      '
+    headers:
+      Connection:
+      - close
+      Content-Language:
+      - en-US
+      Content-Length:
+      - '144'
+      Content-Type:
+      - text/html;charset=ISO-8859-1
+      Crossref-Deployment-Name:
+      - a-cs1-1
+      Date:
+      - Fri, 20 Nov 2020 04:41:07 GMT
+      Server:
+      - Apache-Coyote/1.1
+      Set-Cookie:
+      - CROSSREF-ADMIN=2f210e66d07ce44a1a923c62cea81c584e51a7e3d2778c6be52ea573aa0e490b427c3a378de2add3d2832bb295c19943f6352e64e0dbb8fdb07ec7c36729f9e3033f82e45215f2047171f924032e684a3ca72f3acff967b88c0abdf5cd51135148897ad51dba980421208bd71cc34ddca7c5278a39e6495276fb9babf559db894ba82b2adddd9bbdbb67ad97308e0990;
+        Domain=test.crossref.org; Expires=Fri, 20-Nov-2020 04:51:07 GMT; Path=/
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

@@ -364,6 +364,7 @@ class JobMethod(EnumChoice):
     convert = "convert"
 
     pin = "pin"
+    register = "register"
 
     compile = "compile"
     build = "build"

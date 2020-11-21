@@ -60,4 +60,5 @@ class AccountTierAdmin(admin.ModelAdmin):
         "projects_private",
         "file_downloads_month",
         "job_runtime_month",
+        "dois_created_month",
     ]
