@@ -12,6 +12,7 @@ class RootPaths(enum.Enum):
     """
 
     api = "api"
+    doi = "doi"
     content = "content"
     favicon = "favicon.ico"
     me = "me"
