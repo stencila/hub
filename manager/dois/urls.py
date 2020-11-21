@@ -1,5 +1,5 @@
-from django.urls import path, re_path
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import re_path
 
 from dois.models import Doi
 
