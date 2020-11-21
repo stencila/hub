@@ -27,9 +27,7 @@ class Register(Job):
     name = "register"
 
     def __init__(
-        self,
-        server: str = "https://crossref.org/servlet/deposit",
-        credentials: Optional[str] = None,
+        self, server: Optional[str] = None, credentials: Optional[str] = None,
     ):
         super().__init__()
         self.server = server
@@ -61,11 +59,19 @@ class Register(Job):
             xml,
         )
 
-        credentials = self.credentials or os.getenv("CROSSREF_API_CREDENTIALS")
+        server = self.server or os.getenv("CROSSREF_DEPOSIT_SERVER")
+        if not server:
+            # If no server explicitly defined then use test server.
+            # Do not fallback to production server to avoid inadvertent
+            # use during testing.
+            server = "https://test.crossref.org/servlet/deposit"
+
+        credentials = self.credentials or os.getenv("CROSSREF_DEPOSIT_CREDENTIALS")
         if not credentials:
             # If no credentials were available for the registration agency
-            # then log a warning and return an empty dictionary
-            # This is intended primarily for use during development.
+            # then log a warning and return an empty dictionary.
+            # This allows testing during development without having to have
+            # credentials
             logger.warning("Credentials for DOI registrar are not available")
             return dict()
 
@@ -73,7 +79,7 @@ class Register(Job):
         username, password = credentials.split(":")
         deposited = datetime.utcnow().isoformat()
         response = httpx.post(
-            self.server,
+            server,
             data=dict(login_id=username, login_passwd=password),
             files=dict(fname=io.StringIO(xml)),
         )
@@ -82,7 +88,7 @@ class Register(Job):
         # so we need to check for 'SUCCESS' in the response body
         deposit_success = response.status_code == 200 and "SUCCESS" in response.text
         if not deposit_success:
-            logger.error(f"Unexpected response from {self.server}")
+            logger.error("Unexpected response from Crossref")
 
         # Return details of this job
         return dict(
@@ -90,7 +96,7 @@ class Register(Job):
             deposit_request=dict(body=xml),
             deposit_response=dict(
                 status=dict(code=response.status_code),
-                headers=response.headers,
+                headers=dict(response.headers),
                 body=response.text,
             ),
             deposit_success=deposit_success,

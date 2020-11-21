@@ -10,11 +10,11 @@ from .register import Register
 # These tests use a `pytest-recording` "casette" to record resposes from https://test.crossref.org/
 # Those casettes has had any sensitive data redacted from them.
 # To re-record casettes do
-#  CROSSREF_API_CREDENTIALS=username:password ./venv/bin/pytest --record-mode=rewrite jobs/register_test.py
+#  CROSSREF_DEPOSIT_CREDENTIALS=username:password ./venv/bin/pytest --record-mode=rewrite jobs/register_test.py
 
 # Pretend these credentials have been set so that we can reuse the
 # recorded casettes
-credentials = os.getenv("CROSSREF_API_CREDENTIALS", "username:password")
+credentials = os.getenv("CROSSREF_DEPOSIT_CREDENTIALS", "username:password")
 
 
 def is_isodate(value: str) -> bool:
@@ -34,9 +34,7 @@ def test_register_article():
         )
     )
 
-    job = Register(
-        server="https://test.crossref.org/servlet/deposit", credentials=credentials
-    )
+    job = Register(credentials=credentials)
     result = job.do(
         node=article,
         doi="10.47704/54320",
@@ -70,9 +68,7 @@ def test_register_review():
         )
     )
 
-    job = Register(
-        server="https://test.crossref.org/servlet/deposit", credentials=credentials
-    )
+    job = Register(credentials=credentials)
     result = job.do(
         node=review,
         doi="10.47704/54321",
@@ -92,9 +88,7 @@ def test_bad_credentials():
     """
     Test incorrect credentials error.
     """
-    job = Register(
-        server="https://test.crossref.org/servlet/deposit", credentials="foo:bar"
-    )
+    job = Register(credentials="foo:bar")
     result = job.do(
         node=object_encode(Article()),
         doi="10.5555/54321",
@@ -113,9 +107,9 @@ def test_no_credentials():
     """
     Test no credentials error.
     """
-    if "CROSSREF_API_CREDENTIALS" in os.environ:
-        del os.environ["CROSSREF_API_CREDENTIALS"]
-    job = Register(server="https://test.crossref.org/servlet/deposit")
+    if "CROSSREF_DEPOSIT_CREDENTIALS" in os.environ:
+        del os.environ["CROSSREF_DEPOSIT_CREDENTIALS"]
+    job = Register()
     result = job.do(
         node=object_encode(Article()),
         doi="10.5555/54321",
