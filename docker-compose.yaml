@@ -110,6 +110,7 @@ services:
     build: ./worker
     image: stencila/hub-worker
     env_file:
+      - .config
       - .secrets
     depends_on:
       - broker
