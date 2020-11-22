@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 import httpx
@@ -6,6 +7,8 @@ from django import conf
 
 from users.api.serializers import MeSerializer
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -17,7 +20,14 @@ def update_services_all_users(services=["userflow"]):
         "projects", "accounts"
     )
     for user in users:
-        update_services_for_user(user, services)
+        try:
+            update_services_for_user(user, services)
+        except Exception:
+            logger.warning(
+                "Exception while updating external services for user",
+                exc_info=True,
+                extra={"user": user},
+            )
 
 
 @shared_task

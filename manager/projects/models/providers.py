@@ -77,10 +77,15 @@ class GithubRepo(models.Model):
             app__provider=Provider.github.name
         ).select_related("account__user")
         for token in tokens:
+            user = token.account.user
             try:
-                GithubRepo.refresh_for_user(token.account.user, token)
-            except Exception as exc:
-                logger.warning(str(exc))
+                GithubRepo.refresh_for_user(user, token)
+            except Exception:
+                logger.warning(
+                    "Exception while refreshing GitHub repos for user",
+                    exc_info=True,
+                    extra={"user": user},
+                )
 
     @staticmethod
     @transaction.atomic
