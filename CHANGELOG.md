@@ -1,3 +1,10 @@
+## [4.21.1](https://github.com/stencila/hub/compare/v4.21.0...v4.21.1) (2020-11-22)
+
+
+### Bug Fixes
+
+* **Manager:** Do not ignore DOIs folder ([2ffe6c5](https://github.com/stencila/hub/commit/2ffe6c5af5a0d386a22ced91e13d3406f6ab3ca3))
+
 # [4.21.0](https://github.com/stencila/hub/compare/v4.20.3...v4.21.0) (2020-11-22)
 
 
