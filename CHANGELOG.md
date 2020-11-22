@@ -1,3 +1,20 @@
+# [4.21.0](https://github.com/stencila/hub/compare/v4.20.3...v4.21.0) (2020-11-22)
+
+
+### Bug Fixes
+
+* **DOI Admin:** Dispatch jobs ([f86aec0](https://github.com/stencila/hub/commit/f86aec06dcdce9604144e56a60b0a5e073ca7bbd))
+* **DOIs:** Redirect to the URL of the registered node ([e456485](https://github.com/stencila/hub/commit/e456485c431c8aa3bfd7da825b455d885385e8f4))
+* **Register job:** Allow for specific batch id and custom email. ([c09e8e7](https://github.com/stencila/hub/commit/c09e8e757aa4993b23ab3deca64ad429f507aa6a))
+
+
+### Features
+
+* **DOIs:** Add account quota for DOIs; check creator permissions ([b454168](https://github.com/stencila/hub/commit/b45416833d250f8c82b2b1cbea5f8bc47caea433))
+* **DOIs:** Add API endpoints ([3c772d5](https://github.com/stencila/hub/commit/3c772d5c7a3347e1c98fe35fee20bcf5173c6894))
+* **DOIs:** Add model for DOIs ([e1094ef](https://github.com/stencila/hub/commit/e1094ef4440ec30e32fd9ccc9ba311b979efde5d))
+* **Worker:** Add a job to register DOIs ([f497612](https://github.com/stencila/hub/commit/f49761215b5b28d5fbf392d62af76378b8f10a27)), closes [#817](https://github.com/stencila/hub/issues/817)
+
 ## [4.20.3](https://github.com/stencila/hub/compare/v4.20.2...v4.20.3) (2020-11-20)
 
 
