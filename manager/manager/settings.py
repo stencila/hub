@@ -202,6 +202,7 @@ class Prod(Configuration):
     AUTHENTICATION_BACKENDS = (
         "django.contrib.auth.backends.ModelBackend",
         "allauth.account.auth_backends.AuthenticationBackend",
+        "users.auth_backends.UsernameOrEmailBackend",
     )
 
     AUTH_PASSWORD_VALIDATORS = [
