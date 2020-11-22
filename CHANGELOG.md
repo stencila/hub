@@ -1,3 +1,12 @@
+## [4.22.1](https://github.com/stencila/hub/compare/v4.22.0...v4.22.1) (2020-11-22)
+
+
+### Bug Fixes
+
+* **Admin:** Check that project and job exists ([1758f85](https://github.com/stencila/hub/commit/1758f85d08de73bd4e4ae3c54f711de415b0181f))
+* **Emails:** Allow for form/multi-part data ([c83309d](https://github.com/stencila/hub/commit/c83309d8e05bd2c4874b07663c47d54bb13c22ea))
+* **Register job:** Handle UTF-8 in registered content ([57f4ab0](https://github.com/stencila/hub/commit/57f4ab0b44038e16670ae15676491b09b0658039))
+
 # [4.22.0](https://github.com/stencila/hub/compare/v4.21.1...v4.22.0) (2020-11-22)
 
 
