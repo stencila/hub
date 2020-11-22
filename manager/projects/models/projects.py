@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 
 import shortuuid
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -209,8 +208,13 @@ class Project(models.Model):
         """
         if self.main:
             try:
-                return self.files.get(path=self.main, current=True)
-            except ObjectDoesNotExist:
+                # Using `filter()` and indexing to get the first item is more robust that
+                # using `get()`. There should only be one item with path that is current
+                # but this avoids a `MultipleObjectsReturned` in cases when there is not.
+                return self.files.filter(path=self.main, current=True).order_by(
+                    "-created"
+                )[0]
+            except IndexError:
                 pass
 
         candidates = self.files.filter(
