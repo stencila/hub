@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import generics
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -15,6 +16,7 @@ class EmailsView(generics.GenericAPIView):
     """
 
     permission_classes = []
+    parser_classes = [MultiPartParser, JSONParser]
 
     def post(self, request: Request) -> Response:
         """
