@@ -220,7 +220,7 @@ class FileAdmin(admin.ModelAdmin):
 
     def project_full_name(self, file):
         """Derive file's project full name."""
-        return f"{file.project.account.name}/{file.project.name}"
+        return file.project and f"{file.project.account.name}/{file.project.name}"
 
 
 @admin.register(Snapshot)
@@ -234,11 +234,14 @@ class SnapshotAdmin(admin.ModelAdmin):
 
     def project_full_name(self, snapshot):
         """Derive snapshot's project full name."""
-        return f"{snapshot.project.account.name}/{snapshot.project.name}"
+        return (
+            snapshot.project
+            and f"{snapshot.project.account.name}/{snapshot.project.name}"
+        )
 
     def job_status(self, snapshot):
         """Derive snapshot's job status."""
-        return snapshot.job.status
+        return snapshot.job and snapshot.job.status
 
 
 @admin.register(Node)
