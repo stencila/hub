@@ -225,6 +225,7 @@ class Snapshot(models.Model):
                 File(
                     project=self.project,
                     path=path,
+                    current=False,
                     job=job,
                     snapshot=self,
                     updated=timezone.now(),
