@@ -28,7 +28,18 @@
              value="{{ redirect_field_value }}" />
       {% endif %}
 
-      {% include "forms/field.html" with field=form.login autofocus=True %}
+      <div class="field">
+        <label class="label"
+               for="login">Username or Email</label>
+        <div class="control">
+          <input id="login"
+                 class="input"
+                 type="text"
+                 name="login"
+                 placeholder="e.g. myusername, me@example.org"
+                 autofocus="">
+        </div>
+      </div>
       {% include "forms/field.html" with field=form.password %}
       {% include "forms/errors.html" with form=form %}
 
