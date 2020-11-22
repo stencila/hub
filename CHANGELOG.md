@@ -1,3 +1,16 @@
+# [4.22.0](https://github.com/stencila/hub/compare/v4.21.1...v4.22.0) (2020-11-22)
+
+
+### Bug Fixes
+
+* **Files:** Use filter to get files ([1fa5e96](https://github.com/stencila/hub/commit/1fa5e96103f776d4c99987656d0f6400c32f5214)), closes [#852](https://github.com/stencila/hub/issues/852)
+* **Snapshots:** Set file.current to False  on bulk_create ([5a0b498](https://github.com/stencila/hub/commit/5a0b49847c32cab1e53057e7457d324f28e8391b))
+
+
+### Features
+
+* **Admin:** Improve list display and filtering for files and snapshots ([d041d72](https://github.com/stencila/hub/commit/d041d72a3b57567a9f94a6ba565e41cdc0c63ba2))
+
 ## [4.21.1](https://github.com/stencila/hub/compare/v4.21.0...v4.21.1) (2020-11-22)
 
 
