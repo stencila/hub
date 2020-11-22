@@ -1,3 +1,15 @@
+# [4.23.0](https://github.com/stencila/hub/compare/v4.22.1...v4.23.0) (2020-11-22)
+
+
+### Bug Fixes
+
+* **User tasks:** Capture exception info in warning ([c77595a](https://github.com/stencila/hub/commit/c77595a67d48198c495b0e8dd645385f98a0fd27))
+
+
+### Features
+
+* **Sigin:** Allow sign in with username or email ([aa7c3a3](https://github.com/stencila/hub/commit/aa7c3a308b4687a6480cd8c6ed62244088d0b740)), closes [#830](https://github.com/stencila/hub/issues/830)
+
 ## [4.22.1](https://github.com/stencila/hub/compare/v4.22.0...v4.22.1) (2020-11-22)
 
 
