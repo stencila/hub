@@ -418,6 +418,21 @@ class File(models.Model):
 
         return file
 
+    @staticmethod
+    def get_latest(**kwargs):
+        """
+        Get the latest file matching filter criteria.
+
+        This should generally be preferred over using `File.object.get()`.
+        Using `filter()` (and indexing to get the first item) is more robust than
+        using `get()` e.g. for a given `project`, there should only be one item with
+        `path` that is `current` but this avoids a `MultipleObjectsReturned`
+        exception in cases when there is not.
+        """
+        from projects.models.files import File
+
+        return File.objects.filter(**kwargs).order_by("-created")[0]
+
     def remove(self):
         """
         To keep the file history we do not actually remove the file but make it not current.

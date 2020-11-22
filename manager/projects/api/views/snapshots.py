@@ -133,8 +133,8 @@ class ProjectsSnapshotsViewSet(
         path = self.kwargs.get("path") or "index.html"
 
         try:
-            file = File.objects.get(snapshot=snapshot, path=path)
-        except File.DoesNotExist:
+            file = File.get_latest(snapshot=snapshot, path=path)
+        except IndexError:
             raise exceptions.NotFound
 
         if path == "index.html":

@@ -148,8 +148,8 @@ def content(
     snapshot = None
     if version == ProjectLiveness.LIVE.value:
         try:
-            file = File.objects.get(project=project, path=file_path, current=True)
-        except File.DoesNotExist:
+            file = File.get_latest(project=project, path=file_path, current=True)
+        except IndexError:
             return invalid_file()
     else:
         if version == ProjectLiveness.LATEST.value:
@@ -185,8 +185,8 @@ def content(
 
         # Check that the file exists in the snapshot
         try:
-            file = File.objects.get(snapshot=snapshot, path=file_path)
-        except File.DoesNotExist:
+            file = File.get_latest(snapshot=snapshot, path=file_path)
+        except IndexError:
             return invalid_file()
 
     # Limit the download rate if the account is over it's download

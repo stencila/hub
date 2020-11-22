@@ -165,12 +165,7 @@ class ProjectsFilesViewSet(
             identifier = dict(path=id_or_path)
 
         try:
-            # Using `filter()` and indexing to get the first item is more robust than
-            # using `get()`. There should only be one item with path that is current
-            # but this avoids a `MultipleObjectsReturned` in cases when there is not.
-            return File.objects.filter(
-                project=project, current=True, **identifier
-            ).order_by("-created")[0]
+            return File.get_latest(project=project, current=True, **identifier)
         except IndexError:
             raise Http404
 
