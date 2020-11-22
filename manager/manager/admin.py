@@ -59,3 +59,20 @@ class UserUsernameFilter(InputFilter):
         username = self.value()
         if username is not None:
             return queryset.filter(user__username=username)
+
+
+class ProjectNameFilter(InputFilter):
+    """
+    Allow filtering by the project name.
+    """
+
+    parameter_name = "project_name"
+    title = "Project name"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the queryset by the project name.
+        """
+        name = self.value()
+        if name is not None:
+            return queryset.filter(project__name=name)

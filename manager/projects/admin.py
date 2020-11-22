@@ -5,7 +5,7 @@ from polymorphic.admin import (
     PolymorphicParentModelAdmin,
 )
 
-from manager.admin import InputFilter, UserUsernameFilter
+from manager.admin import InputFilter, ProjectNameFilter, UserUsernameFilter
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectEvent
@@ -160,13 +160,47 @@ class UrlSourceAdmin(SourceChildAdmin):
     show_in_index = True
 
 
+class FilePathFilter(InputFilter):
+    """
+    Filter files by their path.
+    """
+
+    parameter_name = "path"
+    title = "Path starts with"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the list of files by their path.
+        """
+        value = self.value()
+        if value is not None:
+            return queryset.filter(path__startswith=value)
+
+
+class FileMimeTypeFilter(InputFilter):
+    """
+    Filter files by their MIME type.
+    """
+
+    parameter_name = "mimetype"
+    title = "MIME type starts with"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the list of files by their MIME type.
+        """
+        value = self.value()
+        if value is not None:
+            return queryset.filter(mimetype__startswith=value)
+
+
 @admin.register(File)
 class FileAdmin(admin.ModelAdmin):
     """Admin interface for project files."""
 
     list_display = [
         "id",
-        "project",
+        "project_full_name",
         "path",
         "current",
         "created",
@@ -174,16 +208,37 @@ class FileAdmin(admin.ModelAdmin):
         "mimetype",
         "size",
     ]
-    list_select_related = ["project"]
-    list_filter = ["project"]
+    list_select_related = ["project", "project__account"]
+    list_filter = [
+        ProjectNameFilter,
+        FilePathFilter,
+        FileMimeTypeFilter,
+        "current",
+        "created",
+        "updated",
+    ]
+
+    def project_full_name(self, file):
+        """Derive file's project full name."""
+        return f"{file.project.account.name}/{file.project.name}"
 
 
 @admin.register(Snapshot)
 class SnapshotAdmin(admin.ModelAdmin):
     """Admin interface for project snapshots."""
 
-    list_display = ["id", "project", "number", "creator", "created"]
-    list_select_related = ["project", "creator", "job"]
+    list_display = ["id", "project_full_name", "number", "created", "job_status"]
+    list_select_related = ["project", "project__account", "job"]
+    list_filter = [ProjectNameFilter, "created"]
+    ordering = ["-created"]
+
+    def project_full_name(self, snapshot):
+        """Derive snapshot's project full name."""
+        return f"{snapshot.project.account.name}/{snapshot.project.name}"
+
+    def job_status(self, snapshot):
+        """Derive snapshot's job status."""
+        return snapshot.job.status
 
 
 @admin.register(Node)
