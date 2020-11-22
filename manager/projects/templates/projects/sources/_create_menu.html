@@ -1,5 +1,5 @@
-{% load i18n %}
-{% if project.role in 'AUTHOR, MANAGER, OWNER' %}
+{% load i18n static %}
+
 <div class="dropdown level-item {{ classes }}">
   <div class="dropdown-trigger width-full">
     <button class="button is-primary is-small-mobile width-full"
@@ -21,24 +21,6 @@
        role="menu">
     <div class="dropdown-content">
       <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-upload' project.account.name project.name %}">
-        <span class="icon">
-          <i class="ri-upload-cloud-line"></i>
-        </span>
-        <span>
-          {% trans "Upload" %}
-        </span>
-      </a>
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-create' project.account.name project.name 'url' %}">
-        <span class="icon">
-          <i class="ri-links-line"></i>
-        </span>
-        <span>
-          {% trans "URL" %}
-        </span>
-      </a>
-      <a class="dropdown-item"
          href="{% url 'ui-projects-sources-create' project.account.name project.name 'github' %}">
         <span class="icon">
           <i class="ri-github-line"></i>
@@ -47,33 +29,54 @@
           GitHub
         </span>
       </a>
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledocs' %}">
-        <span class="icon">
-          <i class="ri-google-line"></i>
-        </span>
-        <span>
-          Google Doc
-        </span>
-      </a>
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-create' project.account.name project.name 'googlesheets' %}">
-        <span class="icon">
-          <i class="ri-google-line"></i>
-        </span>
-        <span>
-          Google Sheet
-        </span>
-      </a>
-      <a class="dropdown-item"
-         href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledrive' %}">
-        <span class="icon">
-          <i class="ri-drive-line"></i>
-        </span>
-        <span>
-          Google Drive
-        </span>
-      </a>
+      <div class="dropdown dropdown-item px-0 py-0"
+           data-placement="right-start">
+        <a class="dropdown-trigger dropdown-item px-0 py-0">
+          <div class="level is-mobile dropdown-item">
+            <div class="level-left">
+              <span class="icon">
+                <i class="ri-google-line"></i>
+              </span>
+              <span>Google …</span>
+            </div>
+            <div>
+              <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
+            </div>
+          </div>
+        </a>
+        <div class="dropdown-menu has-text-left"
+             role="menu">
+          <div class="dropdown-content">
+            <a class="dropdown-item"
+               href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledocs' %}">
+              <span class="icon">
+                <i class="ri-file-list-2-line"></i>
+              </span>
+              <span>
+                Google Doc
+              </span>
+            </a>
+            <a class="dropdown-item"
+               href="{% url 'ui-projects-sources-create' project.account.name project.name 'googlesheets' %}">
+              <span class="icon">
+                <i class="ri-grid-line"></i>
+              </span>
+              <span>
+                Google Sheet
+              </span>
+            </a>
+            <a class="dropdown-item"
+               href="{% url 'ui-projects-sources-create' project.account.name project.name 'googledrive' %}">
+              <span class="icon">
+                <i class="ri-drive-line"></i>
+              </span>
+              <span>
+                Google Drive
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
       <div class="dropdown dropdown-item px-0 py-0"
            data-placement="right-start">
         <a class="dropdown-trigger dropdown-item px-0 py-0">
@@ -82,7 +85,7 @@
               <span class="icon">
                 <i class="ri-newspaper-line"></i>
               </span>
-              <span>{% trans "From journal…" %}</span>
+              <span>{% trans "Journal" %} …</span>
             </div>
             <div>
               <span class="icon"><i class="ri-arrow-right-s-line"></i></span>
@@ -94,16 +97,47 @@
           <div class="dropdown-content">
             <a class="dropdown-item"
                href="{% url 'ui-projects-sources-create' project.account.name project.name 'elife' %}">
-              eLife
+              <span class="icon">
+                <img alt=""
+                     src="{% static 'img/elife-icon.png' %}"
+                     role="presentation" />
+              </span>
+              <span>
+                eLife
+              </span>
             </a>
             <a class="dropdown-item"
                href="{% url 'ui-projects-sources-create' project.account.name project.name 'plos' %}">
-              PLOS
+              <span class="icon">
+                <img alt=""
+                     src="{% static 'img/plos-logo-color-blue.svg' %}"
+                     role="presentation" />
+              </span>
+              <span>
+                PLOS
+              </span>
             </a>
           </div>
         </div>
       </div>
+      <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-upload' project.account.name project.name %}">
+        <span class="icon">
+          <i class="ri-upload-cloud-line"></i>
+        </span>
+        <span>
+          {% trans "Upload" %}
+        </span>
+      </a>
+      <a class="dropdown-item"
+         href="{% url 'ui-projects-sources-create' project.account.name project.name 'url' %}">
+        <span class="icon">
+          <i class="ri-global-line"></i>
+        </span>
+        <span>
+          {% trans "URL" %}
+        </span>
+      </a>
     </div>
   </div>
 </div>
-{% endif %}
