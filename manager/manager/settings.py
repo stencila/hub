@@ -181,7 +181,7 @@ class Prod(Configuration):
     )
 
     # Default email address to use for various automated correspondence from the site manager(s)
-    DEFAULT_FROM_EMAIL = values.Value("hello@stenci.la")
+    DEFAULT_FROM_EMAIL = values.Value("Stencila Hub <hello@stenci.la>")
 
     # Store session data in signed cookies (alternatives include DB or cache)
     SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
