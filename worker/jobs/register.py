@@ -81,7 +81,7 @@ class Register(Job):
         response = httpx.post(
             server,
             data=dict(login_id=username, login_passwd=password),
-            files=dict(fname=io.StringIO(xml)),
+            files=dict(fname=io.BytesIO(xml.encode())),
         )
 
         # Crossref returns 200 response with an error message for bad login credentials

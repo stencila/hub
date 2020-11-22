@@ -84,6 +84,22 @@ def test_register_review():
 
 
 @pytest.mark.vcr
+def test_register_utf8():
+    """
+    Test registration of an article with UTF-8 chars.
+    """
+    job = Register(credentials=credentials)
+    result = job.do(
+        node=object_encode(Article(title="A title with non-ASCII chars Й in it.")),
+        doi="10.47704/54321",
+        url="https://example.org",
+        batch="the-unique-batch-id",
+    )
+
+    assert result["deposit_success"]
+
+
+@pytest.mark.vcr
 def test_bad_credentials():
     """
     Test incorrect credentials error.
