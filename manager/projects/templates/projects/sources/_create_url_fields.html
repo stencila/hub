@@ -1,9 +1,25 @@
 {% load i18n %}
 
-<h2 class="title is-5">URL</h2>
+<h2 class="title is-4">
+  URL Source
+</h2>
 <p class="subtitle">
-  A URL source lets you pull content from a website or API.
+  A URL source lets you pull content from a web address.
+  For example, you might want to analyse a CSV file available on a data repository, or
+  fetch the latest data from an API endpoint.
 </p>
 
-{% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True %}
+<hr>
+
+{# It is possible to get back here with a serializer that does not have a `url` field; so avoid exception... #}
+{% if serializer.url %}
+{% include "serializers/_field.html" with field=serializer.url icon="ri-links-line" autofocus=True help_text="none" %}
+<p class="help">
+  The URL of the source. For better provider-specific support, we'll attempt to match the URL
+  that you enter with one of the supported provider-specific sources e.g.
+  <a href="googledocs">a Google Doc</a>, <a href="github">a GitHub repository</a>
+</p>
+<br>
+{% endif %}
+
 {% include "./_create_common_fields.html" %}

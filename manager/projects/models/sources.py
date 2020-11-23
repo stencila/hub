@@ -539,6 +539,28 @@ class ElifeSource(Source):
             article=self.article
         )
 
+    @classmethod
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> Optional[SourceAddress]:
+        """
+        Parse a string into an eLife `SourceAddress`.
+        """
+        match = re.search(r"^elife://(\d+)$", address, re.I)
+        if match:
+            return SourceAddress("Elife", article=int(match.group(1)))
+
+        match = re.search(
+            r"^(?:https?://)?elifesciences\.org/articles/(\d+).*$", address, re.I,
+        )
+        if match:
+            return SourceAddress("Elife", article=int(match.group(1)))
+
+        if strict:
+            raise ValidationError("Invalid eLife article address: {}".format(address))
+
+        return None
+
 
 class GithubSource(Source):
     """A project hosted on Github."""
@@ -882,12 +904,14 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
             doc_id = match.group(1)
 
         match = re.search(
-            r"^(?:https://)?docs.google.com/" + cls.doc_type + "/d/([^/]+)/?.*",
+            r"^(?:https://)?docs.google.com/"
+            + cls.doc_type
+            + r"(/u/\d+)?/d/([^/]+)/?.*",
             address,
             re.I,
         )
         if match:
-            doc_id = match.group(1)
+            doc_id = match.group(2)
 
         # No match so far, maybe a naked doc id was supplied
         if naked and not doc_id:
@@ -1002,6 +1026,31 @@ class PlosSource(Source):
         """Make the URL of a PLOS article."""
         # TODO: Implement fully (see how worker pull_plos.py resolves an article URL)
         return "https://plos.org"
+
+    @classmethod
+    def parse_address(
+        cls, address: str, naked: bool = False, strict: bool = False
+    ) -> Optional[SourceAddress]:
+        """
+        Parse a string into an eLife `SourceAddress`.
+        """
+        match = re.search(r"^plos://(.+)$", address, re.I)
+        if not match:
+            match = re.search(r"^doi://(10\.1371/.+)$", address, re.I)
+        if not match:
+            match = re.search(
+                r"^(?:https?://)?journals.plos.org/\w+/article\?id=(10\.1371/[\w\.]+)",
+                address,
+                re.I,
+            )
+
+        if match:
+            return SourceAddress("Plos", article=match.group(1))
+
+        if strict:
+            raise ValidationError("Invalid eLife article address: {}".format(address))
+
+        return None
 
 
 def upload_source_path(instance, filename):

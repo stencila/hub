@@ -128,9 +128,7 @@ class ProjectsSourcesViewSet(
                         "Unhandled source type: {0}".format(source_class)
                     )
                 return cls
-            raise RuntimeError(
-                "Unable to determine source type from '{0}'".format(source_class)
-            )
+            return SourcePolymorphicSerializer
         elif action == "partial_update":
             source = self.get_object()
             return SourcePolymorphicSerializer.model_serializer_mapping[
@@ -215,8 +213,24 @@ class ProjectsSourcesViewSet(
         }
         ```
 
+        Alternatively, if the request includes a `url`, then the type will be inferred from
+        the URL, falling back to a `UrlSource`. For example, the create the above Google Doc:
+
+        ```json
+        {
+            "url": "https://docs.google.com/document/u/1/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit"
+            "path": "report.gdoc",
+        }
+        ```
+
         Returns details of the new source.
         """
+        url = request.data.get("url")
+        if url:
+            address = Source.coerce_address(url)
+            if address:
+                request.data.update(**address, type=address.type.__name__)
+
         return super().create(request, *args, **kwargs)
 
     def retrieve(self, request: Request, *args, **kwargs) -> Response:

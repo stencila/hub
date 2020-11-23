@@ -11,6 +11,7 @@ from projects.models.sources import (
     GoogleDocsSource,
     GoogleDriveSource,
     GoogleSheetsSource,
+    PlosSource,
     Source,
     SourceAddress,
     UploadSource,
@@ -37,8 +38,14 @@ def test_coerce_address():
     # A HTTP URL that is matched by a specific source
     sa = Source.coerce_address("https://github.com/org/repo")
     assert sa.type == GithubSource
+    assert sa["repo"] == "org/repo"
 
-    # A generic URL that caught as a URL source
+    sa = Source.coerce_address("https://github.com/stencila/hub/blob/master/README.md")
+    assert sa.type == GithubSource
+    assert sa["repo"] == "stencila/hub"
+    assert sa["subpath"] == "README.md"
+
+    # A generic URL that is caught as a URL source
     sa = Source.coerce_address("https://example.org/file.R")
     assert sa.type == UrlSource
 
@@ -52,14 +59,11 @@ def test_default_make_address():
 
 
 def test_default_parse_address():
-    sa = ElifeSource.parse_address("elife://")
-    assert sa.type == ElifeSource
-
-    sa = ElifeSource.parse_address("foo")
+    sa = Source.parse_address("foo")
     assert sa is None
 
     with pytest.raises(ValidationError):
-        ElifeSource.parse_address("foo", strict=True)
+        Source.parse_address("foo", strict=True)
 
 
 def test_query_from_address():
@@ -117,6 +121,22 @@ def test_to_address():
     assert list(a.keys()) == ["repo", "subpath"]
     assert a.repo == "org/repo"
     assert a.subpath == "a/folder"
+
+
+def test_elife_parse_address():
+    sa = ElifeSource.parse_address("elife://52258")
+    assert sa.type == ElifeSource
+    assert sa["article"] == 52258
+
+    sa = ElifeSource.parse_address("https://elifesciences.org/articles/52258")
+    assert sa.type == ElifeSource
+    assert sa["article"] == 52258
+
+    sa = ElifeSource.parse_address("foo")
+    assert sa is None
+
+    with pytest.raises(ValidationError):
+        ElifeSource.parse_address("foo", strict=True)
 
 
 def test_githubsource_make_address():
@@ -190,6 +210,7 @@ def test_googledocssource_parse_address():
         "docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
         "https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/",
         "https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
+        "https://docs.google.com/document/u/1/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
     ]:
         sa = GoogleDocsSource.parse_address(url)
         assert sa.type == GoogleDocsSource
@@ -237,6 +258,7 @@ def test_googlesheetssource_parse_address():
         "docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA",
         "https://docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/",
         "https://docs.google.com/spreadsheets/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
+        "https://docs.google.com/spreadsheets/u/0/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA/edit",
     ]:
         sa = GoogleSheetsSource.parse_address(url)
         assert sa.type == GoogleSheetsSource
@@ -291,6 +313,28 @@ def test_googledrivesource_parse_address():
     assert GoogleDriveSource.parse_address("foo") is None
     with pytest.raises(ValidationError, match="Invalid Google Drive address"):
         GoogleDriveSource.parse_address("foo", strict=True)
+
+
+def test_plos_parse_address():
+    sa = PlosSource.parse_address("plos://10.1371/journal.pcbi.1007406")
+    assert sa.type == PlosSource
+    assert sa["article"] == "10.1371/journal.pcbi.1007406"
+
+    sa = PlosSource.parse_address("doi://10.1371/journal.pcbi.1007406")
+    assert sa.type == PlosSource
+    assert sa["article"] == "10.1371/journal.pcbi.1007406"
+
+    sa = PlosSource.parse_address(
+        "https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000872"
+    )
+    assert sa.type == PlosSource
+    assert sa["article"] == "10.1371/journal.pbio.3000872"
+
+    sa = PlosSource.parse_address("foo")
+    assert sa is None
+
+    with pytest.raises(ValidationError):
+        PlosSource.parse_address("foo", strict=True)
 
 
 @pytest.mark.django_db
