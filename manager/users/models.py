@@ -8,7 +8,7 @@ This module only serves to provide some consistency across the
 to do the following.
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import django.contrib.auth.models
 import shortuuid
@@ -177,6 +177,26 @@ def get_feature_flags(user: User) -> Dict[str, str]:
             features[name] = default
 
     return features
+
+
+def get_custom_attributes(user: User) -> Dict[str, Union[bool, int, str]]:
+    """
+    Get a dictionary of custom attributes for the user.
+
+    These are summary attributes of the user, derived from other data,
+    that do not fit into one of the other groups e.g. `get_projects_summary`.
+    They are added as needed, principally for use in external integrations.
+    """
+    # User is a member of at least one project that is (a) owned by eLife, or
+    # (b) has an eLife source.
+    elife_author = (
+        get_projects(user, include_public=False)
+        .filter(Q(account__name="elife") | Q(sources__address__startswith="elife://"))
+        .count()
+        > 0
+    )
+
+    return dict(elife_author=elife_author)
 
 
 def generate_anonuser_id():

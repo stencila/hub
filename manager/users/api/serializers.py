@@ -13,6 +13,7 @@ from accounts.models import Account
 from users.models import (
     Invite,
     User,
+    get_custom_attributes,
     get_feature_flags,
     get_orgs_summary,
     get_projects_summary,
@@ -146,6 +147,8 @@ class MeSerializer(UserSerializer):
 
     feature_flags = serializers.SerializerMethodField()
 
+    custom_attributes = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = UserSerializer.Meta.fields + [
@@ -157,10 +160,11 @@ class MeSerializer(UserSerializer):
             "orgs_summary",
             "projects_summary",
             "feature_flags",
+            "custom_attributes",
         ]
 
     def get_orgs_summary(self, user):
-        """Get a summary of organizations that the user is a member ofr."""
+        """Get a summary of organizations that the user is a member of."""
         return get_orgs_summary(user)
 
     def get_projects_summary(self, user):
@@ -170,6 +174,10 @@ class MeSerializer(UserSerializer):
     def get_feature_flags(self, user):
         """Get a dictionary of feature flags for the user."""
         return get_feature_flags(user)
+
+    def get_custom_attributes(self, user):
+        """Get a dictionary of custom attributes for the user."""
+        return get_custom_attributes(user)
 
 
 class UserIdentifierSerializer(serializers.Serializer):
