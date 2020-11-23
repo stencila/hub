@@ -1,3 +1,15 @@
+## [4.23.1](https://github.com/stencila/hub/compare/v4.23.0...v4.23.1) (2020-11-23)
+
+
+### Bug Fixes
+
+* **Files:** Add get_latest method ([7e7da2f](https://github.com/stencila/hub/commit/7e7da2fd5cceba001594d1a2ae62d6662e4b1e0c))
+* **HTTP pull:** Use mimetype to resolve extension ([d99cb04](https://github.com/stencila/hub/commit/d99cb04025d1e90b365925a3e8cfe13f377d8ca9)), closes [#854](https://github.com/stencila/hub/issues/854)
+* **Manager:** Improve presentation of default from email ([3317d65](https://github.com/stencila/hub/commit/3317d6522ed903ca8704885646f2116eed437790))
+* **New source menu:** Alphabetical order and other tweaks ([347e15c](https://github.com/stencila/hub/commit/347e15c5255475f60f794d3919651e1fd246a661)), closes [#854](https://github.com/stencila/hub/issues/854)
+* **Password change:** Add message about password reset ([9f085b9](https://github.com/stencila/hub/commit/9f085b96888a60ef3f11dfec9946c454694da40c))
+* **URL Source:** Attempt to match URL to other source type ([b8024ba](https://github.com/stencila/hub/commit/b8024ba7bec5510cf75fa174ade7b05c2c2645a2)), closes [#854](https://github.com/stencila/hub/issues/854)
+
 # [4.23.0](https://github.com/stencila/hub/compare/v4.22.1...v4.23.0) (2020-11-22)
 
 
