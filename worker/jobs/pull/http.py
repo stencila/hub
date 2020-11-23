@@ -1,10 +1,14 @@
+import mimetypes
 import os
 import shutil
-from pathlib import Path
 from typing import Optional
 
-from util.files import Files, file_info
-from util.http import HttpSession
+import httpx
+
+from util.files import Files, ensure_parent, file_ext, file_info, remove_if_dir
+
+GIGABYTE = 1073741824.0
+MAX_SIZE = 1  # Maximum file size in Gigabytes
 
 
 def pull_http(
@@ -14,17 +18,32 @@ def pull_http(
     Pull a file from a HTTP source.
     """
     url = source.get("url")
-    assert url, "HTTP source must have a URL"
+    assert url, "Source must have a URL"
 
-    if not path:
-        path = str(os.path.basename(url))
+    with httpx.stream("GET", url) as response:
+        print(response.status_code)
+        if response.status_code != 200:
+            raise RuntimeError(f"Error when fetching {url}: {response.status_code}")
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
+        size = int(response.headers.get("Content-Length", 0)) / GIGABYTE
+        if size > MAX_SIZE:
+            RuntimeError(f"Size of file is greater than {MAX_SIZE}GB maximum: {size}GB")
 
-    if os.path.exists(path) and os.path.isdir(path):
-        shutil.rmtree(path)
+        if not path:
+            path = str(os.path.basename(url))
+        if not file_ext(path):
+            content_type = response.headers.get("Content-Type", "text/html").split(";")[
+                0
+            ]
+            ext = mimetypes.guess_extension(content_type, strict=False)
+            path += ext or ".txt"
+        ensure_parent(path)
+        remove_if_dir(path)
 
-    session = HttpSession()
-    session.pull(url, path)
+        with open(path, "wb") as file:
+            for data in response.iter_bytes():
+                file.write(data)
 
-    return {path: file_info(path)}
+        return {path: file_info(path)}
+
+    return {}

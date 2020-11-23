@@ -1,0 +1,343 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - httpbin.org
+      user-agent:
+      - python-httpx/0.16.1
+    method: GET
+    uri: https://httpbin.org/get
+  response:
+    content: "{\n  \"args\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n \
+      \   \"Accept-Encoding\": \"gzip, deflate\", \n    \"Host\": \"httpbin.org\"\
+      , \n    \"User-Agent\": \"python-httpx/0.16.1\", \n    \"X-Amzn-Trace-Id\":\
+      \ \"Root=1-5fbb4d87-4e74bacf6f64ad4b10e39074\"\n  }, \n  \"origin\": \"115.189.96.192\"\
+      , \n  \"url\": \"https://httpbin.org/get\"\n}\n"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '305'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 23 Nov 2020 05:49:59 GMT
+      Server:
+      - gunicorn/19.9.0
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - httpbin.org
+      user-agent:
+      - python-httpx/0.16.1
+    method: GET
+    uri: https://httpbin.org/image/png
+  response:
+    content: "PNG\r\n\x1A\n\0\0\0\rIHDR\0\0\0d\0\0\0d\b\x02\0\0\0\x02\x03\0\0\x1F\
+      aIDATx}wXSJ#\x17 \x02\bJ\x19\x11E\x10\x1C\x11\x14\x10tl(FGGT\\\x0EV\u0531a\n\
+      \x11\eEA\x14QA&B\0EzoI \x10c\x10!$D\x7Fw99ggu\u07B3>{\x0E\x0E0\0`\u01CE\x1D\
+      KJJ$\x14\n\x03UUU\x1Afjjjbbbjj\x0ETTT`\x100`0\x18r&bL&\"000\uC049\t@\x18\u048F\
+      \x1F?~\x11\x1D|fwd;;;77 UUU\u0469&&&2vvvAAAwmmm\u0164Fyy3gO,\u07ED*))9;;\x1F\
+      ;vDzw\r\n\n2i411IMM0\ff\x01t2r;N.\x17\x1Dwu74|k/@ yyy-_H\u8618WUd:\x03`r8m\x7F\
+      YCXc\u018C\x1D?~Xx\vh(+\x0E\x1DjD&($\x12DB\ai>~\x04\0##\x02\u073E}\x03\0!\x16\
+      m\x1D^\0\0hbJ?\u057D)+{mzQQ'+g\u039Czj///\x02bbbbbbJJJD\x18\u03B0\x19cdd5|::8\x1C\
+      N\u60AA\xAAw\x15\x15\x0F\nD\x1A\x1A\x1AH$\x1Ew\u07BD?3!!\vI\x16\x16G566\x1D\
+      :DOOGMM11\u06EF\\\x01}L2F=|\x18Y\\Wrw8\x1C\x1Ed\"t6j\0\0r\x17\x16>~6177K\x0E\
+      \x03\x03\x03{{/_VTT*|mMM%E\x14TVdgGgff\x14\x17n\x17AWW>77Zxf\u044Et:D\x02f6;H/*z`d\x16\
+      \x17\v\vQ\u02E7N0s2\0`\x18fmOL(**\n2%rz\0i\x1Dj,\0p81c\u03581rpKoLJf'\x12\b\
+      VV~\x13&\x1Fo7H%6;;:++9?_\x03bgnnc\x19>9(r\u06B4~BKRJ\x05\x11=\x01}--taOT\x14\
+      bj\x1AcX\v]XU0\f\n*+\v*+>x>nfoowkk\u0171^vv\x1F\v\x19\x0E\x199sN$Z\x19\x15\x0E\
+      }-nn\u0718\x1D\x1D1\and)\x0EZ\x1Cx95u\x1FEHW\x177\v*+/$'`\x01USSHNuu5\e\0\b\
+      =/\b\x1E\x0F\0;\x7F\x0E.\\(jS[GGVqqzQo1\fKK{\x10\x1C<}\u0738\u0238/QaM\x15\x1D\
+      ~~JJ_~PWV^1\u0463}7n\u0536r~8vl'-jj.\x0F>!\U000D6EB8L\x1F7n\x10u>rVyP\r\rt\x06\
+      \u074DRk\u03EE\\\t\0,\x0ES}(CC\t=nQu\u010BO8?\x1F>\x01@H\\9s\e-p\x1Dcq8\0KW-suUP_\x7F\
+      {Jtzaa\u04D5\r\ed2/:y2Gd|G\x16,0ReP\u06BA\u0370$.\a\0\x16\xC6nfyW+\r\x16>}%5N555\x01\
+      @(F2r>|p\u0773\a1<rd\x02\x03{\x02gVx{=\0\x14UWO\u0735++Yw,w4}j[[\x01`={\u019B\
+      j\u0137\u0170awn=\x12\x10Z\u06FD\x7Fh\\L\x12z\x02&\x16Ko\x1F\u03DEV\"\x12\u05EE\
+      =d\tA\t\u0137\u01D6YvPVcK9g!\x01\x1C---<|<@hmo:t\u077B\0@|g\u03CFS\x0E\x16)<mm_\e\
+      (\">u\u077B0Cm-\0\x18\e\e\u3B6C\0IJjk\x1D\x7F\x13\0$\x1D\xF7(C\u0303\a]G\x06\
+      \";sKK%\x7F\v\0t:sE55\x12\x140qb\u0681\x03FC(\x061?\b\x0Eit\0hl<tHr-\x11\x19\
+      Y\u03E7O@Lm5+j&\x152Ya\x7Fs\bV\x1D\t\b\0f#GP\x11\v!-t:\x1DORQ\x1F/fm|\x19\x1F\
+      &N<x\x17=\x04\bl5k\a\0dx@\x10-ZZZT*\x15\x0F\0z`-}\x13\u0523\u06D8D[\x7F)e\u02E6\
+      \x1D\v\0\u05DF?-e\x10-\"<\0\0@fq1yaO\x7F\t\0TM\u046D?\x04\x8D\u035BG\x03\uEA28\
+      ;}\n0;:2\"<\0L6\r\0y\u0789\x16-ol}(\x1AO\u07B2\x1F\u06A3Kj**\x18\x05>\u0567\
+      !\x1F\f\b\x0F\0NNNd2\x19\0\u07BC\x11k;|\x18\u03EFZ\e%H\x0F\u07B8\u01F3;;}BBZ[\x10\
+      !d2\t\x10Y\u028E\0H/yfo\x7FS>\u03309x1\054\t\v\x13G8::\x154\x05Ur4Z-3)\t\0GDRc\x13\
+      \0|^X\b\0\x1Fjk\u02E1\x1C\x105w\\tp\x13\0qj7\x13}\u0440\0\x06z2P\x01\"\bD2g\x05\
+      \x0532\0`\x7F/k`FOO\0x^Xx\u014BO\x01\x12\x15\t+V\0\05\n(\x11OO}\x03ut_dRH$\x0E\
+      \v\0\x17.\\X|9K\x16\x1A6l\x18W\u04A5WUT2{sQ\nlmmBz=.A\"\u07BDM\x11\x11XMMZgm\x11\
+      '\x1F/^\b\0**%O\x0F\u048F~}D|\r\0Vl\f=4x\x05\f'%\u01718lm\x01Wj\x14Y\u05B8\r\
+      rM\x0F\f,\aH%h9CCCtoL\x15UW;u\xA2000\x10i\u014A\tQ\e6X\f\e&\u03F7p1[,\x01@^^oggGYc-JD\x05\
+      \v\x02N\x06\03\x16.]\x04\0C\x04zz\u02AD\f\0<S[\x17PUUpBsssss\v\x17VUU%$,]nS\x01\
+      r%aNxrE%s\u7659\x1E\x1ENK\u0214\0\x7F''k\x1A\r\0_\" m)))h\x06\u056BW\rFYo::b;q\u0136\
+      m$\x02H<|M|*+:\x7FL\u077D\e_ZIhhX\e7ntsu41\t\x1E-fg\x1E>\f\0\x11\x11\x11K,A'{\n\
+      \n\n:~8@!wuwZ(..++stt\x1FB \x10?\x7Fnlll9bDCX\x12(VN\x7F!+Wz^d===q\x1Ak0o\x12\
+      .7t\x166{\u0677z\x1C\x12bbb\0joLCBBFx\x10}}}Sc7eeK~[^nojj*Yr\x01D x\x02@bb\"\
+      A'\x05d\u78E8 \t\x13\x06\x03\0JJl\0 C\bt.P/KJL\x026\uC924$tF@Vtt4:\x19 *Lz|\x14\
+      (\vx\0@ \x10x\"S_\x04QSWF::\u020D\x1966d\x12\tD\x11\u06A056ff99\0`oo?P\x19t)7';33%\x7F\
+      $c\0@\\\\\x1C\x03@EE\x05^\x1D\bamb()ijj\u06BCy!\x0E\u06FCysSS\x13FXV;S\f\x06\
+      \u0356,fg0\x06\x1D/\a=-\u014B\x17\u020A\x156HPHUnn\e~e\v\u07BDe?rsCqxRBL;i-[$K\u07BE\
+      eI\x14\x01\x19?\x1E=\x15&uu\a\x1F\u06FCy\x19\u03DEEDD\u077B711\x13\x13\x13\e\
+      \x11\x11o*D@@\u071D;\x03IsD@BnD_Ka\b!\vUUU;::V{j\0O<i?y\x1FiL>\u05EF]v#0\x10\
+      eEZa\u0713'\x17.^\u06E1C\x140+\x0Ekk/\b\f8'oo\a7\0455\x11;::\0`\0Q}\r--b\x01\
+      \x03<\x1E\x10\b@\x1Ahk\u061AF=th4#qG\x7F7a\x02\0|S\x1E:$w3L\t\tE3\x1Aq\x1C\x1C\
+      \0eFtg:MHYt60\u02B2\0\x03www\0@\x01_\x06\x1A\e\x011\f0\fp8@}-\x1E\x0FAH33SUzZi}}Vqq\u01CF\
+      \0`ojj?bW6rM\0\x10\x1E\x1ENd~!$\u01C32`\a>\x1Fx<V@\0\fzho\a\x1A\rD\x19d\u0211\
+      #GD403\u04DB;im\x16\x19Jy|~AA\x01\x10\u0752$\u04D0^|@+\x1E\x0F|>\x10\b\x03\r\
+      \ cg(okk`2\eL\0UWUW0\u05DFdi!G\"lV\"\x12MJjk\v\v\v('gVS#\r<@7@1\0\x10\b\x02\0\
+      dBc#|iE\x16\xF0[\x19\x19iee*x\x1Cnd:}cHS4=\u06BA:\"\x04\0I\u03CD\u02C5&AMF*QF@\0\
+      \x1CNP\x16tt`[oka\x1E\x15\vE\x1A\x1A\0\u0586|\f{O=x0B_\x7F\u0574i?N*\u024FP\x11\
+      9L&,\tp--\x02e<)\tu\v\"\x13\x0E'NH\x1D\x15%\fPP\x1Cmm':XYjil\u0702^z\u056Bv\x0E\
+      f+\u07BE\x7F\u07BC_f\x14QBrX,\x16\x11PK\vg2\x05]AqH\x1F:aGqvI\u026A\x7F[\x18\
+      i7z\u01085/\x188\b\x0Fqwttwt\x046\x16+26o\x1D\x1D\"\"\">\r'1u\n\x19\x01d2_Y\0\
+      =/]\u03DEG@\x7F\u0158LQ\x1932wFLYh\u012CT\x7Fh\u03CF?\x7F\u0782F\x03R\u077B\
+      *m\u056B\" \vu\n:L\u013A\x18\x01=7\x11{U>8q\x0EK\"\x12\x0F\u02DB_f`tv~\x13\x1D\
+      }_HD\"\u02DD{D,\n \x1F\x0E\0/z\x7FP( P\x05F\x1DSD}\x01\u04EE/pa\uAAAA\u039D\v\
+      ^\x1ER5\u039DSWUc\u063A\v\x17.*>@\u4A2B\vj4@&\vx<\x10@\"\x12H@$\nN\np\x06\0\
+      Ek\0`VJdtGG\x11\u938E)C\0`mXX0p\x106\a\",I5KMW\x1C\x12M \b>eTUy|P\x16\"\x0E\x1E\
+      R,S\b6VV\x11\a\x0Fp8\x16 4Tzf*dY:: H\x04%v\x02d\f\x141 +\x10%\u0180\0\0QkX5\v\
+      -\x1754\fh\x12hk>\x1CTQMFZ\x1FO\b\0N\u07FF\x0F\0:\x06\x06*>50PGSSTn\u0162\x11\
+      \0tuu(y@[AYY\x04D>\v\x10\b0|8HoR\u07FF\aU?\"Kr|PPV\x03\0\x7F/X^fy<\x14gii\x17\
+      \x06\x1F\x15\f4\08\x1C\n\x10?%*\x0E\u182D\r\0\x95\x15s(\x14\t\x10*\x12f(Ga\x06\
+      VVVd\x15J \v\0\b\x0403C\x05\ncA\x7F\x04\x02()\nXZB\x02H$s)}\x12$T-b!\u0338\"\
+      ())uuu|[\x011J!C\x1DZ[\x02\x1C\x0EdPS\x0355PDg%55\0@30u{\x0Ei\x06\x06E>eY,t\"\
+      @pppHMM}'QD\"hh\"P%s6?nn,\x19\u0493/%\x1A[ZB.\\\u04F7-_yA\x04HgXW\x1A6tP\"\0\
+      \x16VU\x15TV\u0291B,\x16(m\n0Q\u04C1O^\x04\0JJX;v$6\N#\0p$<\x1D\u06F6Mx\t\xF0\
+      \u04AA*jNy\x1E\0|||\0-k16\x0FT*\0tp8\x15oLnI[\x0F\x1E\bQB\x0F*jk;8\x1Cj\u02D7\
+      (\x02Q\a\0331c\0@\x01\x17B|g\x05\x17]d.}dq\"V%#:+\v\0L\x02X\a\\Fq4\x02\x19}5HY5sOsO\x0F\
+      ^FV;V\\\u9A66sW'\0>s\x1A\0\u06188XX(\x06\08\\nbn.\0xyy\x11D\x10\v\0\x18*%2s&\0\
+      T\x1D\t\x05\0s#m7CC\x18U\f\f\x1E9\u049Aq\x11H\U0004822A:RN!\ad\x1F?\x1EE\u07E2\
+      \x10;90'?\x7F\u0552\x13>\xD1'\x01JE)%\n\x01d\x193\x04zP?P>PH7n$\x11\b<\xAD[%`\u02CD\
+      \U0009A685[vx$\x02\ee4\0>uM&%\vu[\\\x02\u07C9\a\x01r\x01ek\x06c\x7Fie%\0\x1C\
+      W\\6\x10\x19*(YT*\x15\0\x0E\u073C9Yr {\x0F\0T:\a\x04\\q\x0E\t\x1C\x17\x1C\x10\
+      PY[\v\0[}|\x06\x19\a\0BVK\x16DBAOG\x14\x15\x1D^\u04A58\x1C\n\u0631u\u0672/*r],`\u01CE\
+      6\x16\v\xDDXTi1YY(n\xC6\rC\x0E\x15,\x1D\x1A5Y|L&}\x11k\xAA\x01\x0Ef|Ogg'|>?>5\t\
+      h@[\u072AU\x15\x05\x1F\e\x14R[[\xC7\x0FZ\"\x132\\]U\u03DF\x0F\0{\u04D3g(0;:vGENH\x10\
+      \x1A{89Mu\x1C`0(-}Ug\xB7\x04\x01e\u02FB@y\08zhPP\u897Eda\x186a\x84l5\n\u985A\
+      5\x05\0UTq>P)S(Cuttu\0\x01\reEg\x18\u0553i@ttuYlPD\n\v\v%\v\0Q\x1E\x1EgVPA\b\
+      \u03BFned`0(\x16Z,-88,<YQ\x11^{t\u03ABW\x01 222_\x18\0`\u018C\x19$\x02n\x01\u03AB\
+      W\x15\x14\x04\u03D9!\x1F\x18H+((\x15\x1C\x01 Jle5Zz\0p/'g+>\u066DPz4Xf[[[L\u0153\
+      gkka[m\x19\x18\x16\U00096E7A\x1E_)f\a?RR\04'$D>9k?|\b\0_@z\u0462E\0\x10%>fB\n\
+      \nB\x17<\x19i\x02'R\x1Ai\x13b\u26BC+I\x1F#2\x05\x03,\0hnnvpp(**pq;v\x1FY\x1D\
+      w&\x06B\x16-RT\\PY\u0558,\0H-_&\u0633iwuweff\x0E-d\x01@AA\u0109\x13[[[5_7r\u0179\
+      sh\a\x1C\x02\x1E|}\r\eDiMK\u02DE\vh\bH]K\x17qB\u0204\x06;Z[I$\u04A3G\a\x0EZD\x16\
+      \0$$$x{{|3*5As\x18v!9yoT\x14\x1Ak\u0757L2N\x1E<@\u0393::_\uA297w\x1C\x1C\t\v\
+      \v[r_ \v\0\x1E=uV\0p\x1D=Ap`\x12;B\v\x11n^9i\u0252}L\u6D74\u0227O\u02D1\x1A\
+      ;6zy\rf]\f~8~\x1C\a\x06\x06J.e\0`\u04A5(\t\u03EFZ%q\bM,\u05B1\u0214FIs*u\x19\
+      jNS(55jFu5C]pno%h,Ao'*j\u035B\0\x1E\x1F\x1F\x1F0NWWt\08\x12\x10e\u05ACAZ\t\0\
+      |\f{\u0755\u051B\uC4AAB&\u03DE0a\u02F4cnt\x19\ftzzz\x14rR\x05\0555(\x0E|Ge\x04\
+      C'\x15\x15\x1FjkKjk?\u0596541l\b}}s}}s*jp\x0FkkEM1\f{\u0181[0\f\x10.Kd\x01@nn'\x12\
+      }\u063176oJn\x1E}\x1D\u065DK\x03SZZZ.RC@\x16\0TVVL\x11q\u06F7+jQ\u06E0'$\x04\
+      tzllu\nA!SRR\x0Ff]sse\x11\n\nwDL\x14J\x16\0(++\a\x0E\x1C/GG[\x05\x06\x06K\u04E3\
+      lP\x14w\t\b\b`\0t4 `0&\x16k\u05F5khG\"\u039E=+y)\x01\x05\0yyy>>>eee\0B&o'OAGW\x18\
+      /\u04FBu\uB584\x171(\0n\u035A5wA\x1F\a\u03DE|\r<~\rnnnaaapU\x1F\f,\u03DFo\u06F6\
+      ---\r}4;`BF\"&+k\u056B++Gkk\uB410.2A1d!DGG\u0739\0}\u03DF?v0I\u01F0*\x16\0h\x03\
+      \a\x0E,ZHQ\u0447$\v\0x<\u0785\v\x17+A%-UUO[[?{\x1966\n_\x01\0\x0E\u0338/\x1A\
+      2\0hkk\u06B5kdz\x15L\x16\x02>q\xC7\"yVd\x121c}\u018F\u05D7\al\u0757/\x12ss\x06\
+      Bl\u0630a\u039Dr\fB\x16BKKK\\\\\\LLLbb\"K72p8\xC8\x11}7r03*UA7WZ_\u03E8~WQU1\x06\
+      \x14\nW+\u0216G\x10\u0271U\x02\tx+olP[?VWW}?N)\r\x05YB`\x18\x1D\e\e\e\x13\x13\
+      Fd\x1FgYaaa*7\v\x1DoL(ZZZ\x18\f\x06\x8A\n)\x7Ff54\x7Fw\x98Sl\0\0\0\0IENDB`"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '8090'
+      Content-Type:
+      - image/png
+      Date:
+      - Mon, 23 Nov 2020 05:50:00 GMT
+      Server:
+      - gunicorn/19.9.0
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - httpbin.org
+      user-agent:
+      - python-httpx/0.16.1
+    method: GET
+    uri: https://httpbin.org/html
+  response:
+    content: "<!DOCTYPE html>\n<html>\n  <head>\n  </head>\n  <body>\n      <h1>Herman\
+      \ Melville - Moby-Dick</h1>\n\n      <div>\n        <p>\n          Availing\
+      \ himself of the mild, summer-cool weather that now reigned in these latitudes,\
+      \ and in preparation for the peculiarly active pursuits shortly to be anticipated,\
+      \ Perth, the begrimed, blistered old blacksmith, had not removed his portable\
+      \ forge to the hold again, after concluding his contributory work for Ahab's\
+      \ leg, but still retained it on deck, fast lashed to ringbolts by the foremast;\
+      \ being now almost incessantly invoked by the headsmen, and harpooneers, and\
+      \ bowsmen to do some little job for them; altering, or repairing, or new shaping\
+      \ their various weapons and boat furniture. Often he would be surrounded by\
+      \ an eager circle, all waiting to be served; holding boat-spades, pike-heads,\
+      \ harpoons, and lances, and jealously watching his every sooty movement, as\
+      \ he toiled. Nevertheless, this old man's was a patient hammer wielded by a\
+      \ patient arm. No murmur, no impatience, no petulance did come from him. Silent,\
+      \ slow, and solemn; bowing over still further his chronically broken back, he\
+      \ toiled away, as if toil were life itself, and the heavy beating of his hammer\
+      \ the heavy beating of his heart. And so it was.\u2014Most miserable! A peculiar\
+      \ walk in this old man, a certain slight but painful appearing yawing in his\
+      \ gait, had at an early period of the voyage excited the curiosity of the mariners.\
+      \ And to the importunity of their persisted questionings he had finally given\
+      \ in; and so it came to pass that every one now knew the shameful story of his\
+      \ wretched fate. Belated, and not innocently, one bitter winter's midnight,\
+      \ on the road running between two country towns, the blacksmith half-stupidly\
+      \ felt the deadly numbness stealing over him, and sought refuge in a leaning,\
+      \ dilapidated barn. The issue was, the loss of the extremities of both feet.\
+      \ Out of this revelation, part by part, at last came out the four acts of the\
+      \ gladness, and the one long, and as yet uncatastrophied fifth act of the grief\
+      \ of his life's drama. He was an old man, who, at the age of nearly sixty, had\
+      \ postponedly encountered that thing in sorrow's technicals called ruin. He\
+      \ had been an artisan of famed excellence, and with plenty to do; owned a house\
+      \ and garden; embraced a youthful, daughter-like, loving wife, and three blithe,\
+      \ ruddy children; every Sunday went to a cheerful-looking church, planted in\
+      \ a grove. But one night, under cover of darkness, and further concealed in\
+      \ a most cunning disguisement, a desperate burglar slid into his happy home,\
+      \ and robbed them all of everything. And darker yet to tell, the blacksmith\
+      \ himself did ignorantly conduct this burglar into his family's heart. It was\
+      \ the Bottle Conjuror! Upon the opening of that fatal cork, forth flew the fiend,\
+      \ and shrivelled up his home. Now, for prudent, most wise, and economic reasons,\
+      \ the blacksmith's shop was in the basement of his dwelling, but with a separate\
+      \ entrance to it; so that always had the young and loving healthy wife listened\
+      \ with no unhappy nervousness, but with vigorous pleasure, to the stout ringing\
+      \ of her young-armed old husband's hammer; whose reverberations, muffled by\
+      \ passing through the floors and walls, came up to her, not unsweetly, in her\
+      \ nursery; and so, to stout Labor's iron lullaby, the blacksmith's infants were\
+      \ rocked to slumber. Oh, woe on woe! Oh, Death, why canst thou not sometimes\
+      \ be timely? Hadst thou taken this old blacksmith to thyself ere his full ruin\
+      \ came upon him, then had the young widow had a delicious grief, and her orphans\
+      \ a truly venerable, legendary sire to dream of in their after years; and all\
+      \ of them a care-killing competency.\n        </p>\n      </div>\n  </body>\n\
+      </html>"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3741'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 23 Nov 2020 05:50:01 GMT
+      Server:
+      - gunicorn/19.9.0
+    http_version: HTTP/1.1
+    status_code: 200
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - httpbin.org
+      user-agent:
+      - python-httpx/0.16.1
+    method: GET
+    uri: https://httpbin.org/html
+  response:
+    content: "<!DOCTYPE html>\n<html>\n  <head>\n  </head>\n  <body>\n      <h1>Herman\
+      \ Melville - Moby-Dick</h1>\n\n      <div>\n        <p>\n          Availing\
+      \ himself of the mild, summer-cool weather that now reigned in these latitudes,\
+      \ and in preparation for the peculiarly active pursuits shortly to be anticipated,\
+      \ Perth, the begrimed, blistered old blacksmith, had not removed his portable\
+      \ forge to the hold again, after concluding his contributory work for Ahab's\
+      \ leg, but still retained it on deck, fast lashed to ringbolts by the foremast;\
+      \ being now almost incessantly invoked by the headsmen, and harpooneers, and\
+      \ bowsmen to do some little job for them; altering, or repairing, or new shaping\
+      \ their various weapons and boat furniture. Often he would be surrounded by\
+      \ an eager circle, all waiting to be served; holding boat-spades, pike-heads,\
+      \ harpoons, and lances, and jealously watching his every sooty movement, as\
+      \ he toiled. Nevertheless, this old man's was a patient hammer wielded by a\
+      \ patient arm. No murmur, no impatience, no petulance did come from him. Silent,\
+      \ slow, and solemn; bowing over still further his chronically broken back, he\
+      \ toiled away, as if toil were life itself, and the heavy beating of his hammer\
+      \ the heavy beating of his heart. And so it was.\u2014Most miserable! A peculiar\
+      \ walk in this old man, a certain slight but painful appearing yawing in his\
+      \ gait, had at an early period of the voyage excited the curiosity of the mariners.\
+      \ And to the importunity of their persisted questionings he had finally given\
+      \ in; and so it came to pass that every one now knew the shameful story of his\
+      \ wretched fate. Belated, and not innocently, one bitter winter's midnight,\
+      \ on the road running between two country towns, the blacksmith half-stupidly\
+      \ felt the deadly numbness stealing over him, and sought refuge in a leaning,\
+      \ dilapidated barn. The issue was, the loss of the extremities of both feet.\
+      \ Out of this revelation, part by part, at last came out the four acts of the\
+      \ gladness, and the one long, and as yet uncatastrophied fifth act of the grief\
+      \ of his life's drama. He was an old man, who, at the age of nearly sixty, had\
+      \ postponedly encountered that thing in sorrow's technicals called ruin. He\
+      \ had been an artisan of famed excellence, and with plenty to do; owned a house\
+      \ and garden; embraced a youthful, daughter-like, loving wife, and three blithe,\
+      \ ruddy children; every Sunday went to a cheerful-looking church, planted in\
+      \ a grove. But one night, under cover of darkness, and further concealed in\
+      \ a most cunning disguisement, a desperate burglar slid into his happy home,\
+      \ and robbed them all of everything. And darker yet to tell, the blacksmith\
+      \ himself did ignorantly conduct this burglar into his family's heart. It was\
+      \ the Bottle Conjuror! Upon the opening of that fatal cork, forth flew the fiend,\
+      \ and shrivelled up his home. Now, for prudent, most wise, and economic reasons,\
+      \ the blacksmith's shop was in the basement of his dwelling, but with a separate\
+      \ entrance to it; so that always had the young and loving healthy wife listened\
+      \ with no unhappy nervousness, but with vigorous pleasure, to the stout ringing\
+      \ of her young-armed old husband's hammer; whose reverberations, muffled by\
+      \ passing through the floors and walls, came up to her, not unsweetly, in her\
+      \ nursery; and so, to stout Labor's iron lullaby, the blacksmith's infants were\
+      \ rocked to slumber. Oh, woe on woe! Oh, Death, why canst thou not sometimes\
+      \ be timely? Hadst thou taken this old blacksmith to thyself ere his full ruin\
+      \ came upon him, then had the young widow had a delicious grief, and her orphans\
+      \ a truly venerable, legendary sire to dream of in their after years; and all\
+      \ of them a care-killing competency.\n        </p>\n      </div>\n  </body>\n\
+      </html>"
+    headers:
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Origin:
+      - '*'
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3741'
+      Content-Type:
+      - text/html; charset=utf-8
+      Date:
+      - Mon, 23 Nov 2020 05:50:03 GMT
+      Server:
+      - gunicorn/19.9.0
+    http_version: HTTP/1.1
+    status_code: 200
+version: 1

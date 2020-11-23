@@ -61,6 +61,13 @@ def file_info(path: str, mimetype: Optional[str] = None) -> FileInfo:
     }
 
 
+def file_ext(path: str) -> Optional[str]:
+    """
+    Get the extension of a file.
+    """
+    return Path(path).suffix
+
+
 def file_mimetype(path: str) -> Tuple[Optional[str], Optional[str]]:
     """
     Get the mimetype of a file.
@@ -136,6 +143,14 @@ def remove_dir(path: str) -> None:
     Remove a directory.
     """
     shutil.rmtree(path, ignore_errors=True)
+
+
+def remove_if_dir(path: str) -> None:
+    """
+    Remove a path if it is a directory.
+    """
+    if os.path.exists(path) and os.path.isdir(path):
+        remove_dir(path)
 
 
 def move_files(source: str, dest: str = ".", cleanup: bool = True) -> None:

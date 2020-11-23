@@ -9,17 +9,14 @@ from util.working_directory import working_directory
 from .github import pull_github, pull_zip
 
 
-def mocked_httpx_stream(*args, **kwargs):
+class MockedHttpxStreamResponse(ContextDecorator):
     """
     VCR does not like recording HTTPX stream requests so mock it.
 
     Returns a context manager that mimics that returned by
     httpx.stream for the stencila/test repo.
     """
-    return MockedHttpxStreamContext(*args, **kwargs)
 
-
-class MockedHttpxStreamContext(ContextDecorator):
     def __init__(self, method, url, **kwargs):
         self.url = url
 
@@ -43,8 +40,8 @@ class MockedHttpxStreamContext(ContextDecorator):
 
 
 @pytest.mark.vcr
-@mock.patch("httpx.stream", side_effect=mocked_httpx_stream)
-def test_public_repo(mock_stream, tempdir):
+@mock.patch("httpx.stream", MockedHttpxStreamResponse)
+def test_public_repo(tempdir):
     with working_directory(tempdir.path):
         files = pull_github(source=dict(repo="stencila/test", subpath="sub"))
 
@@ -54,8 +51,8 @@ def test_public_repo(mock_stream, tempdir):
 
 
 @pytest.mark.vcr
-@mock.patch("httpx.stream", side_effect=mocked_httpx_stream)
-def test_subdirectory(mock_stream, tempdir):
+@mock.patch("httpx.stream", MockedHttpxStreamResponse)
+def test_subdirectory(tempdir):
     path = "a/very/very/deep/sub/directory"
 
     with working_directory(tempdir.path):
@@ -75,8 +72,8 @@ def test_subdirectory(mock_stream, tempdir):
 
 
 @pytest.mark.vcr
-@mock.patch("httpx.stream", side_effect=mocked_httpx_stream)
-def test_single_file(mock_stream, tempdir):
+@mock.patch("httpx.stream", MockedHttpxStreamResponse)
+def test_single_file(tempdir):
     with working_directory(tempdir.path):
         pull_github(
             source=dict(repo="stencila/test", subpath="sub/README.md"),
