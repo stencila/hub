@@ -1,3 +1,10 @@
+## [4.23.2](https://github.com/stencila/hub/compare/v4.23.1...v4.23.2) (2020-11-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.103.1 ([1779850](https://github.com/stencila/hub/commit/17798506a024cc1da8922e26677f6e01187e2b40))
+
 ## [4.23.1](https://github.com/stencila/hub/compare/v4.23.0...v4.23.1) (2020-11-23)
 
 
