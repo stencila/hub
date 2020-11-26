@@ -3,7 +3,7 @@ import os
 import pytest
 from stencila.schema.types import Comment, Review
 
-from .gdrive import create_review, extract_gdrive, parse_comment
+from .gdrive import create_review, extract_gdrive, filter_comments
 
 # To re-record this test, get a new Google token (e.g. via https://developers.google.com/oauthplayground),
 # paste it in below, ensure that the Google account has access to the documents
@@ -11,6 +11,23 @@ from .gdrive import create_review, extract_gdrive, parse_comment
 #   ./venv/bin/pytest --record-mode=rewrite jobs/extract/gdrive_test.py
 
 ACCESS_TOKEN = "XXXXXXXXXX"
+
+
+def test_filter_comments():
+    comments = [
+        dict(author=dict(displayName="Jill Jones")),
+        dict(author=dict(displayName="James Jameson")),
+    ]
+    n = len(comments)
+
+    assert len(filter_comments(comments, filters={})) == n
+    assert len(filter_comments(comments, filters={"unknown key": ""})) == n
+    assert len(filter_comments(comments, filters={"author.name": r"^J"})) == n
+    assert len(filter_comments(comments, filters={"author.name": r"^Ji"})) == 1
+    assert (
+        len(filter_comments(comments, filters={"author.name": r"^James Jameson$"})) == 1
+    )
+    assert len(filter_comments(comments, filters={"author.name": r"^$"})) == 0
 
 
 def test_no_comments():

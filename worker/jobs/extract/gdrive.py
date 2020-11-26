@@ -36,11 +36,24 @@ def get_comments(file_id: str, secrets: Dict) -> List[Dict]:
     return comments
 
 
-def filter_comments(comments: List[Dict], filter: Optional[Dict] = {}) -> List[Dict]:
+def filter_comments(comments: List[Dict], filters: Optional[Dict] = {}) -> List[Dict]:
     """
     Filter a list of comments.
     """
-    return comments
+    if filters is None:
+        return comments
+
+    filtered = []
+    for comment in comments:
+        ok = True
+        for key, regex in filters.items():
+            if key == "author.name":
+                if not re.match(regex, comment.get("author", {}).get("displayName")):
+                    ok = False
+        if ok:
+            filtered.append(comment)
+
+    return filtered
 
 
 def create_review(comments: List[Dict]) -> Optional[Review]:
