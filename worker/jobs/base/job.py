@@ -13,6 +13,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 from config import get_working_dir
+from util.serialize import serialize
 
 # Log levels
 # These are the same as used in https://github.com/stencila/logga
@@ -130,7 +131,7 @@ class Job(celery.Task):
         This method bundles the job result and the log together
         and returns them both as the Celery task result.
         """
-        return dict(result=result, log=self.log_entries)
+        return dict(result=serialize(result), log=self.log_entries)
 
     def terminated(self):
         """

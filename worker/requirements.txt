@@ -10,3 +10,4 @@ PyGithub==1.54
 python-dxf==7.7.1
 redis==3.5.3
 sentry-sdk==0.19.4
+stencila-schema==0.47.2
