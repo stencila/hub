@@ -19,7 +19,9 @@ Inspired by Github's user search field (amongst others).
              class="input"
              type="text"
              name="{{ name|default:'username' }}"
+             {% if value %}
              value="{{ value }}"
+             {% endif %}
              placeholder="{% trans "Search by username, full name, or email" %}"
              autocomplete="off"
              autofocus=""
