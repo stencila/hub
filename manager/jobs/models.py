@@ -359,6 +359,9 @@ class JobMethod(EnumChoice):
     pull = "pull"
     push = "push"
 
+    # Extract a review from a source
+    extract = "extract"
+
     decode = "decode"
     encode = "encode"
     convert = "convert"
