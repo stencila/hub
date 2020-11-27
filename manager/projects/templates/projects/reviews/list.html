@@ -1,0 +1,46 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}Reviews : {{ project.name }}{% endblock %}
+
+{% block projects_content %}
+
+{% if project.role in 'EDITOR, AUTHOR, MANAGER, OWNER' %}
+<div class="level level-reverse-mobile">
+  <div class="level-left">
+  </div>
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <a class="button is-small-mobile is-expanded-mobile"
+       href="{% url 'ui-projects-reviews-create' account.name project.name %}">
+      <span class="icon">
+        <i class="ri-chat-new-line"></i>
+      </span>
+      <span>
+        {% trans "Request or retrieve a review" %}
+      </span>
+    </a>
+  </div>
+</div>
+{% endif %}
+
+{% for review in reviews %}
+<ul>
+  <li>
+    {% include "./_overview.html" %}
+    <p>
+      <a href="{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}"
+         class="button is-outlined">
+        {% trans "Read" %}
+      </a>
+    </p>
+  </li>
+</ul>
+{% empty %}
+<div class="has-text-centered">
+  <h2 class="title is-4 has-text-grey">
+    {% trans 'No reviews yet' %}
+  </h2>
+</div>
+{% endfor %}
+
+{% endblock %}

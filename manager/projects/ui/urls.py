@@ -2,31 +2,25 @@ from django.urls import include, path, re_path
 
 from manager.paths import RootPaths
 from projects.paths import ProjectPaths
-from projects.ui.views import files as files_views
-from projects.ui.views import jobs as jobs_views
-from projects.ui.views import projects as project_views
-from projects.ui.views import snapshots as snapshots_views
-from projects.ui.views import sources as sources_views
+from projects.ui.views import files, jobs, projects, reviews, snapshots, sources
 
 # URLs that must go before `accounts.ui.urls`
 before_account_urls = [
-    path(RootPaths.projects.value + "/", project_views.list, name="ui-projects-list"),
+    path(RootPaths.projects.value + "/", projects.list, name="ui-projects-list"),
     path(
-        RootPaths.projects.value + "/new/",
-        project_views.create,
-        name="ui-projects-create",
+        RootPaths.projects.value + "/new/", projects.create, name="ui-projects-create",
     ),
-    path("open/", project_views.open, name="ui-projects-open",),
+    path("open/", projects.open, name="ui-projects-open",),
     # Redirect /projects/<project_id>/<rest> to <account_name>/<project_name>
     re_path(
         RootPaths.projects.value + r"/(?P<project>\d+)/(?P<rest>.*)",
-        project_views.redirect,
+        projects.redirect,
         name="ui-projects-redirect",
     ),
     # Redirect /<account_name>/<project_id>/<rest> to <account_name>/<project_name>
     re_path(
         r"^(?P<account>[^/]+)/(?P<project>\d+)/(?P<rest>.*)",
-        project_views.redirect,
+        projects.redirect,
         name="ui-projects-redirect",
     ),
 ]
@@ -37,20 +31,20 @@ after_account_urls = [
         "<slug:account>/<slug:project>/",
         include(
             [
-                path("", project_views.retrieve, name="ui-projects-retrieve",),
+                path("", projects.retrieve, name="ui-projects-retrieve",),
                 path(
                     ProjectPaths.claim.value + "/",
-                    project_views.claim,
+                    projects.claim,
                     name="ui-projects-claim",
                 ),
                 path(
                     ProjectPaths.sharing.value + "/",
-                    project_views.sharing,
+                    projects.sharing,
                     name="ui-projects-sharing",
                 ),
                 path(
                     ProjectPaths.settings.value + "/",
-                    project_views.update,
+                    projects.update,
                     name="ui-projects-update",
                 ),
                 path(
@@ -59,32 +53,32 @@ after_account_urls = [
                         [
                             re_path(
                                 r"(?P<file>.+?)!upload",
-                                files_views.upload,
+                                files.upload,
                                 name="ui-projects-files-upload",
                             ),
                             re_path(
                                 r"(?P<file>.+?)!convert",
-                                files_views.convert,
+                                files.convert,
                                 name="ui-projects-files-convert",
                             ),
                             re_path(
                                 r"(?P<file>.+?)!delete",
-                                files_views.destroy,
+                                files.destroy,
                                 name="ui-projects-files-destroy",
                             ),
                             re_path(
                                 r"(?P<file>.+?)!details",
-                                files_views.retrieve,
+                                files.retrieve,
                                 name="ui-projects-files-retrieve",
                             ),
                             re_path(
                                 r"(?P<file>.+?)!highlight",
-                                files_views.highlight,
+                                files.highlight,
                                 name="ui-projects-files-highlight",
                             ),
                             re_path(
                                 r"(?P<prefix>.*)?",
-                                files_views.list,
+                                files.list,
                                 name="ui-projects-files-list",
                             ),
                         ]
@@ -94,32 +88,30 @@ after_account_urls = [
                     ProjectPaths.sources.value + "/",
                     include(
                         [
-                            path(
-                                "", sources_views.list, name="ui-projects-sources-list",
-                            ),
+                            path("", sources.list, name="ui-projects-sources-list",),
                             path(
                                 "new/<str:type>",
-                                sources_views.create,
+                                sources.create,
                                 name="ui-projects-sources-create",
                             ),
                             path(
                                 "upload",
-                                sources_views.upload,
+                                sources.upload,
                                 name="ui-projects-sources-upload",
                             ),
                             re_path(
                                 r"(?P<source>.+?)!rename",
-                                sources_views.rename,
+                                sources.rename,
                                 name="ui-projects-sources-rename",
                             ),
                             re_path(
                                 r"(?P<source>.+?)!delete",
-                                sources_views.destroy,
+                                sources.destroy,
                                 name="ui-projects-sources-destroy",
                             ),
                             re_path(
                                 r"(?P<source>.+)",
-                                sources_views.retrieve,
+                                sources.retrieve,
                                 name="ui-projects-sources-retrieve",
                             ),
                         ]
@@ -130,14 +122,30 @@ after_account_urls = [
                     include(
                         [
                             path(
-                                "",
-                                snapshots_views.list,
-                                name="ui-projects-snapshots-list",
+                                "", snapshots.list, name="ui-projects-snapshots-list",
                             ),
                             path(
                                 "<int:snapshot>",
-                                snapshots_views.retrieve,
+                                snapshots.retrieve,
                                 name="ui-projects-snapshots-retrieve",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    ProjectPaths.reviews.value + "/",
+                    include(
+                        [
+                            path("", reviews.list, name="ui-projects-reviews-list"),
+                            path(
+                                "<int:review>",
+                                reviews.retrieve,
+                                name="ui-projects-reviews-retrieve",
+                            ),
+                            path(
+                                "new",
+                                reviews.create,
+                                name="ui-projects-reviews-create",
                             ),
                         ]
                     ),
@@ -146,10 +154,10 @@ after_account_urls = [
                     ProjectPaths.jobs.value + "/",
                     include(
                         [
-                            path("", jobs_views.list, name="ui-projects-jobs-list"),
+                            path("", jobs.list, name="ui-projects-jobs-list"),
                             path(
                                 "<str:job>",
-                                jobs_views.retrieve,
+                                jobs.retrieve,
                                 name="ui-projects-jobs-retrieve",
                             ),
                         ]

@@ -6,6 +6,7 @@ from projects.api.views.files import ProjectsFilesViewSet
 from projects.api.views.nodes import NodesViewSet
 from projects.api.views.projects import ProjectsAgentsViewSet, ProjectsViewSet
 from projects.api.views.providers import GithubReposViewSet
+from projects.api.views.reviews import ProjectsReviewsViewSet
 from projects.api.views.snapshots import ProjectsSnapshotsViewSet
 from projects.api.views.sources import ProjectsSourcesViewSet
 
@@ -61,6 +62,9 @@ class ProjectsFilesRouter(OptionalSlashRouter):
 projects_files = ProjectsFilesRouter()
 projects_files.register("files", ProjectsFilesViewSet, "api-projects-files")
 
+projects_reviews = OptionalSlashRouter()
+projects_reviews.register("reviews", ProjectsReviewsViewSet, "api-projects-reviews")
+
 projects_snapshots = OptionalSlashRouter()
 projects_snapshots.register(
     "snapshots", ProjectsSnapshotsViewSet, "api-projects-snapshots"
@@ -78,6 +82,7 @@ urlpatterns = (
     + [
         path("projects/<project>/", include(projects_agents.urls)),
         path("projects/<project>/", include(projects_files.urls)),
+        path("projects/<project>/", include(projects_reviews.urls)),
         path("projects/<project>/", include(projects_snapshots.urls)),
         path("projects/<project>/", include(projects_sources.urls)),
     ]

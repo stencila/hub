@@ -64,7 +64,7 @@
     <li class="sidebar__item"
         id="menu-item-snapshots">
       <a href="{% url 'ui-projects-claim' project.account.name project.name %}"
-         class="panel-block transition-colors {% is_active 'ui-projects-claim' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
+         class="panel-block transition-colors {% is_active 'ui-projects-claim' %}">
         <span class="icon">
           <i class="ri-handbag-line"></i>
         </span>
@@ -77,12 +77,24 @@
     <li class="sidebar__item"
         id="menu-item-snapshots">
       <a href="{% url 'ui-projects-snapshots-list' project.account.name project.name %}"
-         class="panel-block transition-colors {% is_active 'ui-projects-snapshots' %} has-tooltip-bottom has-tooltip-text-centered image-tooltip">
+         class="panel-block transition-colors {% is_active 'ui-projects-snapshots' %}">
         <span class="icon">
           <i class="ri-archive-line"></i>
         </span>
         <span>
           {% trans 'Snapshots' %}
+        </span>
+      </a>
+    </li>
+    <li class="sidebar__item"
+        id="menu-item-reviews">
+      <a href="{% url 'ui-projects-reviews-list' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-reviews' %}">
+        <span class="icon">
+          <i class="ri-discuss-line"></i>
+        </span>
+        <span>
+          {% trans 'Reviews' %}
         </span>
       </a>
     </li>

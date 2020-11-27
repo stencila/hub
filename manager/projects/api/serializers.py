@@ -1,6 +1,7 @@
 import re
 
 import shortuuid
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from drf_yasg import openapi
 from rest_framework import exceptions, serializers
@@ -19,6 +20,7 @@ from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectLiveness, ProjectRole
 from projects.models.providers import GithubRepo
+from projects.models.reviews import Review, ReviewStatus
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -33,7 +35,22 @@ from projects.models.sources import (
     UploadSource,
     UrlSource,
 )
-from users.models import User
+from users.models import Invite, InviteAction, User, get_email
+
+
+class ProjectFromContextField(serializers.HiddenField):
+    """
+    A field to automatically get the project from the request context.
+    """
+
+    def __init__(self):
+        super().__init__(
+            default=FromContextDefault(
+                lambda context: get_object_from_ident(
+                    Project, context["view"].kwargs["project"]
+                )
+            ),
+        )
 
 
 class ProjectAgentSerializer(serializers.ModelSerializer):
@@ -73,13 +90,7 @@ class ProjectAgentCreateSerializer(ProjectAgentSerializer):
     the choices for `role`.
     """
 
-    project = serializers.HiddenField(
-        default=FromContextDefault(
-            lambda context: get_object_from_ident(
-                Project, context["view"].kwargs["project"]
-            )
-        )
-    )
+    project = ProjectFromContextField()
 
     type = serializers.ChoiceField(choices=["user", "team"], write_only=True)
 
@@ -490,13 +501,7 @@ class FileSerializer(serializers.ModelSerializer):
     Serializer for a file.
     """
 
-    project = serializers.HiddenField(
-        default=FromContextDefault(
-            lambda context: get_object_from_ident(
-                Project, context["view"].kwargs["project"]
-            )
-        )
-    )
+    project = ProjectFromContextField()
 
     class Meta:
         model = File
@@ -548,13 +553,7 @@ class SnapshotSerializer(serializers.ModelSerializer):
     A serializer for snapshots.
     """
 
-    project = serializers.HiddenField(
-        default=FromContextDefault(
-            lambda context: get_object_from_ident(
-                Project, context["view"].kwargs["project"]
-            )
-        )
-    )
+    project = ProjectFromContextField()
 
     class Meta:
         model = Snapshot
@@ -590,13 +589,7 @@ class SourceSerializer(serializers.ModelSerializer):
     project for which the user does not have permissions.
     """
 
-    project = serializers.HiddenField(
-        default=FromContextDefault(
-            lambda context: get_object_from_ident(
-                Project, context["view"].kwargs["project"]
-            )
-        )
-    )
+    project = ProjectFromContextField()
 
     creator = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
@@ -979,6 +972,146 @@ class NodeSerializer(NodeCreateResponse):
     class Meta:
         model = Node
         fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
+
+
+class ReviewSourceField(serializers.PrimaryKeyRelatedField):
+    """
+    Field for a review source.
+
+    Limits the set of valid sources for a review to those that in the
+    project that have an `extract` method.
+    """
+
+    def get_queryset(self):
+        """
+        Get the list of sources.
+        """
+        project = self.context["view"].get_project()
+        queryset = Source.objects.filter(
+            project=project,
+            polymorphic_ctype_id__in=[
+                ContentType.objects.get_for_model(GoogleDocsSource),
+                ContentType.objects.get_for_model(GoogleDriveSource),
+                ContentType.objects.get_for_model(GoogleSheetsSource),
+            ],
+        )
+        return queryset
+
+
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    """
+    A serializer for creating a review.
+    """
+
+    project = ProjectFromContextField()
+
+    source = ReviewSourceField()
+
+    reviewer = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = Review
+        fields = "__all__"
+
+    def validate_reviewer(self, reviewer):
+        """
+        Validate that the reviewer value is a username or id.
+        """
+        if not reviewer:
+            return None
+        try:
+            try:
+                user = User.objects.get(id=reviewer)
+            except ValueError:
+                user = User.objects.get(username=reviewer)
+        except User.DoesNotExist:
+            raise exceptions.ValidationError(
+                "Reviewer is not a valid user id or username."
+            )
+        return user
+
+    def validate(self, data):
+        """
+        Validate the data used to create a project.
+        """
+        source = data.get("source")
+        if not source:
+            raise exceptions.ValidationError(dict(source="Source is required."))
+
+        project = data.get("project")
+        if source.project != project:
+            raise exceptions.ValidationError(
+                dict(source="Source must be in the same project.")
+            )
+
+        source_types = ("GoogleDocs", "GoogleDrive", "GoogleSheets")
+        if source.type_name not in source_types:
+            raise exceptions.ValidationError(
+                dict(
+                    source=f"Source must be one of these types: {', '.join(source_types)}."
+                )
+            )
+
+        if source.type_name.startswith("Google"):
+            reviewer_name = data.get("reviewer_name")
+            if not reviewer_name:
+                raise exceptions.ValidationError(
+                    dict(
+                        reviewer_name=f"Reviewer name is required to extract a review from a {source.type_name} source."
+                    )
+                )
+
+        return data
+
+    def create(self, data):
+        """
+        Create the review, triggering an invite or extraction.
+        """
+        request = self.context["request"]
+        creator = request.user
+        review = super().create(dict(**data, creator=creator))
+
+        invite = None
+        if review.reviewer_email or review.reviewer:
+            email = review.reviewer_email or get_email(review.reviewer)
+            invite = Invite.objects.create(
+                inviter=creator,
+                email=email,
+                message=review.invite_message,
+                action=InviteAction.accept_review.name,
+                subject_type=ContentType.objects.get_for_model(Review),
+                subject_id=review.id,
+                arguments=dict(
+                    account=review.project.account.id,
+                    project=review.project.id,
+                    review=review.id,
+                ),
+            )
+            invite.send_invitation(request)
+
+            review.invite = invite
+            review.status = ReviewStatus.INVITED.name
+        else:
+            review.job = review.source.extract(
+                review=review, user=creator, filters=dict(name=review.reviewer_name)
+            )
+            review.job.dispatch()
+            review.status = ReviewStatus.EXTRACTING.name
+
+        review.save()
+        return review
+
+
+class ReviewRetrieveSerializer(ReviewCreateSerializer):
+    """
+    The response data when listing or retrieving a review.
+
+    Excludes fields that should be kept private.
+    """
+
+    class Meta:
+        model = Review
+        exclude = ["reviewer_email", "invite_message"]
 
 
 class GithubRepoSerializer(serializers.ModelSerializer):

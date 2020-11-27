@@ -1,0 +1,14 @@
+{# Overview fields for use in ./list.html and ./retrieve.html #}
+<div>
+  <img src="{{ review.get_reviewer_image|default:'https://via.placeholder.com/50' }}">
+  {{ review.get_reviewer_name|default:'Anonymous' }}
+  {{ review.get_date }}
+  {{ review.get_status|default:'Unknown' }}
+</div>
+<div>
+  {% with doi=review.get_doi %}
+  {{ doi.get_progress }}
+  {{ doi.doi }}
+  {% endwith %}
+  {{ review.get_comments }}
+</div>
