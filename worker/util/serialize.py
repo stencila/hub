@@ -3,11 +3,10 @@ from stencila.schema.types import Entity
 
 def serialize(node):
     """
-    Serialize a node into primitive Python object.
+    Serialize a node into a Python object.
 
     Allow us to return a Stencila Schema node as the result of
-    a job.
-    This function would be best in `stencila.schema`.
+    a job. This function would be best in `stencila.schema`.
     But it's not, so it's here. For now.
     """
     if isinstance(node, Entity):
@@ -17,6 +16,6 @@ def serialize(node):
     elif isinstance(node, list):
         return [serialize(child) for child in node]
     elif isinstance(node, dict):
-        return dict([(key, serialize(value)) for key, value in node])
+        return dict([(key, serialize(value)) for key, value in node.items()])
     else:
         return node
