@@ -28,8 +28,35 @@ from waffle.models import AbstractUserFlag
 
 # Needed to ensure signals are loaded
 import users.signals  # noqa
+from manager.helpers import EnumChoice
 
 User: django.contrib.auth.models.User = get_user_model()
+
+
+def get_email(user: User) -> Optional[str]:
+    """
+    Get the best email address for a user.
+
+    The "best" email is the verified primary email,
+    falling back to verified if none marked as primary,
+    falling back to the first if none is verified.
+    """
+    best = None
+
+    emails = user.emailaddress_set.all()
+    for email in emails:
+        if email.primary and email.verified:
+            best = email.email
+        elif best is None and email.verified:
+            best = email.mail
+
+    if best is None and len(emails) > 0:
+        best = emails[0].email
+
+    if best is None and user.email:
+        best = user.email
+
+    return best
 
 
 def get_attributes(user: User) -> Dict:
@@ -285,6 +312,29 @@ def generate_invite_key():
     return shortuuid.ShortUUID().random(length=32)
 
 
+class InviteAction(EnumChoice):
+    """
+    Actions to take when a user has accepted an invite.
+    """
+
+    join_account = "join_account"
+    join_team = "join_team"
+    join_project = "join_project"
+    accept_review = "accept_review"
+    take_tour = "take_tour"
+
+    @staticmethod
+    def as_choices():
+        """Return as a list of field choices."""
+        return [
+            (InviteAction.join_account.name, "Join account"),
+            (InviteAction.join_team.name, "Join team"),
+            (InviteAction.join_project.name, "Join project"),
+            (InviteAction.accept_review.name, "Accept to review"),
+            (InviteAction.take_tour.name, "Take tour"),
+        ]
+
+
 class Invite(models.Model):
     """
     An extension of the default invitation model.
@@ -353,12 +403,7 @@ class Invite(models.Model):
         max_length=64,
         null=True,
         blank=True,
-        choices=[
-            ("join_account", "Join account"),
-            ("join_team", "Join team"),
-            ("join_project", "Join project"),
-            ("take_tour", "Take tour"),
-        ],
+        choices=InviteAction.as_choices(),
         help_text="The action to perform when the invitee signs up.",
     )
 
@@ -424,6 +469,15 @@ class Invite(models.Model):
             return reverse(
                 "ui-projects-retrieve",
                 args=[self.arguments["account"], self.arguments["project"]],
+            )
+        elif self.action == "accept_review":
+            return reverse(
+                "ui-projects-reviews-retrieve",
+                args=[
+                    self.arguments["account"],
+                    self.arguments["project"],
+                    self.arguments["review"],
+                ],
             )
         elif self.action == "take_tour":
             return self.arguments["page"] + "?tour=" + self.arguments["tour"]
@@ -492,6 +546,38 @@ class Invite(models.Model):
         except ValidationError as exc:
             if "Already has a project role" not in str(exc):
                 raise exc
+
+    def accept_review(self, invitee):
+        """
+        Set invitee as `reviewer` of the review and add to project as a REVIEWER.
+
+        If the user already has a project role that is above REVIEWER, then their
+        role is not changed.
+        """
+        from projects.models.projects import ProjectAgent, ProjectRole
+        from projects.models.reviews import Review, ReviewStatus
+
+        # Make invitee the `reviewer` of the review and update it's status
+        review = Review.objects.get(id=self.arguments["review"])
+        review.reviewer = invitee
+        review.status = ReviewStatus.accepted.name
+        review.save()
+
+        # Add user as a reviewer to the project
+        try:
+            agent = ProjectAgent.objects.get(
+                project_id=self.arguments["project"], user=invitee
+            )
+        except ProjectAgent.DoesNotExist:
+            ProjectAgent.objects.create(
+                project_id=self.arguments["project"],
+                user=invitee,
+                role=ProjectRole.REVIEWER.name,
+            )
+        else:
+            if agent.role not in ProjectRole.and_above(ProjectRole.REVIEWER):
+                agent.role = ProjectRole.REVIEWER.name
+                agent.save()
 
     def take_tour(self, invitee):
         """
