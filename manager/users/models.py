@@ -560,7 +560,7 @@ class Invite(models.Model):
         # Make invitee the `reviewer` of the review and update it's status
         review = Review.objects.get(id=self.arguments["review"])
         review.reviewer = invitee
-        review.status = ReviewStatus.accepted.name
+        review.status = ReviewStatus.ACCEPTED.name
         review.save()
 
         # Add user as a reviewer to the project
