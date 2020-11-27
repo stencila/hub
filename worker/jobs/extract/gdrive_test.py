@@ -22,12 +22,10 @@ def test_filter_comments():
 
     assert len(filter_comments(comments, filters={})) == n
     assert len(filter_comments(comments, filters={"unknown key": ""})) == n
-    assert len(filter_comments(comments, filters={"author.name": r"^J"})) == n
-    assert len(filter_comments(comments, filters={"author.name": r"^Ji"})) == 1
-    assert (
-        len(filter_comments(comments, filters={"author.name": r"^James Jameson$"})) == 1
-    )
-    assert len(filter_comments(comments, filters={"author.name": r"^$"})) == 0
+    assert len(filter_comments(comments, filters={"name": r"^J"})) == n
+    assert len(filter_comments(comments, filters={"name": r"^Ji"})) == 1
+    assert len(filter_comments(comments, filters={"name": r"^James Jameson$"})) == 1
+    assert len(filter_comments(comments, filters={"name": r"^$"})) == 0
 
 
 def test_no_comments():
