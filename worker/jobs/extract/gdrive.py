@@ -47,7 +47,7 @@ def filter_comments(comments: List[Dict], filters: Optional[Dict] = {}) -> List[
     for comment in comments:
         ok = True
         for key, regex in filters.items():
-            if key == "author.name":
+            if key == "name":
                 if not re.match(regex, comment.get("author", {}).get("displayName")):
                     ok = False
         if ok:
