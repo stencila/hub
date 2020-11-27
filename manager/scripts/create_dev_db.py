@@ -8,6 +8,8 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from django.utils.timezone import utc
+from faker import Faker
 from stencila.schema.json import object_encode
 from stencila.schema.types import (
     Article,
@@ -15,23 +17,27 @@ from stencila.schema.types import (
     CodeExpression,
     MathBlock,
     MathFragment,
-    Review,
 )
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountTier, AccountUser
+from dois.models import Doi
 from jobs.models import Queue, Worker, Zone
 from manager.themes import Themes
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectRole
+from projects.models.reviews import Review, ReviewStatus
 from projects.models.sources import (
     ElifeSource,
     GithubSource,
     GoogleDocsSource,
+    Source,
     UploadSource,
     UrlSource,
 )
 from users.models import User
+
+fake = Faker(["en_US", "it_IT", "ja_JP"])
 
 
 def run(*args):
@@ -230,7 +236,7 @@ def run(*args):
             creator=random_account_user(account),
             public=True,
             description="A public project for account {0}.".format(account.name),
-            theme=random_theme(),
+            theme=random_enum_value(Themes).name,
         )
 
         private = Project.objects.create(
@@ -330,6 +336,13 @@ def run(*args):
         create_nodes_for_project(project)
 
     #################################################################
+    # Reviews
+    #################################################################
+
+    for project in Project.objects.all():
+        create_reviews_for_project(project)
+
+    #################################################################
     # Jobs, queues, workers, zones
     #################################################################
 
@@ -350,6 +363,11 @@ def random_users(num=None):
     if num is None:
         num = random.randint(1, len(all))
     return all[:num]
+
+
+def random_user():
+    """Get a random user."""
+    return User.objects.order_by("?").first()
 
 
 def random_account_tier():
@@ -376,7 +394,7 @@ def random_team_name():
 
 
 def random_project_user(project):
-    """Get a random user for an project."""
+    """Get a random user for n project."""
     return (
         ProjectAgent.objects.filter(project=project, user__isnull=False)
         .order_by("?")
@@ -385,9 +403,14 @@ def random_project_user(project):
     )
 
 
-def random_theme():
-    """Get a random theme name."""
-    return random.choice([enum.value for enum in Themes])
+def random_project_source(project):
+    """Get a random source for a project."""
+    return Source.objects.filter(project=project).order_by("?").first()
+
+
+def random_enum_value(enum):
+    """Get a random enum value."""
+    return random.choice([value for value in enum])
 
 
 with open("scripts/data/main.md") as file:
@@ -454,7 +477,6 @@ def create_nodes_for_project(project):
 
     nodes = [
         Article(),
-        Review(),
         CodeChunk(programmingLanguage="r", text="plot(mtcars)"),
         CodeExpression(programmingLanguage="js", text="x * y"),
         MathBlock(mathLanguage="tex", text="\\int\\limits_a^b x^2  \\mathrm{d} x"),
@@ -467,4 +489,59 @@ def create_nodes_for_project(project):
             app="gsuita",
             host="https://example.com/some-doc",
             json=object_encode(node),
+        )
+
+
+def create_reviews_for_project(project):
+    """
+    Create some reviews for a project.
+
+    The purpose of this is mainly to able to be able to preview
+    the HTML templates used for `Review`s with real-ish data.
+    """
+
+    for index in range(10):
+        reviewer_is_user = fake.boolean()
+
+        status = (
+            random_enum_value(ReviewStatus).name
+            if index > 4
+            else ReviewStatus.EXTRACTED.name
+        )
+        if status == ReviewStatus.EXTRACTED.name:
+            review_node = Node.objects.create(project=project, json={"type": "Review"})
+            if fake.boolean():
+                deposited = (
+                    fake.date_time_this_month(tzinfo=utc) if fake.boolean(80) else None
+                )
+                deposit_success = bool(deposited and fake.boolean(80))
+
+                registered = (
+                    fake.date_time_this_month(tzinfo=utc)
+                    if deposit_success and fake.boolean(80)
+                    else None
+                )
+                registration_success = bool(registered and fake.boolean(80))
+
+                Doi.objects.create(
+                    node=review_node,
+                    deposited=deposited,
+                    deposit_success=deposit_success,
+                    registered=registered,
+                    registration_success=registration_success,
+                )
+        else:
+            review_node = None
+
+        Review.objects.create(
+            project=project,
+            creator=random_project_user(project),
+            status=status,
+            source=random_project_source(project),
+            reviewer=random_user() if reviewer_is_user else None,
+            reviewer_email="reviewer@example.org" if reviewer_is_user else None,
+            reviewer_name=fake.name(),
+            review=review_node,
+            review_date=fake.date_time_this_month(tzinfo=utc),
+            review_comments=random.randint(0, 142),
         )
