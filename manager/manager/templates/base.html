@@ -239,7 +239,7 @@
 
                 {% if request.path != user_signin_url %}
                 <a class="button is-primary is-outlined has-text-weight-bold"
-                   href="{% url 'ui-users-signin' %}">
+                   href="{% url 'ui-users-signin' %}?next={{ request.path }}">
                   {% trans "Sign in" %}
                 </a>
                 {% endif %}
