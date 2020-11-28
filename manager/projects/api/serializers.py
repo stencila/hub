@@ -35,7 +35,7 @@ from projects.models.sources import (
     UploadSource,
     UrlSource,
 )
-from users.models import Invite, InviteAction, User, get_email
+from users.models import User
 
 
 class ProjectFromContextField(serializers.HiddenField):
@@ -1011,7 +1011,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = "__all__"
+        exclude = ["status"]
 
     def validate_reviewer(self, reviewer):
         """
@@ -1065,44 +1065,20 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
     def create(self, data):
         """
-        Create the review, triggering an invite or extraction.
+        Create the review and send request to reviewer.
         """
-        request = self.context["request"]
-        creator = request.user
-        review = super().create(dict(**data, creator=creator))
+        instance = super().create(dict(**data, creator=self.context["request"].user))
+        instance.request()
+        return instance
 
-        invite = None
-        if review.reviewer_email or review.reviewer:
-            email = review.reviewer_email or get_email(review.reviewer)
-            invite = Invite.objects.create(
-                inviter=creator,
-                email=email,
-                message=review.invite_message,
-                action=InviteAction.accept_review.name,
-                subject_type=ContentType.objects.get_for_model(Review),
-                subject_id=review.id,
-                arguments=dict(
-                    account=review.project.account.id,
-                    project=review.project.id,
-                    review=review.id,
-                ),
-            )
-            invite.send_invitation(request)
-
-            review.invite = invite
-            review.status = ReviewStatus.INVITED.name
-        else:
-            review.job = review.source.extract(
-                review=review, user=creator, filters=dict(name=review.reviewer_name)
-            )
-            review.job.dispatch()
-            review.status = ReviewStatus.EXTRACTING.name
-
-        review.save()
-        return review
+    def to_representation(self, instance):
+        """
+        Return standard fields in response.
+        """
+        return ReviewRetrieveSerializer(instance).data
 
 
-class ReviewRetrieveSerializer(ReviewCreateSerializer):
+class ReviewRetrieveSerializer(serializers.ModelSerializer):
     """
     The response data when listing or retrieving a review.
 
@@ -1111,7 +1087,46 @@ class ReviewRetrieveSerializer(ReviewCreateSerializer):
 
     class Meta:
         model = Review
-        exclude = ["reviewer_email", "invite_message"]
+        exclude = [
+            "key",
+            "reviewer_email",
+            "request_message",
+            "response_message",
+            "cancel_message",
+        ]
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    """
+    The request data when updating a review.
+    """
+
+    status = serializers.ChoiceField(choices=ReviewStatus.as_choices())
+
+    class Meta:
+        model = Review
+        fields = ["status", "response_message", "cancel_message"]
+
+    def update(self, instance, data):
+        """
+        Override to call update method on the review.
+        """
+        try:
+            instance.update(
+                status=data.get("status"),
+                response_message=data.get("response_message"),
+                cancel_message=data.get("cancel_message"),
+                user=self.context["request"].user,
+            )
+            return instance
+        except ValueError as exc:
+            raise exceptions.ValidationError(dict(status=str(exc)))
+
+    def to_representation(self, instance):
+        """
+        Return more fields in response.
+        """
+        return ReviewRetrieveSerializer(instance).data
 
 
 class GithubRepoSerializer(serializers.ModelSerializer):

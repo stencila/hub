@@ -32,7 +32,7 @@
   </div>
 
   {% include "serializers/_field.html" with field=serializer.reviewer_email icon="ri-at-line" autofocus=True %}
-  {% include "serializers/_field.html" with field=serializer.invite_message icon="ri-message-2-line" element="textarea" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True %}
 
   <hr>
 
@@ -74,7 +74,6 @@
   </div>
   {% endwith %}
 
-  {% include "serializers/_field.html" with field=serializer.reviewer_name icon="ri-user-line" help_text="The name of the reviewer. This is necessary to only extract the review for the desired reviewer. The name should be as it appears in the GoogleDoc comments." autofocus=True %}
   <hr>
 
   <button class="button is-primary is-fullwidth-mobile"

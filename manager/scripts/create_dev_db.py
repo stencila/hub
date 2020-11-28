@@ -501,7 +501,7 @@ def create_reviews_for_project(project):
     """
 
     for index in range(10):
-        reviewer_is_user = fake.boolean()
+        reviewer_is_user = fake.boolean(70)
 
         status = (
             random_enum_value(ReviewStatus).name
@@ -540,8 +540,16 @@ def create_reviews_for_project(project):
             source=random_project_source(project),
             reviewer=random_user() if reviewer_is_user else None,
             reviewer_email="reviewer@example.org" if reviewer_is_user else None,
-            reviewer_name=fake.name(),
+            request_message=fake.paragraph(),
+            cancel_message=fake.paragraph()
+            if status == ReviewStatus.CANCELLED.name and fake.boolean(70)
+            else None,
+            response_message=fake.paragraph()
+            if status in (ReviewStatus.ACCEPTED.name, ReviewStatus.DECLINED.name)
+            and fake.boolean(50)
+            else None,
             review=review_node,
+            review_author_name=fake.name(),
             review_date=fake.date_time_this_month(tzinfo=utc),
             review_comments=random.randint(0, 142),
         )

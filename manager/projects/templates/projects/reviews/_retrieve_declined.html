@@ -1,0 +1,17 @@
+<article class="message message-header-body is-danger">
+  <div class="message-header">
+    <p>
+      <span class="icon">
+        <i class="ri-chat-delete-line"></i>
+      </span>
+      Review request declined
+    </p>
+  </div>
+  <div class="message-body">
+    {% if review.response_message %}
+    <em>{{ review.response_message }}</em>
+    {% else %}
+    The reviewer declined the request to perform a review.
+    {% endif %}
+  </div>
+</article>

@@ -251,7 +251,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
     list_display = ["id", "project_full_name", "created", "reviewer", "status"]
     list_select_related = ["project", "project__account"]
-    list_filter = [ProjectNameFilter, "created"]
+    list_filter = [ProjectNameFilter, "status", "created"]
     ordering = ["-created"]
 
     def project_full_name(self, reviews):

@@ -1,0 +1,29 @@
+{% if is_reviewer %}
+
+<p>
+  TODO: A form for reviewer to "submit" a review e.g. add filters to
+  for filtering the review - depending on the source the
+  review is being pulled from.
+</p>
+
+{% elif is_editor %}
+
+<article class="message message-header-body is-info">
+  <div class="message-header">
+    <p>
+      <span class="icon">
+        <i class="ri-chat-delete-line"></i>
+      </span>
+      Review request accepted
+    </p>
+  </div>
+  <div class="message-body">
+    {% if review.response_message %}
+    <em>{{ review.response_message }}</em>
+    {% else %}
+    The reviewer accepted the request to perform a review.
+    {% endif %}
+  </div>
+</article>
+
+{% endif %}

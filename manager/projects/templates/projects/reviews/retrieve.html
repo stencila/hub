@@ -9,41 +9,24 @@
   <div class="level-left">
     {% include "./_overview.html" %}
   </div>
-  {% if project.role in 'EDITOR, AUTHOR, MANAGER, OWNER' %}
-  {% if review.status == 'INVITED' %}
-  <div class="level-right buttons has-flex-justify-content-end-mobile">
-    <a class="button is-small-mobile is-expanded-mobile"
-       hx-post="{% url 'api-projects-reviews-cancel' project.id review.id %}"
-       hx-redirect="{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
-      <span class="icon">
-        <i class="ri-chat-off-line"></i>
-      </span>
-      <span>
-        {% trans "Cancel review" %}
-      </span>
-    </a>
-  </div>
-  {% endif %}
-  {% if review.status == 'COMPLETED' %}
-  <div class="level-right buttons has-flex-justify-content-end-mobile">
-    <a class="button is-small-mobile is-expanded-mobile"
-       hx-post="{% url 'api-projects-reviews-extract' project.id review.id %}"
-       hx-redirect="{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
-      <span class="icon">
-        <i class="ri-chat-off-line"></i>
-      </span>
-      <span>
-        {% trans "Extract review" %}
-      </span>
-    </a>
-  </div>
-  {% endif %}
-  {% endif %}
 </div>
+
+{% if review.status == 'REQUESTED' %}
+{% include "./_retrieve_requested.html" %}
+{% elif review.status == 'CANCELLED' %}
+{% include "./_retrieve_cancelled.html" %}
+{% elif review.status == 'DECLINED' %}
+{% include "./_retrieve_declined.html" %}
+{% elif review.status == 'ACCEPTED' %}
+{% include "./_retrieve_accepted.html" %}
+{% elif review.status == 'EXTRACTED' %}
 
 <p class="notification">
   TODO: The HTML rendering of the review, including its comments and their replies.
   This will be done by Encoda since the review JSON is a Creative work with
   content nodes like paragraphs, lists etc.
 <p>
+
+  {% endif %}
+
   {% endblock %}

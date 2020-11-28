@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
+import shortuuid
 from django.db import models
 
 from jobs.models import Job
 from manager.helpers import EnumChoice
 from projects.models.nodes import Node
-from projects.models.projects import Project
+from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import Source
-from users.models import Invite, User
+from users.models import User
 
 
 class ReviewStatus(EnumChoice):
@@ -17,9 +18,10 @@ class ReviewStatus(EnumChoice):
     """
 
     PENDING = "PENDING"
-    INVITED = "INVITED"
-    ACCEPTED = "ACCEPTED"
+    REQUESTED = "REQUESTED"
     CANCELLED = "CANCELLED"
+    ACCEPTED = "ACCEPTED"
+    DECLINED = "DECLINED"
     COMPLETED = "COMPLETED"
     EXTRACTING = "EXTRACTING"
     EXTRACTED = "EXTRACTED"
@@ -30,9 +32,10 @@ class ReviewStatus(EnumChoice):
         """Return as a list of field choices."""
         return [
             (ReviewStatus.PENDING.name, "Pending"),
-            (ReviewStatus.INVITED.name, "Invited"),
-            (ReviewStatus.ACCEPTED.name, "Accepted"),
+            (ReviewStatus.REQUESTED.name, "Requested"),
             (ReviewStatus.CANCELLED.name, "Cancelled"),
+            (ReviewStatus.ACCEPTED.name, "Accepted"),
+            (ReviewStatus.DECLINED.name, "Declined"),
             (ReviewStatus.COMPLETED.name, "Completed"),
             (ReviewStatus.EXTRACTING.name, "Retrieval in progress"),
             (ReviewStatus.EXTRACTED.name, "Retrieved"),
@@ -47,6 +50,13 @@ class ReviewStatus(EnumChoice):
             if status == choice[0]:
                 return choice[1]
         return None
+
+
+def generate_review_key():
+    """
+    Generate a unique, and very difficult to guess, key for a review.
+    """
+    return shortuuid.ShortUUID().random(length=32)
 
 
 class Review(models.Model):
@@ -91,17 +101,6 @@ class Review(models.Model):
         help_text="The status of the review.",
     )
 
-    source = models.ForeignKey(
-        Source,
-        # Should normally be set but allow for
-        # null if the the source is removed from the project
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="reviews",
-        help_text="The source for this review.",
-    )
-
     reviewer = models.ForeignKey(
         User,
         null=True,
@@ -115,22 +114,40 @@ class Review(models.Model):
         null=True, blank=True, help_text="The email address of the reviewer.",
     )
 
-    reviewer_name = models.CharField(
-        max_length=128, null=True, blank=True, help_text="The name of the reviewer.",
+    key = models.CharField(
+        default=generate_review_key,
+        max_length=64,
+        help_text="A unique, and very difficult to guess, key for the reviewer "
+        "to access the review if they are not a user.",
     )
 
-    invite_message = models.TextField(
+    request_message = models.TextField(
         null=True,
         blank=True,
-        help_text="The message to send to the reviewer in the invitation.",
+        help_text="The message sent to the reviewer in the request to review.",
     )
 
-    invite = models.ForeignKey(
-        Invite,
+    response_message = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The message provided by the reviewer when accepting or declining to review.",
+    )
+
+    cancel_message = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The message sent to the reviewer when the review was cancelled.",
+    )
+
+    source = models.ForeignKey(
+        Source,
+        # Should normally be set but allow for
+        # null if the the source is removed from the project
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        help_text="The invite sent to the reviewer.",
+        related_name="reviews",
+        help_text="The source for this review.",
     )
 
     job = models.ForeignKey(
@@ -163,6 +180,10 @@ class Review(models.Model):
     # is extracted from a source. They are mostly optimizations to avoid fetching the
     # JSON of the review everytime we want to display them (e.g. in listings)
 
+    review_author_name = models.CharField(
+        max_length=128, null=True, blank=True, help_text="The name of the reviewer.",
+    )
+
     review_date = models.DateTimeField(
         null=True,
         blank=True,
@@ -172,24 +193,6 @@ class Review(models.Model):
     review_comments = models.IntegerField(
         null=True, blank=True, help_text="The number of comments that the review has."
     )
-
-    def extract_callback(self, job: Job):
-        """
-        Store the extracted review.
-        """
-        json = job.result
-        if not json:
-            self.status = ReviewStatus.FAILED.name
-        else:
-            self.review = Node.objects.create(json=json)
-            self.review_date = (
-                json.get("datePublished")
-                or json.get("dateModified")
-                or json.get("dateCreated")
-            )
-            self.review_comments = len(json.get("comments", []))
-            self.status = ReviewStatus.EXTRACTED.name
-        self.save()
 
     # The following methods get derived properties of the review for use in templates
     # or API responses
@@ -213,12 +216,12 @@ class Review(models.Model):
         Get the name for the reviewer.
 
         Returns the account display name for reviewers that are users.
-        Returns the `reviewer_name` (which may be null) otherwise.
+        Returns the `review_author_name` (which may be null) otherwise.
         """
         return (
             self.reviewer.personal_account.display_name or self.reviewer.username
             if self.reviewer
-            else self.reviewer_name
+            else self.review_author_name
         )
 
     def get_reviewer_image(self) -> Optional[str]:
@@ -244,3 +247,125 @@ class Review(models.Model):
         Get the number of comments that the review has.
         """
         return self.review_comments
+
+    # Actions on a review
+
+    def request(self):
+        """
+        Send the request to the reviewer.
+        """
+        if self.reviewer_email or self.reviewer:
+            # TODO Send the email
+            # email = self.reviewer_email or get_email(self.reviewer)
+            # invite = Invite.objects.create(
+            #    inviter=creator,
+            #    email=email,
+            #    message=self.invite_message,
+            #    action=InviteAction.make_self.name,
+            #    subject_type=ContentType.objects.get_for_model(Review),
+            #    subject_id=self.id,
+            #    arguments=dict(
+            #        account=self.project.account.id,
+            #        project=self.project.id,
+            #        review=self.id,
+            #    ),
+            # )
+            # invite.send_invitation(request)
+
+            self.status = ReviewStatus.REQUESTED.name
+            self.save()
+
+    def update(
+        self,
+        status: str,
+        response_message: Optional[str] = None,
+        cancel_message: Optional[str] = None,
+        user: Optional[User] = None,
+        filters: Dict = {},
+    ):
+        """
+        Update the status of a review.
+
+        Checks that the status update makes logical sense and
+        records the message and user (if any). Note that a status
+        update to `ACCEPTED`, `DECLINED` or `COMPLETED` can be made
+        by an anonymous users (a reviewer who has the review key but
+        is not an authenticated user).
+        """
+        if (
+            status == ReviewStatus.CANCELLED.name
+            and self.status == ReviewStatus.REQUESTED.name
+        ):
+            self.cancel_message = cancel_message or None
+        elif (
+            status == ReviewStatus.ACCEPTED.name
+            and self.status == ReviewStatus.REQUESTED.name
+        ):
+            self.reviewer = user
+            self.response_message = response_message or None
+
+            # Add user as a REVIEWER to the project (if necessary)
+            try:
+                agent = ProjectAgent.objects.get(project_id=self.project, user=user)
+            except ProjectAgent.DoesNotExist:
+                ProjectAgent.objects.create(
+                    project_id=self.project, user=user, role=ProjectRole.REVIEWER.name,
+                )
+            else:
+                if agent.role not in ProjectRole.and_above(ProjectRole.REVIEWER):
+                    agent.role = ProjectRole.REVIEWER.name
+                    agent.save()
+        elif (
+            status == ReviewStatus.DECLINED.name
+            and self.status == ReviewStatus.REQUESTED.name
+        ):
+            self.reviewer = user
+            self.response_message = response_message or None
+        elif status == ReviewStatus.COMPLETED.name and self.status in (
+            ReviewStatus.ACCEPTED.name,
+            ReviewStatus.FAILED.name,
+        ):
+            self.extract(user, filters)
+        else:
+            raise ValueError(
+                f"Review can not be updated from {self.status} to {status}."
+            )
+
+        self.status = status
+        self.save()
+
+    def extract(self, user: User, filters: Dict = {}):
+        """
+        Extract the review from its source.
+
+        Creates and dispatches an `extract` job on the review's source.
+        Can be invoked when a reviewer completes a review, or by a project
+        REVIEWER or above at any time.
+        """
+        job = self.source.extract(review=self, user=user, filters=filters)
+        job.dispatch()
+
+        self.job = job
+        self.status = ReviewStatus.EXTRACTING.name
+        self.save()
+
+    def extract_callback(self, job: Job):
+        """
+        Store the extracted review.
+        """
+        json = job.result
+        if not json:
+            self.status = ReviewStatus.FAILED.name
+        else:
+            self.review = Node.objects.create(json=json)
+            authors = json.get("authors", [])
+            if len(authors) > 0:
+                self.review_author_name = authors[0].get("name")
+            self.review_date = (
+                json.get("datePublished")
+                or json.get("dateModified")
+                or json.get("dateCreated")
+            )
+            self.review_comments = len(json.get("comments", []))
+            self.status = ReviewStatus.EXTRACTED.name
+        self.save()
