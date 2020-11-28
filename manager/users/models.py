@@ -320,7 +320,6 @@ class InviteAction(EnumChoice):
     join_account = "join_account"
     join_team = "join_team"
     join_project = "join_project"
-    accept_review = "accept_review"
     take_tour = "take_tour"
 
     @staticmethod
@@ -330,7 +329,6 @@ class InviteAction(EnumChoice):
             (InviteAction.join_account.name, "Join account"),
             (InviteAction.join_team.name, "Join team"),
             (InviteAction.join_project.name, "Join project"),
-            (InviteAction.accept_review.name, "Accept to review"),
             (InviteAction.take_tour.name, "Take tour"),
         ]
 
@@ -470,15 +468,6 @@ class Invite(models.Model):
                 "ui-projects-retrieve",
                 args=[self.arguments["account"], self.arguments["project"]],
             )
-        elif self.action == "accept_review":
-            return reverse(
-                "ui-projects-reviews-retrieve",
-                args=[
-                    self.arguments["account"],
-                    self.arguments["project"],
-                    self.arguments["review"],
-                ],
-            )
         elif self.action == "take_tour":
             return self.arguments["page"] + "?tour=" + self.arguments["tour"]
         else:
@@ -546,38 +535,6 @@ class Invite(models.Model):
         except ValidationError as exc:
             if "Already has a project role" not in str(exc):
                 raise exc
-
-    def accept_review(self, invitee):
-        """
-        Set invitee as `reviewer` of the review and add to project as a REVIEWER.
-
-        If the user already has a project role that is above REVIEWER, then their
-        role is not changed.
-        """
-        from projects.models.projects import ProjectAgent, ProjectRole
-        from projects.models.reviews import Review, ReviewStatus
-
-        # Make invitee the `reviewer` of the review and update it's status
-        review = Review.objects.get(id=self.arguments["review"])
-        review.reviewer = invitee
-        review.status = ReviewStatus.ACCEPTED.name
-        review.save()
-
-        # Add user as a reviewer to the project
-        try:
-            agent = ProjectAgent.objects.get(
-                project_id=self.arguments["project"], user=invitee
-            )
-        except ProjectAgent.DoesNotExist:
-            ProjectAgent.objects.create(
-                project_id=self.arguments["project"],
-                user=invitee,
-                role=ProjectRole.REVIEWER.name,
-            )
-        else:
-            if agent.role not in ProjectRole.and_above(ProjectRole.REVIEWER):
-                agent.role = ProjectRole.REVIEWER.name
-                agent.save()
 
     def take_tour(self, invitee):
         """
