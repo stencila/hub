@@ -25,12 +25,17 @@
 
 {% for review in reviews %}
 <ul>
-  <li>
+  <li class="review-list-item">
     {% include "./_overview.html" %}
-    <p>
+    <p class="mt-4">
       <a href="{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}"
-         class="button is-outlined">
-        {% trans "Read" %}
+         class="button is-small-mobile is-outlined">
+         <span class="icon is-vcentered">
+           <i class="ri-eye-line"></i>
+         </span>
+         <span>
+          {% trans "Read" %}
+         </span>
       </a>
     </p>
   </li>

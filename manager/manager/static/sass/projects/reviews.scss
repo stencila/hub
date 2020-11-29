@@ -1,0 +1,25 @@
+.review-list-item {
+  border: 1px solid $grey-lighter;
+  border-radius: 4px;
+  padding: $gap / 2;
+  margin-top: $gap;
+  margin-bottom: $gap;
+}
+
+.review-list--meta {
+  & > span {
+    display: block;
+  }
+
+  @media screen and (min-width: $tablet) {
+    & > span {
+      display: inline-block;
+    }
+
+    & > span:not(:last-child)::after {
+      content: "·";
+      margin-left: $gap / 8;
+      margin-right: $gap / 8;
+    }
+  }
+}
