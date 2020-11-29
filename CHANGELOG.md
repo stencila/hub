@@ -1,3 +1,15 @@
+## [4.23.3](https://github.com/stencila/hub/compare/v4.23.2...v4.23.3) (2020-11-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django-allauth to v0.44.0 ([eabca3d](https://github.com/stencila/hub/commit/eabca3d37906af1045a093c0f98c94c5c4ee5ea3))
+* **deps:** update dependency django-extensions to v3.1.0 ([01bdd5e](https://github.com/stencila/hub/commit/01bdd5e8e5885f9470575e50c49817100988ab1e))
+* **deps:** update dependency htmx.org to v0.4.1 ([6a08e6c](https://github.com/stencila/hub/commit/6a08e6ce0cb8cf7fd593e188df836b7d378c5110))
+* **deps:** update dependency htmx.org to v1 ([9cc85f9](https://github.com/stencila/hub/commit/9cc85f9642e620ddf0205c21c9bd3ec54142ac8a))
+* **deps:** update dependency lxml to v4.6.2 ([a65c895](https://github.com/stencila/hub/commit/a65c895ca65e3bd7afd7fff70399ba5e124b1787))
+* **deps:** update dependency userflow.js to v1.8.0 ([e1c5440](https://github.com/stencila/hub/commit/e1c54404581b3883d5c339f31469037f1a38ad8b))
+
 ## [4.23.2](https://github.com/stencila/hub/compare/v4.23.1...v4.23.2) (2020-11-25)
 
 
