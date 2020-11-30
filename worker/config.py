@@ -40,6 +40,13 @@ def get_snapshot_dir(project: int, snapshot: str) -> str:
     )
 
 
+def get_content_root() -> str:
+    """
+    Get the root of the content storage.
+    """
+    return os.environ.get("CONTENT_DIR", os.path.join(STORAGE_ROOT, "content"))
+
+
 def get_node_modules_bin(name: str) -> str:
     """
     Get the path to a "bin" script installed in the configured `node_modules`.
