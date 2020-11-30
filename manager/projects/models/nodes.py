@@ -17,9 +17,10 @@ def generate_node_key():
 
 class Node(models.Model):
     """
-    A document node.
+    A Stencila Schema node.
 
-    Could be any type of node e.g. `CodeChunk`, `CreativeWork`, `Number`.
+    Could be any type of node e.g. a `CodeChunk`, `CreativeWork`, `Number` within
+    some larger document, or a complete `Article` or `Review`.
 
     Each node has a unique `key` generated at the time of creation. This
     is the only way to retreive a node.
