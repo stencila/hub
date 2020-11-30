@@ -127,7 +127,11 @@ def working_storage() -> Storage:
     """
     Get the storage backend for project working directories.
     """
-    return FileSystemStorage(location=settings.WORKING_ROOT, base_url="/local/working",)
+    return (
+        FileSystemStorage(location=settings.WORKING_ROOT, base_url="/local/working",)
+        if settings.WORKING_ROOT
+        else GoogleCloudStorage(bucket_name="stencila-hub-working")
+    )
 
 
 def snapshots_storage() -> Storage:
