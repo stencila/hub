@@ -15,7 +15,7 @@ from meta.views import Meta
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
-from manager.storage import working_storage
+from manager.storage import StorageUsageMixin, working_storage
 from users.models import User
 
 
@@ -47,7 +47,7 @@ def generate_project_key():
     return shortuuid.ShortUUID().random(length=32)
 
 
-class Project(models.Model):
+class Project(StorageUsageMixin, models.Model):
     """
     A project.
 
@@ -271,7 +271,7 @@ class Project(models.Model):
 
     def file_location(self, file: str) -> str:
         """
-        Get the location of a file in the project relative to the root of the storage volume.
+        Get the location of one of the project's files relative to the root of the storage volume.
         """
         return os.path.join(str(self.id), file)
 

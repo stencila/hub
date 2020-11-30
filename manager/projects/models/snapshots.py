@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 from jobs.models import Job, JobMethod
-from manager.storage import FileSystemStorage, snapshots_storage
+from manager.storage import StorageUsageMixin, snapshots_storage
 from projects.models.files import File, get_modified
 from projects.models.projects import Project
 from users.models import User
@@ -23,7 +23,7 @@ def generate_snapshot_id():
     return shortuuid.uuid()
 
 
-class Snapshot(models.Model):
+class Snapshot(StorageUsageMixin, models.Model):
     """
     A project snapshot.
 
@@ -284,30 +284,6 @@ class Snapshot(models.Model):
 
     def file_location(self, file: str) -> str:
         """
-        Get the location of a file in the snapshot relative to the root of the storage volume.
+        Get the location of one of the snapshot's files relative to the root of the storage volume.
         """
         return os.path.join(self.path, file)
-
-    def file_url(self, file: str) -> str:
-        """
-        Get the URL for a file within the snapshot directory.
-        """
-        url = Snapshot.STORAGE.url(self.file_location(file))
-        if isinstance(Snapshot.STORAGE, FileSystemStorage):
-            # Since FileSystemStorage is only used during development,
-            # and returns a relative URL, append localhost
-            return "http://127.0.0.1:8000" + url
-        else:
-            return url
-
-    def archive_url(self, format: str = "zip") -> str:
-        """
-        Get the URL for a snapshot archive.
-
-        In the future, more archive formats may be supported.
-        """
-        if format == "zip":
-            file = self.zip_name
-        else:
-            raise ValueError("Unsupported archive format {0}".format(format))
-        return self.file_url(file)
