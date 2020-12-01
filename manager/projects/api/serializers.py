@@ -1109,7 +1109,7 @@ class ReviewUpdateSerializer(ReviewCreateSerializer):
 
     def validate(self, data):
         """
-        Override of ReviewCreateSerializer.validate().
+        Override of super class' validate method.
         """
         return data
 

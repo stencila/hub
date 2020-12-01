@@ -370,7 +370,9 @@ class Review(models.Model):
         if not json:
             self.status = ReviewStatus.FAILED.name
         else:
-            self.review = Node.objects.create(json=json)
+            self.review = Node.objects.create(
+                project=self.project, creator=job.creator, app="hub.reviews", json=json
+            )
             authors = json.get("authors", [])
             if len(authors) > 0:
                 self.review_author_name = authors[0].get("name")
