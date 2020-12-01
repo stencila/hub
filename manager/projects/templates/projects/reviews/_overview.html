@@ -8,17 +8,17 @@
         <div class="review-list--meta mb-2">
           <span>
             <span class="icon is-vcentered pr-1">
-              <img
-                src="{{ review.get_reviewer_image|default:'https://via.placeholder.com/50' }}"
-                role="presentation"
-              />
+              <img src="{{ review.get_reviewer_image|default:'https://via.placeholder.com/50' }}"
+                   role="presentation" />
             </span>
             <span class="is-vcentered has-text-weight-bold">
               {{ review.get_reviewer_name|default:'Anonymous' }}
             </span>
           </span>
 
-          <span  class="has-tooltip-bottom has-tooltip-text-centered" alt="{{ review.get_date|naturaltime }}" data-tooltip="{{ review.get_date|naturaltime }}">
+          <span class="has-tooltip-bottom has-tooltip-text-centered"
+                alt="{{ review.get_date|naturaltime }}"
+                data-tooltip="{{ review.get_date|naturaltime }}">
             <span class="icon is-vcentered">
               <i class="ri-calendar-line"></i>
             </span>
@@ -31,21 +31,21 @@
 
   <div>
     {% if review.status == 'REQUESTED' %}
-      <span class="tag is-light is-light">
-        Review request sent
-      </span>
+    <span class="tag is-light is-light">
+      Review request sent
+    </span>
     {% elif review.status == 'CANCELLED' %}
-      <span class="tag is-light is-warning">
-        Review request cancelled
-      </span>
+    <span class="tag is-light is-warning">
+      Review request cancelled
+    </span>
     {% elif review.status == 'DECLINED' %}
-      <span class="tag is-light is-danger  ">
-        Review declined
-      </span>
+    <span class="tag is-light is-danger  ">
+      Review declined
+    </span>
     {% elif review.status == 'ACCEPTED' %}
-      <span class="tag is-light is-success">
-        Review accepted
-      </span>
+    <span class="tag is-light is-success">
+      Review accepted
+    </span>
     {% endif %}
 
     {% with doi=review.get_doi %}
@@ -60,14 +60,19 @@
     {% endif %}
     {% endwith %}
 
+    {% with comments=review.get_comments %}
+    {% if comments %}
     <span class="tag is-success is-light">
       <span class="icon is-vcentered">
         <i class="ri-question-answer-line"></i>
       </span>
       <span>
-      {{ review.get_comments }} comment{{ review.get_comments|pluralize }}
+        {{ comments }} comment{{ comments|pluralize }}
       </span>
     </span>
+    {% endif %}
+    {% endwith %}
+
     {# User is editor: {{ is_editor }} User is the reviewer: {{ is_reviewer }} #}
   </div>
 

@@ -990,6 +990,7 @@ class ReviewSourceField(serializers.PrimaryKeyRelatedField):
         queryset = Source.objects.filter(
             project=project,
             polymorphic_ctype_id__in=[
+                ContentType.objects.get_for_model(GithubSource),
                 ContentType.objects.get_for_model(GoogleDocsSource),
                 ContentType.objects.get_for_model(GoogleDriveSource),
                 ContentType.objects.get_for_model(GoogleSheetsSource),
@@ -1044,22 +1045,13 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
                 dict(source="Source must be in the same project.")
             )
 
-        source_types = ("GoogleDocs", "GoogleDrive", "GoogleSheets")
+        source_types = ("Github", "GoogleDocs", "GoogleDrive", "GoogleSheets")
         if source.type_name not in source_types:
             raise exceptions.ValidationError(
                 dict(
                     source=f"Source must be one of these types: {', '.join(source_types)}."
                 )
             )
-
-        if source.type_name.startswith("Google"):
-            reviewer_name = data.get("reviewer_name")
-            if not reviewer_name:
-                raise exceptions.ValidationError(
-                    dict(
-                        reviewer_name=f"Reviewer name is required to extract a review from a {source.type_name} source."
-                    )
-                )
 
         return data
 
@@ -1096,37 +1088,53 @@ class ReviewRetrieveSerializer(serializers.ModelSerializer):
         ]
 
 
-class ReviewUpdateSerializer(serializers.ModelSerializer):
+class ReviewUpdateSerializer(ReviewCreateSerializer):
     """
     The request data when updating a review.
     """
 
-    status = serializers.ChoiceField(choices=ReviewStatus.as_choices())
+    status = serializers.ChoiceField(choices=ReviewStatus.as_choices(), required=False)
+
+    filter_a = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = Review
-        fields = ["status", "response_message", "cancel_message"]
+        fields = [
+            "status",
+            "filter_a",
+            "reviewer",
+            "response_message",
+            "cancel_message",
+        ]
+
+    def validate(self, data):
+        """
+        Override of ReviewCreateSerializer.validate().
+        """
+        return data
 
     def update(self, instance, data):
         """
         Override to call update method on the review.
         """
-        try:
-            instance.update(
-                status=data.get("status"),
-                response_message=data.get("response_message"),
-                cancel_message=data.get("cancel_message"),
-                user=self.context["request"].user,
-            )
-            return instance
-        except ValueError as exc:
-            raise exceptions.ValidationError(dict(status=str(exc)))
+        reviewer = data.get("reviewer")
+        if reviewer and not instance.reviewer:
+            instance.reviewer = reviewer
+            instance.save()
 
-    def to_representation(self, instance):
-        """
-        Return more fields in response.
-        """
-        return ReviewRetrieveSerializer(instance).data
+        status = data.get("status")
+        if status:
+            try:
+                instance.update(
+                    status=status,
+                    response_message=data.get("response_message"),
+                    cancel_message=data.get("cancel_message"),
+                    user=self.context["request"].user,
+                    filters=dict(filter_a=data.get("filter_a")),
+                )
+            except ValueError as exc:
+                raise exceptions.ValidationError(dict(status=str(exc)))
+        return instance
 
 
 class GithubRepoSerializer(serializers.ModelSerializer):

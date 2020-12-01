@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
@@ -322,6 +323,7 @@ class Review(models.Model):
             self.reviewer = user
             self.response_message = response_message or None
         elif status == ReviewStatus.COMPLETED.name and self.status in (
+            ReviewStatus.PENDING.name,
             ReviewStatus.ACCEPTED.name,
             ReviewStatus.FAILED.name,
         ):
@@ -338,10 +340,21 @@ class Review(models.Model):
         """
         Extract the review from its source.
 
+        Parses the filters according to the type of source.
         Creates and dispatches an `extract` job on the review's source.
-        Can be invoked when a reviewer completes a review, or by a project
-        REVIEWER or above at any time.
         """
+        if self.source.type_name == "Github":
+            match = re.match(
+                r"https:\/\/github.com\/(?:\w+)\/(?:\w+)\/pull\/(\d+)#pullrequestreview-(\d+)",
+                filters.get("filter_a", ""),
+            )
+            if match:
+                filters = dict(
+                    pr_number=int(match.group(1)), review_id=int(match.group(2))
+                )
+        elif self.source.type_name.startswith("Google"):
+            filters = dict(name=filters.get("filter_a"))
+
         job = self.source.extract(review=self, user=user, filters=filters)
         job.dispatch()
 

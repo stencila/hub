@@ -1,0 +1,42 @@
+<h3 class="title is-5">Retrieve the review from its source</h3>
+<p class="subtitle is-6">
+  This review is still pending retieval from its source.
+  Please provide a little more information to enable us to do that.
+</p>
+
+{% include "./_retrieve_extract_form.html" %}
+
+{% if not review.reviewer and is_editor %}
+
+<form id="assign-reviewer"
+      class="form"
+      hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
+      hx-template="projects/reviews/_retrieve_pending.html"
+      hx-select="form#assign-reviewer"
+      hx-redirect="UPDATED:Location">
+
+  <h3 class="title is-5">Assign the review to a user?</h3>
+  <p class="subtitle is-6">
+    This review was created it was not assigned to an existing user. You can do that now if you like.
+  </p>
+
+  <div class="field">
+    <label class="label"
+           for="user-search">Reviewer username</label>
+    <div class="control is-expanded">
+      {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
+    </div>
+    {% for error in serializer.reviewer.errors %}
+    <p class="help is-danger">{{ error }}</p>
+    {% endfor %}
+  </div>
+  <button class="button is-primary is-fullwidth-mobile"
+          type="submit">
+    <span class="icon">
+      <i class="ri-user-line"></i>
+    </span>
+    <span>Assign reviewer</span>
+  </button>
+</form>
+
+{% endif %}

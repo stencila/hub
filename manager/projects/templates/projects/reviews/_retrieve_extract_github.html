@@ -1,0 +1,11 @@
+<p>To extract a review from {{ source.get_url }}: </p>
+
+<ol>
+  <li>Go to the repositories <a href="{{ source.get_url }}/pulls"></a> list of pull requests.</li>
+  <li>Select the pull request that the review was made on.</li>
+  <li>Find the review comment that you want to create the review from and choose <strong>Copy link</strong> from the
+    comment's three dots menu.</li>
+  <li>Paste the link into the box below</li>
+</ol>
+
+{% include "serializers/_field.html" with field=serializer.filter_a icon="ri-filter-line" autofocus=True %}

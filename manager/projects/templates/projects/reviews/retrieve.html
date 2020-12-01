@@ -5,13 +5,18 @@
 
 {% block projects_content %}
 
+
+<h2 class="title is-3">Review</h2>
+
 <div class="level level-reverse-mobile">
   <div class="level-left">
     {% include "./_overview.html" %}
   </div>
 </div>
 
-{% if review.status == 'REQUESTED' %}
+{% if review.status == 'PENDING' %}
+{% include "./_retrieve_pending.html" %}
+{% elif review.status == 'REQUESTED' %}
 {% include "./_retrieve_requested.html" %}
 {% elif review.status == 'CANCELLED' %}
 {% include "./_retrieve_cancelled.html" %}
@@ -20,13 +25,7 @@
 {% elif review.status == 'ACCEPTED' %}
 {% include "./_retrieve_accepted.html" %}
 {% elif review.status == 'EXTRACTED' %}
+{% include "./_retrieve_extracted.html" %}
+{% endif %}
 
-<p class="notification">
-  TODO: The HTML rendering of the review, including its comments and their replies.
-  This will be done by Encoda since the review JSON is a Creative work with
-  content nodes like paragraphs, lists etc.
-<p>
-
-  {% endif %}
-
-  {% endblock %}
+{% endblock %}
