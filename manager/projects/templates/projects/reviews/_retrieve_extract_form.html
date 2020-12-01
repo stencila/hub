@@ -3,7 +3,8 @@
       hx-vars="status:'COMPLETED'"
       hx-template="projects/reviews/_retrieve_extract_form.html"
       hx-select="form"
-      ooohx-redirect="UPDATED:Location">
+      hx-swap="outerHTML"
+      hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
 
   {% with source=review.source %}
   {% if source.type_name == "Github" %}

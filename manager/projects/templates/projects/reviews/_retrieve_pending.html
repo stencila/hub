@@ -13,7 +13,8 @@
       hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
       hx-template="projects/reviews/_retrieve_pending.html"
       hx-select="form#assign-reviewer"
-      hx-redirect="UPDATED:Location">
+      hx-swap="outerHTML"
+      hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
 
   <h3 class="title is-5">Assign the review to a user?</h3>
   <p class="subtitle is-6">
