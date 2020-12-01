@@ -1,3 +1,10 @@
+## [4.23.4](https://github.com/stencila/hub/compare/v4.23.3...v4.23.4) (2020-12-01)
+
+
+### Bug Fixes
+
+* **Deps:** Update Thema version ([6dafad9](https://github.com/stencila/hub/commit/6dafad955b8544e81afc84aab852ae9190ea9b24))
+
 ## [4.23.3](https://github.com/stencila/hub/compare/v4.23.2...v4.23.3) (2020-11-29)
 
 
