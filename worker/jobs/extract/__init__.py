@@ -5,12 +5,14 @@ from stencila.schema.types import Review
 from jobs.base.job import Job
 
 from .gdrive import extract_gdrive
+from .github import extract_github
 
 # Functions for extracting reviews from alternative source types
 EXTRACT_FUNCS: Dict[str, Callable[..., Review]] = {
     "googledocs": extract_gdrive,
     "googlesheets": extract_gdrive,
     "googledrive": extract_gdrive,
+    "github": extract_github,
 }
 
 
