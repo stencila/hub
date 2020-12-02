@@ -30,7 +30,8 @@ Inspired by Github's user search field (amongst others).
              hx-indicator="#user-search .htmx-indicator"
              hx-template="users/_search_results.html"
              hx-select="ul"
-             hx-target="#user-search .dropdown-menu">
+             hx-target="#user-search .dropdown-menu"
+             hx-swap="innerHTML">
       <span class="icon is-small is-left">
         <i class="ri-search-line"></i>
       </span>
