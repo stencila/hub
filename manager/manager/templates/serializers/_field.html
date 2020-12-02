@@ -11,7 +11,11 @@
   {% else %}
 
   {% include "./_field_label.html" %}
-  {% include "./_field_control.html" with element=element|default:field|field_element %}
+  {% if element %}
+  {% include "./_field_control.html" with field_id=field_id %}
+  {% else %}
+  {% include "./_field_control.html" with element=field|field_element field_id=field_id %}
+  {% endif %}
 
   {% endif %}
 
