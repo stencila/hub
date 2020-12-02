@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 import shortuuid
 from django.db import models
 
+from dois.models import Doi
 from jobs.models import Job
 from manager.helpers import EnumChoice
 from manager.nodes import node_text_content
@@ -28,6 +29,7 @@ class ReviewStatus(EnumChoice):
     EXTRACTING = "EXTRACTING"
     EXTRACTED = "EXTRACTED"
     FAILED = "FAILED"
+    REGISTERED = "REGISTERED"
 
     @staticmethod
     def as_choices() -> List[Tuple[str, str]]:
@@ -42,6 +44,7 @@ class ReviewStatus(EnumChoice):
             (ReviewStatus.EXTRACTING.name, "Retrieval in progress"),
             (ReviewStatus.EXTRACTED.name, "Retrieved"),
             (ReviewStatus.FAILED.name, "Retrieval failed"),
+            (ReviewStatus.REGISTERED.name, "Registered"),
         ]
 
     @classmethod
@@ -337,6 +340,11 @@ class Review(models.Model):
             ReviewStatus.FAILED.name,
         ):
             return self.extract(user, filters)
+        elif (
+            status == ReviewStatus.REGISTERED.name
+            and self.status == ReviewStatus.EXTRACTED.name
+        ):
+            return self.register(user)
         else:
             raise ValueError(
                 f"Review can not be updated from {self.status} to {status}."
@@ -402,4 +410,15 @@ class Review(models.Model):
             self.review_comments = len(json.get("comments", []))
 
             self.status = ReviewStatus.EXTRACTED.name
+        self.save()
+
+    def register(self, user: User):
+        """
+        Register a DOI for this review.
+        """
+        doi = Doi.objects.create(creator=user, node=self.review)
+        job = doi.register()
+        job.dispatch()
+
+        self.status = ReviewStatus.REGISTERED.name
         self.save()

@@ -21,7 +21,7 @@
   {% include "./_retrieve_declined.html" %}
   {% elif review.status == 'ACCEPTED' %}
   {% include "./_retrieve_accepted.html" %}
-  {% elif review.status == 'EXTRACTED' %}
+  {% elif review.status in 'EXTRACTED, REGISTERED' %}
   {% include "./_retrieve_extracted.html" %}
   {% endif %}
 

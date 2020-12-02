@@ -1,9 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import reverse
 from rest_framework import exceptions, permissions, viewsets
-from rest_framework.decorators import action
-from rest_framework.request import Request
-from rest_framework.response import Response
 
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -152,12 +149,3 @@ class ProjectsReviewsViewSet(
             is_editor=is_editor,
             is_reviewer=is_reviewer
         )
-
-    @action(detail=True, methods=["post"])
-    def extract(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Extract the review.
-        """
-        review = self.get_object()
-        review.extract(request.user)
-        return Response()
