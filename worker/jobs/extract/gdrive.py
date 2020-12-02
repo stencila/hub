@@ -67,13 +67,16 @@ def create_review(comments: List[Dict]) -> Optional[Review]:
     main = None
     rest = []
     for comment in comments:
+        # Look for main comment
         text = comment.get("content", "")
-        if main is None and re.match(r"^#\sReview", text):
+        if main is None and is_main(text):
             main = comment
         else:
             rest.append(comment)
     if main is None:
+        # No main comment found so use the first
         main = comments[0]
+        rest = comments[1:]
 
     # Parse the main comment into the review
     review = parse_comment(main, parse_markdown=True)
@@ -89,6 +92,13 @@ def create_review(comments: List[Dict]) -> Optional[Review]:
     review_comments = list(filter(lambda x: x is not None, map(parse_comment, rest)))
 
     return Review(**review_properties, comments=review_comments,)
+
+
+def is_main(text: str) -> bool:
+    """
+    Is the comment the main comment.
+    """
+    return re.match(r"^(\s*#[^#])|(---)", text) is not None
 
 
 def parse_comment(data: Dict, parse_markdown=False) -> Optional[Comment]:

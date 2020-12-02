@@ -3,7 +3,7 @@ import os
 import pytest
 from stencila.schema.types import Comment, Review
 
-from .gdrive import create_review, extract_gdrive, filter_comments
+from .gdrive import create_review, extract_gdrive, filter_comments, is_main
 
 # To re-record this test, get a new Google token (e.g. via https://developers.google.com/oauthplayground),
 # paste it in below, ensure that the Google account has access to the documents
@@ -44,6 +44,16 @@ def test_no_comment_that_matches_main():
         "type": "Paragraph",
         "content": ["I'm just a lonesome comment"],
     }
+    assert len(review.comments) == 0
+
+    review = create_review(
+        [dict(content="I'm the main cause I am first"), dict(content="Number two")]
+    )
+    assert review.content[0] == {
+        "type": "Paragraph",
+        "content": ["I'm the main cause I am first"],
+    }
+    assert len(review.comments) == 1
 
 
 def test_missing_id():
@@ -56,6 +66,14 @@ def test_missing_token():
     with pytest.raises(AssertionError) as excinfo:
         extract_gdrive(source=dict(doc_id="foo"))
     assert "A Google access token is required" in str(excinfo.value)
+
+
+def test_is_main():
+    assert is_main("# Review of ...")
+    assert is_main("---\ntitle: Review of ...")
+
+    assert not is_main("## Secondary heading")
+    assert not is_main("A thematic break ---")
 
 
 @pytest.mark.vcr
