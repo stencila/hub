@@ -181,6 +181,75 @@ def pricing_dict(plan_id):
     return plans.get(plan_id)
 
 
+@register.tag
+def render_node(parser, token):
+    """
+    Parse a render_node template tag.
+    """
+    try:
+        tag_name, node = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "%r tag requires a single argument, the node to be rendered"
+            % token.contents.split()[0]
+        )
+    return RenderNode(node)
+
+
+class RenderNode(template.Node):
+    """
+    Render a Stencila Schema node.
+
+    This is primarily intended for rendering the content of a
+    `CreativeWork` node (e.g. a `Article`, `Review` or `Comment`)
+    without having to delegate to Encoda. See the templates in
+    `manager/manager/templates/nodes/`.
+    """
+
+    def __init__(self, node):
+        self.node = template.Variable(node)
+
+    def render(self, context: template.Context):
+        """
+        Render the node.
+        """
+        try:
+            node = self.node.resolve(context)
+            if isinstance(node, dict):
+                node_type = node.get("type")
+                if node_type:
+                    try:
+                        # Try to render a template for the type
+                        return self.render_template(
+                            context, f"nodes/{node_type}.html", node
+                        )
+                    except template.TemplateDoesNotExist as exc:
+                        # In debug mode raise an exception so we know to add
+                        # a template
+                        if context.template.engine.debug:
+                            raise exc
+                        # In production, see if the node has content and if so
+                        # render that
+                        if "content" in node:
+                            return self.render_template(
+                                context, "nodes/content.html", node
+                            )
+                        # Otherwise just return a string.
+                        return ""
+            return f"{node}"
+        except template.VariableDoesNotExist:
+            return ""
+
+    def render_template(self, context: template.Context, template_name: str, node):
+        """
+        Render a template with the node in the context.
+        """
+        templ = context.template.engine.get_template(template_name)
+        return templ.render(
+            template.Context({"node": node}, autoescape=context.autoescape)
+        )
+
+
 # fmt: off
 
 field_class_lookup = ClassLookupDict({
