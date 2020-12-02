@@ -24,8 +24,8 @@
     <div class="control has-icons-left is-expanded"
          autofocus>
       <div class="select is-fullwidth">
-        <select id="{{ field_id }}"
-                name="{{ field.name }}">
+        <select id="source"
+                name="souce">
           {% for option in field.iter_options %}
           <option value="{{ option.value }}"
                   {% if option.value == field.value %}selected{% endif %}>

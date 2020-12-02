@@ -1,12 +1,12 @@
 {% load i18n %}
 
-{% with field_id=field_id|default:"projects-search" %}
+{% with id=id|default:"projects-search" %}
 
 <div class="field">
-  <label for="{{ field_id }}-input"
+  <label for="{{ id }}-input"
          class="label is-sr-only">{% trans "Search Projects" %}</label>
   <div class="control has-icons-left has-icons-right is-expanded">
-    <input id="{{ field_id }}-input"
+    <input id="{{ id }}-input"
            class="input is-small-mobile"
            type="text"
            name="search"
@@ -21,7 +21,7 @@
       <i class="ri-search-line"></i>
     </span>
     <span class="icon is-right htmx-indicator"
-          id="{{ field_id }}-indicator">
+          id="{{ id }}-indicator">
       <i class="ri-loader-line animate-spin"></i>
     </span>
   </div>
