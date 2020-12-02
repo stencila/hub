@@ -2,6 +2,8 @@ import re
 
 import shortuuid
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db.models import Q
 from drf_yasg import openapi
 from rest_framework import exceptions, serializers
@@ -1014,26 +1016,9 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         model = Review
         exclude = ["status"]
 
-    def validate_reviewer(self, reviewer):
-        """
-        Validate that the reviewer value is a username or id.
-        """
-        if not reviewer:
-            return None
-        try:
-            try:
-                user = User.objects.get(id=reviewer)
-            except ValueError:
-                user = User.objects.get(username=reviewer)
-        except User.DoesNotExist:
-            raise exceptions.ValidationError(
-                "Reviewer is not a valid user id or username."
-            )
-        return user
-
     def validate(self, data):
         """
-        Validate the data used to create a project.
+        Validate the data used to create a review.
         """
         source = data.get("source")
         if not source:
@@ -1052,6 +1037,30 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
                     source=f"Source must be one of these types: {', '.join(source_types)}."
                 )
             )
+
+        # If the `reviewer` is a username or id then check that it is a
+        # valid email address
+        reviewer = data.get("reviewer")
+        if reviewer:
+            try:
+                try:
+                    data["reviewer"] = User.objects.get(id=reviewer)
+                except ValueError:
+                    data["reviewer"] = User.objects.get(username=reviewer)
+            except User.DoesNotExist:
+                try:
+                    validate_email(reviewer)
+                except ValidationError:
+                    raise exceptions.ValidationError(
+                        dict(
+                            reviewer="Reviewer is not a valid username, user id, or email address."
+                        )
+                    )
+                else:
+                    data["reviewer"] = None
+                    data["reviewer_email"] = reviewer
+        else:
+            data["reviewer"] = None
 
         return data
 
@@ -1109,7 +1118,7 @@ class ReviewUpdateSerializer(ReviewCreateSerializer):
 
     def validate(self, data):
         """
-        Override of super class' validate method.
+        Override of super class's validate method.
         """
         return data
 

@@ -25,7 +25,7 @@
          autofocus>
       <div class="select is-fullwidth">
         <select id="source"
-                name="souce">
+                name="source">
           {% for option in field.iter_options %}
           <option value="{{ option.value }}"
                   {% if option.value == field.value %}selected{% endif %}>
@@ -51,36 +51,24 @@
 
   <h3 class="title is-5 mt-4">Who would you like to request a review from?</h3>
   <p class="subtitle is-6">
-    Request a review from an existing user, or send a review request to an email.
+    Request a review from an existing user, or send a review request to an email address.
   </p>
 
-  <div class="field is-horizontal">
-    <div class="field-body">
-      <div class="field">
-        <label class="label"
-               for="user-search">Reviewer</label>
-        <div class="control is-expanded">
-          {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
-        </div>
-        {% for error in serializer.reviewer.errors %}
-        <p class="help is-danger">{{ error }}</p>
-        {% endfor %}
-        <p class="help">
-          If you can't find the reviewer here, just enter their email address in the box below.
-        </p>
-      </div>
-
-      <div class="pl-2 pr-5 is-align-self-center">
-        or
-      </div>
-
-      <div class="field">
-        {% include "serializers/_field.html" with field=serializer.reviewer_email icon="ri-at-line" autofocus=True %}
-      </div>
+  <div class="field">
+    <label class="label"
+           for="user-search">Reviewer username or email</label>
+    <div class="control is-expanded">
+      {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
     </div>
+    {% for error in serializer.reviewer.errors %}
+    <p class="help is-danger">{{ error }}</p>
+    {% endfor %}
+    <p class="help">
+      If the reviewer is already a user, select their username. Otherwise just enter their email address.
+    </p>
   </div>
 
-  {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True %}
+  {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True help_text="A personalised message to send the reviewer along with instructions on have to complete a review for the source." %}
 
   <button class="button is-primary is-fullwidth-mobile"
           type="submit">
