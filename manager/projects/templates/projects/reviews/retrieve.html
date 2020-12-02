@@ -4,28 +4,5 @@
 {% block title %}Review : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-
-
-<h2 class="title is-3">Review</h2>
-
-<div class="level level-reverse-mobile">
-  <div class="level-left">
-    {% include "./_overview.html" %}
-  </div>
-</div>
-
-{% if review.status == 'PENDING' %}
-{% include "./_retrieve_pending.html" %}
-{% elif review.status == 'REQUESTED' %}
-{% include "./_retrieve_requested.html" %}
-{% elif review.status == 'CANCELLED' %}
-{% include "./_retrieve_cancelled.html" %}
-{% elif review.status == 'DECLINED' %}
-{% include "./_retrieve_declined.html" %}
-{% elif review.status == 'ACCEPTED' %}
-{% include "./_retrieve_accepted.html" %}
-{% elif review.status == 'EXTRACTED' %}
-{% include "./_retrieve_extracted.html" %}
-{% endif %}
-
+{% include "./_retrieve.html" %}
 {% endblock %}

@@ -2,6 +2,9 @@
 {% load i18n humanize stencila %}
 
 <article>
+  <h3 class="title is-5">
+    {{ review.review_title|default:'Review' }}
+  </h3>
   <header>
     <div class="level">
       <div class="level-left">
@@ -31,7 +34,7 @@
 
   <div>
     {% if review.status == 'REQUESTED' %}
-    <span class="tag is-light is-light">
+    <span class="tag is-light">
       Review request sent
     </span>
     {% elif review.status == 'CANCELLED' %}
@@ -45,6 +48,14 @@
     {% elif review.status == 'ACCEPTED' %}
     <span class="tag is-light is-success">
       Review accepted
+    </span>
+    {% elif review.status == 'EXTRACTING' %}
+    <span class="tag is-light is-warning">
+      Review retrieval in progress
+    </span>
+    {% elif review.status == 'FAILED' %}
+    <span class="tag is-light is-danger">
+      Review retrieval failed
     </span>
     {% endif %}
 
@@ -75,8 +86,4 @@
 
     {# User is editor: {{ is_editor }} User is the reviewer: {{ is_reviewer }} #}
   </div>
-
-  {% if review.status == 'DECLINED' or review.status == 'EXTRACTED' %}
-  {# <p>TODO: Show abstract or declination reason</p> #}
-  {% endif %}
 </article>

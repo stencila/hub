@@ -7,6 +7,7 @@ from django.db import models
 
 from jobs.models import Job
 from manager.helpers import EnumChoice
+from manager.nodes import node_text_content
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectRole
 from projects.models.sources import Source
@@ -191,6 +192,14 @@ class Review(models.Model):
         help_text="The date of the review e.g it's `datePublished`.",
     )
 
+    review_title = models.TextField(
+        null=True, blank=True, help_text="The title of the review.",
+    )
+
+    review_description = models.TextField(
+        null=True, blank=True, help_text="The description of the review.",
+    )
+
     review_comments = models.IntegerField(
         null=True, blank=True, help_text="The number of comments that the review has."
     )
@@ -327,7 +336,7 @@ class Review(models.Model):
             ReviewStatus.ACCEPTED.name,
             ReviewStatus.FAILED.name,
         ):
-            self.extract(user, filters)
+            return self.extract(user, filters)
         else:
             raise ValueError(
                 f"Review can not be updated from {self.status} to {status}."
@@ -373,14 +382,24 @@ class Review(models.Model):
             self.review = Node.objects.create(
                 project=self.project, creator=job.creator, app="hub.reviews", json=json
             )
+
             authors = json.get("authors", [])
             if len(authors) > 0:
                 self.review_author_name = authors[0].get("name")
+
             self.review_date = (
                 json.get("datePublished")
                 or json.get("dateModified")
                 or json.get("dateCreated")
             )
+
+            self.review_title = node_text_content(json.get("title"))
+
+            self.review_description = node_text_content(
+                json.get("description") or json.get("content")
+            )
+
             self.review_comments = len(json.get("comments", []))
+
             self.status = ReviewStatus.EXTRACTED.name
         self.save()

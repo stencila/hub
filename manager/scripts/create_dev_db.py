@@ -509,7 +509,19 @@ def create_reviews_for_project(project):
             else ReviewStatus.EXTRACTED.name
         )
         if status == ReviewStatus.EXTRACTED.name:
-            review_node = Node.objects.create(project=project, json={"type": "Review"})
+            para1 = fake.paragraph(nb_sentences=10)
+            review_node = Node.objects.create(
+                project=project,
+                json=dict(
+                    type="Review", content=[dict(type="Paragraph", content=[para1])]
+                ),
+            )
+            review_author_name = fake.name()
+            review_date = fake.date_time_this_month(tzinfo=utc)
+            review_title = fake.sentence() if fake.boolean(70) else None
+            review_description = para1
+            review_comments = random.randint(0, 142)
+
             if fake.boolean():
                 deposited = (
                     fake.date_time_this_month(tzinfo=utc) if fake.boolean(80) else None
@@ -532,6 +544,11 @@ def create_reviews_for_project(project):
                 )
         else:
             review_node = None
+            review_author_name = None
+            review_date = None
+            review_title = None
+            review_description = None
+            review_comments = None
 
         Review.objects.create(
             project=project,
@@ -549,7 +566,9 @@ def create_reviews_for_project(project):
             and fake.boolean(50)
             else None,
             review=review_node,
-            review_author_name=fake.name(),
-            review_date=fake.date_time_this_month(tzinfo=utc),
-            review_comments=random.randint(0, 142),
+            review_author_name=review_author_name,
+            review_date=review_date,
+            review_title=review_title,
+            review_description=review_description,
+            review_comments=review_comments,
         )
