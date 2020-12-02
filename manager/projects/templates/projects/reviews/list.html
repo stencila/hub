@@ -39,7 +39,11 @@
           <i class="ri-eye-line"></i>
         </span>
         <span>
-          {% trans "Read" %}
+          {% if review.status == 'EXTRACTED' %}
+            {% trans "Read" %}
+          {% else %}
+            {% trans "Details" %}
+          {% endif %}
         </span>
       </a>
     </p>

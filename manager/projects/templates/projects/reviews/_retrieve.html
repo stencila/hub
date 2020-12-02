@@ -5,9 +5,28 @@
      hx-swap="outerHTML"
      {% endif %}>
 
+   <h2 class="title is-4">
+     {{ review.review_title|default:'Review' }}
+   </h2>
+
   <div class="level level-reverse-mobile">
     <div class="level-left">
       {% include "./_overview.html" %}
+    </div>
+
+    <div class="level-right">
+      {% if review.status == 'EXTRACTED' and not review.get_doi %}
+      <button class="button is-small-mobile is-expanded-mobile"
+              hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
+              hx-vars="status:'REGISTERED'"
+              hx-swap="none"
+              hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
+        <span class="icon">
+          <i class="ri-fingerprint-line"></i>
+        </span>
+        <span>Register DOI</span>
+      </button>
+      {% endif %}
     </div>
   </div>
 

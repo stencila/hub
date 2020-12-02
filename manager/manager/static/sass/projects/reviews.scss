@@ -1,9 +1,14 @@
-.review-list-item {
+.review-list-item,
+.comment-item {
   border: 1px solid $grey-lighter;
   border-radius: 4px;
   padding: $gap / 2;
   margin-top: $gap;
   margin-bottom: $gap;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
 }
 
 .review-list--meta {
@@ -21,5 +26,17 @@
       margin-left: $gap / 8;
       margin-right: $gap / 8;
     }
+  }
+}
+
+.comment-item {
+  & &,
+  & &:first-of-type {
+    margin-top: $gap / 2;
+    margin-bottom: $gap / 2;
+  }
+
+  & &:last-of-type {
+    margin-bottom: 0;
   }
 }

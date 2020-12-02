@@ -61,12 +61,12 @@
 
   <h3 class="title is-5">Cancel review?</h3>
   <p class="subtitle is-6">
-    This review request has not been accepted or declined yet. You can cancel it or wait some more.
+    This review request has not been accepted or declined yet. If you'd like, you can cancel the request.
   </p>
 
   {% include "serializers/_field.html" with field=serializer.cancel_message icon="ri-message-2-line" element="textarea" autofocus=True help_text="A message to send to the reviewer letting them know you have cancelled the review." %}
 
-  <button class="button is-primary is-fullwidth-mobile"
+  <button class="button is-danger is-fullwidth-mobile"
           type="submit"
           hx-patch="{{ patch_url }}"
           hx-vars="status:'CANCELLED'">

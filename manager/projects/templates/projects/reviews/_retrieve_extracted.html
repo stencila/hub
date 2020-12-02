@@ -2,24 +2,14 @@
 
 {% if review.review %}
 
-{% if not review.get_doi %}
-<button class="button is-primary is-fullwidth-mobile"
-        hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
-        hx-vars="status:'REGISTERED'"
-        hx-swap="none"
-        hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
-  <span class="icon">
-    <i class="ri-fingerprint-line"></i>
-  </span>
-  <span>Register DOI</span>
-</button>
-{% endif %}
-
 {% with review.review.json as json %}
 <div class="content">
+  <h3 class="title is-5 mt-4 mb-0">Summary</h3>
   {% include "nodes/content.html" with node=json %}
 </div>
+
 <div>
+  <h3 class="title is-5 mt-4 mb-2">Comments</h3>
   {% for comment in json.comments %}
   {% include "./_comment.html" %}
   {% endfor %}
