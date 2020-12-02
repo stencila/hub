@@ -1,0 +1,33 @@
+{% load humanize %}
+<div>
+  <div class="level">
+    <div class="level-left">
+      <div class="mb-2">
+        <span>
+          <span class="is-vcentered has-text-weight-bold">
+            {{ comment.authors.0.name|default:'Anonymous' }}
+          </span>
+        </span>
+
+        {% with comment_date=comment.datePublished|default:comment.dateModified|default:comment.dateCreated %}
+        <span class="has-tooltip-bottom has-tooltip-text-centered"
+              alt="{{ comment_date|naturaltime }}"
+              data-tooltip="{{ comment_date|naturaltime }}">
+          <span class="icon is-vcentered">
+            <i class="ri-calendar-line"></i>
+          </span>
+          <span class="is-vcentered">{{ comment_date }}</span>
+        </span>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    {% include "nodes/content.html" with node=comment %}
+  </div>
+  <div style="padding-left: 2em">
+    {% for reply in comment.comments %}
+    {% include "projects/reviews/_comment.html" with comment=reply %}
+    {% endfor %}
+  </div>
+</div>

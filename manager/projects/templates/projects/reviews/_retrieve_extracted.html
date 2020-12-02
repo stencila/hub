@@ -1,1 +1,20 @@
-{# TODO: Render review content #}
+{% load stencila %}
+
+{% if review.review %}
+
+{% with review.review.json as json %}
+<div class="content">
+  {% include "nodes/content.html" with node=json %}
+</div>
+<div>
+  {% for comment in json.comments %}
+  {% include "./_comment.html" %}
+  {% endfor %}
+</div>
+{% endwith %}
+
+{% else %}
+
+<p class="mt-3">{{ review.review_description }}</p>
+
+{% endif %}
