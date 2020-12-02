@@ -1,7 +1,6 @@
-<h3 class="title is-5">Retrieve the review from its source</h3>
-<p class="subtitle is-6">
-  This review is still pending retieval from its source.
-  Please provide a little more information to enable us to do that.
+<h3 class="title is-5">Import review from its source</h3>
+<p class="subtitle is-6 mb-0">
+  Please complete the fields below to start importing the review.
 </p>
 
 {% include "./_retrieve_extract_form.html" %}
@@ -16,28 +15,32 @@
       hx-swap="outerHTML"
       hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
 
-  <h3 class="title is-5">Assign the review to a user?</h3>
-  <p class="subtitle is-6">
-    This review was created it was not assigned to an existing user. You can do that now if you like.
-  </p>
-
-  <div class="field">
+  <div class="field mt-4">
     <label class="label"
-           for="user-search">Reviewer username</label>
+           for="user-search">Assign to Stencila user (optional)</label>
     <div class="control is-expanded">
-      {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
+      {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value help_text="If set, the review will be linked to the chosen Stencila user" %}
     </div>
     {% for error in serializer.reviewer.errors %}
     <p class="help is-danger">{{ error }}</p>
     {% endfor %}
   </div>
-  <button class="button is-primary is-fullwidth-mobile"
-          type="submit">
+
+  <button class="button is-primary is-fullwidth-mobile mt-2"
+  type="submit">
     <span class="icon">
-      <i class="ri-user-line"></i>
+    <i class="ri-user-line"></i>
     </span>
     <span>Assign reviewer</span>
   </button>
+
+  <!-- <button class="button is-primary is-fullwidth-mobile mt-2"
+  type="submit">
+    <span class="icon">
+    <i class="ri-chat-download-line"></i>
+    </span>
+    <span>Import review</span>
+  </button> -->
 </form>
 
 {% endif %}

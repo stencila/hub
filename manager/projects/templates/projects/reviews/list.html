@@ -9,16 +9,49 @@
 <div class="level level-reverse-mobile">
   <div class="level-left">
   </div>
-  <div class="level-right buttons has-flex-justify-content-end-mobile">
-    <a class="button is-small-mobile is-expanded-mobile"
-       href="{% url 'ui-projects-reviews-create' account.name project.name %}">
-      <span class="icon">
-        <i class="ri-chat-new-line"></i>
-      </span>
-      <span>
-        {% trans "Request or retrieve a review" %}
-      </span>
-    </a>
+  <div class="level-right buttons has-flex-justify-content-end-mobile">    
+    <div class="dropdown">
+      <div class="dropdown-trigger width-full">
+        <button class="button is-primary is-small-mobile width-full"
+                aria-haspopup="true"
+                aria-controls="dropdown-menu">
+          <span class="icon">
+            <i class="ri-chat-new-line"></i>
+          </span>
+          <span>
+            {% trans "New review…" %}
+          </span>
+          <span class="icon">
+            <i class="ri-arrow-down-s-line"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu has-text-left"
+           role="menu"
+           id="file-{{ file.id }}-action-menu">
+        <div class="dropdown-content">
+          <a href="{% url 'ui-projects-reviews-create' account.name project.name %}"
+             class="dropdown-item">
+            <span class="icon">
+              <i class="ri-chat-new-line"></i>
+            </span>
+            <span>
+              {% trans "Request a review" %}
+            </span>
+          </a>
+
+          <a href="{% url 'ui-projects-reviews-create' account.name project.name %}"
+           class="dropdown-item">
+          <span class="icon">
+            <i class="ri-chat-download-line"></i>
+          </span>
+          <span>
+            {% trans "Import existing review" %}
+          </span>
+        </a>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endif %}

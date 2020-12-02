@@ -1,5 +1,5 @@
 {% extends '../base.html' %}
-{% load i18n %}
+{% load i18n stencila %}
 
 {% block title %}Create a review : {{ project.name }}{% endblock %}
 
@@ -12,31 +12,7 @@
       hx-select="form"
       hx-redirect="CREATED:Location">
 
-  <h3 class="title is-5">Who are you requesting a review from?</h3>
-  <p class="subtitle is-6">
-    Request a review from an existing user or using an email.
-  </p>
-
-  <div class="field">
-    <label class="label"
-           for="user-search">Reviewer username</label>
-    <div class="control is-expanded">
-      {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
-    </div>
-    {% for error in serializer.reviewer.errors %}
-    <p class="help is-danger">{{ error }}</p>
-    {% endfor %}
-    <p class="help">
-      If you can't find the reviewer here, just enter their email address in the box below.
-    </p>
-  </div>
-
-  {% include "serializers/_field.html" with field=serializer.reviewer_email icon="ri-at-line" autofocus=True %}
-  {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True %}
-
-  <hr>
-
-  <h3 class="title is-5">Where should the review be written?</h3>
+  <h3 class="title is-5">What would you like reviewed?</h3>
   <p class="subtitle is-6">
     Let the reviewer know where you would like them to write their review.
   </p>
@@ -44,7 +20,7 @@
   {% with serializer.source as field %}
   <div class="field">
     <label class="label"
-           for="source">Source of review</label>
+           for="source">Source to be reviewed</label>
     <div class="control has-icons-left is-expanded"
          autofocus>
       <div class="select is-fullwidth">
@@ -73,12 +49,43 @@
   </div>
   {% endwith %}
 
-  <hr>
+  <h3 class="title is-5 mt-4">Who would you like to request a review from?</h3>
+  <p class="subtitle is-6">
+    Request a review from an existing user, or send a review request to an email.
+  </p>
+
+  <div class="field is-horizontal">
+    <div class="field-body">
+      <div class="field">
+        <label class="label"
+               for="user-search">Reviewer</label>
+        <div class="control is-expanded">
+          {% include "users/_search.html" with name="reviewer" value=serializer.reviewer.value %}
+        </div>
+        {% for error in serializer.reviewer.errors %}
+        <p class="help is-danger">{{ error }}</p>
+        {% endfor %}
+        <p class="help">
+          If you can't find the reviewer here, just enter their email address in the box below.
+        </p>
+      </div>
+
+        <div class="pl-2 pr-5 is-align-self-center">
+          or
+        </div>
+
+      <div class="field">
+        {% include "serializers/_field.html" with field=serializer.reviewer_email icon="ri-at-line" autofocus=True %}
+      </div>
+    </div>
+  </div>
+
+  {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True %}
 
   <button class="button is-primary is-fullwidth-mobile"
-          type="submit">
+  type="submit">
     <span class="icon">
-      <i class="ri-add-fill"></i>
+    <i class="ri-add-fill"></i>
     </span>
     <span>{% trans "Create review" %}</span>
   </button>
