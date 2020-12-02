@@ -15,7 +15,7 @@
     </div>
 
     <div class="level-right">
-      {% if review.status == 'EXTRACTED' and not review.get_doi %}
+      {% if review.status == 'EXTRACTED' and is_editor and not review.get_doi %}
       <button class="button is-small-mobile is-expanded-mobile"
               hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
               hx-vars="status:'REGISTERED'"
