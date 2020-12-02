@@ -1,5 +1,7 @@
 <p class="mb-4">
-  Extracting review from <a href="{{ source.get_url }}" target="_blank" rel="noreferrer noopener">{{ source.get_url }}</a>.
+  Extracting review from <a href="{{ source.get_url }}"
+     target="_blank"
+     rel="noreferrer noopener">{{ source.get_url }}</a>.
 </p>
 
 {% include "serializers/_field.html" with field=serializer.filter_a label="Reviewer name" icon="ri-user-line" autofocus=True help_text="Enter the name of the reviewer as it appears in the comments of the document" %}

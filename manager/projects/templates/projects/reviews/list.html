@@ -9,7 +9,7 @@
 <div class="level level-reverse-mobile">
   <div class="level-left">
   </div>
-  <div class="level-right buttons has-flex-justify-content-end-mobile">    
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
     <div class="dropdown">
       <div class="dropdown-trigger width-full">
         <button class="button is-primary is-small-mobile width-full"
@@ -41,14 +41,14 @@
           </a>
 
           <a href="{% url 'ui-projects-reviews-create' account.name project.name %}"
-           class="dropdown-item">
-          <span class="icon">
-            <i class="ri-chat-download-line"></i>
-          </span>
-          <span>
-            {% trans "Import existing review" %}
-          </span>
-        </a>
+             class="dropdown-item">
+            <span class="icon">
+              <i class="ri-chat-download-line"></i>
+            </span>
+            <span>
+              {% trans "Import existing review" %}
+            </span>
+          </a>
         </div>
       </div>
     </div>
@@ -73,9 +73,9 @@
         </span>
         <span>
           {% if review.status == 'EXTRACTED' %}
-            {% trans "Read" %}
+          {% trans "Read" %}
           {% else %}
-            {% trans "Details" %}
+          {% trans "Details" %}
           {% endif %}
         </span>
       </a>

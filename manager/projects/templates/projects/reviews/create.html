@@ -70,9 +70,9 @@
         </p>
       </div>
 
-        <div class="pl-2 pr-5 is-align-self-center">
-          or
-        </div>
+      <div class="pl-2 pr-5 is-align-self-center">
+        or
+      </div>
 
       <div class="field">
         {% include "serializers/_field.html" with field=serializer.reviewer_email icon="ri-at-line" autofocus=True %}
@@ -83,9 +83,9 @@
   {% include "serializers/_field.html" with field=serializer.request_message icon="ri-message-2-line" element="textarea" autofocus=True %}
 
   <button class="button is-primary is-fullwidth-mobile"
-  type="submit">
+          type="submit">
     <span class="icon">
-    <i class="ri-add-fill"></i>
+      <i class="ri-add-fill"></i>
     </span>
     <span>{% trans "Create review" %}</span>
   </button>
