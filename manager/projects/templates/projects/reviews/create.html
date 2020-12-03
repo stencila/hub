@@ -4,7 +4,7 @@
 {% block title %}Create a review : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-<h2 class="title is-3">Request or retrieve a review</h2>
+<h2 class="title is-3">Import a review</h2>
 
 <form class="form"
       hx-post="{% url 'api-projects-reviews-list' project.id %}"
@@ -43,8 +43,7 @@
     {% endfor %}
     <p class="help">
       The project source from which the review will be extracted.
-      Only certain types of project sources are supported.
-      Add a new source to the project if necessary.
+      If the project Source you’re looking for is not in the list, it may not be supported.
     </p>
   </div>
   {% endwith %}
