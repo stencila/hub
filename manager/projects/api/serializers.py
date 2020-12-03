@@ -1118,8 +1118,19 @@ class ReviewUpdateSerializer(ReviewCreateSerializer):
 
     def validate(self, data):
         """
-        Override of super class's validate method.
+        Override of super class's validate method to ensure assigned reviewer is a user.
         """
+        reviewer = data.get("reviewer")
+        if reviewer:
+            try:
+                try:
+                    data["reviewer"] = User.objects.get(id=reviewer)
+                except ValueError:
+                    data["reviewer"] = User.objects.get(username=reviewer)
+            except User.DoesNotExist:
+                raise exceptions.ValidationError(
+                    dict(reviewer="Reviewer is not a valid username or user id.")
+                )
         return data
 
     def update(self, instance, data):
