@@ -48,7 +48,7 @@ def pricing(request: HttpRequest) -> HttpResponse:
 
     Served at /pricing/
     """
-    tiers = AccountTier.objects.all()
+    tiers = AccountTier.objects.order_by("id").all()
     return render(request, "accounts/plans.html", dict(tiers=tiers))
 
 
