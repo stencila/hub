@@ -1,3 +1,16 @@
+## [4.23.5](https://github.com/stencila/hub/compare/v4.23.4...v4.23.5) (2020-12-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/executa to v1.15.3 ([0209496](https://github.com/stencila/hub/commit/0209496de42b54c6451776737595ebb9e08a9b77))
+* **deps:** update dependency @vizuaalog/bulmajs to v0.12.0 ([2da8170](https://github.com/stencila/hub/commit/2da81702160911afb99b6da8df8e63ec2b927acd))
+* **deps:** update dependency bulma-toast to v2.2.0 ([436f416](https://github.com/stencila/hub/commit/436f416fe4c2944fa13f45950f15d965c5be6454))
+* **deps:** update dependency dj-stripe to v2.4.1 ([b151676](https://github.com/stencila/hub/commit/b151676bbd64ccfe90e109986a3985c1c99add3f))
+* **deps:** update dependency django to v3.1.4 ([830f0bd](https://github.com/stencila/hub/commit/830f0bdbec3b506bb90bdf69d9940c2db6232f06))
+* **deps:** update dependency pygithub to v1.54 ([18e64b8](https://github.com/stencila/hub/commit/18e64b8eed3d747a2d8e99b797a029d2d2e2e13a))
+* **Pricing:** Ensure Account plans are correctly ordered (Close [#770](https://github.com/stencila/hub/issues/770)) ([1f47631](https://github.com/stencila/hub/commit/1f476312f80f9808e630020f2006f5367654c522))
+
 ## [4.23.4](https://github.com/stencila/hub/compare/v4.23.3...v4.23.4) (2020-12-01)
 
 
