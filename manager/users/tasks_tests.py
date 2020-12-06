@@ -23,7 +23,6 @@ class UserTasksTests(DatabaseTestCase):
                 "location": mock.ANY,
                 "image": mock.ANY,
                 "website": mock.ANY,
-                "public_email": mock.ANY,
                 "date_joined": mock.ANY,
                 "last_login": mock.ANY,
                 "personal_account_id": mock.ANY,
@@ -41,13 +40,17 @@ class UserTasksTests(DatabaseTestCase):
                 "projects_summary_manager": mock.ANY,
                 "projects_summary_owner": mock.ANY,
                 "name": "ada",
-                "email": mock.ANY,
+                "email": "ada@example.com",
             },
         }
         headers = {
             "Authorization": "Bearer userflow_key",
             "UserFlow-Version": "2020-01-03",
         }
+
+        # Give Ada an email address
+        self.ada.email = "ada@example.com"
+        self.ada.save()
 
         # Called with a user object
         update_services_for_user(self.ada, services=["userflow"])

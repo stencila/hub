@@ -6,7 +6,7 @@ from celery import shared_task
 from django import conf
 
 from users.api.serializers import MeSerializer
-from users.models import User
+from users.models import User, get_email
 
 logger = logging.getLogger(__name__)
 
@@ -68,17 +68,18 @@ def update_userflow(user: User, data: dict):
             attributes[name] = value
 
     # UserFlow "expects" some attributes (shows them in
-    # their interface by default), so provide them
-    attributes["name"] = user.username
-    email = user.email
-    for email in attributes.get("email_addresses", []):
-        if email.get("primary", False):
-            email = email.get("email")
-            break
-    attributes["email"] = email
+    # their interface by default), so provide them:
+    # `name`, `email`
+    name = user.username
+    if name:
+        attributes["name"] = name
+    email = get_email(user)
+    if email:
+        attributes["email"] = email
 
     # Remove attributes we don't want to send
     del attributes["id"]
+    del attributes["public_email"]
     del attributes["email_addresses"]
     del attributes["linked_accounts"]
 

@@ -39,7 +39,9 @@ def get_email(user: User) -> Optional[str]:
 
     The "best" email is the verified primary email,
     falling back to verified if none marked as primary,
-    falling back to the first if none is verified.
+    falling back to the first if none is verified,
+    falling back to `user.email`, falling back to
+    their public email.
     """
     best = None
 
@@ -47,16 +49,20 @@ def get_email(user: User) -> Optional[str]:
     for email in emails:
         if email.primary and email.verified:
             best = email.email
-        elif best is None and email.verified:
+        elif not best and email.verified:
             best = email.mail
 
-    if best is None and len(emails) > 0:
+    if not best and len(emails) > 0:
         best = emails[0].email
 
-    if best is None and user.email:
+    if not best:
         best = user.email
 
-    return best
+    if not best and user.personal_account:
+        best = user.personal_account.email
+
+    # Avoid returning an empty string, return None instead
+    return best or None
 
 
 def get_attributes(user: User) -> Dict:
