@@ -14,7 +14,7 @@ htmx.defineExtension('stencila', {
        * - Sets the `X-CSRFToken` header.
        *   See https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax
        * 
-       * - Looks for the closest `stencila-template` attribute and sends it as `X-Template`
+       * - Looks for the closest `hx-template` attribute and sends it as `X-Template`
        *   Akin to https://github.com/bigskysoftware/htmx/blob/master/src/ext/client-side-templates.js
        *   but server-side.
        */

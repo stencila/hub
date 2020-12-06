@@ -10,6 +10,7 @@ from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectEvent
 from projects.models.providers import GithubRepo
+from projects.models.reviews import Review
 from projects.models.snapshots import Snapshot
 from projects.models.sources import (
     ElifeSource,
@@ -242,6 +243,22 @@ class SnapshotAdmin(admin.ModelAdmin):
     def job_status(self, snapshot):
         """Derive snapshot's job status."""
         return snapshot.job and snapshot.job.status
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    """Admin interface for project reviewss."""
+
+    list_display = ["id", "project_full_name", "created", "reviewer", "status"]
+    list_select_related = ["project", "project__account"]
+    list_filter = [ProjectNameFilter, "status", "created"]
+    ordering = ["-created"]
+
+    def project_full_name(self, reviews):
+        """Derive reviews's project full name."""
+        return (
+            reviews.project and f"{reviews.project.account.name}/{reviews.project.name}"
+        )
 
 
 @admin.register(Node)

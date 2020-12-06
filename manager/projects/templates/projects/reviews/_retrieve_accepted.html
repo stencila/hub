@@ -1,0 +1,27 @@
+{% if is_reviewer %}
+
+{% include "./_retrieve_extract_form.html" %}
+
+{% elif is_editor %}
+
+<article class="message message-header-body is-info">
+  <div class="message-header">
+    <p>
+      <span class="icon">
+        <i class="ri-chat-delete-line"></i>
+      </span>
+      Review request accepted
+    </p>
+  </div>
+  <div class="message-body">
+    {% if review.response_message %}
+    <em>{{ review.response_message }}</em>
+    {% else %}
+    The reviewer accepted the request to perform a review.
+    {% endif %}
+  </div>
+</article>
+
+{% include "./_retrieve_extract_form.html" %}
+
+{% endif %}

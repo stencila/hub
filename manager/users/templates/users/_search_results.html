@@ -14,7 +14,7 @@ for displaying user search results.
       data-username="{{ user.username }}">
     {% with account=user.personal_account %}
     <figure class="image is-32x32 is-inline-block mr-2 is-vcentered">
-      <img src="{{ account.image.small }}"
+      <img src="{{ account.image.medium }}"
            alt="{{ user.get_full_name|default:user.username }}"></img>
     </figure>
     <div class="is-inline-block is-vcentered">

@@ -1,0 +1,23 @@
+<div class="comment-item">
+  <div class="level mb-0">
+    <div class="level-left">
+      <div>
+        <span>
+          <span class="is-vcentered has-text-weight-bold">
+            {{ comment.authors.0.name|default:'Anonymous' }}
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content mb-0">
+    {% include "nodes/content.html" with node=comment %}
+  </div>
+
+  <div>
+    {% for reply in comment.comments %}
+    {% include "projects/reviews/_comment.html" with comment=reply %}
+    {% endfor %}
+  </div>
+</div>

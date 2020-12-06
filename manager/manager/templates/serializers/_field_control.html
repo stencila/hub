@@ -2,7 +2,7 @@
 
 {% if element == "checkbox" %}
 
-<input id="{{ field_id }}"
+<input id="{{ id }}"
        type="checkbox"
        name="{{ field.name }}"
        class="toggle"
@@ -13,7 +13,7 @@
 <div class="control {% if icon %}has-icons-left{% endif %}">
   {% if element == "select" %}
   <div class="select">
-    <select id="{{ field_id }}"
+    <select id="{{ id }}"
             name="{{ field.name }}">
       {% if field.allow_null or field.allow_blank %}
       <option value=""
@@ -38,7 +38,7 @@
   </span>
   {% endif %}
   {% elif element == "textarea" %}
-  <textarea id="{{ field_id }}"
+  <textarea id="{{ id }}"
             class="textarea"
             name="{{ field.name }}"
             {% if placeholder %}placeholder="{{ placeholder }}"
@@ -47,7 +47,7 @@
   {% else %}
   <input class="input"
          name="{{ field.name }}"
-         id="{{ field_id }}"
+         id="{{ id }}"
          type="{{ field|input_type }}"
          {% if placeholder %}placeholder="{{ placeholder }}"
          {% endif %}

@@ -6,7 +6,6 @@ from typing import List, Optional
 from zipfile import ZipFile, ZipInfo
 
 import httpx
-from github import Github
 
 from util.files import (
     Files,
@@ -16,13 +15,7 @@ from util.files import (
     file_info,
     file_mimetype,
 )
-
-# Github API credentials
-# Used to authenticate with GitHub API as a OAuth App to get higher rate limits
-# See https://developer.github.com/v3/#oauth2-keysecret
-# Note that using the credentials of a "Github App" may give lower rate limits
-# than using a "OAuth App".
-GITHUB_API_CREDENTIALS = os.getenv("GITHUB_API_CREDENTIALS")
+from util.github_api import github_client
 
 
 def pull_github(
@@ -40,23 +33,11 @@ def pull_github(
     if subpath.endswith("/"):
         subpath = subpath[:-1]
 
-    token = secrets.get("token")
-    if token:
-        # Authenticate as a user
-        client = Github(token)
-    elif GITHUB_API_CREDENTIALS:
-        # Authenticate as a OAuth client application
-        # No extra permissions, just higher rate limits
-        client_id, client_secret = GITHUB_API_CREDENTIALS.split(":")
-        client = Github(client_id, client_secret)
-    else:
-        # Unauthenticated access
-        client = Github()
-
     path = path or "."
 
     # Get the possibly token protected link for the repo archive
     # See https://developer.github.com/v3/repos/contents/#download-a-repository-archive
+    client = github_client(secrets.get("token"))
     repo_resource = client.get_repo(source["repo"])
     archive_link = repo_resource.get_archive_link("zipball")
 

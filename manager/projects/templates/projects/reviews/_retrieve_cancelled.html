@@ -1,0 +1,17 @@
+<article class="message message-header-body is-warning">
+  <div class="message-header">
+    <p>
+      <span class="icon">
+        <i class="ri-chat-off-line"></i>
+      </span>
+      Review request cancelled
+    </p>
+  </div>
+  <div class="message-body">
+    {% if review.cancel_message %}
+    <em>{{ review.cancel_message }}</em>
+    {% else %}
+    An author or editor cancelled this review request.
+    {% endif %}
+  </div>
+</article>

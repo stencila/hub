@@ -14,8 +14,9 @@ class ProjectPaths(enum.Enum):
     claim = "claim"
     files = "files"
     jobs = "jobs"
-    sharing = "sharing"
+    reviews = "reviews"
     settings = "settings"
+    sharing = "sharing"
     snapshots = "snapshots"
     sources = "sources"
 

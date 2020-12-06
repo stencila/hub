@@ -1,0 +1,93 @@
+{% extends '../base.html' %}
+{% load i18n %}
+
+{% block title %}Reviews : {{ project.name }}{% endblock %}
+
+{% block projects_content %}
+
+{% if project.role in 'EDITOR, AUTHOR, MANAGER, OWNER' %}
+<div class="level level-reverse-mobile">
+  <div class="level-left">
+  </div>
+  <div class="level-right buttons has-flex-justify-content-end-mobile">
+    <div class="dropdown">
+      <div class="dropdown-trigger width-full">
+        <button class="button is-primary is-small-mobile width-full"
+                aria-haspopup="true"
+                aria-controls="dropdown-menu">
+          <span class="icon">
+            <i class="ri-chat-new-line"></i>
+          </span>
+          <span>
+            {% trans "New review…" %}
+          </span>
+          <span class="icon">
+            <i class="ri-arrow-down-s-line"></i>
+          </span>
+        </button>
+      </div>
+      <div class="dropdown-menu has-text-left"
+           role="menu"
+           id="file-{{ file.id }}-action-menu">
+        <div class="dropdown-content">
+          <a href="{% url 'ui-projects-reviews-create' account.name project.name %}"
+             class="dropdown-item">
+            <span class="icon">
+              <i class="ri-chat-new-line"></i>
+            </span>
+            <span>
+              {% trans "Request a review" %}
+            </span>
+          </a>
+
+          <a href="{% url 'ui-projects-reviews-create' account.name project.name %}"
+             class="dropdown-item">
+            <span class="icon">
+              <i class="ri-chat-download-line"></i>
+            </span>
+            <span>
+              {% trans "Import existing review" %}
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% for review in reviews %}
+<ul>
+  <li class="review-list-item">
+    {% include "./_overview.html" %}
+
+    {% if review.review_description %}
+    <p class="mt-3">{{ review.review_description }}</p>
+    {% endif %}
+
+    <p class="mt-4">
+      <a href="{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}"
+         class="button is-small-mobile is-outlined">
+        <span class="icon is-vcentered">
+          <i class="ri-eye-line"></i>
+        </span>
+        <span>
+          {% if review.status == 'EXTRACTED' %}
+          {% trans "Read" %}
+          {% else %}
+          {% trans "Details" %}
+          {% endif %}
+        </span>
+      </a>
+    </p>
+  </li>
+</ul>
+{% empty %}
+<div class="has-text-centered">
+  <h2 class="title is-4 has-text-grey">
+    {% trans 'No reviews yet' %}
+  </h2>
+</div>
+{% endfor %}
+
+{% endblock %}

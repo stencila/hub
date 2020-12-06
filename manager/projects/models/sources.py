@@ -359,6 +359,7 @@ class Source(PolymorphicModel):
             **Job.create_callback(self, "pull_callback"),
         )
         job.secrets = secrets
+
         self.jobs.add(job)
         return job
 
@@ -398,6 +399,36 @@ class Source(PolymorphicModel):
                 for path, info in result.items()
             ]
         )
+
+    def extract(
+        self, review, user: Optional[User] = None, filters: Optional[Dict] = None
+    ) -> Job:
+        """
+        Extract a review from a project source.
+
+        Creates a job, and adds it to the source's `jobs` list.
+        Note: the jobs callback is `Review.extract_callback`.
+        """
+        source = self.to_address()
+        source["type"] = source.type_name
+
+        secrets = self.get_secrets(user)
+
+        description = "Extract review from {0}"
+        description = description.format(self.address)
+
+        job = Job.objects.create(
+            project=self.project,
+            creator=user or self.creator,
+            description=description,
+            method=JobMethod.extract.value,
+            params=dict(source=source, filters=filters),
+            **Job.create_callback(review, "extract_callback"),
+        )
+        job.secrets = secrets
+
+        self.jobs.add(job)
+        return job
 
     def push(self) -> Job:
         """

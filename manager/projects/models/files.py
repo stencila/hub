@@ -3,12 +3,11 @@ import mimetypes
 from datetime import datetime
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-import httpx
 import pygments
 import pygments.lexer
 import pygments.lexers
 from django.db import models, transaction
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import reverse
 from django.utils import timezone
 from pygments.lexers.data import JsonLexer
@@ -16,14 +15,9 @@ from pygments.lexers.markup import MarkdownLexer
 from pygments.lexers.special import TextLexer
 
 from jobs.models import Job, JobMethod
-from manager.storage import FileSystemStorage, snapshots_storage, working_storage
 from projects.models.projects import Project
 from projects.models.sources import GoogleSourceMixin, Source, SourceAddress
 from users.models import User
-
-SNAPSHOTS_STORAGE = snapshots_storage()
-SNAPSHOT_STORAGE_CLIENT = httpx.Client()
-WORKING_STORAGE = working_storage()
 
 
 class FileFormat(NamedTuple):
@@ -556,49 +550,21 @@ class File(models.Model):
         """
         Return a HTTP response to get this file.
         """
-        if self.snapshot:
-            if isinstance(self.snapshot.STORAGE, FileSystemStorage):
-                # Read the file from the filesystem.
-                # Normally this will only be used during development!
-                location = self.snapshot.file_location(self.path)
-                file = self.snapshot.STORAGE.open(location)
-                return FileResponse(file)
-            else:
-                # In production, send the the `X-Accel-Redirect` and other headers
-                # so that Nginx will reverse proxy
-                url = self.snapshot.file_url(self.path)
-                response = HttpResponse()
-                response["X-Accel-Redirect"] = "@account-content"
-                response["X-Accel-Redirect-URL"] = url
-                response["X-Accel-Limit-Rate"] = limit_rate
-                return response
-        else:
-            location = self.project.file_location(self.path)
-            file = self.project.STORAGE.open(location)
-            return FileResponse(file)
+        return (
+            self.snapshot.file_response(self.path)
+            if self.snapshot
+            else self.project.file_response(self.path)
+        )
 
     def get_content(self) -> bytes:
         """
         Get the content of this file.
-
-        The link will vary depending upon if the file is in the project's
-        working directory, or if it is in a project snapshot.
         """
-        if self.snapshot:
-            if isinstance(self.snapshot.STORAGE, FileSystemStorage):
-                # Read the file from the filesystem.
-                # Normally this will only be used during development!
-                location = self.snapshot.file_location(self.path)
-                with self.snapshot.STORAGE.open(location) as file:
-                    return file.read()
-            else:
-                # Fetch the file from storage and send it on to the client
-                url = self.snapshot.file_url(self.path)
-                return SNAPSHOT_STORAGE_CLIENT.get(url).content
-        else:
-            location = self.project.file_location(self.path)
-            with self.project.STORAGE.open(location) as file:
-                return file.read()
+        return (
+            self.snapshot.file_content(self.path)
+            if self.snapshot
+            else self.project.file_content(self.path)
+        )
 
     def convert(
         self, user: User, output: str, options: Dict = {}, snapshot: bool = False

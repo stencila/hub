@@ -1,0 +1,47 @@
+<div {% if review.status in 'EXTRACTING' %}
+     hx-trigger="every 2s"
+     hx-get="{% url 'api-projects-reviews-detail' project.id review.id %}"
+     hx-template="projects/reviews/_retrieve.html"
+     hx-swap="outerHTML"
+     {% endif %}>
+
+  <h2 class="title is-4">
+    {{ review.review_title|default:'Review' }}
+  </h2>
+
+  <div class="level level-reverse-mobile">
+    <div class="level-left">
+      {% include "./_overview.html" %}
+    </div>
+
+    <div class="level-right">
+      {% if review.status == 'EXTRACTED' and is_editor and not review.get_doi %}
+      <button class="button is-small-mobile is-expanded-mobile"
+              hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
+              hx-vars="status:'REGISTERED'"
+              hx-swap="none"
+              hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
+        <span class="icon">
+          <i class="ri-fingerprint-line"></i>
+        </span>
+        <span>Register DOI</span>
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if review.status == 'PENDING' %}
+  {% include "./_retrieve_pending.html" %}
+  {% elif review.status == 'REQUESTED' %}
+  {% include "./_retrieve_requested.html" %}
+  {% elif review.status == 'CANCELLED' %}
+  {% include "./_retrieve_cancelled.html" %}
+  {% elif review.status == 'DECLINED' %}
+  {% include "./_retrieve_declined.html" %}
+  {% elif review.status == 'ACCEPTED' %}
+  {% include "./_retrieve_accepted.html" %}
+  {% elif review.status in 'EXTRACTED, REGISTERED' %}
+  {% include "./_retrieve_extracted.html" %}
+  {% endif %}
+
+</div>

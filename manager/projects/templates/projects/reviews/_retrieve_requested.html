@@ -1,0 +1,81 @@
+{# For hx-vars overrides to work it seems neccessary to repeat the hx-patch in each button, even though docs say hx-vars override. #}
+{% url 'api-projects-reviews-detail' project.id review.id as patch_url %}
+
+<article class="message message-header-body is-info">
+  <div class="message-header">
+    <p>
+      <span class="icon">
+        <i class="ri-chat-off-line"></i>
+      </span>
+      Review requested
+    </p>
+  </div>
+  <div class="message-body">
+    {% if review.cancel_message %}
+    <em>{{ review.cancel_message }}</em>
+    {% else %}
+    An author or editor requested a review on this project.
+    {% endif %}
+  </div>
+</article>
+
+<form class="form"
+      hx-patch="{{ patch_url }}"
+      hx-template="projects/reviews/_retrieve_requested.html"
+      hx-swap="none"
+      hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
+
+  {% if is_reviewer %}
+
+  <h3 class="title is-5">Accept or decline to review?</h3>
+  <p class="subtitle is-6">
+    Yay or neh?
+  </p>
+  <p>
+    TODO: Instructions for reviewer on how to do review in source (as in request email).
+  </p>
+
+  {% include "serializers/_field.html" with field=serializer.response_message icon="ri-message-2-line" element="textarea" autofocus=True help_text="A message to send to the editor or author with your response." %}
+
+  <button class="button is-primary is-fullwidth-mobile"
+          type="submit"
+          hx-patch="{{ patch_url }}"
+          hx-vars="status:'ACCEPTED'">
+    <span class="icon">
+      <i class="ri-chat-check-line"></i>
+    </span>
+    <span>Accept</span>
+  </button>
+
+  <button class="button is-fullwidth-mobile"
+          type="submit"
+          hx-patch="{{ patch_url }}"
+          hx-vars="status:'DECLINED'">
+    <span class="icon">
+      <i class="ri-chat-delete-line"></i>
+    </span>
+    <span>Decline</span>
+  </button>
+
+  {% elif is_editor %}
+
+  <h3 class="title is-5">Cancel review?</h3>
+  <p class="subtitle is-6">
+    This review request has not been accepted or declined yet. If you'd like, you can cancel the request.
+  </p>
+
+  {% include "serializers/_field.html" with field=serializer.cancel_message icon="ri-message-2-line" element="textarea" autofocus=True help_text="A message to send to the reviewer letting them know you have cancelled the review." %}
+
+  <button class="button is-danger is-fullwidth-mobile"
+          type="submit"
+          hx-patch="{{ patch_url }}"
+          hx-vars="status:'CANCELLED'">
+    <span class="icon">
+      <i class="ri-chat-off-line"></i>
+    </span>
+    <span>Cancel</span>
+  </button>
+
+  {% endif %}
+
+</form>

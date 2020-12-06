@@ -1,19 +1,16 @@
 {% load stencila %}
 
-{% with field_id=field.name %}
+{% with id=id|default:field.name %}
 
 <div class="field">
   {% if element == "checkbox" %}
 
-  {% include "./_field_control.html" with field_id=field_id %}
-  <label class="label"
-         for="{{ field_id }}">{{ field.label|default:field.name }}</label>
+  {% include "./_field_control.html" %}
+  {% include "./_field_label.html" %}
 
   {% else %}
 
-  <label class="label"
-         for="{{ field_id }}">{{ field.label|default:field.name }}</label>
-
+  {% include "./_field_label.html" %}
   {% if element %}
   {% include "./_field_control.html" with field_id=field_id %}
   {% else %}

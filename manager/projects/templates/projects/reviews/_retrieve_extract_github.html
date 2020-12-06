@@ -1,0 +1,17 @@
+<p class="mb-4">
+  Extracting review from <a href="{{ source.get_url }}"
+     target="_blank"
+     rel="noreferrer noopener">{{ source.get_url }}</a>.
+</p>
+
+<ol class="mb-4">
+  <li>Go to the repository's <a href="{{ source.get_url }}/pulls"
+       target="_blank"
+       rel="noreferrer noopener">list of pull requests</a>.</li>
+  <li>Navigate to the pull request containing the review.</li>
+  <li>Find the review comment that you’d like to import and choose <strong>Copy link</strong> from the
+    comment's three dots/ellipses dropdown menu.</li>
+  <li>Paste the link into the box below</li>
+</ol>
+
+{% include "serializers/_field.html" with field=serializer.filter_a icon="ri-filter-line" autofocus=True %}

@@ -120,6 +120,26 @@ class Doi(models.Model):
             self.url = f"http{'' if settings.DEBUG else 's'}://{settings.PRIMARY_DOMAIN}/doi/{self.doi}"
             self.save()
 
+    def get_progress(self) -> int:
+        """
+        Get a number describing progress of the DOI registration.
+
+        0 = not deposited yet
+        1 = deposit failed
+        2 = deposit succeeded
+        3 = registration failed
+        4 = registration succeeded
+        """
+        if self.registration_success:
+            return 4
+        if self.registered:
+            return 3
+        if self.deposit_success:
+            return 2
+        if self.deposited:
+            return 1
+        return 0
+
     def register(self, user: Optional[User] = None) -> Job:
         """
         Register the DOI.

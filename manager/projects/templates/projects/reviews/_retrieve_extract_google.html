@@ -1,0 +1,9 @@
+<p class="mt-3 mb-4">
+  To import a review from the comments on <a href="{{ source.get_url }}"
+     target="_blank"
+     rel="noreferrer noopener">this Google document</a> please tell us the name
+  of the reviewer as it appears in the comments.
+  You can use "Anonymous" to import a review based on all the anonymous comments.
+</p>
+
+{% include "serializers/_field.html" with field=serializer.filter_a label="Reviewer name" icon="ri-user-line" autofocus=True help_text="Enter the name of the reviewer as it appears in the comments of the document." %}

@@ -30,6 +30,12 @@ is removed when the job is inactive.
   </div>
   {% endif %}
 
+  {% if job.params %}
+  <hr />
+  <h2 class="title is-4">{% trans "Parameters" %}</h2>
+  <pre>{{ job.params }}</pre>
+  {% endif %}
+
   {% if job.log %}
   <hr />
   <h2 class="title is-4">{% trans "Log" %}</h2>

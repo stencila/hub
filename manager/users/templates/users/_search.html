@@ -18,14 +18,20 @@ Inspired by Github's user search field (amongst others).
       <input id="user-search-input"
              class="input"
              type="text"
-             name="search"
+             name="{{ name|default:'username' }}"
+             {% if value %}
+             value="{{ value }}"
+             {% endif %}
              placeholder="{% trans "Search by username, full name, or email" %}"
              autocomplete="off"
+             autofocus=""
              hx-trigger="keyup changed delay:500ms"
              hx-get="/api/users"
-             hx-template="users/_search_results.html"
              hx-indicator="#user-search .htmx-indicator"
-             hx-target="#user-search .dropdown-menu">
+             hx-template="users/_search_results.html"
+             hx-select="ul"
+             hx-target="#user-search .dropdown-menu"
+             hx-swap="innerHTML">
       <span class="icon is-small is-left">
         <i class="ri-search-line"></i>
       </span>
@@ -46,13 +52,14 @@ Inspired by Github's user search field (amongst others).
   <script>
     var $search = document.querySelector('#user-search')
     // Add query parameters to search
-    $search.querySelector('input[name=search]').addEventListener('htmx:configRequest', function(event) {
+    $search.querySelector('#user-search-input').addEventListener('htmx:configRequest', function(event) {
+      event.detail.parameters['search'] = $search.querySelector('#user-search-input').value;
       event.detail.parameters['limit'] = '30';
     });
     // Update the `input[name=user]` when a dropdown item is selected
     $search.querySelector('.dropdown-menu').addEventListener('click', function(event) {
       var item = htmx.closest(event.target, '.dropdown-item')
-      $search.querySelector('input[name=search]').value = item.getAttribute('data-username')
+      $search.querySelector('#user-search-input').value = item.getAttribute('data-username')
       $search.querySelector('#user-search-result-id').value = item.getAttribute('data-id')
     });
 

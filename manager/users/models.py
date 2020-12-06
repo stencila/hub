@@ -28,8 +28,35 @@ from waffle.models import AbstractUserFlag
 
 # Needed to ensure signals are loaded
 import users.signals  # noqa
+from manager.helpers import EnumChoice
 
 User: django.contrib.auth.models.User = get_user_model()
+
+
+def get_email(user: User) -> Optional[str]:
+    """
+    Get the best email address for a user.
+
+    The "best" email is the verified primary email,
+    falling back to verified if none marked as primary,
+    falling back to the first if none is verified.
+    """
+    best = None
+
+    emails = user.emailaddress_set.all()
+    for email in emails:
+        if email.primary and email.verified:
+            best = email.email
+        elif best is None and email.verified:
+            best = email.mail
+
+    if best is None and len(emails) > 0:
+        best = emails[0].email
+
+    if best is None and user.email:
+        best = user.email
+
+    return best
 
 
 def get_attributes(user: User) -> Dict:
@@ -285,6 +312,27 @@ def generate_invite_key():
     return shortuuid.ShortUUID().random(length=32)
 
 
+class InviteAction(EnumChoice):
+    """
+    Actions to take when a user has accepted an invite.
+    """
+
+    join_account = "join_account"
+    join_team = "join_team"
+    join_project = "join_project"
+    take_tour = "take_tour"
+
+    @staticmethod
+    def as_choices():
+        """Return as a list of field choices."""
+        return [
+            (InviteAction.join_account.name, "Join account"),
+            (InviteAction.join_team.name, "Join team"),
+            (InviteAction.join_project.name, "Join project"),
+            (InviteAction.take_tour.name, "Take tour"),
+        ]
+
+
 class Invite(models.Model):
     """
     An extension of the default invitation model.
@@ -353,12 +401,7 @@ class Invite(models.Model):
         max_length=64,
         null=True,
         blank=True,
-        choices=[
-            ("join_account", "Join account"),
-            ("join_team", "Join team"),
-            ("join_project", "Join project"),
-            ("take_tour", "Take tour"),
-        ],
+        choices=InviteAction.as_choices(),
         help_text="The action to perform when the invitee signs up.",
     )
 

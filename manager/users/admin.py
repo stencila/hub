@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group, User
 
 from projects.models.providers import GithubRepo
-from users.models import AnonUser, Flag
+from users.models import AnonUser, Flag, Invite
 
 # Unregister the default user model admin
 admin.site.unregister(User)
@@ -106,3 +106,15 @@ class FlagAdmin(admin.ModelAdmin):
         "rollout",
     ]
     list_filter = ["settable", "everyone", "staff", "authenticated", "rollout"]
+
+
+admin.site.unregister(Invite)
+
+
+@admin.register(Invite)
+class InviteAdmin(admin.ModelAdmin):
+    """Admin interface for feature and privacy flags."""
+
+    list_display = ["id", "inviter", "email", "action", "sent", "accepted", "completed"]
+
+    list_filter = ["action", "sent", "completed"]

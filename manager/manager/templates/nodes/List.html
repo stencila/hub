@@ -1,0 +1,4 @@
+{% load stencila %}
+{% if node.order == "unordered" %}<ul>{% else %}<ol>{% endif %}
+    {% for item in node.items %}{% render_node item %}{% endfor %}
+    {% if node.order == "unordered" %}</ul>{% else %}</ol>{% endif %}

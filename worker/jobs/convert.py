@@ -1,13 +1,13 @@
 import json
 import os
 import tempfile
-from typing import Dict, List, Union, cast
+from typing import Dict, List, Optional, Union, cast
 
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from oauth2client.client import GoogleCredentials
 
-from config import get_node_modules_bin
+from config import get_content_root, get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
 from util.files import Files, list_files, move_files, temp_dir
 from util.gapis import gdrive_service
@@ -28,6 +28,8 @@ class Convert(SubprocessJob):
         input: Union[str, bytes],
         output: Union[str, List[str]],
         options: Dict[str, Union[str, bool]] = {},
+        src: str = ".",
+        dest: str = ".",
         secrets: Dict = {},
         **kwargs,
     ) -> Files:
@@ -38,6 +40,9 @@ class Convert(SubprocessJob):
         `convert` function but with a flatter structure for the options
         aligned to the Encoda CLI.
 
+        Allows for multiple outputs and alternative source and desination
+        directories (with dictionary of files relative to destination).
+
         input: The path to the input file, or bytes to be sent to stdin.
         output: The path to the output file, a list of outputs files, or
                 "-" for output stream bytes (mostly when used by other jobs).
@@ -45,6 +50,10 @@ class Convert(SubprocessJob):
             from: The format to convert from (defaults to ext name of input)
             to: The format to convert to (defaults to ext name of output)
             theme: Name of the theme to use for outputs
+        src: The source storage directory e.g. `snapshots/42/T5kdbaJ8ZmNTXuuv4XJnsi/`
+             defaulting to the current working directory
+        dest: The destination storage directory e.g. `content/3212/`
+              defaulting to the current working directory
         """
         assert (isinstance(input, str) or isinstance(input, bytes)) and len(
             input
@@ -71,11 +80,17 @@ class Convert(SubprocessJob):
         if len(outputs) == 1 and outputs[0] == "-":
             return result
 
-        # Get list of created files and then move them into current,
-        # working directory
+        # Get list of created files
         assert isinstance(temp, str)
         files = list_files(temp)
-        move_files(temp)
+
+        # Move all files to destination.
+        dest_parts = os.path.normpath(dest).split("/")
+        if dest_parts[0] == "content":
+            dest_root = get_content_root()
+        else:
+            dest_root = "."
+        move_files(temp, dest=os.path.join(dest_root, *dest_parts[1:]))
 
         # For some conversion targets it is necessary to also create a source.
         if isinstance(output, str) and output.endswith(".gdoc"):
