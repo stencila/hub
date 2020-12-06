@@ -732,11 +732,15 @@ class GithubSourceSerializer(SourceSerializer):
         url = data.get("url")
         repo = data.get("repo")
         if url:
-            address = GithubSource.parse_address(url, strict=True)
-            del data["url"]
-            data["repo"] = address.repo
-            data["subpath"] = address.subpath
-            return data
+            try:
+                address = GithubSource.parse_address(url, strict=True)
+            except ValidationError:
+                raise exceptions.ValidationError(dict(url="Not a valid GitHub URL."))
+            else:
+                del data["url"]
+                data["repo"] = address.repo
+                data["subpath"] = address.subpath
+                return data
         elif repo:
             if not re.match(r"^(?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+)$", repo):
                 raise exceptions.ValidationError(

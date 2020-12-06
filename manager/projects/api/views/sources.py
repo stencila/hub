@@ -227,9 +227,13 @@ class ProjectsSourcesViewSet(
         """
         url = request.data.get("url")
         if url:
-            address = Source.coerce_address(url)
-            if address:
-                request.data.update(**address, type=address.type.__name__)
+            try:
+                address = Source.coerce_address(url)
+            except ValueError:
+                pass  # URL could not be coerced into a source address
+            else:
+                if address:
+                    request.data.update(**address, type=address.type.__name__)
 
         return super().create(request, *args, **kwargs)
 
