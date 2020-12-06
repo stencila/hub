@@ -70,7 +70,7 @@ jobs:
           pythonUploadServiceConnection: PyPI
 
       - script: |
-          npm ci
+          npm install
           npx semantic-release
         env:
           GIT_AUTHOR_NAME: Stencila CI Bot
