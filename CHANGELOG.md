@@ -1,3 +1,52 @@
+# [4.24.0](https://github.com/stencila/hub/compare/v4.23.5...v4.24.0) (2020-12-06)
+
+
+### Bug Fixes
+
+* **Content:** Make external links open in a new window ([3d78ff0](https://github.com/stencila/hub/commit/3d78ff00b2d3e3428a39b2530604bd0aebc665de)), closes [#878](https://github.com/stencila/hub/issues/878)
+* **Extract GDrive:** Loosen regex for main comment; avoid duplicate ([6b39049](https://github.com/stencila/hub/commit/6b39049be7a01e916039de2ccd7d43f0d25468f9))
+* **Extract job:** Implement filtering ([e77693a](https://github.com/stencila/hub/commit/e77693a08bae6fbebbd26698b15b02f70e03416a))
+* **Files:** Only use the current filter when not a snapshot ([71e5133](https://github.com/stencila/hub/commit/71e5133df8e13f9c58ee489a1af93911c6fd68f6))
+* **Form field:** Revert to if rather than default filter ([8e9f5d3](https://github.com/stencila/hub/commit/8e9f5d336ce0b6d6aacde62faedcbc82a2c8fe97))
+* **Form field rendering:** Implement label and use id instead of field_id ([6389d7e](https://github.com/stencila/hub/commit/6389d7e7b91413f45a2d54636478a1d6d5e97e95))
+* **Invites:** Use correct enum value ([a2de707](https://github.com/stencila/hub/commit/a2de7074dcda462143d2822f49786325a78d09c9))
+* **Review:** Add project, creator and app to the review node ([a70b032](https://github.com/stencila/hub/commit/a70b032d4a18bb0669b4f99a1a39e99b36c2eb60))
+* **Reviews:** Add title and description fields; refresh view while status is EXTRACTING ([144e8cb](https://github.com/stencila/hub/commit/144e8cb96526d1d20d38e55381bf5a8ac3b9261c))
+* **Reviews:** Combine filters and assignment of review into single form ([949b748](https://github.com/stencila/hub/commit/949b748cb40cf5e20d41e5f610946eb2a52d41ef))
+* **Reviews:** Fix template name ([e98126e](https://github.com/stencila/hub/commit/e98126e2737b404165905504ebb9ee96f76dc919))
+* **Reviews:** Only allow project Editors to generate DOIs ([86f817a](https://github.com/stencila/hub/commit/86f817a626ab54f0f86d254fe0c796bbb2e1008e))
+* **Reviews:** Refine review styles and layout ([cc18288](https://github.com/stencila/hub/commit/cc1828867a2716989bf486372615c5ea56cc8d0e))
+* **Reviews:** Standardize terminology ([5a97d6e](https://github.com/stencila/hub/commit/5a97d6e26bcc0319f5ad0f7fa5b0a80c910b969f))
+* **Reviews:** Style review details view/comments ([27dafab](https://github.com/stencila/hub/commit/27dafab098304427cf093cf71e330d9fa83c8544))
+* **Reviews:** Tweaks to templates ([608b179](https://github.com/stencila/hub/commit/608b1796266650d65697fd03c032f176e233d34d))
+* **Reviews:** Validate reviewer name or id into a user on update ([2a7b2fc](https://github.com/stencila/hub/commit/2a7b2fcb861812e7c00bc542246c2c2c4742289a))
+* **Sign in:** Redirect to the current page ([75ff90b](https://github.com/stencila/hub/commit/75ff90b75608dcab09f59dcec7c550fb6e4c34ce))
+* **Storage:** Add option to use bucket ([1895ae8](https://github.com/stencila/hub/commit/1895ae80523ef63ccccb19e8ac245cf822d29942))
+* **User search:** Do not add value if no value ([043b318](https://github.com/stencila/hub/commit/043b3184f933498aa11ea4a56362b9d2dc1f6188))
+* **User search:** Tweaks to enable more reuse ([ffb0fb0](https://github.com/stencila/hub/commit/ffb0fb0973ea7b4b266694209d96eeab98868ca4))
+* **User search:** Use hx-swap to avoid it being inherited from parent ([1a074ae](https://github.com/stencila/hub/commit/1a074aec11196ad055e6a4e655bfd5a25297c824))
+* **Users:** Make syncing of data to UserFlow more robust to missing emails ([c38812e](https://github.com/stencila/hub/commit/c38812e739dfe67a3c3ecd5fb9a800e7cccf8cf9))
+* **Worker:** Enable extract job ([48d33e3](https://github.com/stencila/hub/commit/48d33e392a22928fb017d0365f617927f5446267))
+* **Worker:** Iterate over dictionaries properly ([fa1e129](https://github.com/stencila/hub/commit/fa1e129f79da288c79bf6f0797141e3cd0b40554))
+* **Worker:** Upgrade Encoda and add necessary env var ([5dcbac6](https://github.com/stencila/hub/commit/5dcbac63acd17d4d8107910bfb8d6044151794b6))
+
+
+### Features
+
+* **Convert job:** Allow alternative destination storage ([c4ebf83](https://github.com/stencila/hub/commit/c4ebf8360fdefa252eb214915f7e67d1563aa532))
+* **Extract GitHub review:** Add job to fetch a review from a GitHub PR ([386c748](https://github.com/stencila/hub/commit/386c748b1a0502401a3315bc655b5550bc649f80))
+* **Extract job:** Add a review extraction job for Google Drive comments ([46c35c0](https://github.com/stencila/hub/commit/46c35c0c1476fc7ffb2f3558cbac7a08bd7e366e))
+* **Invites:** Add action to accept review; add admin ([901e49b](https://github.com/stencila/hub/commit/901e49bfe56ac9264b91a52c2784bb0aec9b8cd3))
+* **Jobs:** Add extract method ([99e52ff](https://github.com/stencila/hub/commit/99e52ff9997fba0fd6cc2e0f6fb9c6dc9cace794))
+* **Jobs:** Show job parameters in summary ([13fda97](https://github.com/stencila/hub/commit/13fda9725bd3f45b4590b50a27bd9efd27959aef))
+* **Nodes:** Add ability to render the content of nodes ([57f1dd1](https://github.com/stencila/hub/commit/57f1dd1045bedac764abfbae3b8aaf25cf494787))
+* **Review:** Allo either username or email to be used on review creation ([b1e4fe2](https://github.com/stencila/hub/commit/b1e4fe26a89060d49c6f27b0f67e055ff89cfae1))
+* **Reviews:** Add button to register DOI for extracted reviews ([2998d31](https://github.com/stencila/hub/commit/2998d31358249edf0d839a4877d0be53285ed2ed))
+* **Reviews:** Add project reviews ([6e77e5f](https://github.com/stencila/hub/commit/6e77e5f31647f980b903f67b380f638a1700cbb1)), closes [#818](https://github.com/stencila/hub/issues/818)
+* **Reviews:** Initial round of styling of Reviews list view ([0234d4d](https://github.com/stencila/hub/commit/0234d4da71e2544eaca810ec465ec4482058eaa7))
+* **Reviews:** Place reviews behind feature flag ([834b8a7](https://github.com/stencila/hub/commit/834b8a7b929313e3a27f26ff9b2faa552ef9d6c4))
+* **Reviews:** Render content and comments incl replies ([4816f6c](https://github.com/stencila/hub/commit/4816f6ca1620ab7283133f37a8af8c44ad4b0157))
+
 ## [4.23.5](https://github.com/stencila/hub/compare/v4.23.4...v4.23.5) (2020-12-05)
 
 
