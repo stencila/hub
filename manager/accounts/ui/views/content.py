@@ -277,10 +277,15 @@ def index_html(
     session_provider_url: str,
 ) -> HttpResponse:
     """
-    Augment a index.html file.
+    Augment an index.html file.
 
     Adds necessary headers and injects content required to
-    connect to a session, and monitor errors.
+    connect to a session, monitor exceptions, rewrite links etc.
+
+    This function is likely to be superseded soon with a function that can be applied
+    to any HTML served (e.g. an HTML version of a Markdown file in the working directory).
+    It currently uses regexe replacements, but that is likely to be replaced with more robust
+    HTML parsing, reshaping and regeneration.
     """
     # Pin the version of Thema to avoid redirects to NPM which can slow
     # page load times down substantially
@@ -291,19 +296,20 @@ def index_html(
         ).encode(),
     )
 
-    html = html.replace(
-        b"<head>",
-        '<script src="{static}js/errorHandler.js"></script>'.format(
-            static=settings.STATIC_URL
-        ).encode(),
-    )
-
     # Pin the version of Stencila Components to avoid redirects to NPM which can slow
     # page load times down substantially
     html = html.replace(
         b"https://unpkg.com/@stencila/components@&lt;=1/dist/",
         "https://unpkg.com/@stencila/components@{version}/dist/".format(
             version=components.version
+        ).encode(),
+    )
+
+    # Add the error handling script which will reload Javascript if necessary
+    html = html.replace(
+        b"<head>",
+        '<script src="{static}js/errorHandler.js"></script>'.format(
+            static=settings.STATIC_URL
         ).encode(),
     )
 
@@ -346,6 +352,9 @@ def index_html(
     if extra_bottom:
         html = html.replace(b"</body>", extra_bottom.encode() + b"</body>")
 
+    # Modify external links
+    html = index_html_links(html)
+
     response = HttpResponse(html)
 
     # Add security headers to response
@@ -360,6 +369,15 @@ def index_html(
     response["X-Frame-Options"] = "allow-from {}".format(first)
 
     return response
+
+
+def index_html_links(html: bytes):
+    """
+    Add `target` attribute to `<a>` tags to any external links.
+
+    See https://github.com/stencila/hub/issues/878
+    """
+    return re.sub(b'<a\\s+href="[^#][^"]*"', b'\\g<0> target="_blank" rel="noreferrer noopener"', html)
 
 
 def primary_domain_url(request, name, kwargs):
