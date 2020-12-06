@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class EmailSerializer(serializers.Serializer):
     """
-    A serializer for emails
+    A serializer for emails.
 
     This serializer is mainly for documentation and is based on the fields
     sent by SendGrid. Note that Sendrid send `from` and `to` instead of
@@ -38,7 +38,7 @@ class EmailSerializer(serializers.Serializer):
     )
 
     spf = serializers.CharField(
-        help_text="The results of the Sender Policy Framework verification of the message sender and receiving IP address."
+        help_text="The results of the Sender Policy Framework verification of the message sender and receiving IP address."  # noqa
     )
 
 
