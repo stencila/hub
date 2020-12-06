@@ -76,7 +76,7 @@ class ProjectsFilesViewSet(
 
         # Avoid using select_related and prefetch_related here
         # as it can slow down queries significantly
-        queryset = File.objects.filter(project=project, current=True).order_by("path")
+        queryset = File.objects.filter(project=project).order_by("path")
 
         source = source or self.request.GET.get("source")
         if source:
@@ -86,7 +86,7 @@ class ProjectsFilesViewSet(
         if snapshot:
             queryset = queryset.filter(snapshot=snapshot)
         else:
-            queryset = queryset.filter(snapshot__isnull=True)
+            queryset = queryset.filter(snapshot__isnull=True, current=True)
 
         prefix = self.get_prefix()
         if prefix:
