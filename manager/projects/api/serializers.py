@@ -740,18 +740,20 @@ class GithubSourceSerializer(SourceSerializer):
                 del data["url"]
                 data["repo"] = address.repo
                 data["subpath"] = address.subpath
-                return data
         elif repo:
             if not re.match(r"^(?:[a-z0-9\-]+)/(?:[a-z0-9\-_]+)$", repo):
                 raise exceptions.ValidationError(
                     dict(repo="Not a valid GitHub repository name.")
                 )
             del data["url"]
-            return data
+        else:
+            raise exceptions.ValidationError(
+                dict(
+                    url="Please provide either a GitHub URL or a GitHub repository name."
+                )
+            )
 
-        raise exceptions.ValidationError(
-            dict(url="Please provide either a GitHub URL or a GitHub repository name.")
-        )
+        return super().validate(data)
 
 
 class GoogleDocsSourceSerializer(SourceSerializer):
@@ -860,16 +862,14 @@ class GoogleDriveSourceSerializer(SourceSerializer):
             del data["url"]
             data["kind"] = address.kind
             data["google_id"] = address.google_id
-            return data
-
-        if google_id:
+        elif google_id:
             if not kind:
                 raise exceptions.ValidationError(dict(kind="This field is required."))
             del data["url"]
-            return data
-
-        message = "Please provide either a URL or Google Drive id."
-        raise exceptions.ValidationError(dict(url=message, google_id=message))
+        else:
+            message = "Please provide either a URL or Google Drive id."
+            raise exceptions.ValidationError(dict(url=message, google_id=message))
+        return super().validate(data)
 
 
 class PlosSourceSerializer(SourceSerializer):
