@@ -377,7 +377,11 @@ def index_html_links(html: bytes):
 
     See https://github.com/stencila/hub/issues/878
     """
-    return re.sub(b'<a\\s+href="[^#][^"]*"', b'\\g<0> target="_blank" rel="noreferrer noopener"', html)
+    return re.sub(
+        b'<a\\s+href="[^#][^"]*"',
+        b'\\g<0> target="_blank" rel="noreferrer noopener"',
+        html,
+    )
 
 
 def primary_domain_url(request, name, kwargs):
