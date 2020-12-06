@@ -26,14 +26,17 @@ def retrieve(
     """
     Retrieve a snapshot of a project.
     """
-    viewset = ProjectsSnapshotsViewSet.init("retrieve", request, args, kwargs)
-    project = viewset.get_project()
-    snapshot = viewset.get_object(project)
+    snapshot_viewset = ProjectsSnapshotsViewSet.init("retrieve", request, args, kwargs)
+    project = snapshot_viewset.get_project()
+    snapshot = snapshot_viewset.get_object(project=project)
+    snapshot_context = snapshot_viewset.get_response_context(instance=snapshot)
 
-    viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
-    files = viewset.get_queryset(project=project, snapshot=snapshot)
-    context = viewset.get_response_context(queryset=files)
+    files_viewset = ProjectsFilesViewSet.init("list", request, args, kwargs)
+    files = files_viewset.get_queryset(project=project, snapshot=snapshot)
+    files_context = files_viewset.get_response_context(queryset=files)
 
     return render(
-        request, template, dict(snapshot=snapshot, meta=project.get_meta(), **context),
+        request,
+        template,
+        dict(**snapshot_context, **files_context, meta=project.get_meta()),
     )
