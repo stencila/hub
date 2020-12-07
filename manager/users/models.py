@@ -47,10 +47,8 @@ def get_email(user: User) -> Optional[str]:
 
     emails = user.emailaddress_set.all()
     for email in emails:
-        if email.primary and email.verified:
+        if (email.primary and email.verified) or (not best and email.verified):
             best = email.email
-        elif not best and email.verified:
-            best = email.mail
 
     if not best and len(emails) > 0:
         best = emails[0].email
