@@ -586,24 +586,21 @@ class File(models.Model):
         if self.mimetype:
             options["from"] = self.mimetype
 
-        secrets = None
-        if output.endswith(".gdoc"):
-            secrets = GoogleSourceMixin().get_secrets(user)
-
-        return Job.objects.create(
+        job = Job.objects.create(
             description="Convert '{0}' to '{1}'".format(self.path, output),
             method=JobMethod.convert.name,
             params=dict(
-                project=self.project.id,
-                input=self.path,
-                output=output,
-                options=options,
-                secrets=secrets,
+                project=self.project.id, input=self.path, output=output, options=options
             ),
             project=self.project,
             creator=user,
             **(Job.create_callback(self, "convert_callback") if not snapshot else {})
         )
+
+        if output.endswith(".gdoc"):
+            job.secrets = GoogleSourceMixin().get_secrets(user)
+
+        return job
 
     @transaction.atomic
     def convert_callback(self, job: Job):

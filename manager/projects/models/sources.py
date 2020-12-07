@@ -343,8 +343,6 @@ class Source(PolymorphicModel):
         source = self.to_address()
         source["type"] = source.type_name
 
-        secrets = self.get_secrets(user)
-
         description = "Pull {0}"
         if self.type_class == "UploadSource":
             description = "Collect {0}"
@@ -358,7 +356,8 @@ class Source(PolymorphicModel):
             params=dict(project=self.project.id, source=source, path=self.path),
             **Job.create_callback(self, "pull_callback"),
         )
-        job.secrets = secrets
+
+        job.secrets = self.get_secrets(user)
 
         self.jobs.add(job)
         return job
@@ -412,8 +411,6 @@ class Source(PolymorphicModel):
         source = self.to_address()
         source["type"] = source.type_name
 
-        secrets = self.get_secrets(user)
-
         description = "Extract review from {0}"
         description = description.format(self.address)
 
@@ -425,7 +422,8 @@ class Source(PolymorphicModel):
             params=dict(source=source, filters=filters),
             **Job.create_callback(review, "extract_callback"),
         )
-        job.secrets = secrets
+
+        job.secrets = self.get_secrets(user)
 
         self.jobs.add(job)
         return job
