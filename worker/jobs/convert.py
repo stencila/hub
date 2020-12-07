@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 from typing import Dict, List, Optional, Union, cast
 
@@ -94,9 +95,7 @@ class Convert(SubprocessJob):
 
         # For some conversion targets it is necessary to also create a source.
         if isinstance(output, str) and output.endswith(".gdoc"):
-            files[output]["source"] = create_gdoc(
-                input_=input, output=output, secrets=secrets
-            )
+            files[output]["source"] = create_gdoc_source(output=output, secrets=secrets)
 
         return files
 
@@ -139,9 +138,7 @@ def encoda_args(  # type: ignore
     return args
 
 
-def create_gdoc(
-    input_: Union[str, bytes], output: str, secrets: Dict
-) -> Dict[str, str]:
+def create_gdoc_source(output: str, secrets: Dict) -> Dict[str, str]:
     """
     Create a GoogleDoc from input and return its id.
 
@@ -150,17 +147,25 @@ def create_gdoc(
     to a Google Doc there (because it is not possible to upload the
     Google Doc JSON content directly).
     """
+    # Create a temporary docx to upload
+    # Although it is already a docx, for this request to succeed it
+    # needs to have the right extension.
+    docx = output + ".docx"
+    shutil.copyfile(output, docx)
+
+    # Create the Google Doc
     gdoc = (
         gdrive_service(secrets)
         .files()
         .create(
-            body={
-                "name": input_ if type(input_) is str else "Untitled",
-                "mimeType": "application/vnd.google-apps.document",
-            },
-            media_body=MediaFileUpload(output),
+            body={"name": output, "mimeType": "application/vnd.google-apps.document"},
+            media_body=MediaFileUpload(docx),
             media_mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
         .execute()
     )
+
+    # Remove the temporary docx
+    os.unlink(docx)
+
     return dict(type_name="GoogleDocs", doc_id=gdoc["id"])
