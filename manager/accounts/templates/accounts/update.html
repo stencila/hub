@@ -60,10 +60,4 @@
   {% include "accounts/_update_content_form.html" %}
 </div>
 
-{% if account.is_personal %}
-<hr>
-<h2 class="title is-3">{% trans "Other settings" %}</h2>
-{% include "accounts/_update_user_settings.html" %}
-{% endif %}
-
 {% endblock %}

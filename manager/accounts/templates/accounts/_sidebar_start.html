@@ -60,7 +60,7 @@
     <li class="sidebar__item"
         id="menu-item-settings">
       <a href="{% url 'ui-accounts-update' account.name %}"
-         class="panel-block transition-colors {% is_active 'ui-accounts-update' %}">
+         class="panel-block transition-colors">
         <span class="icon">
           <i class="ri-settings-4-line"></i>
         </span>
@@ -68,6 +68,11 @@
           {% trans 'Settings' %}
         </span>
       </a>
+      {% if account.is_personal %}
+        <ul>
+          {% include "accounts/_update_user_settings.html" %}
+        </ul>
+      {% endif %}
     </li>
     {% endif %}
 
