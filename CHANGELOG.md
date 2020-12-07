@@ -1,3 +1,15 @@
+## [4.24.1](https://github.com/stencila/hub/compare/v4.24.0...v4.24.1) (2020-12-07)
+
+
+### Bug Fixes
+
+* **Convert job:** Need to upload GDoc with DOCX extension ([0375753](https://github.com/stencila/hub/commit/0375753e220d749044ae8ec2ab591852570b3407))
+* **Files & Sources:** Normalize approach to passing secrets ([32b0855](https://github.com/stencila/hub/commit/32b085578ec278b950eca6d7fe878e3724571469))
+* **Jobs:** Temporarily hide parameters ([9866606](https://github.com/stencila/hub/commit/9866606ac4fda9ab93b5baab09189f18269f4715))
+* **Sources:** Ensure that super().validate is called to check for duplicates ([173450f](https://github.com/stencila/hub/commit/173450f2fbfd7748555b9478a37f3ac6f74bf5e5)), closes [#892](https://github.com/stencila/hub/issues/892)
+* **Sources:** Improve handling of invalid GitHub repo URLs. ([a76f470](https://github.com/stencila/hub/commit/a76f470b6feb0a1780876d57ea4f69a0a9703dc2)), closes [#891](https://github.com/stencila/hub/issues/891)
+* **Worker:** Update GDoc related jobs ([28619ed](https://github.com/stencila/hub/commit/28619edc8eded70bdd96a7ea55437467d4445f49))
+
 # [4.24.0](https://github.com/stencila/hub/compare/v4.23.5...v4.24.0) (2020-12-06)
 
 
