@@ -22,7 +22,7 @@ def pull_gdoc(
     gdoc = gdocs_service(secrets).documents().get(documentId=doc_id).execute()
 
     if not path:
-        path = f"gdoc-{doc_id}"
+        path = f"{doc_id}.gdoc"
 
     Path(path).parent.mkdir(parents=True, exist_ok=True)
 

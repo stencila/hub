@@ -95,7 +95,7 @@ class Convert(SubprocessJob):
         # For some conversion targets it is necessary to also create a source.
         if isinstance(output, str) and output.endswith(".gdoc"):
             files[output]["source"] = create_gdoc(
-                input_=input, options=options, secrets=secrets
+                input_=input, output=output, secrets=secrets
             )
 
         return files
@@ -116,11 +116,14 @@ def encoda_args(  # type: ignore
         # Determine --from option
         # Encoda currently does not allow for mimetypes in the `from` option.
         # This replaces some mimetypes with codec names for formats that are
-        # not easily identifiable from there extension. This means that for other
+        # not easily identifiable from their extension. This means that for other
         # files, the file extension will be used to determine the format (which
         # works in most cases).
         if name == "from" and isinstance(value, str):
-            value = {"application/jats+xml": "jats"}.get(value, value)
+            value = {
+                "application/jats+xml": "jats",
+                "application/vnd.google-apps.document": "gdoc",
+            }.get(value, value)
             # If the value has a slash in it, assume it's still a mimetype
             # and skip
             if isinstance(value, str) and "/" in value:
@@ -137,31 +140,27 @@ def encoda_args(  # type: ignore
 
 
 def create_gdoc(
-    input_: Union[str, bytes], options: Dict[str, Union[str, bool]], secrets: Dict
+    input_: Union[str, bytes], output: str, secrets: Dict
 ) -> Dict[str, str]:
     """
     Create a GoogleDoc from input and return its id.
-    """
-    # Create a temporary docx to upload
-    docx = tempfile.NamedTemporaryFile(delete=False).name
-    Convert().run(input=input_, output=docx, options=dict(**options, to="docx"))
 
-    # Create the GoogleDoc
+    When encoding to `gdoc`, Encoda actually creates a `docx` file which
+    this function then uploads to Google Drive and has it converted
+    to a Google Doc there (because it is not possible to upload the
+    Google Doc JSON content directly).
+    """
     gdoc = (
         gdrive_service(secrets)
         .files()
         .create(
             body={
-                "name": input_ if type(input_) is str else "Unititled",
+                "name": input_ if type(input_) is str else "Untitled",
                 "mimeType": "application/vnd.google-apps.document",
             },
-            media_body=MediaFileUpload(docx),
+            media_body=MediaFileUpload(output),
             media_mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
         .execute()
     )
-
-    # Remove the temporary docx
-    os.unlink(docx)
-
     return dict(type_name="GoogleDocs", doc_id=gdoc["id"])
