@@ -1,8 +1,11 @@
 from enum import Enum, unique
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
-from allauth.socialaccount.models import SocialToken
+from allauth.socialaccount.models import SocialApp, SocialToken
 from django.contrib.auth.models import User
+from django.utils import timezone
+from oauth2client import transport
+from oauth2client.client import GoogleCredentials
 
 from manager.api.exceptions import SocialTokenMissing
 
@@ -42,6 +45,56 @@ def get_user_social_token(
     return SocialToken.objects.filter(
         app__provider=provider.name, account__user=user
     ).first()
+
+
+def get_user_google_token(
+    user: User,
+) -> Tuple[Optional[SocialToken], Optional[SocialApp]]:
+    """
+    Get a Google `SocialToken` for the user.
+
+    If necessary will refresh the OAuth2 access token and
+    update it in the database so that the refresh does not
+    need to be done again within the next hour (at time of writing
+    the expiry time for tokens).
+
+    In most contexts that this function is used the Google `SocialApp`
+    is also needed (e.g. for it's client_id etc) so we return that too.
+    To avoid exceptions during development where there might not be a
+    Google `SocialApp` we return None.
+    """
+    token = get_user_social_token(user, Provider.google)
+
+    try:
+        app = SocialApp.objects.get(provider=Provider.google.name)
+    except SocialApp.DoesNotExist:
+        app = None
+
+    if token is None:
+        return None, app
+
+    if token.expires_at > timezone.now() - timezone.timedelta(seconds=90):
+        return token, app
+
+    # Refresh the token
+    credentials = GoogleCredentials(
+        access_token=token.token if token else None,
+        client_id=app.client_id if app else None,
+        client_secret=app.secret if app else None,
+        refresh_token=token.token_secret if token else None,
+        token_expiry=token.expires_at,
+        token_uri="https://accounts.google.com/o/oauth2/token",
+        user_agent="Stencila Hub Client",
+    )
+    credentials.refresh(http=transport.get_http_object())
+    info = credentials.get_access_token()
+
+    # Save the new access token and expiry time
+    token.token = info.access_token
+    token.expires_at = timezone.now() + timezone.timedelta(seconds=info.expires_in)
+    token.save()
+
+    return token, app
 
 
 def get_user_social_tokens(user: User) -> Dict[Provider, SocialToken]:

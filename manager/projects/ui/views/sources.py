@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -7,6 +8,7 @@ from projects.api.views.files import ProjectsFilesViewSet
 from projects.api.views.sources import ProjectsSourcesViewSet
 from projects.models.sources import Source, UploadSource
 from projects.ui.views.messages import all_messages
+from users.socialaccount.tokens import get_user_google_token
 
 
 def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -64,6 +66,15 @@ def create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     serializer = serializer_class()
 
     context = viewset.get_response_context(source_class=source_class)
+
+    if source_class.startswith("Google"):
+        token, app = get_user_google_token(request.user)
+        if app:
+            context["app_id"] = app.client_id.split("-")[0]
+            context["client_id"] = app.client_id
+            context["developer_key"] = settings.GOOGLE_API_KEY
+        if token:
+            context["access_token"] = token.token
 
     return render(
         request,

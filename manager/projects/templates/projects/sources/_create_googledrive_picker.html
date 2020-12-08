@@ -1,0 +1,104 @@
+{% comment %}
+A "file picker" for Google Drive.
+
+See
+- https://developers.google.com/picker/docs
+- https://developers.google.com/picker/docs/reference
+- https://www.gmass.co/blog/google-picker-api/
+{% endcomment %}
+
+{% if app_id and client_id and developer_key %}
+<script type="text/javascript">
+  // Set Javascript variable from Django template context variables 
+
+  // Application and client identifiers
+  var appId = "{{ app_id }}";
+  var clientId = "{{ client_id }}";
+  var developerKey = "{{ developer_key }}";
+
+  // A Google OAuth access token for the user is they already have one
+  var accessToken {% if access_token %} = "{{ access_token }}"
+  {% endif %};
+
+  // Variables set when this template is `include`d to change the
+  // behavious of the picker
+  var target = "{{ target }}";
+
+  var mimetypes {% if mimetypes %} = "{{ mimetypes }}"
+  {% endif %};
+
+  ///////////////////////////////////////////////////////////////////////////////////
+
+  // Load the necessary Google APIs
+  function onApiLoad() {
+    if (accessToken === undefined) gapi.load('auth', { 'callback': onAuthApiLoad });
+    gapi.load('picker', { 'callback': onPickerApiLoad });
+  }
+
+  // When the Google Auth API has loaded ask user to authorize this client.
+  function onAuthApiLoad() {
+    window.gapi.auth.authorize(
+      {
+        'client_id': clientId,
+        'scope': ['https://www.googleapis.com/auth/drive.file'],
+        'immediate': false
+      },
+      handleAuthResult
+    );
+  }
+
+  function handleAuthResult(authResult) {
+    if (authResult && !authResult.error) {
+      accessToken = authResult.access_token;
+      // TODO: Ideally we would store the resulting access and refresh tokens
+      // by POSTing to an API endpoint so that they could be reused again.
+    } else {
+      // TODO: Raise error or explictly capture in Sentry?
+      console.error(authResult.error)
+    }
+  }
+
+  // When the Google Picker API has loaded create the picker.
+  function onPickerApiLoad() {
+    pickerApiLoaded = true;
+  }
+
+  // Create and render a Picker.
+  function createPicker() {
+    if (pickerApiLoaded && accessToken) {
+      var view = new google.picker.DocsView();
+      if (mimetypes !== undefined) view.setMimeTypes(mimetypes);
+
+      var picker = new google.picker.PickerBuilder()
+        .setAppId(appId)
+        .setDeveloperKey(developerKey)
+        .setOAuthToken(accessToken)
+        .addView(view)
+        .setCallback(pickerCallback)
+        .build();
+
+      picker.setVisible(true);
+    }
+  }
+  // When the user has picked file(s) set the value of the nominated input
+  function pickerCallback(data) {
+    if (data.action == google.picker.Action.PICKED) {
+      var fileId = data.docs[0].id;
+      document.querySelector(target).value = fileId;
+    }
+  }
+
+</script>
+
+<script type="text/javascript"
+        src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+
+<div class="button is-outline is-fullwidth-mobile"
+     onclick="createPicker()">
+  <span class="icon">
+    <i class="ri-google-line"></i>
+  </span>
+  <span>Select a Google Doc</span>
+</div>
+
+{% endif %}

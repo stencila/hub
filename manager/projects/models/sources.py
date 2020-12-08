@@ -6,7 +6,6 @@ from enum import Enum, unique
 from typing import Dict, List, Optional, Type, Union
 
 import shortuuid
-from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -28,7 +27,11 @@ from manager.helpers import EnumChoice
 from manager.storage import uploads_storage
 from projects.models.projects import Project
 from users.models import User
-from users.socialaccount.tokens import Provider, get_user_social_token
+from users.socialaccount.tokens import (
+    Provider,
+    get_user_google_token,
+    get_user_social_token,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -756,15 +759,10 @@ class GoogleSourceMixin:
         token = None
 
         if getattr(self, "creator", None):
-            token = get_user_social_token(self.creator, Provider.google)
+            token, app = get_user_google_token(self.creator)
 
         if token is None and user and user.is_authenticated:
-            token = get_user_social_token(user, Provider.google)
-
-        try:
-            app = SocialApp.objects.get(provider=Provider.google.name)
-        except SocialApp.DoesNotExist:
-            app = None
+            token, app = get_user_google_token(user)
 
         return dict(
             access_token=token.token if token else None,

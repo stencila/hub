@@ -440,6 +440,12 @@ class Prod(Configuration):
     EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
     SENDGRID_API_KEY = values.Value()
 
+    # Google API Key
+    # Required for accessing Google Picker API
+    # Go to https://console.cloud.google.com/apis/credentials to create and manage keys
+
+    GOOGLE_API_KEY = values.Value("")
+
     # Intercom settings
     # For other potential settings see
     # https://django-intercom.readthedocs.io/en/latest/settings.html
