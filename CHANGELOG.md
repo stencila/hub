@@ -1,3 +1,10 @@
+## [4.24.2](https://github.com/stencila/hub/compare/v4.24.1...v4.24.2) (2020-12-08)
+
+
+### Bug Fixes
+
+* **Users:** Fix get_email function ([c87c362](https://github.com/stencila/hub/commit/c87c3620861047b56970cbb605d1cad97fbc0e9c))
+
 ## [4.24.1](https://github.com/stencila/hub/compare/v4.24.0...v4.24.1) (2020-12-07)
 
 
