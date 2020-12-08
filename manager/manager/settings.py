@@ -441,7 +441,8 @@ class Prod(Configuration):
     SENDGRID_API_KEY = values.Value()
 
     # Google API Key
-    # Required for accessing Google Picker API
+    # Used for accessing Google Picker API. Although the docs (https://developers.google.com/picker/docs)
+    # say this is necessary, we have been able to test this during development with the key left blank.
     # Go to https://console.cloud.google.com/apis/credentials to create and manage keys
 
     GOOGLE_API_KEY = values.Value("")

@@ -27,6 +27,7 @@
   <p class="title is-5">
     Or, provide the Google id for the file or folder
   </p>
+  {% include "./_create_googledrive_picker.html" with target="#google_id" %}
   {% include "serializers/_field.html" with field=serializer.kind %}
   {% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
 </fieldset>

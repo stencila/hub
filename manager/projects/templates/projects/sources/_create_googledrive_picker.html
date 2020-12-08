@@ -1,28 +1,51 @@
 {% comment %}
-A "file picker" for Google Drive.
-
-See
+A "file picker" for Google Drive. See
 - https://developers.google.com/picker/docs
 - https://developers.google.com/picker/docs/reference
 - https://www.gmass.co/blog/google-picker-api/
 {% endcomment %}
 
-{% if app_id and client_id and developer_key %}
+{% if not access_token %}
+
+{# If the user does not have a Google token then tell them they can add one #}
+
+{% load socialaccount %}
+
+<article class="message message-header-body is-info">
+  <div class="message-header">
+    <p>
+      <span class="icon is-vcentered">
+        <i class="ri-google-line"></i>
+      </span>
+      Want to access your private Google Drive files?
+    </p>
+  </div>
+  <div class="message-body">
+    Please <a href="{% provider_login_url 'google' process='connect' next=request.path %}">connect your
+      Google account</a> to be able to navigate to and select your private Google Drive files.
+  </div>
+</article>
+
+{% else %}
+
+{# If the user does have a Google token then provide them with a file picker button #}
+
 <script type="text/javascript">
   // Set Javascript variable from Django template context variables 
 
   // Application and client identifiers
+  // Note: in development these may not be set, in which case this script will not function
   var appId = "{{ app_id }}";
   var clientId = "{{ client_id }}";
   var developerKey = "{{ developer_key }}";
 
   // A Google OAuth access token for the user is they already have one
-  var accessToken {% if access_token %} = "{{ access_token }}"
-  {% endif %};
+  var accessToken = "{{ access_token }}";
 
   // Variables set when this template is `include`d to change the
   // behavious of the picker
-  var target = "{{ target }}";
+
+  var target = "{{ target|default:'file_id' }}";
 
   var mimetypes {% if mimetypes %} = "{{ mimetypes }}"
   {% endif %};
@@ -30,55 +53,31 @@ See
   ///////////////////////////////////////////////////////////////////////////////////
 
   // Load the necessary Google APIs
+  var authApiLoaded = false;
+
   function onApiLoad() {
-    if (accessToken === undefined) gapi.load('auth', { 'callback': onAuthApiLoad });
-    gapi.load('picker', { 'callback': onPickerApiLoad });
+    gapi.load('picker', { 'callback': function() { pickerApiLoaded = true } });
   }
 
-  // When the Google Auth API has loaded ask user to authorize this client.
-  function onAuthApiLoad() {
-    window.gapi.auth.authorize(
-      {
-        'client_id': clientId,
-        'scope': ['https://www.googleapis.com/auth/drive.file'],
-        'immediate': false
-      },
-      handleAuthResult
-    );
-  }
-
-  function handleAuthResult(authResult) {
-    if (authResult && !authResult.error) {
-      accessToken = authResult.access_token;
-      // TODO: Ideally we would store the resulting access and refresh tokens
-      // by POSTing to an API endpoint so that they could be reused again.
-    } else {
-      // TODO: Raise error or explictly capture in Sentry?
-      console.error(authResult.error)
-    }
-  }
-
-  // When the Google Picker API has loaded create the picker.
-  function onPickerApiLoad() {
-    pickerApiLoaded = true;
-  }
 
   // Create and render a Picker.
   function createPicker() {
-    if (pickerApiLoaded && accessToken) {
-      var view = new google.picker.DocsView();
-      if (mimetypes !== undefined) view.setMimeTypes(mimetypes);
-
-      var picker = new google.picker.PickerBuilder()
-        .setAppId(appId)
-        .setDeveloperKey(developerKey)
-        .setOAuthToken(accessToken)
-        .addView(view)
-        .setCallback(pickerCallback)
-        .build();
-
-      picker.setVisible(true);
+    if (!pickerApiLoaded) {
+      setTimeout(createPicker, 300)
     }
+
+    var view = new google.picker.DocsView();
+    if (mimetypes !== undefined) view.setMimeTypes(mimetypes);
+
+    var picker = new google.picker.PickerBuilder()
+      .setAppId(appId)
+      .setDeveloperKey(developerKey)
+      .setOAuthToken(accessToken)
+      .addView(view)
+      .setCallback(pickerCallback)
+      .build();
+
+    picker.setVisible(true);
   }
   // When the user has picked file(s) set the value of the nominated input
   function pickerCallback(data) {
@@ -93,12 +92,12 @@ See
 <script type="text/javascript"
         src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
 
-<div class="button is-outline is-fullwidth-mobile"
+<div class="button is-outline is-fullwidth-mobile mb-3"
      onclick="createPicker()">
   <span class="icon">
     <i class="ri-google-line"></i>
   </span>
-  <span>Select a Google Doc</span>
+  <span>{{ button_text|default:"Select a Google Drive file or folder" }}</span>
 </div>
 
 {% endif %}

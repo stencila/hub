@@ -11,6 +11,6 @@
   that you can convert it to other formats or publish it!
 </p>
 
-{% include "./_create_googledrive_picker.html" with target="#doc_id" mimetypes="application/vnd.google-apps.document" %}
+{% include "./_create_googledrive_picker.html" with target="#doc_id" button_text="Select a Google Doc" mimetypes="application/vnd.google-apps.document" %}
 {% include "serializers/_field.html" with field=serializer.doc_id icon="ri-at-line" autofocus=True %}
 {% include "./_create_common_fields.html" %}
