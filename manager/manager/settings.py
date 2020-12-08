@@ -290,11 +290,9 @@ class Prod(Configuration):
         "github": {"SCOPE": ["read:user", "user:email", "read:org", "repo"]},
         "google": {
             "SCOPE": [
-                "profile",
-                "email",
-                "https://www.googleapis.com/auth/documents",
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/drive.file",
             ],
             # Set to offline in order to receive a refresh token on first login and
             # on reauthentication requests. See https://stackoverflow.com/a/42570423/4625911
