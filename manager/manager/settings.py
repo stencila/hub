@@ -290,11 +290,9 @@ class Prod(Configuration):
         "github": {"SCOPE": ["read:user", "user:email", "read:org", "repo"]},
         "google": {
             "SCOPE": [
-                "profile",
-                "email",
-                "https://www.googleapis.com/auth/documents",
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "https://www.googleapis.com/auth/drive.file",
             ],
             # Set to offline in order to receive a refresh token on first login and
             # on reauthentication requests. See https://stackoverflow.com/a/42570423/4625911
@@ -441,6 +439,13 @@ class Prod(Configuration):
 
     EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
     SENDGRID_API_KEY = values.Value()
+
+    # Google API Key
+    # Used for accessing Google Picker API. Although the docs (https://developers.google.com/picker/docs)
+    # say this is necessary, we have been able to test this during development with the key left blank.
+    # Go to https://console.cloud.google.com/apis/credentials to create and manage keys
+
+    GOOGLE_API_KEY = values.Value("")
 
     # Intercom settings
     # For other potential settings see

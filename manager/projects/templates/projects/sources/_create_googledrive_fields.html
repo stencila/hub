@@ -12,25 +12,15 @@
   compute sessions (e.g. CSV files) or publish in a snapshot.
 </p>
 
-<hr>
 
-<fieldset>
-  <p class="title is-5">
-    Enter the URL of the Google Drive file or folder:
-  </p>
-  {% include "serializers/_field.html" with field=serializer.url icon="ri-link" %}
-</fieldset>
+<fieldset class="mb-4">
+  {% include "./_create_googledrive_picker.html" with field=serializer.google_id target="#google_id" select_folder=True %}
 
-<hr>
-
-<fieldset>
-  <p class="title is-5">
-    Or, provide the Google id for the file or folder
-  </p>
+  {% if access_token %}
   {% include "serializers/_field.html" with field=serializer.kind %}
-  {% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
+  {% endif %}
 </fieldset>
 
-<hr>
-
+{% if access_token %}
 {% include "./_create_common_fields.html" %}
+{% endif %}

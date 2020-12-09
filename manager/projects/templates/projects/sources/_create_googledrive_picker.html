@@ -1,0 +1,154 @@
+{% comment %}
+A "file picker" for Google Drive. See
+- https://developers.google.com/picker/docs
+- https://developers.google.com/picker/docs/reference
+- https://www.gmass.co/blog/google-picker-api/
+{% endcomment %}
+{% load stencila %}
+
+{% if not access_token %}
+
+{# If the user does not have a Google token then tell them they can add one #}
+
+{% load socialaccount %}
+
+<article class="message message-header-body is-info">
+  <div class="message-header">
+    <p>
+      <span class="icon is-vcentered">
+        <i class="ri-alert-line"></i>
+      </span>
+      Grant access to files from Google?
+    </p>
+  </div>
+  <div class="message-body">
+    <p class="mb-2">
+      You need to link your Google account to Stencila in order to import files from Google Drive. This will only
+      grant access to basic account information, and the specific files you choose to import into your projects.
+    </p>
+
+    {# Use action='reauthenticate' to ensure that we get a refresh token #}
+    <a class="button"
+       href="{% provider_login_url 'google' process='connect' action='reauthenticate' next=request.path %}">
+      <span class="icon">
+        <i class="ri-google-line"></i>
+      </span>
+      <span>Connect to Google…</span>
+    </a>
+  </div>
+</article>
+
+{% else %}
+{# If the user does have a Google token then provide them with a file picker button #}
+
+{% with button_text=button_text|default:"Select a file or folder…" %}
+
+<script type="text/javascript">
+  // Set Javascript variable from Django template context variables 
+
+  // Application and client identifiers
+  // Note: in development these may not be set, in which case this script will not function
+  var appId = "{{ app_id }}";
+  var clientId = "{{ client_id }}";
+  var developerKey = "{{ developer_key }}";
+
+  // A Google OAuth access token for the user is they already have one
+  var accessToken = "{{ access_token }}";
+
+  // Variables set when this template is `include`d to change the
+  // behavious of the picker
+
+  var buttonText = "{{ button_text }}"
+  var target = "{{ target|default:'file_id' }}";
+  var selectFolder = {% if select_folder %}true{% else %}false{% endif %};
+  var mimetypes {% if mimetypes %} = "{{ mimetypes }}"
+  {% endif %};
+
+  ///////////////////////////////////////////////////////////////////////////////////
+
+  // Load the necessary Google APIs
+  var authApiLoaded = false;
+
+  function onApiLoad() {
+    gapi.load('picker', { 'callback': function() { pickerApiLoaded = true } });
+  }
+
+
+  // Create and render a Picker.
+  function createPicker(title) {
+    if (!pickerApiLoaded) {
+      setTimeout(createPicker, 300)
+    }
+
+    var view = new google.picker.DocsView()
+      .setIncludeFolders(true)
+      .setSelectFolderEnabled(selectFolder);
+    if (mimetypes !== undefined) {
+      view.setMimeTypes(mimetypes);
+    }
+
+    var picker = new google.picker.PickerBuilder()
+      .setAppId(appId)
+      .setDeveloperKey(developerKey)
+      .setOAuthToken(accessToken)
+      .addView(view)
+      .setTitle(buttonText)
+      .setCallback(pickerCallback)
+      .build();
+
+    picker.setVisible(true);
+  }
+  // When the user has picked file(s) set the value of the nominated input
+  function pickerCallback(data) {
+    if (data.action == google.picker.Action.PICKED) {
+      var fileId = data.docs[0].id;
+      document.querySelector(target).value = fileId;
+    }
+  }
+
+</script>
+
+<script type="text/javascript"
+        src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+
+<label class="label"
+       for="{{ id }}">
+  {{ field.label|default:field.name }}
+</label>
+
+<div class="field has-addons-tablet mb-0">
+  <div class="control is-expanded-mobile">
+    <div class="button"
+         onclick="createPicker()">
+      <span class="icon">
+        <i class="ri-folder-line"></i>
+      </span>
+      <span>{{ button_text }}</span>
+    </div>
+  </div>
+
+  <div class="control is-expanded is-expanded-mobile">
+    <input class="input"
+           name="{{ field.name }}"
+           id="{{ field.id|default:field.name }}"
+           type="{{ field|input_type }}"
+           {% if field.placeholder %}placeholder="{{ field.placeholder }}"
+           {% endif %}
+           {% if field.autofocus %}autofocus{% endif %}
+           {% if field.value is not None %}value="{{ field.value }}"
+           {% endif %}>
+  </div>
+</div>
+
+{% if field.errors %}
+{% for error in field.errors %}
+<p class="help is-danger">{{ error }}</p>
+{% endfor %}
+{% endif %}
+
+<p class="help mb-4">
+  The Google id for the file or folder e.g. 1iNeKTbnIcW_92Hjc8qxMkrW2jPrvwjHuANju2hkaYkA.
+</p>
+
+{% endwith %}
+{% endif %}
