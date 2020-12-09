@@ -1,3 +1,19 @@
+# [4.25.0](https://github.com/stencila/hub/compare/v4.24.4...v4.25.0) (2020-12-09)
+
+
+### Bug Fixes
+
+* **Google sources:** Get refresh token, handle no refresh token, ability to select a folder. ([8413863](https://github.com/stencila/hub/commit/8413863d867081e14b0dedde540c2700f5a9435b))
+* **Google sources:** Print field errors for File selector inputs ([9be209b](https://github.com/stencila/hub/commit/9be209b8363a5b42cb0922095dd0a293678311ae))
+* **Router:** Add back orginal `[@account-content](https://github.com/account-content)` location ([6a551f4](https://github.com/stencila/hub/commit/6a551f46aeb55b410e124ef081802652e2c7fe91))
+* **Settings:** Reduce the requested scopes from Google ([c55a700](https://github.com/stencila/hub/commit/c55a700ad3d5b937fac9cfca14adb3ebf28bbbdf)), closes [#893](https://github.com/stencila/hub/issues/893)
+
+
+### Features
+
+* **Google sources:** Use allauth based flow for auth; add to other file types ([58cea41](https://github.com/stencila/hub/commit/58cea41cdd3d44bae8cb2ab7e4ac87003b221f6b))
+* **Google sources:** Use Google Picker when creating a Google source ([81e5c00](https://github.com/stencila/hub/commit/81e5c0023cf8f8d435073a096b989dbafa7989a7)), closes [#893](https://github.com/stencila/hub/issues/893)
+
 ## [4.24.4](https://github.com/stencila/hub/compare/v4.24.3...v4.24.4) (2020-12-09)
 
 
