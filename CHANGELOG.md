@@ -1,3 +1,11 @@
+## [4.24.4](https://github.com/stencila/hub/compare/v4.24.3...v4.24.4) (2020-12-09)
+
+
+### Bug Fixes
+
+* **CSS:** Improve styling of form fields w/ errors ([6c92164](https://github.com/stencila/hub/commit/6c92164eac9b744505ab1b0ee37845e3c05384cf))
+* **Router:** Use custom error page for 500 errors too ([3b4c319](https://github.com/stencila/hub/commit/3b4c31950e2108d968689f18c899f11348bd8984)), closes [/github.com/stencila/hub/issues/895#issuecomment-741391756](https://github.com//github.com/stencila/hub/issues/895/issues/issuecomment-741391756)
+
 ## [4.24.2](https://github.com/stencila/hub/compare/v4.24.1...v4.24.2) (2020-12-08)
 
 
