@@ -4,6 +4,7 @@ A "file picker" for Google Drive. See
 - https://developers.google.com/picker/docs/reference
 - https://www.gmass.co/blog/google-picker-api/
 {% endcomment %}
+{% load stencila %}
 
 {% if not access_token %}
 
@@ -102,12 +103,43 @@ A "file picker" for Google Drive. See
 <script type="text/javascript"
         src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
 
-<div class="button is-outline is-fullwidth-mobile mb-3"
-     onclick="createPicker()">
-  <span class="icon">
-    <i class="ri-google-line"></i>
-  </span>
-  <span>{{ button_text|default:"Select a Google Drive file or folder…" }}</span>
+<label class="label"
+       for="{{ id }}">
+  {{ field.label|default:field.name }}
+</label>
+
+<div class="field has-addons-tablet mb-0">
+  <div class="control is-expanded-mobile">
+    <div class="button"
+         onclick="createPicker()">
+      <span class="icon">
+        <i class="ri-folder-line"></i>
+      </span>
+      <span>{{ button_text|default:"Select a file or folder…" }}</span>
+    </div>
+  </div>
+
+  <div class="control is-expanded is-expanded-mobile">
+    <input class="input"
+           name="{{ field.name }}"
+           id="{{ field.id|default:field.name }}"
+           type="{{ field|input_type }}"
+           {% if field.placeholder %}placeholder="{{ field.placeholder }}"
+           {% endif %}
+           {% if field.autofocus %}autofocus{% endif %}
+           {% if field.value is not None %}value="{{ field.value }}"
+           {% endif %}>
+  </div>
 </div>
+
+{% if field.help_text %}
+<p class="help mb-4">
+  {% if help_text %}
+  {{ help_text|safe }}
+  {% else %}
+  {{ field.help_text|safe }}
+  {% endif %}
+</p>
+{% endif %}
 
 {% endif %}

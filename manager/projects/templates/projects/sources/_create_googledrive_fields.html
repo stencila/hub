@@ -13,20 +13,13 @@
 </p>
 
 
-<fieldset>
-  {% include "./_create_googledrive_picker.html" with target="#google_id" %}
+<fieldset class="mb-4">
+  {% include "./_create_googledrive_picker.html" with field=serializer.google_id target="#google_id" %}
 
   {% if access_token %}
-  <p class="title is-5 mt-4">
-    Or, provide the Google id for the file or folder
-  </p>
-
   {% include "serializers/_field.html" with field=serializer.kind %}
-  {% include "serializers/_field.html" with field=serializer.google_id icon="ri-google-line" %}
   {% endif %}
 </fieldset>
-
-<hr>
 
 {% if access_token %}
 {% include "./_create_common_fields.html" %}
