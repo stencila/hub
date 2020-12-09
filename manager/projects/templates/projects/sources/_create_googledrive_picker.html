@@ -15,14 +15,24 @@ A "file picker" for Google Drive. See
   <div class="message-header">
     <p>
       <span class="icon is-vcentered">
-        <i class="ri-google-line"></i>
+        <i class="ri-alert-line"></i>
       </span>
-      Want to access your private Google Drive files?
+      Grant access to files from Google?
     </p>
   </div>
   <div class="message-body">
-    Please <a href="{% provider_login_url 'google' process='connect' next=request.path %}">connect your
-      Google account</a> to be able to navigate to and select your private Google Drive files.
+    <p class="mb-2">
+      You will need to link your Google account to Stencila in order to import files from Google Drive. This will only
+      grant access to basic account information, and the specific files you choose to import into the project.
+    </p>
+
+    <a class="button"
+       href="{% provider_login_url 'google' process='connect' next=request.path %}">
+      <span class="icon">
+        <i class="ri-google-line"></i>
+      </span>
+      <span>Connect to Google…</span>
+    </a>
   </div>
 </article>
 
@@ -97,7 +107,7 @@ A "file picker" for Google Drive. See
   <span class="icon">
     <i class="ri-google-line"></i>
   </span>
-  <span>{{ button_text|default:"Select a Google Drive file or folder" }}</span>
+  <span>{{ button_text|default:"Select a Google Drive file or folder…" }}</span>
 </div>
 
 {% endif %}
