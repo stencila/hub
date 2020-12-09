@@ -73,15 +73,21 @@ def get_user_google_token(
     if token is None:
         return None, app
 
+    # If the token has not expired just return it
     if token.expires_at > timezone.now() - timezone.timedelta(seconds=90):
         return token, app
 
+    # The folowing are all required for a token refresh so if any
+    # are missing, and the token has expired, return no token.
+    if not (token.token and token.token_secret and token.expires_at):
+        return None, app
+
     # Refresh the token
     credentials = GoogleCredentials(
-        access_token=token.token if token else None,
-        client_id=app.client_id if app else None,
-        client_secret=app.secret if app else None,
-        refresh_token=token.token_secret if token else None,
+        access_token=token.token,
+        client_id=app.client_id,
+        client_secret=app.secret,
+        refresh_token=token.token_secret,
         token_expiry=token.expires_at,
         token_uri="https://accounts.google.com/o/oauth2/token",
         user_agent="Stencila Hub Client",

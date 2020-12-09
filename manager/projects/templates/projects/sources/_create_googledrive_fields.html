@@ -14,7 +14,7 @@
 
 
 <fieldset class="mb-4">
-  {% include "./_create_googledrive_picker.html" with field=serializer.google_id target="#google_id" %}
+  {% include "./_create_googledrive_picker.html" with field=serializer.google_id target="#google_id" select_folder=True %}
 
   {% if access_token %}
   {% include "serializers/_field.html" with field=serializer.kind %}

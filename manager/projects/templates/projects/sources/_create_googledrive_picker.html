@@ -23,12 +23,13 @@ A "file picker" for Google Drive. See
   </div>
   <div class="message-body">
     <p class="mb-2">
-      You will need to link your Google account to Stencila in order to import files from Google Drive. This will only
-      grant access to basic account information, and the specific files you choose to import into the project.
+      You need to link your Google account to Stencila in order to import files from Google Drive. This will only
+      grant access to basic account information, and the specific files you choose to import into your projects.
     </p>
 
+    {# Use action='reauthenticate' to ensure that we get a refresh token #}
     <a class="button"
-       href="{% provider_login_url 'google' process='connect' next=request.path %}">
+       href="{% provider_login_url 'google' process='connect' action='reauthenticate' next=request.path %}">
       <span class="icon">
         <i class="ri-google-line"></i>
       </span>
@@ -38,8 +39,9 @@ A "file picker" for Google Drive. See
 </article>
 
 {% else %}
-
 {# If the user does have a Google token then provide them with a file picker button #}
+
+{% with button_text=button_text|default:"Select a file or folder…" %}
 
 <script type="text/javascript">
   // Set Javascript variable from Django template context variables 
@@ -56,8 +58,9 @@ A "file picker" for Google Drive. See
   // Variables set when this template is `include`d to change the
   // behavious of the picker
 
+  var buttonText = "{{ button_text }}"
   var target = "{{ target|default:'file_id' }}";
-
+  var selectFolder = {% if select_folder %}true{% else %}false{% endif %};
   var mimetypes {% if mimetypes %} = "{{ mimetypes }}"
   {% endif %};
 
@@ -72,19 +75,24 @@ A "file picker" for Google Drive. See
 
 
   // Create and render a Picker.
-  function createPicker() {
+  function createPicker(title) {
     if (!pickerApiLoaded) {
       setTimeout(createPicker, 300)
     }
 
-    var view = new google.picker.DocsView();
-    if (mimetypes !== undefined) view.setMimeTypes(mimetypes);
+    var view = new google.picker.DocsView()
+      .setIncludeFolders(true)
+      .setSelectFolderEnabled(selectFolder);
+    if (mimetypes !== undefined) {
+      view.setMimeTypes(mimetypes);
+    }
 
     var picker = new google.picker.PickerBuilder()
       .setAppId(appId)
       .setDeveloperKey(developerKey)
       .setOAuthToken(accessToken)
       .addView(view)
+      .setTitle(buttonText)
       .setCallback(pickerCallback)
       .build();
 
@@ -115,7 +123,7 @@ A "file picker" for Google Drive. See
       <span class="icon">
         <i class="ri-folder-line"></i>
       </span>
-      <span>{{ button_text|default:"Select a file or folder…" }}</span>
+      <span>{{ button_text }}</span>
     </div>
   </div>
 
@@ -138,14 +146,9 @@ A "file picker" for Google Drive. See
 {% endfor %}
 {% endif %}
 
-{% if field.help_text %}
 <p class="help mb-4">
-  {% if help_text %}
-  {{ help_text|safe }}
-  {% else %}
-  {{ field.help_text|safe }}
-  {% endif %}
+  The Google id for the file or folder e.g. 1iNeKTbnIcW_92Hjc8qxMkrW2jPrvwjHuANju2hkaYkA.
 </p>
-{% endif %}
 
+{% endwith %}
 {% endif %}
