@@ -43,7 +43,7 @@
                  name="search"
                  placeholder="{% trans "Filter files by name…" %}"
                  hx-trigger="keyup changed delay:500ms"
-                 hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}&aggregate=True{% if source %}&source={{ source.id }}{% endif %}{% if snapshot %}&snapshot={{ snapshot.id }}{% endif %}"
+                 hx-get="{% url 'api-projects-files-list' project.id %}?prefix={{ prefix }}{% if source %}&source={{ source.id }}{% endif %}{% if snapshot %}&snapshot={{ snapshot.id }}{% endif %}"
                  hx-template="projects/files/_list.html"
                  hx-indicator="#file-filter-indicator"
                  hx-select="#file-table"

@@ -48,6 +48,11 @@ after_account_urls = [
                     name="ui-projects-update",
                 ),
                 path(
+                    ProjectPaths.image.value + "/",
+                    projects.image,
+                    name="ui-projects-image",
+                ),
+                path(
                     ProjectPaths.files.value + "/",
                     include(
                         [

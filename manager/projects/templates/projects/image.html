@@ -1,0 +1,48 @@
+{% extends './base.html' %}
+{% load i18n %}
+
+{% block title %}{{ project.name }} : {% trans "Image" %}{% endblock %}
+
+{% block projects_content %}
+
+<h2 class="title is-3">{% trans "Project images" %}</h2>
+<p class="subtitle is-6">{% trans "Use an image from your project, either current or updating." %}</p>
+
+<form class="field width-full">
+  <label class="is-sr-only"
+         for="image-filter">
+    {% trans "Image filter" %}
+  </label>
+  <div class="control has-icons-left has-icons-right is-expanded">
+    <input id="image-filter"
+           class="input is-small-mobile"
+           type="text"
+           name="search"
+           placeholder="{% trans "Filter image by name…" %}"
+           hx-trigger="load, keyup changed delay:300ms"
+           hx-get="{% url 'api-projects-files-list' project.id %}?expand&mimetype=image"
+           hx-indicator="#file-filter-indicator"
+           hx-template="projects/files/_image_list.html"
+           hx-target="#image-list">
+    <span class="icon is-small is-left">
+      <i class="ri-filter-line"></i>
+    </span>
+    <span id="file-filter-indicator"
+          class="icon is-small is-right htmx-indicator">
+      <i class="ri-loader-line"></i>
+    </span>
+  </div>
+</form>
+
+<div id="image-list">
+</div>
+
+<hr>
+
+<h2 class="title is-3">{% trans "Upload image" %}</h2>
+<p class="subtitle is-6">{% trans "Upload a custom image." %}</p>
+{# TODO #}
+
+<hr>
+
+{% endblock %}

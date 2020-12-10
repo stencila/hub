@@ -69,6 +69,7 @@ class ProjectsFilesViewSet(
         Allows for filtering:
           - using a search string
           - using path prefix (e.g for subdirectory listing)
+          - using a mimetype
 
         Allows for aggregation (the default) by directory.
         """
@@ -96,6 +97,10 @@ class ProjectsFilesViewSet(
         if search:
             print(prefix, search)
             queryset = queryset.filter(path__istartswith=prefix + search)
+
+        mimetype = self.request.GET.get("mimetype", "").strip()
+        if mimetype:
+            queryset = queryset.filter(mimetype__startswith=mimetype)
 
         queryset = queryset.annotate(
             name=Substr(

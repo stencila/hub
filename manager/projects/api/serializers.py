@@ -214,6 +214,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             "name",
             "title",
             "description",
+            "image_path",
+            "image_static",
             "temporary",
             "public",
             "key",

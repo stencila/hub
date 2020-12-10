@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 import shortuuid
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -15,7 +16,7 @@ from meta.views import Meta
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
-from manager.storage import StorageUsageMixin, working_storage
+from manager.storage import StorageUsageMixin, media_storage, working_storage
 from users.models import User
 
 
@@ -108,10 +109,20 @@ class Project(StorageUsageMixin, models.Model):
         null=True, blank=True, help_text="Brief description of the project."
     )
 
-    container_image = models.TextField(
+    image_path = models.CharField(
         null=True,
         blank=True,
-        help_text="The container image to use as the execution environment for this project.",
+        max_length=1024,
+        help_text="Path of image in the project's working directory to use for this project. "
+        "Allows the project's image to update as it is re-executed.",
+    )
+
+    image_static = models.ImageField(
+        null=True,
+        blank=True,
+        storage=media_storage(),
+        upload_to="projects/images",
+        help_text="The static image used for this project in project listings and HTML meta data.",
     )
 
     theme = models.TextField(
@@ -137,6 +148,12 @@ class Project(StorageUsageMixin, models.Model):
         null=True,
         blank=True,
         help_text="Content to inject at the bottom of the <body> element of HTML served for this project.",
+    )
+
+    container_image = models.TextField(
+        null=True,
+        blank=True,
+        help_text="The container image to use as the execution environment for this project.",
     )
 
     main = models.TextField(
@@ -181,8 +198,40 @@ class Project(StorageUsageMixin, models.Model):
             object_type="article",
             title=self.title or self.name,
             description=self.description,
-            image=self.account.image.large,
+            image=self.get_image(),
         )
+
+    def get_image(self) -> str:
+        """
+        Get an image for the project.
+
+        Should always return a URL to an image, in the following order
+        of preference:
+          - from `image_path` if it is set and there is a current file with that path
+          - `image_static` if it is set
+          - the most recently modified, current, image file
+          - a random image from Unsplash based on the project's keywords.
+        """
+        if self.image_path:
+            try:
+                self.files.get(current=True, path=self.image_path)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                return self.content_url(path=self.image_path, live=True)
+
+        if self.image_static:
+            return self.image_static.url
+
+        images = self.files.filter(
+            current=True, mimetype__startswith="image/"
+        ).order_by("-modified")
+        if len(images) > 0:
+            return self.content_url(path=images[0].path, live=True)
+
+        # TODO: Use Unsplash API to get a uniquely random URL for each project
+        # TODO: Use project keywords to reduce randomness of image
+        return "https://source.unsplash.com/random/1200x628/"
 
     @property
     def scheduled_deletion_time(self) -> Optional[datetime.datetime]:
