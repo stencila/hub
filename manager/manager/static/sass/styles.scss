@@ -800,10 +800,13 @@ input[type="checkbox"].toggle {
   @extend .transition-colors;
 }
 
-a.has-text-link-hover:hover,
-.has-text-link-hover:hover {
-  @extend .transition-colors;
-  color: $link !important;
+a.has-text-link-hover,
+.has-text-link-hover {
+  &:hover,
+  &:focus {
+    @extend .transition-colors;
+    color: $link !important;
+  }
 }
 
 a.list-menu--item {
