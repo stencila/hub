@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<ul class="columns is-multiline">
+<ul class="project-list">
   {% for project in projects %}
-  <li class="column {% if forloop.counter <= 2 %}is-half{% else %}is-one-third{% endif %}">
+  <li class="project-gallery--item transition-colors">
     {% include './_project_list_item.html' %}
   </li>
   {% empty %}

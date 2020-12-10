@@ -1,9 +1,9 @@
-{% extends 'base_centered.html' %}
+{% extends 'base.html' %}
 {% load i18n stencila %}
 
 {% block title %}{% trans "Projects" %}{% endblock %}
 
-{% block layout_content %}
+{% block content %}
 <div class="level is-mobile">
   <div class="level-left">
     <div class="level-item">
@@ -28,9 +28,9 @@
   {% endif %}
 </div>
 
-<div class="field has-addons">
-  <label for="projects-search-input"
-         class="label is-sr-only">{% trans "Search projects" %}</label>
+<label for="projects-search-input"
+       class="label is-sr-only">{% trans "Search projects" %}</label>
+<div class="field has-addons width-full width-half-tablet">
   <div class="control has-icons-left has-icons-right is-expanded">
     <input id="projects-search-input"
            class="input"
@@ -81,7 +81,8 @@
   {% endif %}
 </div>
 
-<div id="projects-search-result">
+<div id="projects-search-result"
+     class="projects-gallery">
   {% include './_project_list.html' %}
 </div>
 
