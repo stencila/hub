@@ -256,7 +256,7 @@
             <div class="navbar-item has-dropdown">
               <a class="navbar-link"
                  href="{% url 'ui-accounts-retrieve' user.username %}"
-                 alt="{% trans "Your user profile" %}">
+                 title="{% trans "Your user profile" %}">
                 {% if request.session.user.image %}
                 <figure class="image is-32x32 navbar__user-avatar">
                   {% comment %}
@@ -279,7 +279,7 @@
               <div class="navbar-dropdown">
                 <a class="navbar-item is-hidden-touch"
                    href="{% url 'ui-accounts-retrieve' user.username %}"
-                   alt="{% trans "Your user profile" %}">
+                   title="{% trans "Your user profile" %}">
                   Signed in as&nbsp;<strong>{{ user.username }}</strong>
                 </a>
                 <hr class="navbar-divider">
