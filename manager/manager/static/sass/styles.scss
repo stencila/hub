@@ -479,6 +479,10 @@ body {
 }
 
 @media screen and (min-width: $tablet) {
+  .width-half-tablet {
+    width: 50%;
+  }
+
   /** Add a custom `has-addons-tablet` class which only allows multiple input fields to be stacked on mobile, but then
    expanded and unified above `$tablet` breakpoint.
    @see: https://bulma.io/documentation/form/general/#form-addons for original class documentation. */
@@ -595,6 +599,10 @@ body {
 
 .leading-loose {
   line-height: 2;
+}
+
+.width-half {
+  width: 50%;
 }
 
 .width-full {
