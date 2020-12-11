@@ -37,7 +37,7 @@ PyGithub==1.54
 pygments==2.7.3
 pyjwt==1.7.1
 redis==3.5.3
-sentry-sdk==0.19.4
+sentry-sdk==0.19.5
 shortuuid==1.0.1
 stencila-schema==0.47.2
 whitenoise==5.2.0
