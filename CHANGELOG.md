@@ -1,3 +1,13 @@
+## [4.25.1](https://github.com/stencila/hub/compare/v4.25.0...v4.25.1) (2020-12-11)
+
+
+### Bug Fixes
+
+* **Emails:** Make more compact; reduce number of queries ([7ea1c46](https://github.com/stencila/hub/commit/7ea1c46953f432f189ca0da1a2a82435f85081b6))
+* **Emails:** Send the correct HTML when signing up versus verifying email address ([079105a](https://github.com/stencila/hub/commit/079105a65a315a52561a759673c826271074832e))
+* **Emails:** Tweaks to plain text messages ([804d4e8](https://github.com/stencila/hub/commit/804d4e8a7732f19eeba79a8b1ccbefd776a92e36))
+* **Invites:** Tweak wording when no invitations have been sent ([b9c81ac](https://github.com/stencila/hub/commit/b9c81ac80a942d8df69686cff5ed12116b683a3f))
+
 # [4.25.0](https://github.com/stencila/hub/compare/v4.24.4...v4.25.0) (2020-12-09)
 
 
