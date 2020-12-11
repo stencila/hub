@@ -1,0 +1,101 @@
+{% extends './base.html' %}
+{% load i18n %}
+
+{% block title %}{{ project.name }} : {% trans "Image" %}{% endblock %}
+
+{% block projects_content %}
+
+<h2 class="title is-3">{% trans "Project image" %}</h2>
+<p class="subtitle is-6">
+  {% blocktrans %}
+  An image for your project used in gallery listings and for social media shares (e.g Twitter cards).
+  Upload a new image, or select an existing image.
+  Alternatively, we will automatically use the most recently updated image file in your project.
+  {% endblocktrans %}
+</p>
+
+<div id="image-current">
+  {% include "./_image_current.html" %}
+</div>
+
+<hr>
+
+<h3 class="title is-6 mt-4">
+  {% trans "Upload a new image" %}
+</h3>
+
+<form class="mt-2"
+      hx-patch="{% url 'api-projects-detail' project.id %}"
+      hx-encoding="multipart/form-data"
+      hx-template="projects/_image_current.html"
+      hx-target="#image-current">
+  <div class="field has-addons-tablet">
+    <div class="control">
+      <div class="file has-name">
+        <label class="file-label">
+          <input class="file-input"
+                 type="file"
+                 accept="image/png,image/jpeg,image/gif"
+                 name="image_file">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="ri-file-upload-line"></i>
+            </span>
+            <span class="file-label">
+              {% trans "Choose an image…" %}
+            </span>
+          </span>
+          <span class="file-name">
+            {% trans "No image chosen" %}
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="control">
+      <button class="button is-primary is-fullwidth-mobile"
+              type="submit">
+        {% trans "Upload" %}
+      </button>
+    </div>
+  </div>
+</form>
+
+<hr>
+
+<h3 class="title is-6 mt-4">
+  {% trans "Select an existing image" %}
+</h3>
+
+<form class="form mt-2">
+  <div class="field has-addons-tablet">
+    <label class="is-sr-only"
+           for="image-filter">
+      {% trans "Image filter" %}
+    </label>
+    <div class="control has-icons-left has-icons-right is-expanded">
+      <input id="image-filter"
+             class="input is-small-mobile"
+             type="text"
+             name="search"
+             placeholder="{% trans "Filter images by name…" %}"
+             hx-trigger="load, keyup changed delay:300ms"
+             hx-get="{% url 'api-projects-files-list' project.id %}?expand&mimetype=image"
+             hx-indicator="#image-filter-indicator"
+             hx-template="projects/_image_list.html"
+             hx-target="#image-list">
+      <span class="icon is-small is-left">
+        <i class="ri-filter-line"></i>
+      </span>
+      <span id="image-filter-indicator"
+            class="icon is-small is-right htmx-indicator">
+        <i class="ri-loader-line"></i>
+      </span>
+    </div>
+  </div>
+</form>
+
+<div id="image-list"
+     class="mt-2">
+</div>
+
+{% endblock %}

@@ -1,58 +1,100 @@
 {% load i18n %}
 
 {% with account=project.account role=project.role %}
+
 {% url 'ui-accounts-retrieve' account.name as account_url %}
 {% url 'ui-projects-retrieve' account.name project.name as project_url %}
 {% url 'ui-projects-sharing' account.name project.name as project_sharing_url %}
-<div class="collection-list--item-contents transition-colors">
-  <h2 class="title is-size-5-mobile is-4 leading-loose">
+
+<article class="project-gallery--item-contents transition-colors card">
+  <div class="is-relative project-item--hero">
+    <div class="project-item--header">
+      <a href="{{ project.content_url }}"
+         class="button is-small is-success is-pulled-right">
+        <span class="icon is-small">
+          <i class="ri-play-line"></i>
+        </span>
+        <span>{% trans 'Run' %}</span>
+      </a>
+    </div>
+
+    {% if project.image_file %}
+    <a href="{{ project_url }}"
+       class="is-block hero-image"
+       title="View this project">
+      <img src="{{ project.image_file.url }}"
+           class="is-block"
+           role="presentation" />
+    </a>
+    {% endif %}
+  </div>
+
+  <div class="project-gallery--item-content">
+    <h2 class="title is-size-5-mobile is-4 mt-1 mb-2">
+      <a href="{{ project_url }}"
+         class="is-block has-text-black has-text-link-hover is-underlined-hover">
+        {{ project.title|default:project.name|default:"Untitled Project" }}
+
+        {% if project.public == False %}
+        <span class="tag is-warning is-light">
+          <span class="icon">
+            <i class="ri-lock-line"></i>
+          </span>
+          <span>
+            {% trans 'Private' %}
+          </span>
+        </span>
+        {% endif %}
+
+        {% if role %}
+        <span class="tag is-light is-warning has-tooltip-bottom has-tooltip-text-centered image-tooltip"
+              data-tooltip="{% blocktrans %}You are a {{ role }} of this project{% endblocktrans %}">
+          <span class="icon is-small">
+            <i class="ri-user{% if role == 'MANAGER' %}-star{% elif role == 'OWNER' %}-settings{% endif %}-line"></i>
+          </span>
+        </span>
+        {% endif %}
+
+      </a>
+    </h2>
+
+    {% if project.description %}
+    <p class="is-size-6 mb-2">
+      {{ project.description|truncatechars:330 }}
+    </p>
+    {% endif %}
+
     {# Hide avatar when listing projects on an organization's own account page #}
-    {% if account.is_personal or request.path != account_url %}
-    <a href="{{ account_url }}">
-      <span class="icon is-medium has-tooltip-top has-tooltip-text-centered image-tooltip"
-            data-tooltip="Project belongs to @{{ account.name }}">
-        <img src="{{ account.image.medium }}"
-             role="presentation"></img>
-      </span>
-    </a>
-    {% endif %}
+    <div class="is-vcentered">
+      {% if not account.is_personal or request.path != account_url %}
+      <a href="{{ account_url }}"
+         class="has-text-black is-size-6 mr-1">
+        <span class="icon is-medium">
+          <img src="{{ account.image.small }}"
+               role="presentation" />
+        </span>
+        <span>{{ account.name }}</span>
+      </a>
+      {% endif %}
+    </div>
 
-    <a href="{{ project_url }}"
-       class="has-text-black has-text-link-hover">
-      {{ project.title|default:project.name|default:"Untitled Project" }}
-    </a>
+    <div class="mt-1">
+      {% if project.doi %}
+      <span class="tag is-light is-vcentered">
+        <span class="icon is-vcentered">
+          <i class="ri-fingerprint-line"></i>
+        </span>
+        <span>{{ doi.doi }}</span>
+      </span>
+      {% endif %}
 
-    {% if project.public == False %}
-    <span class="tag is-light">
-      <span class="icon">
-        <i class="ri-lock-line"></i>
+      {% for tag in project.keywords %}
+      <span class="tag is-light">
+        {{ tag.text }}
       </span>
-      <span>
-        {% trans "Private" %}
-      </span>
-    </span>
-    {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</article>
 
-    {% if role %}
-    <a href="{{ project_sharing_url }}"
-       <span
-       class="tag is-light {% if role == 'MANAGER' %}has-background-warning-light{% elif role == 'OWNER' %}has-background-danger-light{% endif %} has-tooltip-top has-tooltip-text-centered image-tooltip"
-       data-tooltip="{% blocktrans %}You are a {{ role }} on this project{% endblocktrans %}">
-      <span class="icon is-small">
-        <i class="ri-user{% if role == 'MANAGER' %}-star{% elif role == 'OWNER' %}-settings{% endif %}-line"></i>
-      </span>
-      </span>
-    </a>
-    {% endif %}
-  </h2>
-
-  {% if project.description %}
-  <p class="subtitle is-size-6">
-    <a href="{{ project_url }}"
-       class="has-text-black has-text-link-hover">
-      {{ project.description|truncatechars:180 }}
-    </a>
-  </p>
-  {% endif %}
-</div>
 {% endwith %}

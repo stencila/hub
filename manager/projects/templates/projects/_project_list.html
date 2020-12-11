@@ -2,8 +2,8 @@
 
 <ul class="project-list">
   {% for project in projects %}
-  <li class="collection-list--item transition-colors">
-    {% include './_project_list_item.html' with project=project %}
+  <li class="project-gallery--item transition-colors">
+    {% include './_project_list_item.html' %}
   </li>
   {% empty %}
   <li class="has-text-weight-bold pt-3 is-size-4 has-text-grey">

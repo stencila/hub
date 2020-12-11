@@ -137,6 +137,24 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
+def image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Set a project's image."""
+    viewset = ProjectsViewSet.init("partial_update", request, args, kwargs)
+    project = viewset.get_object()
+    serializer = viewset.get_serializer(project)
+    return render(
+        request,
+        "projects/image.html",
+        dict(
+            account=project.account,
+            project=project,
+            serializer=serializer,
+            meta=project.get_meta(),
+        ),
+    )
+
+
+@login_required
 def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project's sharing settings."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)

@@ -1,7 +1,7 @@
 import re
 from typing import Dict, List, Optional
 
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -178,7 +178,15 @@ class ProjectsViewSet(
                 | Q(description__icontains=search)
             )
 
-        return queryset.filter(temporary=False).order_by("-role")
+        # Ordering favoring those that the user has a role
+        # on, has an image set, has a description set, etc
+        return queryset.filter(temporary=False).order_by(
+            "-featured",
+            "-role",
+            F("image_file").desc(nulls_last=True),
+            F("description").desc(nulls_last=True),
+            "-created",
+        )
 
     def get_object(self):
         """

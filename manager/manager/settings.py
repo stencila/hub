@@ -357,6 +357,8 @@ class Prod(Configuration):
         ),
         "DEFAULT_PARSER_CLASSES": (
             "djangorestframework_camel_case.parser.CamelCaseJSONParser",
+            "rest_framework.parsers.FormParser",
+            "rest_framework.parsers.MultiPartParser",
         ),
         "DEFAULT_PERMISSION_CLASSES": (
             # Default is for API endpoints to require the user to be authenticated

@@ -214,8 +214,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             "name",
             "title",
             "description",
+            "image_file",
+            "image_path",
+            "image_updated",
             "temporary",
             "public",
+            "featured",
             "key",
             "main",
             "container_image",
@@ -226,6 +230,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "extra_top",
             "extra_bottom",
         ]
+        read_only_fields = ["featured", "key"]
 
     def validate_ownership_by_account(self, public: bool, account: Account):
         """
@@ -476,6 +481,18 @@ class ProjectUpdateSerializer(ProjectSerializer):
                 )
 
         return data
+
+    def update(self, project, validated_data):
+        """
+        Override to update image_file field with content of image_path.
+        """
+        image_path = validated_data.get("image_path")
+        image_file = validated_data.get("image_file")
+        if image_file:
+            validated_data["image_path"] = "__uploaded__"
+        elif image_path:
+            project.set_image_from_file(image_path)
+        return super().update(project, validated_data)
 
 
 class ProjectDestroySerializer(serializers.Serializer):

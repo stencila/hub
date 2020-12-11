@@ -126,6 +126,18 @@ def remove_prefix(text, prefix):
 
 
 @register.simple_tag
+def project_content_url(project, **kwargs):
+    """
+    Get the URL for a file path within a project.
+
+    This can significantly reduce the number of queries instead
+    of fetching the project and account for every file in a list
+    which happens when using `{{ file.download_url }}`.
+    """
+    return project.content_url(**kwargs)
+
+
+@register.simple_tag
 def file_format_convert_to_options(format_id=None, mimetype=None):
     """
     Get the list of file formats that a can be converted to.

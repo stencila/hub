@@ -13,6 +13,7 @@ class ProjectPaths(enum.Enum):
 
     claim = "claim"
     files = "files"
+    image = "image"
     jobs = "jobs"
     reviews = "reviews"
     settings = "settings"

@@ -30,10 +30,12 @@
       text-decoration: underline;
     }
 
-
     &:before {
-      background-image: linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
-      content: '';
+      background-image: linear-gradient(
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 1)
+      );
+      content: "";
       height: 2rem;
       left: 0;
       position: absolute;
@@ -63,32 +65,100 @@
   }
 
   @media screen and (min-width: $tablet) {
-      padding-right: $gap;
+    padding-right: $gap;
   }
 }
 
-.project-list--item {
-  border-bottom: 1px solid $grey-lightest;
-  margin-left: -$gap / 4;
-  margin-right: -$gap / 4;
+.projects-gallery {
+  margin-top: $gap / 2;
+}
 
-  &:hover,
-  &:focus {
-    background-color: $white-ter;
+label[for="projects-search-input"] + .field {
+  @media screen and (min-width: $tablet) {
+    padding-right: $gap / 2;
   }
+}
 
-  &:first-child {
-    margin-top: -($gap / 2);
-  }
+.project-gallery--item {
+  margin-bottom: $gap;
+  width: 100%;
 
-  &:last-child {
-    border-bottom: none;
+  // Above $tablet breakpoints, render project cards in a grid
+  // making the first two items more prominent
+  @media screen and (min-width: $tablet) {
+    padding-left: $gap / 2;
+    padding-right: $gap / 2;
+    width: 50%;
+
+    &:first-child,
+    &:nth-child(3n) {
+      padding-left: 0;
+    }
+
+    &:nth-child(2),
+    &:nth-child(3n + 2):not(:nth-child(2)) {
+      padding-right: 0;
+    }
+
+    &:nth-child(2n + 1):not(:first-child),
+    &:nth-child(2n + 2):not(:nth-child(2)),
+    &:nth-child(3n + 3) {
+      width: 33%;
+    }
   }
+}
+
+.project-gallery--item-contents {
+  border-radius: 4px;
+  border: 1px solid $grey-lightest;
+  height: 100%;
+  overflow: hidden;
+}
+
+.project-gallery--item-content {
+  padding: $gap / 2;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .project-list--item-link {
   display: block;
   padding: ($gap / 2) ($gap / 4);
+}
+
+.project-item--hero {
+  min-height: 2.5rem;
+}
+
+.project-gallery--item {
+  .hero-image {
+    max-height: 16rem;
+    overflow: hidden;
+  }
+
+  @media screen and (min-width: $tablet) {
+    .hero-image {
+      max-height: 24rem;
+    }
+
+    &:nth-child(n + 3) {
+      .hero-image {
+        max-height: 16rem;
+      }
+    }
+  }
+}
+
+.project-item--header {
+  left: 0;
+  padding: $gap / 2;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 // =============================================================================
@@ -251,7 +321,7 @@ a.job-list--id {
 }
 
 // =============================================================================
-// Sharing                                                                      
+// Sharing
 // =============================================================================
 
 .project-sharing-menu {
