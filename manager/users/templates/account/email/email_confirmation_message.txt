@@ -1,8 +1,8 @@
-{% load account %}{% load i18n %}{% autoescape off %}{% blocktrans%}Hello from Stencila Hub!
+{% load account i18n %}{% autoescape off %}{% blocktrans%}Hello from Stencila!
 
-You're receiving this e-mail because user {{ user.username }} connected this address to their account.
+You're receiving this email because someone, probably you, connected this address to their account.
 
-To confirm this is correct, go to {{ activate_url }}
+To confirm this is correct, go to {{ activate_url }}. If not, you can simply ignore this email.
+
+Thank you.
 {% endblocktrans %}{% endautoescape %}
-{% blocktrans %}Thank you from Stencila Hub.
-{% endblocktrans %}
