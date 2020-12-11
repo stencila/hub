@@ -23,21 +23,27 @@ from projects.models.sources import (
     UploadSource,
     UrlSource,
 )
+from projects.tasks import update_image_for_project
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     """Admin interface for projects."""
 
-    list_display = [
-        "name",
-        "account",
-        "creator",
-        "created",
-        "temporary",
-        "public",
-    ]
+    list_display = ["name", "account", "creator", "created", "temporary", "public"]
+
     list_select_related = ["account", "creator"]
+
+    list_filter = ["temporary", "public", "created"]
+
+    actions = ["update_image"]
+
+    def update_image(self, request, queryset):
+        """Update image for selected projects."""
+        for project in queryset:
+            update_image_for_project.delay(project.id)
+
+    update_image.short_description = "Update image"  # type: ignore
 
 
 @admin.register(ProjectAgent)

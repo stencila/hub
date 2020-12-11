@@ -18,11 +18,11 @@
       </a>
     </div>
 
-    {% if project.get_image %}
+    {% if project.image_file %}
     <a href="{{ project_url }}"
        class="is-block hero-image"
        title="View this project">
-      <img src="{{ project.get_image }}"
+      <img src="{{ project.image_file.url }}"
            class="is-block"
            role="presentation" />
     </a>

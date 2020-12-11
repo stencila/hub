@@ -35,7 +35,8 @@
         <label class="file-label">
           <input class="file-input"
                  type="file"
-                 name="image_static">
+                 accept="image/png,image/jpeg,image/gif"
+                 name="image_file">
           <span class="file-cta">
             <span class="file-icon">
               <i class="ri-file-upload-line"></i>
@@ -62,7 +63,7 @@
 <hr>
 
 <h3 class="title is-6 mt-4">
-  {% trans "Select an existing image from your project" %}
+  {% trans "Select an existing image" %}
 </h3>
 
 <form class="form mt-2">

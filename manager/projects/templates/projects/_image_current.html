@@ -5,12 +5,12 @@
 </h3>
 
 <div class="columns">
-  {% with current_image=project.get_image %}
+  {% with current_image=project.image_file %}
   {% if current_image %}
   <div class="column is-half-tablet">
     <div class="card">
       <div class="card-image">
-        <img src="{{ current_image }}"
+        <img src="{{ current_image.url }}"
              alt="">
       </div>
     </div>

@@ -6,11 +6,13 @@ from urllib.parse import urlencode
 import shortuuid
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.http import HttpRequest
 from django.shortcuts import reverse
+from django.utils import timezone
 from meta.views import Meta
 
 from accounts.models import Account, AccountTeam
@@ -109,20 +111,26 @@ class Project(StorageUsageMixin, models.Model):
         null=True, blank=True, help_text="Brief description of the project."
     )
 
-    image_path = models.CharField(
-        null=True,
-        blank=True,
-        max_length=1024,
-        help_text="Path of image in the project's working directory to use for this project. "
-        "Allows the project's image to update as it is re-executed.",
-    )
-
-    image_static = models.ImageField(
+    image_file = models.ImageField(
         null=True,
         blank=True,
         storage=media_storage(),
         upload_to="projects/images",
-        help_text="The static image used for this project in project listings and HTML meta data.",
+        help_text="The image used for this project in project listings and HTML meta data.",
+    )
+
+    image_path = models.CharField(
+        null=True,
+        blank=True,
+        max_length=1024,
+        help_text="Path of file in the project's working directory to use as this project's image. "
+        "Allows the project's image to update as it is re-executed.",
+    )
+
+    image_updated = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the image file was last updated (e.g. from image_path).",
     )
 
     theme = models.TextField(
@@ -198,37 +206,56 @@ class Project(StorageUsageMixin, models.Model):
             object_type="article",
             title=self.title or self.name,
             description=self.description,
-            image=self.get_image(),
+            image=self.image_file.url if self.image_file else None,
         )
 
-    def get_image(self) -> Optional[str]:
+    def set_image_from_file(self, file):
         """
-        Get an image for the project.
-
-        Should always return a URL to an image, in the following order
-        of preference:
-          - from `image_path` if it is set and there is a current file with that path
-          - `image_static` if it is set
-          - the most recently modified, current, image file
+        Update the image file for the project from the path of a file within it.
         """
-        if self.image_path:
+        if isinstance(file, str):
             try:
-                self.files.get(current=True, path=self.image_path)
+                file = self.files.get(current=True, path=file)
             except ObjectDoesNotExist:
-                pass
-            else:
-                return self.content_url(path=self.image_path, live=True)
+                return
 
-        if self.image_static:
-            return self.image_static.url
+        content = file.get_content()
+        file = ContentFile(content)
+        file.name = "image"
+        self.image_file = file
+        self.image_updated = timezone.now()
+        self.save()
 
-        images = self.files.filter(
-            current=True, mimetype__startswith="image/"
-        ).order_by("-modified")
-        if len(images) > 0:
-            return self.content_url(path=images[0].path, live=True)
+    def update_image(self):
+        """
+        Update the image for the project.
+        """
+        modified_since = (
+            dict(modified__gt=self.image_updated) if self.image_updated else {}
+        )
+        if self.image_path and self.image_path != "__uploaded__":
+            # Does the file need updating?
+            images = self.files.filter(
+                current=True, path=self.image_path, **modified_since
+            ).order_by("-modified")
+            if len(images) > 0:
+                self.set_image_from_file(images[0])
+        else:
+            # Try to find an image for the project and use the most
+            # recently modified since the image was last updated
+            images = self.files.filter(
+                current=True, mimetype__startswith="image/", **modified_since,
+            ).order_by("-modified")
+            if len(images) > 0:
+                self.set_image_from_file(images[0])
 
-        return None
+    def update_image_all_projects(self):
+        """
+        Update the image of all projects.
+        """
+        projects = Project.objects.all(temporary=False)
+        for project in projects:
+            project.update_image()
 
     @property
     def scheduled_deletion_time(self) -> Optional[datetime.datetime]:
