@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Q
 from polymorphic.admin import (
     PolymorphicChildModelAdmin,
     PolymorphicChildModelFilter,
@@ -30,13 +31,21 @@ from projects.tasks import update_image_for_project
 class ProjectAdmin(admin.ModelAdmin):
     """Admin interface for projects."""
 
-    list_display = ["name", "account", "creator", "created", "temporary", "public"]
+    list_display = [
+        "name",
+        "account",
+        "creator",
+        "created",
+        "temporary",
+        "public",
+        "featured",
+    ]
 
     list_select_related = ["account", "creator"]
 
-    list_filter = ["temporary", "public", "created"]
+    list_filter = ["temporary", "public", "featured", "created"]
 
-    actions = ["update_image"]
+    actions = ["update_image", "toggle_featured"]
 
     def update_image(self, request, queryset):
         """Update image for selected projects."""
@@ -44,6 +53,12 @@ class ProjectAdmin(admin.ModelAdmin):
             update_image_for_project.delay(project.id)
 
     update_image.short_description = "Update image"  # type: ignore
+
+    def toggle_featured(self, request, queryset):
+        """Toggle featured field for selected projects."""
+        queryset.update(featured=Q(featured=False))
+
+    toggle_featured.short_description = "Toggle featured field"  # type: ignore
 
 
 @admin.register(ProjectAgent)

@@ -101,6 +101,10 @@ class Project(StorageUsageMixin, models.Model):
         default=True, help_text="Is the project publicly visible?"
     )
 
+    featured = models.BooleanField(
+        default=False, help_text="Is the project to be featured in listings?"
+    )
+
     key = models.CharField(
         default=generate_project_key,
         max_length=64,

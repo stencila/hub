@@ -181,6 +181,7 @@ class ProjectsViewSet(
         # Ordering favoring those that the user has a role
         # on, has an image set, has a description set, etc
         return queryset.filter(temporary=False).order_by(
+            "-featured",
             "-role",
             F("image_file").desc(nulls_last=True),
             F("description").desc(nulls_last=True),

@@ -2,8 +2,7 @@ import re
 
 import shortuuid
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.files.base import ContentFile
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Q
 from drf_yasg import openapi
@@ -215,10 +214,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             "name",
             "title",
             "description",
+            "image_file",
             "image_path",
-            "image_static",
+            "image_updated",
             "temporary",
             "public",
+            "featured",
             "key",
             "main",
             "container_image",
@@ -229,6 +230,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "extra_top",
             "extra_bottom",
         ]
+        read_only_fields = ["featured", "key"]
 
     def validate_ownership_by_account(self, public: bool, account: Account):
         """
@@ -482,19 +484,14 @@ class ProjectUpdateSerializer(ProjectSerializer):
 
     def update(self, project, validated_data):
         """
-        Override to update image_static field with content of image_path.
+        Override to update image_file field with content of image_path.
         """
         image_path = validated_data.get("image_path")
-        if image_path:
-            try:
-                file = project.files.get(current=True, path=image_path)
-            except ObjectDoesNotExist:
-                pass
-            else:
-                content = file.get_content()
-                file = ContentFile(content)
-                file.name = "content-" + shortuuid.uuid()
-                project.image_static = file
+        image_file = validated_data.get("image_file")
+        if image_file:
+            validated_data["image_path"] = "__uploaded__"
+        elif image_path:
+            project.set_image_from_file(image_path)
         return super().update(project, validated_data)
 
 
