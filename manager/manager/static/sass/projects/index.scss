@@ -84,7 +84,7 @@ label[for="projects-search-input"] + .field {
   width: 100%;
 
   // Above $tablet breakpoints, render project cards in a grid
-  // making the first two items more prominent 
+  // making the first two items more prominent
   @media screen and (min-width: $tablet) {
     padding-left: $gap / 2;
     padding-right: $gap / 2;
@@ -104,14 +104,6 @@ label[for="projects-search-input"] + .field {
     &:nth-child(2n + 2):not(:nth-child(2)),
     &:nth-child(3n + 3) {
       width: 33%;
-    }
-  }
-
-  &:hover,
-  &:focus-within {
-    .project-gallery--item-contents {
-      border: 1px solid $blue;
-      box-shadow: 0 0 0 2px $blue;
     }
   }
 }

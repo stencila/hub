@@ -6,7 +6,7 @@
 {% url 'ui-projects-retrieve' account.name project.name as project_url %}
 {% url 'ui-projects-sharing' account.name project.name as project_sharing_url %}
 
-<article class="project-gallery--item-contents transition-colors">
+<article class="project-gallery--item-contents transition-colors card">
   <div class="is-relative project-item--hero">
     <div class="project-item--header">
       <a href="{{ project.content_url }}"
@@ -60,10 +60,7 @@
 
     {% if project.description %}
     <p class="is-size-6 mb-2">
-      <a href="{{ project_url }}"
-         class="has-text-black has-text-link-hover">
-        {{ project.description|truncatechars:330 }}
-      </a>
+      {{ project.description|truncatechars:330 }}
     </p>
     {% endif %}
 
