@@ -1,3 +1,16 @@
+## [4.25.2](https://github.com/stencila/hub/compare/v4.25.1...v4.25.2) (2020-12-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.104.1 ([148b827](https://github.com/stencila/hub/commit/148b82768b081fa06ec68e7217accb6064404309))
+* **deps:** update dependency @stencila/executa to v1.15.4 ([23a509e](https://github.com/stencila/hub/commit/23a509e56cb9a7dfe85243f4989a35d0e4c24146))
+* **deps:** update dependency certifi to v2020.12.5 ([76f4921](https://github.com/stencila/hub/commit/76f49219d0a30ebed38bc6367570c0f26911ae80))
+* **deps:** update dependency htmx.org to v1.0.1 ([76dc1a3](https://github.com/stencila/hub/commit/76dc1a30dc77bfaddf98353655efbf5bb8013327))
+* **deps:** update dependency pygments to v2.7.3 ([9d62f43](https://github.com/stencila/hub/commit/9d62f433f66dd73c76a92cc016804a6f07cf6665))
+* **deps:** update dependency sentry-sdk to v0.19.5 ([ef3ad58](https://github.com/stencila/hub/commit/ef3ad58c548be25ed4ad6cd3d76aba058ceccccb))
+* **deps:** update dependency setuptools to v51 ([c0b04d4](https://github.com/stencila/hub/commit/c0b04d4816a396a2ceaefc0171560dce86217b9b))
+
 ## [4.25.1](https://github.com/stencila/hub/compare/v4.25.0...v4.25.1) (2020-12-11)
 
 
