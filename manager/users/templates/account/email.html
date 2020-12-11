@@ -7,8 +7,9 @@
 {% block layout_content %}
 <h1 class="title is-3">{% trans "Manage e-mail addresses" %}</h1>
 
-{% if user.emailaddress_set.all %}
-<p>
+{% with emails=user.emailaddress_set.all %}
+{% if emails %}
+<p class="mb-4">
   {% trans 'The following e-mail addresses are associated with your account:' %}
 </p>
 
@@ -16,38 +17,40 @@
       method="POST"
       action="{% url 'account_email' %}">
   {% csrf_token %}
-  {% for emailaddress in user.emailaddress_set.all %}
-  <div class="email-settings__item">
+
+  {% for emailaddress in emails %}
+  <div class="mb-2 pl-2">
     <label for="email_radio_{{forloop.counter}}"
-           class="is-size-5 {% if emailaddress.primary %}has-text-weight-bold{%endif%} email-settings__label">
+           class="is-size-6">
       <input id="email_radio_{{forloop.counter}}"
              type="radio"
              name="email"
-             {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"
+             {% if emailaddress.primary or emails|length == 1 %}checked="checked"
              {%endif %}
              value="{{emailaddress.email}}" />
 
       {{ emailaddress.email }}
 
       {% if emailaddress.primary %}
-      <span class="tag is-success is-light">
+      <span class="tag is-primary is-light">
         {% trans "Primary" %}
       </span>
       {% endif %}
-    </label>
 
-    {% if emailaddress.verified %}
-    <span class="tag is-success is-light">
-      {% trans "Verified" %}
-    </span>
-    {% else %}
-    <span class="tag is-warning is-light">
-      {% trans "Unverified" %}
-    </span>
-    {% endif %}
+      {% if emailaddress.verified %}
+      <span class="tag is-success is-light">
+        {% trans "Verified" %}
+      </span>
+      {% else %}
+      <span class="tag is-warning is-light">
+        {% trans "Unverified" %}
+      </span>
+      {% endif %}
+    </label>
   </div>
   {% endfor %}
-  <span class="buttons">
+
+  <span class="buttons mt-4">
     <button class="button is-fullwidth-mobile"
             type="submit"
             name="action_primary">
@@ -86,6 +89,7 @@
   {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
 </p>
 {% endif %}
+{% endwith %}
 
 <hr />
 
