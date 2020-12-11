@@ -2,7 +2,8 @@ import re
 
 import shortuuid
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.base import ContentFile
 from django.core.validators import validate_email
 from django.db.models import Q
 from drf_yasg import openapi
@@ -478,6 +479,23 @@ class ProjectUpdateSerializer(ProjectSerializer):
                 )
 
         return data
+
+    def update(self, project, validated_data):
+        """
+        Override to update image_static field with content of image_path.
+        """
+        image_path = validated_data.get("image_path")
+        if image_path:
+            try:
+                file = project.files.get(current=True, path=image_path)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                content = file.get_content()
+                file = ContentFile(content)
+                file.name = "content-" + shortuuid.uuid()
+                project.image_static = file
+        return super().update(project, validated_data)
 
 
 class ProjectDestroySerializer(serializers.Serializer):

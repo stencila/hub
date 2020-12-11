@@ -145,7 +145,12 @@ def image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "projects/image.html",
-        dict(project=project, serializer=serializer, meta=project.get_meta(),),
+        dict(
+            account=project.account,
+            project=project,
+            serializer=serializer,
+            meta=project.get_meta(),
+        ),
     )
 
 

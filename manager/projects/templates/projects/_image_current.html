@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<h3 class="title is-6 mt-4">
+  {% trans "Current image" %}
+</h3>
+
+<div class="columns">
+  {% with current_image=project.get_image %}
+  {% if current_image %}
+  <div class="column is-half-tablet">
+    <div class="card">
+      <div class="card-image">
+        <img src="{{ current_image }}"
+             alt="">
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="column has-text-centered has-text-grey">
+    <span class="icon is-vcentered">
+      <i class="ri-alert-line"></i>
+    </span>
+    <span class="is-vcentered">
+      {% trans 'No image set for this project.' %}
+    </span>
+  </div>
+  {% endif %}
+  {% endwith %}
+</div>

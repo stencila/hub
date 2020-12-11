@@ -201,7 +201,7 @@ class Project(StorageUsageMixin, models.Model):
             image=self.get_image(),
         )
 
-    def get_image(self) -> str:
+    def get_image(self) -> Optional[str]:
         """
         Get an image for the project.
 
@@ -210,7 +210,6 @@ class Project(StorageUsageMixin, models.Model):
           - from `image_path` if it is set and there is a current file with that path
           - `image_static` if it is set
           - the most recently modified, current, image file
-          - a random image from Unsplash based on the project's keywords.
         """
         if self.image_path:
             try:
@@ -229,9 +228,7 @@ class Project(StorageUsageMixin, models.Model):
         if len(images) > 0:
             return self.content_url(path=images[0].path, live=True)
 
-        # TODO: Use Unsplash API to get a uniquely random URL for each project
-        # TODO: Use project keywords to reduce randomness of image
-        return "https://source.unsplash.com/random/1200x628/"
+        return None
 
     @property
     def scheduled_deletion_time(self) -> Optional[datetime.datetime]:

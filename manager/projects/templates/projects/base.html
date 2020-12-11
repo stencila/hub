@@ -143,6 +143,19 @@
         </span>
       </a>
     </li>
+
+    <li class="sidebar__item"
+        id="menu-item-settings">
+      <a href="{% url 'ui-projects-image' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-image' %}">
+        <span class="icon">
+          <i class="ri-image-line"></i>
+        </span>
+        <span>
+          {% trans 'Image' %}
+        </span>
+      </a>
+    </li>
     {% endif %}
     {% endif %}
   </ul>
