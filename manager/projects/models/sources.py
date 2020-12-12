@@ -402,6 +402,10 @@ class Source(PolymorphicModel):
             ]
         )
 
+        # Check whether the project's image needs to be updated given
+        # that there are updated files.
+        self.project.update_image()
+
     def extract(
         self, review, user: Optional[User] = None, filters: Optional[Dict] = None
     ) -> Job:
