@@ -1,3 +1,24 @@
+# [4.26.0](https://github.com/stencila/hub/compare/v4.25.2...v4.26.0) (2020-12-12)
+
+
+### Bug Fixes
+
+* **A11y:** Ensure link hover styles take place for :focus events as well ([68c64b6](https://github.com/stencila/hub/commit/68c64b62d875b0f6705dfdbf87e4e4f43f2de50d))
+* **A11y:** Fix accessible title for Profile links ([83c80d4](https://github.com/stencila/hub/commit/83c80d4de5ffa2ca9808df0dd5aff35a4f7ff04c))
+* **Account images:** Only allow upload of images ([aad7900](https://github.com/stencila/hub/commit/aad79002a855223b0715db44dff969b50b28876e))
+* **Project images:** TO avoid excessive queries update the image file periodically ([6c02e91](https://github.com/stencila/hub/commit/6c02e915191f3787f0776a043ab384fd9a620301))
+* **Projects:** Refine project gallery card styles ([d510ebb](https://github.com/stencila/hub/commit/d510ebbf4b32b73600fa57c5a32f1de3ebeee8cc))
+
+
+### Features
+
+* **API parsers:** Add form and multi-part parsers; remove HTMX JSON extension ([d6ea0a6](https://github.com/stencila/hub/commit/d6ea0a6ff260a919749d79c3bb9e4f2fb78ba03d))
+* **CSS:** Add utility CSS class for adding underlines to text ([e85bf0a](https://github.com/stencila/hub/commit/e85bf0a5062e23bc1d53073324bfb8fa8c9a75ce))
+* **CSS:** Add utility CSS classes for making elements 50% wide ([d3559ac](https://github.com/stencila/hub/commit/d3559acc9fbbd6680a7081ad528d8a670e3ee15b))
+* **Project images:** Add page for setting of a project's image ([71c28e8](https://github.com/stencila/hub/commit/71c28e8f8d7e0b0b3dca10b1b23dcdfd4e9907e2))
+* **Projects:** Add a featured field ([abc8f4d](https://github.com/stencila/hub/commit/abc8f4dc151c32115f838f7eb4f943282083f73c))
+* **Projects:** Redesign projects listing view ([edea53e](https://github.com/stencila/hub/commit/edea53e18e5a411ae430911402075aff881c2a0b)), closes [#872](https://github.com/stencila/hub/issues/872)
+
 ## [4.25.2](https://github.com/stencila/hub/compare/v4.25.1...v4.25.2) (2020-12-11)
 
 
