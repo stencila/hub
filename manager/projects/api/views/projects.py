@@ -1,7 +1,7 @@
 import re
 from typing import Dict, List, Optional
 
-from django.db.models import F, Q
+from django.db.models import BooleanField, Case, IntegerField, Q, Value, When
 from django.shortcuts import reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -180,12 +180,33 @@ class ProjectsViewSet(
 
         # Ordering favoring those that the user has a role
         # on, has an image set, has a description set, etc
-        return queryset.filter(temporary=False).order_by(
-            "-featured",
-            "-role",
-            F("image_file").desc(nulls_last=True),
-            F("description").desc(nulls_last=True),
-            "-created",
+        return (
+            queryset.filter(temporary=False)
+            .annotate(
+                role_rank=Case(
+                    When(role=ProjectRole.OWNER.name, then=Value(6)),
+                    When(role=ProjectRole.MANAGER.name, then=Value(5)),
+                    When(role=ProjectRole.AUTHOR.name, then=Value(4)),
+                    When(role=ProjectRole.EDITOR.name, then=Value(3)),
+                    When(role=ProjectRole.REVIEWER.name, then=Value(2)),
+                    When(role=ProjectRole.READER.name, then=Value(1)),
+                    When(role__isnull=True, then=Value(0)),
+                    output_field=IntegerField(),
+                ),
+                has_image=Case(
+                    When(image_file__isnull=False, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                ),
+                has_description=Case(
+                    When(description__isnull=False, then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                ),
+            )
+            .order_by(
+                "-role_rank", "-featured", "-has_image", "-has_description", "-created",
+            )
         )
 
     def get_object(self):
