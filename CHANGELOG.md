@@ -1,3 +1,18 @@
+# [4.27.0](https://github.com/stencila/hub/compare/v4.26.0...v4.27.0) (2020-12-12)
+
+
+### Bug Fixes
+
+* **Project images:** Use a unique file name for project ([564bde3](https://github.com/stencila/hub/commit/564bde393317901cf1189a48817aaefc1d815244))
+* **Project listing:** Improve ordering ([827dc66](https://github.com/stencila/hub/commit/827dc66d634387336983b1e1ae815604f286a1b9))
+* **Project roles:** Rank can only be determined for authed users ([e0f8551](https://github.com/stencila/hub/commit/e0f855196e681896534857246f3cc3c057be1340))
+* **Projects:** Fix 3 column grid item sizes ([85516fb](https://github.com/stencila/hub/commit/85516fbfaa3b6a35698c2d3fc9fa77d246a5f9f4))
+
+
+### Features
+
+* **Project images:** Update image after a pull job ([024cf69](https://github.com/stencila/hub/commit/024cf6952dd8b2de67ba621377140ea5c558282b))
+
 # [4.26.0](https://github.com/stencila/hub/compare/v4.25.2...v4.26.0) (2020-12-12)
 
 
