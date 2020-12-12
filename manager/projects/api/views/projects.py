@@ -200,14 +200,25 @@ class ProjectsViewSet(
                     default=Value(False),
                     output_field=BooleanField(),
                 ),
+                # Use regex filter here to exclude nulls, blanks and very short strings
+                has_title=Case(
+                    When(title__regex=r"^.{1,}$", then=Value(True)),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                ),
                 has_description=Case(
-                    When(description__isnull=False, then=Value(True)),
+                    When(description__regex=r"^.{1,}$", then=Value(True)),
                     default=Value(False),
                     output_field=BooleanField(),
                 ),
             )
             .order_by(
-                "-role_rank", "-featured", "-has_image", "-has_description", "-created",
+                "-featured",
+                "-has_image",
+                "-has_title",
+                "-has_description",
+                "-role_rank",
+                "-created",
             )
         )
 

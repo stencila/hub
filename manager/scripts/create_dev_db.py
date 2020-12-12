@@ -235,7 +235,12 @@ def run(*args):
             account=account,
             creator=random_account_user(account),
             public=True,
-            description="A public project for account {0}.".format(account.name),
+            description=(
+                f"A public project for account {account.name}. "
+                + fake.paragraph(nb_sentences=5)
+            )
+            if fake.boolean(70)
+            else None,
             theme=random_enum_value(Themes).name,
         )
 
@@ -245,7 +250,12 @@ def run(*args):
             account=account,
             creator=random_account_user(account),
             public=False,
-            description="A private project for account {0}.".format(account.name),
+            description=(
+                f"A private project for account {account.name}. "
+                + fake.paragraph(nb_sentences=5)
+            )
+            if fake.boolean(70)
+            else None,
             theme=None,  # For private projects, will fallback to account theme
         )
 
