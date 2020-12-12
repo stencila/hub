@@ -224,8 +224,12 @@ class Project(StorageUsageMixin, models.Model):
                 return
 
         content = file.get_content()
+        format = file.get_format()
+        ext = format.default_extension if format else ""
+
         file = ContentFile(content)
-        file.name = "image"
+        file.name = f"{self.id}{ext}"
+
         self.image_file = file
         self.image_updated = timezone.now()
         self.save()
