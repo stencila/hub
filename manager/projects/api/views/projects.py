@@ -192,7 +192,9 @@ class ProjectsViewSet(
                     When(role=ProjectRole.READER.name, then=Value(1)),
                     When(role__isnull=True, then=Value(0)),
                     output_field=IntegerField(),
-                ),
+                )
+                if self.request.user.is_authenticated
+                else Value(0, output_field=IntegerField()),
                 has_image=Case(
                     When(image_file__isnull=False, then=Value(True)),
                     default=Value(False),
