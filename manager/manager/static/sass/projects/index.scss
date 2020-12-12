@@ -103,7 +103,7 @@ label[for="projects-search-input"] + .field {
     &:nth-child(2n + 1):not(:first-child),
     &:nth-child(2n + 2):not(:nth-child(2)),
     &:nth-child(3n + 3) {
-      width: 33%;
+      width: 33.333333%;
     }
   }
 }
