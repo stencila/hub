@@ -227,8 +227,9 @@ class Project(StorageUsageMixin, models.Model):
         format = file.get_format()
         ext = format.default_extension if format else ""
 
+        # The file name needs to be unique to bust any caches.
         file = ContentFile(content)
-        file.name = f"{self.id}{ext}"
+        file.name = f"{self.id}-{shortuuid.uuid()}{ext}"
 
         self.image_file = file
         self.image_updated = timezone.now()
