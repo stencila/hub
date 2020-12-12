@@ -219,8 +219,8 @@ class Project(StorageUsageMixin, models.Model):
         """
         if isinstance(file, str):
             try:
-                file = self.files.get(current=True, path=file)
-            except ObjectDoesNotExist:
+                file = self.files.filter(current=True, path=file)[0]
+            except IndexError:
                 return
 
         content = file.get_content()
