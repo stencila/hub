@@ -1,3 +1,11 @@
+## [4.27.1](https://github.com/stencila/hub/compare/v4.27.0...v4.27.1) (2020-12-12)
+
+
+### Bug Fixes
+
+* **Project files:** Make file name unique to bust cache ([df6b086](https://github.com/stencila/hub/commit/df6b0860e160d09d5e004f66398f5cc3bd38b60d))
+* **Project listing:** Order by title and handle empty descr strings ([e7f46a9](https://github.com/stencila/hub/commit/e7f46a948b991a59e148aea4f6bb34b2065e741f))
+
 # [4.27.0](https://github.com/stencila/hub/compare/v4.26.0...v4.27.0) (2020-12-12)
 
 
