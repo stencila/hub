@@ -5,7 +5,6 @@ from urllib.parse import urlencode
 
 import shortuuid
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import Q
