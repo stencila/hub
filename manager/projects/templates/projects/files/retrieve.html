@@ -14,6 +14,7 @@
   </div>
 
   <div class="level-right buttons">
+
     {% with download_url=file.download_url %}
     {% if download_url %}
     <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
@@ -28,13 +29,19 @@
 
     {% if project.role in 'AUTHOR, MANAGER, OWNER' %}
 
+    {% with open_url=file.open_url %}
+    {% if open_url %}
     <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
-       href="{% url 'ui-projects-files-upload' account.name project.name file.path %}">
+       href="{{ open_url }}"
+       target="_blank"
+       rel="noopener">
       <span class="icon">
-        <i class="ri-upload-cloud-line"></i>
+        <i class="ri-external-link-line"></i>
       </span>
-      <span>{% trans "Upload" %}</span>
+      <span>{% trans "Open" %}</span>
     </a>
+    {% endif %}
+    {% endwith %}
 
     <div class="level-item dropdown">
       <div class="dropdown-trigger">
