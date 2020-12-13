@@ -26,6 +26,7 @@ from manager.api import exceptions
 from manager.helpers import EnumChoice
 from manager.storage import uploads_storage
 from projects.models.projects import Project
+from projects.tasks import update_image_for_project
 from users.models import User
 from users.socialaccount.tokens import (
     Provider,
@@ -402,9 +403,9 @@ class Source(PolymorphicModel):
             ]
         )
 
-        # Check whether the project's image needs to be updated given
+        # Asynchronously check whether the project's image needs to be updated given
         # that there are updated files.
-        self.project.update_image()
+        update_image_for_project.delay(project_id=self.project.id)
 
     def extract(
         self, review, user: Optional[User] = None, filters: Optional[Dict] = None
