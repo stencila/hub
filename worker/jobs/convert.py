@@ -10,6 +10,7 @@ from oauth2client.client import GoogleCredentials
 
 from config import get_content_root, get_node_modules_bin
 from jobs.base.subprocess_job import SubprocessJob
+from jobs.pull.gdoc import pull_gdoc
 from util.files import Files, list_files, move_files, temp_dir
 from util.gapis import gdrive_service
 
@@ -81,9 +82,22 @@ class Convert(SubprocessJob):
         if len(outputs) == 1 and outputs[0] == "-":
             return result
 
-        # Get list of created files
         assert isinstance(temp, str)
+
+        # For some conversion targets it is necessary to also create a source.
+        source: Optional[Dict] = None
+        if (
+            len(outputs) == 1
+            and isinstance(outputs[0], str)
+            and outputs[0].endswith(".gdoc")
+        ):
+            source = create_gdoc_source(output=outputs[0], secrets=secrets)
+
+        # Get list of created files and add source if needed
         files = list_files(temp)
+        filenames = list(files.keys())
+        if len(filenames) > 0 and source:
+            files[filenames[0]]["source"] = source
 
         # Move all files to destination.
         dest_parts = os.path.normpath(dest).split("/")
@@ -92,10 +106,6 @@ class Convert(SubprocessJob):
         else:
             dest_root = "."
         move_files(temp, dest=os.path.join(dest_root, *dest_parts[1:]))
-
-        # For some conversion targets it is necessary to also create a source.
-        if isinstance(output, str) and output.endswith(".gdoc"):
-            files[output]["source"] = create_gdoc_source(output=output, secrets=secrets)
 
         return files
 
@@ -145,7 +155,8 @@ def create_gdoc_source(output: str, secrets: Dict) -> Dict[str, str]:
     When encoding to `gdoc`, Encoda actually creates a `docx` file which
     this function then uploads to Google Drive and has it converted
     to a Google Doc there (because it is not possible to upload the
-    Google Doc JSON content directly).
+    Google Doc JSON content directly). Finally, we fetch the Google Doc
+    JSON and save it to the output file.
     """
     # Create a temporary docx to upload
     # Although it is already a docx, for this request to succeed it
@@ -153,19 +164,26 @@ def create_gdoc_source(output: str, secrets: Dict) -> Dict[str, str]:
     docx = output + ".docx"
     shutil.copyfile(output, docx)
 
-    # Create the Google Doc
+    # Create the Google Doc as a new source
     gdoc = (
         gdrive_service(secrets)
         .files()
         .create(
-            body={"name": output, "mimeType": "application/vnd.google-apps.document"},
+            body={
+                "name": os.path.basename(output),
+                "mimeType": "application/vnd.google-apps.document",
+            },
             media_body=MediaFileUpload(docx),
             media_mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
         .execute()
     )
+    source = dict(type_name="GoogleDocs", doc_id=gdoc["id"])
+
+    # Fetch the Google Doc JSON
+    pull_gdoc(source=source, path=output, secrets=secrets)
 
     # Remove the temporary docx
     os.unlink(docx)
 
-    return dict(type_name="GoogleDocs", doc_id=gdoc["id"])
+    return source

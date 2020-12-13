@@ -54,7 +54,7 @@ def test_multiple_outputs(tempdir):
 # being accessed, and run
 #   ./venv/bin/pytest --record-mode=rewrite jobs/convert_test.py
 
-ACCESS_TOKEN = "XXXXXXXXXX"
+ACCESS_TOKEN = "XXXXXXX"
 
 
 @pytest.mark.vcr
