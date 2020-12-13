@@ -246,7 +246,7 @@ class Worker(models.Model):
 
     @classmethod
     @transaction.atomic
-    def get_or_create(cls, event: dict, create=False):
+    def get_or_create(cls, event: dict):
         """
         Get or create a worker from a Celery worker event.
 
@@ -278,11 +278,12 @@ class Worker(models.Model):
             os=os,
         )
 
-        if not create:
-            try:
-                return Worker.objects.get(signature=signature, finished__isnull=True)
-            except Worker.DoesNotExist:
-                pass
+        try:
+            # Use filter, instead of get, in case there is more than one `worker`
+            # with the same signature (can happen if more than one `overseer` instance at a time)
+            return Worker.objects.filter(signature=signature, finished__isnull=True)[0]
+        except IndexError:
+            pass
 
         return Worker.objects.create(
             hostname=hostname,

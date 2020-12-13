@@ -307,7 +307,7 @@ class WorkersViewSet(viewsets.GenericViewSet):
         """
         event = request.data
 
-        worker = Worker.get_or_create(event, create=True)
+        worker = Worker.get_or_create(event)
         worker.started = timezone.now()
         worker.save()
 
