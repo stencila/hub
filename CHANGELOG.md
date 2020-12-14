@@ -1,3 +1,10 @@
+## [4.27.3](https://github.com/stencila/hub/compare/v4.27.2...v4.27.3) (2020-12-14)
+
+
+### Bug Fixes
+
+* **Jobs:** Handle exceptions when fetching asyn results ([d96509e](https://github.com/stencila/hub/commit/d96509ecf5d7b827313fbf0f5f23acafe16c85ea))
+
 ## [4.27.2](https://github.com/stencila/hub/compare/v4.27.1...v4.27.2) (2020-12-14)
 
 
