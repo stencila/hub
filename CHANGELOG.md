@@ -1,3 +1,17 @@
+## [4.27.2](https://github.com/stencila/hub/compare/v4.27.1...v4.27.2) (2020-12-14)
+
+
+### Bug Fixes
+
+* **Convert to GDoc:** Pull the GDoc JSON after creation ([8c4ca0f](https://github.com/stencila/hub/commit/8c4ca0fd9478a44487b37a756a75f0e1e5e6a492))
+* **Files:** Replace upload button with open button ([c3bc134](https://github.com/stencila/hub/commit/c3bc13484830c15181994bc9e08dd9f4336f6bb3))
+* **Project image:** Handle more than one mathcing file. ([99f520c](https://github.com/stencila/hub/commit/99f520c78a31123ebfff2f0eb754247e83ce6e2b)), closes [#914](https://github.com/stencila/hub/issues/914)
+* **Project images:** Make update async ([2c48ff6](https://github.com/stencila/hub/commit/2c48ff68882c0ca2410ae7b08c8d11b49369a2ba))
+* **Projects:** Close [#915](https://github.com/stencila/hub/issues/915) ([d0445be](https://github.com/stencila/hub/commit/d0445be5258befcf505b5d76b0acf8a746c647b9))
+* **Worker:** Update deps ([a54f3f9](https://github.com/stencila/hub/commit/a54f3f991a2094cdb30ee170bc2e972b2af064ae))
+* **Worker:** Upgrade Encoda ([3228367](https://github.com/stencila/hub/commit/32283672f71fb851f257aac9cd8d5c7beb77dbe1))
+* **Workers:** Use filter instead of get ([ff13b42](https://github.com/stencila/hub/commit/ff13b4211357e7f97c30a297b54eea67c0cf80b2))
+
 ## [4.27.1](https://github.com/stencila/hub/compare/v4.27.0...v4.27.1) (2020-12-12)
 
 
