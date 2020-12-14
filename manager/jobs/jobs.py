@@ -11,9 +11,9 @@ Defines three functions involved in a job's lifecycle:
 """
 import datetime
 import logging
+import time
 
 from celery import Celery, signature
-from celery.exceptions import TimeoutError
 from celery.result import AsyncResult
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -203,22 +203,41 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
 
         # If job succeeded then get the result if we haven't already
         if status == JobStatus.SUCCESS.value and job.result is None:
-            try:
-                response = async_result().get(timeout=30)
-                if response:
-                    job.result = response.get("result")
-                    job.log = response.get("log")
-            except TimeoutError:
+            response = None
+            attempts = 0
+            while not response and attempts < 5:
+                try:
+                    response = async_result().get(timeout=30)
+                except Exception:
+                    # Catch all errors, but log them. Occasional
+                    # errors encountered in prod include ResponseError and TimeoutError
+                    logger.warning(
+                        "Error getting async result",
+                        exc_info=True,
+                        extra=dict(id=job.id, method=job.method, attempts=attempts),
+                    )
+                    time.sleep(1)
+                    attempts += 1
+
+            if response:
+                job.result = response.get("result")
+                job.log = response.get("log")
+            else:
                 logger.error(
-                    "Timed out waiting for result of job",
-                    extra=dict(id=job.id, method=job.method),
+                    "Unable to get async result",
+                    extra=dict(id=job.id, method=job.method, attempts=attempts),
+                )
+                job.status = JobStatus.FAILURE.value
+                job.error = dict(
+                    type="RuntimeError", message="Unable to get result of job"
                 )
 
         # If job failed then get the error
         # For FAILURE, `info` is the raised Exception
         elif status == JobStatus.FAILURE.value:
             info = async_result().info
-            job.error = dict(type=type(info).__name__, message=str(info))
+            if info:
+                job.error = dict(type=type(info).__name__, message=str(info))
 
         # If the job has just ended then mark it as inactive
         if JobStatus.has_ended(status):
