@@ -368,13 +368,16 @@ class Project(StorageUsageMixin, models.Model):
         # #for trigger in self.triggers.all():
         #    trigger.evaluate(event=event, context=dict(event=event, source=source))
 
-    def clean(self, user: User) -> Job:
+    def cleanup(self, user: User) -> Job:
         """
         Clean the project's working directory.
 
         Removes all files from the working directory.
         In the future, this may be smarter and only remove
-        those files that are orphaned (i.e. not registered as part of the pipeline)
+        those files that are orphaned (i.e. not registered as part of the pipeline).
+
+        This is not called `clean()` because that clashes with
+        `Model.clean()` which gets alled, for example after admin form submission.
         """
         return Job.objects.create(
             description="Clean project '{0}'".format(self.name),
