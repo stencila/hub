@@ -1,3 +1,11 @@
+## [4.27.4](https://github.com/stencila/hub/compare/v4.27.3...v4.27.4) (2020-12-15)
+
+
+### Bug Fixes
+
+* **Convert:** Prevent progress bar animating prematurely ([880a5af](https://github.com/stencila/hub/commit/880a5afa7c7786de2a1bc946f147b3702e38299a))
+* **Sources:** Fix fetching of URL sources (Close [#917](https://github.com/stencila/hub/issues/917)) ([b34d8ce](https://github.com/stencila/hub/commit/b34d8ce764f7ac83da9c0b6486c8cab84c686085))
+
 ## [4.27.3](https://github.com/stencila/hub/compare/v4.27.2...v4.27.3) (2020-12-14)
 
 
