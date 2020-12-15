@@ -7,7 +7,7 @@
      hx-swap="outerHTML"
      {% endif %}>
   <progress class="progress is-vcentered is-primary"
-            value="{{ job.runtime_seconds }}"
+            value="{{ job.runtime_seconds|default:0 }}"
             max="{{ runtime_expected|default:60 }}">
     {{ job.runtime_formatted }}
   </progress>
