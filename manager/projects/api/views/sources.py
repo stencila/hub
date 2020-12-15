@@ -233,7 +233,7 @@ class ProjectsSourcesViewSet(
                 pass  # URL could not be coerced into a source address
             else:
                 if address:
-                    request.data.update(**address, type=address.type.__name__)
+                    request.data.copy().update(**address, type=address.type.__name__)
 
         return super().create(request, *args, **kwargs)
 
