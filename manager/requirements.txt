@@ -7,7 +7,7 @@ dj-stripe==2.4.1
 django-allauth==0.44.0
 django-celery-beat==2.1.0
 django-configurations==2.2
-django-cors-headers==3.5.0
+django-cors-headers==3.6.0
 django-extensions==3.1.0
 django-imagefield==0.12.4
 django-intercom==0.1.3
