@@ -1,5 +1,5 @@
 /**
- * Script to generate Python files from Javascript dependencies.
+ * Script to generate Python and HTML files from Javascript dependencies.
  *
  * The generated files should be committed so that Python developers,
  * and deployments don't need to run `npm install` first.
