@@ -1,3 +1,16 @@
+## [4.27.5](https://github.com/stencila/hub/compare/v4.27.4...v4.27.5) (2020-12-20)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.6.0 ([7258319](https://github.com/stencila/hub/commit/72583196c5ac13660da09d0544ef65777d75df63))
+* **deps:** update dependency @stencila/encoda to v0.104.3 ([2dd4e2b](https://github.com/stencila/hub/commit/2dd4e2b41ebeeae0ea85aaa1c298d8709f5bf13b))
+* **deps:** update dependency django-cors-headers to v3.6.0 ([012641b](https://github.com/stencila/hub/commit/012641b811d1d4c23532511f51b94b77382bd62e))
+* **deps:** update dependency django-storages to v1.11 ([6ba6bf3](https://github.com/stencila/hub/commit/6ba6bf33105188b8fa146e560110bb6b3f73c7d6))
+* **deps:** update dependency google-cloud-storage to v1.35.0 ([2f25546](https://github.com/stencila/hub/commit/2f25546134d6120df7df6c9821518b85a1b5e2e9))
+* **deps:** update dependency htmx.org to v1.0.2 ([0be8c8b](https://github.com/stencila/hub/commit/0be8c8b7f863c451826d12b07053f3f1237a233b))
+* **deps:** update dependency pytest to v6.2.1 ([2c43569](https://github.com/stencila/hub/commit/2c43569815d7969a6a2317223899424d4cb293a4))
+
 ## [4.27.4](https://github.com/stencila/hub/compare/v4.27.3...v4.27.4) (2020-12-15)
 
 

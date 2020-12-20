@@ -3,7 +3,7 @@
 from manager.helpers import EnumChoice
 
 # The version of Thema to use
-version = "2.20.7"
+version = "2.20.8"
 
 
 class Themes(EnumChoice):
