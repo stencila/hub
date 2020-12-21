@@ -1,3 +1,14 @@
+## [4.27.8](https://github.com/stencila/hub/compare/v4.27.7...v4.27.8) (2020-12-21)
+
+
+### Bug Fixes
+
+* **Assistant:** Use python:3.9.1 as base image ([0d869e7](https://github.com/stencila/hub/commit/0d869e7ac240346d9a7105d5bfbedbcc4de6de4f))
+* **Manager:** Use python:3.9.1 as base image ([50831af](https://github.com/stencila/hub/commit/50831afb0826ba977c11816a9fb2b30bafb29448))
+* **Overseer:** Pin to python:3.9.1 ([267a556](https://github.com/stencila/hub/commit/267a5560cfacaa7daa88ce86b4486f3d64f47de9))
+* **Scheduler:** Pin to python:3.9.1 ([e80d2ee](https://github.com/stencila/hub/commit/e80d2eee82b3f8eb3b6388c16110f5e2625751a3))
+* **Worker:** Remove unused gcsfuse install ([4908ea1](https://github.com/stencila/hub/commit/4908ea13e5d6d90c1274051404405e9966d831a6))
+
 ## [4.27.7](https://github.com/stencila/hub/compare/v4.27.6...v4.27.7) (2020-12-21)
 
 
