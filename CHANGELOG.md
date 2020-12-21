@@ -1,3 +1,10 @@
+## [4.27.9](https://github.com/stencila/hub/compare/v4.27.8...v4.27.9) (2020-12-21)
+
+
+### Bug Fixes
+
+* **Manager:** Update dev deps ([a7a172f](https://github.com/stencila/hub/commit/a7a172fac2a145351a9b0af18a8149f992751028))
+
 ## [4.27.8](https://github.com/stencila/hub/compare/v4.27.7...v4.27.8) (2020-12-21)
 
 
