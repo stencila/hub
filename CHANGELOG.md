@@ -1,3 +1,13 @@
+## [4.27.7](https://github.com/stencila/hub/compare/v4.27.6...v4.27.7) (2020-12-21)
+
+
+### Bug Fixes
+
+* **Cache:** Pin to 6.0.9 ([1463b23](https://github.com/stencila/hub/commit/1463b230b71029d47d041f7f717eefe00e752616))
+* **Database:** Pin to 13.1 ([6876f13](https://github.com/stencila/hub/commit/6876f137fdf14b7cc0391fab610087b04b74b1e8))
+* **Monitor:** Pin to v2.23.0 ([a366435](https://github.com/stencila/hub/commit/a366435976a781873c2bf6b75e3ee81542191a01))
+* **Router:** Pin to 1.19.6 ([3694fc6](https://github.com/stencila/hub/commit/3694fc61c2a909cb07f570300e360ed5a72f5033))
+
 ## [4.27.6](https://github.com/stencila/hub/compare/v4.27.5...v4.27.6) (2020-12-21)
 
 
