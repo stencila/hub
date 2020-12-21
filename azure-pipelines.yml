@@ -19,11 +19,12 @@ variables:
   - name: NODE_VERSION
     value: '14.x'
 
+pool:
+  vmImage: ubuntu-latest
+
 jobs:
   - job: test
     condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-    pool:
-      vmImage: ubuntu-latest
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -48,8 +49,6 @@ jobs:
   - job: release
     dependsOn: [test]
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    pool:
-      vmImage: ubuntu-latest
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -100,10 +99,7 @@ jobs:
 
   - job: deploy
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    pool:
-      vmImage: ubuntu-latest
     steps:
-
       - task: UsePythonVersion@0
         inputs:
           versionSpec: $(PYTHON_VERSION)
