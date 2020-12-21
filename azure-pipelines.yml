@@ -13,6 +13,12 @@ trigger:
     - master
     - refs/tags/*
 
+variables:
+  - name: PYTHON_VERSION
+    value: '3.9'
+  - name: NODE_VERSION
+    value: '14.x'
+
 jobs:
   - job: test
     condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
@@ -21,12 +27,12 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.7'
+          versionSpec: $(PYTHON_VERSION)
         displayName: Install Python
 
       - task: NodeTool@0
         inputs:
-          versionSpec: 12.x
+          versionSpec: $(NODE_VERSION)
         displayName: Install Node.js
 
       - script: make lint
@@ -47,12 +53,12 @@ jobs:
     steps:
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.7'
+          versionSpec: $(PYTHON_VERSION)
         displayName: Install Python
 
       - task: NodeTool@0
         inputs:
-          versionSpec: 12.x
+          versionSpec: $(NODE_VERSION)
         displayName: Install Node.js
 
       - script: |
@@ -100,8 +106,13 @@ jobs:
 
       - task: UsePythonVersion@0
         inputs:
-          versionSpec: '3.7'
+          versionSpec: $(PYTHON_VERSION)
         displayName: Install Python
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(NODE_VERSION)
+        displayName: Install Node.js
 
       - task: Docker@2
         inputs:
