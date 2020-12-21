@@ -19,6 +19,7 @@ CURR=$2
 for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker
 do
     if [ $SERVICE = assistant ]
+    then
         DIR=manager
         FILE=manager/assistant.Dockerfile
     else
