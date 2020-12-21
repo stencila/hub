@@ -1,13 +1,4 @@
-FROM ubuntu:20.04
-
-ENV DEBIAN_FRONTEND noninteractive
-
-# System dependencies
-RUN apt-get update \
- && apt-get install -y \
-      python3 \
-      python3-pip \
- && rm -rf /var/lib/apt/lists/*
+FROM python:3.9.1
 
 # Install Gunicorn as production WSGI server
 RUN pip3 install gunicorn
