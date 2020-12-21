@@ -7,12 +7,6 @@
 # For a guide to triggering build on tags, see:
 #   https://medium.com/faun/azure-pipelines-and-git-tag-quirks-1daaba61713a
 
-trigger:
-  branches:
-    include:
-    - master
-    - refs/tags/*
-
 variables:
   - name: PYTHON_VERSION
     value: '3.9'
@@ -24,7 +18,6 @@ pool:
 
 jobs:
   - job: test
-    condition: not(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -69,10 +62,16 @@ jobs:
           kill %1
         displayName: Run end-to-end tests and api.yaml for generating clients
 
+      - task: Docker@2
+        inputs:
+          command: login
+          containerRegistry: DockerHub
+        displayName: Login to container registry (for publishing Docker images)
+
       - task: TwineAuthenticate@1
-        displayName: Authenticate with Twine (for publishing Python client)
         inputs:
           pythonUploadServiceConnection: PyPI
+        displayName: Authenticate with Twine (for publishing Python client)
 
       - script: |
           npm install
@@ -96,25 +95,3 @@ jobs:
           GIT_COMMITTER_NAME: Stencila CI Bot
           GIT_COMMITTER_EMAIL: ci@stenci.la
         displayName: Publish docs
-
-  - job: deploy
-    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: $(PYTHON_VERSION)
-        displayName: Install Python
-
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(NODE_VERSION)
-        displayName: Install Node.js
-
-      - task: Docker@2
-        inputs:
-          command: login
-          containerRegistry: DockerHub
-        displayName: Login to container registry
-
-      - script: ./deploy.sh
-        displayName: Build and push images

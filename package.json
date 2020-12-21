@@ -1,7 +1,5 @@
 {
-  "name": "@stencila/hub",
-  "version": "2.44.0",
-  "author": "Stencila Hub Contributors (https://github.com/stencila/hub/graphs/contributors)",
+  "repository": "https://github.com/stencila/hub",
   "license": "Apache-2.0",
   "devDependencies": {
     "@semantic-release/exec": "5.0.0",
@@ -72,7 +70,8 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "./release.sh ${nextRelease.version}"
+          "prepareCmd": "./prepare-release.sh ${nextRelease.version}",
+          "publishCmd": "./publish-release.sh ${lastRelease.version} ${nextRelease.version}"
         }
       ],
       [

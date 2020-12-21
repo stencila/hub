@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# Script to build and push Docker images for each service.
+# Script to publish a release by building and pushing Docker images for each service.
+# Used by @semantic-release/exec
 #
 # Checks for changes within each service's folder since the last tag. Only builds a new image
 # if any changes are detected.
@@ -12,8 +13,8 @@
 # the `broker` to be deployed by Flux CD. Downstream effects of this included unecessary 
 # disconnections e.g. `worker` unable to find `broker` momentarily and associated warning notifications.
 
-CURR=$(git describe --abbrev=0 --tags HEAD)
-PREV=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1))
+PREV=$1
+CURR=$2
 
 for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker
 do
