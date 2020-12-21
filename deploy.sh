@@ -17,10 +17,13 @@ PREV=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count
 
 for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker
 do
-    case $SERVICE in
-        assistant) DIR=manager  ;;
-        *)         DIR=$SERVICE ;;
-    esac
+    if [ $SERVICE = assistant ]
+        DIR=manager
+        FILE=manager/assistant.Dockerfile
+    else
+        DIR=$SERVICE
+        FILE=$SERVICE/Dockerfile
+    fi
 
     git diff --quiet $CURR $PREV -- $DIR
 
@@ -34,8 +37,9 @@ do
             make -C manager static
         fi
 
-        docker build --tag "stencila/hub-$SERVICE:$CURR" --tag "stencila/hub-$SERVICE:latest" $DIR
-        docker push --all-tags "stencila/hub-$SERVICE"
+        docker build --tag "stencila/hub-$SERVICE:$CURR" --tag "stencila/hub-$SERVICE:latest" --file $FILE $DIR
+        docker push "stencila/hub-$SERVICE:$CURR"
+        docker push "stencila/hub-$SERVICE:latest"
     else
         echo "$SERVICE: no change between $PREV and $CURR"
     fi
