@@ -103,23 +103,11 @@ jobs:
           versionSpec: '3.7'
         displayName: Install Python
 
-      - script: make -C manager static
-        displayName: Build manager static assets
-    
-      - task: DockerCompose@0
-        displayName: Build images
+      - task: Docker@2
         inputs:
-          action: Build services
-          dockerComposeFile: docker-compose.yaml
-          includeLatestTag: true
-          includeSourceTags: true
+          command: login
+          containerRegistry: DockerHub
+        displayName: Login to container registry
 
-      - task: DockerCompose@0
-        displayName: Push images
-        inputs:
-          action: Push services
-          containerregistrytype: Container Registry
-          dockerRegistryEndpoint: DockerHub
-          dockerComposeFile: docker-compose.yaml
-          includeLatestTag: true
-          includeSourceTags: true
+      - script: ./deploy.sh
+        displayName: Build and push images
