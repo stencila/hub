@@ -1,3 +1,10 @@
+## [4.27.6](https://github.com/stencila/hub/compare/v4.27.5...v4.27.6) (2020-12-21)
+
+
+### Bug Fixes
+
+* **Broker:** Pin Docker image to minor version ([54c6349](https://github.com/stencila/hub/commit/54c63494891139cfc02e6867446f2e7e30026cf0))
+
 ## [4.27.5](https://github.com/stencila/hub/compare/v4.27.4...v4.27.5) (2020-12-20)
 
 
