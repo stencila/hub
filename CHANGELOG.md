@@ -1,3 +1,17 @@
+## [4.27.10](https://github.com/stencila/hub/compare/v4.27.9...v4.27.10) (2021-01-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.104.4 ([6ee9ddb](https://github.com/stencila/hub/commit/6ee9ddb7b0a0f9d552baeaf9d6d15a7a16f2619e))
+* **deps:** update dependency @stencila/executa to v1.15.6 ([0587b97](https://github.com/stencila/hub/commit/0587b97f95afc34a4f6f6f4006bf0f0842bdf3a7))
+* **deps:** update dependency django to v3.1.5 ([df1d734](https://github.com/stencila/hub/commit/df1d7347ec73f7f32b5ed42f0cf261b4479ed20a))
+* **deps:** update dependency django-storages to v1.11.1 ([f6f88b0](https://github.com/stencila/hub/commit/f6f88b0c1233349cdfa8aa0f517ed681abb10b17))
+* **deps:** update dependency htmx.org to v1.1.0 ([4baab8b](https://github.com/stencila/hub/commit/4baab8b9b68169113b3c649dc4f880e308b567e9))
+* **deps:** update dependency pillow to v8.1.0 ([558dc2a](https://github.com/stencila/hub/commit/558dc2a11f3d0224315321ca9f1c53318cffd634))
+* **deps:** update dependency pygithub to v1.54.1 ([9b4aa41](https://github.com/stencila/hub/commit/9b4aa4125ad91ebc65464befa669d434d4fa14c1))
+* **deps:** update dependency setuptools to v51.1.2 ([2e7f9d7](https://github.com/stencila/hub/commit/2e7f9d7b9a257685404ecdc1ab43d9d9980cac26))
+
 ## [4.27.9](https://github.com/stencila/hub/compare/v4.27.8...v4.27.9) (2020-12-21)
 
 
