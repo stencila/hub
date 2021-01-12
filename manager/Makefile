@@ -27,7 +27,7 @@ setup: venv
 
 # Setup virtual environment, including both Python venv
 # and node_modules
-venv: requirements.txt  requirements-dev.txt package.json
+venv: requirements.txt requirements-dev.txt package.json
 	$(PYTHON) -m venv venv
 	$(VE)/pip3 install wheel
 	$(VE)/pip3 install -r requirements.txt

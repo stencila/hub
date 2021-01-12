@@ -15,12 +15,14 @@ Stencila Hub consists of several services, each with it's own sub-folder. The `R
 
 * [`router`](router): A [Nginx](https://nginx.org/) server that routes requests to other services.
 * [`manager`](manager): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
-* [`assistant`](manager/manager/assistant.py): A [Celery](https://docs.celeryproject.org) worker that runs asynchronous _tasks_ on behalf of the manager.
+* [`assistant`](manager/manager/assistant.py): A [Celery](https://docs.celeryproject.org) worker that runs asynchronous _tasks_ on behalf of the `manager`.
 * [`worker`](worker): A Celery process that runs _jobs_ on behalf of users.
 * [`broker`](broker): A [RabbitMQ](https://www.rabbitmq.com/) instance that acts as a message queue broker for tasks and jobs.
 * [`scheduler`](scheduler): A Celery process that places periodic, scheduled tasks and jobs on the broker's queue.
 * [`overseer`](overseer): A Celery process that monitors events associated with workers and job queues.
 * [`database`](database): A [PostgreSQL](https://www.postgresql.org/) database used by the manager.
+* [`cache`](cache): A [Redis](https://redis.io/) store used as a cache by the `manager` and as a result backend for Celery
+* [`steward`](steward): Manages access to cloud storage for the `worker` and other services.
 * [`monitor`](monitor): A [Prometheus](https://prometheus.io/) instance that monitors the health of the other services.
 
 ## 🤝 Clients
@@ -46,11 +48,13 @@ Client packages for other languages will be added based on demand. Please don't 
 
 ### Prerequisites
 
-The prerequisites for development vary somewhat by service (see the service `README.md`s for more details). However, most of the services will require you to have at least one of the following installed:
+The prerequisites for development vary somewhat by service (see the service `README.md`s for more details). However, most of the services will require you to have at least one of the following installed (with some examples of how to install for Ubuntu and other Debian-based Linux plaforms):
 
+- [Python >=3.7](https://www.python.org/) with `pip` and `venv` packages:
+  - `sudo apt-get install python3 python3-pip python3-venv`
+- [Node.js >=12](https://nodejs.org/) and NPM
+  - `sudo apt-get install nodejs npm`
 - [Docker Engine](https://docs.docker.com/engine/)
-- [Python >=3.7](https://www.python.org/)
-- [Node.js >=12](https://nodejs.org/)
 
 To run the service integration tests described below you will need:
 
@@ -63,7 +67,7 @@ and/or,
 
 ### Getting started
 
-The top level `Makefile` contains recipes for common development tasks e.g `make lint`. To run all those recipes, culminating in standing up containers for each of the services, simply do:
+The top level `Makefile` contains recipes for common development tasks e.g `make lint`. To run all those recipes, culminating in building containers for each of the services (if you have `docker-compose` installed), simply do:
 
 ```sh
 make
@@ -79,7 +83,7 @@ make -C manager run
 
 > 💁 Tip: If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking correctly to one or more of the other services.
 
-> 🛈 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. However, they are mostly there to guide and document the development workflow. You may prefer to bypass `make` in favour of using your favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
+> 💬 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. However, they are mostly there to guide and document the development workflow. You may prefer to bypass `make` in favour of using your favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
 
 ### Linting and formatting
 
@@ -103,33 +107,62 @@ Or, with coverage,
 make cover
 ```
 
-> 🛈 Info: Test coverage reports are generated on CI for each push and are available on Codecov [here](https://codecov.io/gh/stencila/hub).
+> 💬 Info: Test coverage reports are generated on CI for each push and are available on Codecov [here](https://codecov.io/gh/stencila/hub).
 
 
 ### Integration testing
 
 #### With `docker-compose`
 
-To test the integration between services, use the `docker-compose.yaml` file. To bring up the whole stack of services,
+The `docker-compose.yaml` file is useful for testing the integration between services. First, ensure that all of the Docker images are built:
+
+##### Building images
 
 ```sh
-docker-compose up --build
+make -C manager static # Builds static assets to include in the `manager` image
+docker-compose up --build # Builds all the images
 ```
+
+##### Creating a seed development database
+
+Create a seed development database within the `database` container by starting the service:
+
+```sh
+docker-compose start database
+```
+
+and, then in another console, sending the commands to the Postgres server to create the database,
+
+```sh
+make -C manager create-devdb-postgres
+```
+
+If you encounter errors related to the database already existing, it may be because the you previously ran these commands. In those cases we recommend removing the existing container using,
+
+```sh
+docker-compose stop database
+docker rm hub_database_1
+```
+
+and running the previous commands again.
+
+> 💁 Tip: [pgAdmin](https://www.pgadmin.org/) is useful for inspecting the development PostgreSQL database
+
+##### Running services
+
+Once you have done the above, to bring up the whole stack of services,
+
+```sh
+docker-compose up
+```
+
+The `router` service, which acts as the entry point, should be available at http://localhost:9000.
 
 Or, to just bring up one or two of the services _and_ their dependents,
 
 ```sh
 docker-compose up manager worker
 ```
-
-To create a development database for integration testing, stand up the `database` service and then use the `manager`'s `create-devdb-pg` recipe to populate it:
-
-```sh
-docker-compose start database
-make -C manager create-devdb-pg
-```
-
-> 💁 Tip: [pgAdmin](https://www.pgadmin.org/) is useful for inspecting the development PostgreSQL database
 
 #### With `minikube` and `kompose`
 
@@ -140,7 +173,7 @@ minikube start
 make run-in-minikube
 ```
 
-> 🛈 Info: the `run-in-minikube` recipe sets up Minikube to be able to do local builds of images (rather than pulling them down from Docker Hub), then builds the images in Minikube and runs `kompose up`.
+> 💬 Info: the `run-in-minikube` recipe sets up Minikube to be able to do local builds of images (rather than pulling them down from Docker Hub), then builds the images in Minikube and runs `kompose up`.
 
 > 💁 Tip: The `minikube dashboard` is really useful for debugging. And don't forget to `minikube stop` when you're done!
 

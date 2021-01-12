@@ -1,4 +1,4 @@
-all: format lint test build run
+all: format lint test build
 
 # Format code for each service
 format:
