@@ -1,3 +1,12 @@
+## [4.27.11](https://github.com/stencila/hub/compare/v4.27.10...v4.27.11) (2021-01-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.104.5 ([ccd82c4](https://github.com/stencila/hub/commit/ccd82c401b67f169d5ed5d9b3c15a626a4ce00b7))
+* **deps:** update dependency pygments to v2.7.4 ([766f3b8](https://github.com/stencila/hub/commit/766f3b88d25a19340da57a013445678490796ec7))
+* **Invites:** Extract fields from query ([49fcefd](https://github.com/stencila/hub/commit/49fcefd8688214517bf162712fa3edd10390f5cb)), closes [#937](https://github.com/stencila/hub/issues/937)
+
 ## [4.27.10](https://github.com/stencila/hub/compare/v4.27.9...v4.27.10) (2021-01-12)
 
 
