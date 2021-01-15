@@ -7,4 +7,4 @@ pytest==6.2.1
 pytest-cov==2.10.1
 pytest-recording==0.11.0
 stencila-schema==0.47.2
-testfixtures==6.17.0
+testfixtures==6.17.1
