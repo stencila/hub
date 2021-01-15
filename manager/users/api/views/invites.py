@@ -46,12 +46,13 @@ class InvitesViewSet(
         """
         Override to prepare action related fields based on value of others.
         """
-        data = self.request.data
-        action = data.get("action")
+        email = self.request.data.get("email")
+        message = self.request.data.get("message")
+        action = self.request.data.get("action")
         arguments = dict(
             [
                 (key, value)
-                for key, value in data.items()
+                for key, value in self.request.data.items()
                 if key not in ["email", "message", "action"]
             ]
         )
@@ -90,12 +91,15 @@ class InvitesViewSet(
             subject_type = None
             subject_id = None
 
-        data["arguments"] = arguments
-        data["subject_type"] = subject_type
-        data["subject_id"] = subject_id
-
         serializer_class = self.get_serializer_class()
-        kwargs["data"] = data
+        kwargs["data"] = dict(
+            email=email,
+            message=message,
+            action=action,
+            arguments=arguments,
+            subject_type=subject_type,
+            subject_id=subject_id,
+        )
         return serializer_class(*args, **kwargs, context=self.get_serializer_context())
 
     def get_response_context(self, *args, **kwargs):

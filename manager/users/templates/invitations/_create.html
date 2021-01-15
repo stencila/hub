@@ -2,22 +2,27 @@
 
 <form hx-post="{% url 'api-invites-list' %}"
       hx-template="invitations/_create.html"
-      hx-target="#fields"
       hx-select="#fields"
+      hx-target="#fields"
       hx-redirect="CREATED:{{ next }}">
   <div id="fields">
     {% include 'serializers/_field.html' with field=serializer.email icon='ri-mail-line' %}
 
     {% if serializer.action.value %}
     {% with action=serializer.action.value arguments=serializer.arguments.value %}
+
+    {# Add action and arguments as hidden values #}
+    <input type="hidden"
+           name="action"
+           value="{{ action }}">
+    {% for name,value in arguments.items %}
+    <input type="hidden"
+           name="{{ name }}"
+           value="{{ value }}">
+    {% endfor %}
+
     <div class="field">
-      <input type="hidden"
-             name="action"
-             value="{{ serializer.action.value }}">
       {% if action == 'join_account' %}
-      <input type="hidden"
-             name="account"
-             value="{{ arguments.account }}">
       <label class="label"
              for="role">Invite to account as</label>
       <div class="control has-icons-left">
@@ -36,12 +41,6 @@
         <span class="help">The account role to give to the person you are inviting.</span>
       </div>
       {% elif action == 'join_project' %}
-      <input type="hidden"
-             name="account"
-             value="{{ arguments.account }}">
-      <input type="hidden"
-             name="project"
-             value="{{ arguments.project }}">
       <label class="label"
              for="role">Invite to project as</label>
       <div class="control has-icons-left">
@@ -59,12 +58,6 @@
         </span>
         <span class="help">The project role to give to the person you are inviting.</span>
       </div>
-      {% else %}
-      {% for name,value in arguments.items %}
-      <input type="hidden"
-             name="{{ name }}"
-             value="{{ value }}">
-      {% endfor %}
       {% endif %}
     </div>
     {% endwith %}
@@ -76,11 +69,10 @@
       <div class="control has-icons-left">
         <textarea id="message"
                   class="textarea"
-                  name="message">{{ serializer.message.value }}</textarea>
+                  name="message">{{ serializer.message.value|default:'' }}</textarea>
       </div>
       <span class="help">A brief note about what you are inviting them to.</span>
     </div>
-
   </div>
 
   <hr />
