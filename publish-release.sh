@@ -13,8 +13,9 @@
 # the `broker` to be deployed by Flux CD. Downstream effects of this included unecessary 
 # disconnections e.g. `worker` unable to find `broker` momentarily and associated warning notifications.
 
-PREV=$1
-CURR=$2
+# Generate previous and current tags 
+PREV=v"$1"
+CURR=v"$2"
 
 for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker
 do
@@ -27,8 +28,8 @@ do
         FILE=$SERVICE/Dockerfile
     fi
 
+    # Test for difference between tags
     git diff --quiet $CURR $PREV -- $DIR
-
     if [ $? -eq 1 ]
     then
         echo "$SERVICE: building and pushing $CURR"
