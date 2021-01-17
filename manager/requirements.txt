@@ -35,7 +35,7 @@ Pillow==8.1.0
 psycopg2-binary==2.8.6
 PyGithub==1.54.1
 pygments==2.7.4
-pyjwt==1.7.1
+pyjwt==2.0.1
 redis==3.5.3
 sentry-sdk==0.19.5
 shortuuid==1.0.1
