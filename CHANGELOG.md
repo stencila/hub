@@ -1,3 +1,10 @@
+## [4.27.12](https://github.com/stencila/hub/compare/v4.27.11...v4.27.12) (2021-01-18)
+
+
+### Bug Fixes
+
+* **Docs:** Fix link to Help documentation ([8b8d69f](https://github.com/stencila/hub/commit/8b8d69f31885ed508360adb3363b83e10c263e68))
+
 ## [4.27.11](https://github.com/stencila/hub/compare/v4.27.10...v4.27.11) (2021-01-15)
 
 
