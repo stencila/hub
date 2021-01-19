@@ -137,7 +137,7 @@ def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
     account = viewset.get_object()
     usage = AccountQuotas.usage(account)
-    tiers = AccountTier.objects.all()
+    tiers = AccountTier.objects.order_by("id").all()
     fields = AccountTier.fields()
     return render(
         request,
