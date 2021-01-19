@@ -1,3 +1,10 @@
+## [4.27.13](https://github.com/stencila/hub/compare/v4.27.12...v4.27.13) (2021-01-19)
+
+
+### Bug Fixes
+
+* **Pricing:** Sort account plans for logged in users ([5e75b9a](https://github.com/stencila/hub/commit/5e75b9aa6f106ccc157a65377047d8bc816671c2))
+
 ## [4.27.12](https://github.com/stencila/hub/compare/v4.27.11...v4.27.12) (2021-01-18)
 
 
