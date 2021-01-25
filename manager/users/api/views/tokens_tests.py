@@ -125,7 +125,7 @@ class TokenCreateOpenIdTests(TokenTestCase):
     @staticmethod
     def verify_token(token, *args, **kwargs):
         """Mock: decodes but does not verify OpenId token."""
-        return jwt.decode(token, None, False)
+        return jwt.decode(token, options={"verify_signature": False})
 
     def test_no_token(self):
         response = super().create()
