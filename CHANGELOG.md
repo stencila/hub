@@ -1,3 +1,15 @@
+## [4.27.14](https://github.com/stencila/hub/compare/v4.27.13...v4.27.14) (2021-01-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django-celery-beat to v2.2.0 ([9a04545](https://github.com/stencila/hub/commit/9a04545013d887bb9e4de8e8408ff090d5d6c425))
+* **deps:** update dependency django-waffle to v2.1.0 ([d0019fd](https://github.com/stencila/hub/commit/d0019fd97b787dbc89e92915a9d6d70fa0c659c8))
+* **deps:** update dependency pyjwt to v2 ([b7f11a0](https://github.com/stencila/hub/commit/b7f11a0dd2f75f976e7cadb3ba7a3291071a5543))
+* **deps:** update dependency pytest-cov to v2.11.1 ([8557f0a](https://github.com/stencila/hub/commit/8557f0a84e7e29c33f7282f75c82d6a794e825c9))
+* **deps:** update dependency setuptools to v51.3.3 ([fab37b1](https://github.com/stencila/hub/commit/fab37b103e4ee805989d7290dcd68a74a98c1311))
+* **OpenId tokens:** Changes for new pyjwt API ([d9c2f83](https://github.com/stencila/hub/commit/d9c2f83448d722f6b3495bfd244f7d0f211b8de5))
+
 ## [4.27.13](https://github.com/stencila/hub/compare/v4.27.12...v4.27.13) (2021-01-19)
 
 
