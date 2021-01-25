@@ -28,5 +28,5 @@
 git_push.sh
 README.md
 requirements.txt
-test-requirements.txt
+requirements-dev.txt
 tox.ini
