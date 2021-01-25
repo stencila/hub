@@ -249,7 +249,7 @@ def authenticate_openid(request: Request, token: str) -> User:
     that user, otherwise creates a new user with the email as their primary email.
     """
     try:
-        unverified_claims = jwt.decode(token, options={"verify_signature": False})
+        unverified_claims = jwt.decode(token, None, False)
     except Exception as exc:
         raise ParseError("Bad token: {}".format(str(exc)))
 
