@@ -68,10 +68,9 @@
           {% trans 'Settings' %}
         </span>
       </a>
-      {% if account.is_personal %}
-        <ul>
-          {% include "accounts/_update_user_settings.html" %}
-        </ul>
+      {% is_users_personal_account account as is_users_personal_account %}
+      {% if is_users_personal_account %}
+      {% include "accounts/_sidebar_user_settings.html" %}
       {% endif %}
     </li>
     {% endif %}

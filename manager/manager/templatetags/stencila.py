@@ -54,6 +54,23 @@ def is_active(context, name):
 
 
 @register.simple_tag(takes_context=True)
+def is_users_personal_account(context, account):
+    """
+    Return `true` if the current path is for the user's personal account.
+    """
+    request = context.get("request")
+    return (
+        account.is_personal
+        and request
+        and (
+            request.path.startswith("/me/")
+            or request.user.is_authenticated
+            and request.path.startswith(f"/{request.user.username}/")
+        )
+    )
+
+
+@register.simple_tag(takes_context=True)
 def is_selected(context, name, value):
     """
     Return "selected" if current request URL has a matching value for the query parameter.

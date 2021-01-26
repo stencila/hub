@@ -1,16 +1,16 @@
-{% extends "base_centered.html" %}
-{% load i18n %}
+{% extends 'accounts/base.html' %}
+{% load i18n waffle_tags %}
 
-{% block title %}{% trans "Manage e-mail addresses" %}{% endblock %}
+{% block title %}{{ account.name }} {% trans "Email addresses" %}{% endblock %}
 
+{% block accounts_content %}
 
-{% block layout_content %}
-<h1 class="title is-3">{% trans "Manage e-mail addresses" %}</h1>
+<h1 class="title is-3">{% trans "Manage email addresses" %}</h1>
 
 {% with emails=user.emailaddress_set.all %}
 {% if emails %}
 <p class="mb-4">
-  {% trans 'The following e-mail addresses are associated with your account:' %}
+  {% trans 'The following email addresses are associated with your account:' %}
 </p>
 
 <form class="form"
@@ -86,14 +86,14 @@
 <br>
 {% else %}
 <p class="message is-warning">
-  {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}
+  {% trans "You currently do not have any email address set up. You should really add an email address so you can receive notifications, reset your password, etc." %}
 </p>
 {% endif %}
 {% endwith %}
 
 <hr />
 
-<h2 class="title is-3">{% trans "Add an e-mail address" %}</h2>
+<h2 class="title is-3">{% trans "Add an email address" %}</h2>
 
 <form class="form"
       method="POST"
@@ -107,7 +107,7 @@
       <i class="ri-mail-add-line"></i>
     </span>
     <span>
-      {% trans "Add e-mail" %}
+      {% trans "Add email" %}
     </span>
   </button>
 </form>

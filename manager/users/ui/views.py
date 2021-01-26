@@ -1,7 +1,14 @@
 import logging
 
 import invitations.views
-from allauth.account.views import LoginView, LogoutView, SignupView
+from allauth.account.views import (
+    EmailView,
+    LoginView,
+    LogoutView,
+    PasswordChangeView,
+    SignupView,
+)
+from allauth.socialaccount.views import ConnectionsView
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
@@ -49,6 +56,30 @@ class SignoutView(LogoutView):
     template_name = "users/signout.html"
 
 
+class AccountRoleMixin:
+    """
+    Mixin that adds context variables necessary to render allauth views with the 'accounts/base.html' template.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["account"] = self.request.user.personal_account
+        context["role"] = "OWNER"
+        return context
+
+
+class PasswordChangeView(AccountRoleMixin, PasswordChangeView):
+    """Override of allauth PasswordChangeView to add template context variables."""
+
+
+class EmailsView(AccountRoleMixin, EmailView):
+    """Override of allauth EmailView to add template context variables."""
+
+
+class ConnectionsView(AccountRoleMixin, ConnectionsView):
+    """Override of allauth ConnectionsView to add template context variables."""
+
+
 @login_required
 def invites_create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
@@ -80,7 +111,13 @@ def invites_create(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     return render(
         request,
         "invitations/create.html",
-        dict(**context, serializer=serializer, next=next),
+        dict(
+            **context,
+            account=request.user.personal_account,
+            role="OWNER",
+            serializer=serializer,
+            next=next
+        ),
     )
 
 
@@ -94,7 +131,11 @@ def invites_list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     viewset = InvitesViewSet.init("list", request, args, kwargs)
     invites = viewset.get_queryset()
-    return render(request, "invitations/list.html", dict(invites=invites))
+    return render(
+        request,
+        "invitations/list.html",
+        dict(account=request.user.personal_account, role="OWNER", invites=invites),
+    )
 
 
 class AcceptInviteView(invitations.views.AcceptInvite):
@@ -169,7 +210,11 @@ def features(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     Feature and privacy settings.
     """
     flags = Flag.objects.filter(settable=True)
-    return render(request, "users/features.html", dict(flags=flags))
+    return render(
+        request,
+        "users/features.html",
+        dict(account=request.user.personal_account, role="OWNER", flags=flags,),
+    )
 
 
 @login_required
