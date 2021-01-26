@@ -1,5 +1,7 @@
 {% load stencila i18n %}
 
+{% is_an_account_settings_page account as is_an_account_settings_page %}
+{% if is_an_account_settings_page %}
 <ul class="menu-list is-flex-mobile overflow-x-auto">
   <a href="{% url 'ui-accounts-profile' account.name %}"
      class="list-menu--item {% is_active 'ui-accounts-profile' %}">
@@ -15,6 +17,8 @@
       {% trans 'Publishing' %}
     </span>
   </a>
+  {% is_users_personal_account account as is_users_personal_account %}
+  {% if is_users_personal_account %}
   <a href="{% url 'account_change_password' %}"
      class="list-menu--item {% is_active 'account_change_password' %}">
     <span class="icon list-menu--icon"><i class="ri-key-line"></i></span>
@@ -50,4 +54,6 @@
       {% trans 'Features & privacy' %}
     </span>
   </a>
+  {% endif %}
 </ul>
+{% endif %}

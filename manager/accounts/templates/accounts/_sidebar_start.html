@@ -59,8 +59,9 @@
     {% if role in 'MANAGER, OWNER' %}
     <li class="sidebar__item"
         id="menu-item-settings">
+      {% is_an_account_settings_page account as is_an_account_settings_page %}
       <a href="{% url 'ui-accounts-profile' account.name %}"
-         class="panel-block transition-colors">
+         class="panel-block transition-colors {% if is_an_account_settings_page %}is-active{% endif %}">
         <span class="icon">
           <i class="ri-settings-4-line"></i>
         </span>
@@ -68,12 +69,10 @@
           {% trans 'Settings' %}
         </span>
       </a>
-      {% is_users_personal_account account as is_users_personal_account %}
-      {% if is_users_personal_account %}
+      {# Settings sub-menu when NOT on mobile #}
       <div class="is-hidden-mobile">
-        {% include "accounts/_sidebar_user_settings.html" %}
+        {% include "accounts/_sidebar_settings.html" %}
       </div>
-      {% endif %}
     </li>
     {% endif %}
 
@@ -93,13 +92,11 @@
     {% endif %}
   </ul>
 
+  {# Settings sub-menu when on mobile #}
   {% if role in 'MANAGER, OWNER' %}
-  {% is_users_personal_account account as is_users_personal_account %}
-  {% if is_users_personal_account %}
   <div class="is-hidden-tablet pl-2 pr-2">
-    {% include "accounts/_sidebar_user_settings.html" %}
+    {% include "accounts/_sidebar_settings.html" %}
   </div>
-  {% endif %}
   {% endif %}
 </div>
 {% endif %}
