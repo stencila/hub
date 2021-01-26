@@ -231,7 +231,7 @@ class ProjectsViewSet(
         For `partial-update` and `destroy` does an additional
         check that the user is a project AUTHOR, MANAGER or OWNER.
 
-        Note that there is a specific `partial_update` serializer for AUTHORs 
+        Note that there is a specific `partial_update` serializer for AUTHORs
         which limits which fields of a project they can modify,
 
         For temporary projects, ensure that the project was accessed

@@ -403,7 +403,7 @@ class ProjectRetrieveSerializer(ProjectSerializer):
 
 class ProjectAuthorUpdateSerializer(ProjectSerializer):
     """
-    Serializer for AUTHOR role to update a project
+    Serializer for AUTHOR role to update a project.
     """
 
     class Meta:
