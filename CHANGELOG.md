@@ -1,3 +1,10 @@
+## [4.27.15](https://github.com/stencila/hub/compare/v4.27.14...v4.27.15) (2021-01-26)
+
+
+### Bug Fixes
+
+* **Project main file:** Allow authors to set the project's main file ([65bd75c](https://github.com/stencila/hub/commit/65bd75ca21dd46cb2920305b1a6b8c381ee167da)), closes [#856](https://github.com/stencila/hub/issues/856)
+
 ## [4.27.14](https://github.com/stencila/hub/compare/v4.27.13...v4.27.14) (2021-01-25)
 
 
