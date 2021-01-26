@@ -83,15 +83,15 @@ def retrieve(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
-def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
-    """Update an account."""
+def profile(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Update an account profile."""
     viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
     account = viewset.get_object()
     serializer = viewset.get_serializer(account)
     update_image_form = AccountImageForm()
     return render(
         request,
-        "accounts/update.html",
+        "accounts/profile.html",
         dict(
             account=account,
             role=account.role,
@@ -102,9 +102,9 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
-def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+def profile_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
-    Update an account's image.
+    Update an account's profile image.
 
     Also updates the cached URL of the user's image in the session storage.
     See the `session_storage` middleware for how this is set initially.
@@ -123,10 +123,23 @@ def update_image(request: HttpRequest, *args, **kwargs) -> HttpResponse:
                     ] = request.user.personal_account.image.medium
                     request.session.modified = True
 
-            return redir("ui-accounts-update", account.name)
+            return redir("ui-accounts-profile", account.name)
         raise RuntimeError("Error attempting to save the account image.")
     else:
         raise Http404
+
+
+@login_required
+def publishing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """Update an account publishing settings."""
+    viewset = AccountsViewSet.init("partial_update", request, args, kwargs)
+    account = viewset.get_object()
+    serializer = viewset.get_serializer(account)
+    return render(
+        request,
+        "accounts/publishing.html",
+        dict(account=account, role=account.role, serializer=serializer),
+    )
 
 
 @login_required

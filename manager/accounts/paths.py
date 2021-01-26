@@ -12,7 +12,8 @@ class AccountPaths(enum.Enum):
     """
 
     plan = "plan"
-    settings = "settings"
+    profile = "profile"
+    publishing = "publishing"
     static = "static"  # May be used when serving account subdomains
     teams = "teams"
     users = "users"

@@ -1,11 +1,18 @@
 {% load stencila i18n %}
 
 <ul class="menu-list is-flex-mobile overflow-x-auto">
-  <a href="{% url 'ui-accounts-update' account.name %}"
-     class="list-menu--item panel-block transition-colors {% is_active 'ui-accounts-update' %}">
-    <span class="icon"><i class="ri-user-line"></i></span>
+  <a href="{% url 'ui-accounts-profile' account.name %}"
+     class="list-menu--item {% is_active 'ui-accounts-profile' %}">
+    <span class="icon list-menu--icon"><i class="ri-user-line"></i></span>
     <span>
       {% trans 'Profile' %}
+    </span>
+  </a>
+  <a href="{% url 'ui-accounts-publishing' account.name %}"
+     class="list-menu--item {% is_active 'ui-accounts-publishing' %}">
+    <span class="icon list-menu--icon"><i class="ri-global-line"></i></span>
+    <span>
+      {% trans 'Publishing' %}
     </span>
   </a>
   <a href="{% url 'account_change_password' %}"

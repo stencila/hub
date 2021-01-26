@@ -18,6 +18,10 @@ Uses `hx-swap="none"` because otherwise reloading of the <form>
     {% include "serializers/_field.html" with field=serializer.hosts icon="ri-server-line" %}
 
     <br>
+    {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+
+    <br>
+    <hr>
     <h3 class="title is-5">Extra content</h3>
     <p class="is-small">
       Use the following fields to inject extra content into HTML pages served for your account.
@@ -26,7 +30,7 @@ Uses `hx-swap="none"` because otherwise reloading of the <form>
     </p>
 
     <br>
-    {% include "accounts/_update_content_extras.html" %}
+    {% include "accounts/_publishing_extras.html" %}
 
     {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
   </form>
