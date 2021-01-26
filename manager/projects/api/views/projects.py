@@ -24,6 +24,7 @@ from projects.api.serializers import (
     ProjectAgentCreateSerializer,
     ProjectAgentSerializer,
     ProjectAgentUpdateSerializer,
+    ProjectAuthorUpdateSerializer,
     ProjectCreateSerializer,
     ProjectDestroySerializer,
     ProjectListSerializer,
@@ -228,7 +229,10 @@ class ProjectsViewSet(
 
         Read access control is done in the `get_project` function.
         For `partial-update` and `destroy` does an additional
-        check that the user is a project MANAGER and/or OWNER.
+        check that the user is a project AUTHOR, MANAGER or OWNER.
+
+        Note that there is a specific `partial_update` serializer for AUTHORs 
+        which limits which fields of a project they can modify,
 
         For temporary projects, ensure that the project was accessed
         by it's name, not it's id (this prevent access to a
@@ -236,6 +240,9 @@ class ProjectsViewSet(
         Because temporary objects do not have any users with roles,
         anyone with their name can modify or delete them.
         """
+        if hasattr(self, "project"):
+            return self.project
+
         project = get_project(self.kwargs, self.request.user)
 
         if project.temporary is True:
@@ -245,19 +252,29 @@ class ProjectsViewSet(
 
         if (
             self.action == "partial_update"
-            and project.role not in [ProjectRole.MANAGER.name, ProjectRole.OWNER.name]
+            and project.role
+            not in [
+                ProjectRole.AUTHOR.name,
+                ProjectRole.MANAGER.name,
+                ProjectRole.OWNER.name,
+            ]
         ) or (self.action == "destroy" and project.role != ProjectRole.OWNER.name):
             raise exceptions.PermissionDenied
 
-        return project
+        self.project = project
+        return self.project
 
     def get_serializer_class(self):
         """Get the serializer class for the current action."""
+        if self.action == "partial_update":
+            if self.get_object().role == ProjectRole.AUTHOR.name:
+                return ProjectAuthorUpdateSerializer
+            else:
+                return ProjectUpdateSerializer
         return {
             "list": ProjectListSerializer,
             "create": ProjectCreateSerializer,
             "retrieve": ProjectRetrieveSerializer,
-            "partial_update": ProjectUpdateSerializer,
             "destroy": ProjectDestroySerializer,
         }.get(self.action, ProjectListSerializer)
 

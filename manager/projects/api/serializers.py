@@ -401,6 +401,16 @@ class ProjectRetrieveSerializer(ProjectSerializer):
     account = AccountListSerializer()
 
 
+class ProjectAuthorUpdateSerializer(ProjectSerializer):
+    """
+    Serializer for AUTHOR role to update a project
+    """
+
+    class Meta:
+        model = Project
+        fields = ["main"]
+
+
 class ProjectUpdateSerializer(ProjectSerializer):
     """
     Serializer for updating a project.
