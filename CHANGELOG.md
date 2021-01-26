@@ -1,3 +1,23 @@
+# [4.28.0](https://github.com/stencila/hub/compare/v4.27.15...v4.28.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* **Account settings sub menu:** Avoid double stylization on desktop view ([3656dc5](https://github.com/stencila/hub/commit/3656dc53076765f8059d4706b3dd66c5774790aa))
+* **Account settings sub menu:** only show on settings pages ([9ee299e](https://github.com/stencila/hub/commit/9ee299ecfa9a32b68148d0264f2e4cfee1100954))
+* **CSS:** Style secondary nav in Profile Settings view ([be72e7a](https://github.com/stencila/hub/commit/be72e7aef20059f0b86e604a34926e6c01352966))
+* **deps:** update dependency userflow.js to v2 ([11a67ae](https://github.com/stencila/hub/commit/11a67ae6209cc7b7928cfa19924febdcdceec93f))
+* **Orgs:** Update includes with new template name ([166c68e](https://github.com/stencila/hub/commit/166c68e6fe20da16f0fb202f094765b4745e6776))
+* **User settings:** Ensure login required; fix tests ([1c75cd9](https://github.com/stencila/hub/commit/1c75cd98a404a511227125ef60ba859ca574e07d))
+* **User settings:** Remove semi-bold style ([0df2410](https://github.com/stencila/hub/commit/0df241021d69fc0899ad254fe8e0ffe13c03bcab))
+* **User settings:** Use accounts/base.html for user settings pages ([4b13b6c](https://github.com/stencila/hub/commit/4b13b6cbafb0a80770709ece90f97fdce71e1058))
+* **Userflow:** Only instantiate Userflow for authenticated users ([ac6968a](https://github.com/stencila/hub/commit/ac6968a63f0f5c626bb5e521849e3801702c024f))
+
+
+### Features
+
+* **Account settings:** Separate profile and publishing settings ([95dfd37](https://github.com/stencila/hub/commit/95dfd37fd7e19e7473df885e04a8febe4db5a613))
+
 ## [4.27.15](https://github.com/stencila/hub/compare/v4.27.14...v4.27.15) (2021-01-26)
 
 
