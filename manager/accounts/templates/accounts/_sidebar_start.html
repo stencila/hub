@@ -61,7 +61,7 @@
         id="menu-item-settings">
       {% is_an_account_settings_page account as is_an_account_settings_page %}
       <a href="{% url 'ui-accounts-profile' account.name %}"
-         class="panel-block transition-colors {% if is_an_account_settings_page %}is-active{% endif %}">
+         class="panel-block transition-colors {% if is_an_account_settings_page %}is-active{% endif %} has-sub-menu">
         <span class="icon">
           <i class="ri-settings-4-line"></i>
         </span>

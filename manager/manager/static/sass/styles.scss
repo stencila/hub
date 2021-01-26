@@ -921,7 +921,7 @@ a .icon + span,
   color: inherit;
   position: relative;
 
-  &::before {
+  &:not(.has-sub-menu)::before {
     background-color: $primary;
     content: "";
     left: 0;
