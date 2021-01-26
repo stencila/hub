@@ -33,6 +33,10 @@ do
     if [ $? -eq 1 ]
     then
         echo "$SERVICE: building and pushing $CURR"
+        
+        # Exit on any errors when building or pushing so that
+        # CI build fails
+        set -e
 
         if [ $SERVICE = manager ]
         then
@@ -43,6 +47,9 @@ do
         docker build --tag "stencila/hub-$SERVICE:$CURR" --tag "stencila/hub-$SERVICE:latest" --file $FILE $DIR
         docker push "stencila/hub-$SERVICE:$CURR"
         docker push "stencila/hub-$SERVICE:latest"
+
+        # Allow "error" in `git diff` (i.e. exit code 1 if there is a diff)
+        set +e
     else
         echo "$SERVICE: no change between $PREV and $CURR"
     fi
