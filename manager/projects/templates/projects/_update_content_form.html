@@ -2,7 +2,7 @@
 Form to update the content related fields of a project.
 
 Uses `hx-swap="none"` because otherwise reloading of the <form>
-  interferes with the CodeMirror enhanced fields included from `_update_content_extras.html`.
+  interferes with the CodeMirror enhanced fields included from `_publishing_extras.html`.
   {% endcomment %}
 
   <form hx-patch="{% url 'api-projects-detail' project.id %}"
@@ -21,7 +21,7 @@ Uses `hx-swap="none"` because otherwise reloading of the <form>
     </p>
 
     <br>
-    {% include "accounts/_update_content_extras.html" %}
+    {% include "accounts/_publishing_extras.html" %}
 
     {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
   </form>

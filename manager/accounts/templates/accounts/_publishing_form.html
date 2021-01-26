@@ -2,7 +2,7 @@
 Form for content related fields of an account
 
 Uses `hx-swap="none"` because otherwise reloading of the <form>
-  interferes with the CodeMirror enhanced fields included from `_update_content_extras.html`.
+  interferes with the CodeMirror enhanced fields included from `_publishing_extras.html`.
   {% endcomment %}
 
   <form hx-patch="{% url 'api-accounts-detail' account.id %}"
