@@ -1,14 +1,14 @@
 {% extends './base.html' %}
 {% load i18n %}
 
-{% block title %}{{ account.name }} {% trans "Settings" %}{% endblock %}
+{% block title %}{{ account.name }} {% trans "Profile" %}{% endblock %}
 
 {% block accounts_content %}
 
 <h2 class="title is-3">{% trans "Profile" %}</h2>
 <p class="subtitle is-6">{% trans "Settings for your account's public profile." %}</p>
 <div id="profile-form">
-  {% include "accounts/_update_profile_form.html" %}
+  {% include "accounts/_profile_form.html" %}
 </div>
 
 <hr>
@@ -17,7 +17,7 @@
 <p class="subtitle is-6">{% trans "Your account's profile image." %}</p>
 <div id="image-form">
   <form method="post"
-        action="{% url 'ui-accounts-update-image' account.name %}"
+        action="{% url 'ui-accounts-profile-image' account.name %}"
         enctype="multipart/form-data">
     {% csrf_token %}
     <div class="field has-addons-tablet">
@@ -51,19 +51,5 @@
     </div>
   </form>
 </div>
-
-<hr>
-
-<h2 class="title is-3">{% trans "Content" %}</h2>
-<p class="subtitle is-6">{% trans "Settings affecting how content is served for your projects." %}</p>
-<div id="content-form">
-  {% include "accounts/_update_content_form.html" %}
-</div>
-
-{% if account.is_personal %}
-<hr>
-<h2 class="title is-3">{% trans "Other settings" %}</h2>
-{% include "accounts/_update_user_settings.html" %}
-{% endif %}
 
 {% endblock %}

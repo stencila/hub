@@ -1,9 +1,9 @@
-{% extends "base_centered.html" %}
-{% load i18n %}
+{% extends 'accounts/base.html' %}
+{% load i18n waffle_tags %}
 
-{% block title %}{% trans "Invites" %}{% endblock %}
+{% block title %}{{ account.name }} {% trans "Invites" %}{% endblock %}
 
-{% block layout_content %}
+{% block accounts_content %}
 
 <div class="level is-mobile">
   <div class="level-left">

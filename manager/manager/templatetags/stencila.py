@@ -54,6 +54,36 @@ def is_active(context, name):
 
 
 @register.simple_tag(takes_context=True)
+def is_an_account_settings_page(context, account):
+    """
+    Return `true` if the current path is for one of the account "settings" pages.
+
+    Used to determine whether or not to show the settings submenu.
+    """
+    path = context["request"].path
+    return (
+        path.startswith("/me/")
+        or path.startswith(f"/{account.name}/profile")
+        or path.startswith(f"/{account.name}/publishing")
+    )
+
+
+@register.simple_tag(takes_context=True)
+def is_users_personal_account(context, account):
+    """
+    Return `true` if the current path is for the user's personal account.
+
+    Used to determine which items to show in the settings submenu.
+    """
+    request = context["request"]
+    return account.is_personal and (
+        request.path.startswith("/me/")
+        or request.user.is_authenticated
+        and request.path.startswith(f"/{request.user.username}/")
+    )
+
+
+@register.simple_tag(takes_context=True)
 def is_selected(context, name, value):
     """
     Return "selected" if current request URL has a matching value for the query parameter.

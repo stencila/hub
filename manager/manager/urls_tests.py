@@ -65,22 +65,27 @@ checks = [
     Check(
         "/me/password/change/",
         anon=signin,
-        ada=title("Change password")
+        ada=title("ada Change password")
     ),
     Check(
         "/me/email/",
         anon=signin,
-        ada=title("Manage e-mail addresses")
-    ),
-    Check(
-        "/me/features/",
-        anon=signin,
-        ada=title("Feature and privacy settings")
+        ada=title("ada Email addresses")
     ),
     Check(
         "/me/social/connections/",
         anon=signin,
-        ada=title("Manage account connections")
+        ada=title("ada External account connections")
+    ),
+    Check(
+        "/me/invites/",
+        anon=signin,
+        ada=title("ada Invites")
+    ),
+    Check(
+        "/me/features/",
+        anon=signin,
+        ada=title("ada Feature and privacy settings")
     ),
     # Stencila namespace URLs
     Check(

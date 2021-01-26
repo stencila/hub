@@ -1,7 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.urls import include, path, re_path
 
 from users.ui.views import (
     AcceptInviteView,
+    ConnectionsView,
+    EmailsView,
+    PasswordChangeView,
     SigninView,
     SignoutView,
     SignupView,
@@ -30,6 +34,19 @@ urlpatterns = [
         ),
     ),
     path("features/", features, name="ui-users-features"),
+    # Overrides of allauth URLs, conservatively retaining their path and names
+    # See https://django-allauth.readthedocs.io/en/latest/views.html
+    path(
+        "password/change/",
+        login_required(PasswordChangeView.as_view()),
+        name="account_change_password",
+    ),
+    path("email/", login_required(EmailsView.as_view()), name="account_email"),
+    path(
+        "social/connections/",
+        login_required(ConnectionsView.as_view()),
+        name="socialaccount_connections",
+    ),
     path("", include("allauth.urls")),
     # Redirect to the user's personal account
     # e.g. /me/settings -> username/settings

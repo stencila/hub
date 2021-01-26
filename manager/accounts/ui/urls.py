@@ -43,17 +43,24 @@ urlpatterns = [
             [
                 path("", account_views.retrieve, name="ui-accounts-retrieve"),
                 path(
-                    AccountPaths.settings.value + "/",
+                    AccountPaths.profile.value + "/",
                     include(
                         [
-                            path("", account_views.update, name="ui-accounts-update",),
+                            path(
+                                "", account_views.profile, name="ui-accounts-profile",
+                            ),
                             path(
                                 "image",
-                                account_views.update_image,
-                                name="ui-accounts-update-image",
+                                account_views.profile_image,
+                                name="ui-accounts-profile-image",
                             ),
                         ]
                     ),
+                ),
+                path(
+                    AccountPaths.publishing.value + "/",
+                    account_views.publishing,
+                    name="ui-accounts-publishing",
                 ),
                 path(
                     AccountPaths.plan.value + "/",
