@@ -32,6 +32,7 @@ urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls, name="admin"),
+                path("stripe/", include("djstripe.urls", namespace="djstripe")),
                 path("render/", render_template),
                 path("test/messages/", test_messages),
                 path("test/account-quota-exceeded/", test_account_quota_exceeded),
