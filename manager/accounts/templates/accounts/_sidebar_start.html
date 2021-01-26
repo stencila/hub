@@ -70,7 +70,9 @@
       </a>
       {% is_users_personal_account account as is_users_personal_account %}
       {% if is_users_personal_account %}
-      {% include "accounts/_sidebar_user_settings.html" %}
+      <div class="is-hidden-mobile">
+        {% include "accounts/_sidebar_user_settings.html" %}
+      </div>
       {% endif %}
     </li>
     {% endif %}
@@ -90,5 +92,14 @@
     </li>
     {% endif %}
   </ul>
+
+  {% if role in 'MANAGER, OWNER' %}
+  {% is_users_personal_account account as is_users_personal_account %}
+  {% if is_users_personal_account %}
+  <div class="is-hidden-tablet pl-2 pr-2">
+    {% include "accounts/_sidebar_user_settings.html" %}
+  </div>
+  {% endif %}
+  {% endif %}
 </div>
 {% endif %}

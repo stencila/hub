@@ -383,6 +383,15 @@ body {
       display: none;
     }
   }
+
+  .menu-list.is-flex-mobile a.list-menu--item {
+    white-space: nowrap;
+
+    &:link,
+    &:visited {
+      padding: 0.5rem 1rem 0.5rem;
+    }
+  }
 }
 
 @media screen and (max-width: $desktop) {
@@ -467,6 +476,11 @@ body {
   .level-item:only-child {
     flex-shrink: 1;
   }
+}
+
+.menu-list .menu-list {
+  border-left: 0;
+  margin: 0 0 $gap/2 $gap/2;
 }
 
 .navbar-link:not(.is-arrowless)::after {
@@ -599,6 +613,10 @@ body {
 
 .leading-loose {
   line-height: 2;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
 }
 
 .width-half {

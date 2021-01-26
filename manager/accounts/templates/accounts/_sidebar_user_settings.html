@@ -1,6 +1,6 @@
 {% load stencila i18n %}
 
-<ul>
+<ul class="menu-list is-flex-mobile overflow-x-auto">
   <a href="{% url 'ui-accounts-update' account.name %}"
      class="list-menu--item panel-block transition-colors {% is_active 'ui-accounts-update' %}">
     <span class="icon"><i class="ri-user-line"></i></span>
