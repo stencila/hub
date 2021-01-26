@@ -75,7 +75,7 @@ EXCLUDE = [
     # app tokens not available during development
     r"^me/[a-z]+/login/",
     # Non-GET URLs
-    r"[^/]+/settings/image",
+    r"[^/]+/profile/image",
     # These pages are not expected to return 200 responses
     r"^stencila/test/403",
     r"^stencila/test/404",
@@ -151,11 +151,16 @@ ELEMS = [
         ],
     ],
     [
-        r"^an-org/settings/$",
+        r"^an-org/profile/$",
         [
             elem("org-settings-menu-item", "#menu-item-settings", ".menu", padding=20),
             elem("org-settings-profile", "#profile-form"),
             elem("org-settings-image-form", "#image-form"),
+        ],
+    ],
+    [
+        r"^an-org/publishing/$",
+        [
             elem("org-settings-theme-field", "label[for=theme] + .control"),
             elem("org-settings-hosts-field", "label[for=hosts] + .control"),
         ],
