@@ -62,6 +62,7 @@ class AccountRoleMixin:
     """
 
     def get_context_data(self, **kwargs):
+        """Add the account and role context variables."""
         context = super().get_context_data(**kwargs)
         context["account"] = self.request.user.personal_account
         context["role"] = "OWNER"
