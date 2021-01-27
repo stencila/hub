@@ -209,6 +209,7 @@ class AccountSerializer(serializers.ModelSerializer):
             "user",
             "creator",
             "created",
+            "billing_email",
             "display_name",
             "location",
             "image",
@@ -368,6 +369,7 @@ class AccountRetrieveSerializer(AccountListSerializer):
 
         role = rep.get("role")
         if role is None:
+            rep.pop("billing_email")
             rep.pop("user")
             rep.pop("users")
             rep.pop("teams")

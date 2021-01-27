@@ -6,7 +6,6 @@ from django.shortcuts import reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions, mixins, permissions, viewsets
-from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -174,10 +173,7 @@ class AccountsViewSet(
         if (
             self.action in ("partial_update", "update_plan")
             and account.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
-        ) or (
-            self.action == "destroy"
-            and account.role != AccountRole.OWNER.name
-        ):
+        ) or (self.action == "destroy" and account.role != AccountRole.OWNER.name):
             raise exceptions.PermissionDenied
 
         return account
