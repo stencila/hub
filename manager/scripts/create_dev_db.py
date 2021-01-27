@@ -146,7 +146,7 @@ def run(*args):
     # Account tiers
     # Tier 1 is created in a data migration, so we just set it's name here
 
-    AccountTier.objects.get(id=1).update(name="Free")
+    AccountTier.objects.update(id=1, name="Tier 1")
     AccountTier.objects.create(name="Tier 2")
     AccountTier.objects.create(name="Tier 3")
     AccountTier.objects.create(name="Tier 4", active=False)
