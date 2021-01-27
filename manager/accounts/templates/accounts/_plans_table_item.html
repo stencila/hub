@@ -5,15 +5,16 @@
     <h2 class="has-text-centered mb-3 has-text-primary">
       <span class="tag is-primary is-light title is-5">{% trans tier.name %}</span>
     </h2>
+
     <h2 class="has-text-centered title is-2 mb-1 pricing-table__price">
       <div>
-        <sup class="is-size-6 has-text-grey leading-none pr-1">$</sup>{{ tier_details.price }}
+        <sup class="is-size-6 has-text-grey leading-none pr-1">$</sup>{{ tier.price }}
       </div>
       <div class="is-size-6 has-text-grey has-text-left pricing-table__frequency">USD</br>/month</div>
     </h2>
 
     <p class="has-text-grey has-text-centered mb-5">
-      {{ tier_details.summary }}
+      {{ tier.summary }}
     </p>
 
     <p>
@@ -102,9 +103,9 @@
 
   <a class="button is-fullwidth is-primary mt-4"
      {% if tier.id == account.tier.id %}disabled{% endif %}
-     href="{% url 'ui-accounts-billing' account %}">
+    href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}">
     {% if user.is_anonymous %}
-    Signup and subscribe
+    Signup
     {% elif tier.id == account.tier_id %}
     Your current plan
     {% else %}
