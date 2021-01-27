@@ -7,7 +7,7 @@ that the name is changed.
 {% endcomment %}
 
 <form hx-patch="{% url 'api-accounts-detail' account.id %}"
-      hx-template="accounts/_update_profile_form.html"
+      hx-template="accounts/_profile_form.html"
       hx-redirect="UPDATED:{% url 'ui-accounts-profile' account.id %}">
   {% include "serializers/_field.html" with field=serializer.name icon="ri-at-line" %}
   {% include "accounts/_profile_fields.html" %}
