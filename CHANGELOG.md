@@ -1,3 +1,15 @@
+# [4.29.0](https://github.com/stencila/hub/compare/v4.28.1...v4.29.0) (2021-01-27)
+
+
+### Bug Fixes
+
+* **Account tiers:** Shift down tier prices and summaries ([48e22ec](https://github.com/stencila/hub/commit/48e22ec21fb09f7e7337f2483cd7c8bc90ecf6e0))
+
+
+### Features
+
+* **Pricing:** Remove notice about Waiting Lists for accounts ([b71de09](https://github.com/stencila/hub/commit/b71de090d25cbad9de6b189942a83867d0c6740e))
+
 ## [4.28.1](https://github.com/stencila/hub/compare/v4.28.0...v4.28.1) (2021-01-27)
 
 
