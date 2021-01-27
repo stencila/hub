@@ -68,6 +68,11 @@ urlpatterns = [
                     name="ui-accounts-plan",
                 ),
                 path(
+                    AccountPaths.subscribe.value + "/",
+                    account_views.subscribe,
+                    name="ui-accounts-subscribe",
+                ),
+                path(
                     AccountPaths.users.value + "/",
                     user_views.update,
                     name="ui-accounts-users",

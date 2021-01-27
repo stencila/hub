@@ -100,24 +100,16 @@
     {% endif %}
   </div>
 
-  {% if user.is_anonymous %}
-  <a href="{% url 'ui-users-signup' %}"
-     class="button is-fullwidth is-primary mt-4">
-    {% trans "Sign up" %}
-  </a>
-  {% else %}
-  <button class="button is-fullwidth is-primary mt-4"
-          has-tooltip-bottom
-          has-tooltip-text-centered
-          image-tooltip
-          data-tooltip="{% trans 'Coming soon!' %}"
-          disabled
-          {% if tier.id == account.tier.id %}disabled{% endif %}>
-    {% if tier.id == account.tier_id %}
+  <a class="button is-fullwidth is-primary mt-4"
+          {% if tier.id == account.tier.id %}disabled{% endif %}
+     href="{% url 'ui-accounts-subscribe' account %}">
+    {% if user.is_anonymous %}
+    Signup and subscribe
+    {% elif tier.id == account.tier_id %}
     Your current plan
     {% else %}
     Switch to {{ tier.name }}
     {% endif %}
-  </button>
-  {% endif %}
+  </a>
+
 </figure>
