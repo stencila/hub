@@ -46,10 +46,13 @@ def pricing(request: HttpRequest) -> HttpResponse:
     """
     Pricing page view.
 
-    Served at /pricing/
+    Served at /pricing/. Normally authenticated users will
+    not visit this page, but if they do we pass through their account so that
+    they can see which account they are currently on.
     """
-    tiers = AccountTier.objects.order_by("id").all()
-    return render(request, "accounts/plans.html", dict(tiers=tiers))
+    tiers = AccountTier.active_tiers()
+    account = request.user.personal_account if request.user.is_authenticated else None
+    return render(request, "accounts/plans.html", dict(tiers=tiers, account=account))
 
 
 def favicon(request: HttpRequest) -> HttpResponse:
