@@ -169,6 +169,7 @@ def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
         ),
     )
 
+
 @login_required
 def subscribe(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
@@ -179,12 +180,6 @@ def subscribe(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
     account = viewset.get_object()
 
-    customer = account.get_customer()
+    account.get_customer()
 
-    return render(
-        request,
-        "accounts/subscribe.html",
-        dict(
-            account=account
-        ),
-    )
+    return render(request, "accounts/subscribe.html", dict(account=account),)

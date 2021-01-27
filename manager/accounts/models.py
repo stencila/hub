@@ -1,22 +1,33 @@
+import logging
 import os
 import re
 from typing import Dict, Union
 
 import customidenticon
+import djstripe
 import httpx
 import shortuuid
+import stripe
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
-from djstripe.models import Customer
 from imagefield.fields import ImageField
 from meta.views import Meta
 
 from manager.helpers import EnumChoice, unique_slugify
 from manager.storage import media_storage
 from users.models import User
+
+logger = logging.getLogger(__name__)
+
+stripe.api_key = (
+    settings.STRIPE_LIVE_SECRET_KEY
+    if settings.STRIPE_LIVE_MODE
+    else settings.STRIPE_TEST_SECRET_KEY
+)
 
 
 class Account(models.Model):
@@ -68,7 +79,7 @@ class Account(models.Model):
     )
 
     customer = models.ForeignKey(
-        Customer,
+        djstripe.models.Customer,
         null=True,
         default=None,
         on_delete=models.SET_NULL,
@@ -226,27 +237,51 @@ class Account(models.Model):
         """
         return self.customer_id is not None
 
-    def get_customer(self) -> Customer:
+    def get_customer(self) -> djstripe.models.Customer:
         """
         Create a Stripe customer instance for this account (if necessary).
+
+        Creates new remote and then local (instead of waiting for webhook notification).
         """
-        if self.is_customer:
+        if self.customer_id:
             return self.customer
 
-        self.customer = Customer.objects.create(
-            name=self.display_name or self.name, email=self.billing_email or self.email
-        )
-        return self.save()
+        name = self.display_name or self.name or ""
+        email = self.billing_email or self.email or ""
 
-    def update_customer(self) -> Customer:
+        if stripe.api_key != "sk_test_xxxx":
+            try:
+                customer = stripe.Customer.create(name=name, email=email)
+                self.customer = djstripe.models.Customer.sync_from_stripe_data(customer)
+            except Exception:
+                logger.exception("Error creating customer on Stripe")
+        else:
+            self.customer = djstripe.models.Customer.objects.create(
+                id=shortuuid.ShortUUID(), name=name, email=email
+            )
+
+        self.save()
+        return self.customer
+
+    def update_customer(self):
         """
         Update the Stripe customer instance for this account.
 
-        Used when the account changes its name/s or email/s
+        Used when the account changes its name/s or email/s.
+        Updates remote and then local (instead of waiting for webhook notification).
         """
-        customer = self.get_customer()
-        customer.name = self.display_name or self.name
-        customer.email = self.billing_email or self.email
+        customer = self.customer
+        name = self.display_name or self.name or ""
+        email = self.billing_email or self.email or ""
+
+        if stripe.api_key != "sk_test_xxxx":
+            try:
+                stripe.Customer.modify(customer.id, name=name, email=email)
+            except Exception:
+                logger.exception("Error syncing customer with Stripe")
+
+        customer.name = name
+        customer.email = email
         customer.save()
 
     # Methods to get "built-in" accounts

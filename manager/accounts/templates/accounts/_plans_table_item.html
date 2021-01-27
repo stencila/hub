@@ -101,7 +101,7 @@
   </div>
 
   <a class="button is-fullwidth is-primary mt-4"
-          {% if tier.id == account.tier.id %}disabled{% endif %}
+     {% if tier.id == account.tier.id %}disabled{% endif %}
      href="{% url 'ui-accounts-subscribe' account %}">
     {% if user.is_anonymous %}
     Signup and subscribe
