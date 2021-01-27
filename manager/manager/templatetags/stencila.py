@@ -207,6 +207,7 @@ def tier_count(count):
     else:
         return count
 
+
 @register.tag
 def render_node(parser, token):
     """

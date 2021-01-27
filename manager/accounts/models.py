@@ -17,10 +17,10 @@ from django.shortcuts import reverse
 from imagefield.fields import ImageField
 from meta.views import Meta
 
+import accounts.webhooks  # noqa
 from manager.helpers import EnumChoice, unique_slugify
 from manager.storage import media_storage
 from users.models import User
-import accounts.webhooks
 
 logger = logging.getLogger(__name__)
 
@@ -290,14 +290,20 @@ class Account(models.Model):
         """
         Create a customer portal session for the account.
 
-        If the customer has no valid subscription then create one 
+        If the customer has no valid subscription then create one
         to the free account (this is necessary for the Stripe Customer Portal to
-        work properly e.g. to upgrade subscription).
+        work properly e.g. to be able to upgrade subscription).
         """
         customer = self.get_customer()
 
-        if customer.subscriptions.exclude(status='canceled').count() == 0:
-            price = djstripe.models.Price.objects.get(nickname="price_free")
+        has_subscription = False
+        for subscription in customer.subscriptions.all():
+            if subscription.is_valid():
+                has_subscription = True
+                break
+
+        if not has_subscription:
+            price = AccountTier.active_tiers().first().product.prices.first()
             customer.subscribe(price=price)
 
         return stripe.billing_portal.Session.create(
@@ -479,9 +485,16 @@ class AccountTier(models.Model):
         default=True, help_text="Is the tier active i.e. should be displayed to users."
     )
 
-    summary = models.TextField(
+    product = models.OneToOneField(
+        djstripe.models.Product,
         null=True,
-        help_text="A user facing, summary description of the account tier."
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="The Stripe product for the account tier.",
+    )
+
+    summary = models.TextField(
+        null=True, help_text="A user facing, summary description of the account tier."
     )
 
     orgs_created = models.IntegerField(
@@ -547,6 +560,16 @@ class AccountTier(models.Model):
     def __str__(self) -> str:
         return "Tier {0}".format(self.id)
 
+    def active_tiers():
+        """
+        Get a list of tiers that are active and have a product
+        """
+        return (
+            AccountTier.objects.filter(active=True, product__isnull=False)
+            .order_by("id")
+            .all()
+        )
+
     @staticmethod
     def fields() -> Dict[str, models.Field]:
         """
@@ -559,12 +582,26 @@ class AccountTier(models.Model):
         )
 
     @property
+    def title(self) -> float:
+        """
+        Get the "title" of the account tier.
+
+        Uses the associated product name, falling back to the tier name.
+        """
+        return self.product.name if self.product else self.name
+
+    @property
     def price(self) -> float:
         """
-        Get the current price of a subscription to the Account Tier
+        Get the current price the associated product.
+
+        If there is no associated product or price then
+        return -1 which equates to "Contact us".
         """
-        # TODO: Get from current Stripe Price instance for this tier
-        return 0
+        if self.product:
+            price = self.product.prices.filter(active=True).first()
+            return price.unit_amount / 100
+        return -1
 
 
 class AccountRole(EnumChoice):

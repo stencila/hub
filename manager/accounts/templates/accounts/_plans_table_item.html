@@ -3,7 +3,7 @@
 <figure class="is-size-5 pricing-table__item">
   <div>
     <h2 class="has-text-centered mb-3 has-text-primary">
-      <span class="tag is-primary is-light title is-5">{% trans tier.name %}</span>
+      <span class="tag is-primary is-light title is-5">{{ tier.title }}</span>
     </h2>
 
     <h2 class="has-text-centered title is-2 mb-1 pricing-table__price">
@@ -102,14 +102,14 @@
   </div>
 
   <a class="button is-fullwidth is-primary mt-4"
-     {% if tier.id == account.tier.id %}disabled{% endif %}
-    href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}">
+     {% if tier.id == account.tier_id %}disabled{% endif %}
+     href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}">
     {% if user.is_anonymous %}
     Signup
     {% elif tier.id == account.tier_id %}
     Your current plan
     {% else %}
-    Switch to {{ tier.name }}
+    Switch to {{ tier.title }}
     {% endif %}
   </a>
 

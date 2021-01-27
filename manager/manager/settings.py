@@ -481,7 +481,6 @@ class Prod(Configuration):
 
     STRIPE_LIVE_MODE = True
     STRIPE_LIVE_SECRET_KEY = values.Value("sk_live_xxxx")
-    STRIPE_TEST_SECRET_KEY = values.Value("sk_test_xxxx")
     DJSTRIPE_WEBHOOK_SECRET = values.Value("whsec_xxxx")
     DJSTRIPE_USE_NATIVE_JSONFIELD = True
     DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
@@ -678,6 +677,7 @@ class Dev(Local):
 
     # Use Stripe test mode
     STRIPE_LIVE_MODE = False
+    STRIPE_TEST_SECRET_KEY = values.Value("sk_test_xxxx")
 
     # In standalone development, default to using a pseudo, in-memory broker and
     # phony cache.
