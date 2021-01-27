@@ -14,7 +14,7 @@
 <hr>
 
 <h2 class="title is-3">{% trans "Image" %}</h2>
-<p class="subtitle is-6">{% trans "Your account's profile image." %}</p>
+<p class="subtitle is-6">{% trans "Your account's public profile image." %}</p>
 <div id="image-form">
   <form method="post"
         action="{% url 'ui-accounts-profile-image' account.name %}"
@@ -51,5 +51,14 @@
     </div>
   </form>
 </div>
+
+<hr>
+
+<h2 class="title is-3">{% trans "Admin" %}</h2>
+<p class="subtitle is-6">{% trans "Private, administrative settings" %}</p>
+<div id="admin-form">
+  {% include "accounts/_admin_form.html" %}
+</div>
+
 
 {% endblock %}
