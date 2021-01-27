@@ -20,6 +20,7 @@ from meta.views import Meta
 from manager.helpers import EnumChoice, unique_slugify
 from manager.storage import media_storage
 from users.models import User
+import accounts.webhooks
 
 logger = logging.getLogger(__name__)
 
@@ -78,11 +79,12 @@ class Account(models.Model):
         "Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
     )
 
-    customer = models.ForeignKey(
+    customer = models.OneToOneField(
         djstripe.models.Customer,
         null=True,
         default=None,
         on_delete=models.SET_NULL,
+        related_name="account",
         help_text="The Stripe customer instance (if this account has ever been one)",
     )
 
@@ -241,9 +243,7 @@ class Account(models.Model):
         """
         Create a Stripe customer instance for this account (if necessary).
 
-        Creates remote and local instances (instead of waiting for webhook notification)
-        with a subscription to the free account (this is necessary
-        for the Stripe Customer Portal to work properly).
+        Creates remote and local instances (instead of waiting for webhook notification).
         """
         if self.customer_id:
             return self.customer
@@ -255,8 +255,6 @@ class Account(models.Model):
             try:
                 customer = stripe.Customer.create(name=name, email=email)
                 self.customer = djstripe.models.Customer.sync_from_stripe_data(customer)
-                price = djstripe.models.Price.objects.get(nickname="price_free")
-                self.customer.subscribe(price=price)
             except Exception:
                 logger.exception("Error creating customer on Stripe")
         else:
@@ -291,8 +289,17 @@ class Account(models.Model):
     def get_customer_portal_session(self, request):
         """
         Create a customer portal session for the account.
+
+        If the customer has no valid subscription then create one 
+        to the free account (this is necessary for the Stripe Customer Portal to
+        work properly e.g. to upgrade subscription).
         """
         customer = self.get_customer()
+
+        if customer.subscriptions.exclude(status='canceled').count() == 0:
+            price = djstripe.models.Price.objects.get(nickname="price_free")
+            customer.subscribe(price=price)
+
         return stripe.billing_portal.Session.create(
             customer=customer.id,
             return_url=request.build_absolute_uri(
