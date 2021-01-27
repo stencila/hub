@@ -479,6 +479,11 @@ class AccountTier(models.Model):
         default=True, help_text="Is the tier active i.e. should be displayed to users."
     )
 
+    summary = models.TextField(
+        null=True,
+        help_text="A user facing, summary description of the account tier."
+    )
+
     orgs_created = models.IntegerField(
         verbose_name="Organizations created",
         default=10,
@@ -552,6 +557,14 @@ class AccountTier(models.Model):
             for field in AccountTier._meta.get_fields()
             if field.name not in ["id"]
         )
+
+    @property
+    def price(self) -> float:
+        """
+        Get the current price of a subscription to the Account Tier
+        """
+        # TODO: Get from current Stripe Price instance for this tier
+        return 0
 
 
 class AccountRole(EnumChoice):

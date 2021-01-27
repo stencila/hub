@@ -207,22 +207,6 @@ def tier_count(count):
     else:
         return count
 
-
-@register.simple_tag
-def pricing_dict(plan_id):
-    """
-    Provide a dictionary, keyed by Account Tier ID, of plan prices and summary text.
-
-    Used in `_plans_table.html`
-    """
-    plans = {
-        1: {"summary": "Explore the capabilities of Stencila", "price": 0},
-        2: {"summary": "The complete reproducible research toolkit", "price": 39},
-        3: {"summary": "Work on larger projects with colleagues", "price": 399},
-    }
-    return plans.get(plan_id)
-
-
 @register.tag
 def render_node(parser, token):
     """
