@@ -15,6 +15,7 @@ class AccountPaths(enum.Enum):
     profile = "profile"
     publishing = "publishing"
     static = "static"  # May be used when serving account subdomains
+    subscribe = "subscribe"
     teams = "teams"
     users = "users"
 

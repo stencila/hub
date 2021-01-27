@@ -146,6 +146,10 @@ def publishing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Get the account usage relative to current and other plans.
+
+    This uses the `update_plan` action to check permission: although
+    this view does not change the plan, we only want MANAGER or OWNER
+    to see usage etc.
     """
     viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
     account = viewset.get_object()
@@ -162,5 +166,25 @@ def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             tier=account.tier,
             tiers=tiers,
             fields=fields,
+        ),
+    )
+
+@login_required
+def subscribe(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Subscribe to a particular plan.
+
+    Creates a new `account.customer` if necessary.
+    """
+    viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
+    account = viewset.get_object()
+
+    customer = account.get_customer()
+
+    return render(
+        request,
+        "accounts/subscribe.html",
+        dict(
+            account=account
         ),
     )
