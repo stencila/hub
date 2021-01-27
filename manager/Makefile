@@ -60,6 +60,16 @@ create-devdb-postgres: venv
 	$(VE)/python3 manage.py migrate; \
 	$(VE)/python3 manage.py runscript create_dev_db
 
+# Sync the development database with Stripe
+# Requires a Stripe API test mode key
+sync-devdb-stripe:
+	echo "DELETE FROM djstripe_product; \
+	      DELETE FROM djstripe_price; \
+		  DELETE FROM djstripe_customer; \
+		  DELETE FROM djstripe_subscription;" | sqlite3 dev.sqlite3
+	$(DJ) djstripe_sync_models Product Price Customer Subscription
+	stripe listen --forward-to localhost:8000/stencila/stripe/webhook/
+
 # Migrate the development database
 migrate-devdb: venv
 	$(DJ) migrate

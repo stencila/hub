@@ -303,7 +303,7 @@ class Account(models.Model):
                 break
 
         if not has_subscription:
-            price = AccountTier.active_tiers().first().product.prices.first()
+            price = AccountTier.free_tier().product.prices.first()
             customer.subscribe(price=price)
 
         return stripe.billing_portal.Session.create(
@@ -490,6 +490,7 @@ class AccountTier(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="account_tier",
         help_text="The Stripe product for the account tier.",
     )
 
@@ -569,6 +570,12 @@ class AccountTier(models.Model):
             .order_by("id")
             .all()
         )
+
+    def free_tier():
+        """
+        Get the free tier.
+        """
+        return AccountTier.objects.get(id=1)
 
     @staticmethod
     def fields() -> Dict[str, models.Field]:
