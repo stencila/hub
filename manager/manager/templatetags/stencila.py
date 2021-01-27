@@ -216,9 +216,9 @@ def pricing_dict(plan_id):
     Used in `_plans_table.html`
     """
     plans = {
-        2: {"summary": "Explore the capabilities of Stencila", "price": 0},
-        3: {"summary": "The complete reproducible research toolkit", "price": 39},
-        4: {"summary": "Work on larger projects with colleagues", "price": 399},
+        1: {"summary": "Explore the capabilities of Stencila", "price": 0},
+        2: {"summary": "The complete reproducible research toolkit", "price": 39},
+        3: {"summary": "Work on larger projects with colleagues", "price": 399},
     }
     return plans.get(plan_id)
 

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
 from accounts.models import Account, AccountTeam, AccountTier, AccountUser
 from accounts.tasks import set_image_from_socialaccounts
@@ -12,7 +14,7 @@ class AccountAdmin(admin.ModelAdmin):
     list_select_related = ["creator"]
     list_filter = ["tier"]
     search_fields = ["name"]
-    actions = ["set_image_from_socialaccounts"]
+    actions = ["set_image_from_socialaccounts", "downgrade_to_tier1"]
 
     def is_personal(self, instance):
         """Field to display `is_personal` as a boolean."""
@@ -27,6 +29,31 @@ class AccountAdmin(admin.ModelAdmin):
             set_image_from_socialaccounts.delay(account.id)
 
     set_image_from_socialaccounts.short_description = "Set image from social accounts"  # type: ignore
+
+    def downgrade_to_tier1(self, request, queryset):
+        """
+        Downgrades the selected accounts to Tier 1 (Free).
+
+        Uses a confirmation page to make sure the
+        staff member wants to do that!.
+        """
+        if "apply" in request.POST:
+            # Downgrades to tier 1
+            queryset.update(tier_id=1)
+
+            # Redirect to admin view with message
+            self.message_user(
+                request, "Downgraded {} accounts to tier 1".format(queryset.count())
+            )
+            return HttpResponseRedirect(request.get_full_path())
+
+        return render(
+            request,
+            "accounts/admin/accounts_downgrade_confirm.html",
+            context={"accounts": queryset},
+        )
+
+    downgrade_to_tier1.short_description = "Downgrade to Tier 1"  # type: ignore
 
 
 @admin.register(AccountUser)
@@ -54,6 +81,7 @@ class AccountTierAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
+        "active",
         "account_users",
         "account_teams",
         "projects_public",
