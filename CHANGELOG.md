@@ -1,3 +1,11 @@
+## [4.28.1](https://github.com/stencila/hub/compare/v4.28.0...v4.28.1) (2021-01-27)
+
+
+### Bug Fixes
+
+* **Account settings:** Fix for change in template name ([731f15a](https://github.com/stencila/hub/commit/731f15a737695c6f20e5bb435177042ff47fed5b))
+* **Projects:** Undo erroneous renaming of template ([d09711a](https://github.com/stencila/hub/commit/d09711a0f327eaed232eaf64fa976666216fcd64))
+
 # [4.28.0](https://github.com/stencila/hub/compare/v4.27.15...v4.28.0) (2021-01-26)
 
 
