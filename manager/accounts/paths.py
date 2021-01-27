@@ -11,11 +11,11 @@ class AccountPaths(enum.Enum):
     disallowed project names up to date.
     """
 
+    billing = "billing"
     plan = "plan"
     profile = "profile"
     publishing = "publishing"
     static = "static"  # May be used when serving account subdomains
-    subscribe = "subscribe"
     teams = "teams"
     users = "users"
 

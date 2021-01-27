@@ -241,7 +241,9 @@ class Account(models.Model):
         """
         Create a Stripe customer instance for this account (if necessary).
 
-        Creates new remote and then local (instead of waiting for webhook notification).
+        Creates remote and local instances (instead of waiting for webhook notification)
+        with a subscription to the free account (this is necessary
+        for the Stripe Customer Portal to work properly).
         """
         if self.customer_id:
             return self.customer
@@ -253,11 +255,13 @@ class Account(models.Model):
             try:
                 customer = stripe.Customer.create(name=name, email=email)
                 self.customer = djstripe.models.Customer.sync_from_stripe_data(customer)
+                price = djstripe.models.Price.objects.get(nickname="price_free")
+                self.customer.subscribe(price=price)
             except Exception:
                 logger.exception("Error creating customer on Stripe")
         else:
             self.customer = djstripe.models.Customer.objects.create(
-                id=shortuuid.ShortUUID(), name=name, email=email
+                id=shortuuid.uuid(), name=name, email=email
             )
 
         self.save()
@@ -268,7 +272,7 @@ class Account(models.Model):
         Update the Stripe customer instance for this account.
 
         Used when the account changes its name/s or email/s.
-        Updates remote and then local (instead of waiting for webhook notification).
+        Updates remote and local instances (instead of waiting for webhook notification).
         """
         customer = self.customer
         name = self.display_name or self.name or ""
@@ -283,6 +287,18 @@ class Account(models.Model):
         customer.name = name
         customer.email = email
         customer.save()
+
+    def get_customer_portal_session(self, request):
+        """
+        Create a customer portal session for the account.
+        """
+        customer = self.get_customer()
+        return stripe.billing_portal.Session.create(
+            customer=customer.id,
+            return_url=request.build_absolute_uri(
+                reverse("ui-accounts-plan", kwargs={"account": self.name})
+            ),
+        )
 
     # Methods to get "built-in" accounts
     # Optimized for frequent access by use of caching.

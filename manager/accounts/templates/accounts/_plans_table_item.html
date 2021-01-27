@@ -102,7 +102,7 @@
 
   <a class="button is-fullwidth is-primary mt-4"
      {% if tier.id == account.tier.id %}disabled{% endif %}
-     href="{% url 'ui-accounts-subscribe' account %}">
+     href="{% url 'ui-accounts-billing' account %}">
     {% if user.is_anonymous %}
     Signup and subscribe
     {% elif tier.id == account.tier_id %}
