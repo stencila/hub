@@ -171,15 +171,16 @@ def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 
 
 @login_required
-def subscribe(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+def billing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
-    Subscribe to a particular plan.
+    Allow users to manage their billing.
 
-    Creates a new `account.customer` if necessary.
+    Currently implemented as a redirect to Stripe Customer Portal
+    (https://stripe.com/docs/billing/subscriptions/customer-portal).
+    Creates a new `account.customer` if necessary and then redirects
+    them to a portal session.
     """
     viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
     account = viewset.get_object()
-
-    account.get_customer()
-
-    return render(request, "accounts/subscribe.html", dict(account=account),)
+    session = account.get_customer_portal_session(request)
+    return redir(session.url)

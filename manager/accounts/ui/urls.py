@@ -68,9 +68,9 @@ urlpatterns = [
                     name="ui-accounts-plan",
                 ),
                 path(
-                    AccountPaths.subscribe.value + "/",
-                    account_views.subscribe,
-                    name="ui-accounts-subscribe",
+                    AccountPaths.billing.value + "/",
+                    account_views.billing,
+                    name="ui-accounts-billing",
                 ),
                 path(
                     AccountPaths.users.value + "/",
