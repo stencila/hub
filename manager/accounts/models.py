@@ -10,6 +10,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_save
 from django.shortcuts import reverse
+from djstripe.models import Customer
 from imagefield.fields import ImageField
 from meta.views import Meta
 
@@ -64,6 +65,20 @@ class Account(models.Model):
         max_length=64,
         help_text="Name of the account. Lowercase and no spaces or leading numbers. "
         "Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
+    )
+
+    customer = models.ForeignKey(
+        Customer,
+        null=True,
+        default=None,
+        on_delete=models.SET_NULL,
+        help_text="The Stripe customer instance (if this account has ever been one)",
+    )
+
+    billing_email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="The email to use for billing (e.g. sending invoices)",
     )
 
     image = ImageField(
@@ -160,6 +175,23 @@ class Account(models.Model):
         """Get the URL for this account."""
         return reverse("ui-accounts-retrieve", args=[self.name])
 
+    def get_meta(self) -> Meta:
+        """
+        Get the metadata to include in the head of the account's page.
+        """
+        return Meta(
+            object_type="profile",
+            extra_custom_props=[
+                ("property", "profile.username", self.user.username),
+                ("property", "profile.first_name", self.user.first_name),
+                ("property", "profile.last_name", self.user.last_name),
+            ]
+            if self.user
+            else [],
+            title=self.display_name or self.name,
+            image=self.image.large,
+        )
+
     def save(self, *args, **kwargs):
         """
         Save this account.
@@ -167,6 +199,8 @@ class Account(models.Model):
         - Ensure that name is unique
         - If the account `is_personal` then make sure that the
           user's `username` is the same as `name`
+        - If the account `is_customer` then update the Stripe
+          `Customer` instance
         - Create an image if the account does not have one
         """
         self.name = unique_slugify(self.name, instance=self)
@@ -175,10 +209,45 @@ class Account(models.Model):
             self.user.username = self.name
             self.user.save()
 
+        if self.is_customer:
+            self.update_customer()
+
         if not self.image:
             self.set_image_from_name(should_save=False)
 
         return super().save(*args, **kwargs)
+
+    # Methods related to billing of this account
+
+    @property
+    def is_customer(self) -> bool:
+        """
+        Is this account a customer (past or present).
+        """
+        return self.customer_id is not None
+
+    def get_customer(self) -> Customer:
+        """
+        Create a Stripe customer instance for this account (if necessary).
+        """
+        if self.is_customer:
+            return self.customer
+
+        self.customer = Customer.objects.create(
+            name=self.display_name or self.name, email=self.billing_email or self.email
+        )
+        return self.save()
+
+    def update_customer(self) -> Customer:
+        """
+        Update the Stripe customer instance for this account.
+
+        Used when the account changes its name/s or email/s
+        """
+        customer = self.get_customer()
+        customer.name = self.display_name or self.name
+        customer.email = self.billing_email or self.email
+        customer.save()
 
     # Methods to get "built-in" accounts
     # Optimized for frequent access by use of caching.
@@ -205,6 +274,8 @@ class Account(models.Model):
         if not hasattr(cls, "_temp_account"):
             cls._temp_account = Account.objects.get(name="temp")
         return cls._temp_account
+
+    # Methods for setting the account image in various ways
 
     def image_is_identicon(self) -> bool:
         """
@@ -286,23 +357,6 @@ class Account(models.Model):
             self.set_image_from_socialaccount(socialaccount)
             if not self.image_is_identicon():
                 return
-
-    def get_meta(self) -> Meta:
-        """
-        Get the metadata to include in the head of the account's page.
-        """
-        return Meta(
-            object_type="profile",
-            extra_custom_props=[
-                ("property", "profile.username", self.user.username),
-                ("property", "profile.first_name", self.user.first_name),
-                ("property", "profile.last_name", self.user.last_name),
-            ]
-            if self.user
-            else [],
-            title=self.display_name or self.name,
-            image=self.image.large,
-        )
 
 
 def make_account_creator_an_owner(
