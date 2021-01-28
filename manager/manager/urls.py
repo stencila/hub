@@ -24,6 +24,9 @@ urlpatterns = [
     path(RootPaths.favicon.value, favicon),
     path(RootPaths.robots.value, robots),
     path(RootPaths.api.value + "/", include("manager.api.urls")),
+    path(
+        RootPaths.api.value + "/stripe/", include("djstripe.urls", namespace="djstripe")
+    ),
     path(RootPaths.doi.value + "/", include("dois.urls")),
     path(RootPaths.me.value + "/", include("users.ui.urls")),
     path(RootPaths.pricing.value + "/", pricing, name="ui-pricing"),
@@ -32,7 +35,6 @@ urlpatterns = [
         include(
             [
                 path("admin/", admin.site.urls, name="admin"),
-                path("stripe/", include("djstripe.urls", namespace="djstripe")),
                 path("render/", render_template),
                 path("test/messages/", test_messages),
                 path("test/account-quota-exceeded/", test_account_quota_exceeded),

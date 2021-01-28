@@ -68,7 +68,7 @@ sync-devdb-stripe:
 		  DELETE FROM djstripe_customer; \
 		  DELETE FROM djstripe_subscription;" | sqlite3 dev.sqlite3
 	$(DJ) djstripe_sync_models Product Price Customer Subscription
-	stripe listen --forward-to localhost:8000/stencila/stripe/webhook/
+	stripe listen --forward-to localhost:8000/api/stripe/webhook/
 
 # Migrate the development database
 migrate-devdb: venv
