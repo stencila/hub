@@ -22,8 +22,6 @@ def customer_updated(event, **kwargs):
     """
     When customer updates billing information on Stripe, transfer to account fields.
     """
-    from accounts.models import AccountTier
-
     customer = Customer.objects.get(id=event.data["object"]["id"])
 
     account = customer.account
