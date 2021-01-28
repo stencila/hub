@@ -1,3 +1,10 @@
+## [4.29.1](https://github.com/stencila/hub/compare/v4.29.0...v4.29.1) (2021-01-28)
+
+
+### Bug Fixes
+
+* **UserFlow syncing:** Throttle requests ([3b09766](https://github.com/stencila/hub/commit/3b09766e64b876ff05b8ea6610cc4bc16d7a5955)), closes [#966](https://github.com/stencila/hub/issues/966)
+
 # [4.29.0](https://github.com/stencila/hub/compare/v4.28.1...v4.29.0) (2021-01-27)
 
 
