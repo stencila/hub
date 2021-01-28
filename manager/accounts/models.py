@@ -561,9 +561,10 @@ class AccountTier(models.Model):
     def __str__(self) -> str:
         return "Tier {0}".format(self.id)
 
+    @staticmethod
     def active_tiers():
         """
-        Get a list of tiers that are active and have a product
+        Get a list of tiers that are active and have a product.
         """
         return (
             AccountTier.objects.filter(active=True, product__isnull=False)
@@ -571,6 +572,7 @@ class AccountTier(models.Model):
             .all()
         )
 
+    @staticmethod
     def free_tier():
         """
         Get the free tier.
