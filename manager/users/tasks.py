@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Union
 
 import httpx
@@ -51,11 +52,19 @@ def update_services_for_user(user: Union[User, int], services=["userflow"]):
         update_userflow(user, data)
 
 
+last_userflow_request = 0
+
+
 def update_userflow(user: User, data: dict):
     """
     Update UserFlow data for a user.
 
     See https://getuserflow.com/docs/api#create-or-update-a-user
+
+    There are API rate limits (for our current account 500 request/min)
+    so this implements a basic approach to throttling of waiting for at least
+    0.5 second between requests (although suboptimal, because this is usually
+    called in a background task it's OK).
     """
     # UserFlow can take arbitrary user data but it is
     # necessary to flatten it into a dictionary
@@ -85,6 +94,12 @@ def update_userflow(user: User, data: dict):
 
     key = getattr(conf.settings, "USERFLOW_API_KEY", None)
     if key:
+        global last_userflow_request
+        diff = time.time() - last_userflow_request
+        if diff < 0.5:
+            time.sleep(0.5 - diff)
+        last_userflow_request = time.time()
+
         response = httpx.post(
             "https://api.getuserflow.com/users",
             headers={
