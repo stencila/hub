@@ -5,6 +5,6 @@ build:
 # Run Docker image
 run: build
 	docker run --rm \
-      	-p 6379:6379 \
+		-p 6379:6379 \
 		-e REDIS_PASSWORD=password \
 		stencila/hub-cache
