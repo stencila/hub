@@ -112,9 +112,49 @@ make cover
 
 ### Integration testing
 
+#### Manually running each service
+
+The most hands-on way of testing the integration between services is to run each of them locally. 
+
+First, create a seed SQLite development database,
+
+```sh
+make -C manager create-devdb-sqlite
+```
+
+Note that this will destroy any existing `manager/dev.sqlite3` database. If you want to update your development database to a newer version of the database schema do this instead,
+
+```sh
+make -C manager migrate-devdb
+```
+
+Then in *separate* terminal consoles run the following `make` commands,
+
+```sh
+make -C manager run
+```
+
+```sh
+make -C broker run
+```
+
+```sh
+make -C cache run
+```
+
+```sh
+make -C overseer run
+```
+
+```sh
+make -C worker run
+```
+
+At the time of writing, those services provide for most of use cases, but you can of course also run other services locally e.g. `router` if you want to test them.
+
 #### With `docker-compose`
 
-The `docker-compose.yaml` file is useful for testing the integration between services. First, ensure that all of the Docker images are built:
+The `docker-compose.yaml` file provides an easier way of integration testing. First, ensure that all of the Docker images are built:
 
 ##### Building images
 
