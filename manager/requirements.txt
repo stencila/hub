@@ -39,5 +39,5 @@ pyjwt<2.0 # Necessary for PyGithub==1.54.1 compatability
 redis==3.5.3
 sentry-sdk==0.19.5
 shortuuid==1.0.1
-stencila-schema==0.47.2
+stencila-schema==1.0.0
 whitenoise==5.2.0
