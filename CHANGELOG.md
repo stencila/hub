@@ -1,3 +1,10 @@
+## [4.29.2](https://github.com/stencila/hub/compare/v4.29.1...v4.29.2) (2021-01-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/executa to v1.15.7 ([455014a](https://github.com/stencila/hub/commit/455014ab9edbe9a086da41fc5fc32be13ab3ba9b))
+
 ## [4.29.1](https://github.com/stencila/hub/compare/v4.29.0...v4.29.1) (2021-01-28)
 
 
