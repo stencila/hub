@@ -1,3 +1,16 @@
+## [4.29.3](https://github.com/stencila/hub/compare/v4.29.2...v4.29.3) (2021-01-31)
+
+
+### Bug Fixes
+
+* **deps:** pin dependency pyjwt to ==1.7.1 ([9c56bc5](https://github.com/stencila/hub/commit/9c56bc5c8d03964b568abce9e60d1a075079de4b))
+* **deps:** update dependency bulma to v0.9.2 ([e789f79](https://github.com/stencila/hub/commit/e789f796da9d7759377b30f40c550a3e91542064))
+* **deps:** update dependency dj-stripe to v2.4.2 ([7f618f1](https://github.com/stencila/hub/commit/7f618f16fbeec9da919a20a033e386d938fa8ad3))
+* **deps:** update dependency django-cors-headers to v3.7.0 ([07235ed](https://github.com/stencila/hub/commit/07235ed3c4619532d3d9b142aa9d3c03829c6337))
+* **deps:** update dependency setuptools to v52 ([4aa3ce7](https://github.com/stencila/hub/commit/4aa3ce728f52ef7360ae81b9f48a44e892f8b429))
+* **deps:** update dependency stencila-schema to v1 ([d634068](https://github.com/stencila/hub/commit/d634068935757727d96e344872860e40cde868c9))
+* **deps:** update dependency urllib3 to v1.26.3 ([da28748](https://github.com/stencila/hub/commit/da28748ad258d23332d70ae4b1908ba3d9c84076))
+
 ## [4.29.2](https://github.com/stencila/hub/compare/v4.29.1...v4.29.2) (2021-01-30)
 
 
