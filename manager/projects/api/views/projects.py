@@ -267,7 +267,10 @@ class ProjectsViewSet(
     def get_serializer_class(self):
         """Get the serializer class for the current action."""
         if self.action == "partial_update":
-            if self.get_object().role == ProjectRole.AUTHOR.name:
+            if (
+                not getattr(self, "swagger_fake_view", False)
+                and self.get_object().role == ProjectRole.AUTHOR.name
+            ):
                 return ProjectAuthorUpdateSerializer
             else:
                 return ProjectUpdateSerializer
