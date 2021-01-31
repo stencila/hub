@@ -9,6 +9,7 @@ from django.conf import settings
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import utc
+from djstripe.models import Price, Product
 from faker import Faker
 from stencila.schema.json import object_encode
 from stencila.schema.types import (
@@ -143,14 +144,40 @@ def run(*args):
     # Accounts
     #################################################################
 
-    # Account tiers
-    # Tier 1 is created in a data migration, so we just set it's name here
+    # Account tiers, products and prices
 
-    AccountTier.objects.update(id=1, name="Tier 1")
-    AccountTier.objects.create(name="Tier 2")
-    AccountTier.objects.create(name="Tier 3")
-    AccountTier.objects.create(name="Tier 4", active=False)
-    AccountTier.objects.create(name="Tier 5", active=False)
+    for tier in range(1, 6):
+        active = tier < 4
+
+        # Associated product and price (in prod these object are created in the Stripe
+        # dashboard and synced using `./venv/bin/python3 manage.py djstripe_sync_models`)
+        if active:
+            product = Product.objects.create(
+                id=f"product_tier{tier}", name=f"Tier {tier} Product"
+            )
+            Price.objects.create(
+                id=f"price_tier{tier}",
+                product=product,
+                active=True,
+                currency="usd",
+                unit_amount=(tier - 1) * 1000,
+            )
+        else:
+            product = None
+
+        # Account tier
+        if tier == 1:
+            # Tier 1 is created in a data migration, so we just set it's other details
+            AccountTier.objects.update(
+                id=1, name="Tier 1", product=product, summary=fake.sentence()
+            )
+        else:
+            AccountTier.objects.create(
+                name=f"Tier {tier}",
+                product=product,
+                active=active,
+                summary=fake.sentence(),
+            )
 
     # Generic and example organizations
 

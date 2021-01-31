@@ -11,6 +11,7 @@ class AccountPaths(enum.Enum):
     disallowed project names up to date.
     """
 
+    billing = "billing"
     plan = "plan"
     profile = "profile"
     publishing = "publishing"

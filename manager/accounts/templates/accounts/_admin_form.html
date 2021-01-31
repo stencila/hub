@@ -1,0 +1,9 @@
+{% comment %}
+Form for account admin related fields.
+{% endcomment %}
+
+<form hx-patch="{% url 'api-accounts-detail' account.id %}"
+      hx-template="accounts/_admin_form.html">
+  {% include "serializers/_field.html" with field=serializer.billing_email icon="ri-mail-line" label="Billing email (private)" %}
+  {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
+</form>

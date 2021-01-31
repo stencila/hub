@@ -96,6 +96,7 @@ class Prod(Configuration):
         "django_intercom",
         "django_prometheus",
         "djangocodemirror",
+        "djstripe",
         "drf_yasg",
         "imagefield",
         "invitations",
@@ -473,11 +474,16 @@ class Prod(Configuration):
 
     # Stripe settings
     # In production, use live mode (overridden in development to use test keys)
+    # Some of these settings obviously have to be overridden but the defaults
+    # below allow
+    # See https://github.com/dj-stripe/dj-stripe#quickstart and
+    # https://dj-stripe.readthedocs.io/en/stable/reference/settings/
 
     STRIPE_LIVE_MODE = True
-    STRIPE_LIVE_PUBLIC_KEY = values.Value("")
-    STRIPE_LIVE_SECRET_KEY = values.Value("sk_live_test")
-    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+    STRIPE_LIVE_SECRET_KEY = values.Value("sk_live_xxxx")
+    DJSTRIPE_WEBHOOK_SECRET = values.Value("whsec_xxxx")
+    DJSTRIPE_USE_NATIVE_JSONFIELD = True
+    DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
 
     ###########################################################################
     # Settings for integration with other Hub services i.e. `broker`, `storage` etc
@@ -669,10 +675,9 @@ class Dev(Local):
     # during development, without this setting a warning gets emitted
     INTERCOM_DISABLED = True
 
-    # Use Stripe test mode and provide keys for it
+    # Use Stripe test mode
     STRIPE_LIVE_MODE = False
-    STRIPE_TEST_PUBLIC_KEY = values.Value("")
-    STRIPE_TEST_SECRET_KEY = values.Value("sk_test_test")
+    STRIPE_TEST_SECRET_KEY = values.Value("sk_test_xxxx")
 
     # In standalone development, default to using a pseudo, in-memory broker and
     # phony cache.

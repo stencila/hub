@@ -6,7 +6,6 @@ from django.shortcuts import reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import exceptions, mixins, permissions, viewsets
-from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -135,8 +134,8 @@ class AccountsViewSet(
 
         For `retrieve`, prefetches related data.
 
-        For `partial_update` checks that the useris an account MANAGER or OWNER.
-        Only OWNER is permitted to `update_plan` or `destroy`.
+        For `partial_update` and `update_plan` checks that the user is an account MANAGER or OWNER.
+        Only OWNER is permitted to `destroy`.
         """
         if hasattr(self, "account"):
             return self.account
@@ -172,12 +171,9 @@ class AccountsViewSet(
             raise exceptions.NotFound
 
         if (
-            self.action == "partial_update"
+            self.action in ("partial_update", "update_plan")
             and account.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
-        ) or (
-            self.action in ("update_plan", "destroy")
-            and account.role != AccountRole.OWNER.name
-        ):
+        ) or (self.action == "destroy" and account.role != AccountRole.OWNER.name):
             raise exceptions.PermissionDenied
 
         return account
@@ -283,13 +279,6 @@ class AccountsViewSet(
         Returns updated details of the account.
         """
         return super().partial_update(request, *args, **kwargs)
-
-    @action(detail=True, methods=["PATCH"])
-    def update_plan(self):
-        """
-        Update the plan / tier for an account.
-        """
-        raise NotImplementedError()
 
 
 class AccountsUsersViewSet(

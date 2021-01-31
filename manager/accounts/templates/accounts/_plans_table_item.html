@@ -1,0 +1,116 @@
+{% load i18n stencila humanize %}
+
+<figure class="is-size-5 pricing-table__item">
+  <div>
+    <h2 class="has-text-centered mb-3 has-text-primary">
+      <span class="tag is-primary is-light title is-5">{{ tier.title }}</span>
+    </h2>
+
+    <h2 class="has-text-centered title is-2 mb-1 pricing-table__price">
+      <div>
+        <sup class="is-size-6 has-text-grey leading-none pr-1">$</sup>{{ tier.price }}
+      </div>
+      <div class="is-size-6 has-text-grey has-text-left pricing-table__frequency">USD</br>/month</div>
+    </h2>
+
+    <p class="has-text-grey has-text-centered mb-5">
+      {{ tier.summary }}
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-global-line"></i></span>
+      <span>
+        {{ tier.projects_public|tier_count }} {% trans "Public projects" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+      <span>
+        {{ tier.projects_private|tier_count }} {% trans "Private projects" %}
+      </span>
+    </p>
+
+    {% if account.is_organization %}
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-user-line"></i></span>
+      <span>
+        {{ tier.account_users }} {% trans "Users" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
+      <span>
+        {{ tier.account_teams }} {% trans "Teams" %}
+      </span>
+    </p>
+    {% endif %}
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-timer-line"></i></span>
+      <span>
+        {{ tier.job_runtime_month|floatformat|intcomma }} {% trans "Compute minutes" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-database-2-line"></i></span>
+      <span>
+        {{ tier.storage_working|floatformat }}GB {% trans "Project storage" %}
+      </span>
+    </p>
+
+    <p class="has-text-centered and-more"><span>{% trans "Plus" %}</span></p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-newspaper-line"></i></span>
+      <span>
+        {% trans "Publish executable documents" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-group-line"></i></span>
+      <span>
+        {% trans "Collaborate with others" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-arrow-left-right-line"></i></span>
+      <span>
+        {% trans "File format conversion" %}
+      </span>
+    </p>
+
+    {% if tier.account_teams > 0 %}
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-team-line"></i></span>
+      <span>
+        {% trans "Team management" %}
+      </span>
+    </p>
+
+    <p>
+      <span class="icon has-text-grey-light"><i class="ri-lock-line"></i></span>
+      <span>
+        {% trans "Granular permission controls" %}
+      </span>
+    </p>
+    {% endif %}
+  </div>
+
+  <a class="button is-fullwidth is-primary mt-4"
+     {% if tier.id == account.tier_id %}disabled{% endif %}
+     {% if user.is_staff %}href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}{% endif %}">
+    {% if user.is_anonymous %}
+    Signup
+    {% elif tier.id == account.tier_id %}
+    Your current plan
+    {% else %}
+    {% if user.is_staff %}Switch to {{ tier.title }}{% else %}Coming soon!{% endif %}
+    {% endif %}
+  </a>
+
+</figure>

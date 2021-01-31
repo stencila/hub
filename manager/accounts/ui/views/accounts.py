@@ -146,11 +146,15 @@ def publishing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
 def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
     Get the account usage relative to current and other plans.
+
+    This uses the `update_plan` action to check permission: although
+    this view does not change the plan, we only want MANAGER or OWNER
+    to see usage etc.
     """
     viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
     account = viewset.get_object()
     usage = AccountQuotas.usage(account)
-    tiers = AccountTier.objects.order_by("id").all()
+    tiers = AccountTier.active_tiers()
     fields = AccountTier.fields()
     return render(
         request,
@@ -164,3 +168,19 @@ def plan(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             fields=fields,
         ),
     )
+
+
+@login_required
+def billing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    """
+    Allow users to manage their billing.
+
+    Currently implemented as a redirect to Stripe Customer Portal
+    (https://stripe.com/docs/billing/subscriptions/customer-portal).
+    Creates a new `account.customer` if necessary and then redirects
+    them to a portal session.
+    """
+    viewset = AccountsViewSet.init("update_plan", request, args, kwargs)
+    account = viewset.get_object()
+    session = account.get_customer_portal_session(request)
+    return redir(session.url)

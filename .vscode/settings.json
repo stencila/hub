@@ -5,6 +5,7 @@
     "python.formatting.provider": "black",
     "cSpell.words": [
         "asgi",
+        "djstripe",
         "favicon",
         "noqa",
         "oauth",
@@ -13,6 +14,7 @@
         "signin",
         "stencila",
         "venv",
+        "whsec",
         "wsgi"
     ]
 }

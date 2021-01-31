@@ -4,8 +4,7 @@
   {% for tier in tiers %}
   {% if tier.active %}
   <li class="column is-one-third pb-0">
-    {% pricing_dict tier.id as tier_details %}
-    {% include './_plan_table_item.html' with tier=tier details=tier_details %}
+    {% include './_plans_table_item.html' with tier=tier %}
   </li>
   {% endif %}
   {% endfor %}

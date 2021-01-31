@@ -76,6 +76,8 @@ EXCLUDE = [
     r"^me/[a-z]+/login/",
     # Non-GET URLs
     r"[^/]+/profile/image",
+    # Redirects to external pages
+    r"[^/]+/billing",
     # These pages are not expected to return 200 responses
     r"^stencila/test/403",
     r"^stencila/test/404",

@@ -81,6 +81,7 @@ class AccountTierAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "name",
+        "product",
         "active",
         "account_users",
         "account_teams",

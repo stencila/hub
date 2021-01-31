@@ -68,6 +68,11 @@ urlpatterns = [
                     name="ui-accounts-plan",
                 ),
                 path(
+                    AccountPaths.billing.value + "/",
+                    account_views.billing,
+                    name="ui-accounts-billing",
+                ),
+                path(
                     AccountPaths.users.value + "/",
                     user_views.update,
                     name="ui-accounts-users",

@@ -1,11 +1,15 @@
+import logging
 import os
 import re
 from typing import Dict, Union
 
 import customidenticon
+import djstripe
 import httpx
 import shortuuid
+import stripe
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models.signals import post_save
@@ -13,9 +17,18 @@ from django.shortcuts import reverse
 from imagefield.fields import ImageField
 from meta.views import Meta
 
+import accounts.webhooks  # noqa
 from manager.helpers import EnumChoice, unique_slugify
 from manager.storage import media_storage
 from users.models import User
+
+logger = logging.getLogger(__name__)
+
+stripe.api_key = (
+    settings.STRIPE_LIVE_SECRET_KEY
+    if settings.STRIPE_LIVE_MODE
+    else settings.STRIPE_TEST_SECRET_KEY
+)
 
 
 class Account(models.Model):
@@ -64,6 +77,21 @@ class Account(models.Model):
         max_length=64,
         help_text="Name of the account. Lowercase and no spaces or leading numbers. "
         "Will be used in URLS e.g. https://hub.stenci.la/awesome-org",
+    )
+
+    customer = models.OneToOneField(
+        djstripe.models.Customer,
+        null=True,
+        default=None,
+        on_delete=models.SET_NULL,
+        related_name="account",
+        help_text="The Stripe customer instance (if this account has ever been one)",
+    )
+
+    billing_email = models.EmailField(
+        null=True,
+        blank=True,
+        help_text="The email to use for billing (e.g. sending invoices)",
     )
 
     image = ImageField(
@@ -160,6 +188,23 @@ class Account(models.Model):
         """Get the URL for this account."""
         return reverse("ui-accounts-retrieve", args=[self.name])
 
+    def get_meta(self) -> Meta:
+        """
+        Get the metadata to include in the head of the account's page.
+        """
+        return Meta(
+            object_type="profile",
+            extra_custom_props=[
+                ("property", "profile.username", self.user.username),
+                ("property", "profile.first_name", self.user.first_name),
+                ("property", "profile.last_name", self.user.last_name),
+            ]
+            if self.user
+            else [],
+            title=self.display_name or self.name,
+            image=self.image.large,
+        )
+
     def save(self, *args, **kwargs):
         """
         Save this account.
@@ -167,6 +212,8 @@ class Account(models.Model):
         - Ensure that name is unique
         - If the account `is_personal` then make sure that the
           user's `username` is the same as `name`
+        - If the account `is_customer` then update the Stripe
+          `Customer` instance
         - Create an image if the account does not have one
         """
         self.name = unique_slugify(self.name, instance=self)
@@ -175,10 +222,96 @@ class Account(models.Model):
             self.user.username = self.name
             self.user.save()
 
+        if self.is_customer:
+            self.update_customer()
+
         if not self.image:
             self.set_image_from_name(should_save=False)
 
         return super().save(*args, **kwargs)
+
+    # Methods related to billing of this account
+
+    @property
+    def is_customer(self) -> bool:
+        """
+        Is this account a customer (past or present).
+        """
+        return self.customer_id is not None
+
+    def get_customer(self) -> djstripe.models.Customer:
+        """
+        Create a Stripe customer instance for this account (if necessary).
+
+        Creates remote and local instances (instead of waiting for webhook notification).
+        """
+        if self.customer_id:
+            return self.customer
+
+        name = self.display_name or self.name or ""
+        email = self.billing_email or self.email or ""
+
+        if stripe.api_key != "sk_test_xxxx":
+            try:
+                customer = stripe.Customer.create(name=name, email=email)
+                self.customer = djstripe.models.Customer.sync_from_stripe_data(customer)
+            except Exception:
+                logger.exception("Error creating customer on Stripe")
+        else:
+            self.customer = djstripe.models.Customer.objects.create(
+                id=shortuuid.uuid(), name=name, email=email
+            )
+
+        self.save()
+        return self.customer
+
+    def update_customer(self):
+        """
+        Update the Stripe customer instance for this account.
+
+        Used when the account changes its name/s or email/s.
+        Updates remote and local instances (instead of waiting for webhook notification).
+        """
+        customer = self.customer
+        name = self.display_name or self.name or ""
+        email = self.billing_email or self.email or ""
+
+        if stripe.api_key != "sk_test_xxxx":
+            try:
+                stripe.Customer.modify(customer.id, name=name, email=email)
+            except Exception:
+                logger.exception("Error syncing customer with Stripe")
+
+        customer.name = name
+        customer.email = email
+        customer.save()
+
+    def get_customer_portal_session(self, request):
+        """
+        Create a customer portal session for the account.
+
+        If the customer has no valid subscription then create one
+        to the free account (this is necessary for the Stripe Customer Portal to
+        work properly e.g. to be able to upgrade subscription).
+        """
+        customer = self.get_customer()
+
+        has_subscription = False
+        for subscription in customer.subscriptions.all():
+            if subscription.is_valid():
+                has_subscription = True
+                break
+
+        if not has_subscription:
+            price = AccountTier.free_tier().product.prices.first()
+            customer.subscribe(price=price)
+
+        return stripe.billing_portal.Session.create(
+            customer=customer.id,
+            return_url=request.build_absolute_uri(
+                reverse("ui-accounts-plan", kwargs={"account": self.name})
+            ),
+        )
 
     # Methods to get "built-in" accounts
     # Optimized for frequent access by use of caching.
@@ -205,6 +338,8 @@ class Account(models.Model):
         if not hasattr(cls, "_temp_account"):
             cls._temp_account = Account.objects.get(name="temp")
         return cls._temp_account
+
+    # Methods for setting the account image in various ways
 
     def image_is_identicon(self) -> bool:
         """
@@ -287,23 +422,6 @@ class Account(models.Model):
             if not self.image_is_identicon():
                 return
 
-    def get_meta(self) -> Meta:
-        """
-        Get the metadata to include in the head of the account's page.
-        """
-        return Meta(
-            object_type="profile",
-            extra_custom_props=[
-                ("property", "profile.username", self.user.username),
-                ("property", "profile.first_name", self.user.first_name),
-                ("property", "profile.last_name", self.user.last_name),
-            ]
-            if self.user
-            else [],
-            title=self.display_name or self.name,
-            image=self.image.large,
-        )
-
 
 def make_account_creator_an_owner(
     sender, instance: Account, created: bool, *args, **kwargs
@@ -365,6 +483,19 @@ class AccountTier(models.Model):
 
     active = models.BooleanField(
         default=True, help_text="Is the tier active i.e. should be displayed to users."
+    )
+
+    product = models.OneToOneField(
+        djstripe.models.Product,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="account_tier",
+        help_text="The Stripe product for the account tier.",
+    )
+
+    summary = models.TextField(
+        null=True, help_text="A user facing, summary description of the account tier."
     )
 
     orgs_created = models.IntegerField(
@@ -431,6 +562,24 @@ class AccountTier(models.Model):
         return "Tier {0}".format(self.id)
 
     @staticmethod
+    def active_tiers():
+        """
+        Get a list of tiers that are active and have a product.
+        """
+        return (
+            AccountTier.objects.filter(active=True, product__isnull=False)
+            .order_by("id")
+            .all()
+        )
+
+    @staticmethod
+    def free_tier():
+        """
+        Get the free tier.
+        """
+        return AccountTier.objects.get(id=1)
+
+    @staticmethod
     def fields() -> Dict[str, models.Field]:
         """
         Get a dictionary of fields of an AccountTier.
@@ -440,6 +589,28 @@ class AccountTier(models.Model):
             for field in AccountTier._meta.get_fields()
             if field.name not in ["id"]
         )
+
+    @property
+    def title(self) -> float:
+        """
+        Get the "title" of the account tier.
+
+        Uses the associated product name, falling back to the tier name.
+        """
+        return self.product.name if self.product else self.name
+
+    @property
+    def price(self) -> float:
+        """
+        Get the current price the associated product.
+
+        If there is no associated product or price then
+        return -1 which equates to "Contact us".
+        """
+        if self.product:
+            price = self.product.prices.filter(active=True).first()
+            return price.unit_amount / 100
+        return -1
 
 
 class AccountRole(EnumChoice):
