@@ -82,6 +82,7 @@ class Account(models.Model):
     customer = models.OneToOneField(
         djstripe.models.Customer,
         null=True,
+        blank=True,
         default=None,
         on_delete=models.SET_NULL,
         related_name="account",
@@ -303,6 +304,9 @@ class Account(models.Model):
                 break
 
         if not has_subscription:
+            # At this point it would be good to subscribe the user to the selected product / tier
+            # but with out a payment method, using anything other than the free product
+            # raises the error 'This customer has no attached payment source or default payment method.'
             price = AccountTier.free_tier().product.prices.first()
             customer.subscribe(price=price)
 
