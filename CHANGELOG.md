@@ -1,3 +1,20 @@
+# [4.30.0](https://github.com/stencila/hub/compare/v4.29.3...v4.30.0) (2021-02-01)
+
+
+### Bug Fixes
+
+* **API:** Avoid schema generation warning ([09fbb84](https://github.com/stencila/hub/commit/09fbb84613b2bd611b5c729dfdf8ac6d8d2b46c2))
+* **Subscriptions:** It is necessary to create / sync with Stripe directly ([2e998ed](https://github.com/stencila/hub/commit/2e998ed8da30ef0a06a953e5fc044fe165655b42))
+* **Webhooks:** Upgrade and downgrade tiers ([d8ece3e](https://github.com/stencila/hub/commit/d8ece3eb357ce519ce46da9c63a3b02feed5d4e7))
+
+
+### Features
+
+* **Account tiers:** Link tiers to Stripe products ([bc51143](https://github.com/stencila/hub/commit/bc51143d3eab56654743380bf0d31b19e449fb12))
+* **Accounts:** Add billing email and link to customer instance ([51aa849](https://github.com/stencila/hub/commit/51aa84971619a23ffcfa1b0f1de3c00e032ac314))
+* **Billing:** Redirect user to the customer billing portal ([5826839](https://github.com/stencila/hub/commit/582683966041d5e3a1d82855a7882115c640de14))
+* **Subscriptions:** Add subscription page ([4a677c5](https://github.com/stencila/hub/commit/4a677c5a0a1c54fdd1ab7da2848d3c32b7ccb16b))
+
 ## [4.29.3](https://github.com/stencila/hub/compare/v4.29.2...v4.29.3) (2021-01-31)
 
 
