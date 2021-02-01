@@ -103,13 +103,13 @@
 
   <a class="button is-fullwidth is-primary mt-4"
      {% if tier.id == account.tier_id %}disabled{% endif %}
-     {% if user.is_staff %}href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}{% endif %}">
+     href="{% if account %}{% url 'ui-accounts-billing' account %}{% else %}/me/billing{% endif %}">
     {% if user.is_anonymous %}
     Signup
     {% elif tier.id == account.tier_id %}
     Your current plan
     {% else %}
-    {% if user.is_staff %}Switch to {{ tier.title }}{% else %}Coming soon!{% endif %}
+    Switch to {{ tier.title }}
     {% endif %}
   </a>
 
