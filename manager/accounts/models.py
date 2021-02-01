@@ -609,7 +609,7 @@ class AccountTier(models.Model):
         """
         if self.product:
             price = self.product.prices.filter(active=True).first()
-            return price.unit_amount / 100
+            return int(price.unit_amount / 100)
         return -1
 
 
