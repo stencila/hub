@@ -4,13 +4,16 @@ Custom webhooks to add behavior when subscriptions change.
 Note that the `djstripe` webhooks already do the syncing of data (ie. Stripe
 to database).
 
-To test these webhooks see the docs (https://stripe.com/docs/webhooks/test) e.g.
+To test these webhooks sync the db and run the Stripe CLI client:
 
-    stripe listen --forward-to localhost:8000/stencila/stripe/webhook/
+    make sync-devdb-stripe
 
-Then set the webhook signing secret displayed as an environment variable
+Then set the webhook signing secret displayed as an environment variable in the
+`.secrets` file (don't commit that change!)
 
-    DJANGO_DJSTRIPE_WEBHOOK_SECRET=whsec_r3lKX3vJgqmgLrJNLtVpDpPdIsoIm2Ew  make run
+    make run
+
+Finally, in the admin interface link the `AccountTier`s to the Stripe `Product`s.
 """
 
 from djstripe import webhooks
@@ -28,11 +31,12 @@ def customer_updated(event, **kwargs):
     account.billing_email = customer.email
     account.save()
 
-
-@webhooks.handler("customer.subscription.updated")
+@webhooks.handler("customer.subscription.created", "customer.subscription.updated")
 def subscription_updated(event, **kwargs):
     """
-    When the subscription is updated, change the account's tier.
+    When the subscription is created (e.g. manually in the Stripe
+    Dashboard) or updated (e.g. via the Stripe Customer Portal),
+    change the account's tier.
     """
     from accounts.models import AccountTier
 
