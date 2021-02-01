@@ -171,9 +171,12 @@ class AccountsViewSet(
             raise exceptions.NotFound
 
         if (
-            self.action in ("partial_update", "update_plan")
+            self.action == "partial_update"
             and account.role not in [AccountRole.MANAGER.name, AccountRole.OWNER.name]
-        ) or (self.action == "destroy" and account.role != AccountRole.OWNER.name):
+        ) or (
+            self.action in ["update_plan", "destroy"]
+            and account.role != AccountRole.OWNER.name
+        ):
             raise exceptions.PermissionDenied
 
         return account
