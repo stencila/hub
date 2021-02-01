@@ -1,12 +1,3 @@
-# Azure Pipelines config
-#
-# For docs on multi-platform setup see:
-#   https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-multiplatform?view=azure-devops
-# For docs on building and pushing Docker images
-#   https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-# For a guide to triggering build on tags, see:
-#   https://medium.com/faun/azure-pipelines-and-git-tag-quirks-1daaba61713a
-
 variables:
   - name: PYTHON_VERSION
     value: '3.9'
@@ -14,7 +5,7 @@ variables:
     value: '14.x'
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-20.04
 
 jobs:
   - job: test
