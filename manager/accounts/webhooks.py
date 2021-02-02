@@ -23,6 +23,8 @@ from djstripe.models import Customer, Subscription
 @webhooks.handler("customer.updated")
 def customer_updated(event, **kwargs):
     """
+    Update a customer details.
+
     When customer updates billing information on Stripe, transfer to account fields.
     """
     customer = Customer.objects.get(id=event.data["object"]["id"])
@@ -31,9 +33,12 @@ def customer_updated(event, **kwargs):
     account.billing_email = customer.email
     account.save()
 
+
 @webhooks.handler("customer.subscription.created", "customer.subscription.updated")
 def subscription_updated(event, **kwargs):
     """
+    Update a subscription.
+
     When the subscription is created (e.g. manually in the Stripe
     Dashboard) or updated (e.g. via the Stripe Customer Portal),
     change the account's tier.
@@ -55,6 +60,8 @@ def subscription_updated(event, **kwargs):
 @webhooks.handler("customer.subscription.deleted")
 def subscription_deleted(event, **kwargs):
     """
+    Delete a subscription.
+
     When the subscription is deleted, put the account on the free tier.
     """
     from accounts.models import AccountTier
