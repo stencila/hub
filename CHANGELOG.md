@@ -1,3 +1,12 @@
+## [4.30.1](https://github.com/stencila/hub/compare/v4.30.0...v4.30.1) (2021-02-02)
+
+
+### Bug Fixes
+
+* **Account plans:** Listen to `customer.subscription.created` events ([af57eff](https://github.com/stencila/hub/commit/af57efffc0d12cd15d3014d8e57f8844c12e637c)), closes [#986](https://github.com/stencila/hub/issues/986)
+* **Plans:** Display as integer ([45d9088](https://github.com/stencila/hub/commit/45d90883a3c525be15f3403199eb3f2ee550221c)), closes [#983](https://github.com/stencila/hub/issues/983)
+* **Plans:** Only allow account OWNER to update a plan ([d5ad32d](https://github.com/stencila/hub/commit/d5ad32db49d3ddb2a14ab1eb55f7a512b62b8953)), closes [#985](https://github.com/stencila/hub/issues/985)
+
 # [4.30.0](https://github.com/stencila/hub/compare/v4.29.3...v4.30.0) (2021-02-01)
 
 
