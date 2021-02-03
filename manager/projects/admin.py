@@ -57,6 +57,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
     search_fields = ["name"]
     actions = ["update_image", "toggle_featured"]
+    raw_id_fields = ["account", "creator", "pinned"]
 
     def update_image(self, request, queryset):
         """Update image for selected projects."""
@@ -250,6 +251,8 @@ class FileAdmin(admin.ModelAdmin):
         "created",
         "updated",
     ]
+    search_fields = ["path"]
+    raw_id_fields = ["project", "job", "source", "upstreams", "snapshot"]
 
     def project_full_name(self, file):
         """Derive file's project full name."""
@@ -260,10 +263,23 @@ class FileAdmin(admin.ModelAdmin):
 class SnapshotAdmin(admin.ModelAdmin):
     """Admin interface for project snapshots."""
 
-    list_display = ["id", "project_full_name", "number", "created", "job_status"]
+    list_display = [
+        "id",
+        "project_full_name",
+        "number",
+        "creator",
+        "created",
+        "job_status",
+    ]
     list_select_related = ["project", "project__account", "job"]
-    list_filter = [ProjectNameFilter, "created"]
+    list_filter = [
+        AccountNameFilter,
+        ProjectNameFilter,
+        CreatorUsernameFilter,
+        "created",
+    ]
     ordering = ["-created"]
+    raw_id_fields = ["project", "creator", "job"]
 
     def project_full_name(self, snapshot):
         """Derive snapshot's project full name."""
