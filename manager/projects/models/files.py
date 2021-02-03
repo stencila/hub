@@ -140,7 +140,7 @@ class FileFormats(enum.Enum):
 
     When adding `icon_class`es below, note that they may need to be
     added to the `purgecss` whitelist in `postcss.config.js` to
-    avoid them from being purged (if they are not used in any of the HTNL templates)
+    avoid them from being purged (if they are not used in any of the HTML templates)
     """
 
     docx = file_format("docx", label="Microsoft Word", icon_class="ri-file-word-line")
@@ -160,7 +160,7 @@ class FileFormats(enum.Enum):
         lexer=JsonLexer,
     )
     gif = file_format("gif", icon_class="ri-file-gif-line")
-    html = file_format("html")
+    html = file_format("html", icon_class="ri-file-code-line")
     ipynb = file_format(
         "ipynb", label="Jupyter Notebook", mimetype="application/x-ipynb+json"
     )
@@ -169,6 +169,7 @@ class FileFormats(enum.Enum):
         label="JATS XML",
         mimetype="application/jats+xml",
         extensions=[".jats.xml"],
+        icon_class="ri-file-code-line",
     )
     jpg = file_format("jpg")
     json = file_format("json", kind="exchange", minor=True)

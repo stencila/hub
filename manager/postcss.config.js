@@ -11,7 +11,12 @@ const prodPlugins = [
     content: ["./**/templates/**/*.html", "./manager/static/js/src/**/*.js"],
     whitelistPatterns: [
       // Icon classes specified in Python code and purged without this whitelisting
-      /^ri-file-line/,
+      /^ri-file-3-line$/,
+      /^ri-file-code-line$/,
+      /^ri-file-excel-line$/,
+      /^ri-file-line$/,
+      /^ri-file-pdf-line$/,
+      /^ri-file-word-line$/,
       /^ri-image-line$/,
       /^ri-markdown-line$/,
       /^ri-twitter-line$/
