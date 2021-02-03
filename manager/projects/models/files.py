@@ -306,6 +306,7 @@ class File(models.Model):
 
     upstreams = models.ManyToManyField(
         "File",
+        blank=True,
         related_name="downstreams",
         help_text="The files that this file was derived from (if any).",
     )
