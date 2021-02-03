@@ -61,6 +61,23 @@ class UserUsernameFilter(InputFilter):
             return queryset.filter(user__username=username)
 
 
+class AccountNameFilter(InputFilter):
+    """
+    Allow filtering by the account name.
+    """
+
+    parameter_name = "account_name"
+    title = "Account name"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the queryset by the account name.
+        """
+        name = self.value()
+        if name is not None:
+            return queryset.filter(account__name=name)
+
+
 class ProjectNameFilter(InputFilter):
     """
     Allow filtering by the project name.
@@ -76,3 +93,20 @@ class ProjectNameFilter(InputFilter):
         name = self.value()
         if name is not None:
             return queryset.filter(project__name=name)
+
+
+class CreatorUsernameFilter(InputFilter):
+    """
+    Allow filtering by the creator's username.
+    """
+
+    parameter_name = "creator_username"
+    title = "Creator username"
+
+    def queryset(self, request, queryset):
+        """
+        Filter the queryset by the creators' username.
+        """
+        name = self.value()
+        if name is not None:
+            return queryset.filter(creator__username=name)

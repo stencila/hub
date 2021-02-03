@@ -6,7 +6,13 @@ from polymorphic.admin import (
     PolymorphicParentModelAdmin,
 )
 
-from manager.admin import InputFilter, ProjectNameFilter, UserUsernameFilter
+from manager.admin import (
+    AccountNameFilter,
+    CreatorUsernameFilter,
+    InputFilter,
+    ProjectNameFilter,
+    UserUsernameFilter,
+)
 from projects.models.files import File
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectAgent, ProjectEvent
@@ -40,11 +46,16 @@ class ProjectAdmin(admin.ModelAdmin):
         "public",
         "featured",
     ]
-
     list_select_related = ["account", "creator"]
-
-    list_filter = ["temporary", "public", "featured", "created"]
-
+    list_filter = [
+        AccountNameFilter,
+        CreatorUsernameFilter,
+        "temporary",
+        "public",
+        "featured",
+        "created",
+    ]
+    search_fields = ["name"]
     actions = ["update_image", "toggle_featured"]
 
     def update_image(self, request, queryset):
