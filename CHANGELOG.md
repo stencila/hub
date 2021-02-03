@@ -1,3 +1,11 @@
+# [4.31.0](https://github.com/stencila/hub/compare/v4.30.2...v4.31.0) (2021-02-03)
+
+
+### Features
+
+* **Project admin:** Add search and filters ([325b4e6](https://github.com/stencila/hub/commit/325b4e6ffd21269aeb602e5d088ec19fee5dfccc))
+* **Snapshot and file admin:** Improved filtering and editing ([8ba9db2](https://github.com/stencila/hub/commit/8ba9db26d9e95efbd0b381a77143caf7d7137edd))
+
 ## [4.30.2](https://github.com/stencila/hub/compare/v4.30.1...v4.30.2) (2021-02-03)
 
 
