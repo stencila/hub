@@ -1,3 +1,11 @@
+## [4.30.2](https://github.com/stencila/hub/compare/v4.30.1...v4.30.2) (2021-02-03)
+
+
+### Bug Fixes
+
+* **Deps:** Update Stencila Components ([65b8540](https://github.com/stencila/hub/commit/65b8540133ba348be77510e4a73be6db5dec7956))
+* **Files:** Add icons classes for file types ([e92c360](https://github.com/stencila/hub/commit/e92c3607e79c07ce844b7f434c8ab0e0e8bc7f33)), closes [#988](https://github.com/stencila/hub/issues/988)
+
 ## [4.30.1](https://github.com/stencila/hub/compare/v4.30.0...v4.30.1) (2021-02-02)
 
 
