@@ -1,3 +1,10 @@
+## [4.31.1](https://github.com/stencila/hub/compare/v4.31.0...v4.31.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* **Files admin:** Allow upstreams to be blank in admin ([317ff42](https://github.com/stencila/hub/commit/317ff4201d5fc910e045e2219118621b7b14376a))
+
 # [4.31.0](https://github.com/stencila/hub/compare/v4.30.2...v4.31.0) (2021-02-03)
 
 
