@@ -1,3 +1,10 @@
+## [4.31.2](https://github.com/stencila/hub/compare/v4.31.1...v4.31.2) (2021-02-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @vizuaalog/bulmajs to v0.12.1 ([3e6b6be](https://github.com/stencila/hub/commit/3e6b6be96a215a0365bc88763bf707cafa1078fa))
+
 ## [4.31.1](https://github.com/stencila/hub/compare/v4.31.0...v4.31.1) (2021-02-03)
 
 
