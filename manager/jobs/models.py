@@ -32,7 +32,7 @@ class Zone(models.Model):
 
     Zones are linked to accounts. The Stencila account provides several zones,
     and users can decide which zone their project will run in.
-    Other zccounts can define their own zones and select those for specific
+    Other accounts can define their own zones and select those for specific
     projects.
     """
 
