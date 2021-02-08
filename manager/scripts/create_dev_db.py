@@ -1,4 +1,6 @@
+import datetime
 import io
+import math
 import mimetypes
 import os
 import random
@@ -22,7 +24,7 @@ from stencila.schema.types import (
 
 from accounts.models import Account, AccountRole, AccountTeam, AccountTier, AccountUser
 from dois.models import Doi
-from jobs.models import Queue, Worker, Zone
+from jobs.models import Job, JobMethod, JobStatus, Queue, Worker, Zone
 from manager.themes import Themes
 from projects.models.files import File
 from projects.models.nodes import Node
@@ -394,6 +396,27 @@ def run(*args):
 
         worker = Worker.objects.create(hostname="first-worker")
         worker.queues.add(queue)
+
+    # Each project...
+    for project in Project.objects.all():
+        jobs = random.uniform(-1, 5)
+        jobs = 0 if jobs < 0 else int(math.exp(jobs))
+        for index in range(jobs):
+            method = fake.random_element(JobMethod).name
+            status = fake.random_element(JobStatus).name
+            description = f"{method.title()} {fake.sentence(nb_words=5)}"
+            creator = random_project_user(project)
+            began = fake.date_time_between(start_date="-2y", tzinfo=utc)
+            ended = began + datetime.timedelta(seconds=random.lognormvariate(5, 3))
+            Job.objects.create(
+                project=project,
+                description=description,
+                creator=creator,
+                began=began,
+                ended=ended,
+                status=status,
+                method=method,
+            )
 
 
 def random_users(num=None):
