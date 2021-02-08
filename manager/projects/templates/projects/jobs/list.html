@@ -1,8 +1,26 @@
 {% extends '../base.html' %}
-{% load i18n %}
+{% load i18n humanize stencila %}
 
 {% block title %}Jobs : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-{% include './_list.html' %}
+
+{% if jobs %}
+
+{% include "./_job_list.html" %}
+
+{% else %}
+
+<div class="has-text-centered">
+  <h2 class="title is-4 has-text-grey">
+    {% trans 'No jobs yet' %}
+  </h2>
+
+  <p class="subtitle">
+    {% trans "Jobs are created when processing and executing your project."  %}
+  </p>
+</div>
+
+{% endif %}
+
 {% endblock %}
