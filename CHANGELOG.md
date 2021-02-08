@@ -1,3 +1,13 @@
+## [4.31.3](https://github.com/stencila/hub/compare/v4.31.2...v4.31.3) (2021-02-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django to v3.1.6 ([6eaaaac](https://github.com/stencila/hub/commit/6eaaaacacfc5ddf38f531fec513e5c126c966394))
+* **deps:** update dependency django-imagefield to v0.13.0 ([3ea6deb](https://github.com/stencila/hub/commit/3ea6deb7f53a4921d6b6232e1d7ecf3080b21791))
+* **deps:** update dependency google-cloud-storage to v1.35.1 ([a4f5475](https://github.com/stencila/hub/commit/a4f5475600fab842c547d55fd076a6b68c3eac10))
+* **deps:** update dependency setuptools to v53 ([d07e888](https://github.com/stencila/hub/commit/d07e888ab911e2a469e123a0d6749fbc388a4caa))
+
 ## [4.31.2](https://github.com/stencila/hub/compare/v4.31.1...v4.31.2) (2021-02-05)
 
 
