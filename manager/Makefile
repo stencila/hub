@@ -6,11 +6,11 @@ VE := venv/bin
 # with overrides for local development
 EV := export $$(egrep -v '^\#' ../.config | xargs) ; \
       export $$(egrep -v '^\#' ../.secrets | xargs); \
-	  export DEPLOYMENT_ENVIRONMENT=dev \
-	         DJANGO_CONFIGURATION=Dev \
-			 DATABASE_URL="sqlite:///dev.sqlite3" \
-	         BROKER_URL="amqp://stencila:password@localhost:5672/stencila" \
-			 CACHE_URL="redis://stencila:password@localhost:6379/0";
+      export DEPLOYMENT_ENVIRONMENT=dev \
+             DJANGO_CONFIGURATION=Dev \
+             DATABASE_URL="sqlite:///dev.sqlite3" \
+             BROKER_URL="amqp://stencila:password@localhost:5672/stencila" \
+             CACHE_URL="redis://stencila:password@localhost:6379/0";
 
 # Shortcut to run a Django manage.py task in the virtual environment
 DJ ?= $(EV) $(VE)/python3 manage.py
@@ -64,9 +64,9 @@ create-devdb-postgres: venv
 # Requires a Stripe API test mode key
 sync-devdb-stripe:
 	echo "DELETE FROM djstripe_product; \
-	      DELETE FROM djstripe_price; \
-		  DELETE FROM djstripe_customer; \
-		  DELETE FROM djstripe_subscription;" | sqlite3 dev.sqlite3
+          DELETE FROM djstripe_price; \
+          DELETE FROM djstripe_customer; \
+          DELETE FROM djstripe_subscription;" | sqlite3 dev.sqlite3
 	$(DJ) djstripe_sync_models Product Price Customer Subscription
 	stripe listen --forward-to localhost:8000/api/stripe/webhook/
 
@@ -116,7 +116,7 @@ run-assistant: venv
 	$(EV) \
 	export DJANGO_CONFIGURATION="Dev"; \
 	$(VE)/celery --app=manager worker \
-		--loglevel=DEBUG
+	    --loglevel=DEBUG
 
 # Format code
 format: venv
@@ -185,28 +185,28 @@ build-assistant: assistant.Dockerfile
 run-docker: build
 	$(EV) \
 	docker run \
-		--env DJANGO_CONFIGURATION="Prod" \
-		--env DJANGO_SECRET_KEY \
-		--env DJANGO_SECURE_SSL_REDIRECT=false \
-		--env DJANGO_MEDIA_ROOT=/storage/media \
-		--env DJANGO_UPLOADS_ROOT=/storage/uploads \
-		--env DJANGO_WORKING_ROOT=/storage/working \
-		--env DJANGO_SNAPSHOTS_ROOT=/storage/snapshots \
-		--env BROKER_URL \
-		--env CACHE_URL \
-		-v $$PWD/dev.sqlite3:/home/manager/dev.sqlite3:rw \
-		-v $$PWD/../storage/data:/storage:rw \
-		-p 8000:8000 -it --rm stencila/hub-manager
+	    --env DJANGO_CONFIGURATION="Prod" \
+	    --env DJANGO_SECRET_KEY \
+	    --env DJANGO_SECURE_SSL_REDIRECT=false \
+	    --env DJANGO_MEDIA_ROOT=/storage/media \
+	    --env DJANGO_UPLOADS_ROOT=/storage/uploads \
+	    --env DJANGO_WORKING_ROOT=/storage/working \
+	    --env DJANGO_SNAPSHOTS_ROOT=/storage/snapshots \
+	    --env BROKER_URL \
+	    --env CACHE_URL \
+	    -v $$PWD/dev.sqlite3:/home/manager/dev.sqlite3:rw \
+	    -v $$PWD/../storage/data:/storage:rw \
+	    -p 8000:8000 -it --rm stencila/hub-manager
 
 # Run the `assistant` Docker image
 run-assistant-docker: build-assistant
 	$(EV) \
 	docker run \
-		--env DJANGO_CONFIGURATION="Prod" \
-		--env DJANGO_SECRET_KEY \
-		--env BROKER_URL \
-		--env CACHE_URL \
-		-it --rm stencila/hub-assistant
+	    --env DJANGO_CONFIGURATION="Prod" \
+	    --env DJANGO_SECRET_KEY \
+	    --env BROKER_URL \
+	    --env CACHE_URL \
+	    -it --rm stencila/hub-assistant
 
 clean:
 	rm -rf venv coverage static
