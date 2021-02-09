@@ -146,6 +146,9 @@ class Snapshot(StorageUsageMixin, models.Model):
         # Clean the project's working directory
         subjobs.append(project.cleanup(user))
 
+        # Pull the project's sources
+        subjobs.append(project.pull(user))
+
         # Create an index.html if a "main" file is defined
         main = project.get_main()
         if main:
@@ -160,11 +163,11 @@ class Snapshot(StorageUsageMixin, models.Model):
         # Pin the container image for the snapshot
         subjobs.append(
             Job.objects.create(
+                project=project,
+                creator=user,
                 method=JobMethod.pin.name,
                 params=dict(container_image=project.container_image,),
                 description="Pin container image for '{0}'".format(project.name),
-                project=project,
-                creator=user,
                 **Job.create_callback(snapshot, "pin_callback")
             )
         )
@@ -172,14 +175,14 @@ class Snapshot(StorageUsageMixin, models.Model):
         # Archive the working directory to the snapshot directory
         subjobs.append(
             Job.objects.create(
+                project=project,
+                creator=user,
                 method=JobMethod.archive.name,
                 params=dict(
                     snapshot=snapshot.id,
                     zip_name=snapshot.zip_name,
                 ),
                 description="Archive project '{0}'".format(project.name),
-                project=project,
-                creator=user,
                 **Job.create_callback(snapshot, "archive_callback")
             )
         )

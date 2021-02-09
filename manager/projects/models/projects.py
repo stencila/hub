@@ -381,10 +381,10 @@ class Project(StorageUsageMixin, models.Model):
         of a form in the admin interface.
         """
         return Job.objects.create(
-            description="Clean project '{0}'".format(self.name),
             project=self,
             creator=user,
             method=JobMethod.clean.name,
+            description="Clean project '{0}'".format(self.name),
         )
 
     def pull(self, user: User) -> Job:
@@ -395,10 +395,10 @@ class Project(StorageUsageMixin, models.Model):
         each source into the project's working directory.
         """
         job = Job.objects.create(
-            description="Pull project '{0}'".format(self.name),
             project=self,
             creator=user,
             method=JobMethod.parallel.name,
+            description="Pull project '{0}'".format(self.name),
         )
         job.children.set([source.pull(user) for source in self.sources.all()])
         return job
@@ -408,11 +408,11 @@ class Project(StorageUsageMixin, models.Model):
         Create a session job for the project.
         """
         job = Job.objects.create(
-            method=JobMethod.session.name,
-            params=dict(container_image=self.container_image),
-            description="Session for project",
             project=self,
             creator=request.user if request.user.is_authenticated else None,
+            method=JobMethod.session.name,
+            params=dict(container_image=self.container_image),
+            description="Session for project '{0}'".format(self.name),
         )
         job.add_user(request)
         return job
