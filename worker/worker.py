@@ -14,8 +14,6 @@ from jobs.archive import Archive
 from jobs.base.job import Job
 from jobs.clean import Clean
 from jobs.convert import Convert
-from jobs.decode import Decode
-from jobs.encode import Encode
 from jobs.extract import Extract
 from jobs.pin import Pin
 from jobs.pull import Pull
@@ -28,8 +26,6 @@ JOBS = [
     Archive,
     Clean,
     Convert,
-    Decode,
-    Encode,
     Extract,
     Pin,
     Pull,

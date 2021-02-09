@@ -364,8 +364,6 @@ class JobMethod(EnumChoice):
     # Extract a review from a source
     extract = "extract"
 
-    decode = "decode"
-    encode = "encode"
     convert = "convert"
 
     pin = "pin"
