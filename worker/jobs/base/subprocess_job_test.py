@@ -12,18 +12,16 @@ from .subprocess_job import SubprocessJob
 def test_success():
     """The stdout from the subprocess is the job result."""
     job = SubprocessJob()
-    result = job.run(["echo", "Beep, boop"])
-    assert result["result"] == "Beep, boop\n"
-    assert result["log"] == []
+    result = job.do(["echo", "Beep, boop"])
+    assert result == "Beep, boop\n"
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="flakey on other platforms")
 def test_input():
     """The input arg is sent to stdin."""
     job = SubprocessJob()
-    result = job.run(["sed", "-e", ""], input=b"Yo!")
-    assert result["result"] == "Yo!"
-    assert result["log"] == []
+    result = job.do(["sed", "-e", ""], input=b"Yo!")
+    assert result == "Yo!"
 
 
 @pytest.mark.skipif(
@@ -39,8 +37,9 @@ def test_failure():
 
     job.send_event = send_event
 
+    job.begin()
     with pytest.raises(RuntimeError) as excinfo:
-        job.run(["sleep", "foo"])
+        job.do(["sleep", "foo"])
     assert "Subprocess exited with non-zero code" in str(excinfo.value)
 
 
@@ -56,7 +55,8 @@ def test_logging_json():
 
     job.send_event = send_event
 
-    job.run(
+    job.begin()
+    job.do(
         ["bash", "-c", """echo '{"level": 1, "message": "A warning message"}' 1>&2"""]
     )
 
@@ -76,7 +76,8 @@ def test_logging_ongoing():
 
     job.send_event = send_event
 
-    job.run(
+    job.begin()
+    job.do(
         [
             "bash",
             "-c",

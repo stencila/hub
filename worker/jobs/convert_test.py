@@ -26,12 +26,11 @@ def test_simple(tempdir):
     job = Convert()
 
     tempdir.write("input.md", b"# Hello\n\nworld!")
-    result = job.run(
+    job.do(
         tempdir.getpath("input.md"),
         tempdir.getpath("output.html"),
         dict(standalone=False),
     )
-    assert result["log"] == []
     assert tempdir.read("output.html").startswith(
         b'<article itemscope="" itemtype="http://schema.org/Article" data-itemscope="root">'
     )
@@ -41,7 +40,7 @@ def test_multiple_outputs(tempdir):
     """Can pass a list of output files."""
     job = Convert()
 
-    job.run(
+    job.do(
         "Some markdown",
         [tempdir.getpath("file1.json"), tempdir.getpath("file2.yaml")],
         {"from": "md"},
@@ -64,14 +63,11 @@ def test_to_gdoc(tempdir):
             file.write("Hello world!")
 
         job = Convert()
-        result = job.run(
+        result = job.do(
             input="input.md",
             output="output.gdoc",
             secrets=dict(access_token=ACCESS_TOKEN),
         )
 
     tempdir.compare(["input.md", "output.gdoc"])
-    assert (
-        result["result"]["output.gdoc"]["mimetype"]
-        == "application/vnd.google-apps.document"
-    )
+    assert result["output.gdoc"]["mimetype"] == "application/vnd.google-apps.document"

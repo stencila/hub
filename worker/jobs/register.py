@@ -38,12 +38,10 @@ class Register(Job):
         assert "type" in node and node["type"] in ("Article", "Review")
 
         # Generate Crossref deposit XML
-        convert = Convert()
-        xml = convert.run(
-            json.dumps(node).encode("utf-8"),
-            "-",
-            {"from": "json", "to": "crossref", "doi": doi, "url": url},
-        ).get("result")
+        json_str = json.dumps(node).encode("utf-8")
+        xml = Convert().do(
+            json_str, "-", {"from": "json", "to": "crossref", "doi": doi, "url": url},  # type: ignore
+        )
         if not xml:
             raise RuntimeError("Failed to convert node to Crossref XML")
 

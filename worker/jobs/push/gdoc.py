@@ -18,12 +18,9 @@ def push_gdoc(paths: List[str], project: str, source: dict):
     assert "token" in source, "source must include a token"
     assert len(paths) == 1, "paths must contain exactly one item"
 
-    docx = tempfile.NamedTemporaryFile(delete=False)
-    convert = Convert()
-
+    docx_file = tempfile.NamedTemporaryFile(delete=False).name
     json_file = os.path.join(project, paths[0])
-
-    convert.run(json_file, docx.name, {"from": "gdoc", "to": "docx"})
+    Convert().do(json_file, docx_file, {"from": "gdoc", "to": "docx"})  # type: ignore
 
     credentials = GoogleCredentials(
         source["token"], None, None, None, None, None, "Stencila Hub Client",
@@ -31,7 +28,7 @@ def push_gdoc(paths: List[str], project: str, source: dict):
     drive_service = build("drive", "v3", credentials=credentials, cache_discovery=False)
     files_resource = drive_service.files()
 
-    media = MediaFileUpload(docx.name)
+    media = MediaFileUpload(docx_file)
     files_resource.update(fileId=source["doc_id"], media_body=media).execute()
 
-    os.unlink(docx.name)
+    os.unlink(docx_file)

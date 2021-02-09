@@ -36,7 +36,7 @@ class SubprocessJob(Job):
         self.process = None
         self.thread = None
 
-    def do(self, args: List[str], input: Optional[bytes] = None):  # type: ignore
+    def do(self, args: List[str], input: Optional[bytes] = None):  # type: ignore[override]
         """
         Do the job.
 

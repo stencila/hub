@@ -27,5 +27,5 @@ def test_k8s_session():
     session.send_event = send_event
 
     assert session.name is None
-    session.run(key="some-job-key")
+    session.do(key="some-job-key")
     assert session.name is None
