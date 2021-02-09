@@ -10,8 +10,8 @@
     {% include './_job_filter.html' with label="Type" options=method_options element="method" default_option="All" selected=method %}
     {% include './_job_filter.html' with label="Status" options=status_options element="status" default_option="All" selected=status %}
     {% include './_job_filter.html' with label="Creator" options=creator_options element="creator" default_option="All" selected=creator %}
-    <div class="buttons  mt-5">
-      <button class="button">
+    <div class="buttons mt-5 is-expanded-mobile">
+      <button class="button" type="submit">
         <span class="icon">
           <i class="ri-filter-line"></i>
         </span>
@@ -21,7 +21,7 @@
       </button>
       {% if method or status or creator %}
       <a href="{% url 'ui-projects-jobs-list' project.account.name project.name %}"
-         class="button">
+         class="button is-danger is-light">
         <span class="icon">
           <i class="ri-filter-off-line"></i>
         </span>
