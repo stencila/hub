@@ -1,3 +1,10 @@
+# [4.32.0](https://github.com/stencila/hub/compare/v4.31.3...v4.32.0) (2021-02-09)
+
+
+### Features
+
+* **Files:** Reintroduce upload button for individual file ([c83c465](https://github.com/stencila/hub/commit/c83c465e9f0f0fcbcf7d2c9f8d71ab658d736f48))
+
 ## [4.31.3](https://github.com/stencila/hub/compare/v4.31.2...v4.31.3) (2021-02-08)
 
 
