@@ -5,21 +5,52 @@
 
 {% block projects_content %}
 
+<header class="job-header level">
+  <form action=""
+        class="job-filter level-left is-full-width">
+    {% include './_job_filter.html' with label="Type" options=method_options element="method" default_option="All" selected=method %}
+    {% include './_job_filter.html' with label="Status" options=status_options element="status" default_option="All" selected=status %}
+    {% include './_job_filter.html' with label="Creator" options=creator_options element="creator" default_option="All" selected=creator %}
+    <div class="buttons  mt-5">
+      <button class="button">
+        <span class="icon">
+          <i class="ri-filter-line"></i>
+        </span>
+        <span>
+          Filter
+        </span>
+      </button>
+      {% if method or status or creator %}
+      <a href="{% url 'ui-projects-jobs-list' project.account.name project.name %}"
+         class="button">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</header>
+
 {% if jobs %}
 
 {% include "./_job_list.html" %}
-{%include "_pagination.html" with paginator=paginator page_obj=jobs %}
+{% include "_pagination.html" with paginator=paginator page_obj=jobs %}
 
 {% else %}
 
 <div class="has-text-centered">
+  {% if project.jobs.count > 0 %}
+  <h2 class="title is-4 has-text-grey">
+    {% trans 'No matching jobs found' %}
+  </h2>
+  <p class="subtitle">
+    {% trans "We couldn't find any jobs that matched the supplied filters" %}
+  </p>
+  {% else %}
   <h2 class="title is-4 has-text-grey">
     {% trans 'No jobs yet' %}
   </h2>
-
   <p class="subtitle">
-    {% trans "Jobs are created when processing and executing your project."  %}
+    {% trans "Jobs are created when processing and executing your project." %}
   </p>
+  {% endif %}
 </div>
 
 {% endif %}

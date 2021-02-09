@@ -478,17 +478,37 @@ class ProjectsJobsViewSet(
         Get the queryset for the current action.
 
         If the user is a member of the project, or it is a public project,
-        returns all jobs for the project.
+        returns jobs for the project, filtered by query parameters.
         Otherwise, raises permission denied.
         """
         project = project or self.get_project()
-        return (
+        queryset = (
             Job.objects.filter(project=project)
             .order_by("-created")
             .select_related(
                 "project", "project__account", "creator", "creator__personal_account"
             )
         )
+
+        method = self.request.GET.get("method")
+        if method:
+            queryset = queryset.filter(method=method)
+
+        status = self.request.GET.get("status")
+        if status:
+            queryset = queryset.filter(status=status.upper())
+
+        creator = self.request.GET.get("creator")
+        if creator == "me":
+            queryset = queryset.filter(creator=self.request.user)
+        elif creator == "other":
+            queryset = queryset.filter(creator__isnull=False).exclude(
+                creator=self.request.user
+            )
+        elif creator == "anon":
+            queryset = queryset.filter(creator=None)
+
+        return queryset
 
     def get_object(self, project: Optional[Project] = None):
         """

@@ -8,7 +8,7 @@
                 id="{{element}}">
           <option value="">{{default_option}}</option>
           {% for name, value in options %}
-          <option value="{{value|lower}}"
+          <option value="{{value}}"
                   {% if selected == value %}
                   selected{% endif %}>{{name}}</option>
           {% endfor %}

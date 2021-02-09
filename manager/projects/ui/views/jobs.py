@@ -4,6 +4,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
 from jobs.api.views import ProjectsJobsViewSet
+from jobs.models import JobMethod, JobStatus
 
 
 @login_required
@@ -26,6 +27,18 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             project=project,
             paginator=paginator,
             jobs=page_jobs,
+            status=request.GET.get("status"),
+            method=request.GET.get("method"),
+            creator=request.GET.get("creator"),
+            status_options=[
+                (label.title(), value.lower())
+                for (label, value) in JobStatus.as_choices()
+            ],
+            method_options=[
+                (label.title(), value.lower())
+                for (label, value) in JobMethod.as_choices()
+            ],
+            creator_options=[("Me", "me"), ("Others", "other"), ("Anonymous", "anon")],
             meta=project.get_meta(),
         ),
     )
