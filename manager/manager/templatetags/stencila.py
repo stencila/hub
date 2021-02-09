@@ -31,6 +31,19 @@ def primary_domain_url(context, *args):
 
 
 @register.simple_tag(takes_context=True)
+def query_params(context, exclude=["page"]):
+    """
+    Get the query parameters from the current request to include in a new URL.
+    """
+    params = context["request"].GET.copy()
+
+    if "page" in params:
+        del params["page"]
+
+    return params.urlencode()
+
+
+@register.simple_tag(takes_context=True)
 def is_active(context, name):
     """
     Return "is-active" if the current path resolves to a view starting with `name`.
