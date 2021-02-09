@@ -29,7 +29,7 @@
                role="presentation"></img>
         </span>
         <span class="is-vcentered">
-          {{ job.creator.username }}
+          {{ job.creator.username|default:"Anon" }}
         </span>
       </span>
 
