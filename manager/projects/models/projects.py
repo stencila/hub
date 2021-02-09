@@ -384,12 +384,12 @@ class Project(StorageUsageMixin, models.Model):
             project=self,
             creator=user,
             method=JobMethod.clean.name,
-            description="Clean project '{0}'".format(self.name),
+            description=f"Clean project '{self.name}'",
         )
 
     def pull(self, user: User) -> Job:
         """
-        Pull all sources in the project.
+        Pull all project sources into the working directory.
 
         Creates a `parallel` job having children jobs that `pull`
         each source into the project's working directory.
@@ -398,10 +398,42 @@ class Project(StorageUsageMixin, models.Model):
             project=self,
             creator=user,
             method=JobMethod.parallel.name,
-            description="Pull project '{0}'".format(self.name),
+            description=f"Pull project '{self.name}'",
         )
         job.children.set([source.pull(user) for source in self.sources.all()])
         return job
+
+    def pin(self, user: User, **callback) -> Job:
+        """
+        Pin the project's container image.
+
+        Does not change the project's `container_image` field, but
+        rather, returns a pinned version of it. The callback should
+        use that value.
+        """
+        return Job.objects.create(
+            project=self,
+            creator=user,
+            method=JobMethod.pin.name,
+            params=dict(container_image=self.container_image,),
+            description=f"Pin container image for project '{self.name}'",
+            **callback,
+        )
+
+    def archive(self, user: User, params: dict, **callback) -> Job:
+        """
+        Archive the project's working directory.
+
+        Creates a copy of the project's working directory.
+        """
+        return Job.objects.create(
+            project=self,
+            creator=user,
+            method=JobMethod.archive.name,
+            params=params,
+            description=f"Archive project '{self.name}'",
+            **callback,
+        )
 
     def session(self, request: HttpRequest) -> Job:
         """
@@ -412,7 +444,7 @@ class Project(StorageUsageMixin, models.Model):
             creator=request.user if request.user.is_authenticated else None,
             method=JobMethod.session.name,
             params=dict(container_image=self.container_image),
-            description="Session for project '{0}'".format(self.name),
+            description=f"Session for project '{self.name}'",
         )
         job.add_user(request)
         return job

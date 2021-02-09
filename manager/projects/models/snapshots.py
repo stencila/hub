@@ -160,29 +160,16 @@ class Snapshot(StorageUsageMixin, models.Model):
 
             subjobs.append(main.convert(user, "index.html", options=options))
 
-        # Pin the container image for the snapshot
+        # Pin the container image
         subjobs.append(
-            Job.objects.create(
-                project=project,
-                creator=user,
-                method=JobMethod.pin.name,
-                params=dict(container_image=project.container_image,),
-                description="Pin container image for '{0}'".format(project.name),
-                **Job.create_callback(snapshot, "pin_callback")
-            )
+            project.pin(user, **Job.create_callback(snapshot, "pin_callback"))
         )
 
         # Archive the working directory to the snapshot directory
         subjobs.append(
-            Job.objects.create(
-                project=project,
-                creator=user,
-                method=JobMethod.archive.name,
-                params=dict(
-                    snapshot=snapshot.id,
-                    zip_name=snapshot.zip_name,
-                ),
-                description="Archive project '{0}'".format(project.name),
+            project.archive(
+                user,
+                dict(snapshot=snapshot.id, zip_name=snapshot.zip_name,),
                 **Job.create_callback(snapshot, "archive_callback")
             )
         )
@@ -247,10 +234,7 @@ class Snapshot(StorageUsageMixin, models.Model):
         """
         job = Job.objects.create(
             method=JobMethod.session.name,
-            params=dict(
-                snapshot=self.id,
-                container_image=self.container_image,
-            ),
+            params=dict(snapshot=self.id, container_image=self.container_image,),
             description="Session for snapshot #{0}".format(self.number),
             project=self.project,
             snapshot=self,
