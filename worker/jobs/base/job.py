@@ -171,23 +171,21 @@ class Job(celery.Task):
 
         Most jobs need to operate within a project's working directory
         and project `File` paths are always relative to those.
-        To avoid code repetition and potential errors with making paths absolute,
-        this method changes into the working directory of the project.
-        In the future, the project argument may be mandatory.
+        To avoid code repetition and potential errors this method requires
+        that a project id is supplied and changes into the working
+        directory of that project.
         """
-        current_dir = os.getcwd()
-
         project = kwargs.get("project")
-        if project:
-            working_dir = get_working_dir(project)
-            Path(working_dir).mkdir(parents=True, exist_ok=True)
-        else:
-            working_dir = current_dir
+        if project is None:
+            raise ValueError("Project number must be provided as an argument!")
+
+        current_dir = os.getcwd()
+        working_dir = get_working_dir(project)
+        Path(working_dir).mkdir(parents=True, exist_ok=True)
 
         self.begin(task_id)
         try:
-            if working_dir != current_dir:
-                os.chdir(working_dir)
+            os.chdir(working_dir)
             result = self.do(*args, **kwargs)
             return self.success(result)
         except SoftTimeLimitExceeded:
