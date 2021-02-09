@@ -31,7 +31,7 @@ from jobs.api.serializers import (
     ZoneCreateSerializer,
     ZoneSerializer,
 )
-from jobs.models import Job, Queue, Worker, WorkerHeartbeat, Zone
+from jobs.models import Job, JobStatus, Queue, Worker, WorkerHeartbeat, Zone
 from manager.api.helpers import (
     HtmxCreateMixin,
     HtmxDestroyMixin,
@@ -496,7 +496,9 @@ class ProjectsJobsViewSet(
 
         status = self.request.GET.get("status")
         if status:
-            queryset = queryset.filter(status=status.upper())
+            statuses = JobStatus.categories().get(status)
+            if statuses:
+                queryset = queryset.filter(status__in=statuses)
 
         creator = self.request.GET.get("creator")
         if creator == "me":

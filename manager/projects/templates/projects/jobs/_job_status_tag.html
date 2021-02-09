@@ -1,0 +1,26 @@
+{% comment %}
+Renders a tag element representing the status of a job
+{% endcomment %}
+
+{% with status=job.status_category %}
+<span class="tag has-text-weight-bold is-light
+  {% if status == 'Pending' %}is-info
+  {% elif status == 'Running' %}is-info
+  {% elif status == 'Finished' %}is-success
+  {% elif status == 'Failed' %}is-danger
+  {% elif status == 'Cancelled' %}is-warning
+  {% endif %}">
+  <span class="icon is-vcentered">
+    <i class="{% if status == 'Pending' %}ri-timer-2-line
+    {% elif status == 'Running' %}ri-loader-2-line animate-spin
+    {% elif status == 'Finished' %}ri-check-line
+    {% elif status == 'Failed' %}ri-close-line
+    {% elif status == 'Cancelled' %}ri-subtract-line
+    {% else %}ri-question-line
+    {% endif %}"></i>
+  </span>
+  <span class="is-vcentered">
+    {{ status|default:"Unknown" }}
+  </span>
+</span>
+{% endwith %}

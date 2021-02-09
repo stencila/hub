@@ -426,6 +426,56 @@ class JobStatus(EnumChoice):
     RETRY = "RETRY"
 
     @classmethod
+    def categories(cls) -> Dict[str, List[str]]:
+        """
+        Get a mapping of user facing categories to job statuses.
+
+        The above job status values are implementation centric. They are useful for
+        monitoring and debugging but unnecessarily detailed and potentially confusing
+        for users.
+        """
+        return {
+            "Pending": [
+                cls.WAITING.name,
+                cls.DISPATCHED.name,
+                cls.PENDING.name,
+                cls.RECEIVED.name,
+                cls.RETRY.name,
+            ],
+            "Running": [cls.STARTED.name, cls.RUNNING.name],
+            "Finished": [cls.SUCCESS.name],
+            "Failed": [cls.FAILURE.name, cls.REJECTED.name],
+            "Cancelled": [cls.CANCELLED.name, cls.REVOKED.name, cls.TERMINATED.name],
+        }
+
+    @classmethod
+    def category(cls, status: str) -> str:
+        """
+        Map job status into more user facing categories.
+
+        The above job status values are implementation centric. They are useful for
+        monitoring and debugging but unnecessarily detailed and potentially confusing
+        for users.
+        """
+        if status in (
+            cls.WAITING.name,
+            cls.DISPATCHED.name,
+            cls.PENDING.name,
+            cls.RECEIVED.name,
+            cls.RETRY.name,
+        ):
+            return "Pending"
+        if status in (cls.STARTED.name, cls.RUNNING.name):
+            return "Running"
+        if status in (cls.SUCCESS.name,):
+            return "Finished"
+        if status in (cls.FAILURE.name, cls.REJECTED.name):
+            return "Failed"
+        if status in (cls.CANCELLED.name, cls.REVOKED.name, cls.TERMINATED.name):
+            return "Cancelled"
+        return "Other"
+
+    @classmethod
     def has_ended(cls, status: str) -> bool:
         """Has the job ended."""
         return status in [
@@ -731,6 +781,13 @@ class Job(models.Model):
     # Ephemeral secrets for the job. These may be required by
     # workers but are not stored in the database.
     secrets: Dict = {}
+
+    @cached_property
+    def status_category(self) -> Optional[str]:
+        """
+        Get the status category of the job.
+        """
+        return JobStatus.category(self.status) if self.status else None
 
     @cached_property
     def status_message(self) -> str:
