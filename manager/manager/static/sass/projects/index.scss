@@ -204,17 +204,45 @@ label[for="projects-search-input"] + .field {
     }
   }
 
-  a {
-    position: relative;
-    z-index: 1;
-  }
-
   code {
     color: $text;
   }
 
   .notification {
     font-size: $size-7;
+  }
+
+  a {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.job-list-item-buttons {
+  a.primary-link {
+    position: static;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .job-list-item-buttons--cancel {
+    z-index: 1;
+        
+    & + a {
+      margin-top: $gap / 2;
+      
+      @media screen and (min-width: $tablet) {
+        margin-top: $gap / 4;
+      }
+    }
   }
 }
 
