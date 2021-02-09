@@ -8,6 +8,7 @@
 {% if jobs %}
 
 {% include "./_job_list.html" %}
+{%include "_pagination.html" with paginator=paginator page_obj=jobs %}
 
 {% else %}
 
