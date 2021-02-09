@@ -7,17 +7,7 @@
         {{ job.method|title }}
       </div>
     </div>
-    {% if job.status %}
-    <div
-         class="has-text-weight-bold tag mt-1 is-light {% if job.status == 'SUCCESS' %}is-success{% elif job.status == 'FAILURE' %}is-danger{% elif job.status in 'CANCELLED,REVOKED,TERMINATED' %}is-warning{% endif %}">
-      {% include "../sources/_status_type_icon.html" with status=job.status %}
-      <span class="is-vcentered">
-        {% blocktrans with status=job.status|title %}
-        {{ status }}
-        {% endblocktrans %}
-      </span>
-    </div>
-    {% endif %}
+    {% include "./_job_status_tag.html" %}
   </div>
   <div class="column">
 

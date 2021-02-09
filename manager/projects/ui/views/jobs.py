@@ -30,10 +30,7 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
             status=request.GET.get("status"),
             method=request.GET.get("method"),
             creator=request.GET.get("creator"),
-            status_options=[
-                (label.title(), value.lower())
-                for (label, value) in JobStatus.as_choices()
-            ],
+            status_options=[(value, value) for value in JobStatus.categories().keys()],
             method_options=[
                 (label.title(), value.lower())
                 for (label, value) in JobMethod.as_choices()

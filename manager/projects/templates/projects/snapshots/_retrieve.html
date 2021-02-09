@@ -84,10 +84,7 @@ in case the enclosing page want to use that data to trigger further events
 
         <span class="mr-2">
           <a href="{{ job_url }}">
-            {% include "../sources/_status_type_icon.html" with status=job.status %}
-            <span>
-              {{ job.status }}
-            </span>
+            {% include "../jobs/_job_status_tag.html" %}
           </a>
         </span>
       </div>
