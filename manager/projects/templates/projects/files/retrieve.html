@@ -15,6 +15,14 @@
 
   <div class="level-right buttons">
 
+    <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
+       href="{% url 'ui-projects-files-upload' account.name project.name file.path %}">
+      <span class="icon">
+        <i class="ri-upload-line"></i>
+      </span>
+      <span class="is-sr-only-mobile">{% trans "Upload" %}</span>
+    </a>
+
     {% with download_url=file.download_url %}
     {% if download_url %}
     <a class="level-item button is-outlined is-small-mobile is-expanded-mobile"
