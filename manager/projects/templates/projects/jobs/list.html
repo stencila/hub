@@ -4,7 +4,6 @@
 {% block title %}Jobs : {{ project.name }}{% endblock %}
 
 {% block projects_content %}
-
 <header class="job-header level">
   <form action=""
         class="job-filter level-left is-full-width">
@@ -22,7 +21,13 @@
       </button>
       {% if method or status or creator %}
       <a href="{% url 'ui-projects-jobs-list' project.account.name project.name %}"
-         class="button">Clear</a>
+         class="button">
+        <span class="icon">
+          <i class="ri-filter-off-line"></i>
+        </span>
+        <span>
+          Clear
+        </span></a>
       {% endif %}
     </div>
   </form>
@@ -36,7 +41,7 @@
 {% else %}
 
 <div class="has-text-centered">
-  {% if project.jobs.count > 0 %}
+  {% if method or status or creator %}
   <h2 class="title is-4 has-text-grey">
     {% trans 'No matching jobs found' %}
   </h2>
