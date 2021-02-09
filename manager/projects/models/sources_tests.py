@@ -346,7 +346,6 @@ def test_upload_source_pull():
     job = source.pull()
     params = job.params
 
-    assert params["project"] == 1
     assert params["source"]["type"] == "Upload"
     assert params["source"]["path"].endswith("some-file.txt")
 
