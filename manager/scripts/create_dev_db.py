@@ -405,7 +405,10 @@ def run(*args):
             method = fake.random_element(JobMethod).name
             status = fake.random_element(JobStatus).name
             description = f"{method.title()} {fake.sentence(nb_words=5)}"
-            creator = random_project_user(project)
+            if project.public:
+                creator = random_project_user(project) if fake.boolean(60) else None
+            else:
+                creator = random_project_user(project)
             began = fake.date_time_between(start_date="-2y", tzinfo=utc)
             ended = began + datetime.timedelta(seconds=random.lognormvariate(5, 3))
             Job.objects.create(
