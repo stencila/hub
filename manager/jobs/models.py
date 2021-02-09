@@ -356,6 +356,7 @@ class JobMethod(EnumChoice):
 
     clean = "clean"
     archive = "archive"
+    zip = "zip"
 
     pull = "pull"
     push = "push"

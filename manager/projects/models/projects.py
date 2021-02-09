@@ -424,7 +424,8 @@ class Project(StorageUsageMixin, models.Model):
         """
         Archive the project's working directory.
 
-        Creates a copy of the project's working directory.
+        Creates a copy of the project's working directory
+        on the `snapshots` storage.
         """
         return Job.objects.create(
             project=self,
@@ -433,6 +434,21 @@ class Project(StorageUsageMixin, models.Model):
             params=params,
             description=f"Archive project '{self.name}'",
             **callback,
+        )
+
+    def zip(self, user: User, params: dict, **callback) -> Job:
+        """
+        Create a zip file of the project's working directory.
+
+        Creates a Zip archive of the project's working directory
+        on the `content` storage.
+        """
+        return Job.objects.create(
+            project=self,
+            creator=user,
+            method=JobMethod.zip.name,
+            params=params,
+            description=f"Create zip file for project '{self.name}'",
         )
 
     def session(self, request: HttpRequest) -> Job:

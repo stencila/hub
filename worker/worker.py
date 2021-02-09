@@ -22,6 +22,7 @@ from jobs.pull import Pull
 from jobs.register import Register
 from jobs.session.session import Session
 from jobs.sleep import Sleep
+from jobs.zip import Zip
 
 JOBS = [
     Archive,
@@ -35,6 +36,7 @@ JOBS = [
     Register,
     Session,
     Sleep,
+    Zip,
 ]
 
 # Setup the Celery app
