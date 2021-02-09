@@ -1,0 +1,43 @@
+{% comment %}
+A template for rendering pagination links.
+
+In your view, create a paginator etc,
+
+paginator = Paginator(queryset, 25)
+page_number = request.GET.get('page')
+objects = paginator.get_page(page_number)
+
+In your template pass include this partial with the `page_obj` variable set
+
+{%include "_pagination.html" with paginator=paginator page_obj=objects %}
+
+Based on https://github.com/timonweb/django-bulma/blob/master/bulma/templates/pagination.html
+See https://bulma.io/documentation/components/pagination/#variables for further styling variables.
+{% endcomment %}
+
+{% load i18n %}
+
+<nav class="pagination is-centered is-small mt-3">
+  {% if page_obj.has_previous %}
+  <a class="pagination-previous"
+     href="?page={{ page_obj.previous_page_number|stringformat:"d" }}{{ getvars }}{{ hashtag }}">{% trans "Previous" %}</a>
+  {% else %}
+  <a class="pagination-previous"
+     disabled>{% trans "Previous" %}</a>
+  {% endif %}
+
+  {% if page_obj.has_next %}
+  <a class="pagination-next"
+     href="?page={{ page_obj.next_page_number|stringformat:"d" }}{{ getvars }}{{ hashtag }}">{% trans "Next" %}</a>
+  {% else %}
+  <a class="pagination-next"
+     disabled>{% trans "Next" %}</a>
+  {% endif %}
+
+  <ul class="pagination-list">
+    {% for page in paginator.page_range %}
+    <li><a class="pagination-link{% ifequal page page_obj.number %} is-current{% endifequal %}"
+         href="?page={{ page|stringformat:"d" }}{{ getvars }}{{ hashtag }}">{{ page|stringformat:"d" }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>

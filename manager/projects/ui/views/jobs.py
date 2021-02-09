@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 
@@ -14,10 +15,19 @@ def list(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_project()
     jobs = viewset.get_queryset(project)
 
+    paginator = Paginator(jobs, 25)
+    page_number = request.GET.get("page")
+    page_jobs = paginator.get_page(page_number)
+
     return render(
         request,
         "projects/jobs/list.html",
-        dict(project=project, jobs=jobs, meta=project.get_meta()),
+        dict(
+            project=project,
+            paginator=paginator,
+            jobs=page_jobs,
+            meta=project.get_meta(),
+        ),
     )
 
 
