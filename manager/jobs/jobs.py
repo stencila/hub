@@ -113,11 +113,11 @@ def dispatch_job(job: Job) -> Job:
                 priority = job.project.account.tier.id
             queue = queues[min(len(queues), priority) - 1]
 
-        # Add the job key to it's kwargs so it can be used by the
-        # job's process (e.g. Executa) to limit access to it.
+        # Add the job's project id, key and secrets to it's kwargs.
         # Doing this here ensures it is done for all jobs
-        # and avoids putting the key in the job's `params` field.
+        # and avoids putting the secrets in the job's `params` field.
         kwargs = dict(**job.params) if job.params else {}
+        kwargs["project"] = job.project.id if job.project else None
         kwargs["key"] = job.key
         kwargs["secrets"] = job.secrets
 

@@ -592,7 +592,7 @@ class File(models.Model):
             description="Convert '{0}' to '{1}'".format(self.path, output),
             method=JobMethod.convert.name,
             params=dict(
-                project=self.project.id, input=self.path, output=output, options=options
+                input=self.path, output=output, options=options
             ),
             project=self.project,
             creator=user,

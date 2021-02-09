@@ -377,14 +377,14 @@ class Project(StorageUsageMixin, models.Model):
         those files that are orphaned (i.e. not registered as part of the pipeline).
 
         This is not called `clean()` because that clashes with
-        `Model.clean()` which gets alled, for example after admin form submission.
+        `Model.clean()` which gets called, for example, after the submission
+        of a form in the admin interface.
         """
         return Job.objects.create(
             description="Clean project '{0}'".format(self.name),
             project=self,
             creator=user,
             method=JobMethod.clean.name,
-            params=dict(project=self.id),
         )
 
     def pull(self, user: User) -> Job:
@@ -409,7 +409,7 @@ class Project(StorageUsageMixin, models.Model):
         """
         job = Job.objects.create(
             method=JobMethod.session.name,
-            params=dict(project=self.id, container_image=self.container_image),
+            params=dict(container_image=self.container_image),
             description="Session for project",
             project=self,
             creator=request.user if request.user.is_authenticated else None,

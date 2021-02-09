@@ -357,7 +357,7 @@ class Source(PolymorphicModel):
             creator=user or self.creator,
             description=description,
             method=JobMethod.pull.value,
-            params=dict(project=self.project.id, source=source, path=self.path),
+            params=dict(source=source, path=self.path),
             **Job.create_callback(self, "pull_callback"),
         )
 
