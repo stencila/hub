@@ -138,15 +138,23 @@ class Snapshot(StorageUsageMixin, models.Model):
     def create(project: Project, user: User) -> Job:
         """
         Snapshot the project.
-
-        Creates a copy of the project's working directory and pins the
-        container image to use.
         """
         snapshot = Snapshot.objects.create(project=project, creator=user)
 
         subjobs = []
 
-        # Job to create an index.html if a "main" file is defined
+        # Clean the project's working directory
+        subjobs.append(project.cleanup(user))
+
+        # Pull the project's sources
+        subjobs.append(project.pull(user))
+
+        # Pin the container image
+        subjobs.append(
+            project.pin(user, **Job.create_callback(snapshot, "pin_callback"))
+        )
+
+        # Create an index.html if a "main" file is defined
         main = project.get_main()
         if main:
             options = {}
@@ -157,32 +165,18 @@ class Snapshot(StorageUsageMixin, models.Model):
 
             subjobs.append(main.convert(user, "index.html", options=options))
 
-        # Job to pin the container image for the snapshot
+        # Archive the working directory to the snapshot directory
         subjobs.append(
-            Job.objects.create(
-                method=JobMethod.pin.name,
-                params=dict(container_image=project.container_image,),
-                description="Pin container image for '{0}'".format(project.name),
-                project=project,
-                creator=user,
-                **Job.create_callback(snapshot, "pin_callback")
+            project.archive(
+                user,
+                dict(snapshot=snapshot.id),
+                **Job.create_callback(snapshot, "archive_callback")
             )
         )
 
-        # Job to archive the working directory to the snapshot directory
+        # Create a zip file for the snapshot
         subjobs.append(
-            Job.objects.create(
-                method=JobMethod.archive.name,
-                params=dict(
-                    project=project.id,
-                    snapshot=snapshot.id,
-                    zip_name=snapshot.zip_name,
-                ),
-                description="Archive project '{0}'".format(project.name),
-                project=project,
-                creator=user,
-                **Job.create_callback(snapshot, "archive_callback")
-            )
+            project.zip(user, dict(snapshot=snapshot.id, zip_name=snapshot.zip_name,))
         )
 
         job = Job.objects.create(
@@ -245,11 +239,7 @@ class Snapshot(StorageUsageMixin, models.Model):
         """
         job = Job.objects.create(
             method=JobMethod.session.name,
-            params=dict(
-                project=self.project.id,
-                snapshot=self.id,
-                container_image=self.container_image,
-            ),
+            params=dict(snapshot=self.id, container_image=self.container_image,),
             description="Session for snapshot #{0}".format(self.number),
             project=self.project,
             snapshot=self,

@@ -113,9 +113,8 @@ def parse_comment(data: Dict, parse_markdown=False) -> Optional[Comment]:
         return None
 
     if parse_markdown:
-        article = json.loads(
-            Convert().run(content, "-", {"from": "md", "to": "json"},).get("result")
-        )
+        json_str = Convert().do(content, "-", {"from": "md", "to": "json"})  # type: ignore
+        article = json.loads(json_str)
         if not article:
             raise RuntimeError("Failed to convert review body from Markdown")
         del article["type"]

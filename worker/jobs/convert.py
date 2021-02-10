@@ -25,7 +25,7 @@ class Convert(SubprocessJob):
 
     name = "convert"
 
-    def do(  # type: ignore
+    def do(  # type: ignore[override]
         self,
         input: Union[str, bytes],
         output: Union[str, List[str]],

@@ -2,6 +2,11 @@
 
 {% for source in sources %}
 <tr class="is-relative">
+  <td class="is-vcentered">
+    {% if source.order > 0 %}
+    {{ source.order }}
+    {% endif %}
+  </td>
   <td class="source-table--file-type pr-0 is-vcentered">
     {% include './_source_type_icon.html' with type=source.type_name %}
   </td>

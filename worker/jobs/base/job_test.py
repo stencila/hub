@@ -53,5 +53,5 @@ def test_do_unimplemented():
     """Derived classes must implement do()."""
     job = Job()
     with pytest.raises(NotImplementedError) as excinfo:
-        job.run()
+        job.do()
     assert "Method do() is not implemented" in str(excinfo.value)

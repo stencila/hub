@@ -122,6 +122,15 @@ def assert_within(parent, child):
     assert is_within(parent, child), f"Path {child} is not within {parent}"
 
 
+def ensure_dir(*args) -> Path:
+    """
+    Ensure that a directory exists.
+    """
+    path = Path(*args)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def ensure_parent(*args) -> Path:
     """
     Ensure that the parent directory of a file exists.
@@ -155,17 +164,24 @@ def remove_if_dir(path: str) -> None:
 
 def move_files(source: str, dest: str = ".", cleanup: bool = True) -> None:
     """
-    Move from `source` to `dest` directories (with overwrite).
+    Move files from `source` to `dest` directories.
+
+    With overwrite of existing files, directory merging and (optional) cleanup
+    of the source.
     """
-    for subpath in os.listdir(source):
-        source_path = os.path.join(source, subpath)
-        dest_path = os.path.join(dest, subpath)
-        if os.path.exists(dest_path):
-            if os.path.isdir(dest_path):
-                remove_dir(dest_path)
-        else:
-            ensure_parent(dest_path)
-        shutil.move(source_path, dest_path)
+    for path, dirs, files in os.walk(source):
+        print(path, dirs, files)
+        rel_path = os.path.relpath(path, source)
+        dest_dir = os.path.join(dest, rel_path)
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+        for file in files:
+            source_file = os.path.join(path, file)
+            dest_file = os.path.join(dest_dir, file)
+            if os.path.isfile(dest_file):
+                shutil.copy2(source_file, dest_file)
+            else:
+                os.rename(source_file, dest_file)
 
     if cleanup:
         remove_dir(source)

@@ -377,42 +377,132 @@ class Project(StorageUsageMixin, models.Model):
         those files that are orphaned (i.e. not registered as part of the pipeline).
 
         This is not called `clean()` because that clashes with
-        `Model.clean()` which gets alled, for example after admin form submission.
+        `Model.clean()` which gets called, for example, after the submission
+        of a form in the admin interface.
         """
         return Job.objects.create(
-            description="Clean project '{0}'".format(self.name),
             project=self,
             creator=user,
             method=JobMethod.clean.name,
-            params=dict(project=self.id),
+            description=f"Clean project '{self.name}'",
+            **Job.create_callback(self, "cleanup_callback"),
         )
+
+    def cleanup_callback(self, job: Job):
+        """
+        Set all project files as non-current.
+
+        This will remove derived files (e.g. converted from another format) and
+        files from a source.
+        """
+        from projects.models.files import File
+
+        File.objects.filter(project=self, current=True).update(current=False)
 
     def pull(self, user: User) -> Job:
         """
-        Pull all sources in the project.
+        Pull all project sources into the working directory.
 
-        Creates a `parallel` job having children jobs that `pull`
-        each source into the project's working directory.
+        Groups sources by `order` (including `null` order). If there are more
+        than one source in each group creates a `parallel` job having children
+        jobs that `pull`s each source. Groups are then placed in a series job
+        (if there is more than one).
         """
-        job = Job.objects.create(
-            description="Pull project '{0}'".format(self.name),
+        # Do not create individual pull jobs here because series job children
+        # are run in order of their ids; so we need to sort into groups first.
+        groups: Dict[int, List] = {}
+        for source in self.sources.all():
+            order = source.order or 0
+            if order in groups:
+                groups[order].append(source)
+            else:
+                groups[order] = [source]
+
+        steps: List[Job] = []
+        for order in sorted(groups.keys()):
+            sources = groups[order]
+            if len(sources) == 1:
+                steps.append(sources[0].pull(user))
+            else:
+                parallel = Job.objects.create(
+                    project=self,
+                    creator=user,
+                    method=JobMethod.parallel.name,
+                    description="Pull sources in parallel",
+                )
+                parallel.children.set([source.pull(user) for source in sources])
+                steps.append(parallel)
+
+        if len(steps) == 1:
+            return steps[0]
+        else:
+            series = Job.objects.create(
+                project=self,
+                creator=user,
+                method=JobMethod.series.name,
+                description="Pull sources in series",
+            )
+            series.children.set(steps)
+            return series
+
+    def pin(self, user: User, **callback) -> Job:
+        """
+        Pin the project's container image.
+
+        Does not change the project's `container_image` field, but
+        rather, returns a pinned version of it. The callback should
+        use that value.
+        """
+        return Job.objects.create(
             project=self,
             creator=user,
-            method=JobMethod.parallel.name,
+            method=JobMethod.pin.name,
+            params=dict(container_image=self.container_image,),
+            description=f"Pin container image for project '{self.name}'",
+            **callback,
         )
-        job.children.set([source.pull(user) for source in self.sources.all()])
-        return job
+
+    def archive(self, user: User, params: dict, **callback) -> Job:
+        """
+        Archive the project's working directory.
+
+        Creates a copy of the project's working directory
+        on the `snapshots` storage.
+        """
+        return Job.objects.create(
+            project=self,
+            creator=user,
+            method=JobMethod.archive.name,
+            params=params,
+            description=f"Archive project '{self.name}'",
+            **callback,
+        )
+
+    def zip(self, user: User, params: dict, **callback) -> Job:
+        """
+        Create a zip file of the project's working directory.
+
+        Creates a Zip archive of the project's working directory
+        on the `content` storage.
+        """
+        return Job.objects.create(
+            project=self,
+            creator=user,
+            method=JobMethod.zip.name,
+            params=params,
+            description=f"Create zip file for project '{self.name}'",
+        )
 
     def session(self, request: HttpRequest) -> Job:
         """
         Create a session job for the project.
         """
         job = Job.objects.create(
-            method=JobMethod.session.name,
-            params=dict(project=self.id, container_image=self.container_image),
-            description="Session for project",
             project=self,
             creator=request.user if request.user.is_authenticated else None,
+            method=JobMethod.session.name,
+            params=dict(container_image=self.container_image),
+            description=f"Session for project '{self.name}'",
         )
         job.add_user(request)
         return job

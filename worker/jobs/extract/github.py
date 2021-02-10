@@ -82,8 +82,7 @@ def parse_markdown(content: str) -> Article:
     """
     Parse Markdown into an `Article` node.
     """
-    data = json.loads(
-        Convert().run(content, "-", {"from": "md", "to": "json"},).get("result")
-    )
+    json_str = Convert().do(content, "-", {"from": "md", "to": "json"})  # type: ignore
+    data = json.loads(json_str)
     del data["type"]
     return Article(**data)

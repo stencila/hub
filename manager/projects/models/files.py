@@ -591,9 +591,7 @@ class File(models.Model):
         job = Job.objects.create(
             description="Convert '{0}' to '{1}'".format(self.path, output),
             method=JobMethod.convert.name,
-            params=dict(
-                project=self.project.id, input=self.path, output=output, options=options
-            ),
+            params=dict(input=self.path, output=output, options=options),
             project=self.project,
             creator=user,
             **(Job.create_callback(self, "convert_callback") if not snapshot else {})

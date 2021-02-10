@@ -94,6 +94,13 @@ class Source(PolymorphicModel):
         help_text="The file or folder name, or path, that the source is mapped to.",
     )
 
+    order = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="The order that the source should be pulled into the project "
+        "(allows explicit overwriting of one source by another).",
+    )
+
     creator = models.ForeignKey(
         User,
         null=True,  # Should only be null if the creator is deleted
@@ -357,7 +364,7 @@ class Source(PolymorphicModel):
             creator=user or self.creator,
             description=description,
             method=JobMethod.pull.value,
-            params=dict(project=self.project.id, source=source, path=self.path),
+            params=dict(source=source, path=self.path),
             **Job.create_callback(self, "pull_callback"),
         )
 
@@ -385,6 +392,7 @@ class Source(PolymorphicModel):
 
         # Do a batch insert of files. This is much faster when there are a lot of file
         # than inserting each file individually.
+        print(result)
         File.objects.bulk_create(
             [
                 File(

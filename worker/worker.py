@@ -14,27 +14,25 @@ from jobs.archive import Archive
 from jobs.base.job import Job
 from jobs.clean import Clean
 from jobs.convert import Convert
-from jobs.decode import Decode
-from jobs.encode import Encode
 from jobs.extract import Extract
 from jobs.pin import Pin
 from jobs.pull import Pull
 from jobs.register import Register
 from jobs.session.session import Session
 from jobs.sleep import Sleep
+from jobs.zip import Zip
 
 JOBS = [
     Archive,
     Clean,
     Convert,
-    Decode,
-    Encode,
     Extract,
     Pin,
     Pull,
     Register,
     Session,
     Sleep,
+    Zip,
 ]
 
 # Setup the Celery app

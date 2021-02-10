@@ -26,4 +26,5 @@ def test_sleep():
 
     job.send_event = send_event
 
-    job.run()
+    job.begin()
+    job.do()
