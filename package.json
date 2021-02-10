@@ -39,6 +39,22 @@
         "semanticCommitScope": "Deps"
       },
       {
+        "groupName": "ERA dependencies",
+        "paths": [
+          "package.json"
+        ],
+        "depTypeList": [
+          "devDependencies"
+        ],
+        "packagePatterns": [
+          "@stencila/thema",
+          "@stencila/components"
+        ],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "Deps"
+      },
+      {
         "groupName": "Python dev dependencies",
         "paths": [
           "requirements-dev.txt"
