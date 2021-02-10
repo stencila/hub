@@ -1,3 +1,12 @@
+## [4.33.1](https://github.com/stencila/hub/compare/v4.33.0...v4.33.1) (2021-02-10)
+
+
+### Bug Fixes
+
+* **Move files:** Do not use rename ([428b35c](https://github.com/stencila/hub/commit/428b35c498fe23e1f620655c4bf0da3d90373b8c)), closes [#1002](https://github.com/stencila/hub/issues/1002)
+* **Sources list:** Use correct icon name ([966c8e5](https://github.com/stencila/hub/commit/966c8e53337405710041f77d74b01043146675f1))
+* **Sources queryset:** Null orders come last ([62c4d5b](https://github.com/stencila/hub/commit/62c4d5be8e84e6415add28b057d7073bba34df6e))
+
 # [4.33.0](https://github.com/stencila/hub/compare/v4.32.0...v4.33.0) (2021-02-10)
 
 
