@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from lxml import etree
 
-from util.files import Files, file_info
+from util.files import Files, ensure_dir, file_info
 from util.http import HttpSession
 
 
@@ -40,7 +40,7 @@ def pull_plos(source: dict, path: Optional[str] = None, **kwargs) -> Files:
         path = f"{journal}-{match.group(2)}.xml"
 
     folder, file = os.path.split(path)
-    Path(folder).mkdir(parents=True, exist_ok=True)
+    ensure_dir(folder)
 
     files = {}
     session = HttpSession()

@@ -6,7 +6,7 @@ from typing import Optional
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 
-from util.files import Files, file_info
+from util.files import Files, ensure_parent, file_info
 from util.gapis import gdocs_service
 
 
@@ -24,7 +24,7 @@ def pull_gdoc(
     if not path:
         path = f"{doc_id}.gdoc"
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    ensure_parent(path)
 
     with open(path, "wb") as file:
         file.write(json.dumps(gdoc, indent=2).encode("utf-8"))

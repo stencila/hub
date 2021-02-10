@@ -6,7 +6,7 @@ from typing import Optional
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 
-from util.files import Files, file_info
+from util.files import Files, ensure_parent, file_info
 from util.gapis import gsheets_service
 
 
@@ -29,7 +29,7 @@ def pull_gsheet(
     if not path:
         path = f"gsheet-{doc_id}"
 
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    ensure_parent(path)
 
     with open(path, "wb") as file:
         file.write(json.dumps(gsheet, indent=2).encode("utf-8"))

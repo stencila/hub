@@ -122,6 +122,15 @@ def assert_within(parent, child):
     assert is_within(parent, child), f"Path {child} is not within {parent}"
 
 
+def ensure_dir(*args) -> Path:
+    """
+    Ensure that a directory exists.
+    """
+    path = Path(*args)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def ensure_parent(*args) -> Path:
     """
     Ensure that the parent directory of a file exists.

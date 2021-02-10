@@ -1,7 +1,6 @@
-from pathlib import Path
-
 import pytest
 
+from util.files import ensure_dir
 from util.working_directory import working_directory
 
 from .upload import pull_upload
@@ -28,7 +27,7 @@ def test_overwrite(tempdir):
         assert open("some.txt").read() == "wateva"
 
         files = pull_upload(dict(path=__file__), "some.txt")
-        assert open("some.txt").read().startswith("from pathlib")
+        assert open("some.txt").read().startswith("import pytest")
     assert list(files.keys()) == ["some.txt"]
     tempdir.compare(["some.txt"])
 
@@ -39,7 +38,7 @@ def test_mergedirs(tempdir):
     """
     with working_directory(tempdir.path):
         # A file that may have come from another source
-        Path("a/b").mkdir(parents=True, exist_ok=True)
+        ensure_dir("a/b")
         with open("a/b/other.txt", "w") as file:
             file.write("whateva")
         # Pull an upload source into the same directory

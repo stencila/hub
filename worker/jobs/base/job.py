@@ -1,7 +1,6 @@
 import os
 import traceback
 from datetime import datetime
-from pathlib import Path
 from typing import Any, Optional
 
 import celery
@@ -13,6 +12,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
 from config import get_working_dir
+from util.files import ensure_dir
 from util.serialize import serialize
 
 # Log levels
@@ -181,7 +181,7 @@ class Job(celery.Task):
 
         current_dir = os.getcwd()
         working_dir = get_working_dir(project)
-        Path(working_dir).mkdir(parents=True, exist_ok=True)
+        ensure_dir(working_dir)
 
         self.begin(task_id)
         try:
