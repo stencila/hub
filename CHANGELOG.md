@@ -1,3 +1,10 @@
+## [4.33.2](https://github.com/stencila/hub/compare/v4.33.1...v4.33.2) (2021-02-10)
+
+
+### Bug Fixes
+
+* **dev deps:** update dependency @stencila/thema to v2.20.14 ([#1004](https://github.com/stencila/hub/issues/1004)) ([89a76f4](https://github.com/stencila/hub/commit/89a76f4920a0362efcb1a1f8557a5fc308e3b20c))
+
 ## [4.33.1](https://github.com/stencila/hub/compare/v4.33.0...v4.33.1) (2021-02-10)
 
 
