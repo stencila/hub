@@ -177,10 +177,9 @@ def move_files(source: str, dest: str = ".", cleanup: bool = True) -> None:
         for file in files:
             source_file = os.path.join(path, file)
             dest_file = os.path.join(dest_dir, file)
-            if os.path.isfile(dest_file):
-                shutil.copy2(source_file, dest_file)
-            else:
-                os.rename(source_file, dest_file)
+            # Do not attempt to use os.rename here
+            # See #1002
+            shutil.copy2(source_file, dest_file)
 
     if cleanup:
         remove_dir(source)
