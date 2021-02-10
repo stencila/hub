@@ -392,7 +392,6 @@ class Source(PolymorphicModel):
 
         # Do a batch insert of files. This is much faster when there are a lot of file
         # than inserting each file individually.
-        print(result)
         File.objects.bulk_create(
             [
                 File(

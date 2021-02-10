@@ -170,7 +170,6 @@ def move_files(source: str, dest: str = ".", cleanup: bool = True) -> None:
     of the source.
     """
     for path, dirs, files in os.walk(source):
-        print(path, dirs, files)
         rel_path = os.path.relpath(path, source)
         dest_dir = os.path.join(dest, rel_path)
         if not os.path.exists(dest_dir):

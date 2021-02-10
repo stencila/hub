@@ -95,7 +95,6 @@ class ProjectsFilesViewSet(
 
         search = self.request.GET.get("search", "").strip()
         if search:
-            print(prefix, search)
             queryset = queryset.filter(path__istartswith=prefix + search)
 
         mimetype = self.request.GET.get("mimetype", "").strip()

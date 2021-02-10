@@ -21,7 +21,6 @@ def pull_http(
     assert url, "Source must have a URL"
 
     with httpx.stream("GET", url) as response:
-        print(response.status_code)
         if response.status_code != 200:
             raise RuntimeError(f"Error when fetching {url}: {response.status_code}")
 

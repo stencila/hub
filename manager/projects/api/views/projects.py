@@ -168,7 +168,6 @@ class ProjectsViewSet(
             except ValueError as exc:
                 raise exceptions.ValidationError({"source": str(exc)})
             else:
-                print(query)
                 queryset = queryset.filter(query)
 
         search = self.request.GET.get("search")
