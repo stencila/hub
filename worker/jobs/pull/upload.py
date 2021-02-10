@@ -15,7 +15,7 @@ def pull_upload(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     directory.
 
     In production, `source["url"]` is the URL (usually a storage bucket).
-    In development `source["path"]` is the path on the local file system.
+    In development, `source["path"]` is the path on the local file system.
     """
     if not path:
         src = source["path"] if "path" in source else source["url"]
