@@ -1,3 +1,17 @@
+# [4.33.0](https://github.com/stencila/hub/compare/v4.32.0...v4.33.0) (2021-02-10)
+
+
+### Bug Fixes
+
+* **Project files:** Add cleanup_callback to set current=False for all project files ([3715c54](https://github.com/stencila/hub/commit/3715c54ac953533d9471df4c02bc7ba9f487c1b4))
+* **Pull upload:** Merge directories correctly ([fc2f32f](https://github.com/stencila/hub/commit/fc2f32fe165e0b097cc180cd1e80d8da4a7f63bd))
+* **Worker:** Make the project kwarg mandatory ([ac9dd65](https://github.com/stencila/hub/commit/ac9dd6595c6062aad254b9ede19f51faefb3f109))
+
+
+### Features
+
+* **Sources:** Allow ordering of sources ([57b0312](https://github.com/stencila/hub/commit/57b03120082946a4999c1d96c38ac76223c6812d))
+
 # [4.32.0](https://github.com/stencila/hub/compare/v4.31.3...v4.32.0) (2021-02-09)
 
 
