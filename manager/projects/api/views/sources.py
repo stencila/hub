@@ -1,6 +1,6 @@
 from typing import Optional
 
-from django.db.models import Q
+from django.db.models import F, Q
 from django.shortcuts import redirect, reverse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -78,7 +78,7 @@ class ProjectsSourcesViewSet(
         queryset = (
             manager.filter(project=project)
             .select_related("project", "project__account")
-            .order_by("-order")
+            .order_by(F("order").desc(nulls_last=True), "updated")
         )
 
         search = self.request.GET.get("search")
