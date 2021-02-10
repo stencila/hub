@@ -385,7 +385,19 @@ class Project(StorageUsageMixin, models.Model):
             creator=user,
             method=JobMethod.clean.name,
             description=f"Clean project '{self.name}'",
+            **Job.create_callback(self, "cleanup_callback"),
         )
+
+    def cleanup_callback(self, job: Job):
+        """
+        Set all project files as non-current.
+
+        This will remove derived files (e.g. converted from another format) and
+        files from a source.
+        """
+        from projects.models.files import File
+
+        File.objects.filter(project=self, current=True).update(current=False)
 
     def pull(self, user: User) -> Job:
         """
