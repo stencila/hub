@@ -2,6 +2,7 @@
 Form to update fileds related to how a project is executed.
 {% endcomment %}
 
+{% with tier=account.tier %}
 <form hx-patch="{% url 'api-projects-detail' project.id %}"
       hx-template="projects/_update_execution_form.html">
   {% include "serializers/_field.html" with field=serializer.main icon="ri-honour-line" placeholder="File path e.g. my_notebook.ipynb" %}
@@ -14,7 +15,7 @@ Form to update fileds related to how a project is executed.
              name="container_image"
              id="container_image"
              type="text"
-             {% if project.container_image %}value="{{project.container_image}}"
+             {% if project.container_image %}value="{{ project.container_image }}"
              {% endif %}
              placeholder="Container identifier e.g. my-custom-image:v1.3">
       <span class="icon is-left">
@@ -22,10 +23,75 @@ Form to update fileds related to how a project is executed.
       </span>
     </div>
     <span class="help">The container image to use as the execution environment for this project. See <a
-         href="http://help.stenci.la">help.stenci.la</a> for ways you can build and specify a custom image. If you
-      leave this
-      blank a default image will be used.</span>
+         href="http://help.stenci.la">help.stenci.la</a> for ways you can build and specify a custom image.</span>
+  </div>
+
+  <div class="field">
+    <label class="label"
+           for="session_memory">Memory</label>
+    <div class="control has-icons-left">
+      <input class="input"
+             name="session_memory"
+             id="session_memory"
+             type="number"
+             min="0"
+             max="{{ tier.session_memory_max }}"
+             {% if project.session_memory %}value="{{ project.session_memory }}"
+             {% endif %}
+             placeholder="Memory in MiB e.g. 2000">
+      <span class="icon is-left">
+        <i class="ri-sd-card-line"></i>
+      </span>
+    </div>
+    <span class="help">The amount of memory reserved for a session (MiB).
+      Maximum allowed value for account <strong>{{ account.name }}</strong> is
+      <strong>{{ tier.session_memory_max }}</strong> MiB.</span>
+  </div>
+
+  <div class="field">
+    <label class="label"
+           for="session_timeout">Time out</label>
+    <div class="control has-icons-left">
+      <input class="input"
+             name="session_timeout"
+             id="session_timeout"
+             type="number"
+             min="0"
+             max="{{ tier.session_timeout_max }}"
+             {% if project.session_timeout %}value="{{ project.session_timeout }}"
+             {% endif %}
+             placeholder="Time in seconds e.g. 3600">
+      <span class="icon is-left">
+        <i class="ri-rest-time-line"></i>
+      </span>
+    </div>
+    <span class="help">The amount of time of inactivity after which a session will end (s).
+      Maximum allowed value for account <strong>{{ account.name }}</strong> is
+      <strong>{{ tier.session_timeout_max }}</strong> seconds.</span>
+  </div>
+
+  <div class="field">
+    <label class="label"
+           for="session_timelimit">Time limit</label>
+    <div class="control has-icons-left">
+      <input class="input"
+             name="session_timelimit"
+             id="session_timelimit"
+             type="number"
+             min="0"
+             max="{{ tier.session_timelimit_max }}"
+             {% if project.session_timelimit %}value="{{ project.session_timelimit }}"
+             {% endif %}
+             placeholder="Time in seconds e.g. 7200">
+      <span class="icon is-left">
+        <i class="ri-time-line"></i>
+      </span>
+    </div>
+    <span class="help">The maximum duration of a session (s).
+      Maximum allowed value for account <strong>{{ account.name }}</strong> is
+      <strong>{{ tier.session_timelimit_max }}</strong> seconds.</span>
   </div>
 
   {% include "forms/_submit.html" with text="Update" classes="is-primary is-fullwidth-mobile" %}
 </form>
+{% endwith %}

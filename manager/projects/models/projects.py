@@ -167,6 +167,22 @@ class Project(StorageUsageMixin, models.Model):
         help_text="The container image to use as the execution environment for this project.",
     )
 
+    session_timeout = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="The amount of time of inactivity after which a session will end (s).",
+    )
+
+    session_timelimit = models.PositiveIntegerField(
+        null=True, blank=True, help_text="The maximum duration of a session (s)."
+    )
+
+    session_memory = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="The amount of memory allocated (request and limit) for a session (MiB).",
+    )
+
     main = models.TextField(
         null=True, blank=True, help_text="Path of the main file of the project",
     )

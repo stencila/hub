@@ -124,14 +124,12 @@ def update(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     project = viewset.get_object()
     serializer = viewset.get_serializer(project)
     destroy_serializer = ProjectDestroySerializer()
+    context = viewset.get_response_context(instance=project, serializer=serializer)
     return render(
         request,
         "projects/update.html",
         dict(
-            project=project,
-            serializer=serializer,
-            destroy_serializer=destroy_serializer,
-            meta=project.get_meta(),
+            **context, destroy_serializer=destroy_serializer, meta=project.get_meta(),
         ),
     )
 

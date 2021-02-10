@@ -556,6 +556,24 @@ class AccountTier(models.Model):
         help_text="The maximum number of job minutes per month.",
     )
 
+    session_timeout_max = models.PositiveIntegerField(
+        verbose_name="Maximum session inactivity timeout",
+        default=600,
+        help_text="The maximum value that the project session timeout field can be set at (s).",
+    )
+
+    session_timelimit_max = models.PositiveIntegerField(
+        verbose_name="Maximum session time limit",
+        default=3600,
+        help_text="The maximum value that the project session time limit field can be set at (s).",
+    )
+
+    session_memory_max = models.PositiveIntegerField(
+        verbose_name="Maximum session memory",
+        default=500,
+        help_text="The maximum value that the project session memory field can be set at (MiB).",
+    )
+
     dois_created_month = models.IntegerField(
         verbose_name="DOIs minted",
         default=0,
