@@ -75,8 +75,10 @@ class ProjectsSourcesViewSet(
         manager = Source.objects_base if self.action == "list" else Source.objects
 
         project = project or self.get_project()
-        queryset = manager.filter(project=project).select_related(
-            "project", "project__account"
+        queryset = (
+            manager.filter(project=project)
+            .select_related("project", "project__account")
+            .order_by("-order")
         )
 
         search = self.request.GET.get("search")

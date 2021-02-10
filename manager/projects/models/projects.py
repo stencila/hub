@@ -403,17 +403,47 @@ class Project(StorageUsageMixin, models.Model):
         """
         Pull all project sources into the working directory.
 
-        Creates a `parallel` job having children jobs that `pull`
-        each source into the project's working directory.
+        Groups sources by `order` (including `null` order). If there are more
+        than one source in each group creates a `parallel` job having children
+        jobs that `pull`s each source. Groups are then placed in a series job
+        (if there is more than one).
         """
-        job = Job.objects.create(
-            project=self,
-            creator=user,
-            method=JobMethod.parallel.name,
-            description=f"Pull project '{self.name}'",
-        )
-        job.children.set([source.pull(user) for source in self.sources.all()])
-        return job
+        # Do not create individual pull jobs here because series job children
+        # are run in order of their ids; so we need to sort into groups first.
+        groups: Dict[int, List] = {}
+        for source in self.sources.all():
+            order = source.order or 0
+            if order in groups:
+                groups[order].append(source)
+            else:
+                groups[order] = [source]
+
+        steps: List[Job] = []
+        for order in sorted(groups.keys()):
+            sources = groups[order]
+            if len(sources) == 1:
+                steps.append(sources[0].pull(user))
+            else:
+                parallel = Job.objects.create(
+                    project=self,
+                    creator=user,
+                    method=JobMethod.parallel.name,
+                    description="Pull sources in parallel",
+                )
+                parallel.children.set([source.pull(user) for source in sources])
+                steps.append(parallel)
+
+        if len(steps) == 1:
+            return steps[0]
+        else:
+            series = Job.objects.create(
+                project=self,
+                creator=user,
+                method=JobMethod.series.name,
+                description="Pull sources in series",
+            )
+            series.children.set(steps)
+            return series
 
     def pin(self, user: User, **callback) -> Job:
         """

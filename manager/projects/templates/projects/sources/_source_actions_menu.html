@@ -56,6 +56,32 @@
         <span>{% trans "Remove" %}</span>
       </a>
 
+      <hr class="dropdown-divider">
+
+      <a class="dropdown-item"
+         hx-patch="{% url 'api-projects-sources-detail' project.id source.id %}"
+         hx-vars="order: {{ source.order|default:"0"|add:"1" }}"
+         hx-swap="none"
+         hx-redirect="UPDATED:{% url 'ui-projects-sources-list' project.account.name project.name %}">
+        <span class="icon">
+          <i class="ri-sort-asc-line"></i>
+        </span>
+        <span>{% trans "Raise" %}</span>
+      </a>
+
+      <a class="dropdown-item"
+         {% if source.order > 0 %}
+         hx-patch="{% url 'api-projects-sources-detail' project.id source.id %}"
+         hx-vars="order: {{ source.order|add:"-1" }}"
+         hx-swap="none"
+         hx-redirect="UPDATED:{% url 'ui-projects-sources-list' project.account.name project.name %}"
+         {% else %}disabled{% endif %}>
+        <span class="icon">
+          <i class="ri-sort-desc-line"></i>
+        </span>
+        <span>{% trans "Lower" %}</span>
+      </a>
+
       {% endif %}
     </div>
   </div>
