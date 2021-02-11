@@ -1,3 +1,10 @@
+# [4.34.0](https://github.com/stencila/hub/compare/v4.33.2...v4.34.0) (2021-02-11)
+
+
+### Features
+
+* **Project session parameters:** Allow users to set session parameters up to maximum for account tier ([8010ae4](https://github.com/stencila/hub/commit/8010ae471022ed2775837bb137740d9725808a3c))
+
 ## [4.33.2](https://github.com/stencila/hub/compare/v4.33.1...v4.33.2) (2021-02-10)
 
 
