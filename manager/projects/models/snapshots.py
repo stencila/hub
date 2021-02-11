@@ -237,13 +237,21 @@ class Snapshot(StorageUsageMixin, models.Model):
         """
         Create a session job for the snapshot.
         """
+        project = self.project
         job = Job.objects.create(
-            method=JobMethod.session.name,
-            params=dict(snapshot=self.id, container_image=self.container_image,),
-            description="Session for snapshot #{0}".format(self.number),
-            project=self.project,
-            snapshot=self,
+            project=project,
             creator=request.user if request.user.is_authenticated else None,
+            snapshot=self,
+            method=JobMethod.session.name,
+            params=dict(
+                snapshot=self.id,
+                container_image=self.container_image,
+                mem_request=project.session_memory,
+                mem_limit=project.session_memory,
+                timeout=project.session_timeout,
+                timelimit=project.session_timelimit,
+            ),
+            description="Session for snapshot #{0}".format(self.number),
         )
         job.add_user(request)
         return job

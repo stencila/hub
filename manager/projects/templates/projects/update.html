@@ -13,6 +13,11 @@
 
 <h2 class="title is-3">{% trans "Execution" %}</h2>
 <p class="subtitle is-6">{% trans "Settings affecting how this project is run." %}</p>
+<p class="help">
+  Leave these blank to use default values.
+  Upgrade the <a href="{% url 'ui-accounts-plan' account.name %}">account's plan</a> for higher maximum allowed values.
+</p>
+<br>
 {% include "./_update_execution_form.html" %}
 
 <hr>

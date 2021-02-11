@@ -223,6 +223,9 @@ class ProjectSerializer(serializers.ModelSerializer):
             "key",
             "main",
             "container_image",
+            "session_timeout",
+            "session_timelimit",
+            "session_memory",
             "liveness",
             "pinned",
             "theme",
@@ -421,12 +424,41 @@ class ProjectUpdateSerializer(ProjectSerializer):
         fields = ProjectSerializer.Meta.fields
 
     def __init__(self, instance=None, *args, **kwargs):
-        # Limit the choices of snapshots of snapshots to those
-        # for this project.
+        # Limit the choices of snapshots to those for this project.
         self.fields["pinned"].queryset = (
             self.fields["pinned"].queryset.filter(project=instance).order_by("-created")
         )
         super().__init__(instance, *args, **kwargs)
+
+    def validate_session_memory(self, value):
+        """
+        Ensure that session_memory does not exceed maximum for account's tier.
+        """
+        return (
+            None
+            if value is None
+            else max(0, min(self.instance.account.tier.session_memory_max, value))
+        )
+
+    def validate_session_timeout(self, value):
+        """
+        Ensure that session_timeout does not exceed maximum for account's tier.
+        """
+        return (
+            None
+            if value is None
+            else max(0, min(self.instance.account.tier.session_timeout_max, value))
+        )
+
+    def validate_session_timelimit(self, value):
+        """
+        Ensure that session_timelimit does not exceed maximum for account's tier.
+        """
+        return (
+            None
+            if value is None
+            else max(0, min(self.instance.account.tier.session_timelimit_max, value))
+        )
 
     def validate(self, data):
         """
@@ -476,7 +508,7 @@ class ProjectUpdateSerializer(ProjectSerializer):
         elif project.public and data.get("public") is False:
             self.validate_ownership_by_account(False, project.account)
 
-        # Check the new name is valid for this account
+        # Check any new name is valid for this account
         name = data.get("name")
         if name is not None:
             data["name"] = self.validate_name_for_account(name, project.account)

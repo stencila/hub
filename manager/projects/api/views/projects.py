@@ -280,6 +280,14 @@ class ProjectsViewSet(
             "destroy": ProjectDestroySerializer,
         }.get(self.action, ProjectListSerializer)
 
+    def get_response_context(self, instance, *args, **kwargs):
+        """
+        Override to add account to the template context.
+        """
+        return super().get_response_context(
+            *args, **kwargs, project=instance, account=instance.account
+        )
+
     def get_success_url(self, serializer):
         """
         Get the URL to use in the Location header when an action is successful.
