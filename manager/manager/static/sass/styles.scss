@@ -862,6 +862,17 @@ a.list-menu--item {
   }
 }
 
+.icon > i {
+  height: 1em;
+  width: 1em;
+  
+  &::before {
+    display: block;
+    line-height: 1;
+    text-rendering: geometricPrecision;
+  }
+}
+
 .list-menu--icon {
   margin-right: 0.5rem;
 }
