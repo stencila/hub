@@ -1,0 +1,25 @@
+{% comment %}
+Render an icon representing the type of job
+{% endcomment %}
+
+{% with method=job.method|title|lower %}
+  <span class="icon is-vcentered">
+    <i class="{% if method == 'parallel' %}ri-stackshare-line
+    {% elif method == 'series' %}ri-list-ordered
+    {% elif method == 'clean' %}ri-delete-bin-line
+    {% elif method == 'archive' %}ri-archive-line
+    {% elif method == 'pull' %}ri-download-cloud-2-line
+    {% elif method == 'push' %}ri-upload-cloud-2-line
+    {% elif method == 'extract' %}ri-inbox-unarchive-line
+    {% elif method == 'convert' %}ri-file-transfer-line
+    {% elif method == 'pin' %}ri-pushpin-line
+    {% elif method == 'register' %}ri-flag-line
+    {% elif method == 'compile' %}ri-hammer-line
+    {% elif method == 'build' %}ri-apps-line
+    {% elif method == 'execute' %}ri-play-line
+    {% elif method == 'session' %}ri-cpu-line
+    {% elif method == 'sleep' %}ri-zzz-line
+    {% endif %}"></i>
+  </span>
+
+{% endwith %}

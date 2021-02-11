@@ -1,25 +1,30 @@
 {% load i18n humanize stencila %}
 
 <div class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% endif %}">
-  <div class="column is-2">
-    <div class="is-inline-block-mobile">
-      <div class="tag has-text-weight-bold mb-1">
-        {{ job.method|title }}
-      </div>
-    </div>
-    {% include "./_job_status_tag.html" %}
-  </div>
   <div class="column">
+    <div class="mb-1">
+      <span class="has-text-weight-bold is-vcentered">
+        {% include "./_job_method_tag.html" %}
+        <span class="is-vcentered">{{ job.summary_string }}</span>
+      </span>
+    </div>
 
     <div class="job-list--meta mb-2">
+      <div class="is-inline-block mr-3">
+        {% include "./_job_status_tag.html" %}
+      </div>
+      
+      </span>
       {% if show_sub_jobs == None %}
       <span class="job-list__creator">
-        <span class="icon is-small is-vcentered pr-1">
-          <img src="{{ job.creator.personal_account.image.small }}"
+        {% if job.creator.personal_account.image.medium %}
+        <span class="icon is-vcentered pr-1">
+          <img src="{{ job.creator.personal_account.image.medium }}"
                role="presentation"></img>
         </span>
+        {% endif %}
         <span class="is-vcentered">
-          {{ job.creator.username|default:"Anon" }}
+          {{ job.creator.username|default:"Anonymous" }}
         </span>
       </span>
 
@@ -51,12 +56,6 @@
         <span class="is-vcentered">
           {{ job.id }}
         </span>
-      </span>
-    </div>
-
-    <div>
-      <span class="has-text-weight-bold">
-        {{ job.summary_string }}
       </span>
     </div>
   </div>

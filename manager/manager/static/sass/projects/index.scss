@@ -321,16 +321,19 @@ a.job-list--id {
   display: flex;
   flex-wrap: wrap;
   font-size: 0.75rem;
+  line-height: 24px; /* Align text with the avatar height */
 
   & > span {
-    &:first-child:not(.job-list__creator) {
-      margin-left: -8px;
+    line-height: inherit;
+    
+    .icon {
+      font-size: .825rem;
     }
-
+    
     &:not(:last-child):after {
       content: "·";
       display: inline-block;
-      padding: 0 0.25rem;
+      padding: 0 0.375rem;
       vertical-align: middle;
     }
   }
