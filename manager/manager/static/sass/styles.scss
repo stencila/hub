@@ -815,6 +815,10 @@ input[type="checkbox"].toggle {
   cursor: url("../img/close-circle-line.svg"), pointer;
 }
 
+.cursor-help {
+  cursor: help;
+}
+
 .is-vcentered {
   vertical-align: middle;
 }
