@@ -1,3 +1,10 @@
+## [4.34.1](https://github.com/stencila/hub/compare/v4.34.0...v4.34.1) (2021-02-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency typescript to v4.1.5 ([b027b74](https://github.com/stencila/hub/commit/b027b74f0f3a11748ac6502f2af0a4918646812d))
+
 # [4.34.0](https://github.com/stencila/hub/compare/v4.33.2...v4.34.0) (2021-02-11)
 
 
