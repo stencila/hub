@@ -1,3 +1,14 @@
+## [4.34.2](https://github.com/stencila/hub/compare/v4.34.1...v4.34.2) (2021-02-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.105.0 ([1d4b922](https://github.com/stencila/hub/commit/1d4b922f52e3fc2d4e1c2bb99d87b80e1b0dadac))
+* **deps:** update dependency dj-stripe to v2.4.3 ([44b2e83](https://github.com/stencila/hub/commit/44b2e83c458362cb31c31ccae765eeca53518d8f))
+* **deps:** update dependency django-extensions to v3.1.1 ([2285dfa](https://github.com/stencila/hub/commit/2285dfa7766e78fddc6f2f238acee5775baa3e2a))
+* **deps:** update dependency google-cloud-storage to v1.36.0 ([d48af2f](https://github.com/stencila/hub/commit/d48af2fe6d13e786a5adcd04d2171ff2a5f49fc8))
+* **deps:** update dependency sentry-sdk to v0.20.1 ([ac9379a](https://github.com/stencila/hub/commit/ac9379ae310aa50cdffa06898b3fdd259f6e9328))
+
 ## [4.34.1](https://github.com/stencila/hub/compare/v4.34.0...v4.34.1) (2021-02-13)
 
 
