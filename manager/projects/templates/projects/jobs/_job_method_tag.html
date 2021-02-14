@@ -3,8 +3,8 @@ Render an icon representing the type of job
 {% endcomment %}
 
 {% with method=job.method|title|lower %}
-  <span class="icon is-vcentered">
-    <i class="{% if method == 'parallel' %}ri-stackshare-line
+<span class="icon is-vcentered">
+  <i class="{% if method == 'parallel' %}ri-stackshare-line
     {% elif method == 'series' %}ri-list-ordered
     {% elif method == 'clean' %}ri-delete-bin-line
     {% elif method == 'archive' %}ri-archive-line
@@ -20,6 +20,6 @@ Render an icon representing the type of job
     {% elif method == 'session' %}ri-cpu-line
     {% elif method == 'sleep' %}ri-zzz-line
     {% endif %}"></i>
-  </span>
+</span>
 
 {% endwith %}

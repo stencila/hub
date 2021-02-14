@@ -13,7 +13,7 @@
       <div class="is-inline-block mr-3">
         {% include "./_job_status_tag.html" %}
       </div>
-      
+
       </span>
       {% if show_sub_jobs == None %}
       <span class="job-list__creator">
@@ -63,22 +63,22 @@
   <div class="column is-2 job-list-item-buttons">
     {% if job.creator ==  request.user or project.role in "MANAGER,OWNER" %}
     {% if job.is_active %}
-      <a hx-patch="{% url 'api-projects-jobs-cancel' job.project.id job.id %}"
-         hx-swap="none"
-         href="#"
-         class="button is-danger is-outlined is-fullwidth is-small has-text-weight-bold job-list-item-buttons--cancel">
-        <span class="icon"><i class="ri-stop-line"></i></span>
-        <span>{% trans "Cancel" %}</span>
-      </a>
+    <a hx-patch="{% url 'api-projects-jobs-cancel' job.project.id job.id %}"
+       hx-swap="none"
+       href="#"
+       class="button is-danger is-outlined is-fullwidth is-small has-text-weight-bold job-list-item-buttons--cancel">
+      <span class="icon"><i class="ri-stop-line"></i></span>
+      <span>{% trans "Cancel" %}</span>
+    </a>
     {% endif %}
     {% endif %}
-    
+
     {% if is_list_item %}
-      <a href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}"
-         class="button is-outlined is-fullwidth is-small has-text-weight-bold primary-link">
-        <span class="icon"><i class="ri-eye-line"></i></span>
-        <span>{% trans "Details" %}</span>
-      </a>
+    <a href="{% url 'ui-projects-jobs-retrieve' job.project.account.name job.project.name job.id %}"
+       class="button is-outlined is-fullwidth is-small has-text-weight-bold primary-link">
+      <span class="icon"><i class="ri-eye-line"></i></span>
+      <span>{% trans "Details" %}</span>
+    </a>
     {% endif %}
   </div>
 
