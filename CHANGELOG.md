@@ -1,3 +1,23 @@
+# [4.35.0](https://github.com/stencila/hub/compare/v4.34.2...v4.35.0) (2021-02-14)
+
+
+### Bug Fixes
+
+* **Job item:** Show anon user as Anon; add anon user jobs in dev db ([95d816f](https://github.com/stencila/hub/commit/95d816fd6a8418a7d95f337a678b261fba0d774b))
+* **Jobs:** Remove chain method ([682ffb2](https://github.com/stencila/hub/commit/682ffb2fc8b3535ff82612d13cee7038d43f2564))
+* **Jobs list:** Add icon to clear button; avoid db query ([3905029](https://github.com/stencila/hub/commit/39050293e84157cfff05a6e6b30f76fd0c731d9f))
+* **Jobs list:** Expand job filters to full width on mobile ([1124c57](https://github.com/stencila/hub/commit/1124c573d2f39d4ba6a9d2fedc450343ccb68b48))
+* **Pagination:** Add any extra filters when paginating ([5b7c342](https://github.com/stencila/hub/commit/5b7c342715eba7c71b225874b14b5439fb45e87b))
+
+
+### Features
+
+* **Job list:** Add pagination ([64c32ce](https://github.com/stencila/hub/commit/64c32ceba5199dcb9badb072ae3e3c8c9f223244)), closes [#756](https://github.com/stencila/hub/issues/756)
+* **Jobs:** Reintroduce filters for jobs ([d9fe344](https://github.com/stencila/hub/commit/d9fe344cbcde55b47aa6b6d4265ac2bc22ab1cd8)), closes [#998](https://github.com/stencila/hub/issues/998)
+* **Jobs list:** Hide pagination links if there are no other pages ([8eb4d31](https://github.com/stencila/hub/commit/8eb4d3127806c3bbe0624e075b482a2bef94e1d3))
+* **Jobs list:** Make entirety of Job List entry item clickable ([88633cb](https://github.com/stencila/hub/commit/88633cb1df6ef10c507426e99377b328b892a5d8))
+* **Jobs list:** Reorganize information in job item component ([f2465f7](https://github.com/stencila/hub/commit/f2465f76712c81d30eb0ac814541cb9fcac19c9a))
+
 ## [4.34.2](https://github.com/stencila/hub/compare/v4.34.1...v4.34.2) (2021-02-14)
 
 
