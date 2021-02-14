@@ -352,7 +352,6 @@ class JobMethod(EnumChoice):
 
     parallel = "parallel"
     series = "series"
-    chain = "chain"
 
     clean = "clean"
     archive = "archive"
@@ -380,9 +379,7 @@ class JobMethod(EnumChoice):
     @classmethod
     def is_compound(cls, method: str) -> bool:
         """Is this a compound job method."""
-        return method in [
-            member.value for member in (cls.parallel, cls.series, cls.chain)
-        ]
+        return method in [member.value for member in (cls.parallel, cls.series)]
 
 
 @unique
