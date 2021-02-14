@@ -20,44 +20,76 @@
     },
     "packageRules": [
       {
-        "paths": [
+        "matchPaths": [
           "requirements.txt"
         ],
         "rangeStrategy": "pin",
         "semanticCommitType": "fix",
-        "semanticCommitScope": "Deps"
+        "semanticCommitScope": "Deps",
+        "automerge": false
       },
       {
-        "paths": [
+        "matchPaths": [
           "package.json"
         ],
-        "depTypeList": [
+        "matchDepTypes": [
           "dependencies"
         ],
         "rangeStrategy": "pin",
         "semanticCommitType": "fix",
-        "semanticCommitScope": "Deps"
+        "semanticCommitScope": "Deps",
+        "automerge": false
+      },
+      {
+        "matchPaths": [
+          "Dockerfile"
+        ],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "Deps",
+        "automerge": false
+      },
+      {
+        "groupName": "Publishing dependencies",
+        "groupSlug": "pub-deps",
+        "matchPaths": [
+          "manager/package.json"
+        ],
+        "matchPackageNames": [
+          "@stencila/thema",
+          "@stencila/components"
+        ],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "fix",
+        "semanticCommitScope": "Deps",
+        "automerge": true,
+        "schedule": "every weekday"
       },
       {
         "groupName": "Python dev dependencies",
-        "paths": [
+        "matchPaths": [
           "requirements-dev.txt"
         ],
-        "rangeStrategy": "pin",
-        "semanticCommitType": "chore",
-        "semanticCommitScope": "Dev deps"
-      },
-      {
-        "groupName": "Javascript dev dependencies",
-        "paths": [
-          "package.json"
-        ],
-        "depTypeList": [
+        "matchDepTypes": [
           "devDependencies"
         ],
         "rangeStrategy": "pin",
         "semanticCommitType": "chore",
-        "semanticCommitScope": "Dev deps"
+        "semanticCommitScope": "Dev deps",
+        "automerge": true
+      },
+      {
+        "groupName": "Javascript dev dependencies",
+        "matchPaths": [
+          "package.json"
+        ],
+        "matchDepTypes": [
+          "devDependencies"
+        ],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "Dev deps",
+        "automerge": true
       }
     ]
   },
