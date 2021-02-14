@@ -73,9 +73,6 @@
         "matchPaths": [
           "requirements-dev.txt"
         ],
-        "matchDepTypes": [
-          "devDependencies"
-        ],
         "rangeStrategy": "pin",
         "semanticCommitType": "chore",
         "semanticCommitScope": "Dev deps",
