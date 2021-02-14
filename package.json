@@ -41,7 +41,6 @@
         "automerge": false
       },
       {
-        "groupName": "Docker base images",
         "matchPaths": [
           "Dockerfile"
         ],
@@ -66,7 +65,7 @@
         "semanticCommitScope": "Deps",
         "commitMessageTopic": "publishing dependencies",
         "automerge": true,
-        "schedule": "every weekday"
+        "schedule": "every day"
       },
       {
         "groupName": "Python dev dependencies",
@@ -76,8 +75,7 @@
         "rangeStrategy": "pin",
         "semanticCommitType": "chore",
         "semanticCommitScope": "Dev deps",
-        "automerge": true,
-        "automergeType": "branch"
+        "automerge": true
       },
       {
         "groupName": "Javascript dev dependencies",
