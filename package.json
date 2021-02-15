@@ -67,7 +67,7 @@
         "semanticCommitScope": "Deps",
         "commitMessageTopic": "publishing dependencies",
         "automerge": true,
-        "schedule": "every day"
+        "schedule": "before 12pm"
       },
       {
         "groupName": "Python dev dependencies",
