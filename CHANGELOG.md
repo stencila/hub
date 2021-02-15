@@ -1,3 +1,10 @@
+## [4.35.2](https://github.com/stencila/hub/compare/v4.35.1...v4.35.2) (2021-02-15)
+
+
+### Bug Fixes
+
+* **Jobs list:** Use Anonymous to be consistent ([34fff0a](https://github.com/stencila/hub/commit/34fff0aa348f185661650f5c15246e4b2e9de81e)), closes [/github.com/stencila/hub/issues/1016#issuecomment-779286369](https://github.com//github.com/stencila/hub/issues/1016/issues/issuecomment-779286369)
+
 ## [4.35.1](https://github.com/stencila/hub/compare/v4.35.0...v4.35.1) (2021-02-15)
 
 
