@@ -280,13 +280,16 @@ class ProjectsViewSet(
             "destroy": ProjectDestroySerializer,
         }.get(self.action, ProjectListSerializer)
 
-    def get_response_context(self, instance, *args, **kwargs):
+    def get_response_context(self, *args, **kwargs):
         """
         Override to add account to the template context.
         """
-        return super().get_response_context(
-            *args, **kwargs, project=instance, account=instance.account
-        )
+        context = super().get_response_context(*args, **kwargs)
+
+        instance = kwargs.get("instance")
+        if instance:
+            context["account"] = instance.account
+        return context
 
     def get_success_url(self, serializer):
         """
@@ -500,8 +503,8 @@ class ProjectsAgentsViewSet(
         else:
             return ProjectAgentSerializer
 
-    def get_response_context(self, **kwargs):
+    def get_response_context(self, *args, **kwargs):
         """Override to provide additional context when rendering templates."""
         return super().get_response_context(
-            queryset=self.get_queryset(), project=self.get_project(), **kwargs
+            queryset=self.get_queryset(), project=self.get_project(), *args, **kwargs
         )
