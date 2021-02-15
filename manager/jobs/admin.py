@@ -68,6 +68,8 @@ class JobAdmin(admin.ModelAdmin):
         "callback_method",
     ]
 
+    raw_id_fields = ["project", "snapshot", "creator", "queue", "parent"]
+
     actions = ["cancel"]
 
     def cancel(self, request, queryset):
