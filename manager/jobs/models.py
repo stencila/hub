@@ -866,37 +866,28 @@ class Job(models.Model):
         )
 
     @cached_property
-    def runtime_seconds(self) -> float:
+    def runtime_seconds(self) -> Optional[float]:
         """
         Get the runtime in seconds.
         """
         if self.runtime is not None:
             return self.runtime
-        elif self.is_active:
-            return (timezone.now() - self.created).seconds
+        elif self.is_active and self.began:
+            return (timezone.now() - self.began).seconds
         elif self.ended and self.began:
             return (self.ended - self.began).seconds
-        elif self.updated and self.began:
-            return (self.updated - self.began).seconds
-        elif self.status == JobStatus.CANCELLED.value:
-            return 0
-        elif self.updated and self.created:
-            return (self.updated - self.created).seconds
         else:
-            return 0
+            return None
 
     @cached_property
     def runtime_formatted(self) -> Optional[str]:
         """
         Format the runtime into a format that can be printed to the screen.
-
-        i.e. convert from float into hours:mins format.
-        It follows the following rules:
-        - If the job has not started, return empty string
-        - If job has started & not ended calculate time relative to now.
-        - If job has ended, calculate difference.
         """
         runtime = self.runtime_seconds
+        if runtime is None:
+            return "-"
+
         h, rem = divmod(runtime, 3600)
         m, s = divmod(rem, 60)
 
