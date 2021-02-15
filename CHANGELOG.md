@@ -1,3 +1,12 @@
+## [4.35.3](https://github.com/stencila/hub/compare/v4.35.2...v4.35.3) (2021-02-15)
+
+
+### Bug Fixes
+
+* **Jobs:** Complete compound jobs with no children immediately ([239bce1](https://github.com/stencila/hub/commit/239bce107a308db4113116e6f8377aa727a74433)), closes [#1017](https://github.com/stencila/hub/issues/1017)
+* **Projects:** Handle get_response_context for list views ([4a0c0a8](https://github.com/stencila/hub/commit/4a0c0a87bcc494a5fe606a5cb1c84b7798f369d1)), closes [#1019](https://github.com/stencila/hub/issues/1019)
+* **Uploads:** Redirect to sources list if no files ([226f350](https://github.com/stencila/hub/commit/226f350c3546c6f0096c037788c755a5c60b0540)), closes [#1020](https://github.com/stencila/hub/issues/1020)
+
 ## [4.35.2](https://github.com/stencila/hub/compare/v4.35.1...v4.35.2) (2021-02-15)
 
 
