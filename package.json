@@ -44,7 +44,9 @@
         "matchPaths": [
           "Dockerfile"
         ],
-        "matchDatasources": ["docker"],
+        "matchDatasources": [
+          "docker"
+        ],
         "rangeStrategy": "pin",
         "semanticCommitType": "fix",
         "semanticCommitScope": "Deps",

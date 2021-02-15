@@ -1,3 +1,19 @@
+## [4.35.1](https://github.com/stencila/hub/compare/v4.35.0...v4.35.1) (2021-02-15)
+
+
+### Bug Fixes
+
+* **Deps:** Update Encoda ([290fdbc](https://github.com/stencila/hub/commit/290fdbcf1b158e35cfab5cefe0852d5aa07be312))
+* **Job list:** Dot separator after status ([bb16f13](https://github.com/stencila/hub/commit/bb16f13fd6dd8d369bdd7b9ec59fb1dd67752601)), closes [#1016](https://github.com/stencila/hub/issues/1016)
+* **Job list:** Show icon for anon job creator ([ca41069](https://github.com/stencila/hub/commit/ca41069fe002f4af0da97fa83229c0f8fe72443a)), closes [#1016](https://github.com/stencila/hub/issues/1016)
+* **Jobs:** Add icon for zip method ([2cbe82b](https://github.com/stencila/hub/commit/2cbe82b8184fe7ee45bf7530ea2a3e3034555aa9))
+* **Jobs:** Only return runtime if job has begun ([f1a99b5](https://github.com/stencila/hub/commit/f1a99b5c88cda5b223ce62249757df4a4d1da7d2))
+
+
+### Performance Improvements
+
+* **Admin:** Specify raw id fields ([1a60c43](https://github.com/stencila/hub/commit/1a60c43e17048d5b51b3d47c2ea63d3b4a03ab24))
+
 # [4.35.0](https://github.com/stencila/hub/compare/v4.34.2...v4.35.0) (2021-02-14)
 
 
