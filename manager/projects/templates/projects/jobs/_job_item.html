@@ -10,11 +10,10 @@
     </div>
 
     <div class="job-list--meta mb-2">
-      <div class="is-inline-block mr-3">
+      <span>
         {% include "./_job_status_tag.html" %}
-      </div>
-
       </span>
+
       {% if show_sub_jobs == None %}
       <span class="job-list__creator">
         {% if job.creator.personal_account.image.medium %}

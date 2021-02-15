@@ -3,7 +3,7 @@ Renders a tag element representing the status of a job
 {% endcomment %}
 
 {% with status=job.status_category %}
-<span class="tag has-text-weight-bold is-light
+<span class="tag is-vcentered has-text-weight-bold is-light
   {% if status == 'Pending' %}is-info
   {% elif status == 'Running' %}is-info
   {% elif status == 'Finished' %}is-success
