@@ -60,24 +60,31 @@ def dispatch_job(job: Job) -> Job:
 
     if JobMethod.is_compound(job.method):
         children = job.children.all().order_by("id")
-        if job.method == JobMethod.parallel.value:
-            # Dispatch all child jobs simultaneously
-            for child in children:
-                dispatch_job(child)
+        if len(children) == 0:
+            # If there are no children (e.g. a pull job for a project with no sources)
+            # then job is immediately finished
+            job.runtime = 0
+            job.is_active = False
+            job.status = JobStatus.SUCCESS.value
         else:
-            # Dispatch the first child; subsequent children
-            # will be status WAITING and will get dispatched later
-            # on update of the parent.
-            for index, child in enumerate(children):
-                if index == 0:
+            if job.method == JobMethod.parallel.value:
+                # Dispatch all child jobs simultaneously
+                for child in children:
                     dispatch_job(child)
-                else:
-                    child.is_active = True
-                    child.status = JobStatus.WAITING.value
-                    child.save()
+            else:
+                # Dispatch the first child; subsequent children
+                # will be status WAITING and will get dispatched later
+                # on update of the parent.
+                for index, child in enumerate(children):
+                    if index == 0:
+                        dispatch_job(child)
+                    else:
+                        child.is_active = True
+                        child.status = JobStatus.WAITING.value
+                        child.save()
 
-        job.is_active = True
-        job.status = JobStatus.DISPATCHED.value
+            job.is_active = True
+            job.status = JobStatus.DISPATCHED.value
     else:
         # Find queues that have active workers on them
         # order by descending priority
