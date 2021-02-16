@@ -7,8 +7,11 @@
   },
   "renovate": {
     "extends": [
-      "@stencila"
+      "config:base"
     ],
+    "timezone": "UTC",
+    "masterIssue": true,
+    "masterIssueTitle": "Update dependencies",
     "schedule": [
       "before 12pm on Friday"
     ],
