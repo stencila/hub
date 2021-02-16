@@ -45,7 +45,7 @@ def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
         if not href.endswith(".tif"):
             href += ".tif"
 
-        url = f"https://iiif.elifesciences.org/lax:{article}%2F{href}/full/600,/0/default.jpg"
+        url = f"https://iiif.elifesciences.org/lax:{article}%2F{href}/full/full/0/default.jpg"
 
         image_name = href.replace(f"elife-{article}-", "")
         image_name = re.sub(r"-v\d+\.tif$", ".jpg", image_name)
