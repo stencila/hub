@@ -20,18 +20,20 @@
         {% with creator=job.creator %}
         {% if creator %}
         {% if creator.personal_account.image.medium %}
-        <span class="icon is-vcentered pr-1">
-          <img src="{{ job.creator.personal_account.image.medium }}"
-               role="presentation"></img>
-        </span>
-        {% else %}
-        <span class="icon is-vcentered">
-          <i class="ri-user-line"></i>
-        </span>
-        {% endif %}
-        <span class="is-vcentered">
-          {{ job.creator.username }}
-        </span>
+        <a href="{% url 'ui-accounts-retrieve' user.username %}">
+          <span class="icon is-vcentered pr-1">
+            <img src="{{ job.creator.personal_account.image.medium }}"
+                 role="presentation"></img>
+          </span>
+          {% else %}
+          <span class="icon is-vcentered">
+            <i class="ri-user-line"></i>
+          </span>
+          {% endif %}
+          <span class="is-vcentered">
+            {{ job.creator.username }}
+          </span>
+        </a>
         {% else %}
         <span class="icon is-vcentered">
           <i class="ri-user-line"></i>
