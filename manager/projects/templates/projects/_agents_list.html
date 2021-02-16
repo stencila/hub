@@ -35,6 +35,8 @@
                       hx-template="projects/_agents_list.html"
                       hx-target="#projects-agents-list"
                       name="role">
+                <option value="READER"
+                        {% if agent.role == "READER" %}selected{% endif %}>Reader</option>
                 <option value="AUTHOR"
                         {% if agent.role == "AUTHOR" %}selected{% endif %}>Author</option>
                 <option value="MANAGER"
