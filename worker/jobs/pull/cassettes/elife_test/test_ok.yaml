@@ -1447,7 +1447,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -2571,7 +2571,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 20:37:48 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -2600,7 +2600,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -3557,7 +3557,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:20 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -3586,7 +3586,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp2-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp2-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -5100,7 +5100,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:20 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp2-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp2-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -5129,7 +5129,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp3-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp3-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -6192,7 +6192,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:21 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp3-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp3-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -6221,7 +6221,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp4-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp4-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -7309,7 +7309,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:22 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp4-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp4-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -7338,7 +7338,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp5-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig1-figsupp5-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -7805,7 +7805,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:22 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp5-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig1-figsupp5-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -7834,7 +7834,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig2-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig2-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -8868,7 +8868,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:23 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig2-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig2-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -8897,7 +8897,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig3-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig3-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -9927,7 +9927,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:23 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig3-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig3-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -9956,7 +9956,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -10968,7 +10968,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:24 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -10997,7 +10997,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -12083,7 +12083,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:25 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -12112,7 +12112,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-figsupp2-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig4-figsupp2-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -12587,7 +12587,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:26 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-figsupp2-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig4-figsupp2-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -12616,7 +12616,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig5-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig5-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -13614,7 +13614,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:26 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig5-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig5-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -13643,7 +13643,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig5-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig5-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -14411,7 +14411,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:27 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig5-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig5-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -14440,7 +14440,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -15486,7 +15486,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:28 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -15515,7 +15515,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -16446,7 +16446,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:29 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -16475,7 +16475,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-figsupp2-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig6-figsupp2-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -17503,7 +17503,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:29 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-figsupp2-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig6-figsupp2-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -17532,7 +17532,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig7-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig7-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -19264,7 +19264,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:30 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig7-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig7-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -19293,7 +19293,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig7-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig7-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -20252,7 +20252,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:31 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig7-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig7-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -20281,7 +20281,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig8-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig8-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -21321,7 +21321,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:31 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig8-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig8-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -21350,7 +21350,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig8-figsupp1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-fig8-figsupp1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -22955,7 +22955,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:32 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig8-figsupp1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-fig8-figsupp1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -22984,7 +22984,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig1-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig1-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -24107,7 +24107,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:33 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig1-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig1-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -24136,7 +24136,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig2-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig2-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -25388,7 +25388,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:33 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig2-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig2-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -25417,7 +25417,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig3-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig3-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -26789,7 +26789,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:35 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig3-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig3-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -26818,7 +26818,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig4-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig4-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -27543,7 +27543,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:35 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig4-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig4-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -27572,7 +27572,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig5-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig5-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -28069,7 +28069,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:36 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig5-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig5-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -28098,7 +28098,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig6-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig6-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -28621,7 +28621,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:37 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig6-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig6-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -28650,7 +28650,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig7-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig7-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -29792,7 +29792,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:37 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig7-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig7-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -29821,7 +29821,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig8-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig8-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -31019,7 +31019,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:38 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig8-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig8-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
@@ -31048,7 +31048,7 @@ interactions:
       User-Agent:
       - python-requests/2.23.0
     method: GET
-    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig9-v2.tif/full/600,/0/default.jpg
+    uri: https://iiif.elifesciences.org/lax:45187%2Felife-45187-resp-fig9-v2.tif/full/full/0/default.jpg
   response:
     body:
       string: !!binary |
@@ -32253,7 +32253,7 @@ interactions:
       Last-Modified:
       - Tue, 12 May 2020 21:37:38 GMT
       Link:
-      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig9-v2.tif/full/600,/0/default.jpg>;rel="canonical"
+      - <http://iiif.io/api/image/2/level2.json>;rel="profile",<https://prod--iiif.elifesciences.org/lax%3A45187%2Felife-45187-resp-fig9-v2.tif/full/full/0/default.jpg>;rel="canonical"
       Server:
       - nginx
       Via:
