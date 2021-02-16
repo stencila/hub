@@ -1,9 +1,10 @@
 {% load i18n humanize stencila %}
 
-<div class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% endif %}">
+<div
+     class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% else %}job-list--standalone-item{% endif %}">
   <div class="column">
     <div class="mb-1">
-      <span class="has-text-weight-bold is-vcentered">
+      <span class="has-text-weight-bold is-vcentered job-list--title">
         {% include "./_job_method_tag.html" %}
         <span class="is-vcentered">{{ job.summary_string }}</span>
       </span>
