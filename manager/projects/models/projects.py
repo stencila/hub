@@ -564,8 +564,8 @@ class ProjectRole(EnumChoice):
         return {
             cls.READER.name: "Can view project, but not make edits or share with others.",
             cls.REVIEWER.name: "Can view project files and leave comments, but not edit project or share with others.",
-            cls.EDITOR.name: "Can edit project files and leave comments, but not share with other.",
-            cls.AUTHOR.name: "Can edit project files and leave comments, but not share with other.",
+            cls.EDITOR.name: "Can edit project files and leave comments, but not share with others.",
+            cls.AUTHOR.name: "Can edit project files and leave comments, but not share with others.",
             cls.MANAGER.name: "Can edit project files, settings, and share with others.",
             cls.OWNER.name: "Can edit project files, settings, share with others, as well as delete a project",
         }[role.name]
