@@ -1,3 +1,10 @@
+## [4.35.4](https://github.com/stencila/hub/compare/v4.35.3...v4.35.4) (2021-02-16)
+
+
+### Bug Fixes
+
+* **Package:** Trigger release for new pub deps; decouple Renovate ([728ec2a](https://github.com/stencila/hub/commit/728ec2a5c6d3b6e34a1e83082b42e0ff04c75469))
+
 ## [4.35.3](https://github.com/stencila/hub/compare/v4.35.2...v4.35.3) (2021-02-15)
 
 
