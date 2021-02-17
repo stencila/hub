@@ -20,7 +20,7 @@
         {% with creator=job.creator %}
         {% if creator %}
         {% if creator.personal_account.image.medium %}
-        <a href="{% url 'ui-accounts-retrieve' user.username %}">
+        <a href="{% url 'ui-accounts-retrieve' job.creator.username %}">
           <span class="icon is-vcentered pr-1">
             <img src="{{ job.creator.personal_account.image.medium }}"
                  role="presentation"></img>
