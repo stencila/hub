@@ -251,7 +251,6 @@ label[for="projects-search-input"] + .field {
 }
 
 .job-list__sub-jobs {
-  border-left: 2px solid $grey-lighter;
   position: relative;
 
   &::before {
@@ -286,6 +285,18 @@ label[for="projects-search-input"] + .field {
     font-weight: bold;
     line-height: 1;
     z-index: 10;
+  }
+
+  .job-list__sub-jobs {
+    margin-left: $column-gap / 2;
+
+    @media screen and (min-width: $tablet) {
+      margin-left: $column-gap;
+    }
+  }
+
+  & li > .columns {
+    border-left: 2px solid #aeb8c3;
   }
 
   .column {
