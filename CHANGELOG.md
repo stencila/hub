@@ -1,3 +1,17 @@
+# [4.36.0](https://github.com/stencila/hub/compare/v4.35.4...v4.36.0) (2021-02-17)
+
+
+### Bug Fixes
+
+* **Elife job:** Fix errors when fetching low-res article graphics ([b470ccf](https://github.com/stencila/hub/commit/b470ccf93b8ff94e8ee8ed0d07b4db2e813db129))
+* **Pagination:** Do not show all page links when many ([e16c803](https://github.com/stencila/hub/commit/e16c803213a4432e9cf8733af5e990e848b4612f)), closes [/github.com/stencila/hub/issues/1016#issuecomment-779286369](https://github.com//github.com/stencila/hub/issues/1016/issues/issuecomment-779286369)
+
+
+### Features
+
+* **Jobs list:** Better visually link the top level job and sub-jobs ([15b0ff4](https://github.com/stencila/hub/commit/15b0ff4baa9d7583c0654f3021d257edac121122))
+* **Jobs list:** Make job creator into a link ([d660334](https://github.com/stencila/hub/commit/d6603341bf7f71fab6b4943467a1179724cf5389))
+
 ## [4.35.4](https://github.com/stencila/hub/compare/v4.35.3...v4.35.4) (2021-02-16)
 
 
