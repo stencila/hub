@@ -55,8 +55,6 @@ is removed when the job is inactive.
 
   {% with children=job.get_children %}
   {% if children %}
-  <hr />
-  <h2 class="title is-4">{% trans "Sub-Jobs" %}</h2>
   <ol class="job-list">
     {% for child in children %}
     <li>
@@ -66,5 +64,4 @@ is removed when the job is inactive.
   </ol>
   {% endif %}
   {% endwith %}
-
 </div>

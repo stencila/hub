@@ -218,10 +218,14 @@ label[for="projects-search-input"] + .field {
   }
 }
 
+.job-list--standalone-item .job-list--title {
+  font-size: $size-4;
+}
+
 .job-list-item-buttons {
   a.primary-link {
     position: static;
-    
+
     &::before {
       content: "";
       position: absolute;
@@ -235,10 +239,10 @@ label[for="projects-search-input"] + .field {
 
   .job-list-item-buttons--cancel {
     z-index: 1;
-        
+
     & + a {
       margin-top: $gap / 2;
-      
+
       @media screen and (min-width: $tablet) {
         margin-top: $gap / 4;
       }
@@ -284,6 +288,11 @@ label[for="projects-search-input"] + .field {
     z-index: 10;
   }
 
+  .column {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
   .job-list--item {
     margin-left: 0;
     position: relative;
@@ -323,13 +332,23 @@ a.job-list--id {
   font-size: 0.75rem;
   line-height: 24px; /* Align text with the avatar height */
 
+  a:link,
+  a:visited {
+    color: inherit;
+  }
+
+  a:hover,
+  a:active {
+    color: $blue;
+  }
+
   & > span {
     line-height: inherit;
-    
+
     .icon {
-      font-size: .825rem;
+      font-size: 0.825rem;
     }
-    
+
     &:not(:last-child):after {
       content: "·";
       display: inline-block;

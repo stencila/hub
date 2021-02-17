@@ -1,9 +1,10 @@
 {% load i18n humanize stencila %}
 
-<div class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% endif %}">
+<div
+     class="columns is-relative my-0 py-0 {% if is_list_item %}job-list--item{% else %}job-list--standalone-item{% endif %}">
   <div class="column">
     <div class="mb-1">
-      <span class="has-text-weight-bold is-vcentered">
+      <span class="has-text-weight-bold is-vcentered job-list--title">
         {% include "./_job_method_tag.html" %}
         <span class="is-vcentered">{{ job.summary_string }}</span>
       </span>
@@ -19,18 +20,20 @@
         {% with creator=job.creator %}
         {% if creator %}
         {% if creator.personal_account.image.medium %}
-        <span class="icon is-vcentered pr-1">
-          <img src="{{ job.creator.personal_account.image.medium }}"
-               role="presentation"></img>
-        </span>
-        {% else %}
-        <span class="icon is-vcentered">
-          <i class="ri-user-line"></i>
-        </span>
-        {% endif %}
-        <span class="is-vcentered">
-          {{ job.creator.username }}
-        </span>
+        <a href="{% url 'ui-accounts-retrieve' user.username %}">
+          <span class="icon is-vcentered pr-1">
+            <img src="{{ job.creator.personal_account.image.medium }}"
+                 role="presentation"></img>
+          </span>
+          {% else %}
+          <span class="icon is-vcentered">
+            <i class="ri-user-line"></i>
+          </span>
+          {% endif %}
+          <span class="is-vcentered">
+            {{ job.creator.username }}
+          </span>
+        </a>
         {% else %}
         <span class="icon is-vcentered">
           <i class="ri-user-line"></i>
