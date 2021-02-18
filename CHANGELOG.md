@@ -1,3 +1,12 @@
+## [4.36.1](https://github.com/stencila/hub/compare/v4.36.0...v4.36.1) (2021-02-18)
+
+
+### Bug Fixes
+
+* **Worker:** Add missing dep for Puppeteer ([4e6a0b3](https://github.com/stencila/hub/commit/4e6a0b34b78ca2421a12ac50c399e736880009a2)), closes [#987](https://github.com/stencila/hub/issues/987)
+* **Worker:** Update Encoda version ([6a9dd14](https://github.com/stencila/hub/commit/6a9dd1462b10b8804de76356d592f7752eebc624))
+* **Worker:** Update to Node v14 and other refinements to Dockerfile ([faf29b4](https://github.com/stencila/hub/commit/faf29b4cc794da1bf7d7a41c5ba2eab0ce142a86))
+
 # [4.36.0](https://github.com/stencila/hub/compare/v4.35.4...v4.36.0) (2021-02-17)
 
 
