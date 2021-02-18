@@ -1,3 +1,10 @@
+## [4.36.2](https://github.com/stencila/hub/compare/v4.36.1...v4.36.2) (2021-02-18)
+
+
+### Bug Fixes
+
+* **Worker:** Further changes to Puppeteer deps ([a7eece2](https://github.com/stencila/hub/commit/a7eece251b40ab0aea01101ff4f3e468ce22bb94)), closes [#987](https://github.com/stencila/hub/issues/987)
+
 ## [4.36.1](https://github.com/stencila/hub/compare/v4.36.0...v4.36.1) (2021-02-18)
 
 
