@@ -19,15 +19,27 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Install necessary libs for Encoda's Puppeteer
-# From https://github.com/stencila/encoda/blob/master/Dockerfile
-RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
- && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
- && apt-get update \
- && apt-get install -y --no-install-recommends \
-      google-chrome-stable \
-      fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
-      libxshmfence1 libxss1 \
+# Install necessary libs for Encoda's Puppeteer 3+ on Ubuntu 20.04
+# Based on comments in https://github.com/puppeteer/puppeteer/issues/3443
+RUN apt-get update \
+ && apt-get install -y \
+      libasound2 \
+      libatk-bridge2.0-0 \
+      libatk1.0-0 \
+      libcups2 \
+      libgbm1 \
+      libgconf-2-4 \
+      libgtk-3-0 \
+      libgtk2.0-0 \
+      libnotify-dev \
+      libnss3 \
+      libpangocairo-1.0-0 \
+      libxcomposite1 \
+      libxrandr2 \
+      libxss1 \
+      libxtst6 \
+      xauth \
+      xvfb \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*

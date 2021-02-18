@@ -36,15 +36,17 @@ cover: venv
 
 # Run smoke tests
 smoke: build
+	# Tests to ensure that Encoda runs OK within the `hub-worker` Docker container
+	# See https://github.com/stencila/hub/issues/987 for an example of a bug
+	# that this is meant to catch.
+
 	# Can convert to some common formats
 	docker run --rm stencila/hub-worker \
-		encoda convert "Hello" --from md temp.md temp.ipynb temp.html
-	# Can launch and shutdown Puppeteer
+		encoda convert "Hello" --from md temp.md temp.ipynb temp.html temp.docx
+
+	# Can convert to formats that rely on Puppeteer
 	docker run --rm stencila/hub-worker \
-		node -e  "require('puppeteer').launch({'args': ['--no-sandbox']}).then(browser => browser.close())"
-	# Can convert to PNG and PDF (need Puppeteer)
-	# This is currently timeing out
-	# docker run --rm stencila/hub-worker encoda convert "Hello" --from md temp.png temp.pdf
+		encoda convert --debug "Hello" --from md temp.png temp.pdf
 
 
 # Run `celery worker` during development to check configuration.
