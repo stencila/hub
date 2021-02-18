@@ -23,8 +23,10 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
 RUN curl -sL https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
  && apt-get update \
- && apt-get install -y --no-install-recommends\
-        google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+ && apt-get install -y --no-install-recommends \
+      google-chrome-stable \
+      fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
+      libxshmfence1 libxss1 \
  && apt-get autoremove -y \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -50,7 +52,7 @@ COPY . ./
 # See https://www.distributedpython.com/2018/10/01/celery-docker-startup/
 ENV PYTHONUNBUFFERED=1
 
-# Run non-root user
+# Run as non-root user
 USER worker
 
 # Use the array form of CMD to ensure that the celery process has PID 1
