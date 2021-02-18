@@ -59,7 +59,10 @@
         "groupName": "Publishing dependencies",
         "groupSlug": "pub-deps",
         "matchPaths": [
-          "./manager/package.json"
+          "+(./manager/package.json)"
+        ],
+        "matchDepTypes": [
+          "devDependencies"
         ],
         "matchPackagePatterns": [
           "@stencila/thema",
