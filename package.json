@@ -10,8 +10,8 @@
       "config:base"
     ],
     "timezone": "UTC",
-    "masterIssue": true,
-    "masterIssueTitle": "Update dependencies",
+    "dependencyDashboard": true,
+    "dependencyDashboardTitle": "Update dependencies",
     "schedule": [
       "before 12pm on Friday"
     ],
@@ -61,7 +61,7 @@
         "matchPaths": [
           "./manager/package.json"
         ],
-        "matchPackageNames": [
+        "matchPackagePatterns": [
           "@stencila/thema",
           "@stencila/components"
         ],
