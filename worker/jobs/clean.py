@@ -24,7 +24,13 @@ class Clean(Job):
     ) -> Files:
         for root, dirs, files in os.walk("."):
             for file in files:
-                os.unlink(os.path.join(root, file))
+                try:
+                    os.unlink(os.path.join(root, file))
+                except Exception as exc:
+                    self.warn(str(exc))
             for dir in dirs:
-                shutil.rmtree(os.path.join(root, dir))
+                try:
+                    shutil.rmtree(os.path.join(root, dir))
+                except Exception as exc:
+                    self.warn(str(exc))
         return list_files()
