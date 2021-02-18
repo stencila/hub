@@ -22,6 +22,10 @@ cover:
 	make -C manager cover
 	make -C worker cover
 
+# Run smoke tests
+smoke:
+	make -C worker smoke
+
 # Run screenshotting
 snaps:
 	make -C manager snaps
