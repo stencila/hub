@@ -30,6 +30,9 @@ jobs:
         condition: succeeded()
         displayName: Upload coverage
 
+      - script: make smoke
+        displayName: Run smoke tests
+
   - job: release
     dependsOn: [test]
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
