@@ -1,3 +1,10 @@
+## [4.36.3](https://github.com/stencila/hub/compare/v4.36.2...v4.36.3) (2021-02-18)
+
+
+### Bug Fixes
+
+* **Clean job:** Make more robust ([3834eb7](https://github.com/stencila/hub/commit/3834eb791c72ffa9ae170e0df051147a3730e464)), closes [#1023](https://github.com/stencila/hub/issues/1023)
+
 ## [4.36.2](https://github.com/stencila/hub/compare/v4.36.1...v4.36.2) (2021-02-18)
 
 
