@@ -18,7 +18,10 @@
                 name="role">
           <option value="MEMBER">Member</option>
           <option value="MANAGER">Manager</option>
+          {# Only allow owners to add new owners . #}
+          {% if role in "OWNER" %}
           <option value="OWNER">Owner</option>
+          {% endif %}
         </select>
       </div>
     </div>

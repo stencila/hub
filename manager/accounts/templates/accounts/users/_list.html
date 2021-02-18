@@ -17,8 +17,9 @@
         </span>
       </div>
       <div class="level-right">
-        {# Do not allow managers or owners to change their role or remove themselves. Can cause UX confusion. #}
-        {% if role in "MANAGER,OWNER" and request.user != user %}
+        {# Do not allow managers or owners to change their role or remove themselves. #}
+        {# Do not allow managers to change role of, or remove, owners. #}
+        {% if role in "MANAGER,OWNER" and request.user != user and role|add:account_user.role != "MANAGEROWNER" %}
         <div class="field has-addons">
           <div class="control">
             <div class="select is-small-mobile">
@@ -69,9 +70,9 @@
           </div>
         </div>
         {% else %}
-        <p data-tooltip="{% trans "You cannot change your own role." %}"
+        <p data-tooltip="{% if request.user == user %}{% trans "You cannot change your own role." %}{% else %}{% trans "You can not change this users role." %}{% endif %}"
            class="has-tooltip-top has-tooltip-text-centered">
-          {{ role|title }}
+          {{ account_user.role|title }}
         </p>
         {% endif %}
       </div>
