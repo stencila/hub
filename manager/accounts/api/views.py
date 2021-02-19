@@ -19,12 +19,15 @@ from accounts.api.serializers import (
     AccountTeamUpdateSerializer,
     AccountUpdateSerializer,
     AccountUserCreateSerializer,
+    AccountUserDestroySerializer,
+    AccountUserPatchSerializer,
     AccountUserSerializer,
 )
 from accounts.models import Account, AccountRole, AccountTeam, AccountUser
 from accounts.quotas import AccountQuotas
 from manager.api.helpers import (
     HtmxCreateMixin,
+    HtmxDestroyMixin,
     HtmxListMixin,
     HtmxMixin,
     HtmxRetrieveMixin,
@@ -285,9 +288,11 @@ class AccountsViewSet(
 
 
 class AccountsUsersViewSet(
-    HtmxMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
+    HtmxListMixin,
+    HtmxCreateMixin,
+    HtmxRetrieveMixin,
+    HtmxUpdateMixin,
+    HtmxDestroyMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -299,8 +304,16 @@ class AccountsUsersViewSet(
     # Configuration
 
     lookup_url_kwarg = "user"
+    object_name = "account_user"
+    queryset_name = "account_users"
 
-    def get_account(self):  # noqa: D102
+    def get_account(self):
+        """
+        Get the account for the request.
+
+        Checks that the user is an account member and that they have
+        permissions to perform the action.
+        """
         try:
             account = Account.objects.get(
                 **filter_from_ident(self.kwargs["account"]),
@@ -321,19 +334,26 @@ class AccountsUsersViewSet(
 
         return account
 
-    def get_account_role(self):  # noqa: D102
+    def get_account_role(self):
+        """
+        Get the account and the role of the requester on the account.
+        """
         account = self.get_account()
         role = account.users.get(user=self.request.user).role
         return account, role
 
     def get_queryset(self, account=None):
-        """Get the queryset."""
+        """
+        Get the queryset.
+        """
         if account is None:
             account = self.get_account()
         return AccountUser.objects.filter(account=account)
 
     def get_object(self, account=None):
-        """Get the object."""
+        """
+        Get the account user from either the user is or username in path.
+        """
         if account is None:
             account = self.get_account()
         try:
@@ -346,72 +366,38 @@ class AccountsUsersViewSet(
         except AccountUser.DoesNotExist:
             raise exceptions.NotFound
 
-    def get_serializer_class(self):  # noqa: D102
-        return (
-            AccountUserCreateSerializer
-            if self.action == "create"
-            else AccountUserSerializer
+    def get_serializer_class(self):
+        """
+        Override to return alternative serializers for each view.
+        """
+        if self.action in ("list", "retrieve"):
+            return AccountUserSerializer
+        if self.action == "create":
+            return AccountUserCreateSerializer
+        if self.action == "partial_update":
+            return AccountUserPatchSerializer
+        if self.action == "destroy":
+            return AccountUserDestroySerializer
+
+    def get_serializer_context(self, *args, **kwargs):
+        """
+        Override to add to the serializer context.
+        """
+        account, role = self.get_account_role()
+        account_user = self.get_object() if "user" in self.kwargs else None
+        return dict(
+            **super().get_serializer_context(),
+            account=account,
+            account_user=account_user,
+            requester_role=role,
         )
 
-    def create(self, request: Request, *args, **kwargs) -> Response:
+    def get_response_context(self, *args, **kwargs):
         """
-        Add an account user.
-
-        Returns data for the new account user.
+        Override to add to the template context.
         """
         account, role = self.get_account_role()
-        serializer = self.get_serializer(data=request.data)
-
-        # TODO: Check that the user is not already an account user
-
-        if self.accepts_html():
-            if serializer.is_valid():
-                serializer.save()
-                status = self.CREATED
-            else:
-                status = self.INVALID
-
-            return Response(dict(account=account, role=role), status=status)
-        else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=self.CREATED)
-
-    def partial_update(
-        self, request: Request, *args, **kwargs
-    ) -> Response:  # noqa: D102
-        account, role = self.get_account_role()
-        account_user = self.get_object()
-        serializer = self.get_serializer(account_user, data=request.data, partial=True)
-
-        if self.accepts_html():
-            if serializer.is_valid():
-                serializer.save()
-                status = self.UPDATED
-            else:
-                status = self.INVALID
-            return Response(dict(account=account, role=role), status=status)
-        else:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(status=self.UPDATED)
-
-    def destroy(self, request: Request, *args, **kwargs) -> Response:
-        """
-        Remove an account user.
-
-        Returns an empty response.
-        """
-        account, role = self.get_account_role()
-        account_user = self.get_object()
-
-        # TODO: Check that there is at least one admin left on the account
-
-        account_user.delete()
-        if self.accepts_html():
-            return Response(dict(account=account, role=role), status=self.DESTROYED)
-        else:
-            return Response(status=self.DESTROYED)
+        return super().get_response_context(*args, **kwargs, account=account, role=role)
 
 
 class AccountsTeamsViewSet(

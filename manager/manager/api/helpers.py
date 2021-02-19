@@ -211,7 +211,9 @@ class HtmxDestroyMixin(HtmxMixin):  # noqa: D101
 
         serializer_class = self.get_serializer_class()
         if serializer_class:
-            serializer = serializer_class(instance, data=request.data)
+            serializer = serializer_class(
+                instance, data=request.data, context=self.get_serializer_context()
+            )
         else:
             serializer = None
 

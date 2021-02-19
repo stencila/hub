@@ -13,37 +13,41 @@
 <h2 class="title is-4">{% trans "Collaborators" %}</h2>
 
 {% if project.role in "MANAGER,OWNER" %}
-<form class="field has-addons-tablet">
-  <input type="hidden"
-         name="type"
-         value="user">
-  <div class="control is-expanded">
-    {% include "users/_search.html" with id_name="agent" %}
-  </div>
-
-  <div class="control is-expanded-mobile">
-    <label class="label is-sr-only"
-           for="projects-agents-add-role">{% trans "User role" %}</label>
-    <div class="select">
-      <select id="projects-agents-add-role"
-              name="role">
-        <option value="AUTHOR">Author</option>
-        <option value="MANAGER">Manager</option>
-        <option value="OWNER">Owner</option>
-      </select>
+<div class="is-flex is-flex-direction-row is-align-items-center">
+  <form class="field has-addons-tablet mb-0 is-flex-grow-1">
+    <input type="hidden"
+           name="type"
+           value="user">
+    <div class="control is-expanded">
+      {% include "users/_search.html" with id_name="agent" %}
     </div>
-  </div>
-  <div class="control">
-    <button class="button is-primary is-outlined is-fullwidth-mobile"
-            hx-post="{% url 'api-projects-agents-list' project.id %}"
-            hx-include="#projects-agents-add-type, #user-search-result-id, #projects-agents-add-role"
-            hx-template="projects/_agents_list.html"
-            hx-target="#projects-agents-list">
-      <span class="icon"><i class="ri-add-line"></i></span>
-      <span>Add</span>
-    </button>
-  </div>
-</form>
+
+    <div class="control is-expanded-mobile">
+      <label class="label is-sr-only"
+             for="projects-agents-add-role">{% trans "User role" %}</label>
+      <div class="select">
+        <select id="projects-agents-add-role"
+                name="role">
+          <option value="READER">Reader</option>
+          <option value="AUTHOR">Author</option>
+          <option value="MANAGER">Manager</option>
+          <option value="OWNER">Owner</option>
+        </select>
+      </div>
+    </div>
+    <div class="control">
+      <button class="button is-primary is-outlined is-fullwidth-mobile"
+              hx-post="{% url 'api-projects-agents-list' project.id %}"
+              hx-include="#projects-agents-add-type, #user-search-result-id, #projects-agents-add-role"
+              hx-template="projects/_agents_list.html"
+              hx-target="#projects-agents-list">
+        <span class="icon"><i class="ri-add-line"></i></span>
+        <span>Add</span>
+      </button>
+    </div>
+  </form>
+  {% include "./_collaborator_role_help_tip.html" %}
+</div>
 <p class="help">
   Can't find who you are looking for?
   <a
