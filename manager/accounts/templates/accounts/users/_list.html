@@ -32,8 +32,11 @@
                         {% if account_user.role == "MEMBER" %}selected{% endif %}>Member</option>
                 <option value="MANAGER"
                         {% if account_user.role == "MANAGER" %}selected{% endif %}>Manager</option>
+                {# Only allow owners to change up to owner role. #}
+                {% if role == "OWNER" %}
                 <option value="OWNER"
                         {% if account_user.role == "OWNER" %}selected{% endif %}>Owner</option>
+                {% endif %}
               </select>
             </div>
           </div>

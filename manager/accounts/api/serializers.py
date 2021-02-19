@@ -18,10 +18,12 @@ class AccountUserSerializer(serializers.ModelSerializer):
     """
     A serializer for account users.
 
-    Includes a nested serializer for the user
+    Includes a nested serializer for the user.
     """
 
     user = UserSerializer()
+
+    role = serializers.ChoiceField(choices=AccountRole.as_choices())
 
     class Meta:
         model = AccountUser
@@ -32,31 +34,108 @@ class AccountUserCreateSerializer(UserIdentifierSerializer):
     """
     A serializer for adding account users.
 
-    Includes a nested serializer for the user
+    Extends `UserIdentifierSerializer` to be able to take user id
+    or username.
     """
 
-    account = serializers.HiddenField(
-        default=FromContextDefault(
-            lambda context: get_object_from_ident(
-                Account, context["view"].kwargs["account"]
+    role = serializers.ChoiceField(choices=AccountRole.as_choices())
+
+    def validate_role(self, role):
+        """
+        Validate role.
+
+        Check that the request user is at least a manager and that
+        a manager is not adding an owner.
+        """
+        requester_role = self.context["requester_role"]
+        if (
+            requester_role not in (AccountRole.MANAGER.name, AccountRole.OWNER.name)
+            or requester_role == AccountRole.MANAGER.name
+            and role == AccountRole.OWNER.name
+        ):
+            raise exceptions.ValidationError(
+                "You do not have permission to create this account role."
             )
-        )
-    )
 
-    role = serializers.ChoiceField(
-        choices=[
-            AccountRole.MEMBER.name,
-            AccountRole.MANAGER.name,
-            AccountRole.OWNER.name,
-        ]
-    )
+        return role
 
-    def create(self, validated_data):  # noqa: D102
+    def validate(self, data):
+        """
+        Validate data.
+
+        Check that the user is not already an account user.
+        """
+        account = self.context["account"]
+        data = super().validate(data)
+        user = data["user"]
+
+        if AccountUser.objects.filter(account=account, user=user).count() > 0:
+            raise exceptions.ValidationError(
+                dict(user="User is already a member of this account")
+            )
+
+        return data
+
+    def create(self, validated_data):
+        """
+        Create the account user.
+        """
         return AccountUser.objects.create(
-            account=validated_data["account"],
+            account=self.context["account"],
             user=validated_data["user"],
             role=validated_data["role"],
         )
+
+
+class AccountUserPatchSerializer(AccountUserSerializer):
+    """
+    A serializer for changing an account user's role.
+    """
+
+    def validate_role(self, role):
+        """
+        Validate role.
+
+        Check that the request user is at least a manager and that
+        a manager is not changing a role to owner.
+        """
+        requester_role = self.context["requester_role"]
+        if (
+            requester_role not in (AccountRole.MANAGER.name, AccountRole.OWNER.name)
+            or requester_role == AccountRole.MANAGER.name
+            and role == AccountRole.OWNER.name
+        ):
+            raise exceptions.ValidationError(
+                "You do not have permission to change this account user's role."
+            )
+
+        return role
+
+
+class AccountUserDestroySerializer(serializers.Serializer):
+    """
+    A serializer for removing account users.
+    """
+
+    def validate(self, data):
+        """
+        Validate data.
+
+        Check that the request user is at least a manager and that
+        a manager is not removing an owner.
+        """
+        account_user = self.context["account_user"]
+        requester_role = self.context["requester_role"]
+        if (
+            requester_role not in (AccountRole.MANAGER.name, AccountRole.OWNER.name)
+            or requester_role == AccountRole.MANAGER.name
+            and account_user.role == AccountRole.OWNER.name
+        ):
+            raise exceptions.ValidationError(
+                "You do not have permission to remove this account user."
+            )
+
+        return data
 
 
 class AccountTeamSerializer(serializers.ModelSerializer):
