@@ -1,3 +1,18 @@
+# [4.37.0](https://github.com/stencila/hub/compare/v4.36.3...v4.37.0) (2021-02-19)
+
+
+### Bug Fixes
+
+* **Account:** Differentiate between manager and owner permissions in UI ([4234dde](https://github.com/stencila/hub/commit/4234dde4e3a909596b098c406a614bbef7b72d3e))
+* **Account users:** Fix API  and UI around permissions ([6368567](https://github.com/stencila/hub/commit/63685673ad7828f58ffe1aac247c87429363644a))
+* **Project settings:** Only show destroy form if project owner ([22f85e1](https://github.com/stencila/hub/commit/22f85e1515d0dd3d932c2053159b240b2f349b75))
+
+
+### Features
+
+* **Projects:** Allow inviting users as Readers to a project ([7d3bdbd](https://github.com/stencila/hub/commit/7d3bdbd675c832c8f59ce647bca9c54830950bec))
+* **User roles:** Add tooltip explaining differences between user roles ([054d236](https://github.com/stencila/hub/commit/054d236053d68d180cbaea2984ae60bb72be1dce))
+
 ## [4.36.3](https://github.com/stencila/hub/compare/v4.36.2...v4.36.3) (2021-02-18)
 
 
