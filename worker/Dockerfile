@@ -19,8 +19,8 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-# Install necessary libs for Encoda's Puppeteer 3+ on Ubuntu 20.04
-# Based on comments in https://github.com/puppeteer/puppeteer/issues/3443
+# Install necessary libs for Encoda
+# See https://github.com/stencila/encoda/blob/master/Dockerfile
 RUN apt-get update \
  && apt-get install -y \
       libasound2 \
