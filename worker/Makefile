@@ -22,7 +22,7 @@ lint: venv
 	$(VE)/black --check .
 	$(VE)/isort --check .
 	$(VE)/flake8
-	$(VE)/mypy --config-file pyproject.toml .
+	$(VE)/mypy --config-file pyproject.toml --exclude venv .
 	$(VE)/pydocstyle --match-dir='^(?!venv)'
 
 # Run tests
