@@ -1,3 +1,10 @@
+## [4.37.3](https://github.com/stencila/hub/compare/v4.37.2...v4.37.3) (2021-02-22)
+
+
+### Bug Fixes
+
+* **Project sharing:** Indicates usage of private projects ([05a08f3](https://github.com/stencila/hub/commit/05a08f353218362ceee182414cae1187f3397bbf))
+
 ## [4.37.2](https://github.com/stencila/hub/compare/v4.37.1...v4.37.2) (2021-02-22)
 
 
