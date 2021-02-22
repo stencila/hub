@@ -3,6 +3,29 @@
       hx-vals="javascript: public: document.querySelector('#public-toggle').checked"
       hx-template="projects/_sharing_public_form.html"
       hx-swap="outerHTML">
+
+  <h2 class="title is-4">URL</h2>
+  <p>
+    {% with project_url=project.content_url %}
+    <a href="{{ project_url }}"
+       target="_blank"
+       rel="noopener"
+       class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
+      <span class="icon">
+        <i class="ri-global-line"></i>
+      </span>
+      <span>
+        {{ project_url }}
+      </span>
+    </a>
+    {% endwith %}
+  </p>
+  <p class="help">
+    Use this <strong>{% if project.public %}public{% else %}private{% endif %}</strong> URL to provide read-only access
+    to your project or add users as collaborators below.
+  </p>
+  <br>
+
   <div class="field mb-0">
     <input id="public-toggle"
            type="checkbox"
@@ -11,19 +34,11 @@
     <label for="public-toggle">
       <span class="title is-size-5">Public</span>
     </label>
+    <p class="help">
+      Account <strong>{{ account.name }}</strong> is using
+      <strong>{{ account_project_private_usage.amount }}</strong> of
+      <strong>{{ account_project_private_usage.limit }}</strong> private projects provided by its
+      <a href="{% url 'ui-accounts-plan' account.name %}">current plan</a>.
+    </p>
   </div>
-
-  {% with project_url=project.content_url %}
-  <a href="{{ project_url }}"
-     target="_blank"
-     rel="noopener"
-     class="has-text-grey has-text-link-hover has-text-nowrap has-text-ellipsis">
-    <span class="icon">
-      <i class="ri-global-line"></i>
-    </span>
-    <span>
-      {{ project_url }}
-    </span>
-  </a>
-  {% endwith %}
 </form>

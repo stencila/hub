@@ -157,6 +157,5 @@ def sharing(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """Retrieve a project's sharing settings."""
     viewset = ProjectsViewSet.init("retrieve", request, args, kwargs)
     project = viewset.get_object()
-    return render(
-        request, "projects/sharing.html", dict(project=project, meta=project.get_meta())
-    )
+    context = viewset.get_response_context(instance=project)
+    return render(request, "projects/sharing.html", context)

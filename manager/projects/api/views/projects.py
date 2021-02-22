@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from accounts.quotas import AccountQuotas
 from jobs.api.helpers import redirect_to_job
 from jobs.models import Job
 from manager.api.helpers import (
@@ -282,13 +283,18 @@ class ProjectsViewSet(
 
     def get_response_context(self, *args, **kwargs):
         """
-        Override to add account to the template context.
+        Override to add account and account quota usage to the template context.
         """
         context = super().get_response_context(*args, **kwargs)
 
-        instance = kwargs.get("instance")
-        if instance:
-            context["account"] = instance.account
+        project = kwargs.get("instance")
+        if project:
+            account = project.account
+            context["account"] = account
+            context[
+                "account_project_private_usage"
+            ] = AccountQuotas.PROJECTS_PRIVATE.usage(account)
+
         return context
 
     def get_success_url(self, serializer):
