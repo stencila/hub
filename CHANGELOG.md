@@ -1,3 +1,18 @@
+## [4.37.1](https://github.com/stencila/hub/compare/v4.37.0...v4.37.1) (2021-02-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.8.2 ([15f6592](https://github.com/stencila/hub/commit/15f659203a1165b630a44dc85ea98ce56329273a))
+* **deps:** update dependency @stencila/encoda to v0.106.1 ([d4f1616](https://github.com/stencila/hub/commit/d4f1616ed5e6dc437aa0378bf7f3d3eecdb18ba2))
+* **deps:** update dependency django to v3.1.7 ([9d7e1d9](https://github.com/stencila/hub/commit/9d7e1d92156bc1543dcc891f75dc8a2073dfcb23))
+* **deps:** update dependency htmx.org to v1.2.1 ([14e3e16](https://github.com/stencila/hub/commit/14e3e163c0a6802f11e32f6c92c9389eb368b2f9))
+* **deps:** update dependency pygments to v2.8.0 ([7639b31](https://github.com/stencila/hub/commit/7639b314f1f0b2f9ec9cc053a0be4ce3d6c6324d))
+* **deps:** update dependency sentry-sdk to v0.20.3 ([00e7646](https://github.com/stencila/hub/commit/00e7646213c7ba47c21bacaf6cc69c2d9f2f85ca))
+* **Features:** Allow true/false strings; provide account in template context ([b0e2b3c](https://github.com/stencila/hub/commit/b0e2b3c0fd838b09621af194b2a5132d05175a2c))
+* **Forms:** Move away from deprecated hx-vars ([abe1a74](https://github.com/stencila/hub/commit/abe1a74fd2d7d7ff53d086d404b28d3910998820))
+* **Forms:** Move away from deprecated hx-vars to hx-vals ([595e4e2](https://github.com/stencila/hub/commit/595e4e2ed1c981f08d81fc933cf68fefab3d5c3b))
+
 # [4.37.0](https://github.com/stencila/hub/compare/v4.36.3...v4.37.0) (2021-02-19)
 
 
