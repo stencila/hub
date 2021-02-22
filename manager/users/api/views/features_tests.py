@@ -31,6 +31,11 @@ class FeaturesTestCase(DatabaseTestCase):
         ).data
         assert features == {"feature_a": "on", "feature_b": "off"}
 
+        features = self.update(
+            self.ada, "api-features", {"feature_a": "false", "feature_b": "true"}
+        ).data
+        assert features == {"feature_a": "off", "feature_b": "on"}
+
     def test_errors(self):
         response = self.update(self.ada, "api-features", {"foo": "bar"})
         assert response.status_code == 400

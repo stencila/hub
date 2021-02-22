@@ -41,13 +41,13 @@ class FeaturesView(
                     dict(feature='Invalid feature name "{0}"'.format(name))
                 )
 
-            if value not in (True, False, "on", "off"):
+            if value not in (True, False, "true", "false", "on", "off"):
                 raise exceptions.ValidationError(
                     dict(state='Invalid feature state "{0}"'.format(value))
                 )
-            if value is True:
+            if value is True or value == "true":
                 value = "on"
-            elif value is False:
+            elif value is False or value == "false":
                 value = "off"
 
             if value != flag.default:
@@ -56,7 +56,7 @@ class FeaturesView(
                 flag.users.remove(request.user)
 
         if self.accepts_html():
-            return Response(dict(flags=flags))
+            return Response(dict(account=request.user.personal_account, flags=flags))
         else:
             features = get_feature_flags(request.user)
             return Response(features)
