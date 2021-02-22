@@ -1,6 +1,6 @@
 <form hx-trigger="change"
       hx-patch="{% url 'api-projects-detail' project.id %}"
-      hx-vars="public: document.querySelector('#public-toggle').checked"
+      hx-vals="javascript: public: document.querySelector('#public-toggle').checked"
       hx-template="projects/_sharing_public_form.html"
       hx-swap="outerHTML">
   <div class="field mb-0">

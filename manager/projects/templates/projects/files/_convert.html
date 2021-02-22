@@ -10,7 +10,7 @@
 {% endcomment %}
 
 <form hx-post="{% url 'api-projects-files-convert' project.id file.id %}"
-      hx-vars="next: '{% url 'ui-projects-files-list' project.account.name project.name %}' + document.querySelector('#path').value + '!details'"
+      hx-vals="javascript: next: '{% url 'ui-projects-files-list' project.account.name project.name %}' + document.querySelector('#path').value + '!details'"
       hx-template="projects/files/_convert.html">
 
   <h1 class="title is-4">{% blocktrans with path=file.path %}Convert <code>{{ path }}</code> to...{% endblocktrans %}

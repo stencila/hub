@@ -10,7 +10,7 @@
 <form hx-patch="{% url 'api-features' %}"
       hx-template="users/features.html"
       hx-select="form"
-      hx-vars="{% for flag in flags %}{{ flag.name }}: document.querySelector('form [name={{ flag.name }}]').checked, {% endfor %}">
+      hx-vals="javascript: {% for flag in flags %}{{ flag.name }}: document.querySelector('form [name={{ flag.name }}]').checked, {% endfor %}">
   {% for flag in flags %}
   <div class="level">
     <h1 class="level-left title is-5">{{ flag.label }}</h1>

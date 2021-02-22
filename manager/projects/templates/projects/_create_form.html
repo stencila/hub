@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <form hx-post="{% url "api-projects-list" %}"
-      hx-vars="public: document.querySelector('form [name=public]').checked"
+      hx-vals="javascript: public: document.querySelector('form [name=public]').checked"
       hx-template="projects/_create_form.html"
       hx-redirect="CREATED:Location">
 

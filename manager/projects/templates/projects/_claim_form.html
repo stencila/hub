@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <form hx-patch="{% url "api-projects-detail" project.name %}"
-      hx-vars="public: document.querySelector('form [name=public]').checked, temporary: false"
+      hx-vals="javascript: public: document.querySelector('form [name=public]').checked, temporary: false"
       hx-template="projects/_claim_form.html"
       hx-redirect="UPDATED:Location">
 
