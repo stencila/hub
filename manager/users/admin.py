@@ -81,7 +81,7 @@ class CustomUserAdmin(UserAdmin):
         for user in queryset.all():
             GithubRepo.refresh_for_user(user)
 
-    refresh_github_repos.short_description = "Refresh list of GitHub repos"
+    refresh_github_repos.short_description = "Refresh list of GitHub repos"  # type: ignore
 
 
 @admin.register(AnonUser)

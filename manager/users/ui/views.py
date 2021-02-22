@@ -1,14 +1,10 @@
 import logging
 
 import invitations.views
-from allauth.account.views import (
-    EmailView,
-    LoginView,
-    LogoutView,
-    PasswordChangeView,
-    SignupView,
-)
-from allauth.socialaccount.views import ConnectionsView
+from allauth.account.views import EmailView, LoginView, LogoutView
+from allauth.account.views import PasswordChangeView as BasePasswordChangeView
+from allauth.account.views import SignupView as BaseSignupView
+from allauth.socialaccount.views import ConnectionsView as BaseConnectionsView
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect as redir
@@ -38,7 +34,7 @@ class AuthenticationMixin:
         return data
 
 
-class SignupView(AuthenticationMixin, SignupView):
+class SignupView(AuthenticationMixin, BaseSignupView):
     """Override allauth SignupView to custom URL and template name."""
 
     template_name = "users/signup.html"
@@ -69,7 +65,7 @@ class AccountRoleMixin:
         return context
 
 
-class PasswordChangeView(AccountRoleMixin, PasswordChangeView):
+class PasswordChangeView(AccountRoleMixin, BasePasswordChangeView):
     """Override of allauth PasswordChangeView to add template context variables."""
 
 
@@ -77,7 +73,7 @@ class EmailsView(AccountRoleMixin, EmailView):
     """Override of allauth EmailView to add template context variables."""
 
 
-class ConnectionsView(AccountRoleMixin, ConnectionsView):
+class ConnectionsView(AccountRoleMixin, BaseConnectionsView):
     """Override of allauth ConnectionsView to add template context variables."""
 
 

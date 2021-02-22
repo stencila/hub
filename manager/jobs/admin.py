@@ -92,7 +92,7 @@ class JobAdmin(admin.ModelAdmin):
             request, "jobs/admin/jobs_cancel_confirm.html", context={"jobs": queryset}
         )
 
-    cancel.short_description = "Cancel selected jobs"
+    cancel.short_description = "Cancel selected jobs"  # type: ignore
 
 
 @admin.register(Pipeline)

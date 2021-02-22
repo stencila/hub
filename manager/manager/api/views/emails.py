@@ -47,7 +47,7 @@ class EmailsView(generics.GenericAPIView):
     A view for receiving parsed email payloads.
     """
 
-    permission_classes = []
+    permission_classes: list = []
     parser_classes = [MultiPartParser, JSONParser]
     serializer_class = EmailSerializer
 

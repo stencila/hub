@@ -32,7 +32,7 @@ class StatusView(generics.GenericAPIView):
     """
 
     permission_classes = (permissions.AllowAny,)
-    throttle_classes = []
+    throttle_classes: list = []
     pagination_class = None
 
     @swagger_auto_schema(operation_id="status_read", responses={200: StatusResponse})

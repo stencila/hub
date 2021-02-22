@@ -52,7 +52,7 @@ def update_services_for_user(user: Union[User, int], services=["userflow"]):
         update_userflow(user, data)
 
 
-last_userflow_request = 0
+last_userflow_request: float = 0
 
 
 def update_userflow(user: User, data: dict):
