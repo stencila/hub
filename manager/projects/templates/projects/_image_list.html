@@ -4,7 +4,7 @@
   {% for file in files|slice:":100" %}
   <li class="column is-one-quarter"
       hx-patch="{% url 'api-projects-detail' project.id %}"
-      hx-vars="image_path: '{{ file.path }}'"
+      hx-vals='{"image_path":"{{ file.path }}"}'
       hx-template="projects/_image_current.html"
       hx-target="#image-current">
     <div class="card">

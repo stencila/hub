@@ -40,7 +40,7 @@
   <button class="button is-primary is-fullwidth-mobile"
           type="submit"
           hx-patch="{{ patch_url }}"
-          hx-vars="status:'ACCEPTED'">
+          hx-vals='{"status":"ACCEPTED"}'>
     <span class="icon">
       <i class="ri-chat-check-line"></i>
     </span>
@@ -50,7 +50,7 @@
   <button class="button is-fullwidth-mobile"
           type="submit"
           hx-patch="{{ patch_url }}"
-          hx-vars="status:'DECLINED'">
+          hx-vals='{"status":"DECLINED"}'>
     <span class="icon">
       <i class="ri-chat-delete-line"></i>
     </span>
@@ -69,7 +69,7 @@
   <button class="button is-danger is-fullwidth-mobile"
           type="submit"
           hx-patch="{{ patch_url }}"
-          hx-vars="status:'CANCELLED'">
+          hx-vals='{"status":"CANCELLED"}'>
     <span class="icon">
       <i class="ri-chat-off-line"></i>
     </span>

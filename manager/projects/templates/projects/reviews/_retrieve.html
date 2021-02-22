@@ -18,7 +18,7 @@
       {% if review.status == 'EXTRACTED' and is_editor and not review.get_doi %}
       <button class="button is-small-mobile is-expanded-mobile"
               hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
-              hx-vars="status:'REGISTERED'"
+              hx-vals='{"status":"REGISTERED"}'
               hx-swap="none"
               hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">
         <span class="icon">

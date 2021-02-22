@@ -41,7 +41,7 @@
            hx-trigger="keyup changed delay:500ms, role-changed"
            hx-get="{% url 'api-accounts-list' %}"
            hx-include="#orgs-search-role"
-           hx-vars="is:'org'"
+           hx-vals='{"is":"org"}'
            hx-template="accounts/_list_orgs_result.html"
            hx-indicator="#orgs-search-indicator"
            hx-target="#orgs-search-result">

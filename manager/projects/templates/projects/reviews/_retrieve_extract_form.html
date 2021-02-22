@@ -1,6 +1,6 @@
 <form class="form"
       hx-patch="{% url 'api-projects-reviews-detail' project.id review.id %}"
-      hx-vars="status:'COMPLETED'"
+      hx-vals='{"status":"COMPLETED"}'
       hx-template="projects/reviews/_retrieve_extract_form.html"
       hx-swap="outerHTML"
       hx-redirect="UPDATED:{% url 'ui-projects-reviews-retrieve' account.name project.name review.id %}">

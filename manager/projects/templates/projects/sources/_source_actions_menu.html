@@ -60,7 +60,7 @@
 
       <a class="dropdown-item"
          hx-patch="{% url 'api-projects-sources-detail' project.id source.id %}"
-         hx-vars="order: {{ source.order|default:"0"|add:"1" }}"
+         hx-vals='{"order": {{ source.order|default:"0"|add:"1" }} }'
          hx-swap="none"
          hx-redirect="UPDATED:{% url 'ui-projects-sources-list' project.account.name project.name %}">
         <span class="icon">
@@ -72,7 +72,7 @@
       <a class="dropdown-item"
          {% if source.order > 0 %}
          hx-patch="{% url 'api-projects-sources-detail' project.id source.id %}"
-         hx-vars="order: {{ source.order|add:"-1" }}"
+         hx-vals='{"order": {{ source.order|add:"-1" }} }'
          hx-swap="none"
          hx-redirect="UPDATED:{% url 'ui-projects-sources-list' project.account.name project.name %}"
          {% else %}disabled{% endif %}>
