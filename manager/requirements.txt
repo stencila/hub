@@ -37,7 +37,7 @@ PyGithub==1.54.1
 pygments==2.8.0
 pyjwt==1.7.1 # Necessary for PyGithub==1.54.1 compatability
 redis==3.5.3
-sentry-sdk==0.20.1
+sentry-sdk==0.20.3
 shortuuid==1.0.1
 stencila-schema==1.0.0
 whitenoise==5.2.0
