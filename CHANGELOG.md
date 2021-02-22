@@ -1,3 +1,13 @@
+## [4.37.2](https://github.com/stencila/hub/compare/v4.37.1...v4.37.2) (2021-02-22)
+
+
+### Bug Fixes
+
+* **deps:** update nginx docker tag to v1.19.7 ([c351747](https://github.com/stencila/hub/commit/c35174724b3ea7a0fe761d72bddc9901448429db))
+* **deps:** update postgres docker tag to v13.2 ([0e7c61c](https://github.com/stencila/hub/commit/0e7c61c128b5e2acca1a97825387d3024f236098))
+* **deps:** update prom/prometheus docker tag to v2.25.0 ([03d63ac](https://github.com/stencila/hub/commit/03d63ac4bfb065c0c0f398784e4ad7d928351bdb))
+* **deps:** update rabbitmq docker tag to v3.8.12 ([4b4358a](https://github.com/stencila/hub/commit/4b4358ad2f7e5d0e09e76286c70b9b669be7009b))
+
 ## [4.37.1](https://github.com/stencila/hub/compare/v4.37.0...v4.37.1) (2021-02-22)
 
 
