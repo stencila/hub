@@ -362,14 +362,12 @@ class Source(PolymorphicModel):
         job = Job.objects.create(
             project=self.project,
             creator=user or self.creator,
-            description=description,
             method=JobMethod.pull.value,
             params=dict(source=source, path=self.path),
+            description=description,
+            secrets=self.get_secrets(user),
             **Job.create_callback(self, "pull_callback"),
         )
-
-        job.secrets = self.get_secrets(user)
-
         self.jobs.add(job)
         return job
 
@@ -432,14 +430,12 @@ class Source(PolymorphicModel):
         job = Job.objects.create(
             project=self.project,
             creator=user or self.creator,
-            description=description,
             method=JobMethod.extract.value,
             params=dict(source=source, filters=filters),
+            description=description,
+            secrets=self.get_secrets(user),
             **Job.create_callback(review, "extract_callback"),
         )
-
-        job.secrets = self.get_secrets(user)
-
         self.jobs.add(job)
         return job
 

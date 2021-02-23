@@ -775,9 +775,11 @@ class Job(models.Model):
 
     callback_object = GenericForeignKey("callback_type", "callback_id")
 
-    # Ephemeral secrets for the job. These may be required by
-    # workers but are not stored in the database.
-    secrets: Dict = {}
+    secrets = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Any secrets (e.g. API tokens) required to perform the job. When the job has ended these should be deleted.",
+    )
 
     @cached_property
     def status_category(self) -> Optional[str]:

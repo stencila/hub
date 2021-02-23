@@ -250,8 +250,9 @@ def update_job(job: Job, data={}, force: bool = False) -> Job:
         if JobStatus.has_ended(status):
             job.is_active = False
 
-    # If the job is no longer active run it's callback
+    # If the job is no longer active clear its secrets and run its callback
     if was_active and not job.is_active:
+        job.secrets = None
         job.run_callback()
 
     # Save before updating parent (and then this again)
@@ -282,5 +283,6 @@ def cancel_job(job: Job) -> Job:
             app.control.revoke(str(job.id), terminate=True, signal="SIGUSR1")
         job.status = JobStatus.CANCELLED.value
         job.is_active = False
+        job.secrets = None
         job.save()
     return job

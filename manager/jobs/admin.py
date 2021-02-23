@@ -67,8 +67,8 @@ class JobAdmin(admin.ModelAdmin):
         "callback_id",
         "callback_method",
     ]
-
     raw_id_fields = ["project", "snapshot", "creator", "queue", "parent"]
+    exclude = ["secrets"]
 
     actions = ["cancel"]
 

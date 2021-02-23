@@ -39,7 +39,7 @@ class JobListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        exclude = ["params", "result", "error", "log"]
+        exclude = ["params", "result", "error", "log", "secrets"]
 
     def get_urls(self, job: Job):
         """
@@ -111,7 +111,7 @@ class JobRetrieveSerializer(JobListSerializer):
 
     class Meta:
         model = Job
-        fields = "__all__"
+        exclude = ["secrets"]
 
     def get_params(self, job: Job):
         """
@@ -138,7 +138,7 @@ class JobCreateSerializer(JobRetrieveSerializer):
 
     class Meta:
         model = Job
-        fields = "__all__"
+        exclude = ["secrets"]
         read_only_fields = [
             "creator",
             "created",
@@ -190,7 +190,7 @@ class JobUpdateSerializer(JobRetrieveSerializer):
 
     class Meta:
         model = Job
-        fields = "__all__"
+        exclude = ["secrets"]
         read_only_fields = ["creator", "created", "method", "params", "zone", "queue"]
 
 

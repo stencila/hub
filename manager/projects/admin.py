@@ -129,6 +129,8 @@ class SourceParentAdmin(PolymorphicParentModelAdmin):
 class SourceChildAdmin(PolymorphicChildModelAdmin):
     """Base admin class for all child models of Source."""
 
+    readonly_fields = ["jobs"]
+
 
 @admin.register(ElifeSource)
 class ElifeSourceAdmin(SourceChildAdmin):

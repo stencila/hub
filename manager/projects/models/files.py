@@ -588,24 +588,22 @@ class File(models.Model):
         if self.mimetype:
             options["from"] = self.mimetype
 
-        job = Job.objects.create(
+        return Job.objects.create(
+            project=self.project,
+            creator=user,
             description="Convert '{0}' to '{1}'".format(self.path, output),
             method=JobMethod.convert.name,
             params=dict(input=self.path, output=output, options=options),
-            project=self.project,
-            creator=user,
+            secrets=GoogleSourceMixin().get_secrets(user)
+            if output.endswith(".gdoc")
+            else None,
             **(Job.create_callback(self, "convert_callback") if not snapshot else {})
         )
-
-        if output.endswith(".gdoc"):
-            job.secrets = GoogleSourceMixin().get_secrets(user)
-
-        return job
 
     @transaction.atomic
     def convert_callback(self, job: Job):
         """
-        Create files, and any sources, including their dependcy relations after a convert job.
+        Create files, and any sources, including their dependency relations after a convert job.
 
         Add the created files to the project and make this file the upstream of each.
         Create any sources and make this file a downstream.
