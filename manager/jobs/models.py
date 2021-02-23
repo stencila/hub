@@ -778,7 +778,8 @@ class Job(models.Model):
     secrets = models.JSONField(
         null=True,
         blank=True,
-        help_text="Any secrets (e.g. API tokens) required to perform the job. When the job has ended these should be deleted.",
+        help_text="Any secrets (e.g. API tokens) required to perform the job. "
+        "When the job has ended these should be deleted.",
     )
 
     @cached_property
