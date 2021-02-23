@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.conf import settings
 from django.db.models import F, Q
 from django.shortcuts import redirect, reverse
 from drf_yasg import openapi
@@ -22,6 +23,7 @@ from projects.api.views.projects import get_project
 from projects.models.projects import Project, ProjectRole
 from projects.models.providers import GithubRepo
 from projects.models.sources import Source
+from users.socialaccount.tokens import get_user_google_token
 
 
 class ProjectsSourcesViewSet(
@@ -126,8 +128,8 @@ class ProjectsSourcesViewSet(
                     source_class
                 )
                 if cls is None:
-                    raise RuntimeError(
-                        "Unhandled source type: {0}".format(source_class)
+                    raise exceptions.ValidationError(
+                        dict(type="Unknown source type: {0}".format(source_class))
                     )
                 return cls
             return SourcePolymorphicSerializer
@@ -147,6 +149,7 @@ class ProjectsSourcesViewSet(
         for source actions (`role` is not available via `source.project`).
         """
         context = super().get_response_context(*args, **kwargs)
+        context["source_class"] = source_class
         context["project"] = self.get_project()
 
         if self.action == "create":
@@ -155,7 +158,14 @@ class ProjectsSourcesViewSet(
                 context["github_repos"] = GithubRepo.objects.filter(
                     user=self.request.user
                 )
-
+            elif source_class.startswith("Google"):
+                token, app = get_user_google_token(self.request.user)
+                if app:
+                    context["app_id"] = app.client_id.split("-")[0]
+                    context["client_id"] = app.client_id
+                    context["developer_key"] = settings.GOOGLE_API_KEY
+                if token:
+                    context["access_token"] = token.token
         return context
 
     def get_success_url(self, serializer):

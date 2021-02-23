@@ -5,6 +5,7 @@
 
 {% block layout_content %}
 <form hx-post="{% url 'api-projects-sources-list' project.id %}"
+      hx-vals='{"type": "{{ source_class }}" }'
       hx-template="{{ fields_template }}"
       hx-target="#source-create-fields"
       hx-redirect="CREATED:Location">

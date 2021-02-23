@@ -3,10 +3,6 @@
 
 {% include "serializers/_field.html" with field=serializer.path icon="ri-map-pin-2-line" placeholder="A file or folder name or path e.g. my-file.txt, data/2020" help_text="The location in the project that the source will be mapped to. Leave blank to let us choose one for you." %}
 
-<input type="hidden"
-       name="type"
-       value="{{ source_class }}">
-
 <button class="button is-primary is-fullwidth-mobile mt-3"
         type="submit">
   <span class="icon">
