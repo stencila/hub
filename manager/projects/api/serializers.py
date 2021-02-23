@@ -686,7 +686,7 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         if value:
             for part in value.split("/"):
-                match = re.search(r"^[A-Za-z][A-Za-z0-9\.\-_ ]*$", part, re.I)
+                match = re.search(r"^[A-Za-z0-9\.\-_ ]+$", part, re.I)
                 if not match:
                     raise exceptions.ValidationError(
                         'Path contains invalid characters. The invalid part is "{0}"'.format(
