@@ -1,3 +1,12 @@
+## [4.37.4](https://github.com/stencila/hub/compare/v4.37.3...v4.37.4) (2021-02-23)
+
+
+### Bug Fixes
+
+* **Jobs:** Persist secrets until job is ended ([d68d76f](https://github.com/stencila/hub/commit/d68d76ff14c71a5ffb8814009f5bc9fba733c326))
+* **Project sources:** Add access token to response template context ([7b8ab18](https://github.com/stencila/hub/commit/7b8ab18abcdaebc3ea9586899130fcc035de8b6e))
+* **Project sources:** Allow for paths starting with numbers ([e9d3ee9](https://github.com/stencila/hub/commit/e9d3ee97808353a514173b5c8661be2e4e7e61be))
+
 ## [4.37.3](https://github.com/stencila/hub/compare/v4.37.2...v4.37.3) (2021-02-22)
 
 
