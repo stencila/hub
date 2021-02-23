@@ -383,6 +383,9 @@ class AccountsUsersViewSet(
         """
         Override to add to the serializer context.
         """
+        if getattr(self, "swagger_fake_view", False):
+            return {}
+
         account, role = self.get_account_role()
         account_user = self.get_object() if "user" in self.kwargs else None
         return dict(
