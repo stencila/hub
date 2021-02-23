@@ -21,7 +21,7 @@ def get_working_dir(project: int):
     for workers to customize where the projects are stored.
     """
     return os.path.join(
-        os.environ.get("WORKING_DIR", os.path.join(STORAGE_ROOT, "working")),
+        os.environ.get("WORKING_ROOT", os.path.join(STORAGE_ROOT, "working")),
         str(project),
     )
 
@@ -34,7 +34,7 @@ def get_snapshot_dir(project: int, snapshot: str) -> str:
     working directories.
     """
     return os.path.join(
-        os.environ.get("SNAPSHOT_DIR", os.path.join(STORAGE_ROOT, "snapshots")),
+        os.environ.get("SNAPSHOT_ROOT", os.path.join(STORAGE_ROOT, "snapshots")),
         str(project),
         snapshot,
     )
@@ -44,7 +44,7 @@ def get_content_root() -> str:
     """
     Get the root of the content storage.
     """
-    return os.environ.get("CONTENT_DIR", os.path.join(STORAGE_ROOT, "content"))
+    return os.environ.get("CONTENT_ROOT", os.path.join(STORAGE_ROOT, "content"))
 
 
 def get_node_modules_bin(name: str) -> str:
