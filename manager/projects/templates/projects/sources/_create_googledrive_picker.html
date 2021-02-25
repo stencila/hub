@@ -146,8 +146,19 @@ A "file picker" for Google Drive. See
 {% endfor %}
 {% endif %}
 
-<p class="help mb-4">
+
+<p class="help mb-0">
   The Google id for the file or folder e.g. 1iNeKTbnIcW_92Hjc8qxMkrW2jPrvwjHuANju2hkaYkA.
+</p>
+
+<p class="help mt-0 mb-4 has-text-warning-dark">
+  <span class="icon is-small">
+    <i class="ri-information-line"></i>
+  </span>
+  <span class="is-vtop leading-none">If you encounter errors trying to select a file, please <a
+       href="https://developers.google.com/identity/sign-in/web/troubleshooting#third-party_cookies_and_data_blocked"
+       rel="nofollow"
+       class="has-text-inherit">enable third-party cookies</a> in your browser.</span>
 </p>
 
 {% endwith %}
