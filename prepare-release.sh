@@ -12,7 +12,7 @@ sed -i -e "s!__version__ = .*!__version__ = \"$VERSION\"!g" manager/manager/vers
 
 # Generate Python and HTML files from Javascript dependencies
 # This should have been done on `npm install` but, to be sure, it is repeated here
-(cd manager && npm ci && node generate.js)
+(cd manager && node generate.js)
 
 # Update the API schema used to generate the clients
 make -C clients -B api.yaml

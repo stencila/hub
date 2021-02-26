@@ -60,6 +60,7 @@ jobs:
 
       - script: |
           npm install
+          make -C manager venv
           npx semantic-release
         env:
           GIT_AUTHOR_NAME: Stencila CI Bot
