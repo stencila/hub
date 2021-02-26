@@ -1,4 +1,4 @@
-FROM python:3.9.1
+FROM python:3.9.2
 
 # Install Gunicorn as production WSGI server
 RUN pip3 install gunicorn
