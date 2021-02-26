@@ -41,9 +41,10 @@ def pull_github(
     repo_resource = client.get_repo(source["repo"])
     archive_link = repo_resource.get_archive_link("zipball")
 
-    # Get the archive. To avoid it filling up memory, stream directly to file
+    # Get the archive. To avoid it filling up memory, stream directly to file,
+    # Increase timeout over the default of 5s.
     zip_file = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
-    with httpx.stream("GET", archive_link) as response:
+    with httpx.stream("GET", archive_link, timeout=60) as response:
         for data in response.iter_bytes():
             zip_file.write(data)
     zip_file.close()
