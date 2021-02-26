@@ -1,3 +1,18 @@
+## [4.37.6](https://github.com/stencila/hub/compare/v4.37.5...v4.37.6) (2021-02-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.8.4 ([db5f87c](https://github.com/stencila/hub/commit/db5f87c012aaf6e1a0972da0d2fbbd4fef82d79f))
+* **deps:** update dependency @stencila/encoda to v0.107.0 ([6585189](https://github.com/stencila/hub/commit/6585189751c34619f6c7f0f00960e219d6117fc0))
+* **deps:** update dependency google-cloud-storage to v1.36.1 ([9e33005](https://github.com/stencila/hub/commit/9e33005e258742f0d98bf44675ef844ba03ec1ec))
+* **deps:** update dependency inflect to v5.2.0 ([ac5bf45](https://github.com/stencila/hub/commit/ac5bf45dec1371dd11bc64d282c8e930126c913e))
+* **deps:** update dependency setuptools to v53.1.0 ([c6e2851](https://github.com/stencila/hub/commit/c6e2851506d6e53abbca2a1fc9e5ddb06d9a6a33))
+* **deps:** update dependency typescript to v4.2.2 ([3b78f6d](https://github.com/stencila/hub/commit/3b78f6d0a3514ed29b5f5099e120a56788c5cd34))
+* **deps:** update python docker tag to v3.9.2 ([3ddf28b](https://github.com/stencila/hub/commit/3ddf28b322b9f858c6358e6bbfb45b3da0f241cb))
+* **deps:** update redis docker tag to v6.2.0 ([2d97fce](https://github.com/stencila/hub/commit/2d97fce5c96d92c3a414ffb6878b93d90d63b831))
+* **GitHub pull:** Increase timeout ([95467e6](https://github.com/stencila/hub/commit/95467e67f5b0f63f9a6ad801ff9c4eeec2f0f1be))
+
 ## [4.37.5](https://github.com/stencila/hub/compare/v4.37.4...v4.37.5) (2021-02-26)
 
 
