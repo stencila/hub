@@ -1,3 +1,12 @@
+## [4.37.5](https://github.com/stencila/hub/compare/v4.37.4...v4.37.5) (2021-02-26)
+
+
+### Bug Fixes
+
+* **API Schema:** Do not generate serializer context if generating API schema ([46308bb](https://github.com/stencila/hub/commit/46308bb645101c3a1c8450171975cc3a83b6f2ab))
+* **Project sources:** Mention 3rd party cookie need for Google sources ([daf60ac](https://github.com/stencila/hub/commit/daf60ac79a38d18e000e18aa9f0a95c7cb2686b5))
+* **Worker:** For consistency use _ROOT suffix for env vars ([98e8f88](https://github.com/stencila/hub/commit/98e8f8814a625ee0839b3e486d5a30aa741cfc82))
+
 ## [4.37.4](https://github.com/stencila/hub/compare/v4.37.3...v4.37.4) (2021-02-23)
 
 
