@@ -47,17 +47,6 @@ jobs:
           versionSpec: $(NODE_VERSION)
         displayName: Install Node.js
 
-      - script: |
-          set -e
-          make -C manager create-devdb-sqlite static
-          make -C manager run &
-          # Skip running snaps as often hanging for some reason (create empty dir instead)
-          # make -C manager snaps
-          mkdir -p manager/snaps
-          make -C clients api.yaml
-          kill %1
-        displayName: Run end-to-end tests and api.yaml for generating clients
-
       - task: Docker@2
         inputs:
           command: login
@@ -82,6 +71,11 @@ jobs:
         displayName: Tag and release
 
       - script: |
+          set -e
+          make -C manager create-devdb-sqlite static
+          make -C manager run &
+          make -C manager snaps
+          kill %1
           mkdir -p pages/manager/snaps
           mv manager/snaps/* pages/manager/snaps
           npx gh-pages --repo https://$(GITHUB_TOKEN)@github.com/stencila/hub.git -f -d pages
@@ -91,3 +85,5 @@ jobs:
           GIT_COMMITTER_NAME: Stencila CI Bot
           GIT_COMMITTER_EMAIL: ci@stenci.la
         displayName: Publish docs
+        # Temporarily skipping this as often timing out / hanging when taking snaps
+        condition: false

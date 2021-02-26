@@ -1,9 +1,8 @@
 THIS_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # Create API Schema file api.yaml
-# Requires that the development server be running on https://localhost:8000
 api.yaml:
-	curl http://localhost:8000/api/schema > $@
+	../manager/venv/bin/python3 ../manager/manage.py runscript get_api_schema > $@
 	sed -i -e 's|host: localhost:8000|host: hub.stenci.la|' $@
 	sed -i -e 's|  - http|  - https|' $@
 

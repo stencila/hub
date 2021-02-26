@@ -14,6 +14,9 @@ sed -i -e "s!__version__ = .*!__version__ = \"$VERSION\"!g" manager/manager/vers
 # This should have been done on `npm install` but, to be sure, it is repeated here
 (cd manager && node generate.js)
 
+# Update the API schema used to generate the clients
+make -C clients -B api.yaml
+
 # Update the version in the Python client and regenerate the files
 sed -i -e "s!packageVersion: .*!packageVersion: $VERSION!g" clients/python/.openapi-generator-config.yaml
 make -C clients python python-publish
