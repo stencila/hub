@@ -4,9 +4,11 @@
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
     "cSpell.words": [
+        "Kubernetes",
         "asgi",
         "djstripe",
         "favicon",
+        "kubectl",
         "noqa",
         "oauth",
         "pytest",
