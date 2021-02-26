@@ -276,11 +276,11 @@ def authenticate_openid(request: Request, token: str) -> User:
 
     # Extract the verified data
     email = claims.get("email")
-    given_name = claims.get("given_name")
-    family_name = claims.get("family_name")
+    given_name = claims.get("given_name", "")
+    family_name = claims.get("family_name", "")
     name = claims.get("name")
-    if name is not None and given_name is None and family_name is None:
-        given_name, family_name = name.split()[:1]
+    if name and not given_name and not family_name and len(name.split()) > 1:
+        given_name, family_name = name.split()[:2]
     picture = claims.get("picture")
 
     # Check whether there is an existing user with this email address
