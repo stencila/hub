@@ -2,8 +2,8 @@ THIS_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # Create API Schema file api.yaml
 api.yaml:
-	../manager/venv/bin/python3 ../manager/manage.py runscript get_api_schema > $@
-	sed -i -e 's|host: localhost:8000|host: hub.stenci.la|' $@
+	../manager/venv/bin/python3 ../manager/manage.py runscript get_api_schema --script-args $@
+	sed -i -e 's|host: testserver|host: hub.stenci.la|' $@
 	sed -i -e 's|  - http|  - https|' $@
 
 # Get help on client generation options
