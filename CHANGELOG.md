@@ -1,3 +1,18 @@
+# [4.38.0](https://github.com/stencila/hub/compare/v4.37.6...v4.38.0) (2021-02-27)
+
+
+### Bug Fixes
+
+* **API tokens:** Improve robustness of name parsing ([a3ab203](https://github.com/stencila/hub/commit/a3ab203ca6b6d2cb60d3d4b99a46bb655aa066a6))
+* **API tokens:** Require user to verify email address for OpenID authentication ([0208ff7](https://github.com/stencila/hub/commit/0208ff73f7ea6fe0b266789e3ee44cc0b79af3f2))
+* **Settings:** Use correct setting key ([9618a19](https://github.com/stencila/hub/commit/9618a19cd333664d8e75c473e76f7469962434c4))
+
+
+### Features
+
+* **Social tokens:** Allow for tokens to be refreshed ([ae3aabb](https://github.com/stencila/hub/commit/ae3aabb7926b5b2fb1101e593521b02104a63e81))
+* **Social tokens:** Allow tokens to be refreshed using header in API requests ([cb2a594](https://github.com/stencila/hub/commit/cb2a594eef47e5c45d776364fb51f4ce1b39acd2))
+
 ## [4.37.6](https://github.com/stencila/hub/compare/v4.37.5...v4.37.6) (2021-02-26)
 
 
