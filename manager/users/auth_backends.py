@@ -6,7 +6,7 @@ from users.models import User
 
 class UsernameOrEmailBackend(ModelBackend):
     """
-    Allows a user to authenticate using their usename or email.
+    Allows a user to authenticate using their username or email.
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):

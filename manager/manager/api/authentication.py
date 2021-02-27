@@ -34,7 +34,7 @@ class BasicAuthentication(BaseAuthentication):
         """
         Authenticate a request.
 
-        Returns a `User` if a valid token hs been supplied
+        Returns a `User` if a valid token has been supplied
         using HTTP Basic authentication.  Otherwise returns `None`.
         """
         auth = get_authorization_header(request).split()
