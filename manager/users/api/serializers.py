@@ -219,6 +219,58 @@ class TokenSerializer(serializers.ModelSerializer):
         fields = ["user", "id", "created", "expiry"]
 
 
+class TokensCreateRequest(serializers.Serializer):
+    """
+    The request data when creating a new token.
+    """
+
+    username = serializers.CharField(required=False, help_text="User's username")
+
+    password = serializers.CharField(
+        required=False,
+        help_text="User's password",
+        style={"input_type": "password", "placeholder": "Password"},
+    )
+
+    openid = serializers.CharField(
+        required=False, help_text="An OpenID Connect JSON Web Token."
+    )
+
+
+class TokensCreateResponse(TokenSerializer):
+    """
+    The response data when creating a new token.
+    """
+
+    token = serializers.CharField(help_text="Authentication token string.")
+
+    user = serializers.IntegerField(
+        help_text="The id of the user that was authenticated."
+    )
+
+    username = serializers.CharField(
+        help_text="The username of the user that was authenticated."
+    )
+
+    first_name = serializers.CharField(
+        help_text="The first name of the user that was authenticated."
+    )
+
+    last_name = serializers.CharField(
+        help_text="The last name of the user that was authenticated."
+    )
+
+    class Meta:
+        model = TokenSerializer.Meta.model
+        fields = TokenSerializer.Meta.fields + [
+            "token",
+            "user",
+            "username",
+            "first_name",
+            "last_name",
+        ]
+
+
 class InviteSerializer(serializers.ModelSerializer):
     """
     A serializer for invites.

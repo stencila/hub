@@ -201,7 +201,8 @@ class TokenCreateOpenIdTests(TokenTestCase):
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"]
-            == "For security reasons, please verify your email address first; we have sent an email to janet@example.org."
+            == "For security reasons, please verify your email address first; "
+            "we have sent an email to janet@example.org."
         )
         assert send_mock.call_count == 1
 
@@ -214,7 +215,8 @@ class TokenCreateOpenIdTests(TokenTestCase):
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert (
             response.data["message"]
-            == "For security reasons, please verify your email address first; we have sent an email to janet@example.com."
+            == "For security reasons, please verify your email address first; "
+            "we have sent an email to janet@example.com."
         )
         assert send_mock.call_count == 2
 

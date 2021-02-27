@@ -18,7 +18,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from knox.settings import CONSTANTS as KNOX_CONSTANTS
 from knox.settings import knox_settings
-from rest_framework import mixins, serializers, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.exceptions import (
     AuthenticationFailed,
     NotAuthenticated,
@@ -31,7 +31,11 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 
 from accounts.tasks import set_image_from_url
-from users.api.serializers import TokenSerializer
+from users.api.serializers import (
+    TokensCreateRequest,
+    TokensCreateResponse,
+    TokenSerializer,
+)
 
 # Claims verified for OpenID JWTs issued by Google
 GOOGLE_ISS = "https://accounts.google.com"
@@ -39,55 +43,6 @@ GOOGLE_AUDS = [
     # Stencila Google Docs addon
     "110435422451-kafa0mb5tt5c5nfqou4kussbnslfajbv.apps.googleusercontent.com"
 ]
-
-
-class TokensCreateRequest(serializers.Serializer):
-    """The request data when creating a new token."""
-
-    username = serializers.CharField(required=False, help_text="User's username")
-
-    password = serializers.CharField(
-        write_only=True,
-        required=False,
-        help_text="User's password",
-        style={"input_type": "password", "placeholder": "Password"},
-    )
-
-    openid = serializers.CharField(
-        write_only=True, required=False, help_text="An OpenID Connect JSON Web Token."
-    )
-
-
-class TokensCreateResponse(TokenSerializer):
-    """The response data when creating a new token."""
-
-    token = serializers.CharField(help_text="Authentication token string.")
-
-    user = serializers.IntegerField(
-        help_text="The id of the user that was authenticated."
-    )
-
-    username = serializers.CharField(
-        help_text="The username of the user that was authenticated."
-    )
-
-    first_name = serializers.CharField(
-        help_text="The first name of the user that was authenticated."
-    )
-
-    last_name = serializers.CharField(
-        help_text="The last name of the user that was authenticated."
-    )
-
-    class Meta:
-        model = TokenSerializer.Meta.model
-        fields = TokenSerializer.Meta.fields + [
-            "token",
-            "user",
-            "username",
-            "first_name",
-            "last_name",
-        ]
 
 
 class TokensViewSet(
@@ -177,9 +132,12 @@ class TokensViewSet(
         """
         Create an authentication token.
 
-        Receives a POST with either (a) user's username and password, or (b) an OpenID Connect JSON Web Token.
+        Receives a POST with either a (a) user's username and password, or
+        (b) an OpenID Connect JSON Web Token (currently, only OpenID tokens issued by Google are accepted),
+        or (c) a Django session in a header.
+        These alternative authentication methods are used in that order of preference.
+
         Returns the `username`, and a `token` that can be used for authenticated API requests.
-        Currently, only OpenID tokens issued by Google are accepted.
         """
         serializer = TokensCreateRequest(data=request.data)
         serializer.is_valid(raise_exception=True)
