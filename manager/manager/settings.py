@@ -362,14 +362,9 @@ class Prod(Configuration):
             "rest_framework.parsers.FormParser",
             "rest_framework.parsers.MultiPartParser",
         ),
-        "DEFAULT_PERMISSION_CLASSES": (
-            # Default is for API endpoints to require the user to be authenticated
-            "rest_framework.permissions.IsAuthenticated",
-        ),
+        "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
         "DEFAULT_AUTHENTICATION_CLASSES": [
-            # Default is for token and Django session authentication
-            "manager.api.authentication.BasicAuthentication",
-            "knox.auth.TokenAuthentication",
+            "manager.api.authentication.RefreshProviderTokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ],
         "DEFAULT_THROTTLE_CLASSES": [

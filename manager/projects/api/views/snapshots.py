@@ -10,8 +10,8 @@ from accounts.ui.views.content import snapshot_index_html
 from jobs.api.helpers import redirect_to_job
 from jobs.models import Job
 from manager.api.authentication import (
-    BasicAuthentication,
     CsrfExemptSessionAuthentication,
+    RefreshProviderTokenAuthentication,
 )
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -40,7 +40,10 @@ class ProjectsSnapshotsViewSet(
     object_name = "snapshot"
     queryset_name = "snapshots"
 
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    authentication_classes = (
+        CsrfExemptSessionAuthentication,
+        RefreshProviderTokenAuthentication,
+    )
 
     def get_permissions(self):
         """

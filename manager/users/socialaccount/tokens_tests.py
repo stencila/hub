@@ -1,7 +1,12 @@
 from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 
 from manager.testing import DatabaseTestCase
-from users.socialaccount.tokens import Provider, refresh_user_access_token, get_user_social_token, get_user_social_tokens
+from users.socialaccount.tokens import (
+    Provider,
+    get_user_social_token,
+    get_user_social_tokens,
+    refresh_user_access_token,
+)
 
 
 class TokensTestCase(DatabaseTestCase):
