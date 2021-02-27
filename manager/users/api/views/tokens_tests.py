@@ -115,17 +115,24 @@ class TokenFlowTests(TokenTestCase):
         assert response.data["message"] == "Not found."
 
 
+def mock_verify_token(token, *args, **kwargs):
+    """Mock: decodes but does not verify OpenId token."""
+    return jwt.decode(token, None, False)
+
+
+def mock_verify_token_fail(*args, **kwargs):
+    """Mock: simulate token verification failure."""
+    raise ValueError
+
+
 class TokenCreateOpenIdTests(TokenTestCase):
     """Test creating an authentication token using an OpenId token."""
 
     def create(self, claims):
         """Post a request with an OpenId token parameter."""
-        return super().create({"openid": jwt.encode(claims, "not-a-secret")})
-
-    @staticmethod
-    def verify_token(token, *args, **kwargs):
-        """Mock: decodes but does not verify OpenId token."""
-        return jwt.decode(token, None, False)
+        defaults = {"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0], "email_verified": True}
+        defaults.update(claims)
+        return super().create({"openid": jwt.encode(defaults, "not-a-secret")})
 
     def test_no_token(self):
         response = super().create()
@@ -145,7 +152,7 @@ class TokenCreateOpenIdTests(TokenTestCase):
         assert response.data["message"] == "Token has expired"
 
     def test_missing_issuer(self):
-        response = self.create({"exp": time.time() + 10})
+        response = self.create({"iss": None})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["message"] == "Invalid token issuer"
 
@@ -159,25 +166,24 @@ class TokenCreateOpenIdTests(TokenTestCase):
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["message"] == "Invalid token audience"
 
+    @mock.patch("google.oauth2.id_token.verify_token", mock_verify_token_fail)
+    def test_verify_token_failure(self):
+        response = self.create({})
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.data["message"] == "Token could not be verified"
+
+    @mock.patch("google.oauth2.id_token.verify_token", mock_verify_token)
     def test_unverified_email(self):
-        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
-            response = self.create({"iss": GOOGLE_ISS, "aud": GOOGLE_AUDS[0]})
+        response = self.create({"email_verified": False})
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["message"] == "Email address has not been verified"
 
-    def test_existing_email(self):
+    @mock.patch("google.oauth2.id_token.verify_token", mock_verify_token)
+    def test_existing_verified_email(self):
         pete = User.objects.create_user("pete")
         EmailAddress.objects.create(user=pete, email="pete@example.com", verified=True)
 
-        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
-            response = self.create(
-                {
-                    "iss": GOOGLE_ISS,
-                    "aud": GOOGLE_AUDS[0],
-                    "email_verified": True,
-                    "email": "pete@example.com",
-                }
-            )
+        response = self.create({"email": "pete@example.com"})
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["username"] == "pete"
 
@@ -185,18 +191,44 @@ class TokenCreateOpenIdTests(TokenTestCase):
         response = self.retrieve(response.data["token"])
         assert response.status_code == status.HTTP_200_OK
 
+    @mock.patch("google.oauth2.id_token.verify_token", mock_verify_token)
+    @mock.patch("allauth.account.signals.email_confirmation_sent.send")
+    def test_existing_unverified_email(self, send_mock):
+        # User with email on `User` object
+        janet = User.objects.create_user("janet", email="janet@example.org")
+
+        response = self.create({"email": "janet@example.org"})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["message"]
+            == "For security reasons, please verify your email address first; "
+            "we have sent an email to janet@example.org."
+        )
+        assert send_mock.call_count == 1
+
+        # Add a `EmailAddress` object that is unverified
+        EmailAddress.objects.create(
+            user=janet, email="janet@example.com", verified=False
+        )
+
+        response = self.create({"email": "janet@example.com"})
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert (
+            response.data["message"]
+            == "For security reasons, please verify your email address first; "
+            "we have sent an email to janet@example.com."
+        )
+        assert send_mock.call_count == 2
+
+    @mock.patch("google.oauth2.id_token.verify_token", mock_verify_token)
     def test_new_email(self):
-        with mock.patch("google.oauth2.id_token.verify_token", self.verify_token):
-            response = self.create(
-                {
-                    "iss": GOOGLE_ISS,
-                    "aud": GOOGLE_AUDS[0],
-                    "email_verified": True,
-                    "email": "mary@example.org",
-                    "given_name": "Mary",
-                    "family_name": "Morris",
-                }
-            )
+        response = self.create(
+            {
+                "email": "mary@example.org",
+                "given_name": "Mary",
+                "family_name": "Morris",
+            }
+        )
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["username"] == "mary"
 

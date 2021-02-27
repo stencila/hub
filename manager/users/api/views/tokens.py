@@ -8,7 +8,7 @@ import knox.auth
 import knox.crypto
 import knox.models
 import knox.views
-from allauth.account.models import EmailAddress
+from allauth.account.models import EmailAddress, EmailConfirmation
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -18,7 +18,7 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 from knox.settings import CONSTANTS as KNOX_CONSTANTS
 from knox.settings import knox_settings
-from rest_framework import mixins, serializers, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.exceptions import (
     AuthenticationFailed,
     NotAuthenticated,
@@ -31,7 +31,11 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 
 from accounts.tasks import set_image_from_url
-from users.api.serializers import TokenSerializer
+from users.api.serializers import (
+    TokensCreateRequest,
+    TokensCreateResponse,
+    TokenSerializer,
+)
 
 # Claims verified for OpenID JWTs issued by Google
 GOOGLE_ISS = "https://accounts.google.com"
@@ -39,55 +43,6 @@ GOOGLE_AUDS = [
     # Stencila Google Docs addon
     "110435422451-kafa0mb5tt5c5nfqou4kussbnslfajbv.apps.googleusercontent.com"
 ]
-
-
-class TokensCreateRequest(serializers.Serializer):
-    """The request data when creating a new token."""
-
-    username = serializers.CharField(required=False, help_text="User's username")
-
-    password = serializers.CharField(
-        write_only=True,
-        required=False,
-        help_text="User's password",
-        style={"input_type": "password", "placeholder": "Password"},
-    )
-
-    openid = serializers.CharField(
-        write_only=True, required=False, help_text="An OpenID Connect JSON Web Token."
-    )
-
-
-class TokensCreateResponse(TokenSerializer):
-    """The response data when creating a new token."""
-
-    token = serializers.CharField(help_text="Authentication token string.")
-
-    user = serializers.IntegerField(
-        help_text="The id of the user that was authenticated."
-    )
-
-    username = serializers.CharField(
-        help_text="The username of the user that was authenticated."
-    )
-
-    first_name = serializers.CharField(
-        help_text="The first name of the user that was authenticated."
-    )
-
-    last_name = serializers.CharField(
-        help_text="The last name of the user that was authenticated."
-    )
-
-    class Meta:
-        model = TokenSerializer.Meta.model
-        fields = TokenSerializer.Meta.fields + [
-            "token",
-            "user",
-            "username",
-            "first_name",
-            "last_name",
-        ]
 
 
 class TokensViewSet(
@@ -177,9 +132,12 @@ class TokensViewSet(
         """
         Create an authentication token.
 
-        Receives a POST with either (a) user's username and password, or (b) an OpenID Connect JSON Web Token.
-        Returns the `username`, and an `token` that can be used for authenticated API requests.
-        Currently, only OpenID tokens issued by Google are accepted.
+        Receives a POST with either a (a) user's username and password, or
+        (b) an OpenID Connect JSON Web Token (currently, only OpenID tokens issued by Google are accepted),
+        or (c) a Django session in a header.
+        These alternative authentication methods are used in that order of preference.
+
+        Returns the `username`, and a `token` that can be used for authenticated API requests.
         """
         serializer = TokensCreateRequest(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -248,6 +206,7 @@ def authenticate_openid(request: Request, token: str) -> User:
     If the verified email address matches an existing user then returns
     that user, otherwise creates a new user with the email as their primary email.
     """
+    # Run some basic checks on the token
     try:
         unverified_claims = jwt.decode(token, "", False)
     except Exception as exc:
@@ -263,6 +222,7 @@ def authenticate_openid(request: Request, token: str) -> User:
     if unverified_claims.get("aud") not in GOOGLE_AUDS:
         raise ParseError("Invalid token audience")
 
+    # Verify the token with Google
     transport = requests.Request()
     try:
         claims = id_token.verify_token(token, transport)
@@ -272,31 +232,49 @@ def authenticate_openid(request: Request, token: str) -> User:
     if not claims.get("email_verified"):
         raise ParseError("Email address has not been verified")
 
+    # Extract the verified data
     email = claims.get("email")
-    email_verified = claims.get("email_verified")
-    given_name = claims.get("given_name")
-    family_name = claims.get("family_name")
+    given_name = claims.get("given_name", "")
+    family_name = claims.get("family_name", "")
     name = claims.get("name")
-    if name is not None and given_name is None and family_name is None:
-        given_name, family_name = name.split()[:1]
-
-    user = None
-    if email_verified:
-        try:
-            user = EmailAddress.objects.get(email__iexact=email, verified=True).user
-        except EmailAddress.DoesNotExist:
-            pass
-
-    if user is None:
-        username = generate_username(email, given_name, family_name)
-        user = User.objects.create_user(
-            username, email=email, first_name=given_name, last_name=family_name
-        )
-        EmailAddress.objects.create(
-            user=user, email=email, verified=email_verified, primary=True
-        )
-
+    if name and not given_name and not family_name and len(name.split()) > 1:
+        given_name, family_name = name.split()[:2]
     picture = claims.get("picture")
+
+    # Check whether there is an existing user with this email address
+    try:
+        email_address = EmailAddress.objects.get(email__iexact=email)
+        user = email_address.user
+    except EmailAddress.DoesNotExist:
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            user = None
+        else:
+            email_address = EmailAddress.objects.create(
+                user=user, email=email, primary=True, verified=False
+            )
+
+    if user:
+        # Check that the user's email is verified. This prevents an attacker
+        # from stealing a users credentials by using their email address
+        if not email_address.verified:
+            confirmation = EmailConfirmation.create(email_address=email_address)
+            confirmation.send()
+            raise AuthenticationFailed(
+                f"For security reasons, please verify your email address first; we have sent an email to {email}."
+            )
+    else:
+        # Create a new user with a verified email address
+        user = User.objects.create_user(
+            username=generate_username(email, given_name, family_name),
+            email=email,
+            first_name=given_name,
+            last_name=family_name,
+        )
+        EmailAddress.objects.create(user=user, email=email, verified=True, primary=True)
+
+    # Update the user's image if one has not already been set
     if picture and user.personal_account.image_is_identicon():
         set_image_from_url.delay(user.personal_account.id, picture)
 
@@ -330,7 +308,7 @@ def generate_username(
         return given_slug
 
     name_slug = (
-        check_name(given_name + " " + family_name)
+        check_name(given_name + "-" + family_name)
         if given_name and family_name
         else None
     )

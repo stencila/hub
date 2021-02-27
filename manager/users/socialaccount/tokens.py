@@ -1,7 +1,7 @@
 from enum import Enum, unique
 from typing import Dict, Optional, Tuple
 
-from allauth.socialaccount.models import SocialApp, SocialToken
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from django.contrib.auth.models import User
 from django.utils import timezone
 from oauth2client import transport
@@ -20,6 +20,11 @@ class Provider(Enum):
     google = "google"
     orcid = "orcid"
     twitter = "twitter"
+
+    @classmethod
+    def has(cls, value: str):
+        """Check if this enum has a value."""
+        return value in cls._value2member_map_  # type: ignore
 
 
 def get_user_social_token(
@@ -113,3 +118,40 @@ def get_user_social_tokens(user: User) -> Dict[Provider, SocialToken]:
         if token:
             tokens[provider] = token
     return tokens
+
+
+def refresh_user_access_token(user: User, provider: str, token: str):
+    """
+    Refresh the access token for a user for a provider.
+
+    This will only update the access token if the user does not have an existing
+    `SocialToken` with a refresh token (ie. if the user has not yet gone through
+    the normal `allauth` flow).
+    """
+    provider = provider.strip().lower()
+
+    # To avoid db queries go no further if this is not a known provider
+    if not Provider.has(provider):
+        return
+
+    existing = SocialToken.objects.filter(
+        account__user=user, app__provider=provider
+    ).first()
+
+    if existing:
+        # If the existing token has a refresh token then do not update
+        # (this may not be necessary but is being precautionary in case
+        # overwriting the existing access token invalidates the refresh token)
+        if existing.token_secret:
+            return
+        # Otherwise "refresh" the token using the supplied token
+        else:
+            existing.token = token
+            existing.save()
+    else:
+        # Create a new token for the user
+        account, created = SocialAccount.objects.get_or_create(
+            user=user, provider=provider
+        )
+        app = SocialApp.objects.get(provider=provider)
+        SocialToken.objects.create(account=account, app=app, token=token)

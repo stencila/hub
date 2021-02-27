@@ -362,21 +362,16 @@ class Prod(Configuration):
             "rest_framework.parsers.FormParser",
             "rest_framework.parsers.MultiPartParser",
         ),
-        "DEFAULT_PERMISSION_CLASSES": (
-            # Default is for API endpoints to require the user to be authenticated
-            "rest_framework.permissions.IsAuthenticated",
-        ),
+        "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
         "DEFAULT_AUTHENTICATION_CLASSES": [
-            # Default is for token and Django session authentication
-            "manager.api.authentication.BasicAuthentication",
-            "knox.auth.TokenAuthentication",
+            "manager.api.authentication.RefreshProviderTokenAuthentication",
             "rest_framework.authentication.SessionAuthentication",
         ],
         "DEFAULT_THROTTLE_CLASSES": [
             "rest_framework.throttling.AnonRateThrottle",
             "rest_framework.throttling.UserRateThrottle",
         ],
-        "REST_FRAMEWORK": {
+        "DEFAULT_THROTTLE_RATES": {
             # These rates only apply to `/api` endpoints. They
             # do not include "pseudo-requests" made via view sets
             # in UI views, but will include HTMX-initiated async API
