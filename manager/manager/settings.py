@@ -376,7 +376,7 @@ class Prod(Configuration):
             "rest_framework.throttling.AnonRateThrottle",
             "rest_framework.throttling.UserRateThrottle",
         ],
-        "REST_FRAMEWORK": {
+        "DEFAULT_THROTTLE_RATES": {
             # These rates only apply to `/api` endpoints. They
             # do not include "pseudo-requests" made via view sets
             # in UI views, but will include HTMX-initiated async API
