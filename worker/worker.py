@@ -20,20 +20,8 @@ from jobs.pull import Pull
 from jobs.register import Register
 from jobs.session.session import Session
 from jobs.sleep import Sleep
-from jobs.zip import Zip
 
-JOBS = [
-    Archive,
-    Clean,
-    Convert,
-    Extract,
-    Pin,
-    Pull,
-    Register,
-    Session,
-    Sleep,
-    Zip,
-]
+JOBS = [Archive, Clean, Convert, Extract, Pin, Pull, Register, Session, Sleep]
 
 # Setup the Celery app
 app = Celery(
