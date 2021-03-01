@@ -3,6 +3,7 @@ from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from manager.testing import DatabaseTestCase
 from users.socialaccount.tokens import (
     Provider,
+    get_user_google_token,
     get_user_social_token,
     get_user_social_tokens,
     refresh_user_access_token,
@@ -14,7 +15,7 @@ class TokensTestCase(DatabaseTestCase):
         """
         A user that does not yet have a token.
         """
-        SocialApp.objects.get_or_create(provider=Provider.google.name)
+        app, created = SocialApp.objects.get_or_create(provider=Provider.google.name)
 
         # First request
         refresh_user_access_token(self.ada, "Google", "new-access-token")
@@ -28,6 +29,11 @@ class TokensTestCase(DatabaseTestCase):
 
         token = get_user_social_tokens(self.ada)[Provider.google]
         assert token.token == "refreshed-access-token"
+
+        # Get token using Google specific function
+        token, app_back = get_user_google_token(self.ada)
+        assert token.token == "refreshed-access-token"
+        assert app_back == app
 
     def test_an_existing_refresh_token(self):
         """

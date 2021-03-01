@@ -79,7 +79,9 @@ def get_user_google_token(
         return None, app
 
     # If the token has not expired just return it
-    if token.expires_at > timezone.now() - timezone.timedelta(seconds=90):
+    if token.expires_at is None or token.expires_at > timezone.now() - timezone.timedelta(
+        seconds=90
+    ):
         return token, app
 
     # The folowing are all required for a token refresh so if any
