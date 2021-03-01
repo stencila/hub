@@ -1,3 +1,17 @@
+# [4.39.0](https://github.com/stencila/hub/compare/v4.38.0...v4.39.0) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Manager:** Remove zip job from snapshot pipeline ([57876f6](https://github.com/stencila/hub/commit/57876f6ed29ac4f2933d0d7bc334ba38756ddb25))
+* **Snapshot storage:** Instantiate client ([b4f3c23](https://github.com/stencila/hub/commit/b4f3c23cc53add996eafd8588378574c1f85b83e))
+* **Worker:** Stringify exceptions ([c9e94fc](https://github.com/stencila/hub/commit/c9e94fc40429c39d66b7bc17a5670a55e7713b04))
+
+
+### Features
+
+* **Worker:** Subsume Zip job into Archive job ([781ddad](https://github.com/stencila/hub/commit/781ddad3759827f64ffb11d25ad6f73f25f75a22))
+
 # [4.38.0](https://github.com/stencila/hub/compare/v4.37.6...v4.38.0) (2021-02-27)
 
 
