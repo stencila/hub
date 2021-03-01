@@ -55,7 +55,10 @@ class Archive(Job):
         temp_zip_file_name = temp_zip_base_name + ".zip"
 
         if url:
-            httpx.post(url, data=secrets, files={path: open(temp_zip_file_name, "rb")})
+            response = httpx.post(
+                url, data=secrets, files={"file": open(temp_zip_file_name, "rb")}
+            )
+            response.raise_for_status()
         else:
             # In development simulate POSTing by copying to the snapshot storage
             logger.warning("No URL was supplied, copying to snapshot dir")
