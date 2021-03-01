@@ -158,7 +158,9 @@ class Job(celery.Task):
         doing so it reports the error to Sentry.
         """
         sentry_sdk.capture_exception(exc)
-        raise exc
+        # Stringify the original exception to avoid issues that Celery has
+        # with pickling some types of exceptions
+        raise Exception(str(exc))
 
     def run(self, *args, task_id=None, **kwargs):
         """
