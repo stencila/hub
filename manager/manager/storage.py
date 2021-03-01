@@ -48,13 +48,13 @@ class FileSystemStorage(BaseFileSystemStorage):
         with self.open(path) as file:
             return file.read()
 
-    def generate_post_url(self, path: str) -> str:
+    def generate_post_policy(self, path: str) -> Optional[dict]:
         """
         Generate a URL that can be used to POST a file.
 
         Not available for this tpe of storage.
         """
-        return ""
+        return None
 
 
 class GoogleCloudStorage(BaseGoogleCloudStorage):
@@ -86,7 +86,7 @@ class GoogleCloudStorage(BaseGoogleCloudStorage):
                 return response.content
         raise RuntimeError("Unable to fetch file from Google Cloud Storage")
 
-    def generate_post_url(self, path: str) -> dict:
+    def generate_post_policy(self, path: str) -> Optional[dict]:
         """
         Generate a URL that can be used to POST a file to the bucket.
 

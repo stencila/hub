@@ -24,11 +24,18 @@ class Archive(Job):
 
     name = "archive"
 
-    def do(self, project: int, snapshot: str, path: str, url: str, **kwargs) -> Files:  # type: ignore
+    def do(  # type: ignore
+        self,
+        project: int,
+        snapshot: str,
+        path: str,
+        url: Optional[str],
+        secrets: Optional[dict],
+        **kwargs,
+    ) -> Files:
         assert isinstance(project, int)
         assert isinstance(snapshot, str)
         assert isinstance(path, str)
-        assert isinstance(url, str)
 
         files = list_files()
 
@@ -46,7 +53,7 @@ class Archive(Job):
         temp_zip_file_name = temp_zip_base_name + ".zip"
 
         if url:
-            httpx.post(url, files={path: open(temp_zip_file_name, "rb")})
+            httpx.post(url, data=secrets, files={path: open(temp_zip_file_name, "rb")})
         else:
             # In development simulate POSTing by copying to the snapshot storage
             logger.warning("No URL was supplied, copying to snapshot dir")

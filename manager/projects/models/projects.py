@@ -490,16 +490,17 @@ class Project(StorageUsageMixin, models.Model):
         Creates a copy of the project's working directory
         on the `snapshots` storage.
         """
+        # Get the upload policy
+        policy = snapshots_storage().generate_post_policy(path)
+        url = policy.get("url") if policy else None
+        secrets = policy.get("fields") if policy else None
+        
         return Job.objects.create(
             project=self,
             creator=user,
             method=JobMethod.archive.name,
-            params=dict(
-                project=self.id,
-                snapshot=snapshot,
-                path=path,
-                url=snapshots_storage().generate_post_url(path),
-            ),
+            params=dict(project=self.id, snapshot=snapshot, path=path, url=url,),
+            secrets=secrets,
             description=f"Archive project '{self.name}'",
             **callback,
         )
