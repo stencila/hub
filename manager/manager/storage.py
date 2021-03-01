@@ -9,9 +9,11 @@ For security reasons, even public files should be served raw
 from a different domain (ala googleusercontent.com and githubusercontent.com).
 """
 
+import datetime
 from typing import Optional
 from urllib.parse import urljoin
 
+import google.cloud.storage
 import httpx
 from django.conf import settings
 from django.conf.urls.static import static
@@ -90,6 +92,7 @@ class GoogleCloudStorage(BaseGoogleCloudStorage):
 
         See `generate_signed_post_policy_v4` in https://googleapis.dev/python/storage/latest/client.html
         """
+        client = google.cloud.storage.Client()
         return client.generate_signed_post_policy_v4(
             self.bucket_name, path, expiration=datetime.timedelta(hours=1)
         )
