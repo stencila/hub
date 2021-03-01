@@ -9,9 +9,11 @@ For security reasons, even public files should be served raw
 from a different domain (ala googleusercontent.com and githubusercontent.com).
 """
 
+import datetime
 from typing import Optional
 from urllib.parse import urljoin
 
+import google.cloud.storage
 import httpx
 from django.conf import settings
 from django.conf.urls.static import static
@@ -46,6 +48,14 @@ class FileSystemStorage(BaseFileSystemStorage):
         with self.open(path) as file:
             return file.read()
 
+    def generate_post_url(self, path: str) -> str:
+        """
+        Generate a URL that can be used to POST a file.
+
+        Not available for this tpe of storage.
+        """
+        return ""
+
 
 class GoogleCloudStorage(BaseGoogleCloudStorage):
     """
@@ -75,6 +85,17 @@ class GoogleCloudStorage(BaseGoogleCloudStorage):
             if response.status_code == 200:
                 return response.content
         raise RuntimeError("Unable to fetch file from Google Cloud Storage")
+
+    def generate_post_url(self, path: str) -> dict:
+        """
+        Generate a URL that can be used to POST a file to the bucket.
+
+        See `generate_signed_post_policy_v4` in https://googleapis.dev/python/storage/latest/client.html
+        """
+        client = google.cloud.storage.Client()
+        return client.generate_signed_post_policy_v4(
+            self.bucket_name, path, expiration=datetime.timedelta(hours=1)
+        )
 
 
 class MediaStorage(GoogleCloudStorage):

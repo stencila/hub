@@ -26,6 +26,13 @@ def get_working_dir(project: int):
     )
 
 
+def get_snapshots_root() -> str:
+    """
+    Get the root of the snapshot storage.
+    """
+    return os.environ.get("SNAPSHOT_ROOT", os.path.join(STORAGE_ROOT, "snapshots"))
+
+
 def get_snapshot_dir(project: int, snapshot: str) -> str:
     """
     Get the path to a project snapshot directory.
@@ -33,11 +40,7 @@ def get_snapshot_dir(project: int, snapshot: str) -> str:
     Snapshots may be on a different filesystem from the project
     working directories.
     """
-    return os.path.join(
-        os.environ.get("SNAPSHOT_ROOT", os.path.join(STORAGE_ROOT, "snapshots")),
-        str(project),
-        snapshot,
-    )
+    return os.path.join(get_snapshots_root(), str(project), snapshot,)
 
 
 def get_content_root() -> str:
