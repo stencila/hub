@@ -494,7 +494,7 @@ class Project(StorageUsageMixin, models.Model):
         policy = snapshots_storage().generate_post_policy(path)
         url = policy.get("url") if policy else None
         secrets = policy.get("fields") if policy else None
-        
+
         return Job.objects.create(
             project=self,
             creator=user,
