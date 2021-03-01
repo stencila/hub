@@ -1,3 +1,10 @@
+## [4.41.2](https://github.com/stencila/hub/compare/v4.41.1...v4.41.2) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Tokens:** Handle case where token does not have expiry time ([4dfcc2a](https://github.com/stencila/hub/commit/4dfcc2a939f21205f1d05ea327b53fe5c29e73a1)), closes [#1045](https://github.com/stencila/hub/issues/1045)
+
 ## [4.41.1](https://github.com/stencila/hub/compare/v4.41.0...v4.41.1) (2021-03-01)
 
 
