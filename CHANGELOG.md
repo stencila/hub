@@ -1,3 +1,10 @@
+## [4.39.1](https://github.com/stencila/hub/compare/v4.39.0...v4.39.1) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Archive job:** Send URL along with secrets ([e6a5fe0](https://github.com/stencila/hub/commit/e6a5fe05d13d4d69938e98040aa110380f5fe156))
+
 # [4.39.0](https://github.com/stencila/hub/compare/v4.38.0...v4.39.0) (2021-03-01)
 
 
