@@ -68,6 +68,9 @@ run: venv
 build:
 	docker build --tag stencila/hub-worker .
 
+build-groundsman:
+	cd jobs/session && docker build --tag stencila/hub-groundsman -f groundsman.Dockerfile .
+
 # Run Docker image during development
 run-docker: build
 	docker run --rm -it --network=host \

@@ -17,12 +17,14 @@
 PREV=v"$1"
 CURR=v"$2"
 
-for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker
+for SERVICE in assistant broker cache database manager monitor overseer router scheduler steward worker groundsman
 do
-    if [ $SERVICE = assistant ]
-    then
+    if [ $SERVICE = assistant ]; then
         DIR=manager
         FILE=manager/assistant.Dockerfile
+    elif [ $SERVICE = groundsman ]; then
+        DIR=worker/jobs/session
+        FILE=worker/jobs/session/groundsman.Dockerfile
     else
         DIR=$SERVICE
         FILE=$SERVICE/Dockerfile
