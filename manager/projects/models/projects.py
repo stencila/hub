@@ -17,7 +17,12 @@ from meta.views import Meta
 from accounts.models import Account, AccountTeam
 from jobs.models import Job, JobMethod
 from manager.helpers import EnumChoice
-from manager.storage import StorageUsageMixin, media_storage, working_storage
+from manager.storage import (
+    StorageUsageMixin,
+    media_storage,
+    snapshots_storage,
+    working_storage,
+)
 from users.models import User
 
 
@@ -478,7 +483,7 @@ class Project(StorageUsageMixin, models.Model):
             **callback,
         )
 
-    def archive(self, user: User, params: dict, **callback) -> Job:
+    def archive(self, user: User, snapshot: str, path: str, **callback) -> Job:
         """
         Archive the project's working directory.
 
@@ -489,24 +494,14 @@ class Project(StorageUsageMixin, models.Model):
             project=self,
             creator=user,
             method=JobMethod.archive.name,
-            params=params,
+            params=dict(
+                project=self.id,
+                snapshot=snapshot,
+                path=path,
+                url=snapshots_storage().generate_post_url(path),
+            ),
             description=f"Archive project '{self.name}'",
             **callback,
-        )
-
-    def zip(self, user: User, params: dict, **callback) -> Job:
-        """
-        Create a zip file of the project's working directory.
-
-        Creates a Zip archive of the project's working directory
-        on the `content` storage.
-        """
-        return Job.objects.create(
-            project=self,
-            creator=user,
-            method=JobMethod.zip.name,
-            params=params,
-            description=f"Create zip file for project '{self.name}'",
         )
 
     def session(self, request: HttpRequest) -> Job:

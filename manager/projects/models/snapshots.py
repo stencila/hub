@@ -128,7 +128,7 @@ class Snapshot(StorageUsageMixin, models.Model):
             self.path = os.path.join(str(self.project.id), str(self.id))
 
         if not self.zip_name:
-            self.zip_name = "{project}-snapshot-{number}.zip".format(
+            self.zip_name = "{project}-v{number}.zip".format(
                 project=self.project.name, number=self.number
             )
 
@@ -165,18 +165,17 @@ class Snapshot(StorageUsageMixin, models.Model):
 
             subjobs.append(main.convert(user, "index.html", options=options))
 
+        # This is currently required to populate field `zip_name` below
+        snapshot.save()
+
         # Archive the working directory to the snapshot directory
         subjobs.append(
             project.archive(
                 user,
-                dict(snapshot=snapshot.id),
-                **Job.create_callback(snapshot, "archive_callback")
+                snapshot=snapshot.id,
+                path=f"{project.id}/{snapshot.id}/{snapshot.zip_name}",
+                **Job.create_callback(snapshot, "archive_callback"),
             )
-        )
-
-        # Create a zip file for the snapshot
-        subjobs.append(
-            project.zip(user, dict(snapshot=snapshot.id, zip_name=snapshot.zip_name,))
         )
 
         job = Job.objects.create(
