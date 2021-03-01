@@ -46,7 +46,9 @@ class Archive(Job):
         if os.path.exists("index.html"):
             shutil.copy("index.html", snapshot_dir)
         if os.path.exists("index.html.media"):
-            shutil.copytree("index.html.media", snapshot_dir)
+            shutil.copytree(
+                "index.html.media", os.path.join(snapshot_dir, "index.html.media")
+            )
 
         temp_zip_base_name = tempfile.NamedTemporaryFile().name
         shutil.make_archive(temp_zip_base_name, "zip", ".")
