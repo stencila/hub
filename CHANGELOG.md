@@ -1,3 +1,10 @@
+## [4.41.1](https://github.com/stencila/hub/compare/v4.41.0...v4.41.1) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Archive job:** It is necessary to use file as key; raise for status. ([c908957](https://github.com/stencila/hub/commit/c908957c3f81f938b37df820b552a0aa5bb8b5b6))
+
 # [4.41.0](https://github.com/stencila/hub/compare/v4.40.0...v4.41.0) (2021-03-01)
 
 
