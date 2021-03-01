@@ -1,3 +1,15 @@
+# [4.40.0](https://github.com/stencila/hub/compare/v4.39.1...v4.40.0) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Worker:** Copy into subdir ([09b49b8](https://github.com/stencila/hub/commit/09b49b881f305907124d8a8f9793e4e54bdfdcf6))
+
+
+### Features
+
+* **Worker:** Add  groundsman for preparing a snapshot session ([0703ad9](https://github.com/stencila/hub/commit/0703ad93b35e352191b10e2b5b19119243fb94d5))
+
 ## [4.39.1](https://github.com/stencila/hub/compare/v4.39.0...v4.39.1) (2021-03-01)
 
 
