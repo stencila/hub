@@ -1,3 +1,15 @@
+# [4.41.0](https://github.com/stencila/hub/compare/v4.40.0...v4.41.0) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Groundsman:** DOn't use entrypoint ([20e3347](https://github.com/stencila/hub/commit/20e33475711c6f0f0590b6af066538efba127ea4))
+
+
+### Features
+
+* **Sessions:** Snapshot sessions use archive ([e9edc80](https://github.com/stencila/hub/commit/e9edc80287b97e84ad19fd562315c46ae2b18945))
+
 # [4.40.0](https://github.com/stencila/hub/compare/v4.39.1...v4.40.0) (2021-03-01)
 
 
