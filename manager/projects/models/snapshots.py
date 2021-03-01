@@ -244,6 +244,7 @@ class Snapshot(StorageUsageMixin, models.Model):
             method=JobMethod.session.name,
             params=dict(
                 snapshot=self.id,
+                snapshot_url=self.file_url(self.zip_name),
                 container_image=self.container_image,
                 mem_request=project.session_memory,
                 mem_limit=project.session_memory,

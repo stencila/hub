@@ -28,7 +28,9 @@ class SubprocessSession(SubprocessJob):
         # If a snapshot directory is specified then change into it
         # (if not a snapshot session then we will already be in the project's working directory)
         snapshot = kwargs.get("snapshot")
+        snapshot_url = kwargs.get("snapshot_url")
         if snapshot:
+            assert snapshot_url, "A snapshot_url is required for snapshots"
             os.chdir(get_snapshot_dir(project, snapshot))
 
         ip = get_local_ip()

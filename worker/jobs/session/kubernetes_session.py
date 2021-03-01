@@ -91,6 +91,10 @@ class KubernetesSession(Job):
 
         # Snapshot to start session for (if any)
         snapshot = kwargs.get("snapshot")
+        snapshot_url = kwargs.get("snapshot_url")
+        assert not (
+            snapshot and not snapshot_url
+        ), "A snapshot_url is required for snapshots"
 
         # Key to control access to the session
         key = kwargs.get("key")
@@ -144,13 +148,60 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
-        # Determine the path on the host for the session's working directory
-        host_path = "/var/lib/stencila/hub/storage"
-        workdir = (
-            os.path.join(host_path, "snapshots", str(project), snapshot)
-            if snapshot
-            else os.path.join(host_path, "working", str(project))
-        )
+        if snapshot:
+            # Ensure that the snapshot is on the host
+            init_containers = [
+                {
+                    "name": "init",
+                    "image": "stencila/hub-groundsman",
+                    "imagePullPolicy": "IfNotPresent",
+                    "command": ["sh"],
+                    "args": ["groundsman.sh", snapshot, snapshot_url],
+                    "volumeMounts": [{"name": "snapshots", "mountPath": "/snapshots"}],
+                }
+            ]
+
+            volume_mounts = [
+                {
+                    "name": "snapshots",
+                    "subPath": snapshot,
+                    "mountPath": "/work",
+                    "readOnly": True,
+                }
+            ]
+
+            volumes = [
+                {
+                    "name": "snapshots",
+                    "hostPath": {"path": "/var/lib/stencila/hub/snapshots"},
+                },
+            ]
+
+        else:
+
+            init_containers = []
+
+            volume_mounts = [
+                {
+                    "name": "work",
+                    "mountPath": "/work",
+                    "mountPropagation": "HostToContainer",
+                    "readOnly": True,
+                }
+            ]
+
+            volumes = [
+                {
+                    "name": "work",
+                    "hostPath": {
+                        "path": f"/var/lib/stencila/hub/storage/working/{project}"
+                    },
+                },
+                # TODO: Remove the above line and reinstate the following when overlay mounts work
+                #                    {"name": "data", "hostPath": {"path": workdir}},
+                #                    {"name": "overlay", "emptyDir": {}},
+                #                    {"name": "work", "emptyDir": {}},
+            ]
 
         # Protocols and ports that the session will listen on.
         # Note that random is about the best we can do (we do not
@@ -172,6 +223,7 @@ class KubernetesSession(Job):
             },
             "spec": {
                 "nodeSelector": {"cloud.google.com/gke-nodepool": node_pool},
+                "initContainers": init_containers,
                 "containers": [
                     {
                         "name": "session",
@@ -195,15 +247,7 @@ class KubernetesSession(Job):
                             "periodSeconds": 1,
                             "failureThreshold": 60,
                         },
-                        "volumeMounts": [
-                            {
-                                "name": "work",
-                                "mountPath": "/work",
-                                "mountPropagation": "HostToContainer",
-                                # TODO: Remove this when overlay mount is working properly
-                                "readOnly": True,
-                            }
-                        ],
+                        "volumeMounts": volume_mounts,
                         "workingDir": "/work",
                         "resources": {
                             "requests": {
@@ -262,13 +306,7 @@ class KubernetesSession(Job):
                     #                        ],
                     #                    },
                 ],
-                "volumes": [
-                    {"name": "work", "hostPath": {"path": workdir}},
-                    # TODO: Remove the above line and reinstate the following when ovelay mounts work
-                    #                    {"name": "data", "hostPath": {"path": workdir}},
-                    #                    {"name": "overlay", "emptyDir": {}},
-                    #                    {"name": "work", "emptyDir": {}},
-                ],
+                "volumes": volumes,
                 # Do not restart this pod when it stops
                 "restartPolicy": "Never",
                 # Do not automatically mount a token for K8s API access
@@ -400,9 +438,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "--debug", default=False, type=bool, help="Output debug log entries"
     )
-    parser.add_argument("--project", type=int, help="Project the session is for (id)")
     parser.add_argument(
-        "--snapshot", default=None, type=str, help="Snapshot the session is for (id)"
+        "--project", type=int, help="Project the session is for (e.g. 1234)"
+    )
+    parser.add_argument(
+        "--snapshot",
+        default=None,
+        type=str,
+        help="Snapshot the session is for (e.g. GnnxNtxDsmiqafKsfF6gsP)",
+    )
+    parser.add_argument(
+        "--snapshot-url",
+        default=None,
+        type=str,
+        help="The URL of the snapshot zip archive (if any)",
     )
     parser.add_argument(
         "--timeout",
@@ -427,6 +476,7 @@ if __name__ == "__main__":
     session.run(
         project=args.project,
         snapshot=args.snapshot,
+        snapshot_url=args.snapshot_url,
         key=secrets.token_urlsafe(8),
         timeout=args.timeout,
         timelimit=args.timelimit,
