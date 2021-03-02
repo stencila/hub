@@ -1,3 +1,10 @@
+# [4.42.0](https://github.com/stencila/hub/compare/v4.41.2...v4.42.0) (2021-03-02)
+
+
+### Features
+
+* **Kubernetes session:** Use an overlay mount for snapshots ([9739f56](https://github.com/stencila/hub/commit/9739f56b65d3e2a8890f4960a4da20bc8e3ee61a))
+
 ## [4.41.2](https://github.com/stencila/hub/compare/v4.41.1...v4.41.2) (2021-03-01)
 
 
