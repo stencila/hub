@@ -149,8 +149,8 @@ class KubernetesSession(Job):
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
         if snapshot:
-            # Ensure that the snapshot is on the host
             init_containers = [
+                # Container to ensure that the snapshot is on the host
                 {
                     "name": "init",
                     "image": "stencila/hub-groundsman",
@@ -161,25 +161,71 @@ class KubernetesSession(Job):
                 }
             ]
 
-            volume_mounts = [
+            sidecar_containers = [
+                # Container which provides readonly access to the snapshot directory while
+                # still allowing the session to write temporary files to it.
+                # This is done in a separate sidecar container to avoid having the session
+                # container be privileged.
+                # It can not be in an initContainer because it must be `umount` needs
+                # to be called in preStop phase.
                 {
-                    "name": "snapshots",
-                    "subPath": snapshot,
-                    "mountPath": "/work",
-                    "readOnly": True,
+                    "name": "sidecar",
+                    "image": "ubuntu:20.04",
+                    "securityContext": {"privileged": True},
+                    # Create an overlay mount with the data directory as the lower directory
+                    # The `tail` makes this container, and thus the mount, run forever.
+                    "command": ["/bin/bash", "-c", "--"],
+                    "args": [
+                        """
+                    mkdir -p /overlay/{upper,work}
+                    mount -t overlay overlay \
+                            -o lowerdir=/data,upperdir=/overlay/upper,workdir=/overlay/work \
+                            /work
+                    chown 1000:1000 /work
+                    tail -f /dev/null
+                    """
+                    ],
+                    # Unmount otherwise this container will never terminate.
+                    "lifecycle": {
+                        "preStop": {"exec": {"command": ["umount", "/work"]}}
+                    },
+                    "volumeMounts": [
+                        # Read only data directory (snapshot directory)
+                        {
+                            "name": "snapshots",
+                            "subPath": snapshot,
+                            "mountPath": "/data",
+                            "readOnly": True,
+                        },
+                        # Temporary working directory for overlay mount to use
+                        {"name": "overlay", "mountPath": "/overlay"},
+                        # Bidirectional mount allowing the session container
+                        # to mount the /work directory
+                        {
+                            "name": "work",
+                            "mountPath": "/work",
+                            "mountPropagation": "Bidirectional",
+                        },
+                    ],
                 }
             ]
+
+            volume_mounts = [{"name": "work", "mountPath": "/work"}]
 
             volumes = [
                 {
                     "name": "snapshots",
                     "hostPath": {"path": "/var/lib/stencila/hub/snapshots"},
                 },
+                {"name": "overlay", "emptyDir": {}},
+                {"name": "work", "emptyDir": {}},
             ]
 
         else:
 
             init_containers = []
+
+            sidecar_containers = []
 
             volume_mounts = [
                 {
@@ -196,11 +242,7 @@ class KubernetesSession(Job):
                     "hostPath": {
                         "path": f"/var/lib/stencila/hub/storage/working/{project}"
                     },
-                },
-                # TODO: Remove the above line and reinstate the following when overlay mounts work
-                #                    {"name": "data", "hostPath": {"path": workdir}},
-                #                    {"name": "overlay", "emptyDir": {}},
-                #                    {"name": "work", "emptyDir": {}},
+                }
             ]
 
         # Protocols and ports that the session will listen on.
@@ -224,7 +266,8 @@ class KubernetesSession(Job):
             "spec": {
                 "nodeSelector": {"cloud.google.com/gke-nodepool": node_pool},
                 "initContainers": init_containers,
-                "containers": [
+                "containers": sidecar_containers
+                + [
                     {
                         "name": "session",
                         "image": container_image,
@@ -259,52 +302,7 @@ class KubernetesSession(Job):
                                 "memory": "{}Mi".format(mem_limit),
                             },
                         },
-                    },
-                    # TODO: Currently there is a weird bug associated with overlay mounts:
-                    # mounted files are visible with processes such as R and Python when
-                    # listing `/work`, but not when using relative path e.g. `list.files('.')`
-                    #                    {
-                    #                        # Container which provides readonly access to the project or snapshot
-                    #                        # directory while still allowing the session to write to the working
-                    #                        # directory.
-                    #                        # This is done in a separate sidecar container to avoid having the session
-                    #                        # container be privileged.
-                    #                        # It can not be in an initContainer because it must be `umount` needs
-                    #                        # to be called in preStop phase.
-                    #                        "name": "mounter",
-                    #                        "image": "ubuntu:20.04",
-                    #                        "securityContext": {"privileged": True},
-                    #                        # Create an overlay mount with the data directory as the lower directory
-                    #                        # The `tail` makes this container, and thus the mount, run forever.
-                    #                        "command": ["/bin/bash", "-c", "--"],
-                    #                        "args": [
-                    #                           """
-                    #                           mkdir -p /overlay/{upper,work}
-                    #                           mount -t overlay overlay \
-                    #                                 -o lowerdir=/data,upperdir=/overlay/upper,workdir=/overlay/work \
-                    #                                 /work
-                    #                           chown 1000:1000 /work
-                    #                           tail -f /dev/null
-                    #                           """
-                    #                        ],
-                    #                        # Unmount otherwise this container will never terminate.
-                    #                        "lifecycle": {
-                    #                            "preStop": {"exec": {"command": ["umount", "/work"]}}
-                    #                        },
-                    #                        "volumeMounts": [
-                    #                            # Read only data directory (snapshot or project working directory)
-                    #                            {"name": "data", "mountPath": "/data", "readOnly": True},
-                    #                            # Temporary working directory for overlay mount to use
-                    #                            {"name": "overlay", "mountPath": "/overlay"},
-                    #                            # Bidirectional mount allowing the session container
-                    #                            # to mount the /work directory
-                    #                            {
-                    #                                "name": "work",
-                    #                                "mountPath": "/work",
-                    #                                "mountPropagation": "Bidirectional",
-                    #                            },
-                    #                        ],
-                    #                    },
+                    }
                 ],
                 "volumes": volumes,
                 # Do not restart this pod when it stops
