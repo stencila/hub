@@ -1,3 +1,10 @@
+## [4.42.1](https://github.com/stencila/hub/compare/v4.42.0...v4.42.1) (2021-03-04)
+
+
+### Bug Fixes
+
+* **Tokens:** Provide a uid when creating a social account ([abd8a7a](https://github.com/stencila/hub/commit/abd8a7aa1e708714ee73914464d5131969a1ceb0))
+
 # [4.42.0](https://github.com/stencila/hub/compare/v4.41.2...v4.42.0) (2021-03-02)
 
 
