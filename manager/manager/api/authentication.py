@@ -1,5 +1,6 @@
 import base64
 import binascii
+import logging
 
 from django.conf import settings
 from knox.auth import TokenAuthentication
@@ -12,6 +13,8 @@ from rest_framework.authentication import (
 from rest_framework.exceptions import AuthenticationFailed
 
 from users.socialaccount.tokens import refresh_user_access_token
+
+logger = logging.getLogger(__name__)
 
 
 class BasicAuthentication(BaseAuthentication):
@@ -108,7 +111,7 @@ class RefreshProviderTokenAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         """
-        Implement authenicator interface.
+        Implement authenticator interface.
 
         See https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
         """
@@ -121,14 +124,19 @@ class RefreshProviderTokenAuthentication(BaseAuthentication):
         if not user_auth:
             return None
 
-        # Authenticated, so look for header...
-        user, auth = user_auth
-        header = request.META.get("HTTP_PROVIDER_TOKEN")
-        if header:
-            parts = header.split(" ")
-            if len(parts) == 2:
-                provider, token = parts
-                refresh_user_access_token(user, provider, token)
+        # Authenticated, so look for special header...
+        # This is wrapped in a try/catch because we really don't want
+        # this side-effect to stop the authentication process
+        try:
+            user, auth = user_auth
+            header = request.META.get("HTTP_PROVIDER_TOKEN")
+            if header:
+                parts = header.split(" ")
+                if len(parts) == 2:
+                    provider, token = parts
+                    refresh_user_access_token(user, provider, token)
+        except Exception:
+            logger.error("Error attempting to refresh provider token", exc_info=True)
 
         return user_auth
 

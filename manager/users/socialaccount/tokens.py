@@ -151,9 +151,14 @@ def refresh_user_access_token(user: User, provider: str, token: str):
             existing.token = token
             existing.save()
     else:
-        # Create a new token for the user
+        # Create a new social account and token for the user
         account, created = SocialAccount.objects.get_or_create(
-            user=user, provider=provider
+            user=user,
+            # Use our internal id here because we do not have one
+            # one from the provider, and without it it is possible to
+            # get a key violation error e.g. "(provider, uid)=(google, ) already exists".
+            uid=f"stencila-user-{user.id}",
+            provider=provider,
         )
         app = SocialApp.objects.get(provider=provider)
         SocialToken.objects.create(account=account, app=app, token=token)
