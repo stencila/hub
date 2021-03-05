@@ -2,7 +2,7 @@ amqp==2.6.1
 celery==4.4.6
 filetype==1.0.7
 google-api-python-client==1.12.8
-httpx==0.16.1
+httpx==0.17.0
 kubernetes==12.0.1
 lxml==4.6.2
 oauth2client==4.1.3
