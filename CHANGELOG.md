@@ -1,3 +1,20 @@
+## [4.42.2](https://github.com/stencila/hub/compare/v4.42.1...v4.42.2) (2021-03-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.9.0 ([1ce28f3](https://github.com/stencila/hub/commit/1ce28f350e60b3d3dd605d1baa2ebf82f9aa0ce4))
+* **deps:** update dependency @stencila/encoda to v0.109.0 ([037621b](https://github.com/stencila/hub/commit/037621b9b0376dc0bbaa2ce4adf02f6ff007af45))
+* **deps:** update dependency django-sendgrid-v5 to v0.9.1 ([4d36ddf](https://github.com/stencila/hub/commit/4d36ddf4e114b9c0fad6fa550566964349b6283f))
+* **deps:** update dependency httpx to v0.17.0 ([99b6d57](https://github.com/stencila/hub/commit/99b6d57aa7be77f1a007d8056794499cd036efed))
+* **deps:** update dependency inflect to v5.3.0 ([1b790b1](https://github.com/stencila/hub/commit/1b790b125e3eb4a9286cfd9a0105187f4e5719ca))
+* **deps:** update dependency pillow to v8.1.2 ([2ab6176](https://github.com/stencila/hub/commit/2ab61764a2f328059e74ce9d76c127494af90a03))
+* **deps:** update dependency setuptools to v54 ([9383fad](https://github.com/stencila/hub/commit/9383fad94499dd49d232dfed4f0fd6070bb43477))
+* **deps:** update dependency typescript to v4.2.3 ([c438372](https://github.com/stencila/hub/commit/c438372a8c958ba6f7baaf19f572b9eeeb2e227c))
+* **deps:** update dependency userflow.js to v2.1.1 ([0b279dd](https://github.com/stencila/hub/commit/0b279ddfa7b8d8f95522ff12230bac4b9f7ebb54))
+* **deps:** update rabbitmq docker tag to v3.8.14 ([612d9d9](https://github.com/stencila/hub/commit/612d9d936fde3f91ce6bd75dd39c12e646a5c879))
+* **deps:** update redis docker tag to v6.2.1 ([f631a6e](https://github.com/stencila/hub/commit/f631a6eb6c5ef198423a82ab5dfa2b8cc691ba61))
+
 ## [4.42.1](https://github.com/stencila/hub/compare/v4.42.0...v4.42.1) (2021-03-04)
 
 
