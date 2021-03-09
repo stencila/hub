@@ -47,9 +47,16 @@ def get_user_social_token(
     if user.is_anonymous:
         return None
 
-    return SocialToken.objects.filter(
-        app__provider=provider.name, account__user=user
-    ).first()
+    # Get a token for the user for the provider.
+    # Note: a user may have more than one `SocialAccount` for the provider and more
+    # than one token per account. This does not differentiate between accounts
+    # but rather prefers the token having a `token_secret` (a refresh token) and
+    # one that expires the latest (ie. most recently added or refreshed)
+    return (
+        SocialToken.objects.filter(app__provider=provider.name, account__user=user)
+        .order_by("-token_secret", "-expires_at")
+        .first()
+    )
 
 
 def get_user_google_token(
