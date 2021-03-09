@@ -3,9 +3,26 @@
 </div>
 <br>
 
+##### Build
+
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.hub?branchName=master)](https://dev.azure.com/stencila/stencila/_build?definitionId=5)
 [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
-[![License](https://img.shields.io/badge/License-Apache%202.0-3262eb.svg)](https://opensource.org/licenses/Apache-2.0)
+
+##### Services
+
+[![Router](https://img.shields.io/docker/v/stencila/hub-router?label=router&logo=docker)](https://hub.docker.com/r/stencila/hub-router)
+[![Manager](https://img.shields.io/docker/v/stencila/hub-manager?label=manager&logo=docker)](https://hub.docker.com/r/stencila/hub-manager)
+[![Assistant](https://img.shields.io/docker/v/stencila/hub-assistant?label=assistant&logo=docker)](https://hub.docker.com/r/stencila/hub-assistant)
+[![Broker](https://img.shields.io/docker/v/stencila/hub-broker?label=broker&logo=docker)](https://hub.docker.com/r/stencila/hub-broker)
+[![Worker](https://img.shields.io/docker/v/stencila/hub-worker?label=worker&logo=docker)](https://hub.docker.com/r/stencila/hub-worker)
+[![Overseer](https://img.shields.io/docker/v/stencila/hub-overseer?label=overseer&logo=docker)](https://hub.docker.com/r/stencila/hub-overseer)
+
+##### Clients
+
+[![PyPI](https://img.shields.io/pypi/v/stencila.hub?logo=pypi)](https://pypi.org/project/stencila.hub/)
+[![NPM](https://img.shields.io/npm/v/@stencila/hub-client?logo=npm)](https://www.npmjs.com/package/@stencila/hub-client)
+
+## 👋 Introduction
 
 Stencila is an platform of open source tools for authoring, collaborating on, and sharing executable documents. This is the repository for the [Stencila Hub](https://hub.stenci.la) which deploys these tools as a service and integrates them with other tools and services (e.g. Google Docs, GitHub).
 
@@ -73,6 +90,8 @@ The top level `Makefile` contains recipes for common development tasks e.g `make
 make
 ```
 
+> 💬 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. However, they are mostly there to guide and document the development workflow. You may prefer to bypass `make` in favour of using your favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
+
 The top level `make` recipes mostly just invoke the corresponding recipe in the `Makefile` for each service. You can run them individually by either `cd`ing into the service's folder or using the `make -C` option e.g. to just run the `manager` service,
 
 ```sh
@@ -82,8 +101,6 @@ make -C manager run
 > 💁 Tip: The individual `run` recipes are useful for quickly iterating during development and, in the case of the `manager`, will hot-reload when source files are edited. Where possible, the `run` recipes will use a local Python virtual environment. In other cases, they will use the Docker image for the service. In both cases the `run` recipes define the necessary environment variables, set at their defaults.
 
 > 💁 Tip: If you need to run a couple of the services together you can `make run` them in separate terminals. This can be handy if you want to do iterative development of one service while checking that it is talking correctly to one or more of the other services.
-
-> 💬 Info: We use `Makefile`s throughout this repo because `make` is a ubiquitous and language agnostic development tool. However, they are mostly there to guide and document the development workflow. You may prefer to bypass `make` in favour of using your favorite tools directly e.g. `python`, `npx`, PyCharm, `pytest`, VSCode or whatever.
 
 ### Linting and formatting
 
