@@ -1,3 +1,12 @@
+## [4.42.4](https://github.com/stencila/hub/compare/v4.42.3...v4.42.4) (2021-03-09)
+
+
+### Bug Fixes
+
+* **Account connections:** Add email to display of connected account ([16ebd4b](https://github.com/stencila/hub/commit/16ebd4b3e12b22f622920c2437e1d2a7ec02c691))
+* **Account disconnect:** Use buttons instead of radios ([19f4e4e](https://github.com/stencila/hub/commit/19f4e4ef3c614e3c81f4648cb8a54d3cf93cce80))
+* **Google tokens:** Order by refresh token and expiry ([fe577d2](https://github.com/stencila/hub/commit/fe577d271c74a60444cf000edb97b5e4954a9a10))
+
 ## [4.42.3](https://github.com/stencila/hub/compare/v4.42.2...v4.42.3) (2021-03-09)
 
 
