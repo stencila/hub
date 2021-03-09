@@ -40,18 +40,15 @@
         </span>
         <span class="has-text-weight-semibold mr-2">{{ provider.name }}</span>
         {% if base_account.extra_data.email %}
-          <span class="tag">{{ base_account.extra_data.email }}</span>
+        <span class="tag">{{ base_account.extra_data.email }}</span>
         {% endif %}
       </div>
       <div class="level-right">
         <div class="control">
-          <label class="radio"
-                 for="id_account_{{ base_account.id }}">
-            <input id="id_account_{{ base_account.id }}"
-                   type="radio"
-                   name="account"
-                   value="{{ base_account.id }}" />
-          </label>
+          <button type="submit"
+                  class="button is-danger is-small"
+                  name="account"
+                  value="{{ base_account.id }}">{% trans 'Disconnect' %}</button>
         </div>
       </div>
     </div>
@@ -59,19 +56,6 @@
   {% endwith %}
   {% endwith %}
   {% endfor %}
-
-  <div class="level is-mobile">
-    <div class="level-left"></div>
-    <div class="level-right">
-      <div class="field">
-        <div class="control">
-          <input type="submit"
-                 class="button is-danger"
-                 value="{% trans 'Remove' %}">
-        </div>
-      </div>
-    </div>
-  </div>
 </form>
 {% else %}
 <p class="help">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
