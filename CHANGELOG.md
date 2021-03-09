@@ -1,3 +1,13 @@
+## [4.42.3](https://github.com/stencila/hub/compare/v4.42.2...v4.42.3) (2021-03-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency htmx.org to v1.3.1 ([5b361d1](https://github.com/stencila/hub/commit/5b361d147dad5378a21705134808b1d18db0f0d5))
+* **deps:** update dependency pygments to v2.8.1 ([29498ed](https://github.com/stencila/hub/commit/29498edf758bdac7f22ff3421113b20a8f688f4e))
+* **deps:** update dependency setuptools to v54.1.1 ([6c4fbe3](https://github.com/stencila/hub/commit/6c4fbe3723b7511a1864726e6d86bb439973501a))
+* **Projects:** Hide Pull action for uploaded files ([15a2579](https://github.com/stencila/hub/commit/15a2579b18529711199702edb416dc04448f8a61)), closes [#1062](https://github.com/stencila/hub/issues/1062)
+
 ## [4.42.2](https://github.com/stencila/hub/compare/v4.42.1...v4.42.2) (2021-03-07)
 
 
