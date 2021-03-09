@@ -3,24 +3,13 @@
 </div>
 <br>
 
-##### Build
+|Build|[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.hub?branchName=master)](https://dev.azure.com/stencila/stencila/_build?definitionId=5) [![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)|
+|:-|:-|
+|**Services**|[![Router](https://img.shields.io/docker/v/stencila/hub-router?label=router&logo=docker)](https://hub.docker.com/r/stencila/hub-router) [![Manager](https://img.shields.io/docker/v/stencila/hub-manager?label=manager&logo=docker)](https://hub.docker.com/r/stencila/hub-manager) [![Assistant](https://img.shields.io/docker/v/stencila/hub-assistant?label=assistant&logo=docker)](https://hub.docker.com/r/stencila/hub-assistant) [![Broker](https://img.shields.io/docker/v/stencila/hub-broker?label=broker&logo=docker)](https://hub.docker.com/r/stencila/hub-broker) [![Worker](https://img.shields.io/docker/v/stencila/hub-worker?label=worker&logo=docker)](https://hub.docker.com/r/stencila/hub-worker) [![Overseer](https://img.shields.io/docker/v/stencila/hub-overseer?label=overseer&logo=docker)](https://hub.docker.com/r/stencila/hub-overseer) [![Database](https://img.shields.io/docker/v/stencila/hub-database?label=database&logo=docker)](https://hub.docker.com/r/stencila/hub-database) [![Cache](https://img.shields.io/docker/v/stencila/hub-cache?label=cache&logo=docker)](https://hub.docker.com/r/stencila/hub-cache)[![monitor](https://img.shields.io/docker/v/stencila/hub-monitor?label=monitor&logo=docker)](https://hub.docker.com/r/stencila/hub-monitor)|
+|**Clients**| [![PyPI](https://img.shields.io/pypi/v/stencila.hub?logo=pypi)](https://pypi.org/project/stencila.hub/) [![NPM](https://img.shields.io/npm/v/@stencila/hub-client?logo=npm)](https://www.npmjs.com/package/@stencila/hub-client)|
 
-[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.hub?branchName=master)](https://dev.azure.com/stencila/stencila/_build?definitionId=5)
-[![Coverage](https://codecov.io/gh/stencila/hub/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/hub)
 
-##### Services
-
-[![Router](https://img.shields.io/docker/v/stencila/hub-router?label=router&logo=docker)](https://hub.docker.com/r/stencila/hub-router)
-[![Manager](https://img.shields.io/docker/v/stencila/hub-manager?label=manager&logo=docker)](https://hub.docker.com/r/stencila/hub-manager)
-[![Assistant](https://img.shields.io/docker/v/stencila/hub-assistant?label=assistant&logo=docker)](https://hub.docker.com/r/stencila/hub-assistant)
-[![Broker](https://img.shields.io/docker/v/stencila/hub-broker?label=broker&logo=docker)](https://hub.docker.com/r/stencila/hub-broker)
-[![Worker](https://img.shields.io/docker/v/stencila/hub-worker?label=worker&logo=docker)](https://hub.docker.com/r/stencila/hub-worker)
-[![Overseer](https://img.shields.io/docker/v/stencila/hub-overseer?label=overseer&logo=docker)](https://hub.docker.com/r/stencila/hub-overseer)
-
-##### Clients
-
-[![PyPI](https://img.shields.io/pypi/v/stencila.hub?logo=pypi)](https://pypi.org/project/stencila.hub/)
-[![NPM](https://img.shields.io/npm/v/@stencila/hub-client?logo=npm)](https://www.npmjs.com/package/@stencila/hub-client)
+<br>
 
 ## 👋 Introduction
 
@@ -28,7 +17,7 @@ Stencila is an platform of open source tools for authoring, collaborating on, an
 
 ## ⚙️ Services
 
-Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service (🦄 not all of these are written yet) provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development.
+Stencila Hub consists of several services, each with it's own sub-folder. The `README.md` file for each service provides further details on the service, including its purpose, the current and potential alternative technical approaches, and tips for development.
 
 * [`router`](router): A [Nginx](https://nginx.org/) server that routes requests to other services.
 * [`manager`](manager): A [Django](https://www.djangoproject.com/) project containing most of the application logic.
@@ -250,7 +239,7 @@ We use Renovate to keep track of updates to packages this repo depends upon. For
 
 ## 🚀 Continuous integration
 
-We use Azure Pipelines as a continuous integration (CI) service. On each push, the CI does linting and run tests. On each tag, the Docker image for each service is built and pushed to Docker Hub:
+We use Azure Pipelines as a continuous integration (CI) service. On each push, the CI does linting and runs tests and semantic releases made (if there are commits since the last tag of types `feat` or `fix`). On each tag, if there are commits in a service's directory since the last tag, the Docker image for the service is built and pushed to Docker Hub (that is why Docker images do not necessarily have the same tag):
 
 - [Stencila Hub's Azure Pipeline](https://dev.azure.com/stencila/stencila/_build?definitionId=5&_a=summary)
 - [Stencila Hub's images on Docker Hub](https://hub.docker.com/u/stencila)
