@@ -30,6 +30,7 @@
       <hr class="dropdown-divider">
       {% endif %}
 
+      {% if source.type_name != "Upload" %}
       <a class="dropdown-item"
          hx-post="{% url 'api-projects-sources-pull' project.id source.id %}"
          hx-swap="none"
@@ -39,6 +40,7 @@
         </span>
         <span>{% trans "Pull" %}</span>
       </a>
+      {%endif %}
 
       <a class="dropdown-item"
          href="{% url 'ui-projects-sources-rename' project.account.name project.name source.id %}">
