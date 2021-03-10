@@ -1,3 +1,10 @@
+# [4.43.0](https://github.com/stencila/hub/compare/v4.42.4...v4.43.0) (2021-03-10)
+
+
+### Features
+
+* **API:** Add email to linked account fields ([877a6fc](https://github.com/stencila/hub/commit/877a6fc9787248462dc8bb36c36b5296491105d3))
+
 ## [4.42.4](https://github.com/stencila/hub/compare/v4.42.3...v4.42.4) (2021-03-09)
 
 
