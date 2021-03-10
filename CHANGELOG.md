@@ -1,3 +1,18 @@
+# [4.44.0](https://github.com/stencila/hub/compare/v4.43.0...v4.44.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* **Base template:** Use Hub as root for signed-in users ([764accf](https://github.com/stencila/hub/commit/764accffcdb2492c83a69e49a7001b75c825f643))
+* **deps:** update dependency @stencila/encoda to v0.109.2 ([3e45c6a](https://github.com/stencila/hub/commit/3e45c6af1a398d850fb059cba3e03fab2cb48f1a))
+* **Deps:** Update Thema dependency ([da6c119](https://github.com/stencila/hub/commit/da6c1191e8ca29cc9d562f98c9745ae1283da94d))
+* **Files:** Fill progress bar on job completion, simplify button layout ([7f1d646](https://github.com/stencila/hub/commit/7f1d6469a3faafdc04bd1e4644cbb67ffd480c21))
+
+
+### Features
+
+* **Nav:** Make Help resources more prominent ([aa9290b](https://github.com/stencila/hub/commit/aa9290b5cb244cd14c410240f2b7903a741aac73))
+
 # [4.43.0](https://github.com/stencila/hub/compare/v4.42.4...v4.43.0) (2021-03-10)
 
 
