@@ -7,10 +7,15 @@
      hx-swap="outerHTML"
      {% endif %}>
   <progress class="progress is-vcentered is-primary"
-            value="{{ job.runtime_seconds|default:0 }}"
+            value="{% if job.status == "SUCCESS" or job.error %}{{ runtime_expected|default:60 }}{% else %}{{ job.runtime_seconds|default:0 }}{% endif %}"
             max="{{ runtime_expected|default:60 }}">
     {{ job.runtime_formatted }}
   </progress>
+  {% if job.status == "SUCCESS" %}
+  <p class="notification is-success is-expanded">
+    {% trans "File converted successfully" %}
+  </p>
+  {% endif %}
   {% if job.error %}
   <p class="notification is-danger is-expanded">
     {{ job.error.message }}
@@ -36,36 +41,13 @@
       </span>
       {% endif %}
     </button>
-    {% else %}
-    <a class="button is-primary is-fullwidth-mobile"
-       href="{{ next }}">
-      {% if job.status == "SUCCESS" %}
-      <span class="icon">
-        <i class="ri-check-line"></i>
-      </span>
-      <span>
-        {% blocktrans %}Finished{% endblocktrans %}
-      </span>
-      {% elif job.error %}
-      <span class="icon">
-        <i class="ri-error-warning-line"></i>
-      </span>
-      <span>
-        {% blocktrans %}Errored{% endblocktrans %}
-      </span>
-      {% endif %}
-    </a>
     {% endif %}
     <a href="{{ prev }}"
-       class="button is-outlined is-fullwidth-mobile">
+       class="button is-fullwidth-mobile {% if job.status == "SUCCESS" or job.error %}is-default is-primary{% else %}is-outlined{% endif %}">
       <span class="icon">
         <i class="ri-arrow-go-back-line"></i>
       </span>
-      {% if job.is_active %}
-      <span>{% trans "Cancel" %}</span>
-      {% else %}
-      <span>{% trans "Close" %}</span>
-      {% endif %}
+      <span>{% trans "Go Back" %}</span>
     </a>
   </div>
 </div>
