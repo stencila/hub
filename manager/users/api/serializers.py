@@ -96,9 +96,20 @@ class MeLinkedAccountSerializer(serializers.ModelSerializer):
     An external, third party account linked to a user.
     """
 
+    email = serializers.SerializerMethodField()
+
+    def get_email(self, account):
+        """
+        Get the email address, if any, associated with the linked account.
+        """
+        if account.extra_data and "email" in account.extra_data:
+            return account.extra_data["email"]
+        else:
+            return None
+
     class Meta:
         model = SocialAccount
-        fields = ["provider", "uid", "date_joined", "last_login"]
+        fields = ["provider", "email", "uid", "date_joined", "last_login"]
 
 
 class PersonalAccountSerializer(serializers.ModelSerializer):
