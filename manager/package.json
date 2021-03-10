@@ -38,7 +38,7 @@
     "@rollup/plugin-replace": "2.4.1",
     "@stencila/components": "0.29.3",
     "@stencila/email-templates": "0.2.1",
-    "@stencila/thema": "2.22.0",
+    "@stencila/thema": "2.22.1",
     "autoprefixer": "9.8.6",
     "browser-sync": "2.26.14",
     "concurrently": "5.3.0",
