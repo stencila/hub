@@ -148,6 +148,34 @@ class KubernetesSession(Job):
         # Add pod name to logger's extra contextual info
         self.logger = logging.LoggerAdapter(logger, {"pod_name": self.pod_name})
 
+        # Protocols and ports that the session will listen on.
+        # Note that random is about the best we can do (we do not
+        # know which ports are already in use because we do not
+        # know which machine this pod will be assigned to).
+        # There is a small probability of clashes.
+        ports = {
+            "ws": random.randint(10000, 65535),
+            "http": random.randint(10000, 65535),
+        }
+
+        # Construct the command to run in the session container
+        executa_args = (
+            f"--key={key} --timeout={timeout} --timelimit={timelimit} "
+            + " ".join(
+                f"--{protocol}=0.0.0.0:{port}" for protocol, port in ports.items()
+            )
+        )
+        command = [
+            "/bin/bash",
+            "-c",
+            "--",
+            f"""
+            touch /semaphores/started
+            executa serve {executa_args}
+            touch /semaphores/finished
+            """,
+        ]
+
         if snapshot:
             init_containers = [
                 # Container to ensure that the snapshot is on the host
@@ -182,7 +210,12 @@ class KubernetesSession(Job):
                             -o lowerdir=/data,upperdir=/overlay/upper,workdir=/overlay/work \
                             /work
                     chown 1000:1000 /work
-                    tail -f /dev/null
+
+                    touch /semaphores/ready
+                    while [ ! -f /semaphores/finished ]
+                    do
+                        sleep 1
+                    done
                     """
                     ],
                     # Unmount otherwise this container will never terminate.
@@ -206,11 +239,17 @@ class KubernetesSession(Job):
                             "mountPath": "/work",
                             "mountPropagation": "Bidirectional",
                         },
+                        # Semaphores directory allowing communitcation
+                        # with the session container
+                        {"name": "semaphores", "mountPath": "/semaphores"},
                     ],
                 }
             ]
 
-            volume_mounts = [{"name": "work", "mountPath": "/work"}]
+            volume_mounts = [
+                {"name": "work", "mountPath": "/work"},
+                {"name": "semaphores", "mountPath": "/semaphores"},
+            ]
 
             volumes = [
                 {
@@ -219,6 +258,7 @@ class KubernetesSession(Job):
                 },
                 {"name": "overlay", "emptyDir": {}},
                 {"name": "work", "emptyDir": {}},
+                {"name": "semaphores", "emptyDir": {}},
             ]
 
         else:
@@ -242,18 +282,9 @@ class KubernetesSession(Job):
                     "hostPath": {
                         "path": f"/var/lib/stencila/hub/storage/working/{project}"
                     },
-                }
+                },
+                {"name": "semaphores", "emptyDir": {}},
             ]
-
-        # Protocols and ports that the session will listen on.
-        # Note that random is about the best we can do (we do not
-        # know which ports are already in use because we do not
-        # know which machine this pod will be assigned to).
-        # There is a small probability of clashes.
-        ports = {
-            "ws": random.randint(10000, 65535),
-            "http": random.randint(10000, 65535),
-        }
 
         # Pod manifest
         pod = {
@@ -271,17 +302,7 @@ class KubernetesSession(Job):
                     {
                         "name": "session",
                         "image": container_image,
-                        "command": [
-                            "executa",
-                            "serve",
-                            "--key={}".format(key),
-                            "--timeout={}".format(timeout),
-                            "--timelimit={}".format(timelimit),
-                        ]
-                        + [
-                            f"--{protocol}=0.0.0.0:{port}"
-                            for protocol, port in ports.items()
-                        ],
+                        "command": command,
                         "securityContext": {"runAsUser": 1000, "runAsGroup": 1000},
                         "ports": [{"containerPort": port} for port in ports.values()],
                         "readinessProbe": {
