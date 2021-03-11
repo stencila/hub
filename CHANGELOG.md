@@ -1,3 +1,10 @@
+## [4.44.1](https://github.com/stencila/hub/compare/v4.44.0...v4.44.1) (2021-03-11)
+
+
+### Bug Fixes
+
+* **Sessions:** Use semaphores to indicate when the session is finished ([f58c919](https://github.com/stencila/hub/commit/f58c9192de04c4c62ff8be60394b64610a808374))
+
 # [4.44.0](https://github.com/stencila/hub/compare/v4.43.0...v4.44.0) (2021-03-10)
 
 
