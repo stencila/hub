@@ -2,34 +2,31 @@ import json
 from typing import Optional
 
 import pygments
+from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from drf_yasg.utils import swagger_auto_schema
 from pygments.formatters import HtmlFormatter
 from pygments.lexers.data import JsonLexer
+from pygments.lexers.markup import TexLexer
+from pygments.lexers.special import TextLexer
 from rest_framework import mixins, parsers, permissions, renderers, status, viewsets
-from rest_framework.exceptions import NotAuthenticated, PermissionDenied
+from rest_framework.exceptions import (
+    NotAuthenticated,
+    PermissionDenied,
+    ValidationError,
+)
 from rest_framework.request import Request
 from rest_framework.response import Response
+from stencila.schema.util import node_type as schema_node_type
 
 from projects.api.serializers import (
     NodeCreateRequest,
     NodeCreateResponse,
     NodeSerializer,
 )
-from projects.models.nodes import Node
+from projects.models.nodes import Node, generate_node_key
 from projects.models.projects import Project, ProjectRole
 from users.models import get_projects
-
-# Applications known to create nodes
-# For these provide further details in HTML views of nodes
-APPS = {
-    "api": ("Stencila Hub API", "https://hub.stenci.la/api"),
-    "encoda": ("Stencila Encoda", "https://github.com/stencila/encoda#readme"),
-    "gsuita": (
-        "Stencila for GSuite",
-        "https://gsuite.google.com/marketplace/app/stencila/110435422451",
-    ),
-}
 
 
 class NodesViewSet(
@@ -77,7 +74,9 @@ class NodesViewSet(
         """
         Create a node.
 
-        Receives a request with the `node` and other information e.g. `project`.
+        Receives a request with the `node` (as JSON) and possibly other information
+        e.g. the `project` the node is associated with, the `app` it was
+
         Returns the URL of the node.
         """
         serializer = NodeCreateRequest(data=request.data)
@@ -101,10 +100,25 @@ class NodesViewSet(
             except Project.DoesNotExist:
                 raise PermissionDenied
 
+        # Use the node id as the key if one was supplied and it is sufficiently long
+        node_id = isinstance(node, dict) and node.get("id")
+        if isinstance(node_id, str) and len(node_id) > 24:
+            key = node_id
+        else:
+            key = generate_node_key()
+
         # Create the node
-        node = Node.objects.create(
-            creator=request.user, project=project, app=app, host=host, json=node,
-        )
+        try:
+            node = Node.objects.create(
+                creator=request.user,
+                project=project,
+                app=app,
+                host=host,
+                json=node,
+                key=key,
+            )
+        except IntegrityError:
+            raise ValidationError(dict(key="Attempting to create a duplicate key"))
 
         serializer = NodeCreateResponse(node, context={"request": request})
         return Response(
@@ -112,7 +126,7 @@ class NodesViewSet(
             status=status.HTTP_201_CREATED,
             # Most of the time this action will requested with `Accept: application/json`.
             # However, in case it is not, `template_name` is required.
-            template_name="projects/nodes/complete.html",
+            template_name="projects/nodes/retrieve.html",
         )
 
     @swagger_auto_schema(responses={status.HTTP_200_OK: NodeSerializer},)
@@ -126,9 +140,12 @@ class NodesViewSet(
 
         - For `application/json` returns 403 if the request user is not authorized
         to read the project.
-        - For `text/html` (and others) returns a very simple HTML rendering of the
-        of the node (only type etc) if the user does not have read access to the project.
-        Otherwise, should return a full HTML rendering of the node using Encoda.
+
+        - For `text/html` (and others) returns a HTML rendering of the
+        of the node without authorization checking; this is to allow scrapers such
+        as Google Docs link preview generator to be able to fetch basic information
+        on the node. For private projects node URLs should be kept private to avoid
+        unauthorized access.
         """
         node = get_object_or_404(Node, key=key)
         if format == "json" or request.accepted_renderer.format == "json":
@@ -144,34 +161,36 @@ class NodesViewSet(
             serializer = NodeSerializer(node, context={"request": request})
             return Response(serializer.data)
         else:
-            # Return a basic view if the user does NOT have permission to view
-            # the project that the node belongs to.
-            if node.project:
+            # Return a HTML representation of the node
+            node_type = schema_node_type(node.json)
+            if node_type in ("CodeChunk", "CodeExpression"):
+                lang = node.json.get("programmingLanguage", "")
                 try:
-                    get_projects(request.user).get(id=node.project.id)
-                except Project.DoesNotExist:
-                    return Response(
-                        {"meta": node.get_meta(), "node": node},
-                        template_name="projects/nodes/basic.html",
-                    )
+                    lexer = pygments.lexers.get_lexer_by_name(lang)
+                except pygments.util.ClassNotFound:
+                    lexer = TextLexer()
+                code = node.json.get("text", "")
+            elif node_type in ("MathBlock", "MathFragment"):
+                lexer = TexLexer()
+                code = node.json.get("text")
+            else:
+                lexer = JsonLexer()
+                code = json.dumps(node.json, indent=2)
 
-            # Return a more complete view if the user has VIEW permissions.
-            # This should include public projects.
-            # TODO: generate and cache a HTML representation of the node using a job
-            lexer = JsonLexer()
             formatter = HtmlFormatter(cssclass="source", style="colorful")
             css = formatter.get_style_defs(".source")
-            html = pygments.highlight(json.dumps(node.json, indent=2), lexer, formatter)
+            html = pygments.highlight(code, lexer, formatter)
 
-            app_name, app_url = APPS.get(node.app, (node.app, None))
+            app_name, app_url = node.get_app()
+
             return Response(
-                {
-                    "meta": node.get_meta(),
-                    "app_url": app_url,
-                    "app_name": app_name,
-                    "node": node,
-                    "css": css,
-                    "html": html,
-                },
-                template_name="projects/nodes/complete.html",
+                dict(
+                    meta=node.get_meta(),
+                    node=node,
+                    css=css,
+                    html=html,
+                    app_name=app_name,
+                    app_url=app_url,
+                ),
+                template_name="projects/nodes/retrieve.html",
             )

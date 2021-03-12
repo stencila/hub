@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% load i18n humanize %}
+
+{% block title %}{{ meta.title }}{% endblock %}
+
+{% block styles %}<style>{{ css }}</style>{% endblock %}
+
+{% block content %}
+<h2 class="title is-3">
+  <span class="icon is-vcentered">
+    <i class="ri-node-tree"></i>
+  </span>
+  <span>{{ meta.title }}</span>
+</h2>
+
+<p class="help">
+  <span class="mr-2">
+    {% if node.creator %}
+    {% if node.creator.personal_account.image.medium %}
+    <a href="{% url 'ui-accounts-retrieve' node.creator.username %}">
+      <span class="icon is-vcentered pr-1">
+        <img src="{{ node.creator.personal_account.image.medium }}"
+             role="presentation"></img>
+      </span>
+      {% else %}
+      <span class="icon is-vcentered">
+        <i class="ri-user-line"></i>
+      </span>
+      {% endif %}
+      <span class="is-vcentered">
+        {{ node.creator.personal_account.display_name|default:node.creator.username }}
+      </span>
+    </a>
+    {% else %}
+    <span class="icon is-vcentered">
+      <i class="ri-user-line"></i>
+    </span>
+    <span class="is-vcentered">
+      Anonymous
+    </span>
+    {% endif %}
+  </span>
+
+  <span class="mr-2"
+        alt="{{ node.created }}">
+    <span class="icon is-vcentered">
+      <i class="ri-calendar-line"></i>
+    </span>
+    <span class="is-vcentered">
+      {{ node.created|naturaltime }}
+    </span>
+  </span>
+
+  {% if node.host %}
+  <span class="mr-2">
+    <span class="icon is-vcentered">
+      <i class="ri-home-line"></i>
+    </span>
+    <a class="is-vcentered"
+       href="{{ node.host }}"
+       target="_blank">
+      {{ node.host|truncatechars:36 }}
+    </a>
+  </span>
+  {% endif %}
+
+  {% if app_name %}
+  <span class="mr-2">
+    <span class="icon is-vcentered">
+      <i class="ri-window-line"></i>
+    </span>
+    {% if app_url %}
+    <a class="is-vcentered"
+       href="{{ app_url }}"
+       target="_blank">
+      {{ app_name }}
+    </a>
+    {% else %}
+    <span class="is-vcentered">
+      {{ app_name }}
+    </span>
+    {% endif %}
+  </span>
+  {% endif %}
+
+</p>
+
+<div class="mt-4 highlight">
+  {{ html|safe }}
+</div>
+{% endblock %}

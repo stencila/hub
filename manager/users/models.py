@@ -63,6 +63,23 @@ def get_email(user: User) -> Optional[str]:
     return best or None
 
 
+def get_name(user: User) -> Optional[str]:
+    """
+    Get the best name to display for a user.
+
+    The "best" name is their account's display name,
+    falling back to first_name + last_name,
+    falling back to username.
+    """
+    if user.personal_account and user.personal_account.display_name:
+        return user.personal_account.display_name
+
+    if user.first_name or user.last_name:
+        return f"{user.first_name} {user.last_name}".strip()
+
+    return user.username
+
+
 def get_attributes(user: User) -> Dict:
     """
     Get a dictionary of user attributes.
