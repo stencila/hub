@@ -1,3 +1,10 @@
+## [4.44.2](https://github.com/stencila/hub/compare/v4.44.1...v4.44.2) (2021-03-12)
+
+
+### Bug Fixes
+
+* **Nodes:** Improve metadata and display for nodes ([303416a](https://github.com/stencila/hub/commit/303416adc2150bc3b23ba21cb87554a298b4f202))
+
 ## [4.44.1](https://github.com/stencila/hub/compare/v4.44.0...v4.44.1) (2021-03-11)
 
 
