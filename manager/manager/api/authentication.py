@@ -83,9 +83,9 @@ class BasicAuthentication(BaseAuthentication):
             return TokenAuthentication().authenticate_credentials(token)
 
 
-class RefreshProviderTokenAuthentication(BaseAuthentication):
+class RefreshOAuthTokenAuthentication(BaseAuthentication):
     """
-    Authentication that allows for updating a `SocialToken` for a provider.
+    Authentication that allows for adding / updating a `SocialToken` for a `SocialApp`.
 
     Most of the time users will take the normal `allauth` based flow to authenticate
     using a third-party provider e.g. Google. In these cases, we store a
@@ -94,11 +94,11 @@ class RefreshProviderTokenAuthentication(BaseAuthentication):
 
     However, in other cases, such as a client using the Hub's API, the user may
     NOT yet have gone through this flow but we still want to be able to pass along
-    an access token for a provider (e.g. for pulling a source from that provider).
+    an access token for a for a `SocialApp` (e.g. for pulling a source from that provider).
 
-    Pass the access token in the `Provider-Token` header with the name of the provider e.g.
+    Pass the access token in the `OAuth-Token` header with the name of the social app e.g.
 
-        Provider-Token: Google fk52.RbLsRS3uO0TkPOchy22...
+        OAuth-Token: gas fk52.RbLsRS3uO0TkPOchy22...
 
     This header name was chosen as it does not clash with any of those registered
     (https://www.iana.org/assignments/message-headers/message-headers.xhtml) and
@@ -129,14 +129,14 @@ class RefreshProviderTokenAuthentication(BaseAuthentication):
         # this side-effect to stop the authentication process
         try:
             user, auth = user_auth
-            header = request.META.get("HTTP_PROVIDER_TOKEN")
+            header = request.META.get("HTTP_OAUTH_TOKEN")
             if header:
                 parts = header.split(" ")
                 if len(parts) == 2:
-                    provider, token = parts
-                    refresh_user_access_token(user, provider, token)
+                    social_app, token = parts
+                    refresh_user_access_token(user, social_app, token)
         except Exception:
-            logger.error("Error attempting to refresh provider token", exc_info=True)
+            logger.error("Error attempting to refresh OAuth token", exc_info=True)
 
         return user_auth
 

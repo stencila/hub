@@ -11,7 +11,7 @@ from jobs.api.helpers import redirect_to_job
 from jobs.models import Job
 from manager.api.authentication import (
     CsrfExemptSessionAuthentication,
-    RefreshProviderTokenAuthentication,
+    RefreshOAuthTokenAuthentication,
 )
 from manager.api.helpers import (
     HtmxCreateMixin,
@@ -42,7 +42,7 @@ class ProjectsSnapshotsViewSet(
 
     authentication_classes = (
         CsrfExemptSessionAuthentication,
-        RefreshProviderTokenAuthentication,
+        RefreshOAuthTokenAuthentication,
     )
 
     def get_permissions(self):
