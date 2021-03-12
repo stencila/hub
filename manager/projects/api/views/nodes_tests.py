@@ -133,7 +133,7 @@ class NodeViewsTest(DatabaseTestCase):
         response = self.retrieve_html(self.ada, key)
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
-        assert response.template_name == "projects/nodes/complete.html"
+        assert response.template_name == "projects/nodes/retrieve.html"
         assert response.data.get("html") is not None
 
     def test_retrieve_anything(self):
@@ -150,32 +150,10 @@ class NodeViewsTest(DatabaseTestCase):
         assert response.status_code == status.HTTP_200_OK
         assert isinstance(response.accepted_renderer, renderers.TemplateHTMLRenderer)
 
-    def test_retrieve_html_complete_for_public_projects(self):
-        """Test users get complete view for public projects."""
-        key = self.create_node(self.ada, self.ada_public.id, "A node").data["key"]
-
-        response = self.retrieve_html(self.bob, key)
-        assert response.template_name == "projects/nodes/complete.html"
-
-        response = self.retrieve_html(None, key)
-        assert response.template_name == "projects/nodes/complete.html"
-
-    def test_retrieve_html_basic_for_private_projects(self):
-        """Test users get basic view for private projects."""
-        key = self.create_node(self.ada, self.ada_private.id, "Another node").data[
-            "key"
-        ]
-
-        response = self.retrieve_html(self.bob, key)
-        assert response.template_name == "projects/nodes/basic.html"
-
-        response = self.retrieve_html(None, key)
-        assert response.template_name == "projects/nodes/basic.html"
-
     def test_retrieve_html_when_no_project(self):
         """Test that everyone gets complete view for any node with no project specified."""
         key = self.create_node(self.ada, None, "A").data["key"]
 
         for user in (self.ada, self.bob, None):
             response = self.retrieve_html(user, key)
-            assert response.template_name == "projects/nodes/complete.html"
+            assert response.template_name == "projects/nodes/retrieve.html"
