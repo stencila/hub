@@ -1,3 +1,11 @@
+## [4.44.3](https://github.com/stencila/hub/compare/v4.44.2...v4.44.3) (2021-03-12)
+
+
+### Bug Fixes
+
+* **Nodes:** Match using lowercase; change GSuita label ([6dee258](https://github.com/stencila/hub/commit/6dee258318379d3fb49001bab70b12f0e6cde2ba))
+* **OAuth tokens:** Use separate client id for GAS ([f3643ac](https://github.com/stencila/hub/commit/f3643ac719332d1b6d3efa8d7f9277bf47adb969))
+
 ## [4.44.2](https://github.com/stencila/hub/compare/v4.44.1...v4.44.2) (2021-03-12)
 
 
