@@ -21,7 +21,7 @@ APPS = {
     "api": ("API", "https://hub.stenci.la/api"),
     "encoda": ("Encoda", "https://github.com/stencila/encoda#readme"),
     "gsuita": (
-        "Google Docs",
+        "Google Workspace",
         "https://workspace.google.com/marketplace/app/stencila/110435422451",
     ),
 }
@@ -111,7 +111,7 @@ class Node(models.Model):
 
     def get_app(self):
         """Get name and URL of the creator app."""
-        return APPS.get(self.app, (self.app, None))
+        return APPS.get(self.app.lower(), (self.app, None))
 
     def get_meta(self) -> Meta:
         """Get the metadata to include in the head of the node's page."""
