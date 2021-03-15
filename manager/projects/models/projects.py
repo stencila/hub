@@ -490,7 +490,13 @@ class Project(StorageUsageMixin, models.Model):
         ).exclude(
             # Currently exclude index.html files because dealt with
             # in an explicit step in snapshot
-            path="index.html"
+            Q(path="index.html"),
+            # Exclude .bib and image files which are created
+            # as children of a parent file's generation
+            # See https://github.com/stencila/hub/issues/1024#issuecomment-799128207
+            Q(path__endswith=".bib")
+            | Q(path__endswith=".png")
+            | Q(path__endswith=".jpg"),
         ):
             # Convert jobs only have one upstream
             upstream = file.upstreams.first()
