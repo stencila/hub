@@ -422,12 +422,12 @@ class Project(StorageUsageMixin, models.Model):
 
     def pull(self, user: User) -> Job:
         """
-        Pull all project sources into the working directory.
+        Pull all the project's sources into its working directory.
 
-        Groups sources by `order` (including `null` order). If there are more
-        than one source in each group creates a `parallel` job having children
-        jobs that `pull`s each source. Groups are then placed in a series job
-        (if there is more than one).
+        Groups sources by `order` (with `null` order first i.e. can be overridden).
+        If there are more than one source in each group creates a `parallel` job
+        having children jobs that `pull`s each source. Groups are then placed in a
+        series job (if there is more than one).
         """
         # Do not create individual pull jobs here because series job children
         # are run in order of their ids; so we need to sort into groups first.
@@ -465,6 +465,49 @@ class Project(StorageUsageMixin, models.Model):
             )
             series.children.set(steps)
             return series
+
+    def reflow(self, user: User) -> Optional[Job]:
+        """
+        Reflow the dependencies between the project's files by rerunning jobs.
+
+        For all `current` files that have `upstreams` creates a new job that
+        re-executes the original job. Because jobs can have `secrets` and callbacks
+        to the original project, rather than creating a copy of the original job
+        we go through the `File` method e.g. `File.convert`. This more safely enables
+        project forking etc.
+
+        In the future should do a topological sort so that the
+        jobs get executed in parallel if possible, and in series if necessary.
+        """
+        subjobs = []
+        for file in self.files.filter(
+            current=True,
+            upstreams__isnull=False,
+            # Currently limited to convert jobs but in future there
+            # may be other jobs that create a derived file
+            # e.g. running a script that create files.
+            job__method=JobMethod.convert.name,
+        ).exclude(
+            # Currently exclude index.html files because dealt with
+            # in an explicit step in snapshot
+            path="index.html"
+        ):
+            # Convert jobs only have one upstream
+            upstream = file.upstreams.first()
+            subjob = upstream.convert(user, file.path)
+            subjobs.append(subjob)
+
+        if len(subjobs) > 0:
+            parallel = Job.objects.create(
+                project=self,
+                creator=user,
+                method=JobMethod.parallel.name,
+                description="Update derived files",
+            )
+            parallel.children.set(subjobs)
+            return parallel
+        else:
+            return None
 
     def pin(self, user: User, **callback) -> Job:
         """
