@@ -1,3 +1,10 @@
+## [4.44.4](https://github.com/stencila/hub/compare/v4.44.3...v4.44.4) (2021-03-15)
+
+
+### Bug Fixes
+
+* **Snapshots:** Add conversions to snapshot ([c57096c](https://github.com/stencila/hub/commit/c57096c35dd3669a5633f8be8bb839e56ad37d9a)), closes [#1024](https://github.com/stencila/hub/issues/1024)
+
 ## [4.44.3](https://github.com/stencila/hub/compare/v4.44.2...v4.44.3) (2021-03-12)
 
 
