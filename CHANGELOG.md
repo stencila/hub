@@ -1,3 +1,10 @@
+## [4.44.5](https://github.com/stencila/hub/compare/v4.44.4...v4.44.5) (2021-03-15)
+
+
+### Bug Fixes
+
+* **Snapshots:** Workaround to exclude reflow of bib and image files ([e04f6d5](https://github.com/stencila/hub/commit/e04f6d5b15408f9a8495f1c223565a009420e641)), closes [/github.com/stencila/hub/issues/1024#issuecomment-799128207](https://github.com//github.com/stencila/hub/issues/1024/issues/issuecomment-799128207)
+
 ## [4.44.4](https://github.com/stencila/hub/compare/v4.44.3...v4.44.4) (2021-03-15)
 
 
