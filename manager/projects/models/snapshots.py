@@ -149,6 +149,11 @@ class Snapshot(StorageUsageMixin, models.Model):
         # Pull the project's sources
         subjobs.append(project.pull(user))
 
+        # "Reflow" the project (regenerate derived files)
+        reflow = project.reflow(user)
+        if reflow:
+            subjobs.append(reflow)
+
         # Pin the container image
         subjobs.append(
             project.pin(user, **Job.create_callback(snapshot, "pin_callback"))
