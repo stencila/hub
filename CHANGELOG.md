@@ -1,3 +1,10 @@
+## [4.44.6](https://github.com/stencila/hub/compare/v4.44.5...v4.44.6) (2021-03-15)
+
+
+### Bug Fixes
+
+* **Snapshots:** Use OR rather than AND for path clauses ([25ee10f](https://github.com/stencila/hub/commit/25ee10f85bfeeefd5dd5c0bd8a11c011e4c47dd0))
+
 ## [4.44.5](https://github.com/stencila/hub/compare/v4.44.4...v4.44.5) (2021-03-15)
 
 
