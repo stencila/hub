@@ -24,7 +24,7 @@ from projects.api.serializers import (
     NodeCreateResponse,
     NodeSerializer,
 )
-from projects.models.nodes import Node, generate_node_key
+from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectRole
 from users.models import get_projects
 
@@ -100,22 +100,10 @@ class NodesViewSet(
             except Project.DoesNotExist:
                 raise PermissionDenied
 
-        # Use the node id as the key if one was supplied and it is sufficiently long
-        node_id = isinstance(node, dict) and node.get("id")
-        if isinstance(node_id, str) and len(node_id) > 24:
-            key = node_id
-        else:
-            key = generate_node_key()
-
         # Create the node
         try:
             node = Node.objects.create(
-                creator=request.user,
-                project=project,
-                app=app,
-                host=host,
-                json=node,
-                key=key,
+                creator=request.user, project=project, app=app, host=host, json=node
             )
         except IntegrityError:
             raise ValidationError(dict(key="Attempting to create a duplicate key"))
