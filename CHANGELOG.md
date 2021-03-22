@@ -1,3 +1,19 @@
+## [4.44.7](https://github.com/stencila/hub/compare/v4.44.6...v4.44.7) (2021-03-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.109.5 ([01f29b5](https://github.com/stencila/hub/commit/01f29b5e00b27e14e2297359ca780e25cb27ee73))
+* **deps:** update dependency google-cloud-storage to v1.36.2 ([765bec8](https://github.com/stencila/hub/commit/765bec805d97f8891f8642341edaf886cb193e46))
+* **deps:** update dependency httpx to v0.17.1 ([e4d870a](https://github.com/stencila/hub/commit/e4d870a3fbb7b71f423861f83ad0a2870ff005bb))
+* **deps:** update dependency sentry-sdk to v1 ([a55d055](https://github.com/stencila/hub/commit/a55d0555db2bbb042b561eac0d7843fb3c9d344c))
+* **deps:** update dependency setuptools to v54.1.2 ([a205501](https://github.com/stencila/hub/commit/a205501337063765b56c015b1bb8a1031d17bf69))
+* **deps:** update dependency stencila-schema to v1.1.3 ([7bfa2da](https://github.com/stencila/hub/commit/7bfa2da5ac4d2d1bb04cef2416336a9f42316e03))
+* **deps:** update dependency urllib3 to v1.26.4 ([acd5ce0](https://github.com/stencila/hub/commit/acd5ce065c9d0e7c5c9a0be3a481f07f066c0fce))
+* **deps:** update nginx docker tag to v1.19.8 ([c3f9a19](https://github.com/stencila/hub/commit/c3f9a199e6285666a0b8fefc1690d8a4f233c6c2))
+* **deps:** update prom/prometheus docker tag to v2.25.2 ([088be4b](https://github.com/stencila/hub/commit/088be4ba985c1fda07b0f764e49b08120938aad2))
+* **Nodes:** Always generate a new key ([215b230](https://github.com/stencila/hub/commit/215b230c4a2da5b1756087c2620c514c67119e52))
+
 ## [4.44.6](https://github.com/stencila/hub/compare/v4.44.5...v4.44.6) (2021-03-15)
 
 
