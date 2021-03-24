@@ -1,3 +1,11 @@
+## [4.44.8](https://github.com/stencila/hub/compare/v4.44.7...v4.44.8) (2021-03-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.9.1 ([de5269e](https://github.com/stencila/hub/commit/de5269e4cd9710b2d2f457b865f4b31455a4bd18))
+* **deps:** update dependency setuptools to v54.2.0 ([65393df](https://github.com/stencila/hub/commit/65393dffea651e0d6d29b2a7a3195551e4b6cc8c))
+
 ## [4.44.7](https://github.com/stencila/hub/compare/v4.44.6...v4.44.7) (2021-03-22)
 
 
