@@ -13,7 +13,7 @@
 
 ## 👋 Introduction
 
-Stencila is an platform of open source tools for authoring, collaborating on, and sharing executable documents. This is the repository for the [Stencila Hub](https://hub.stenci.la) which deploys these tools as a service and integrates them with other tools and services (e.g. Google Docs, GitHub).
+[Stencila](https://stenci.la) is a platform for authoring, collaborating on, and sharing executable documents. This is the repository for the [Stencila Hub](https://hub.stenci.la) which deploys these tools as a service and integrates them with other tools and services (e.g. Google Docs, GitHub).
 
 ## ⚙️ Services
 
