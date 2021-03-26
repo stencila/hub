@@ -24,7 +24,7 @@ django-waffle==2.1.0
 Django==3.1.7
 djangocodemirror==2.1.0
 djangorestframework-camel-case==1.2.0
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 drf-yasg==1.20.0
 google-api-python-client==1.12.8
 google-cloud-storage==1.36.2
