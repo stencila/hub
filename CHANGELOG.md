@@ -1,3 +1,14 @@
+## [4.44.9](https://github.com/stencila/hub/compare/v4.44.8...v4.44.9) (2021-03-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency bulma-toast to v2.3.0 ([df15b0a](https://github.com/stencila/hub/commit/df15b0a9b7ac80412af4fee4cb522bf39b508834))
+* **deps:** update dependency djangorestframework to v3.12.4 ([27e9f7e](https://github.com/stencila/hub/commit/27e9f7e90c63b8278af05f62e60ac67923047808))
+* **deps:** update dependency google-api-python-client to v2 ([de8b13e](https://github.com/stencila/hub/commit/de8b13e3d1375bc91598e02321a9b617b058c1c2))
+* **deps:** update dependency google-cloud-storage to v1.37.0 ([1a70f2c](https://github.com/stencila/hub/commit/1a70f2c7e8506cc19f053d090e0c01d3394bc80f))
+* **deps:** update dependency stencila-schema to v1.1.4 ([e9a0706](https://github.com/stencila/hub/commit/e9a0706f3c0bde40ecb81316abc6721e5fe9648e))
+
 ## [4.44.8](https://github.com/stencila/hub/compare/v4.44.7...v4.44.8) (2021-03-24)
 
 
