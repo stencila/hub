@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <ul id="accounts-users-list">
-  {% for account_user in account.users.all %}
+  {% for account_user in account_users %}
   {% with user=account_user.user %}
   <li class="collection-list--item collection-list--item-contents">
     <div class="level is-mobile">

@@ -400,7 +400,10 @@ class AccountsUsersViewSet(
         Override to add to the template context.
         """
         account, role = self.get_account_role()
-        return super().get_response_context(*args, **kwargs, account=account, role=role)
+        account_users = self.get_queryset()
+        return super().get_response_context(
+            *args, **kwargs, account=account, role=role, account_users=account_users,
+        )
 
 
 class AccountsTeamsViewSet(
