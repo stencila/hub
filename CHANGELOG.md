@@ -1,3 +1,10 @@
+## [4.44.10](https://github.com/stencila/hub/compare/v4.44.9...v4.44.10) (2021-03-28)
+
+
+### Bug Fixes
+
+* **Google sources:** Attach a social app and use it when pulling ([3a91904](https://github.com/stencila/hub/commit/3a91904e9c2c1c07d76dcb5e992346cb673931d8))
+
 ## [4.44.9](https://github.com/stencila/hub/compare/v4.44.8...v4.44.9) (2021-03-27)
 
 
