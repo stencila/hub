@@ -6,6 +6,7 @@ from enum import Enum, unique
 from typing import Dict, List, Optional, Type, Union
 
 import shortuuid
+from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -756,15 +757,24 @@ class GoogleSourceMixin:
     id: int
     doc_id: int
     google_id: int
+    social_app: Optional[SocialApp]
 
     def get_secrets(self, user: User) -> Dict:
         """
         Get Google OAuth2 credentials.
 
-        Will use the credentials of the source's creator if
-        available, falling back to those of the request's user.
+        Will use the creators token associated with the `SocialApp` that the source
+        was originally linked with.
+
+        Falls back to the source's creator if available, falling back to those of
+        the request's user. Note that in these two cases the user may not have
+        permissions to access resource.
         """
         token = None
+
+        if getattr(self, "creator", None) and getattr(self, "social_app", None):
+            app = self.social_app
+            token = get_user_social_token(self.creator, Provider.from_app(app))
 
         if getattr(self, "creator", None):
             token, app = get_user_google_token(self.creator)
@@ -912,6 +922,19 @@ class GoogleDocsSource(GoogleSourceMixin, Source):
     doc_id = models.TextField(
         null=False,
         help_text="The id of the document e.g. 1iNeKTanIcW_92Hmc8qxMkrW2jPrvwjHuANju2hkaYkA",
+    )
+
+    # It is necessary to track which social app (aka OAuth Client) was used
+    # to connect this source. That is because each OAuth client only requests permission
+    # to access Google files that were explicitly "opened" (aka "picked") by the user using
+    # that client. If we try to use a different client we get a HTTP 404 error with the
+    # message "Requested entity was not found".
+    social_app = models.ForeignKey(
+        SocialApp,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        help_text="The OAuth client that this Google Doc was linked using.",
     )
 
     def make_address(self) -> str:

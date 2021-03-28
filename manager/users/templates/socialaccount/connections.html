@@ -93,6 +93,9 @@
 </a>
 {% endfor %}
 {% endif %}
+
+{# Do not allow new connection using our Google App Script client which is meant only for usage via API #}
+{% if provider.id != "gas" %}
 <a title="{{provider.name}}"
    class="list-menu--item socialaccount_provider {{provider.id}}"
    href="{% provider_login_url provider.id process='connect' scope=scope auth_params=auth_params action='reauthenticate' %}">
@@ -114,6 +117,8 @@
     </div>
   </div>
 </a>
+{% endif %}
+
 {% endfor %}
 
 {% include "socialaccount/snippets/login_extra.html" %}
