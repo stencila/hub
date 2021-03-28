@@ -17,6 +17,7 @@ class Provider(Enum):
     Enumeration of the social account providers used by the Hub.
     """
 
+    gas = "gas"
     github = "github"
     google = "google"
     orcid = "orcid"
@@ -27,14 +28,13 @@ class Provider(Enum):
         """Check if this enum has a value."""
         return value in cls._value2member_map_  # type: ignore
 
-
-# A virtual `SocialApp` for Stencila's Google Apps Script OAuth Client
-# This is necessary because `allauth` does not actually support
-# multiple `SocialApps` for the same provider
-# See https://github.com/pennersr/django-allauth/issues/1002
-GAS = SocialApp(
-    client_id="110435422451-kafa0mb5tt5c5nfqou4kussbnslfajbv.apps.googleusercontent.com"
-)
+    @classmethod
+    def from_app(cls, app: SocialApp):
+        """Get the provider variant associated with a particular SocialApp."""
+        for provider in cls:
+            if provider.name == app.provider:
+                return provider
+        raise Exception("SocialApp does not have a matching provider")
 
 
 def get_user_social_token(
@@ -96,15 +96,6 @@ def get_user_google_token(
     if token is None:
         return None, app
 
-    # Here we need to spoof a separate `SocialApp` for the Google Apps Script
-    # client by checking if the social account was created for `gas`
-    account = token.account
-    if (
-        isinstance(account.extra_data, dict)
-        and account.extra_data.get("social_app") == "gas"
-    ):
-        app = GAS
-
     # If the token has not expired just return it
     if token.expires_at is None or token.expires_at > timezone.now() - timezone.timedelta(
         seconds=90
@@ -149,38 +140,23 @@ def get_user_social_tokens(user: User) -> Dict[Provider, SocialToken]:
     return tokens
 
 
-def refresh_user_access_token(user: User, social_app: str, token: str):
+def refresh_user_access_token(user: User, provider: str, token: str):
     """
     Refresh the OAuth access token for a user for a given social app.
-
-    If the user does NOT already have a `SocialAccount` for the `SocialApp` then one will be added.
-    If the `SocialAccount` already has a `SocialToken` WITHOUT a refresh token (i.e.
-    one that was created by this function, rather than the normal `allauth` flow) then
-    that token will be updated. Otherwise a new `SocialToken` will be created. The
-    implementation is intended to do this but for efficiency sake (to reduce
-    db queries) does things in a different order.
     """
-    # All auth does not actually work with more than one `SocialApp` per
-    # provider so we need to handle this here.
-    provider = "google" if social_app == "gas" else social_app.lower()
-
-    # See if the user has an existing token of this kind (ie without a refresh token)
+    # See if the user has an existing token for this provider
     existing = SocialToken.objects.filter(
         account__user=user, app__provider__iexact=provider
     ).first()
 
     if existing:
-        # If the existing token has a refresh token then do not update
-        if existing.token_secret:
-            return
-        # Otherwise "refresh" the token using the supplied token
-        else:
-            existing.token = token
-            existing.save()
+        # Update the token using the supplied token
+        existing.token = token
+        existing.save()
     else:
-        app = SocialApp.objects.get(provider=provider)
+        app = SocialApp.objects.get(provider__iexact=provider)
 
-        # If the user already has an account with the _provider_ use that,
+        # If the user already has an account with the provider use that,
         # otherwise create a new account
         try:
             account = SocialAccount.objects.get(user=user, provider=app.provider)
@@ -190,10 +166,8 @@ def refresh_user_access_token(user: User, social_app: str, token: str):
                 provider=app.provider,
                 # Use our internal id here because we do not have one
                 # one from the provider, and without it it is possible to
-                # get a key violation error e.g. "(provider, uid)=(google, ) already exists".
+                # get a key violation error e.g. "(provider, uid)=(gas, ) already exists".
                 uid=user.id,
-                # Indicate the social app that this was originally requested for
-                extra_data=dict(social_app=social_app),
             )
 
         # Create the token

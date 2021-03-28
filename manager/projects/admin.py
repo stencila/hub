@@ -155,6 +155,14 @@ class GoogleDocsSourceAdmin(SourceChildAdmin):
     base_model = GoogleDocsSource
     show_in_index = True
 
+    list_display = [
+        "id",
+        "project_id",
+        "creator_id",
+        "doc_id",
+        "social_app",
+    ]
+
 
 @admin.register(GoogleSheetsSource)
 class GoogleSheetsSourceAdmin(SourceChildAdmin):

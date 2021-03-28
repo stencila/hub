@@ -1,6 +1,7 @@
 import re
 
 import shortuuid
+from allauth.socialaccount.models import SocialApp
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -827,7 +828,7 @@ class GoogleDocsSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleDocsSource
-        exclude = SourceSerializer.Meta.exclude
+        exclude = SourceSerializer.Meta.exclude + ["social_app"]
         read_only_fields = SourceSerializer.Meta.read_only_fields
 
     def validate_doc_id(self, value):
@@ -835,6 +836,34 @@ class GoogleDocsSourceSerializer(SourceSerializer):
         Validate the document id.
         """
         return GoogleDocsSource.parse_address(value, naked=True, strict=True).doc_id
+
+    def create(self, validated_data):
+        """
+        Create a GoogleDocs (or GoogleSheet) source.
+
+        If an OAuth token is supplied in the header then the source will
+        be associated with that `SocialApp`. Defaults to the Google social
+        app.
+        """
+        social_app = None
+        request = self.context.get("request")
+        if request:
+            header = request.META.get("HTTP_OAUTH_TOKEN")
+            if header:
+                parts = header.split(" ")
+                if len(parts) == 2:
+                    provider, token = parts
+                    social_app = SocialApp.objects.get(provider=provider)
+
+        # Try to get get Google social app, but fail gracefully if it does not
+        # exist e.g. in development
+        if not social_app:
+            social_app = SocialApp.objects.filter(provider="google").first()
+
+        if social_app:
+            validated_data.update(social_app=social_app)
+
+        return super().create(validated_data)
 
 
 class GoogleSheetsSourceSerializer(SourceSerializer):
@@ -849,8 +878,8 @@ class GoogleSheetsSourceSerializer(SourceSerializer):
 
     class Meta:
         model = GoogleSheetsSource
-        exclude = SourceSerializer.Meta.exclude
-        read_only_fields = SourceSerializer.Meta.read_only_fields
+        exclude = GoogleDocsSourceSerializer.Meta.exclude
+        read_only_fields = GoogleDocsSourceSerializer.Meta.read_only_fields
 
     def validate_doc_id(self, value):
         """

@@ -53,5 +53,5 @@ class TokensTestCase(DatabaseTestCase):
         refresh_user_access_token(self.bob, "Twitter", "new-access-token")
 
         token = get_user_social_token(self.bob, Provider.twitter)
-        assert token.token == "existing-access-token"
+        assert token.token == "new-access-token"
         assert token.token_secret == "existing-refresh-token"

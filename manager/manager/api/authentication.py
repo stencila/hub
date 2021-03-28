@@ -96,7 +96,7 @@ class RefreshOAuthTokenAuthentication(BaseAuthentication):
     NOT yet have gone through this flow but we still want to be able to pass along
     an access token for a for a `SocialApp` (e.g. for pulling a source from that provider).
 
-    Pass the access token in the `OAuth-Token` header with the name of the social app e.g.
+    Pass the access token in the `OAuth-Token` header with the name of the provider e.g.
 
         OAuth-Token: gas fk52.RbLsRS3uO0TkPOchy22...
 
@@ -133,8 +133,8 @@ class RefreshOAuthTokenAuthentication(BaseAuthentication):
             if header:
                 parts = header.split(" ")
                 if len(parts) == 2:
-                    social_app, token = parts
-                    refresh_user_access_token(user, social_app, token)
+                    provider, token = parts
+                    refresh_user_access_token(user, provider, token)
         except Exception:
             logger.error("Error attempting to refresh OAuth token", exc_info=True)
 

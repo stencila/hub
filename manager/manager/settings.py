@@ -88,6 +88,7 @@ class Prod(Configuration):
         "allauth.account",
         "allauth.socialaccount.providers.github",
         "allauth.socialaccount.providers.google",
+        "users.socialaccount.providers.gas",
         "allauth.socialaccount.providers.orcid",
         "allauth.socialaccount.providers.twitter",
         "allauth.socialaccount",
