@@ -1,3 +1,15 @@
+# [4.46.0](https://github.com/stencila/hub/compare/v4.45.0...v4.46.0) (2021-03-29)
+
+
+### Bug Fixes
+
+* **Sources:** Return 404 if no matching source ([99e146d](https://github.com/stencila/hub/commit/99e146d8f0f611c40d1dab0cf94c23f0b1970813))
+
+
+### Features
+
+* **Projects:** Task for deleting temporary projects ([10dbd6b](https://github.com/stencila/hub/commit/10dbd6b17bc70696f690503a87eb0165d9a4cfbb))
+
 # [4.45.0](https://github.com/stencila/hub/compare/v4.44.10...v4.45.0) (2021-03-29)
 
 
