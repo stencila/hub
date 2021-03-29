@@ -1,3 +1,10 @@
+# [4.47.0](https://github.com/stencila/hub/compare/v4.46.0...v4.47.0) (2021-03-29)
+
+
+### Features
+
+* **Projects:** Add quota for total number of project (incl. temp) ([819d3b3](https://github.com/stencila/hub/commit/819d3b3e662a68f4befb20ec866425e40ce0c928))
+
 # [4.46.0](https://github.com/stencila/hub/compare/v4.45.0...v4.46.0) (2021-03-29)
 
 
