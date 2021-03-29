@@ -94,16 +94,27 @@ class AccountQuotas:
         "Please upgrade the plan for this account.",
     )
 
+    PROJECTS_TOTAL = AccountQuota(
+        "projects_total",
+        lambda account: Project.objects.filter(account=account).count(),
+        "Maximum number of projects ({limit}; includes temporary projects) for the account has been reached. "
+        "Please upgrade the plan for this account, or use a different account.",
+    )
+
     PROJECTS_PUBLIC = AccountQuota(
         "projects_public",
-        lambda account: Project.objects.filter(account=account, public=True).count(),
+        lambda account: Project.objects.filter(
+            account=account, public=True, temporary=False
+        ).count(),
         "Maximum number of public projects ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account, or use a different account.",
     )
 
     PROJECTS_PRIVATE = AccountQuota(
         "projects_private",
-        lambda account: Project.objects.filter(account=account, public=False).count(),
+        lambda account: Project.objects.filter(
+            account=account, public=False, temporary=False
+        ).count(),
         "Maximum number of private projects ({limit}) for the account has been reached. "
         "Please upgrade the plan for this account, or use a different account.",
     )

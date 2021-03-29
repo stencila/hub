@@ -520,6 +520,12 @@ class AccountTier(models.Model):
         help_text="The maximum number of teams that can be added to the account.",
     )
 
+    projects_total = models.IntegerField(
+        verbose_name="Total projects",
+        default=200,
+        help_text="The maximum number of projects of all types (public, private, temporary) that an account can have.",
+    )
+
     projects_public = models.IntegerField(
         verbose_name="Public projects",
         default=100,

@@ -241,6 +241,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         Validate that a project can be be owned by an account by checking quotas are not exceeded.
         """
         try:
+            AccountQuotas.PROJECTS_TOTAL.check(account)
             if public:
                 AccountQuotas.PROJECTS_PUBLIC.check(account)
             else:
