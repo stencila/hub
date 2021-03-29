@@ -85,9 +85,9 @@ def open(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     raise Http404
 
 
-def claim(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+def save(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     """
-    Allow a user to claim a temporary project.
+    Allow a user to save a temporary project.
 
     If the project is already non-temporary, then the user is redirected to
     it's main page. Otherwise they get a form to change it's name etc
@@ -99,9 +99,9 @@ def claim(request: HttpRequest, *args, **kwargs) -> HttpResponse:
     if not project.temporary:
         return redir("ui-projects-retrieve", project.account.name, project.name)
 
-    serializer = viewset.get_serializer(dict(name="", public=True))
+    serializer = viewset.get_serializer(project)
     return render(
-        request, "projects/claim.html", dict(project=project, serializer=serializer)
+        request, "projects/save.html", dict(project=project, serializer=serializer)
     )
 
 

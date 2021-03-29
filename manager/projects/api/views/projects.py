@@ -234,9 +234,9 @@ class ProjectsViewSet(
         Note that there is a specific `partial_update` serializer for AUTHORs
         which limits which fields of a project they can modify,
 
-        For temporary projects, ensure that the project was accessed
-        by it's name, not it's id (this prevent access to a
-        temporary project by guessing it's integer id).
+        For "temp" account projects, ensure that the project was accessed
+        with a key (API) or by it's name (UI). This prevent access to a
+        temporary project by guessing it's integer id. e.g. `/temp/2123`
         Because temporary objects do not have any users with roles,
         anyone with their name can modify or delete them.
         """
@@ -245,10 +245,13 @@ class ProjectsViewSet(
 
         project = get_project(self.kwargs, self.request.user)
 
-        if project.temporary is True:
-            if "name" not in filter_from_ident(self.kwargs["project"]):
+        if project.account.name == "temp":
+            if self.request.GET.get(
+                "key"
+            ) == project.key or "name" in filter_from_ident(self.kwargs["project"]):
+                return project
+            else:
                 raise exceptions.NotFound
-            return project
 
         if (
             self.action == "partial_update"

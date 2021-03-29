@@ -250,7 +250,9 @@ class ProjectSerializer(serializers.ModelSerializer):
                 dict(public=list(exc.detail.values()).pop() or "Account quota exceeded")
             )
 
-    def validate_name_for_account(self, name: str, account: Account):
+    def validate_name_for_account(
+        self, name: str, account: Account,
+    ):
         """
         Validate that the name if valid for the account.
 
@@ -259,19 +261,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         if AccountPaths.has(name):
             raise exceptions.ValidationError(
                 dict(name="Project name '{0}' is unavailable.".format(name))
-            )
-
-        if (
-            Project.objects.filter(account=account, name=name)
-            .exclude(id=self.instance.id if self.instance else None)
-            .count()
-        ):
-            raise exceptions.ValidationError(
-                dict(
-                    name="Project name '{0}' is already in use for this account.".format(
-                        name
-                    )
-                )
             )
 
         name = unique_slugify(
@@ -392,7 +381,13 @@ class ProjectCreateSerializer(ProjectSerializer):
         self.validate_ownership_by_account(public, account)
 
         # Check that name is valid
-        data["name"] = self.validate_name_for_account(data.get("name", ""), account)
+        name = data.get("name")
+        if name is None:
+            if data.get("temporary"):
+                name = "temp"
+            else:
+                name = "unnamed"
+        data["name"] = self.validate_name_for_account(name, account)
 
         return data
 

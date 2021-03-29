@@ -33,9 +33,9 @@ after_account_urls = [
             [
                 path("", projects.retrieve, name="ui-projects-retrieve",),
                 path(
-                    ProjectPaths.claim.value + "/",
-                    projects.claim,
-                    name="ui-projects-claim",
+                    ProjectPaths.save.value + "/",
+                    projects.save,
+                    name="ui-projects-save",
                 ),
                 path(
                     ProjectPaths.sharing.value + "/",

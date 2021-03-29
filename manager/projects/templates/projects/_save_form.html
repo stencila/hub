@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<form hx-patch="{% url "api-projects-detail" project.name %}"
+<form hx-patch="{% url 'api-projects-detail' project.id %}?key={{ project.key }}"
       hx-vals="javascript: public: document.querySelector('form [name=public]').checked, temporary: false"
-      hx-template="projects/_claim_form.html"
+      hx-template="projects/_save_form.html"
       hx-redirect="UPDATED:Location">
 
   {% include "serializers/_field.html" with field=serializer.account icon="ri-at-line" %}
@@ -14,7 +14,7 @@
     <span class="icon">
       <i class="ri-handbag-fill"></i>
     </span>
-    <span>{% trans "Claim Project" %}</span>
+    <span>{% trans "Save" %}</span>
   </button>
 
 </form>

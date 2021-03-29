@@ -17,20 +17,6 @@
 {% endblock %}
 
 {% block sidebar_start %}
-{% if project.temporary %}
-<div class="sidebar__header">
-  <a href="{% url 'ui-projects-claim' project.account.name project.name %}">
-    <span class="tag is-warning is-light">
-      <span class="icon">
-        <i class="ri-recycle-line"></i>
-      </span>
-      <span>
-        {% trans "Temporary" %}
-      </span>
-    </span>
-  </a>
-</div>
-{% endif %}
 
 <div class="menu">
   <ul class="menu-list is-flex-mobile">
@@ -60,20 +46,6 @@
       </a>
     </li>
 
-    {% if project.temporary %}
-    <li class="sidebar__item"
-        id="menu-item-snapshots">
-      <a href="{% url 'ui-projects-claim' project.account.name project.name %}"
-         class="panel-block transition-colors {% is_active 'ui-projects-claim' %}">
-        <span class="icon">
-          <i class="ri-handbag-line"></i>
-        </span>
-        <span>
-          {% trans 'Claim' %}
-        </span>
-      </a>
-    </li>
-    {% else %}
     <li class="sidebar__item"
         id="menu-item-snapshots">
       <a href="{% url 'ui-projects-snapshots-list' project.account.name project.name %}"
@@ -157,6 +129,20 @@
       </a>
     </li>
     {% endif %}
+
+    {% if project.temporary %}
+    <li class="sidebar__item is-warning"
+        id="menu-item-save">
+      <a href="{% url 'ui-projects-save' project.account.name project.name %}"
+         class="panel-block transition-colors {% is_active 'ui-projects-save' %}">
+        <span class="icon">
+          <i class="ri-handbag-line"></i>
+        </span>
+        <span>
+          {% trans 'Save' %}
+        </span>
+      </a>
+    </li>
     {% endif %}
   </ul>
 </div>

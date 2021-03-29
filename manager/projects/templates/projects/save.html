@@ -1,0 +1,39 @@
+{% extends './base.html' %}
+{% load i18n humanize %}
+{% block title %} {% trans "Save project" %} {{ project.name }}{% endblock %}
+{% block projects_content %}
+<article class="message message-header-body is-warning">
+  <div class="message-header">
+    <p>
+      <span class="icon"><i class="ri-alert-line"></i></span>Temporary project
+    </p>
+  </div>
+  <div class="message-body">
+    <p>
+      This project is currently marked as temporary and due for deletion in
+      {{ project.scheduled_deletion_time|naturaltime }}.
+    </p>
+    {% if user.is_anonymous %}
+    {% url 'ui-users-signin' as signin_url %}
+    {% url 'ui-users-signup' as signup_url %}
+    {% blocktrans with current_url=request.path %}
+    <p>
+      Please <a href="{{ signin_url }}?next={{ current_url }}">sign in</a> with
+      an existing account, or
+      <a href="{{ signup_url }}?next={{ current_url }}">sign up</a> for a new
+      account, to save this project.
+    </p>
+    {% endblocktrans %} {% else %}
+    <p>
+      Use the form below to save the project (with a new name and owning account
+      it you like).
+    </p>
+    {% endif %}
+  </div>
+</article>
+
+{% if not user.is_anonymous %}
+<h1 class="title is-sr-only-mobile">{% trans "Save project" %}</h1>
+{% include "./_save_form.html" %}
+{% endif %}
+{% endblock %}
