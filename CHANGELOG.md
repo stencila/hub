@@ -1,3 +1,10 @@
+## [4.47.1](https://github.com/stencila/hub/compare/v4.47.0...v4.47.1) (2021-03-29)
+
+
+### Bug Fixes
+
+* **Account users:** Use display name in template ([f9945de](https://github.com/stencila/hub/commit/f9945de93f6324e12db49819a5c0f5aba7f840fe))
+
 # [4.47.0](https://github.com/stencila/hub/compare/v4.46.0...v4.47.0) (2021-03-29)
 
 
