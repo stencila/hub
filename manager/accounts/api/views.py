@@ -35,8 +35,8 @@ from manager.api.helpers import (
     filter_from_ident,
 )
 from users.api.serializers import UserIdentifierSerializer
-from users.models import User
-from users.models import get_name
+from users.models import User, get_name
+
 
 def get_account(
     identifier: str, user: User, roles: Optional[List[AccountRole]] = None,
@@ -348,9 +348,11 @@ class AccountsUsersViewSet(
         """
         if account is None:
             account = self.get_account()
-        
+
         return sorted(
-            AccountUser.objects.filter(account=account).select_related('user__personal_account'),
+            AccountUser.objects.filter(account=account).select_related(
+                "user__personal_account"
+            ),
             key=lambda account_user: get_name(account_user.user),
         )
 
