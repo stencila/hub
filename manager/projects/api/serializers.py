@@ -1038,9 +1038,31 @@ class NodeCreateRequest(serializers.ModelSerializer):
 
     node = serializers.JSONField(required=True, help_text="The node itself.")
 
+    source = serializers.CharField(
+        required=False,
+        help_text="The id or address of the source the node is a part of",
+    )
+
+    def validate_source(self, id_or_address):
+        """Resolve the source based on it's id or address."""
+        if re.match(r"^\d+$", id_or_address):
+            try:
+                return Source.objects.get(id=id_or_address)
+            except Source.DoesNotExist:
+                raise ValidationError("No source with this id")
+        else:
+            try:
+                return Source.objects.get(address=id_or_address)
+            except Source.DoesNotExist:
+                raise ValidationError("No source with this address")
+            except Source.MultipleObjectsReturned:
+                raise ValidationError(
+                    "There are multiple sources with this address, please use an integer id instead."
+                )
+
     class Meta:
         model = Node
-        fields = ["project", "app", "host", "node"]
+        fields = ["project", "source", "app", "host", "node"]
 
 
 class NodeCreateResponse(serializers.ModelSerializer):
@@ -1055,17 +1077,26 @@ class NodeCreateResponse(serializers.ModelSerializer):
 
     class Meta:
         model = Node
-        fields = ["key", "url"]
+        fields = [
+            "creator",
+            "created",
+            "project",
+            "source",
+            "app",
+            "host",
+            "key",
+            "url",
+        ]
 
 
-class NodeSerializer(NodeCreateResponse):
+class NodeRetrieveSerializer(NodeCreateResponse):
     """The response data when retrieving a node."""
 
     node = serializers.JSONField(source="json", help_text="The node itself.")
 
     class Meta:
         model = Node
-        fields = ["creator", "created", "project", "app", "host", "key", "url", "node"]
+        fields = NodeCreateResponse.Meta.fields + ["node"]
 
 
 class ReviewSourceField(serializers.PrimaryKeyRelatedField):

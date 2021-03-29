@@ -10,11 +10,7 @@ from pygments.lexers.data import JsonLexer
 from pygments.lexers.markup import TexLexer
 from pygments.lexers.special import TextLexer
 from rest_framework import mixins, parsers, permissions, renderers, status, viewsets
-from rest_framework.exceptions import (
-    NotAuthenticated,
-    PermissionDenied,
-    ValidationError,
-)
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from stencila.schema.util import node_type as schema_node_type
@@ -22,7 +18,7 @@ from stencila.schema.util import node_type as schema_node_type
 from projects.api.serializers import (
     NodeCreateRequest,
     NodeCreateResponse,
-    NodeSerializer,
+    NodeRetrieveSerializer,
 )
 from projects.models.nodes import Node
 from projects.models.projects import Project, ProjectRole
@@ -75,21 +71,33 @@ class NodesViewSet(
         Create a node.
 
         Receives a request with the `node` (as JSON) and possibly other information
-        e.g. the `project` the node is associated with, the `app` it was
+        e.g. the `project` the node is associated with, the `app` it was created using.
 
-        Returns the URL of the node.
+        Returns the key and URL of the node.
         """
         serializer = NodeCreateRequest(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         project = serializer.validated_data.get("project")
+        source = serializer.validated_data.get("source")
         app = serializer.validated_data.get("app", "api")
         host = serializer.validated_data.get("host")
         node = serializer.validated_data.get("node")
 
-        # Check that the user has EDIT permissions for the project,
-        # if provided.
+        if source:
+            # Check that the supplied project is the same as the
+            # one that the project is linked to
+            if project and project != source.project:
+                raise ValidationError(
+                    dict(
+                        project="Supplied project is different to the project of the supplied source"
+                    )
+                )
+
+            project = source.project
+
         if project:
+            # Check that the user has edit permissions for the project
             try:
                 get_projects(request.user).get(
                     id=project.id,
@@ -100,13 +108,23 @@ class NodesViewSet(
             except Project.DoesNotExist:
                 raise PermissionDenied
 
+        # If source is provided, ignore the supplied project in case the source is moved
+        # to a different project in the future
+        if source:
+            project = None
+
         # Create the node
         try:
             node = Node.objects.create(
-                creator=request.user, project=project, app=app, host=host, json=node
+                creator=request.user,
+                project=project,
+                source=source,
+                app=app,
+                host=host,
+                json=node,
             )
-        except IntegrityError:
-            raise ValidationError(dict(key="Attempting to create a duplicate key"))
+        except IntegrityError as exc:
+            raise ValidationError(str(exc))
 
         serializer = NodeCreateResponse(node, context={"request": request})
         return Response(
@@ -117,7 +135,7 @@ class NodesViewSet(
             template_name="projects/nodes/retrieve.html",
         )
 
-    @swagger_auto_schema(responses={status.HTTP_200_OK: NodeSerializer},)
+    @swagger_auto_schema(responses={status.HTTP_200_OK: NodeRetrieveSerializer},)
     def retrieve(
         self, request: Request, key: str, format: Optional[str] = None
     ) -> Response:
@@ -125,28 +143,10 @@ class NodesViewSet(
         Retrieve a node.
 
         Performs content negotiation and authorization based on the `Accept` header.
-
-        - For `application/json` returns 403 if the request user is not authorized
-        to read the project.
-
-        - For `text/html` (and others) returns a HTML rendering of the
-        of the node without authorization checking; this is to allow scrapers such
-        as Google Docs link preview generator to be able to fetch basic information
-        on the node. For private projects node URLs should be kept private to avoid
-        unauthorized access.
         """
         node = get_object_or_404(Node, key=key)
         if format == "json" or request.accepted_renderer.format == "json":
-            # Require the user is authenticated and has VIEW permissions for the project
-            if not request.user.is_authenticated:
-                raise NotAuthenticated
-            if node.project:
-                try:
-                    get_projects(request.user).get(id=node.project.id)
-                except Project.DoesNotExist:
-                    raise PermissionDenied
-
-            serializer = NodeSerializer(node, context={"request": request})
+            serializer = NodeRetrieveSerializer(node, context={"request": request})
             return Response(serializer.data)
         else:
             # Return a HTML representation of the node

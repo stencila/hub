@@ -107,15 +107,10 @@ class NodeViewsTest(DatabaseTestCase):
         out = self.retrieve_json(self.ada, key).data["node"]
         assert out == inp
 
-    def test_retrieve_json_must_be_authenticated(self):
+    def test_retrieve_json(self):
         key = self.create_node(self.ada, self.ada_public.id, "A").data["key"]
         response = self.retrieve_json(None, key)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
-
-    def test_retrieve_json_must_have_project_view_permission(self):
-        key = self.create_node(self.ada, self.ada_private.id, "B").data["key"]
-        response = self.retrieve_json(self.bob, key)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_200_OK
 
     def test_retrieve_json_when_no_project(self):
         key = self.create_node(self.ada, None, "A").data["key"]
@@ -123,10 +118,6 @@ class NodeViewsTest(DatabaseTestCase):
         for user in (self.ada, self.bob):
             response = self.retrieve_json(self.ada, key)
             assert response.status_code == status.HTTP_200_OK
-
-        # Anonymous users can't get JSON
-        response = self.retrieve_json(None, key)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_retrieve_html_ok(self):
         key = self.create_node(self.ada, self.ada_private.id, "C").data["key"]
