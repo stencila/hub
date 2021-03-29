@@ -1,3 +1,10 @@
+# [4.45.0](https://github.com/stencila/hub/compare/v4.44.10...v4.45.0) (2021-03-29)
+
+
+### Features
+
+* **Nodes:** Record the source of a node ([dfcace6](https://github.com/stencila/hub/commit/dfcace6357a59a538d57ffb6066ad0360f8d9337))
+
 ## [4.44.10](https://github.com/stencila/hub/compare/v4.44.9...v4.44.10) (2021-03-28)
 
 
