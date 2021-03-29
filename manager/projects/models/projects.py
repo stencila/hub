@@ -215,7 +215,16 @@ class Project(StorageUsageMixin, models.Model):
             )
         ]
 
-    TEMPORARY_PROJECT_LIFESPAN = datetime.timedelta(days=1)
+    # Time between creation and scheduled deletion
+    TEMPORARY_PROJECT_LIFESPANS = {
+        # Time for the "temp" account
+        "temp": datetime.timedelta(days=1),
+        # Time for all other accounts
+        "default": datetime.timedelta(days=7),
+    }
+
+    # Time before schedule deletion for warning email
+    TEMPORARY_PROJECT_WARNING = datetime.timedelta(days=2)
 
     STORAGE = working_storage()
 
@@ -291,11 +300,21 @@ class Project(StorageUsageMixin, models.Model):
         """
         Get the scheduled deletion time of a temporary project.
         """
-        return (
-            (self.created + Project.TEMPORARY_PROJECT_LIFESPAN)
-            if self.temporary
-            else None
+        if not self.temporary:
+            return None
+
+        delta = Project.TEMPORARY_PROJECT_LIFESPANS.get(
+            self.account.name, Project.TEMPORARY_PROJECT_LIFESPANS.get("default")
         )
+        return self.created + delta
+
+    @property
+    def scheduled_deletion_warning(self) -> Optional[datetime.datetime]:
+        """
+        Get the scheduled time for a warning of deletion email to be send to project owner.
+        """
+        time = self.scheduled_deletion_time
+        return time - Project.TEMPORARY_PROJECT_WARNING if time else None
 
     def get_main(self):
         """

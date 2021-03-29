@@ -1,8 +1,22 @@
 from celery import shared_task
+from django.utils import timezone
 
 from projects.models.projects import Project
 from projects.models.providers import GithubRepo
 from users.models import User
+
+
+@shared_task
+def delete_temporary_projects():
+    """
+    Delete temporary project that have exceeded their scheduled deletion time.
+
+    Likely to be called on a regular basis e.g. daily by a periodic task.
+    """
+    projects = Project.objects.get(temporary=True)
+    for project in projects:
+        if project.scheduled_deletion_time >= timezone.now():
+            project.destroy()
 
 
 @shared_task
