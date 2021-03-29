@@ -17,6 +17,7 @@ from rest_framework import serializers
 from rest_framework.utils.field_mapping import ClassLookupDict
 
 from projects.models.files import FileFormat, FileFormats
+from users.models import get_name as user_get_name
 
 register = template.Library()
 
@@ -219,6 +220,14 @@ def tier_count(count):
         return "Unlimited"
     else:
         return count
+
+
+@register.filter
+def get_name(user):
+    """
+    Get the best name to display for a user.
+    """
+    return user_get_name(user)
 
 
 @register.tag

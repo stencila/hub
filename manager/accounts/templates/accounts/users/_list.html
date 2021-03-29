@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load stencila i18n %}
 
 <ul id="accounts-users-list">
   {% for account_user in account_users %}
@@ -12,7 +12,7 @@
         </span>
         <span class="has-text-bold">
           <a href="{% url 'ui-accounts-retrieve' user.username %}">
-            {{ user.get_full_name|default:user.username }}
+            {{ user|get_name }}
           </a>
         </span>
       </div>
