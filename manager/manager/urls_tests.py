@@ -59,7 +59,7 @@ checks = [
     Check(
         "/",
         anon=title("Projects"),
-        ada=title("ada")
+        ada=title("Projects")
     ),
     # User `me` namespace URLs
     Check(
