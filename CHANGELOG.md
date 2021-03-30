@@ -1,3 +1,11 @@
+## [4.47.2](https://github.com/stencila/hub/compare/v4.47.1...v4.47.2) (2021-03-30)
+
+
+### Bug Fixes
+
+* **Home:** Don't redirect authed users to their profile ([7801dc4](https://github.com/stencila/hub/commit/7801dc458c369105e672a1c4cdb5f5a35bbdad7b))
+* **Password set:** Make consistent with password change form ([ca43e9f](https://github.com/stencila/hub/commit/ca43e9f9eee09ed6af860bf7f719aa7b66b3a9f7))
+
 ## [4.47.1](https://github.com/stencila/hub/compare/v4.47.0...v4.47.1) (2021-03-29)
 
 
