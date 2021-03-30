@@ -6,6 +6,7 @@ from users.ui.views import (
     ConnectionsView,
     EmailsView,
     PasswordChangeView,
+    PasswordSetView,
     SigninView,
     SignoutView,
     SignupView,
@@ -36,6 +37,11 @@ urlpatterns = [
     path("features/", features, name="ui-users-features"),
     # Overrides of allauth URLs, conservatively retaining their path and names
     # See https://django-allauth.readthedocs.io/en/latest/views.html
+    path(
+        "password/set/",
+        login_required(PasswordSetView.as_view()),
+        name="account_set_password",
+    ),
     path(
         "password/change/",
         login_required(PasswordChangeView.as_view()),

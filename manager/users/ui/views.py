@@ -3,6 +3,7 @@ import logging
 import invitations.views
 from allauth.account.views import EmailView, LoginView, LogoutView
 from allauth.account.views import PasswordChangeView as BasePasswordChangeView
+from allauth.account.views import PasswordSetView as BasePasswordSetView
 from allauth.account.views import SignupView as BaseSignupView
 from allauth.socialaccount.views import ConnectionsView as BaseConnectionsView
 from django.contrib.auth.decorators import login_required
@@ -63,6 +64,10 @@ class AccountRoleMixin:
         context["account"] = self.request.user.personal_account
         context["role"] = "OWNER"
         return context
+
+
+class PasswordSetView(AccountRoleMixin, BasePasswordSetView):
+    """Override of allauth PasswordSetView to add template context variables."""
 
 
 class PasswordChangeView(AccountRoleMixin, BasePasswordChangeView):
