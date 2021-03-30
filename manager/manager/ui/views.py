@@ -17,7 +17,7 @@ def home(request: HttpRequest) -> HttpResponse:
     """
     Home page view.
 
-    Served at /. Redirects to other urls depending on whether
+    Served at /. May redirect to other urls e.g. depending on whether
     the user is authenticated or not.
     """
     # Send OK to Google's health checker which always hits "/"
@@ -34,11 +34,7 @@ def home(request: HttpRequest) -> HttpResponse:
     if settings.SECURE_SSL_REDIRECT and not request.is_secure():
         return redirect("https://" + request.get_host() + "/")
 
-    # Authenticated users get redirected to dashboard
-    if request.user.is_authenticated:
-        return redirect("ui-accounts-retrieve", request.user.username)
-
-    # Unauthenticated users get redirected to the project listing page
+    # Redirect to the project listing page
     return redirect("ui-projects-list")
 
 
