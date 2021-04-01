@@ -1,5 +1,5 @@
 amqp==2.6.1
-celery==4.4.6
+celery==4.4.7
 filetype==1.0.7
 google-api-python-client==2.0.2
 httpx==0.17.1
