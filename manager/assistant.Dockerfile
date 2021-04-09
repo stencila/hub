@@ -1,4 +1,4 @@
-FROM python:3.9.2
+FROM python:3.9.4
 
 # Create non-root `assistant` user and use it's home dir
 # to copy files into
