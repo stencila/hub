@@ -1,3 +1,20 @@
+## [4.47.3](https://github.com/stencila/hub/compare/v4.47.2...v4.47.3) (2021-04-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.9.2 ([c278821](https://github.com/stencila/hub/commit/c27882198b8aa90a21ff9f0583594681bfe1b3bb))
+* **deps:** update dependency bulma to v0.9.2 ([57a4a1d](https://github.com/stencila/hub/commit/57a4a1db10550232d3612628517e88b284a5cfdb))
+* **deps:** update dependency celery to v4.4.7 ([08c9932](https://github.com/stencila/hub/commit/08c99322fecc87e328b42effb9f21cfcde9b16b7))
+* **deps:** update dependency htmx.org to v1.3.3 ([fc70759](https://github.com/stencila/hub/commit/fc70759d0ffe34779da6f699827b4ba6aafce551))
+* **deps:** update dependency prometheus_client to v0.10.1 ([9df1541](https://github.com/stencila/hub/commit/9df15410fce2e630ac5878360d21bb2f5b58c2b6))
+* **deps:** update dependency setuptools to v56 ([2a03e4f](https://github.com/stencila/hub/commit/2a03e4fc350f7ef0dfe9439f47b7f52e96dbc62d))
+* **deps:** update dependency typescript to v4.2.4 ([7afc338](https://github.com/stencila/hub/commit/7afc338755ed0c4a635ff475eacd48ce0dc92f09))
+* **deps:** update dependency userflow.js to v2.1.2 ([84196a5](https://github.com/stencila/hub/commit/84196a5b9f567f2019ae12fbe568e2b88d654520))
+* **deps:** update nginx docker tag to v1.19.10 ([d6f96ca](https://github.com/stencila/hub/commit/d6f96caa814f9402d0261f323648d147e5eab1e0))
+* **deps:** update prom/prometheus docker tag to v2.26.0 ([76d27ec](https://github.com/stencila/hub/commit/76d27ec2076c9be90ee63ac923a4fa9ce5a41fba))
+* **Deps:** npm audit fix ([9f5a1c8](https://github.com/stencila/hub/commit/9f5a1c8a22c05f264f912335a706e5c67e263768))
+
 ## [4.47.2](https://github.com/stencila/hub/compare/v4.47.1...v4.47.2) (2021-03-30)
 
 
