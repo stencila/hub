@@ -1,3 +1,13 @@
+## [4.47.4](https://github.com/stencila/hub/compare/v4.47.3...v4.47.4) (2021-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-api-python-client to v2.2.0 ([8c18b2b](https://github.com/stencila/hub/commit/8c18b2b6a3d05b7d30190c3252db8864908e0696))
+* **deps:** update dependency pillow to v8.2.0 ([903e872](https://github.com/stencila/hub/commit/903e872e145d48381dda9a02ce0d64848b08fb2c))
+* **deps:** update dependency stencila-schema to v1.3.1 ([0e3a173](https://github.com/stencila/hub/commit/0e3a1737647c370d42c63e5935a13abb2e526857))
+* **deps:** update python docker tag to v3.9.4 ([a417840](https://github.com/stencila/hub/commit/a41784068b42aab102b3f64515c7afcfd7966559))
+
 ## [4.47.3](https://github.com/stencila/hub/compare/v4.47.2...v4.47.3) (2021-04-18)
 
 
