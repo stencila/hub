@@ -59,18 +59,16 @@ class ProjectAdmin(admin.ModelAdmin):
     actions = ["update_image", "toggle_featured"]
     raw_id_fields = ["account", "creator", "pinned"]
 
+    @admin.action(description="Update image")
     def update_image(self, request, queryset):
         """Update image for selected projects."""
         for project in queryset:
             update_image_for_project.delay(project.id)
 
-    update_image.short_description = "Update image"  # type: ignore
-
+    @admin.action(description="Toggle featured field")
     def toggle_featured(self, request, queryset):
         """Toggle featured field for selected projects."""
         queryset.update(featured=Q(featured=False))
-
-    toggle_featured.short_description = "Toggle featured field"  # type: ignore
 
 
 @admin.register(ProjectAgent)

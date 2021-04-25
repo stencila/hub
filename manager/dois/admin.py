@@ -41,10 +41,9 @@ class ProjectAdmin(admin.ModelAdmin):
 
     actions = ["register"]
 
+    @admin.action(description="Register selected DOIs")
     def register(self, request, queryset):
         """Register the selected DOIs."""
         for doi in queryset.all():
             if not doi.deposited:
                 doi.register().dispatch()
-
-    register.short_description = "Register selected DOIs"  # type: ignore

@@ -19,17 +19,16 @@ class AccountAdmin(admin.ModelAdmin):
     def is_personal(self, instance):
         """Field to display `is_personal` as a boolean."""
         return instance.is_personal
-
     is_personal.boolean = True  # type: ignore
-    is_personal.short_description = u"Personal"  # type: ignore
+    is_personal.short_description = "Personal"  # type: ignore
 
+    @admin.action(description="Set image from social accounts")
     def set_image_from_socialaccounts(self, request, queryset):
         """Set image from social accounts."""
         for account in queryset:
             set_image_from_socialaccounts.delay(account.id)
 
-    set_image_from_socialaccounts.short_description = "Set image from social accounts"  # type: ignore
-
+    @admin.action(description="Downgrade to Tier 1")
     def downgrade_to_tier1(self, request, queryset):
         """
         Downgrades the selected accounts to Tier 1 (Free).
@@ -52,8 +51,6 @@ class AccountAdmin(admin.ModelAdmin):
             "accounts/admin/accounts_downgrade_confirm.html",
             context={"accounts": queryset},
         )
-
-    downgrade_to_tier1.short_description = "Downgrade to Tier 1"  # type: ignore
 
 
 @admin.register(AccountUser)

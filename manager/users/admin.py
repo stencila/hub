@@ -76,12 +76,11 @@ class CustomUserAdmin(UserAdmin):
             group = Group.objects.get(name="Staff")
             instance.groups.remove(group)
 
+    @admin.action(description="Refresh list of GitHub repos")
     def refresh_github_repos(self, request, queryset):
         """Refresh the list of GitHub repos the user is a member of."""
         for user in queryset.all():
             GithubRepo.refresh_for_user(user)
-
-    refresh_github_repos.short_description = "Refresh list of GitHub repos"  # type: ignore
 
 
 @admin.register(AnonUser)
