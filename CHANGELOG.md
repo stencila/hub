@@ -1,3 +1,16 @@
+## [4.47.5](https://github.com/stencila/hub/compare/v4.47.4...v4.47.5) (2021-04-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.115.2 ([e65aa3d](https://github.com/stencila/hub/commit/e65aa3d80a1ebf96791ba9fc963fb6e6242007d0))
+* **deps:** update dependency django to v3.2 ([d276df8](https://github.com/stencila/hub/commit/d276df8fdbb0913ec8f7083042ee96adc7518e80))
+* **deps:** update dependency django-extensions to v3.1.3 ([3592f8d](https://github.com/stencila/hub/commit/3592f8db3684533590469d6e54267bf37f2c0e76))
+* **deps:** update dependency google-cloud-storage to v1.37.1 ([47d5aa4](https://github.com/stencila/hub/commit/47d5aa400522580a2db19a58f5b795bcd62b2fcf))
+* **deps:** update dependency stencila-schema to v1.4.3 ([eec6f22](https://github.com/stencila/hub/commit/eec6f22f2867f96587c33348ae535d8762e02af8))
+* **deps:** update nginx docker tag to v1.20.0 ([796e740](https://github.com/stencila/hub/commit/796e7405f063bb78ba6bc1da955fde33ad3da048))
+* **deps:** update redis docker tag to v6.2.2 ([ba2a264](https://github.com/stencila/hub/commit/ba2a264a99242653b579dc16de5544f6e292f8fd))
+
 ## [4.47.4](https://github.com/stencila/hub/compare/v4.47.3...v4.47.4) (2021-04-19)
 
 
