@@ -19,6 +19,7 @@ class AccountAdmin(admin.ModelAdmin):
     def is_personal(self, instance):
         """Field to display `is_personal` as a boolean."""
         return instance.is_personal
+
     is_personal.boolean = True  # type: ignore
     is_personal.short_description = "Personal"  # type: ignore
 
