@@ -19,6 +19,9 @@
     "not IE 11",
     "not IE_Mob 11"
   ],
+  "engines": {
+    "node": ">=14 <16"
+  },
   "dependencies": {
     "@creativebulma/bulma-tooltip": "1.2.0",
     "@popperjs/core": "2.9.2",

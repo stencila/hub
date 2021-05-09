@@ -13,12 +13,12 @@ jobs:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: $(PYTHON_VERSION)
-        displayName: Install Python
+        displayName: Use Python $(PYTHON_VERSION)
 
       - task: NodeTool@0
         inputs:
           versionSpec: $(NODE_VERSION)
-        displayName: Install Node.js
+        displayName: Use Node.js $(NODE_VERSION)
 
       - script: make lint
         displayName: Run linting
@@ -40,12 +40,12 @@ jobs:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: $(PYTHON_VERSION)
-        displayName: Install Python
+        displayName: Use Python $(PYTHON_VERSION)
 
       - task: NodeTool@0
         inputs:
           versionSpec: $(NODE_VERSION)
-        displayName: Install Node.js
+        displayName: Use Node.js $(NODE_VERSION)
 
       - task: Docker@2
         inputs:
