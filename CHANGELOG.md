@@ -1,3 +1,23 @@
+## [4.47.6](https://github.com/stencila/hub/compare/v4.47.5...v4.47.6) (2021-05-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.116.0 ([a633682](https://github.com/stencila/hub/commit/a633682ead70598057ca16f10daded109fe2ea9a))
+* **deps:** update dependency django to v3.2.2 ([62a6cf7](https://github.com/stencila/hub/commit/62a6cf7a14bc8d7086dc852435dc4bb4ca12b519))
+* **deps:** update dependency google-api-python-client to v2.3.0 ([b2a6630](https://github.com/stencila/hub/commit/b2a6630b9e4d2b02b5544963d28c48a6e59ab4a9))
+* **deps:** update dependency google-cloud-storage to v1.38.0 ([bb707d9](https://github.com/stencila/hub/commit/bb707d95e67b10e7bd0bfd0c28d3c6cdaa54fd0c))
+* **deps:** update dependency httpx to v0.18.1 ([41f2949](https://github.com/stencila/hub/commit/41f29493bc7a897c082f0910517a7a41c1853e17))
+* **deps:** update dependency pygithub to v1.55 ([609cb45](https://github.com/stencila/hub/commit/609cb4542d3a2868c757b50799abd3201809119c))
+* **deps:** update dependency pygments to v2.9.0 ([46155bf](https://github.com/stencila/hub/commit/46155bf5e458596b997d290d88288f6c5f8beb59))
+* **deps:** update dependency sentry-sdk to v1.1.0 ([005b2ec](https://github.com/stencila/hub/commit/005b2ecf5d265e764b104e6c4043ada25b04f8e0))
+* **deps:** update dependency setuptools to v56.2.0 ([c85d430](https://github.com/stencila/hub/commit/c85d4305c501817587d3ed67cd943367876002bd))
+* **deps:** update dependency six to v1.16.0 ([a7669e8](https://github.com/stencila/hub/commit/a7669e8f9527d5998c0f66ca6ee436d555df228d))
+* **deps:** update dependency stencila-schema to v1.5.3 ([51e90d9](https://github.com/stencila/hub/commit/51e90d9925e94f4e16a5813dd0342c1053e6e004))
+* **Deps:** Remove unecessary pyjwt pin ([359ebf6](https://github.com/stencila/hub/commit/359ebf6379b01209d9e154e1ff4ccea26ae39252))
+* **Tokens:** Updates for new version of jwt ([c5b788c](https://github.com/stencila/hub/commit/c5b788c94f8ad95f3d9c19e6a9ee9a67c43a34e2))
+* **Tokens:** Use options argument ([7c79c60](https://github.com/stencila/hub/commit/7c79c600cb9b14b7e53ad2dabf7f38983bf5cc65))
+
 ## [4.47.5](https://github.com/stencila/hub/compare/v4.47.4...v4.47.5) (2021-04-26)
 
 
