@@ -117,7 +117,7 @@ class TokenFlowTests(TokenTestCase):
 
 def mock_verify_token(token, *args, **kwargs):
     """Mock: decodes but does not verify OpenId token."""
-    return jwt.decode(token, None, False)
+    return jwt.decode(token, options={"verify_signature": False})
 
 
 def mock_verify_token_fail(*args, **kwargs):

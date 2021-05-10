@@ -206,9 +206,9 @@ def authenticate_openid(request: Request, token: str) -> User:
     If the verified email address matches an existing user then returns
     that user, otherwise creates a new user with the email as their primary email.
     """
-    # Run some basic checks on the token
+    # Run some basic checks on the token before verifying with Google
     try:
-        unverified_claims = jwt.decode(token, "", algorithm="HS256")
+        unverified_claims = jwt.decode(token, options={"verify_signature": False})
     except Exception as exc:
         raise ParseError("Bad token: {}".format(str(exc)))
 
