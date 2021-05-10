@@ -208,7 +208,7 @@ def authenticate_openid(request: Request, token: str) -> User:
     """
     # Run some basic checks on the token
     try:
-        unverified_claims = jwt.decode(token, "", False)
+        unverified_claims = jwt.decode(token, "", algorithm="HS256")
     except Exception as exc:
         raise ParseError("Bad token: {}".format(str(exc)))
 
