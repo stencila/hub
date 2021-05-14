@@ -1,4 +1,4 @@
-FROM python:3.9.4
+FROM python:3.9.5
 
 # Create `overseer` user and use it's home dir
 RUN useradd -m overseer
