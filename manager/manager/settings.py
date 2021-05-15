@@ -277,7 +277,7 @@ class Prod(Configuration):
     CORS_ALLOWED_ORIGIN_REGEXES: List[str] = [
         # Allow cross-origin requests from Stencila's Google Docs & Google Sheets add-ons
         r"^https://n-zoqnmwqnnhslxffeq3hh6ne46wicurqczwe4csa-[\w]+-script.googleusercontent.com?$",
-        r"^https://n-tpe3bvg6uwwqjcwrq5wtxiuhioj4gmbhrqi4lbi-[\w]+-script.googleusercontent.com?$"
+        r"^https://n-tpe3bvg6uwwqjcwrq5wtxiuhioj4gmbhrqi4lbi-[\w]+-script.googleusercontent.com?$",
     ]
     # This allows credentials to be sent in cross-origin requests
     CORS_ALLOW_CREDENTIALS = True
