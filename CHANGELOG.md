@@ -1,3 +1,18 @@
+## [4.47.7](https://github.com/stencila/hub/compare/v4.47.6...v4.47.7) (2021-05-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @stencila/encoda to v0.116.1 ([29322b1](https://github.com/stencila/hub/commit/29322b13fa3cf2ad8f0fe187f6fe905079020c66))
+* **deps:** update dependency django to v3.2.3 ([6207257](https://github.com/stencila/hub/commit/620725722620de7b5c39ff036231c2c84647d23d))
+* **deps:** update dependency google-api-python-client to v2.4.0 ([d3d258e](https://github.com/stencila/hub/commit/d3d258eaeb5fe0900fe35d48e06400b6396f7f2e))
+* **deps:** update dependency stencila-schema to v1.6.1 ([fd3d862](https://github.com/stencila/hub/commit/fd3d862662bc12b19749aed82abe48dd729dfd47))
+* **deps:** update prom/prometheus docker tag to v2.27.0 ([75c348b](https://github.com/stencila/hub/commit/75c348bd150b87f1a5f5abd4ad8cdeb815aa4f0b))
+* **deps:** update python docker tag to v3.9.5 ([813b31c](https://github.com/stencila/hub/commit/813b31cfc94da6bceed2b89879c1ed9f4c0420fd))
+* **deps:** update rabbitmq docker tag to v3.8.16 ([8cff1c1](https://github.com/stencila/hub/commit/8cff1c180b727a52a3c8eabe588238ad662fd635))
+* **deps:** update redis docker tag to v6.2.3 ([e0e2953](https://github.com/stencila/hub/commit/e0e2953cb8181966ddbabffd2114d9feabc410eb))
+* **Settings:** Add Google Sheets add-on to allowed CORS origins ([bc8871d](https://github.com/stencila/hub/commit/bc8871dff4fad958055377f6665ee99d253155a0))
+
 ## [4.47.6](https://github.com/stencila/hub/compare/v4.47.5...v4.47.6) (2021-05-10)
 
 
