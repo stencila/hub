@@ -2,4 +2,4 @@ black==19.10b0
 flake8==3.9.2
 flower==0.9.7
 mypy==0.812
-pydocstyle==6.0.0
+pydocstyle==6.1.1
