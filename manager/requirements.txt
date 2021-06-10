@@ -21,7 +21,7 @@ django-sendgrid-v5==0.9.1
 django-storages==1.11.1
 django-super-deduper==0.1.4
 django-waffle==2.1.0
-Django==3.2.3
+Django==3.2.4
 djangocodemirror==2.1.0
 djangorestframework-camel-case==1.2.0
 djangorestframework==3.12.4
