@@ -1,4 +1,4 @@
-{% load i18n static stencila meta intercom waffle_tags %}
+{% load i18n static stencila meta waffle_tags %}
 
 <!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}
@@ -449,7 +449,6 @@
 
   {% flag 'product_messages' %}
   <!-- product_messages: on -->
-  {% intercom_tag %}
   {% endflag %}
 
   {% flag 'product_tours' %}

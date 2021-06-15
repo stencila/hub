@@ -94,7 +94,6 @@ class Prod(Configuration):
         "allauth.socialaccount",
         "corsheaders",
         "django_celery_beat",
-        "django_intercom",
         "django_prometheus",
         "djangocodemirror",
         "djstripe",
@@ -448,15 +447,6 @@ class Prod(Configuration):
 
     GOOGLE_API_KEY = values.Value("")
 
-    # Intercom settings
-    # For other potential settings see
-    # https://django-intercom.readthedocs.io/en/latest/settings.html
-
-    INTERCOM_APPID = values.Value()
-    # Token to use the Intercom API. See
-    # https://developers.intercom.com/building-apps/docs/authentication-types#section-access-tokens
-    INTERCOM_ACCESS_TOKEN = values.Value()
-
     # UserFlow settings
 
     USERFLOW_TOKEN = values.Value()
@@ -668,10 +658,6 @@ class Dev(Local):
 
     # During development just print emails to console
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-    # Disable intercom. Even though we don't define am `INTERCOM_APPID`
-    # during development, without this setting a warning gets emitted
-    INTERCOM_DISABLED = True
 
     # Use Stripe test mode
     STRIPE_LIVE_MODE = False
