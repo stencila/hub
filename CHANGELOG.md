@@ -1,3 +1,14 @@
+## [4.47.9](https://github.com/stencila/hub/compare/v4.47.8...v4.47.9) (2021-06-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency prometheus_client to v0.11.0 ([bfd8136](https://github.com/stencila/hub/commit/bfd8136e485c1d548a3ad54c4a1244afac7cd928))
+* **deps:** update dependency userflow.js to v2.2.0 ([e3ee5a7](https://github.com/stencila/hub/commit/e3ee5a717a7dd9db59e7df4713fd1e2a61f84935))
+* **deps:** update nginx docker tag to v1.21.0 ([f3c52c9](https://github.com/stencila/hub/commit/f3c52c93340ca63e28a8d51bd3b0c755d399d322))
+* **Manager:** Remove Intercom integration ([9c4181e](https://github.com/stencila/hub/commit/9c4181e4d3f62121afc232ba4d1b261c50ddce85))
+* **Snapshots:** Do not include "reflow" sub-job ([cefbbdc](https://github.com/stencila/hub/commit/cefbbdc0546549c575475482fb920d4c3a20abdf))
+
 ## [4.47.8](https://github.com/stencila/hub/compare/v4.47.7...v4.47.8) (2021-06-15)
 
 
