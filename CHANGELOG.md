@@ -1,3 +1,17 @@
+## [4.47.8](https://github.com/stencila/hub/compare/v4.47.7...v4.47.8) (2021-06-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency certifi to v2021 ([fbb9e5c](https://github.com/stencila/hub/commit/fbb9e5ce84bc4e04742122d3680dc512f4cf1c66))
+* **deps:** update dependency dj-stripe to v2.5.0 ([d60a575](https://github.com/stencila/hub/commit/d60a57585f082a8be0912f9a4143d989284ddff4))
+* **deps:** update dependency django to v3.2.4 ([b405e8c](https://github.com/stencila/hub/commit/b405e8c98229f11d538a5767c7c5add9aba74ef3))
+* **deps:** update dependency django-waffle to v2.2.0 ([d56dcd1](https://github.com/stencila/hub/commit/d56dcd1384d505fc5e89ac51c09f5b756a0895b3))
+* **deps:** update dependency google-api-python-client to v2.9.0 ([e7425b4](https://github.com/stencila/hub/commit/e7425b43efe093adc41b0fa0a3c596875a4856e8))
+* **deps:** update dependency urllib3 to v1.26.5 [security] ([ec1cbef](https://github.com/stencila/hub/commit/ec1cbef80a9f6808374771bcd4f3456e81992cce))
+* **deps:** update postgres docker tag to v13.3 ([eae5aed](https://github.com/stencila/hub/commit/eae5aedb43708fc319fb90424b207c759e10541e))
+* **deps:** update prom/prometheus docker tag to v2.27.1 ([16a5df5](https://github.com/stencila/hub/commit/16a5df5d3074f65002250007e85e05676de2e0ae))
+
 ## [4.47.7](https://github.com/stencila/hub/compare/v4.47.6...v4.47.7) (2021-05-15)
 
 
