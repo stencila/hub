@@ -150,9 +150,13 @@ class Snapshot(StorageUsageMixin, models.Model):
         subjobs.append(project.pull(user))
 
         # "Reflow" the project (regenerate derived files)
-        reflow = project.reflow(user)
-        if reflow:
-            subjobs.append(reflow)
+        # NB 2021-06-16 This is commented out because it was causing
+        # many recursive jobs to be spawned (related to index.html ?)
+        # Needs more testing, and possibly a different approach before
+        # reintroducing.
+        # reflow = project.reflow(user)
+        # if reflow:
+        #     subjobs.append(reflow)
 
         # Pin the container image
         subjobs.append(
