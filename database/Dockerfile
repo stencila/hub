@@ -1,4 +1,4 @@
-FROM postgres:13.2
+FROM postgres:13.3
 
 ENV POSTGRES_DB=hub
 ENV POSTGRES_USER=stencila
