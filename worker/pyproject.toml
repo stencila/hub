@@ -1,8 +1,8 @@
 [tool.black]
 line-length = 88
-target-version = ['py37']
+target-version = ['py38']
 exclude = 'venv'
 
 [mypy]
-python_version = 3.7
+python_version = 3.9
 ignore_missing_imports = true
