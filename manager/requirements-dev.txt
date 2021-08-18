@@ -12,3 +12,4 @@ pytest-cov==2.12.1
 pytest-django==4.4.0
 pytest-watch==4.2.0
 pytest==6.2.4
+types-requests==2.25.6
