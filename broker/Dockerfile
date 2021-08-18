@@ -1,4 +1,4 @@
-FROM rabbitmq:3.8.16-management
+FROM rabbitmq:3.9.4-management
 
 ENV RABBITMQ_DEFAULT_VHOST stencila
 ENV RABBITMQ_DEFAULT_USER stencila
