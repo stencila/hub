@@ -19,7 +19,7 @@ format: venv
 lint: venv
 	$(VE)/black --check .
 	$(VE)/flake8
-	$(VE)/mypy --config-file pyproject.toml .
+	$(VE)/mypy --config-file pyproject.toml --ignore-missing-imports --exclude venv .
 	$(VE)/pydocstyle --match-dir='^(?!venv)'
 
 # Run `overseer.py` during development to check configuration.
