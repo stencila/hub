@@ -1,3 +1,25 @@
+## [4.47.10](https://github.com/stencila/hub/compare/v4.47.9...v4.47.10) (2021-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency bulma-toast to v2.3.1 ([8e384e4](https://github.com/stencila/hub/commit/8e384e4882baf7c3f24da961f9ecbb2e2b22aaab))
+* **deps:** update dependency django to v3.2.6 ([8c29b40](https://github.com/stencila/hub/commit/8c29b40897fbfc92a200e9dfd656924c1d5f44a8))
+* **deps:** update dependency google-api-python-client to v2.17.0 ([5b056fb](https://github.com/stencila/hub/commit/5b056fb4e8eeefb5540792e4a097c9495574666a))
+* **deps:** update dependency google-cloud-storage to v1.42.0 ([b229c1e](https://github.com/stencila/hub/commit/b229c1e1dbf5ab2b66d1c670f38250e9a8a465ae))
+* **deps:** update dependency htmx.org to v1.4.1 ([339cde5](https://github.com/stencila/hub/commit/339cde5179b539fda2d0f019ad136340c88ccfd5))
+* **deps:** update dependency htmx.org to v1.5.0 ([df285fa](https://github.com/stencila/hub/commit/df285fabe061bc091022fcfba44c9a779b59f929))
+* **deps:** update dependency httpx to v0.18.2 ([6ae68e9](https://github.com/stencila/hub/commit/6ae68e9012ae9f55fb822dd016b87ed0bcb75c9c))
+* **deps:** update dependency psycopg2-binary to v2.9.1 ([09e0863](https://github.com/stencila/hub/commit/09e08633a97213bbe98bc40acd3a6fca32f4effc))
+* **deps:** update dependency setuptools to v57 ([3c44d6c](https://github.com/stencila/hub/commit/3c44d6c8f87734c6af563b1a9d18d1c03ceb4971))
+* **deps:** update dependency urllib3 to v1.26.6 ([0dd955b](https://github.com/stencila/hub/commit/0dd955bfdde6d95f522b632f102f9232ff6b7a6d))
+* **deps:** update prom/prometheus docker tag to v2.29.1 ([710d28e](https://github.com/stencila/hub/commit/710d28e50e9721c25344d210b4cfec26126b55e6))
+* **deps:** update python docker tag to v3.9.6 ([872d86b](https://github.com/stencila/hub/commit/872d86b86db061cbf0331f83d7cb0f2d29efa617))
+* **deps:** update rabbitmq docker tag to v3.9.4 ([4257fa4](https://github.com/stencila/hub/commit/4257fa47446940f29f59401056980841cbb7ddaf))
+* **deps:** update redis docker tag to v6.2.4 ([907144a](https://github.com/stencila/hub/commit/907144ad2e07a1f060af52ad226864fcd176ed63))
+* **deps:** update redis docker tag to v6.2.5 ([98df175](https://github.com/stencila/hub/commit/98df1759d87381e60ac44958f4c0463da3377f83))
+* **Worker:** Remove TypeScript dependency ([26726dd](https://github.com/stencila/hub/commit/26726dd5f2566cf815cdf9f9b38b94d9c49ac456))
+
 ## [4.47.9](https://github.com/stencila/hub/compare/v4.47.8...v4.47.9) (2021-06-15)
 
 
