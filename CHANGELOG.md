@@ -1,3 +1,10 @@
+## [4.47.12](https://github.com/stencila/hub/compare/v4.47.11...v4.47.12) (2021-08-19)
+
+
+### Bug Fixes
+
+* **Deps:** Update publishing dependencies ([93f226f](https://github.com/stencila/hub/commit/93f226f8eacf7f481a8c989d79767323c06f0f3a))
+
 ## [4.47.11](https://github.com/stencila/hub/compare/v4.47.10...v4.47.11) (2021-08-19)
 
 
