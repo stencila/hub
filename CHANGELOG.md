@@ -1,3 +1,10 @@
+## [4.47.11](https://github.com/stencila/hub/compare/v4.47.10...v4.47.11) (2021-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency bulma to v0.9.3 ([9b65e93](https://github.com/stencila/hub/commit/9b65e9307f7953cdd987e9c3481052102335f6e6))
+
 ## [4.47.10](https://github.com/stencila/hub/compare/v4.47.9...v4.47.10) (2021-08-19)
 
 
