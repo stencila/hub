@@ -30,7 +30,7 @@ const prodPlugins = [
 module.exports = {
   syntax: "postcss-scss",
   plugins: [
-    sass,
+    sass({}),
     importUrl({
       modernBrowser: true,
       resolveUrls: true,
