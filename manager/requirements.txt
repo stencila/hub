@@ -30,7 +30,7 @@ google-cloud-storage==1.42.0
 httpx==0.18.2
 inflect==5.3.0
 oauth2client==4.1.3
-Pillow==8.2.0
+Pillow==8.3.1
 psycopg2-binary==2.9.1
 PyGithub==1.55
 pygments==2.9.0
