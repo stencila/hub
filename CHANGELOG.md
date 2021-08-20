@@ -1,3 +1,10 @@
+## [4.47.13](https://github.com/stencila/hub/compare/v4.47.12...v4.47.13) (2021-08-20)
+
+
+### Bug Fixes
+
+* **Components:** Update components dependency ([71694ed](https://github.com/stencila/hub/commit/71694ed4de7db900efd2214e96db35c1af992738))
+
 ## [4.47.12](https://github.com/stencila/hub/compare/v4.47.11...v4.47.12) (2021-08-19)
 
 
