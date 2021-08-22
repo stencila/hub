@@ -1,3 +1,22 @@
+## [4.47.14](https://github.com/stencila/hub/compare/v4.47.13...v4.47.14) (2021-08-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dj-stripe to v2.5.1 ([a0ea05e](https://github.com/stencila/hub/commit/a0ea05e3c7a3cf3dfd1f533ed6eead40e0acf7e3))
+* **deps:** update dependency django-allauth to v0.45.0 ([7d81e6a](https://github.com/stencila/hub/commit/7d81e6a7fc76c150ce38d1cdd448bd99c208e116))
+* **deps:** update dependency django-celery-beat to v2.2.1 ([315bea2](https://github.com/stencila/hub/commit/315bea2d337e7cc4e5f6d5470466e1b21a078c36))
+* **deps:** update dependency django-cors-headers to v3.8.0 ([4cf4de3](https://github.com/stencila/hub/commit/4cf4de3e316edd40525f06d800d24bceb0988fce))
+* **deps:** update dependency django-waffle to v2.2.1 ([c541adc](https://github.com/stencila/hub/commit/c541adcbecd0eba634c20cc78129d24f70ccdb22))
+* **deps:** update dependency httpx to v0.19.0 ([3431151](https://github.com/stencila/hub/commit/34311515e87ec01d45f9b48c2091c3de0ef9f0c9))
+* **deps:** update dependency pillow to v8.3.1 ([ae4d90d](https://github.com/stencila/hub/commit/ae4d90d2cde33ee1b243bc65051718a3d3a92de3))
+* **deps:** update dependency pygments to v2.10.0 ([95df1f6](https://github.com/stencila/hub/commit/95df1f6c1b73e9dc29f47a01aca7817f78c1e8fd))
+* **deps:** update dependency python_dateutil to v2.8.2 ([370b1e0](https://github.com/stencila/hub/commit/370b1e0ae9a09dce89d05bfa6bac9ed72ac71c1b))
+* **deps:** update dependency sentry-sdk to v1.3.1 ([46622df](https://github.com/stencila/hub/commit/46622df7d81472d470c0a971a2ecc498058c05f6))
+* **deps:** update dependency whitenoise to v5.3.0 ([df17d72](https://github.com/stencila/hub/commit/df17d72bcf79ece1525aacf25902954ced0d7164))
+* **deps:** update nginx docker tag to v1.21.1 ([2b33fca](https://github.com/stencila/hub/commit/2b33fca71bba5b4b8344e8478f70d67186c6b561))
+* **deps:** update postgres docker tag to v13.4 ([d5ea4a7](https://github.com/stencila/hub/commit/d5ea4a75b67674d9571943bbf19a4f6105c54ea4))
+
 ## [4.47.13](https://github.com/stencila/hub/compare/v4.47.12...v4.47.13) (2021-08-20)
 
 
