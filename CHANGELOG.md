@@ -1,3 +1,10 @@
+## [4.47.15](https://github.com/stencila/hub/compare/v4.47.14...v4.47.15) (2021-08-26)
+
+
+### Bug Fixes
+
+* **Manager:** Update Stencila components ([9d181b0](https://github.com/stencila/hub/commit/9d181b0a898c9ca5d7a67bd7b2f7c20de3dfeabe))
+
 ## [4.47.14](https://github.com/stencila/hub/compare/v4.47.13...v4.47.14) (2021-08-22)
 
 
