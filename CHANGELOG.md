@@ -1,3 +1,11 @@
+## [4.47.16](https://github.com/stencila/hub/compare/v4.47.15...v4.47.16) (2021-10-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @popperjs/core to v2.10.2 ([d8ba6da](https://github.com/stencila/hub/commit/d8ba6daf7bd8bfff33931a2b0632f4b7f8b7e427))
+* **deps:** update dependency bulma-toast to v2.4.1 ([66deb09](https://github.com/stencila/hub/commit/66deb0961d99eb7fffb7db7e4271f42a549fa38c))
+
 ## [4.47.15](https://github.com/stencila/hub/compare/v4.47.14...v4.47.15) (2021-08-26)
 
 
