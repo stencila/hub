@@ -121,6 +121,12 @@ def encoda_args(  # type: ignore
         "convert",
         "-" if isinstance(input, bytes) else input,
     ] + outputs
+
+    # Ensure XML files with the `.jats.xml` extension are treated as
+    # JATS format (otherwise they are treated as plain XML)
+    if isinstance(input, str) and input.endswith(".jats.xml"):
+        options["from"] = "jats"
+
     for name, value in options.items():
         # Determine --from option
         # Encoda currently does not allow for mimetypes in the `from` option.
