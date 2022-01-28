@@ -46,6 +46,12 @@ class Job(celery.Task):
     termination of jobs.
     """
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.task_id = None
+        self.log_entries = []
+
     def begin(self, task_id=None):
         """
         Begin the job.
