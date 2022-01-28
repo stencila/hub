@@ -1,7 +1,7 @@
 import os
 import traceback
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 import celery
 import sentry_sdk
@@ -50,7 +50,7 @@ class Job(celery.Task):
         super().__init__(*args, **kwargs)
 
         self.task_id = None
-        self.log_entries = []
+        self.log_entries: List[Any] = []
 
     def begin(self, task_id=None):
         """
