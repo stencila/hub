@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 from pathlib import Path
+from sys import stderr
 from typing import List, Optional
 
 from lxml import etree
@@ -32,7 +33,10 @@ def pull_elife(source: dict, path: Optional[str] = None, **kwargs) -> Files:
     session = HttpSession()
 
     # Get the article JATS XML
-    response = session.fetch_url(f"https://elifesciences.org/articles/{article}.xml")
+    url = f"https://elifesciences.org/articles/{article}.xml"
+    print(f"Fetching {url}", file=stderr)
+    response = session.fetch_url(url)
+    print(f"Received response {response.status_code} : {response.content[:500]}", file=stderr)
     tree = etree.parse(io.BytesIO(response.content))
     root = tree.getroot()
     xlinkns = "http://www.w3.org/1999/xlink"
