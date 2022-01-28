@@ -1,3 +1,17 @@
+## [4.47.17](https://github.com/stencila/hub/compare/v4.47.16...v4.47.17) (2022-01-28)
+
+
+### Bug Fixes
+
+* **deps:** update dependency google-cloud-storage to v1.42.3 ([c18b73a](https://github.com/stencila/hub/commit/c18b73acc023ae9adb31dc62b48300e413237f20))
+* **deps:** update dependency setuptools to v57.5.0 ([442e65e](https://github.com/stencila/hub/commit/442e65ef652cfcefb6eae396fba040be85675cbd))
+* **deps:** update nginx docker tag to v1.21.4 ([d69531a](https://github.com/stencila/hub/commit/d69531ae7275bc62a5eb297ed6de8230a4e3c4ef))
+* **deps:** update prom/prometheus docker tag to v2.31.1 ([0ec3be7](https://github.com/stencila/hub/commit/0ec3be7ae7eb962360f09972b3e6fc7472c6f15d))
+* **deps:** update rabbitmq docker tag to v3.9.9 ([655718a](https://github.com/stencila/hub/commit/655718a235c3c668830eb9955c997a29f0b6254e))
+* **Worker:** Downgrade `encoda` and install `schema` at consistent version ([187e2c2](https://github.com/stencila/hub/commit/187e2c20a2885d5a0c4cf0e7dec60e0243be3179))
+* **Worker:** Ensure that `.jats.xml` files are converted from JATS ([b43e237](https://github.com/stencila/hub/commit/b43e23746782f9342ca2243e667bd5eea749c9d1))
+* **Workers:** Initialize fattributes using in logging ([d9bb829](https://github.com/stencila/hub/commit/d9bb829708baaa79efc0a40f64044bd694229b9f))
+
 ## [4.47.16](https://github.com/stencila/hub/compare/v4.47.15...v4.47.16) (2021-10-12)
 
 
