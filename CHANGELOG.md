@@ -1,3 +1,11 @@
+## [4.47.18](https://github.com/stencila/hub/compare/v4.47.17...v4.47.18) (2022-01-31)
+
+
+### Bug Fixes
+
+* **deps:** update dependency django to v3.2.11 [security] ([3387897](https://github.com/stencila/hub/commit/3387897ec79e8b2a5e9fe6d0c8335b0520c22d81))
+* **Worker:** Add debugging logs for eLife pull ([c631814](https://github.com/stencila/hub/commit/c63181462e2c8d823573c479d246c2dab1b138be))
+
 ## [4.47.17](https://github.com/stencila/hub/compare/v4.47.16...v4.47.17) (2022-01-28)
 
 
