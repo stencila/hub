@@ -1,3 +1,10 @@
+## [4.47.19](https://github.com/stencila/hub/compare/v4.47.18...v4.47.19) (2022-02-01)
+
+
+### Bug Fixes
+
+* **Publish:** Downgrade Stencila Components ([da52dbc](https://github.com/stencila/hub/commit/da52dbcd395bbf7560e94731e869d746d50d243f))
+
 ## [4.47.18](https://github.com/stencila/hub/compare/v4.47.17...v4.47.18) (2022-01-31)
 
 
