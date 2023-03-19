@@ -43,7 +43,7 @@
     "@stencila/email-templates": "0.2.1",
     "@stencila/thema": "2.24.4",
     "autoprefixer": "10.4.2",
-    "browser-sync": "2.27.7",
+    "browser-sync": "2.27.11",
     "concurrently": "6.5.1",
     "css-mqpacker": "7.0.0",
     "cssnano": "5.0.16",
