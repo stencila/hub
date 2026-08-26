@@ -1,4 +1,4 @@
-black==19.10b0
+black==24.3.0
 coverage==5.5
 django-debug-toolbar-request-history==0.1.4
 django-debug-toolbar==3.2.2
