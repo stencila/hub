@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@stencila/schema": "1.5.3",
-    "@stencila/encoda": "0.116.1",
+    "@stencila/encoda": "0.121.6",
     "@stencila/executa": "1.15.7"
   }
 }
