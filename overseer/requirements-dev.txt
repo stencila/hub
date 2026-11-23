@@ -1,4 +1,4 @@
-black==19.10b0
+black==26.10.1
 flake8==3.9.2
 flower==1.0.0
 mypy==0.910
